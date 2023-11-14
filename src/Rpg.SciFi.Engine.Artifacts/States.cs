@@ -8,7 +8,7 @@ namespace Rpg.SciFi.Engine.Artifacts
 
         public virtual string Description { get; set; } = string.Empty;
 
-        public virtual Modification[] Modifications { get; set; } = new Modification[0];
+        public virtual Modifier[] Modifications { get; set; } = new Modifier[0];
     }
 
     public sealed class States

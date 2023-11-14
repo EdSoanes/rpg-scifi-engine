@@ -7,37 +7,43 @@ using System.Threading.Tasks;
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
-    public abstract class BaseResistance
+    public class BaseResistance
     {
+        public BaseResistance() { }
+        public BaseResistance(string name, string? description, int value)
+        {
+            Name = name;
+            Description = description;
+            Value = value;
+        }
+
         [JsonProperty] public Guid Id { get; protected set; } = Guid.NewGuid();
         [JsonProperty] public string Name { get; protected set; } = nameof(BaseEmission);
         [JsonProperty] public string? Description { get; protected set; }
         [JsonProperty] public int Value { get; protected set; } = 0;
     }
 
-    public class ImpactResistance : BaseResistance { }
-    public class PierceResistance : BaseResistance { }
-    public class BlastResistance : BaseResistance { }
-    public class BurnResistance : BaseResistance { }
-    public class EnergyResistance : BaseResistance { }
-
-    public class Resistance<T> : Modifiable<T> where T : BaseResistance, new()
+    public class Resistance : Modifiable<BaseResistance>
     {
-        public Resistance()
+        public Resistance() { }
+        public Resistance(string name, string? description, int value)
         {
-            Name = nameof(Resistance<T>);
+            BaseModel = new BaseResistance(name, description, value);
         }
 
-        [JsonProperty] public string? Description { get; protected set; }
-        public int Value => BaseModel.Value + Modifications.Sum(x => x.DiceEval(this));
+        public Guid Id => BaseModel.Id;
+        public string Name => BaseModel.Name;
+        public string? Description => BaseModel.Description;
+        public int BaseValue => BaseModel.Value;
+        public int Value => BaseValue + ModifierRoll("Value");
     }
 
     public class ResistanceSignature
     {
-        [JsonProperty] public Resistance<ImpactResistance> Impact { get; protected set; } = new Resistance<ImpactResistance>();
-        [JsonProperty] public Resistance<PierceResistance> Pierce { get; protected set; } = new Resistance<PierceResistance>();
-        [JsonProperty] public Resistance<BlastResistance> Blast { get; protected set; } = new Resistance<BlastResistance>();
-        [JsonProperty] public Resistance<BlastResistance> Burn { get; protected set; } = new Resistance<BlastResistance>();
-        [JsonProperty] public Resistance<EnergyResistance> Energy { get; protected set; } = new Resistance<EnergyResistance>();
+        [JsonProperty] public Resistance Impact { get; protected set; } = new Resistance();
+        [JsonProperty] public Resistance Pierce { get; protected set; } = new Resistance();
+        [JsonProperty] public Resistance Blast { get; protected set; } = new Resistance();
+        [JsonProperty] public Resistance Burn { get; protected set; } = new Resistance();
+        [JsonProperty] public Resistance Energy { get; protected set; } = new Resistance();
     }
 }

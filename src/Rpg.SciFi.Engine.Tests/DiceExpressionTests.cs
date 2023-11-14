@@ -1,4 +1,5 @@
-﻿using Rpg.SciFi.Engine.Artifacts;
+﻿using Newtonsoft.Json;
+using Rpg.SciFi.Engine.Artifacts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,58 +18,82 @@ namespace Rpg.SciFi.Engine.Tests
     public class DiceExpressionTests
     {
         [TestMethod]
-        public void Simplified()
+        public void DiceSerialization()
         {
-            var diceContext = new DiceContext();
-            var dice = new DiceExpression("2d6 + 7 - d6 + 2", DiceExpressionOptions.SimplifyStringValue);
-            var expr = dice.Expression(diceContext);
+            Dice dice = "1d8";
 
-            Assert.AreEqual("1d6 + 9", expr);
+            var json = JsonConvert.SerializeObject(dice);
+            Assert.IsNotNull(json);
+
+            Dice dice2 = JsonConvert.DeserializeObject<Dice>(json);
+            Assert.AreEqual("1d8", dice2.ToString());
+        }
+
+        [TestMethod]
+        public void PositiveExpression()
+        {
+            Nexus.Context = new DiceContext();
+            Dice dice = "2d6 + 7 - d6 + 2";
+
+            Assert.AreEqual("1d6 + 9", dice.ToString());
+        }
+
+        [TestMethod]
+        public void NegativeExpression()
+        {
+            Nexus.Context = new DiceContext();
+            Dice dice = "2d6 - 3d6 + 2";
+
+            Assert.AreEqual("-1d6 + 2", dice.ToString());
         }
 
         [TestMethod]
         public void WithSubExpression()
         {
-            var diceContext = new DiceContext
+            Nexus.Context = new DiceContext
             {
                 Num = 3,
                 DiceExpr = "d6"
             };
 
-            var dice = new DiceExpression("2d6 + [Num] + 2", DiceExpressionOptions.None);
-            var expr = dice.Expression(diceContext);
-
-            Assert.AreEqual("2d6 + 3 + 2", expr);
+            Dice dice = "2d6 + [Num] + 2";
+            Assert.AreEqual("2d6 + 5", dice.ToString());
         }
 
         [TestMethod]
         public void WithSubExpression_Simplified()
         {
-            var diceContext = new DiceContext
+            Nexus.Context = new DiceContext
             {
                 Num = 3,
                 DiceExpr = "d6"
             };
 
-            var dice = new DiceExpression("2d6 + [Num] + 2", DiceExpressionOptions.SimplifyStringValue);
-            var expr = dice.Expression(diceContext);
-
-            Assert.AreEqual("2d6 + 5", expr);
+            Dice dice = "2d6 + [DiceExpr] + 2";
+            Assert.AreEqual("3d6 + 2", dice.ToString());
         }
 
         [TestMethod]
-        public void WithSubExpression_DiceExpr()
+        public void WithSubExpression_AvgMinMax()
         {
-            var diceContext = new DiceContext
+            Nexus.Context = new DiceContext
             {
                 Num = 3,
-                DiceExpr = "d6"
+                DiceExpr = "d6+2"
             };
 
-            var dice = new DiceExpression("2d6 + [DiceExpr] + 2", DiceExpressionOptions.SimplifyStringValue);
-            var expr = dice.Expression(diceContext);
+            Dice dice = "2d6 + [DiceExpr] + 2 - [Num]";
+            Assert.AreEqual("3d6 + 1", dice.ToString());
+            Assert.AreEqual(4, dice.Min());
+            Assert.AreEqual(19, dice.Max());
+            Assert.AreEqual(11.5, dice.Avg());
+        }
 
-            Assert.AreEqual("3d6 + 2", expr);
+        [TestMethod]
+        public void WithSubExpression_Minus()
+        {
+            Dice dice = "-d6";
+            Assert.AreEqual("-1d6", dice.ToString());
         }
     }
 }

@@ -2,34 +2,20 @@
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
-    public sealed class Modification
+    public sealed class Modifier
     {
         private int? _evaluatedDiceRoll = null;
         [JsonProperty] public Guid Id { get; protected set; } = Guid.NewGuid();
         [JsonProperty] public string Name { get; set; }
         [JsonProperty] public string Target { get; set; }
-        [JsonProperty] public string DiceExpr { get; set; }
+        [JsonProperty] public Dice Dice { get; set; }
 
-        public int DiceEval(object context)
+        public int Roll()
         {
             if (_evaluatedDiceRoll == null)
-            {
-                var dice = new DiceExpression(DiceExpr);
-                _evaluatedDiceRoll = dice.Roll(context);
-            }
+                _evaluatedDiceRoll = Dice.Roll();
 
             return _evaluatedDiceRoll.Value;
-        }
-
-        public string DiceExpression(object context, string diceExpr)
-        {
-            var prop = Target.Split('.').Last();
-            var expr = !string.IsNullOrEmpty(DiceExpr) && !DiceExpr.StartsWith('-')
-                ? $"{diceExpr}+{DiceExpr}"
-                : $"{diceExpr}{DiceExpr}";
-
-            var dice = new DiceExpression(expr, DiceExpressionOptions.SimplifyStringValue);
-            return dice.ToString();
         }
     }
 
@@ -47,42 +33,38 @@ namespace Rpg.SciFi.Engine.Artifacts
 
     public class Modifiable<T> where T : class, new()
     {
-        [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
-        [JsonProperty] public string Name { get; protected set; } = nameof(Modifiable<T>);
-        [JsonProperty] protected List<Modification> Modifications { get; private set; } = new List<Modification>();
-        [JsonProperty] protected T BaseModel { get; private set; } = new T();
+        [JsonProperty] protected List<Modifier> Modifiers { get; private set; } = new List<Modifier>();
+        [JsonProperty] protected T BaseModel { get; set; } = new T();
 
-        public string DiceExpr(string prop, string? diceExpr = null)
+        public Dice ModifierDice(string prop)
         {
-            var exprs = Modifications.Where(x => x.Target == prop).Select(x => x.DiceExpr);
-            var res = !string.IsNullOrEmpty(diceExpr)
-                ? diceExpr
-                :string.Empty;
+            var exprs = Modifiers.Where(x => x.Target == prop).Select(x => x.Dice);
+            Dice dice = string.Concat(exprs);
 
-            foreach (var expr in exprs)
-                if (!expr.StartsWith('-') && !expr.StartsWith('+'))
-                    res += $"+{expr}";
-
-            var dice = new DiceExpression(res, DiceExpressionOptions.SimplifyStringValue);
-            return dice.Expression(this);
+            return dice;
         }
 
-        public void ClearModifications()
+        public int ModifierRoll(string prop)
         {
-            Modifications.Clear();
+            return Modifiers.Where(x => x.Target == prop).Sum(x => x.Roll());
         }
 
-        public void AddModification(Modification modification)
+        public void ClearMods()
         {
-            if (!Modifications.Any(x => x.Id == modification.Id))
-                Modifications.Add(modification);
+            Modifiers.Clear();
         }
 
-        public void RemoveModification(Guid id)
+        public void AddModifier(Modifier mod)
         {
-            var modification = Modifications.SingleOrDefault(x => x.Id == id);
-            if (modification != null)
-                Modifications.Remove(modification);
+            if (!Modifiers.Any(x => x.Id == mod.Id))
+                Modifiers.Add(mod);
+        }
+
+        public void RemoveModifier(Guid id)
+        {
+            var mod = Modifiers.SingleOrDefault(x => x.Id == id);
+            if (mod != null)
+                Modifiers.Remove(mod);
         }
     }
 }

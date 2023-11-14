@@ -2,50 +2,55 @@
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
-    public abstract class BaseEmission
+    public class BaseEmission
     {
-        [JsonProperty] public Guid Id { get; protected set; } = Guid.NewGuid();
-        [JsonProperty] public string Name { get; protected set; } = nameof(BaseEmission);
-        [JsonProperty] public string? Description { get; protected set; }
-
-        [JsonProperty] public int Min { get; protected set; } = 0;
-        [JsonProperty] public int Max { get; protected set; } = 100;
-        [JsonProperty] public int Value { get; protected set; } = 0;
-        [JsonProperty] public int Radius { get; protected set; } = 100;
-    }
-
-    public class VisibleLight : BaseEmission { }
-    public class Electromagnetic : BaseEmission { }
-    public class Radiation : BaseEmission { }
-    public class Sound : BaseEmission { }
-    public class Heat : BaseEmission
-    {
-        public Heat()
+        public BaseEmission() { }
+        public BaseEmission(string name, string description, int min, int max, int value, int radius) 
         {
-            Value = 2;
-        }
-    }
-
-    public class Emission<T> : Modifiable<T> where T : BaseEmission, new()
-    {
-        public Emission()
-        {
-            Name = nameof(Emission<T>);
+            Name = name;
+            Min = min;
+            Max = max;
+            Value = value;
+            Radius = radius;
         }
 
-        public string? Description { get; protected set; }
-        public int Min => BaseModel.Min + Modifications.Sum(x => x.DiceEval(this));
-        public int Max => BaseModel.Max + Modifications.Sum(x => x.DiceEval(this));
-        public int Value => BaseModel.Value + Modifications.Sum(x => x.DiceEval(this));
-        public int Radius => BaseModel.Radius + Modifications.Sum(x => x.DiceEval(this));
+        [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
+        [JsonProperty] public string Name { get; private set; } = nameof(BaseEmission);
+        [JsonProperty] public string? Description { get; private set; }
+
+        [JsonProperty] public int Min { get; private set; } = 0;
+        [JsonProperty] public int Max { get; private set; } = 100;
+        [JsonProperty] public int Value { get; private set; } = 0;
+        [JsonProperty] public int Radius { get; private set; } = 100;
+    }
+
+    public class Emission : Modifiable<BaseEmission>
+    {
+        public Emission() { }
+        public Emission(string name, string description, int min, int max, int value, int radius)
+        {
+            BaseModel = new BaseEmission(name, description, min, max, value, radius);
+        }
+
+        public Guid Id => BaseModel.Id;
+        public string Name => BaseModel.Name;
+        public string? Description => BaseModel.Description;
+        public int BaseMin => BaseModel.Min;
+        public int Min => BaseMin + ModifierRoll("Min");
+        public int BaseMax => BaseModel.Max;
+        public int Max => BaseMax + ModifierRoll("Max");
+        public int BaseValue => BaseModel.Value;
+        public int Value => BaseValue + ModifierRoll("Value");
+        public int BaseRadius => BaseModel.Radius;
+        public int Radius => BaseRadius + ModifierRoll("Radius");
     }
 
     public class EmissionSignature
     {
-        [JsonProperty] public Emission<VisibleLight> VisibleLight { get; protected set; } = new Emission<VisibleLight>();
-        [JsonProperty] public Emission<Heat> Heat { get; protected set; } = new Emission<Heat>();
-        [JsonProperty] public Emission<Radiation> Radiation { get; protected set; } = new Emission<Radiation>();
-        [JsonProperty] public Emission<Sound> Sound { get; protected set; } = new Emission<Sound>();
-        [JsonProperty] public Emission<Electromagnetic> Eletromagnetic { get; protected set; } = new Emission<Electromagnetic>();
+        [JsonProperty] public Emission VisibleLight { get; protected set; } = new Emission();
+        [JsonProperty] public Emission Heat { get; protected set; } = new Emission();
+        [JsonProperty] public Emission Radiation { get; protected set; } = new Emission();
+        [JsonProperty] public Emission Sound { get; protected set; } = new Emission();
+        [JsonProperty] public Emission Eletromagnetic { get; protected set; } = new Emission();
     }
 }

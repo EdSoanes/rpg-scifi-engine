@@ -1,257 +1,71 @@
-﻿namespace Rpg.SciFi.Engine.Artifacts
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text.RegularExpressions;
+﻿using Newtonsoft.Json;
+using Rpg.SciFi.Engine.Artifacts.Helpers;
+using System.Text;
 
-    public enum DiceExpressionOptions
+namespace Rpg.SciFi.Engine.Artifacts
+{
+    public enum DiceOptions
     {
         None,
-        SimplifyStringValue
+        Simplified
     }
 
-    public class DiceExpression
+    public struct Dice
     {
-        /* <expr> :=   <expr> + <expr>
-         *           | <expr> - <expr>
-         *           | [<number>]d(<number>|%)
-         *           | <number>
-         * <number> := positive integer
-         * */
-        private static readonly Regex NumberToken = new Regex("^[0-9]+$");
-        private static readonly Regex DiceRollToken = new Regex("^([0-9]*)d([0-9]+|%)$");
-        private static readonly Regex DiceExpressionToken = new Regex("\\[[a-zA-Z.]*?\\]");
+        public static readonly Dice Zero = new Dice("0");
+        private static readonly string Minus = "-";
 
-        public static readonly DiceExpression Zero = new DiceExpression("0");
+        private List<IDiceNode> _nodes { get; set; }
 
-        private List<KeyValuePair<int, IDiceExpressionNode>> _nodes { get; set; }
-        private readonly string _expression;
-        private readonly DiceExpressionOptions _options = DiceExpressionOptions.None;
-
-        public DiceExpression(string expression)
+        private string _expr = "0";
+        [JsonProperty]
+        private string Expr
         {
-            _expression = expression;
-        }
-
-        public DiceExpression(string expression, DiceExpressionOptions options)
-            : this(expression)
-        {
-            _options = options;
-        }
-
-        private List<KeyValuePair<int, IDiceExpressionNode>> Nodes(object context)
-        {
-            if (_nodes == null)
+            get { return _expr; }
+            set
             {
-                // A well-formed dice expression's tokens will be either +, -, an integer, or XdY.
-                _nodes = ParseToNodes(context, _expression);
+                _expr = value;
+                _nodes = DiceExpressionParser.Simplified(_expr);
+            }
+        }
 
-                // Sort the nodes in an aesthetically-pleasing fashion.
-                var diceRollNodes = _nodes
-                    .Where(pair => pair.Value.GetType() == typeof(DiceRollNode))
-                    .OrderByDescending(node => node.Key)
-                    .ThenByDescending(node => ((DiceRollNode)node.Value).DiceType)
-                    .ThenByDescending(node => ((DiceRollNode)node.Value).NumberOfDice);
+        public Dice(string expr) => Expr = expr;
 
-                var numberNodes = _nodes
-                    .Where(pair => pair.Value.GetType() == typeof(NumberNode))
-                    .OrderByDescending(node => node.Key)
-                    .ThenByDescending(node => node.Value.Roll());
+        public static implicit operator string(Dice d) => d.ToString();
+        public static implicit operator Dice(string expression) => new Dice(expression);
+        public static Dice operator +(Dice d1, Dice d2)
+        {
+            string expr1 = d1;
+            string expr2 = d2;
 
-                // If desired, merge all number nodes together, and merge dice nodes of the same type together.
-                if (_options == DiceExpressionOptions.SimplifyStringValue)
-                {
-                    int number = numberNodes.Sum(pair => pair.Key * pair.Value.Roll());
-                    var diceTypes = diceRollNodes.Select(node => ((DiceRollNode)node.Value).DiceType).Distinct();
-                    var normalizedDiceRollNodes = from type in diceTypes
-                                                  let numDiceOfThisType = diceRollNodes.Where(node => ((DiceRollNode)node.Value).DiceType == type).Sum(node => node.Key * ((DiceRollNode)node.Value).NumberOfDice)
-                                                  where numDiceOfThisType != 0
-                                                  let multiplicand = numDiceOfThisType > 0 ? +1 : -1
-                                                  let absNumDice = Math.Abs(numDiceOfThisType)
-                                                  orderby multiplicand descending
-                                                  orderby type descending
-                                                  select new KeyValuePair<int, IDiceExpressionNode>(multiplicand, new DiceRollNode(absNumDice, type));
+            return expr2.StartsWith("-")
+                ? new Dice(expr1 + expr2)
+                : new Dice($"{expr1}+{expr2}");
+        }
 
-                    _nodes = (number == 0 ? normalizedDiceRollNodes
-                                              : normalizedDiceRollNodes.Concat(new[] { new KeyValuePair<int, IDiceExpressionNode>(number > 0 ? +1 : -1, new NumberNode(number)) })).ToList();
-                }
-                // Otherwise, just put the dice-roll nodes first, then the number nodes.
+        public static bool operator == (Dice d1, Dice d2) => d1.ToString() == d2.ToString();
+        public static bool operator != (Dice d1, Dice d2) => d1.ToString() != d2.ToString();
+
+        public int Roll() => _nodes.Sum(x => x.Roll());
+        public double Avg() => _nodes.Sum(x => x.Avg());
+        public int Min() => _nodes.Sum(x => x.Min());
+        public int Max() => _nodes.Sum(x => x.Max());
+
+        public override string ToString()
+        {
+            if (_nodes == null || !_nodes.Any())
+                return "0";
+
+            var sb = new StringBuilder(_nodes.First().ToString());
+            foreach (var node in _nodes.Skip(1))
+            {
+                if (node.Multiplier >= 0)
+                    sb.Append(" + ").Append(node.ToString());
                 else
-                {
-                    _nodes = diceRollNodes.Concat(numberNodes).ToList();
-                }
+                    sb.Append(node.ToString()!.Replace(Minus, $" {Minus} "));
             }
 
-            return _nodes;
-        }
-
-        private List<KeyValuePair<int, IDiceExpressionNode>> ParseToNodes(object context, string expression)
-        {
-            var res = new List<KeyValuePair<int, IDiceExpressionNode>>();
-
-            var tokens = expression.Replace("+", " + ").Replace("-", " - ").Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-            // Blank dice expressions end up being DiceExpression.Zero.
-            if (!tokens.Any())
-            {
-                tokens = new[] { "0" };
-            }
-
-            // Since we parse tokens in operator-then-operand pairs, make sure the first token is an operand.
-            if (tokens[0] != "+" && tokens[0] != "-")
-            {
-                tokens = (new[] { "+" }).Concat(tokens).ToArray();
-            }
-
-            // This is a precondition for the below parsing loop to make any sense.
-            if (tokens.Length % 2 != 0)
-            {
-                throw new ArgumentException($"The given dice expression '{expression}' was not in an expected format: even after normalization, it contained an odd number of tokens.");
-            }
-
-            // Parse operator-then-operand pairs into this.nodes.
-            for (int tokenIndex = 0; tokenIndex < tokens.Length; tokenIndex += 2)
-            {
-                var token = tokens[tokenIndex];
-                var nextToken = tokens[tokenIndex + 1];
-
-                if (token != "+" && token != "-")
-                {
-                    throw new ArgumentException($"The given dice expression '{expression}' was not in an expected format.");
-                }
-                int multiplier = token == "+" ? +1 : -1;
-
-                if (NumberToken.IsMatch(nextToken))
-                {
-                    res.Add(new KeyValuePair<int, IDiceExpressionNode>(multiplier, new NumberNode(int.Parse(nextToken))));
-                }
-                else if (DiceRollToken.IsMatch(nextToken))
-                {
-                    var match = DiceRollToken.Match(nextToken);
-                    int numberOfDice = match.Groups[1].Value == string.Empty ? 1 : int.Parse(match.Groups[1].Value);
-                    int diceType = match.Groups[2].Value == "%" ? 100 : int.Parse(match.Groups[2].Value);
-
-                    res.Add(new KeyValuePair<int, IDiceExpressionNode>(multiplier, new DiceRollNode(numberOfDice, diceType)));
-                }
-                else if (DiceExpressionToken.IsMatch(nextToken))
-                {
-                    var subExpr = Binding.Evaluate(context, nextToken.Replace("[", "").Replace("]", ""));
-
-                    var subNodes = ParseToNodes(context, subExpr);
-                    res.AddRange(subNodes);
-                }
-                else
-                {
-                    throw new ArgumentException($"The given dice expression '{expression}' was not in an expected format: the non-operand token was neither a number nor a dice-roll expression.");
-                }
-            }
-
-            return res;
-        }
-
-        public string Expression(object context)
-        {
-            var nodes = Nodes(context);
-            string result = (nodes[0].Key == -1 ? "-" : string.Empty) + nodes[0].Value.ToString();
-            foreach (var pair in nodes.Skip(1))
-            {
-                result += pair.Key == +1 ? " + " : " − "; // NOTE: unicode minus sign, not hyphen-minus '-'.
-                result += pair.Value.ToString();
-            }
-            return result;
-        }
-
-        public int Roll(object context)
-        {
-            var nodes = Nodes(context);
-            int result = 0;
-            foreach (var pair in nodes)
-            {
-                result += pair.Key * pair.Value.Roll();
-            }
-            return result;
-        }
-
-        public decimal GetCalculatedAverage(object context)
-        {
-            var nodes = Nodes(context);
-            decimal result = 0;
-            foreach (var pair in nodes)
-            {
-                result += pair.Key * pair.Value.GetCalculatedAverage();
-            }
-            return result;
-        }
-
-        public interface IDiceExpressionNode
-        {
-            int Roll();
-            decimal GetCalculatedAverage();
-        }
-
-        private class NumberNode : IDiceExpressionNode
-        {
-            private int theNumber;
-            public NumberNode(int theNumber)
-            {
-                this.theNumber = theNumber;
-            }
-            public int Roll()
-            {
-                return this.theNumber;
-            }
-
-            public decimal GetCalculatedAverage()
-            {
-                return this.theNumber;
-            }
-            public override string ToString()
-            {
-                return this.theNumber.ToString();
-            }
-        }
-
-        private class DiceRollNode : IDiceExpressionNode
-        {
-            private static readonly Random roller = new Random();
-
-            private int numberOfDice;
-            private int diceType;
-            public DiceRollNode(int numberOfDice, int diceType)
-            {
-                this.numberOfDice = numberOfDice;
-                this.diceType = diceType;
-            }
-
-            public int Roll()
-            {
-                int total = 0;
-                for (int i = 0; i < this.numberOfDice; ++i)
-                {
-                    total += DiceRollNode.roller.Next(1, this.diceType + 1);
-                }
-                return total;
-            }
-
-            public decimal GetCalculatedAverage()
-            {
-                return this.numberOfDice * ((this.diceType + 1.0m) / 2.0m);
-            }
-
-            public override string ToString()
-            {
-                return string.Format("{0}d{1}", this.numberOfDice, this.diceType);
-            }
-
-            public int NumberOfDice
-            {
-                get { return this.numberOfDice; }
-            }
-            public int DiceType
-            {
-                get { return this.diceType; }
-            }
+            return sb.ToString();
         }
     }
 }

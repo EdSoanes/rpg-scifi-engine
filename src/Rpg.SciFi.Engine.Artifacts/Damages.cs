@@ -7,39 +7,44 @@ using System.Threading.Tasks;
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
-    public abstract class BaseDamage
+    public class BaseDamage
     {
         public BaseDamage() { }
 
-        [JsonProperty] public Guid Id { get; protected set; } = Guid.NewGuid();
-        [JsonProperty] public string Name { get; protected set; } = nameof(BaseEmission);
-        [JsonProperty] public string? Description { get; protected set; }
-        [JsonProperty] public string DiceExpr { get; protected set; } = "d6";
-    }
-
-    public class ImpactDamage : BaseDamage { }
-    public class PierceDamage : BaseDamage { }
-    public class BlastDamage : BaseDamage { }
-    public class BurnDamage : BaseDamage { }
-    public class EnergyDamage : BaseDamage { }
-
-    public class Damage<T> : Modifiable<T> where T : BaseDamage, new()
-    {
-        public Damage()
+        public BaseDamage(string name, string description, Dice dice)
         {
-            Name = nameof(Damage<T>);
+            Name = name;
+            Description = description;
+            Dice = dice;
         }
 
+        [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
+        [JsonProperty] public string Name { get; private set; } = nameof(BaseEmission);
+        [JsonProperty] public string? Description { get; private set; }
+        [JsonProperty] public Dice Dice { get; private set; } = "d6";
+    }
+
+    public class Damage : Modifiable<BaseDamage>
+    {
+        public Damage() { }
+        public Damage(string name, string description, Dice dice)
+        {
+            BaseModel = new BaseDamage(name, description, dice);
+        }
+
+        public Guid Id => BaseModel.Id;
+        public string Name => BaseModel.Name;
         public string? Description => BaseModel.Description;
-        public string Value => DiceExpr("Value", BaseModel.DiceExpr);
+        public Dice BaseDice => BaseModel.Dice;
+        public Dice Dice => BaseDice + ModifierDice("Value");
     }
 
     public class DamageSignature
     {
-        [JsonProperty] public Damage<ImpactDamage> Impact { get; protected set; } = new Damage<ImpactDamage>();
-        [JsonProperty] public Damage<PierceDamage> Pierce { get; protected set; } = new Damage<PierceDamage>();
-        [JsonProperty] public Damage<BlastDamage> Blast { get; protected set; } = new Damage<BlastDamage>();
-        [JsonProperty] public Damage<BlastDamage> Burn { get; protected set; } = new Damage<BlastDamage>();
-        [JsonProperty] public Damage<EnergyDamage> Energy { get; protected set; } = new Damage<EnergyDamage>();
+        [JsonProperty] public Damage Impact { get; protected set; } = new Damage();
+        [JsonProperty] public Damage Pierce { get; protected set; } = new Damage();
+        [JsonProperty] public Damage Blast { get; protected set; } = new Damage();
+        [JsonProperty] public Damage Burn { get; protected set; } = new Damage();
+        [JsonProperty] public Damage Energy { get; protected set; } = new Damage();
     }
 }
