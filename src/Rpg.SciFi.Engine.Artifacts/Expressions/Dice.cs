@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
-using Rpg.SciFi.Engine.Artifacts.Helpers;
+using Rpg.SciFi.Engine.Artifacts.Expressions.Parsers;
 using System.Text;
 
-namespace Rpg.SciFi.Engine.Artifacts
+namespace Rpg.SciFi.Engine.Artifacts.Expressions
 {
     public enum DiceOptions
     {
@@ -25,7 +25,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             set
             {
                 _expr = value;
-                _nodes = DiceExpressionParser.Simplified(_expr);
+                _nodes = DiceParser.Simplified(_expr);
             }
         }
 
@@ -43,8 +43,8 @@ namespace Rpg.SciFi.Engine.Artifacts
                 : new Dice($"{expr1}+{expr2}");
         }
 
-        public static bool operator == (Dice d1, Dice d2) => d1.ToString() == d2.ToString();
-        public static bool operator != (Dice d1, Dice d2) => d1.ToString() != d2.ToString();
+        public static bool operator ==(Dice d1, Dice d2) => d1.ToString() == d2.ToString();
+        public static bool operator !=(Dice d1, Dice d2) => d1.ToString() != d2.ToString();
 
         public int Roll() => _nodes.Sum(x => x.Roll());
         public double Avg() => _nodes.Sum(x => x.Avg());

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Rpg.SciFi.Engine.Artifacts
+namespace Rpg.SciFi.Engine.Artifacts.Components
 {
     public abstract class Ability
     {
@@ -33,7 +33,7 @@ namespace Rpg.SciFi.Engine.Artifacts
         public void RemoveAbility(Guid id)
         {
             var ability = _abilities.FirstOrDefault(x => x.Id == id);
-            if(ability != null)
+            if (ability != null)
                 _abilities.Remove(ability);
         }
     }

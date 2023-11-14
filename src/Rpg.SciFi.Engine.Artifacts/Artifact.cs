@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Rpg.SciFi.Engine.Artifacts;
+using Rpg.SciFi.Engine.Artifacts.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +13,8 @@ namespace Rpg.SciFi.Engine.Artifacts
         [JsonProperty] public Guid Id { get; protected set; } = Guid.NewGuid();
         [JsonProperty] public string Name { get; protected set; } = string.Empty;
         [JsonProperty] public string Description { get; protected set; } = string.Empty;
-        [JsonProperty] public double Weight { get; protected set; } = 0.0;
+        [JsonProperty] public double BaseWeight { get; protected set; } = 0.0;
+        public double Weight => BaseWeight + Contents.Sum(x => x.Weight);
 
         [JsonProperty] public States States { get; protected set; } = new States();
         [JsonProperty] public Abilities Abilities { get; protected set; } = new Abilities();

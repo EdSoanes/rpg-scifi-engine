@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace Rpg.SciFi.Engine.Artifacts.Helpers
+namespace Rpg.SciFi.Engine.Artifacts.Expressions.Parsers
 {
     internal interface IDiceNode
     {
@@ -11,7 +11,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Helpers
         int Min();
         int Max();
     }
-       
+
     internal class NumberNode : IDiceNode
     {
         internal static readonly Regex Token = new Regex("^[0-9]+$");
@@ -68,7 +68,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Helpers
 
         public static IDiceNode? Create(int multiplier, string token)
         {
-            if (!Token.IsMatch(token)) 
+            if (!Token.IsMatch(token))
                 return null;
 
             var match = Token.Match(token);
@@ -99,7 +99,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Helpers
         }
     }
 
-    internal static class DiceExpressionParser
+    internal static class DiceParser
     {
         private static readonly Regex DiceExpressionToken = new Regex("\\[[a-zA-Z.]*?\\]");
 
@@ -185,7 +185,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Helpers
                 .Replace("+", " + ")
                 .Replace("-", " - ")
                 .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                ?? new[] { "0" }; 
+                ?? new[] { "0" };
 
             // Blank dice expressions end up being DiceExpression.Zero.
             if (!tokens.Any())

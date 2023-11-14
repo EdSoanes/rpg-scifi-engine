@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Rpg.SciFi.Engine.Artifacts
+namespace Rpg.SciFi.Engine.Artifacts.Components
 {
     public class State
     {

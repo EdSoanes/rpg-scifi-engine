@@ -1,10 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Rpg.SciFi.Engine.Artifacts.Components;
 
 namespace Rpg.SciFi.Engine.Tests
 {
@@ -15,7 +11,7 @@ namespace Rpg.SciFi.Engine.Tests
         {
             public TestDamageSignature()
             {
-                Blast = new Damage("TestBlast", "TestBlast", "d10");
+                Blast = new Damage("TestBlast", "TestBlastDescription", "d10");
             }
         }
 
@@ -26,6 +22,14 @@ namespace Rpg.SciFi.Engine.Tests
 
             Assert.IsNotNull(damage);
             Assert.AreEqual<string>("1d10", damage.Blast.Dice);
+            Assert.AreEqual<string>("1d10", damage.Blast.BaseDice);
+            Assert.AreEqual<string>("TestBlast", damage.Blast.Name);
+            Assert.AreEqual<string>("TestBlastDescription", damage.Blast.Description!);
+
+            Assert.AreEqual<string>("1d6", damage.Burn.Dice);
+            Assert.AreEqual<string>("1d6", damage.Burn.BaseDice);
+            Assert.AreEqual<string>("Burn", damage.Burn.Name);
+            Assert.IsNull(damage.Burn.Description);
         }
 
         [TestMethod]
@@ -67,7 +71,7 @@ namespace Rpg.SciFi.Engine.Tests
             damage.Blast.AddModifier(new Modifier
             {
                 Name = "Weapon Damage",
-                Target = "Value",
+                Property = "Dice",
                 Dice = "d8",
             });
 
@@ -85,7 +89,7 @@ namespace Rpg.SciFi.Engine.Tests
             damage.Blast.AddModifier(new Modifier
             {
                 Name = "Weapon Damage",
-                Target = "Value",
+                Property = "Dice",
                 Dice = "d8",
             });
 
