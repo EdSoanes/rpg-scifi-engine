@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts;
+using Rpg.SciFi.Engine.Artifacts.Attributes;
 using Rpg.SciFi.Engine.Artifacts.Components;
+using Rpg.SciFi.Engine.Artifacts.Turns;
 
 namespace Rpg.SciFi.Engine.Tests
 {
@@ -15,6 +17,7 @@ namespace Rpg.SciFi.Engine.Tests
                 new ArtifactPart("Chassis", "Car chassis", 50),
                 new ArtifactPart("Engine", "Turbo Engine", 30)
             };
+
         }
 
         [JsonProperty] public Movement Movement { get; private set; } = new Movement(
@@ -34,6 +37,12 @@ namespace Rpg.SciFi.Engine.Tests
         [JsonProperty] public Abilities Abilities { get; protected set; } = new Abilities();
         [JsonProperty] public EmissionSignature Emissions { get; protected set; } = new EmissionSignature();
 
+        [Ability("Start", "Start the car")]
+        public TurnAction Start()
+        {
+            return new TurnAction();
+        }
+
     }
     [TestClass]
     public class ArtifactTests
@@ -42,8 +51,9 @@ namespace Rpg.SciFi.Engine.Tests
         public void Artifact()
         {
             var car = new Car();
-            var actions = Nexus.GetActions(car);
-            Assert.IsNotNull(actions);
+            Nexus.BuildActionableLists();
+            var paths = Nexus.GetPropertyPaths(car);
+            Assert.IsNotNull(paths);
         }
     }
 }

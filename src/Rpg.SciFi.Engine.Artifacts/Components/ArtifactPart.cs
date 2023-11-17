@@ -15,28 +15,15 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         {
             Name = name;
             Description = description;
-            Health = new HealthPoints(physical, Score.NotApplicable);
+            Health = new Health(physical, -1);
         }
 
         [JsonProperty] public Guid Id { get; protected set; } = Guid.NewGuid();
         [JsonProperty] public string Name { get; protected set; } = nameof(ArtifactPart);
         [JsonProperty] public string? Description { get; protected set; } = string.Empty;
 
-        [JsonProperty] public HealthPoints Health { get; protected set; } = new HealthPoints();
+        [JsonProperty] public Health Health { get; protected set; } = new Health();
 
-        [JsonProperty] public ResistanceSignature Resistances { get; protected set; } = new ResistanceSignature();
-    }
-
-    public class ArtifactPartScore : Score
-    {
-        [JsonProperty] protected ArtifactPart[] Parts;
-
-        public ArtifactPartScore(ArtifactPart[] parts) 
-        {
-            Parts = parts;
-            BaseValue = parts.Sum(x => x.Health.Physical.BaseValue);
-        }
-
-        public override int Value => BaseValue + Parts.Sum(x => x.Health.Physical.Value);
+        [JsonProperty] public Resistances Resistances { get; protected set; } = new Resistances();
     }
 }

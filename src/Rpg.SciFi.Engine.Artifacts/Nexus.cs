@@ -1,64 +1,116 @@
 ﻿using Rpg.SciFi.Engine.Artifacts.Attributes;
+using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.Turns;
 using System.Collections;
+using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
     public static class Nexus
     {
+        public static List<string> Actions = new List<string>();
+        public static List<string> Props = new List<string>();
+
         public static object? Context { get; set; }
 
-        public static string[] GetActions(object context, string? basePath = null)
+        public static void BuildActionableLists()
         {
-            var res = new List<string>();
+            Actions.Clear();
+            Props.Clear();
 
-            var type = context.GetType();
-            var actionMethods = type.GetMethods()
-                .Where(x => x.GetCustomAttributes<AbilityAttribute>(true).Any() && x.ReturnType == typeof(TurnAction));
+            var types = Assembly.GetExecutingAssembly().GetTypes()
+                .Union(Assembly.GetCallingAssembly().GetTypes());
 
-            foreach (var actionMethod in actionMethods)
+            foreach (var type in types)
             {
-                var action = $"{type.Name}.{actionMethod.Name}()";
-                res.Add(action);
-            }
-
-            foreach (var propertyInfo in type.GetProperties())
-            {
-                var path = !string.IsNullOrEmpty(basePath)
-                    ? $"{basePath}.{propertyInfo.Name}"
-                    : $"{type.Name}.{propertyInfo.Name}";
-
-                var val = propertyInfo.GetValue(context);
-                var obj = GetPropertyObject(val);
-
-                if (obj != null)
+                if (type.IsAssignableTo(typeof(Artifact)))
                 {
-                    var artifactId = ArtifactObjectId(obj);
-                    if (artifactId != null)
-                        path = $"{type.Name}[{artifactId.Value}].{propertyInfo.Name}";
+                    var actionMethods = type
+                        .GetMethods()
+                        .Where(x => x.GetCustomAttributes<AbilityAttribute>(true).Any() && x.ReturnType == typeof(TurnAction));
 
-                    var modifiableId = ModifiableObjectId(obj);
-                    if (modifiableId != null)
-                        res.Add(path);
+                    foreach (var actionMethod in actionMethods)
+                    {
+                        var action = $"{type.Name}.{actionMethod.Name}()";
+                        Actions.Add(action);
+                    }
+                }
 
-                    var actions = GetActions(obj, path);
-                    res.AddRange(actions);
+                if (type.IsAssignableTo(typeof(Modifiable)))
+                {
+                    foreach (var propertyInfo in type.GetProperties())
+                    {
+                        var pt = propertyInfo.PropertyType;
+                        if ((pt.IsPrimitive || pt == typeof(string) || pt == typeof(Dice)) && propertyInfo.SetMethod == null)
+                            Props.Add($"{type.Name}.{propertyInfo.Name}");
+                    }
+                }
+            }
+        }
+
+        public static List<string> GetPropertyPaths(object context, string? basePath = null)
+        {
+            var props = new List<string>();
+
+            foreach (var propertyInfo in context.GetType().GetProperties())
+            {
+                var pt = propertyInfo.PropertyType;
+                var prop = basePath == null
+                    ? propertyInfo.Name
+                    : $"{basePath}.{propertyInfo.Name}";
+
+                if (pt.IsAssignableTo(typeof(IEnumerable)))
+                    continue;
+                
+                if ((pt.IsPrimitive || pt == typeof(string) || pt == typeof(Dice)) && propertyInfo.SetMethod == null)
+                {
+                    props.Add(prop);
+                    continue;
+                }
+
+                if (!pt.IsPrimitive && pt != typeof(string) && pt != typeof(Dice))
+                {
+                    var val = propertyInfo.GetValue(context);
+                    if (val != null)
+                    {
+                        var subProps = GetPropertyPaths(val, prop);
+                        props.AddRange(subProps);
+                    }
                 }
             }
 
-            return res.ToArray();
+            if (basePath == null)
+                props = props.Distinct().OrderBy(x => x).ToList();
+
+            return props;
         }
 
-        private static object? GetPropertyObject(object? obj)
+        private static IEnumerable<object> GetPropertyObjects(object? obj, out bool isEnumerable)
         {
+            isEnumerable = false;
+
             if (obj == null || obj is string || obj.GetType().IsPrimitive)
-                return null;
+                return Enumerable.Empty<object>();
 
             if (obj is IEnumerable)
-                return null;
+            {
+                isEnumerable = true;
+                return (obj as IEnumerable)!.Cast<object>();
+            }
 
-            return obj;
+            return new List<object> { obj };
+        }
+
+        private static bool IsCandidateObject(object? obj)
+        {
+            return obj != null && !(obj is string) && !obj.GetType().IsPrimitive;
+        }
+
+        public static bool IsCandidateType(Type type)
+        {
+            return !type.IsPrimitive && !type.IsEnum && type != typeof(string);
         }
 
         private static Guid? ModifiableObjectId(object? obj)

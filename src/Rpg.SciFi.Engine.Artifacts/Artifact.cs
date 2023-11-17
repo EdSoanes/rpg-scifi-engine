@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
+using Rpg.SciFi.Engine.Artifacts.Attributes;
 using Rpg.SciFi.Engine.Artifacts.Components;
+using Rpg.SciFi.Engine.Artifacts.Turns;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +14,7 @@ namespace Rpg.SciFi.Engine.Artifacts
     {
         public Artifact() 
         { 
-            Health = new HealthPoints(
-                new CompositeScore(Parts.Select(x => x.Health.Physical).ToArray()), 
-                new CompositeScore(Parts.Select(x => x.Health.Physical).ToArray()));
+            Health = new CompositeHealth(Parts.Select(x => x.Health).ToArray());
         }
 
         [JsonProperty] public Guid Id { get; protected set; } = Guid.NewGuid();
@@ -23,11 +23,17 @@ namespace Rpg.SciFi.Engine.Artifacts
         [JsonProperty] public double BaseWeight { get; protected set; } = 0.0;
         public double Weight => BaseWeight + Contents.Sum(x => x.Weight);
 
-        [JsonProperty] public ResistanceSignature Resistances { get; protected set; } = new ResistanceSignature();
-        [JsonProperty] public HealthPoints Health {  get; protected set; }
+        [JsonProperty] public Resistances Resistances { get; protected set; } = new Resistances();
+        [JsonProperty] public Health Health {  get; protected set; }
 
         [JsonProperty] public Artifact[] Contents { get; protected set; } = new Artifact[0];
         [JsonProperty] public int MaxContents { get; protected set; } = 0;
         [JsonProperty] public ArtifactPart[] Parts { get; protected set; } = new ArtifactPart[0];
+
+        [Ability("Destroy", "Destroy item")]
+        public TurnAction Destroy()
+        {
+            return new TurnAction();
+        }
     }
 }

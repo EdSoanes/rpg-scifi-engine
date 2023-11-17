@@ -7,90 +7,86 @@ namespace Rpg.SciFi.Engine.Tests
     [TestClass]
     public class DamagesTests
     {
-        internal class TestDamageSignature : DamageSignature
+        internal class TestDamage : Damage
         {
-            public TestDamageSignature()
+            public TestDamage()
+                : base("d6", "d6", "d10", "d6", "d6")
             {
-                Blast = new Damage("TestBlast", "TestBlastDescription", "d10");
             }
         }
 
         [TestMethod]
         public void Damage_TestDamage()
         {
-            var damage = new TestDamageSignature();
+            var damage = new TestDamage();
 
             Assert.IsNotNull(damage);
-            Assert.AreEqual<string>("1d10", damage.Blast.Dice);
-            Assert.AreEqual<string>("1d10", damage.Blast.BaseDice);
-            Assert.AreEqual<string>("TestBlast", damage.Blast.Name);
-            Assert.AreEqual<string>("TestBlastDescription", damage.Blast.Description!);
+            Assert.AreEqual<string>("1d10", damage.Blast);
+            Assert.AreEqual<string>("1d10", damage.BaseBlast);
 
-            Assert.AreEqual<string>("1d6", damage.Burn.Dice);
-            Assert.AreEqual<string>("1d6", damage.Burn.BaseDice);
-            Assert.AreEqual<string>("Burn", damage.Burn.Name);
-            Assert.IsNull(damage.Burn.Description);
+            Assert.AreEqual<string>("1d6", damage.Burn);
+            Assert.AreEqual<string>("1d6", damage.BaseBurn);
         }
 
         [TestMethod]
         public void Damage_Serialization()
         {
-            var damage = new DamageSignature();
+            var damage = new Damage();
 
             var json = JsonConvert.SerializeObject(damage);
-            var damage2 = JsonConvert.DeserializeObject<DamageSignature>(json);
+            var damage2 = JsonConvert.DeserializeObject<Damage>(json);
 
             Assert.IsNotNull(damage2);
-            Assert.AreEqual<string>(damage.Blast.Dice, damage2.Blast.Dice);
-            Assert.AreEqual<string>(damage.Blast.BaseDice, damage2.Blast.BaseDice);
+            Assert.AreEqual<string>(damage.Blast, damage2.Blast);
+            Assert.AreEqual<string>(damage.BaseBlast, damage2.Blast);
 
             Assert.IsNotNull(damage2);
-            Assert.AreEqual<string>(damage.Burn.Dice, damage2.Burn.Dice);
-            Assert.AreEqual<string>(damage.Burn.BaseDice, damage2.Burn.BaseDice);
+            Assert.AreEqual<string>(damage.Burn, damage2.Burn);
+            Assert.AreEqual<string>(damage.BaseBurn, damage2.BaseBurn);
 
             Assert.IsNotNull(damage2);
-            Assert.AreEqual<string>(damage.Energy.Dice, damage2.Energy.Dice);
-            Assert.AreEqual<string>(damage.Energy.BaseDice, damage2.Energy.BaseDice);
+            Assert.AreEqual<string>(damage.Energy, damage2.Energy);
+            Assert.AreEqual<string>(damage.BaseEnergy, damage2.BaseEnergy);
 
             Assert.IsNotNull(damage2);
-            Assert.AreEqual<string>(damage.Impact.Dice, damage2.Impact.Dice);
-            Assert.AreEqual<string>(damage.Impact.BaseDice, damage2.Impact.BaseDice);
+            Assert.AreEqual<string>(damage.Impact, damage2.Impact);
+            Assert.AreEqual<string>(damage.BaseImpact, damage2.BaseImpact);
 
             Assert.IsNotNull(damage2);
-            Assert.AreEqual<string>(damage.Pierce.Dice, damage2.Pierce.Dice);
-            Assert.AreEqual<string>(damage.Pierce.BaseDice, damage2.Pierce.BaseDice);
+            Assert.AreEqual<string>(damage.Pierce, damage2.Pierce);
+            Assert.AreEqual<string>(damage.BasePierce, damage2.BasePierce);
         }
 
         [TestMethod]
         public void Damage_ApplyMod() 
         {
-            var damage = new DamageSignature();
+            var damage = new Damage("d6", "d6", "d6", "d6", "d6");
             Assert.IsNotNull(damage);
 
-            Assert.AreEqual<string>("1d6", damage.Blast.Dice);
-            damage.Blast.AddModifier(new Modifier("Weapon Damage", "Dice", "d8"));
+            Assert.AreEqual<string>("1d6", damage.Blast);
+            damage.AddModifier(new Modifier("Weapon Damage", "Blast", "d8"));
 
-            Assert.AreEqual<string>("1d8 + 1d6", damage.Blast.Dice);
+            Assert.AreEqual<string>("1d8 + 1d6", damage.Blast);
 
-            damage.Blast.ClearMods();
+            damage.ClearMods();
 
-            Assert.AreEqual<string>("1d6", damage.Blast.Dice);
+            Assert.AreEqual<string>("1d6", damage.Blast);
         }
 
         [TestMethod]
         public void Damage_Serialization_WithMod()
         {
-            var damage = new DamageSignature();
-            damage.Blast.AddModifier(new Modifier("Weapon Damage", "Dice", "d8"));
+            var damage = new Damage("d6", "d6", "d6", "d6", "d6");
+            damage.AddModifier(new Modifier("Weapon Damage", "Blast", "d8"));
 
             var json = JsonConvert.SerializeObject(damage);
-            var damage2 = JsonConvert.DeserializeObject<DamageSignature>(json);
+            var damage2 = JsonConvert.DeserializeObject<Damage>(json);
 
             Assert.IsNotNull(damage2);
-            Assert.AreEqual<string>("1d8 + 1d6", damage2.Blast.Dice);
+            Assert.AreEqual<string>("1d8 + 1d6", damage2.Blast);
 
-            damage2.Blast.ClearMods();
-            Assert.AreEqual<string>("1d6", damage2.Blast.Dice);
+            damage2.ClearMods();
+            Assert.AreEqual<string>("1d6", damage2.Blast);
         }
     }
 }

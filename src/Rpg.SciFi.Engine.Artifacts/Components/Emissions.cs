@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.SciFi.Engine.Artifacts.Attributes;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
@@ -32,10 +33,10 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [JsonProperty] public int BaseValue { get; private set; } = 0;
         [JsonProperty] public int BaseRadius { get; private set; } = 100;
 
-        public int Min => BaseMin + ModifierRoll(nameof(Min));
-        public int Max => BaseMax + ModifierRoll(nameof(Max));
-        public int Value => BaseValue + ModifierRoll(nameof(Value));
-        public int Radius => BaseRadius + ModifierRoll(nameof(Radius));
+        [Modifiable("Min", "Minimum")] public int Min => BaseMin + ModifierRoll(nameof(Min));
+        [Modifiable("Max", "Maximum")] public int Max => BaseMax + ModifierRoll(nameof(Max));
+        [Modifiable("Value", "Current Value")] public int Value => BaseValue + ModifierRoll(nameof(Value));
+        [Modifiable("Radius", "Current Radius")] public int Radius => BaseRadius + ModifierRoll(nameof(Radius));
     }
 
     public class EmissionSignature

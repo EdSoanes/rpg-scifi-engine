@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.SciFi.Engine.Artifacts.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,32 +49,29 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         public override int Value => BaseValue + _resistances.Sum(x => x.ModifierRoll(nameof(Value)));
     }
 
-    public class ResistanceSignature
+    public class Resistances : Modifiable
     {
-        public ResistanceSignature() { }
+        public Resistances() { }
 
-        public ResistanceSignature(int impact, int pierce, int blast, int burn, int energy)
+        public Resistances(int baseImpact, int basePierce, int baseBlast, int baseBurn, int baseEnergy)
         {
-            Impact = new Resistance(nameof(Impact), nameof(Impact), impact);
-            Pierce = new Resistance(nameof(Pierce), nameof(Pierce), pierce);
-            Blast = new Resistance(nameof(Blast), nameof(Blast), blast);
-            Burn = new Resistance(nameof(Burn), nameof(Burn), burn);
-            Energy = new Resistance(nameof(Energy), nameof(Energy), energy);
+            BaseImpact = baseImpact;
+            BasePierce = basePierce;
+            BaseBlast = baseBlast;
+            BaseHeat = baseBurn;
+            BaseEnergy = baseEnergy;
         }
+        
+        [JsonProperty] public int BaseImpact { get; protected set; }
+        [JsonProperty] public int BasePierce { get; protected set; }
+        [JsonProperty] public int BaseBlast { get; protected set; }
+        [JsonProperty] public int BaseHeat { get; protected set; }
+        [JsonProperty] public int BaseEnergy { get; protected set; }
 
-        public ResistanceSignature(Resistance impact, Resistance pierce, Resistance blast, Resistance burn, Resistance energy)
-        {
-            Impact = impact;
-            Pierce = pierce;
-            Blast = blast;
-            Burn = burn;
-            Energy = energy;
-        }
-
-        [JsonProperty] public Resistance Impact { get; protected set; } = new Resistance(nameof(Impact), nameof(Impact), 0);
-        [JsonProperty] public Resistance Pierce { get; protected set; } = new Resistance(nameof(Pierce), nameof(Pierce), 0);
-        [JsonProperty] public Resistance Blast { get; protected set; } = new Resistance(nameof(Blast), nameof(Blast), 0);
-        [JsonProperty] public Resistance Burn { get; protected set; } = new Resistance(nameof(Burn), nameof(Burn), 0);
-        [JsonProperty] public Resistance Energy { get; protected set; } = new Resistance(nameof(Energy), nameof(Energy), 0);
+        [Modifiable("Impact", "Impact")] public int Impact { get => BaseImpact + ModifierRoll(nameof(BaseImpact)); }
+        [Modifiable("Pierce", "Pierce")] public int Pierce { get => BasePierce + ModifierRoll(nameof(BasePierce));}
+        [Modifiable("Blast", "Blast")] public int Blast { get => BaseBlast + ModifierRoll(nameof(BaseBlast)); }
+        [Modifiable("Heat", "Heat")] public int Heat { get => BaseHeat + ModifierRoll(nameof(BaseHeat)); }
+        [Modifiable("Energy", "Energy")] public int Energy { get => BaseEnergy + ModifierRoll(nameof(BaseEnergy)); }
     }
 }

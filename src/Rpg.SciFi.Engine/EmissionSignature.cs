@@ -10,7 +10,8 @@ namespace Rpg.SciFi.Engine
 {
     public class BaseEmissionSignature
     {
-        public BaseEmissionSignature(Emission? visibleLight = null, Emission? heat = null, Emission? radiation = null, Emission? sound = null, Emission? eletromagnetic = null)        {
+        public BaseEmissionSignature(Emission? visibleLight = null, Emission? heat = null, Emission? radiation = null, Emission? sound = null, Emission? eletromagnetic = null)
+        {
             VisibleLight = visibleLight ?? new VisibleLightEmission();
             Heat = heat ?? new HeatEmission();
             Radiation = radiation ?? new RadiationEmission();
@@ -27,7 +28,8 @@ namespace Rpg.SciFi.Engine
 
     public class EmissionSignature
     {
-        public EmissionSignature(BaseEmissionSignature? baseSignature = null, Emission? visibleLight = null, Emission? heat = null, Emission? radiation = null, Emission? sound = null, Emission? eletromagnetic = null)        {
+        public EmissionSignature(BaseEmissionSignature? baseSignature = null, Emission? visibleLight = null, Emission? heat = null, Emission? radiation = null, Emission? sound = null, Emission? eletromagnetic = null)
+        {
             BaseSignature = baseSignature ?? new BaseEmissionSignature();
             VisibleLight = visibleLight ?? new VisibleLightEmission();
             Heat = heat ?? new HeatEmission();
