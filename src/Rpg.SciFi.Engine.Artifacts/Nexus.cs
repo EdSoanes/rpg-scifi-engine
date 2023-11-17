@@ -1,14 +1,79 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Rpg.SciFi.Engine.Artifacts.Attributes;
+using Rpg.SciFi.Engine.Artifacts.Turns;
+using System.Collections;
+using System.Reflection;
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
     public static class Nexus
     {
         public static object? Context { get; set; }
+
+        public static string[] GetActions(object context, string? basePath = null)
+        {
+            var res = new List<string>();
+
+            var type = context.GetType();
+            var actionMethods = type.GetMethods()
+                .Where(x => x.GetCustomAttributes<AbilityAttribute>(true).Any() && x.ReturnType == typeof(TurnAction));
+
+            foreach (var actionMethod in actionMethods)
+            {
+                var action = $"{type.Name}.{actionMethod.Name}()";
+                res.Add(action);
+            }
+
+            foreach (var propertyInfo in type.GetProperties())
+            {
+                var path = !string.IsNullOrEmpty(basePath)
+                    ? $"{basePath}.{propertyInfo.Name}"
+                    : $"{type.Name}.{propertyInfo.Name}";
+
+                var val = propertyInfo.GetValue(context);
+                var obj = GetPropertyObject(val);
+
+                if (obj != null)
+                {
+                    var artifactId = ArtifactObjectId(obj);
+                    if (artifactId != null)
+                        path = $"{type.Name}[{artifactId.Value}].{propertyInfo.Name}";
+
+                    var modifiableId = ModifiableObjectId(obj);
+                    if (modifiableId != null)
+                        res.Add(path);
+
+                    var actions = GetActions(obj, path);
+                    res.AddRange(actions);
+                }
+            }
+
+            return res.ToArray();
+        }
+
+        private static object? GetPropertyObject(object? obj)
+        {
+            if (obj == null || obj is string || obj.GetType().IsPrimitive)
+                return null;
+
+            if (obj is IEnumerable)
+                return null;
+
+            return obj;
+        }
+
+        private static Guid? ModifiableObjectId(object? obj)
+        {
+            return obj != null
+                ? (obj as Modifiable)?.Id
+                : null;
+        }
+
+        private static Guid? ArtifactObjectId(object? obj)
+        {
+            return obj != null
+                ? (obj as Artifact)?.Id
+                : null;
+        }
 
         public static T? EvaluateProperty<T>(string propExpr)
         {

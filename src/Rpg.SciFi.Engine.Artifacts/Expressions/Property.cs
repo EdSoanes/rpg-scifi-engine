@@ -32,6 +32,5 @@ namespace Rpg.SciFi.Engine.Artifacts.Expressions
 
         public static bool operator == (Property d1, Property d2) => d1.Path == d2.Path;
         public static bool operator != (Property d1, Property d2) => d1.Path != d2.Path;
-
     }
 }

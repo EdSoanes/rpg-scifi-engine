@@ -7,6 +7,13 @@ namespace Rpg.SciFi.Engine.Artifacts
     {
         [JsonProperty] private int? _diceRoll { get; set; } = null;
 
+        public Modifier(string name, string property, string dice) 
+        {
+            Name = name;
+            Property = property;
+            Dice = dice;
+        }
+
         [JsonProperty] public Guid Id { get; private set;} = Guid.NewGuid();
         [JsonProperty] public string Name { get; set; }
         [JsonProperty] public Property Property { get; set; }

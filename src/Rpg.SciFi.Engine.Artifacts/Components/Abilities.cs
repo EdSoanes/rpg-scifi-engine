@@ -2,21 +2,26 @@
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
-    public abstract class Ability
+    public sealed class Ability
     {
         public const int PassiveAbility = -1;
         public const int FreeAbility = 0;
 
-        [JsonProperty] public Guid Id { get; protected set; } = Guid.NewGuid();
-        [JsonProperty] public string Name { get; protected set; } = nameof(Ability);
-        [JsonProperty] public string Description { get; protected set; } = string.Empty;
-        [JsonProperty] public int ActionPointCost { get; protected set; } = FreeAbility;
-        [JsonProperty] public int Exertion { get; protected set; } = 0;
+        [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
+        [JsonProperty] public string Name { get; private set; } = nameof(Ability);
+        [JsonProperty] public string Description { get; private set; } = string.Empty;
+        [JsonProperty] public TurnPoints Costs { get; private set; } = new TurnPoints();
     }
 
-    public class Abilities
+    public sealed class Abilities
     {
         [JsonProperty] private List<Ability> _abilities { get; set; } = new List<Ability>();
+
+        public Abilities() { }
+        public Abilities(params Ability[] abilities)
+        {
+            _abilities.AddRange(abilities);
+        }
 
         public void AddAbility(Ability ability)
         {

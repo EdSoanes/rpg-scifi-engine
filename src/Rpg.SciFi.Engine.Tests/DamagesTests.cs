@@ -68,12 +68,7 @@ namespace Rpg.SciFi.Engine.Tests
             Assert.IsNotNull(damage);
 
             Assert.AreEqual<string>("1d6", damage.Blast.Dice);
-            damage.Blast.AddModifier(new Modifier
-            {
-                Name = "Weapon Damage",
-                Property = "Dice",
-                Dice = "d8",
-            });
+            damage.Blast.AddModifier(new Modifier("Weapon Damage", "Dice", "d8"));
 
             Assert.AreEqual<string>("1d8 + 1d6", damage.Blast.Dice);
 
@@ -86,12 +81,7 @@ namespace Rpg.SciFi.Engine.Tests
         public void Damage_Serialization_WithMod()
         {
             var damage = new DamageSignature();
-            damage.Blast.AddModifier(new Modifier
-            {
-                Name = "Weapon Damage",
-                Property = "Dice",
-                Dice = "d8",
-            });
+            damage.Blast.AddModifier(new Modifier("Weapon Damage", "Dice", "d8"));
 
             var json = JsonConvert.SerializeObject(damage);
             var damage2 = JsonConvert.DeserializeObject<DamageSignature>(json);

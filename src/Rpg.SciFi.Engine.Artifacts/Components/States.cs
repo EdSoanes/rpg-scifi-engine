@@ -4,17 +4,30 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
 {
     public class State
     {
+        public State(string name, string? description, params Modifier[] modifiers)
+        {
+            Name = nameof(State);
+            Description = nameof(State);
+            Modifiers = modifiers;
+        }
+
         public virtual string Name { get; set; } = string.Empty;
 
         public virtual string Description { get; set; } = string.Empty;
 
-        public virtual Modifier[] Modifications { get; set; } = new Modifier[0];
+        public virtual Modifier[] Modifiers { get; set; } = new Modifier[0];
     }
 
     public sealed class States
     {
         [JsonProperty] private State[] _states { get; set; } = new State[0];
         [JsonProperty] private List<State> _activeStates { get; set; } = new List<State>();
+
+        public States() { }
+        public States(params State[] states)
+        {
+            _states = states;
+        }
 
         public bool HasState(string stateName)
         {
