@@ -8,53 +8,17 @@ using System.Threading.Tasks;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
-    public class Resistance : Modifiable
-    {
-        public Resistance() { }
-        protected Resistance(string name, string? description)
-        {
-            Name = name;
-            Description = description;
-        }
-
-        public Resistance(string name, string? description, int baseValue)
-        {
-            Name = name;
-            Description = description;
-            BaseValue = baseValue;
-        }
-
-        [JsonProperty] public virtual int BaseValue {get; protected set;}
-        public virtual int Value => BaseValue + ModifierRoll(nameof(Value));
-    }
-
-    public class CompositeResistance : Resistance
-    {
-        [JsonProperty] private Resistance[] _resistances { get; set;} = new Resistance[0];
-
-        public CompositeResistance() { }
-        public CompositeResistance(string name, string? description, params Resistance[] resistances)
-            : base(name, description)
-        {
-            _resistances = resistances;
-        }
-
-        [JsonProperty]
-        public override int BaseValue 
-        { 
-            get { return _resistances.Sum(x => x.BaseValue); } 
-            protected set { throw new ArgumentException("Cannot set BaseValue"); } 
-        }
-
-        public override int Value => BaseValue + _resistances.Sum(x => x.ModifierRoll(nameof(Value)));
-    }
-
     public class Resistances : Modifiable
     {
-        public Resistances() { }
+        public Resistances() 
+        {
+            Name = nameof(Resistances);
+        }
 
         public Resistances(int baseImpact, int basePierce, int baseBlast, int baseBurn, int baseEnergy)
+            : this()
         {
+
             BaseImpact = baseImpact;
             BasePierce = basePierce;
             BaseBlast = baseBlast;
@@ -62,16 +26,44 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
             BaseEnergy = baseEnergy;
         }
         
-        [JsonProperty] public int BaseImpact { get; protected set; }
-        [JsonProperty] public int BasePierce { get; protected set; }
-        [JsonProperty] public int BaseBlast { get; protected set; }
-        [JsonProperty] public int BaseHeat { get; protected set; }
-        [JsonProperty] public int BaseEnergy { get; protected set; }
+        [JsonProperty] public virtual int BaseImpact { get; protected set; }
+        [JsonProperty] public virtual int BasePierce { get; protected set; }
+        [JsonProperty] public virtual int BaseBlast { get; protected set; }
+        [JsonProperty] public virtual int BaseHeat { get; protected set; }
+        [JsonProperty] public virtual int BaseEnergy { get; protected set; }
 
-        [Modifiable("Impact", "Impact")] public int Impact { get => BaseImpact + ModifierRoll(nameof(BaseImpact)); }
-        [Modifiable("Pierce", "Pierce")] public int Pierce { get => BasePierce + ModifierRoll(nameof(BasePierce));}
-        [Modifiable("Blast", "Blast")] public int Blast { get => BaseBlast + ModifierRoll(nameof(BaseBlast)); }
-        [Modifiable("Heat", "Heat")] public int Heat { get => BaseHeat + ModifierRoll(nameof(BaseHeat)); }
-        [Modifiable("Energy", "Energy")] public int Energy { get => BaseEnergy + ModifierRoll(nameof(BaseEnergy)); }
+        [Modifiable] public virtual int Impact { get => BaseImpact + ModifierRoll(nameof(BaseImpact)); }
+        [Modifiable] public virtual int Pierce { get => BasePierce + ModifierRoll(nameof(BasePierce));}
+        [Modifiable] public virtual int Blast { get => BaseBlast + ModifierRoll(nameof(BaseBlast)); }
+        [Modifiable] public virtual int Heat { get => BaseHeat + ModifierRoll(nameof(BaseHeat)); }
+        [Modifiable] public virtual int Energy { get => BaseEnergy + ModifierRoll(nameof(BaseEnergy)); }
+    }
+
+    public class CompositeResistances : Resistances
+    {
+        [JsonProperty] private Resistances[] _resistances { get; set; } = new Resistances[0];
+
+        public CompositeResistances()
+        {
+            Name = nameof(Resistances);
+        }
+
+        public CompositeResistances(params Resistances[] resistances)
+            : this()
+        {
+            _resistances = resistances;
+        }
+
+        [JsonProperty] public override int BaseImpact { get => _resistances.Sum(x => x.BaseImpact); protected set => throw new ArgumentException(nameof(BaseImpact)); }
+        [JsonProperty] public override int BasePierce { get => _resistances.Sum(x => x.BasePierce); protected set => throw new ArgumentException(nameof(BasePierce)); }
+        [JsonProperty] public override int BaseBlast { get => _resistances.Sum(x => x.BaseBlast); protected set => throw new ArgumentException(nameof(BaseBlast)); }
+        [JsonProperty] public override int BaseHeat { get => _resistances.Sum(x => x.BaseHeat); protected set => throw new ArgumentException(nameof(BaseHeat)); }
+        [JsonProperty] public override int BaseEnergy { get => _resistances.Sum(x => x.BaseEnergy); protected set => throw new ArgumentException(nameof(BaseEnergy)); }
+
+        [Modifiable] public override int Impact { get => BaseImpact + _resistances.Sum(x => x.Impact); }
+        [Modifiable] public override int Pierce { get => BasePierce + _resistances.Sum(x => x.Pierce); }
+        [Modifiable] public override int Blast { get => BaseBlast + _resistances.Sum(x => x.Blast); }
+        [Modifiable] public override int Heat { get => BaseHeat + _resistances.Sum(x => x.Heat); }
+        [Modifiable] public override int Energy { get => BaseEnergy + _resistances.Sum(x => x.Energy); }
     }
 }

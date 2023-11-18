@@ -5,7 +5,10 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
 {
     public class Emission : Modifiable
     {
-        public Emission() { }
+        public Emission() 
+        {
+            Name = nameof(Emission);
+        }
 
         public Emission(string name)
         {
@@ -13,15 +16,14 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         }
 
         public Emission(string name, int baseValue)
+            : this(name)
         {
-            Name = name;
             BaseValue = baseValue;
         }
 
-        public Emission(string name, string description, int baseMin, int baseMax, int baseValue, int baseRadius)
+        public Emission(string name, int baseMin, int baseMax, int baseValue, int baseRadius)
         {
             Name = name;
-            Description = description;
             BaseMin = baseMin;
             BaseMax = baseMax;
             BaseValue = baseValue;
@@ -33,10 +35,10 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [JsonProperty] public int BaseValue { get; private set; } = 0;
         [JsonProperty] public int BaseRadius { get; private set; } = 100;
 
-        [Modifiable("Min", "Minimum")] public int Min => BaseMin + ModifierRoll(nameof(Min));
-        [Modifiable("Max", "Maximum")] public int Max => BaseMax + ModifierRoll(nameof(Max));
-        [Modifiable("Value", "Current Value")] public int Value => BaseValue + ModifierRoll(nameof(Value));
-        [Modifiable("Radius", "Current Radius")] public int Radius => BaseRadius + ModifierRoll(nameof(Radius));
+        [Modifiable] public int Min => BaseMin + ModifierRoll(nameof(Min));
+        [Modifiable] public int Max => BaseMax + ModifierRoll(nameof(Max));
+        [Modifiable] public int Value => BaseValue + ModifierRoll(nameof(Value));
+        [Modifiable] public int Radius => BaseRadius + ModifierRoll(nameof(Radius));
     }
 
     public class EmissionSignature

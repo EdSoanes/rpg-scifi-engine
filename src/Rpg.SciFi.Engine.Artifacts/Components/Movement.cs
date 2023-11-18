@@ -10,8 +10,12 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
 {
     public class Movement : Modifiable
     {
-        public Movement() { }
+        public Movement() 
+        {
+            Name = nameof(Movement);
+        }
         public Movement(int baseSpeed, int baseAcceleration, int baseDeceleration, int baseManeuverability)
+            : this()
         {
             BaseSpeed = baseSpeed;
             BaseAcceleration = baseAcceleration;
@@ -24,10 +28,10 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [JsonProperty] public int BaseDeceleration { get; protected set; }
         [JsonProperty] public int BaseManeuverability { get; protected set; }
 
-        [Modifiable("Speed", "Speed")] public int Speed { get => BaseSpeed + ModifierRoll(nameof(Speed)); }
-        [Modifiable("Acceleration", "Acceleration")] public int Acceleration { get => BaseAcceleration + ModifierRoll(nameof(Acceleration)); }
-        [Modifiable("Deceleration", "Deceleration")] public int Deceleration { get => BaseDeceleration + ModifierRoll(nameof(Deceleration)); }
-        [Modifiable("Maneuverability", "Maneuverability")] public int Maneuverability { get => BaseManeuverability + ModifierRoll(nameof(Maneuverability)); }
+        [Modifiable] public int Speed { get => BaseSpeed + ModifierRoll(nameof(Speed)); }
+        [Modifiable] public int Acceleration { get => BaseAcceleration + ModifierRoll(nameof(Acceleration)); }
+        [Modifiable] public int Deceleration { get => BaseDeceleration + ModifierRoll(nameof(Deceleration)); }
+        [Modifiable] public int Maneuverability { get => BaseManeuverability + ModifierRoll(nameof(Maneuverability)); }
     }
 }
 

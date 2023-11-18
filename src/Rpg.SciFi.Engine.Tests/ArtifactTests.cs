@@ -8,17 +8,26 @@ namespace Rpg.SciFi.Engine.Tests
 {
     public class Car : Artifact
     {
+        [JsonConstructor]
+        private Car(string name) 
+        {
+            Name = name;
+        }
+
         public Car() 
         { 
             Name = nameof(Car);
-            Description = "This is a car";
             Parts = new ArtifactPart[]
             {
-                new ArtifactPart("Chassis", "Car chassis", 50),
-                new ArtifactPart("Engine", "Turbo Engine", 30)
+                new ArtifactPart("Chassis", 50),
+                new ArtifactPart("Engine", 30)
             };
 
+            Health = new CompositeHealth(Parts.Select(x => x.Health).ToArray());
+            Resistances = new CompositeResistances(Parts.Select(x => x.Resistances).ToArray());
         }
+
+        [JsonProperty] public ArtifactPart[] Parts { get; protected set; }
 
         [JsonProperty] public Movement Movement { get; private set; } = new Movement(
             baseSpeed: 180, 
@@ -27,9 +36,9 @@ namespace Rpg.SciFi.Engine.Tests
             baseManeuverability: 5);
 
         [JsonProperty] public States States { get; protected set; } = new States(
-                new State("Activated", "Car engine running",
-                    new Modifier("Noise", "Emissions.Sound.Value", "20"),
-                    new Modifier("Heat", "Emissions.Heat.Value", "15"),
+                new State("Activated",
+                    new Modifier("Noise", "Emissions.Sound", "20"),
+                    new Modifier("Heat", "Emissions.Heat", "15"),
                     new Modifier("Electronics", "Emissions.Electromagnetic", "10"))
                 );
 
@@ -53,6 +62,27 @@ namespace Rpg.SciFi.Engine.Tests
             var car = new Car();
             Nexus.BuildActionableLists();
             var paths = Nexus.GetPropertyPaths(car);
+
+            Assert.IsNotNull(Nexus.Actions);
+            Assert.IsNotNull(Nexus.Props);
+
+            Assert.IsTrue(Nexus.Contexts.TryGetValue(car.Id, out var carId));
+            Assert.IsFalse(Nexus.Contexts.TryGetValue(Guid.NewGuid(), out var testId));
+
+            Assert.IsTrue(Nexus.Contexts.TryGetValue(car.Emissions.VisibleLight.Id, out var visibleLightId));
+            Assert.IsTrue(Nexus.Contexts.TryGetValue(car.Emissions.Electromagnetic.Id, out var electromagneticId));
+            Assert.IsTrue(Nexus.Contexts.TryGetValue(car.Emissions.Heat.Id, out var heatId));
+            Assert.IsTrue(Nexus.Contexts.TryGetValue(car.Emissions.Radiation.Id, out var radiationId));
+            Assert.IsTrue(Nexus.Contexts.TryGetValue(car.Emissions.Sound.Id, out var soundId));
+            Assert.IsTrue(Nexus.Contexts.TryGetValue(car.Movement.Id, out var movementId));
+
+            foreach (var carPart in car.Parts)
+            {
+                Assert.IsTrue(Nexus.Contexts.TryGetValue(carPart.Health.Id, out var carPartHealthId));
+                Assert.IsTrue(Nexus.Contexts.TryGetValue(carPart.Resistances.Id, out var carPartResistancesId));
+            }
+
+            
             Assert.IsNotNull(paths);
         }
     }

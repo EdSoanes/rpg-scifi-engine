@@ -4,17 +4,13 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
 {
     public class State
     {
-        public State(string name, string? description, params Modifier[] modifiers)
+        public State(string name, params Modifier[] modifiers)
         {
-            Name = nameof(State);
-            Description = nameof(State);
+            Name = name;
             Modifiers = modifiers;
         }
 
         public virtual string Name { get; set; } = string.Empty;
-
-        public virtual string Description { get; set; } = string.Empty;
-
         public virtual Modifier[] Modifiers { get; set; } = new Modifier[0];
     }
 

@@ -2,6 +2,7 @@
 using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.Turns;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -12,6 +13,7 @@ namespace Rpg.SciFi.Engine.Artifacts
     {
         public static List<string> Actions = new List<string>();
         public static List<string> Props = new List<string>();
+        public static ConcurrentDictionary<Guid, object> Contexts = new ConcurrentDictionary<Guid, object>();
 
         public static object? Context { get; set; }
 
@@ -33,7 +35,7 @@ namespace Rpg.SciFi.Engine.Artifacts
 
                     foreach (var actionMethod in actionMethods)
                     {
-                        var action = $"{type.Name}.{actionMethod.Name}()";
+                        var action = $"{nameof(Artifact)}[{type.Name}].{actionMethod.Name}()";
                         Actions.Add(action);
                     }
                 }
@@ -44,7 +46,7 @@ namespace Rpg.SciFi.Engine.Artifacts
                     {
                         var pt = propertyInfo.PropertyType;
                         if ((pt.IsPrimitive || pt == typeof(string) || pt == typeof(Dice)) && propertyInfo.SetMethod == null)
-                            Props.Add($"{type.Name}.{propertyInfo.Name}");
+                            Props.Add($"{nameof(Modifiable)}[{type.Name}].{propertyInfo.Name}");
                     }
                 }
             }

@@ -10,20 +10,20 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
 {
     public class ArtifactPart
     {
-        public ArtifactPart() { }
-        public ArtifactPart(string name, string? description, int physical)
+        public ArtifactPart() 
+        {
+            Name = nameof(ArtifactPart);
+        }
+
+        public ArtifactPart(string name, int physical)
         {
             Name = name;
-            Description = description;
             Health = new Health(physical, -1);
         }
 
         [JsonProperty] public Guid Id { get; protected set; } = Guid.NewGuid();
         [JsonProperty] public string Name { get; protected set; } = nameof(ArtifactPart);
-        [JsonProperty] public string? Description { get; protected set; } = string.Empty;
-
         [JsonProperty] public Health Health { get; protected set; } = new Health();
-
         [JsonProperty] public Resistances Resistances { get; protected set; } = new Resistances();
     }
 }

@@ -4,24 +4,17 @@ using System.Text;
 
 namespace Rpg.SciFi.Engine.Artifacts.Expressions
 {
-    public enum DiceOptions
-    {
-        None,
-        Simplified
-    }
-
     public struct Dice
     {
         public static readonly Dice Zero = new Dice("0");
         private static readonly string Minus = "-";
 
-        private List<IDiceNode> _nodes { get; set; }
-
         private string _expr = "0";
+
         [JsonProperty]
         private string Expr
         {
-            get { return _expr; }
+            get => _expr;
             set
             {
                 _expr = value;
@@ -29,10 +22,13 @@ namespace Rpg.SciFi.Engine.Artifacts.Expressions
             }
         }
 
+        private List<IDiceNode> _nodes { get; set; } = new List<IDiceNode>();
+        
+        public Dice() { } 
         public Dice(string expr) => Expr = expr;
 
         public static implicit operator string(Dice d) => d.ToString();
-        public static implicit operator Dice(string expression) => new Dice(expression);
+        public static implicit operator Dice(string expr) => new Dice(expr);
         public static Dice operator +(Dice d1, Dice d2)
         {
             string expr1 = d1;
@@ -66,6 +62,18 @@ namespace Rpg.SciFi.Engine.Artifacts.Expressions
             }
 
             return sb.ToString();
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj != null
+                && (obj is Dice) 
+                && ((Dice)obj).ToString() == ToString();
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 }

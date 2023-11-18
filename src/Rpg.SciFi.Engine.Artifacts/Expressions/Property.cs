@@ -1,36 +1,38 @@
 ﻿using Newtonsoft.Json;
+using Rpg.SciFi.Engine.Artifacts.Expressions.Parsers;
 
 namespace Rpg.SciFi.Engine.Artifacts.Expressions
 {
     public struct Property
     {
-        private string _path = string.Empty;
-        private string[] _nodes;
+        [JsonProperty] private string _path { get; set; } = string.Empty;
+        [JsonProperty] public Guid ContextId { get; private set; } = Guid.Empty;
+        [JsonProperty] public string Prop { get; private set; } = string.Empty;
 
-        [JsonProperty]
-        private string Path
+        public Property() { }
+
+        public Property(string path)
         {
-            get { return _path; }
-            set
-            {
-                _path = value;
-                _nodes = _path.Split('.').ToArray();
-            }
+            _path = path;
+            var propInfo = PropertyParser.Parse(path);
+            ContextId = propInfo.ContextId ?? Guid.Empty;
+            Prop = propInfo.Prop;
         }
 
-        public Guid EntityId { get; private set; }
-        public string Prop => _nodes?.LastOrDefault() ?? string.Empty;
-
-        public Property(string path) => Path = path;
-        public Property(Guid entityId) => EntityId = entityId;
-
-        public static implicit operator string(Property d) => d.Path;
+        public static implicit operator string(Property d) => d._path;
         public static implicit operator Property(string path) => new Property(path);
 
-        public static implicit operator Guid(Property d) => d.EntityId;
-        public static implicit operator Property(Guid entityId) => new Property(entityId);
+        public static bool operator == (Property d1, Property d2) => d1.ContextId == d2.ContextId && d1.Prop == d2.Prop;
+        public static bool operator != (Property d1, Property d2) => d1.ContextId != d2.ContextId || d1.Prop != d2.Prop;
 
-        public static bool operator == (Property d1, Property d2) => d1.Path == d2.Path;
-        public static bool operator != (Property d1, Property d2) => d1.Path != d2.Path;
+        public override bool Equals(object? obj)
+        {
+            return obj != null && obj is Property && ((Property)obj) == this;
+        }
+
+        public override int GetHashCode()
+        {
+            return _path.GetHashCode();           
+        }
     }
 }

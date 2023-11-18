@@ -13,22 +13,23 @@ namespace Rpg.SciFi.Engine.Artifacts
     public abstract class Artifact
     {
         public Artifact() 
-        { 
-            Health = new CompositeHealth(Parts.Select(x => x.Health).ToArray());
+        {
+            Nexus.Contexts.TryAdd(Id, this);
+
+            Name = nameof(Artifact);
+            Emissions = new EmissionSignature();
+            Resistances = new Resistances();
+            Health = new Health();
         }
 
-        [JsonProperty] public Guid Id { get; protected set; } = Guid.NewGuid();
-        [JsonProperty] public string Name { get; protected set; } = string.Empty;
-        [JsonProperty] public string Description { get; protected set; } = string.Empty;
-        [JsonProperty] public double BaseWeight { get; protected set; } = 0.0;
-        public double Weight => BaseWeight + Contents.Sum(x => x.Weight);
+        [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
+        [JsonProperty] public string Name { get; protected set; }
+        [JsonProperty] public double BaseWeight { get; protected set; }
+        public virtual double Weight => BaseWeight;
 
-        [JsonProperty] public Resistances Resistances { get; protected set; } = new Resistances();
-        [JsonProperty] public Health Health {  get; protected set; }
-
-        [JsonProperty] public Artifact[] Contents { get; protected set; } = new Artifact[0];
-        [JsonProperty] public int MaxContents { get; protected set; } = 0;
-        [JsonProperty] public ArtifactPart[] Parts { get; protected set; } = new ArtifactPart[0];
+        [JsonProperty] public EmissionSignature Emissions { get; protected set; }
+        [JsonProperty] public Resistances Resistances { get; protected set; }
+        [JsonProperty] public Health Health { get; protected set; }
 
         [Ability("Destroy", "Destroy item")]
         public TurnAction Destroy()

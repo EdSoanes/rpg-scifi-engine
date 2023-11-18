@@ -10,8 +10,13 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
 {
     public class Health : Modifiable
     {
-        public Health() { }
+        public Health() 
+        {
+            Name = nameof(Health);
+        }
+
         public Health(int basePhysical, int baseMental)
+            : this()
         {
             BasePhysical = basePhysical;
             BaseMental = baseMental;
@@ -20,8 +25,8 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [JsonProperty] public virtual int BasePhysical { get; protected set; }
         [JsonProperty] public virtual int BaseMental { get; protected set; }
 
-        [Modifiable("Physical", "Physical")] public virtual int Physical { get => BasePhysical + ModifierRoll(nameof(Physical)); }
-        [Modifiable("Mental", "Mental")] public virtual int Mental { get => BaseMental + ModifierRoll(nameof(Mental)); }
+        [Modifiable] public virtual int Physical { get => BasePhysical + ModifierRoll(nameof(Physical)); }
+        [Modifiable] public virtual int Mental { get => BaseMental + ModifierRoll(nameof(Mental)); }
     }
 
     public class CompositeHealth : Health
@@ -30,6 +35,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
 
         public CompositeHealth(Health[] healths)
         {
+            Name = nameof(Health);
             _healths = healths;
         }
 

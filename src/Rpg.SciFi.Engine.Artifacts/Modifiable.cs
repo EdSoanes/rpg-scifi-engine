@@ -6,18 +6,26 @@ namespace Rpg.SciFi.Engine.Artifacts
     public sealed class Modifier
     {
         [JsonProperty] private int? _diceRoll { get; set; } = null;
+        public Modifier() { }
 
-        public Modifier(string name, string property, string dice) 
+        public Modifier(string name, string property, string dice)
         {
             Name = name;
             Property = property;
             Dice = dice;
         }
 
+        public Modifier(string name, Guid contextId, string property, string dice) 
+        {
+            Name = name;
+            Property = $"{contextId}.{property}";
+            Dice = dice;
+        }
+
         [JsonProperty] public Guid Id { get; private set;} = Guid.NewGuid();
-        [JsonProperty] public string Name { get; set; }
-        [JsonProperty] public Property Property { get; set; }
-        [JsonProperty] public Dice Dice { get; set; }
+        [JsonProperty] public string Name { get; private set; }
+        [JsonProperty] public Property Property { get; private set; }
+        [JsonProperty] public Dice Dice { get; private set; }
 
         public int Roll()
         {
@@ -32,9 +40,17 @@ namespace Rpg.SciFi.Engine.Artifacts
     {
         [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
         [JsonProperty] public string Name { get; protected set; } = nameof(Modifiable);
-        [JsonProperty] public string? Description { get; protected set; }
-
         [JsonProperty] protected List<Modifier> Modifiers { get; private set; } = new List<Modifier>();
+
+        public Modifiable()
+        {
+            Nexus.Contexts.TryAdd(Id, this);
+        }
+
+        ~Modifiable()
+        {
+            Nexus.Contexts.TryRemove(Id, out _);
+        }
 
         public Dice ModifierDice(string prop)
         {

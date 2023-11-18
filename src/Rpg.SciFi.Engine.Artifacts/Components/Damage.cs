@@ -6,8 +6,13 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
 {
     public class Damage : Modifiable
     {
-        public Damage() { }
+        public Damage() 
+        {
+            Name = nameof(Damage);
+        }
+
         public Damage(Dice baseImpact, Dice basePierce, Dice baseBlast, Dice baseBurn, Dice baseEnergy)
+            : this()
         {
             BaseImpact = baseImpact;
             BasePierce = basePierce;
@@ -22,10 +27,10 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [JsonProperty] public Dice BaseBurn { get; protected set; }
         [JsonProperty] public Dice BaseEnergy { get; protected set; }
 
-        [Modifiable("Impact", "Impact")] public Dice Impact { get => BaseImpact + ModifierDice(nameof(Impact)); }
-        [Modifiable("Pierce", "Pierce")] public Dice Pierce { get => BasePierce + ModifierDice(nameof(Pierce)); }
-        [Modifiable("Blast", "Blast")] public Dice Blast { get => BaseBlast + ModifierDice(nameof(Blast)); }
-        [Modifiable("Burn", "Burn")] public Dice Burn { get => BaseBurn + ModifierDice(nameof(Burn)); }
-        [Modifiable("Energy", "Energy")] public Dice Energy { get => BaseEnergy + ModifierDice(nameof(Energy)); }
+        [Modifiable] public Dice Impact { get => BaseImpact + ModifierDice(nameof(Impact)); }
+        [Modifiable] public Dice Pierce { get => BasePierce + ModifierDice(nameof(Pierce)); }
+        [Modifiable] public Dice Blast { get => BaseBlast + ModifierDice(nameof(Blast)); }
+        [Modifiable] public Dice Burn { get => BaseBurn + ModifierDice(nameof(Burn)); }
+        [Modifiable] public Dice Energy { get => BaseEnergy + ModifierDice(nameof(Energy)); }
     }
 }
