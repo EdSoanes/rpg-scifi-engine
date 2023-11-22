@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Rpg.SciFi.Engine.Artifacts.Attributes;
+using Rpg.SciFi.Engine.Artifacts.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,8 +25,8 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [JsonProperty] public virtual int BasePhysical { get; protected set; }
         [JsonProperty] public virtual int BaseMental { get; protected set; }
 
-        [Modifiable] public virtual int Physical { get => BasePhysical + ModifierRoll(nameof(Physical)); }
-        [Modifiable] public virtual int Mental { get => BaseMental + ModifierRoll(nameof(Mental)); }
+        [Moddable] public virtual int Physical { get => BasePhysical + ModifierRoll(nameof(Physical)); }
+        [Moddable] public virtual int Mental { get => BaseMental + ModifierRoll(nameof(Mental)); }
     }
 
     public class CompositeHealth : Health

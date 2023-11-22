@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts;
 using Rpg.SciFi.Engine.Artifacts.Components;
+using Rpg.SciFi.Engine.Artifacts.Core;
 
 namespace Rpg.SciFi.Engine.Tests
 {
@@ -64,7 +65,7 @@ namespace Rpg.SciFi.Engine.Tests
             Assert.IsNotNull(damage);
 
             Assert.AreEqual<string>("1d6", damage.Blast);
-            damage.AddModifier(new Modifier("Weapon Damage", "Blast", "d8"));
+            damage.AddModifier(damage.Mod("Weapon Damage", (w) => w.Blast, "d8"));
 
             Assert.AreEqual<string>("1d8 + 1d6", damage.Blast);
 
@@ -77,7 +78,7 @@ namespace Rpg.SciFi.Engine.Tests
         public void Damage_Serialization_WithMod()
         {
             var damage = new Damage("d6", "d6", "d6", "d6", "d6");
-            damage.AddModifier(new Modifier("Weapon Damage", "Blast", "d8"));
+            damage.AddModifier(damage.Mod("Weapon Damage", (w) => w.Blast, "d8"));
 
             var json = JsonConvert.SerializeObject(damage);
             var damage2 = JsonConvert.DeserializeObject<Damage>(json);

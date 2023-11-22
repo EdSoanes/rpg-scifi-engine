@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Rpg.SciFi.Engine.Artifacts.Attributes;
+using Rpg.SciFi.Engine.Artifacts.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,10 +28,10 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [JsonProperty] public int BaseDeceleration { get; protected set; }
         [JsonProperty] public int BaseManeuverability { get; protected set; }
 
-        [Modifiable] public int Speed { get => BaseSpeed + ModifierRoll(nameof(Speed)); }
-        [Modifiable] public int Acceleration { get => BaseAcceleration + ModifierRoll(nameof(Acceleration)); }
-        [Modifiable] public int Deceleration { get => BaseDeceleration + ModifierRoll(nameof(Deceleration)); }
-        [Modifiable] public int Maneuverability { get => BaseManeuverability + ModifierRoll(nameof(Maneuverability)); }
+        [Moddable] public int Speed { get => BaseSpeed + ModifierRoll(nameof(Speed)); }
+        [Moddable] public int Acceleration { get => BaseAcceleration + ModifierRoll(nameof(Acceleration)); }
+        [Moddable] public int Deceleration { get => BaseDeceleration + ModifierRoll(nameof(Deceleration)); }
+        [Moddable] public int Maneuverability { get => BaseManeuverability + ModifierRoll(nameof(Maneuverability)); }
     }
 }
 

@@ -29,6 +29,8 @@ namespace Rpg.SciFi.Engine.Artifacts.Expressions
 
         public static implicit operator string(Dice d) => d.ToString();
         public static implicit operator Dice(string expr) => new Dice(expr);
+        public static implicit operator Dice(int val) => new Dice(val.ToString());
+
         public static Dice operator +(Dice d1, Dice d2)
         {
             string expr1 = d1;

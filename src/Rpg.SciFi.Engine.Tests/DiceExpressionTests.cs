@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Rpg.SciFi.Engine.Artifacts;
+using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
 using System;
 using System.Collections.Generic;

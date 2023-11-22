@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rpg.SciFi.Engine.Artifacts.Attributes
+namespace Rpg.SciFi.Engine.Artifacts.Core
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public class ModifiableAttribute : Attribute
+    public class ModdableAttribute : Attribute
     {
-        public ModifiableAttribute()
+        public ModdableAttribute()
         {
         }
     }

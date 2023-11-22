@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using Rpg.SciFi.Engine.Artifacts.Core;
 
 namespace Rpg.SciFi.Engine.Artifacts.Expressions.Parsers
 {

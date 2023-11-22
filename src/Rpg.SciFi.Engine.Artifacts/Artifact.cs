@@ -1,12 +1,7 @@
 ﻿using Newtonsoft.Json;
-using Rpg.SciFi.Engine.Artifacts.Attributes;
 using Rpg.SciFi.Engine.Artifacts.Components;
+using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Turns;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
@@ -14,8 +9,6 @@ namespace Rpg.SciFi.Engine.Artifacts
     {
         public Artifact() 
         {
-            Nexus.Contexts.TryAdd(Id, this);
-
             Name = nameof(Artifact);
             Emissions = new EmissionSignature();
             Resistances = new Resistances();

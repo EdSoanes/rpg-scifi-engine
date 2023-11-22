@@ -1,5 +1,4 @@
-﻿using Rpg.SciFi.Engine.Artifacts.Attributes;
-using Rpg.SciFi.Engine.Artifacts.Expressions;
+﻿using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.Turns;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -7,7 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 
-namespace Rpg.SciFi.Engine.Artifacts
+namespace Rpg.SciFi.Engine.Artifacts.Core
 {
     public static class Nexus
     {
@@ -65,7 +64,7 @@ namespace Rpg.SciFi.Engine.Artifacts
 
                 if (pt.IsAssignableTo(typeof(IEnumerable)))
                     continue;
-                
+
                 if ((pt.IsPrimitive || pt == typeof(string) || pt == typeof(Dice)) && propertyInfo.SetMethod == null)
                 {
                     props.Add(prop);

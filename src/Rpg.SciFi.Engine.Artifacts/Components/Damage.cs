@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Rpg.SciFi.Engine.Artifacts.Attributes;
+using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
@@ -27,10 +27,10 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [JsonProperty] public Dice BaseBurn { get; protected set; }
         [JsonProperty] public Dice BaseEnergy { get; protected set; }
 
-        [Modifiable] public Dice Impact { get => BaseImpact + ModifierDice(nameof(Impact)); }
-        [Modifiable] public Dice Pierce { get => BasePierce + ModifierDice(nameof(Pierce)); }
-        [Modifiable] public Dice Blast { get => BaseBlast + ModifierDice(nameof(Blast)); }
-        [Modifiable] public Dice Burn { get => BaseBurn + ModifierDice(nameof(Burn)); }
-        [Modifiable] public Dice Energy { get => BaseEnergy + ModifierDice(nameof(Energy)); }
+        [Moddable] public Dice Impact { get => BaseImpact + ModifierDice(nameof(Impact)); }
+        [Moddable] public Dice Pierce { get => BasePierce + ModifierDice(nameof(Pierce)); }
+        [Moddable] public Dice Blast { get => BaseBlast + ModifierDice(nameof(Blast)); }
+        [Moddable] public Dice Burn { get => BaseBurn + ModifierDice(nameof(Burn)); }
+        [Moddable] public Dice Energy { get => BaseEnergy + ModifierDice(nameof(Energy)); }
     }
 }

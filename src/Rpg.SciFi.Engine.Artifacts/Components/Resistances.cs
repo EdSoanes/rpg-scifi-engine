@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Rpg.SciFi.Engine.Artifacts.Attributes;
+using Rpg.SciFi.Engine.Artifacts.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,11 +32,11 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [JsonProperty] public virtual int BaseHeat { get; protected set; }
         [JsonProperty] public virtual int BaseEnergy { get; protected set; }
 
-        [Modifiable] public virtual int Impact { get => BaseImpact + ModifierRoll(nameof(BaseImpact)); }
-        [Modifiable] public virtual int Pierce { get => BasePierce + ModifierRoll(nameof(BasePierce));}
-        [Modifiable] public virtual int Blast { get => BaseBlast + ModifierRoll(nameof(BaseBlast)); }
-        [Modifiable] public virtual int Heat { get => BaseHeat + ModifierRoll(nameof(BaseHeat)); }
-        [Modifiable] public virtual int Energy { get => BaseEnergy + ModifierRoll(nameof(BaseEnergy)); }
+        [Moddable] public virtual int Impact { get => BaseImpact + ModifierRoll(nameof(BaseImpact)); }
+        [Moddable] public virtual int Pierce { get => BasePierce + ModifierRoll(nameof(BasePierce));}
+        [Moddable] public virtual int Blast { get => BaseBlast + ModifierRoll(nameof(BaseBlast)); }
+        [Moddable] public virtual int Heat { get => BaseHeat + ModifierRoll(nameof(BaseHeat)); }
+        [Moddable] public virtual int Energy { get => BaseEnergy + ModifierRoll(nameof(BaseEnergy)); }
     }
 
     public class CompositeResistances : Resistances
@@ -60,10 +60,10 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [JsonProperty] public override int BaseHeat { get => _resistances.Sum(x => x.BaseHeat); protected set => throw new ArgumentException(nameof(BaseHeat)); }
         [JsonProperty] public override int BaseEnergy { get => _resistances.Sum(x => x.BaseEnergy); protected set => throw new ArgumentException(nameof(BaseEnergy)); }
 
-        [Modifiable] public override int Impact { get => BaseImpact + _resistances.Sum(x => x.Impact); }
-        [Modifiable] public override int Pierce { get => BasePierce + _resistances.Sum(x => x.Pierce); }
-        [Modifiable] public override int Blast { get => BaseBlast + _resistances.Sum(x => x.Blast); }
-        [Modifiable] public override int Heat { get => BaseHeat + _resistances.Sum(x => x.Heat); }
-        [Modifiable] public override int Energy { get => BaseEnergy + _resistances.Sum(x => x.Energy); }
+        [Moddable] public override int Impact { get => BaseImpact + _resistances.Sum(x => x.Impact); }
+        [Moddable] public override int Pierce { get => BasePierce + _resistances.Sum(x => x.Pierce); }
+        [Moddable] public override int Blast { get => BaseBlast + _resistances.Sum(x => x.Blast); }
+        [Moddable] public override int Heat { get => BaseHeat + _resistances.Sum(x => x.Heat); }
+        [Moddable] public override int Energy { get => BaseEnergy + _resistances.Sum(x => x.Energy); }
     }
 }
