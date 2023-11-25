@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
+using Rpg.SciFi.Engine.Artifacts.Meta;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
@@ -27,10 +28,20 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [JsonProperty] public Dice BaseBurn { get; protected set; }
         [JsonProperty] public Dice BaseEnergy { get; protected set; }
 
-        [Moddable] public Dice Impact { get => BaseImpact + ModifierDice(nameof(Impact)); }
-        [Moddable] public Dice Pierce { get => BasePierce + ModifierDice(nameof(Pierce)); }
-        [Moddable] public Dice Blast { get => BaseBlast + ModifierDice(nameof(Blast)); }
-        [Moddable] public Dice Burn { get => BaseBurn + ModifierDice(nameof(Burn)); }
-        [Moddable] public Dice Energy { get => BaseEnergy + ModifierDice(nameof(Energy)); }
+        [Moddable] public Dice Impact { get => this.Evaluate(nameof(Impact)); }
+        [Moddable] public Dice Pierce { get => this.Evaluate(nameof(Pierce)); }
+        [Moddable] public Dice Blast { get => this.Evaluate(nameof(Blast)); }
+        [Moddable] public Dice Burn { get => this.Evaluate(nameof(Burn)); }
+        [Moddable] public Dice Energy { get => this.Evaluate(nameof(Energy)); }
+
+        [Setup]
+        public void Setup()
+        {
+            this.AddMod(x => x.BaseBlast, x => x.Blast);
+            this.AddMod(x => x.BasePierce, x => x.Pierce);
+            this.AddMod(x => x.BaseImpact, x => x.Impact);
+            this.AddMod(x => x.BaseBurn,x => x.Burn);
+            this.AddMod(x => x.BaseEnergy, x => x.Energy);
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
+using Rpg.SciFi.Engine.Artifacts.Meta;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,13 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [JsonProperty] protected List<Artifact> Artifacts { get; set; } = new List<Artifact>();
         [JsonProperty] public int BaseEncumbrance { get; protected set; }
 
-        [Moddable] public int Encumbrance { get => BaseEncumbrance + ModifierRoll(nameof(Encumbrance)); }
+        [Moddable] public int Encumbrance { get => this.Resolve(nameof(Encumbrance)); }
+
+        [Setup]
+        public void Setup()
+        {
+            this.AddMod(x => x.BaseEncumbrance, x => x.Encumbrance);
+        }
 
         public void Add(Artifact artifact)
         {

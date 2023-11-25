@@ -2,6 +2,7 @@
 using Rpg.SciFi.Engine.Artifacts;
 using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Core;
+using Rpg.SciFi.Engine.Artifacts.Meta;
 
 namespace Rpg.SciFi.Engine.Tests
 {
@@ -17,9 +18,23 @@ namespace Rpg.SciFi.Engine.Tests
         }
 
         [TestMethod]
+        public void StatPoints_Test()
+        {
+            var statPoints = new StatPoints();
+            MetaEngine.Initialize(statPoints);
+            statPoints.Setup();
+
+            Assert.IsNotNull(statPoints);
+            Assert.AreEqual(0, statPoints.StrengthBonus);
+
+        }
+
+        [TestMethod]
         public void Damage_TestDamage()
         {
             var damage = new TestDamage();
+            MetaEngine.Initialize(damage);
+            damage.Setup();
 
             Assert.IsNotNull(damage);
             Assert.AreEqual<string>("1d10", damage.Blast);
@@ -32,7 +47,9 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void Damage_Serialization()
         {
-            var damage = new Damage();
+            var damage = new TestDamage();
+            MetaEngine.Initialize(damage);
+            damage.Setup();
 
             var json = JsonConvert.SerializeObject(damage);
             var damage2 = JsonConvert.DeserializeObject<Damage>(json);
@@ -62,14 +79,17 @@ namespace Rpg.SciFi.Engine.Tests
         public void Damage_ApplyMod() 
         {
             var damage = new Damage("d6", "d6", "d6", "d6", "d6");
+            MetaEngine.Initialize(damage);
+            damage.Setup();
+
             Assert.IsNotNull(damage);
 
             Assert.AreEqual<string>("1d6", damage.Blast);
-            damage.AddModifier(damage.Mod("Weapon Damage", (w) => w.Blast, "d8"));
+            damage.AddMod("Weapon Damage", "d8", x => x.Blast);
 
             Assert.AreEqual<string>("1d8 + 1d6", damage.Blast);
 
-            damage.ClearMods();
+            damage.RemoveMods();
 
             Assert.AreEqual<string>("1d6", damage.Blast);
         }
@@ -77,8 +97,11 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void Damage_Serialization_WithMod()
         {
-            var damage = new Damage("d6", "d6", "d6", "d6", "d6");
-            damage.AddModifier(damage.Mod("Weapon Damage", (w) => w.Blast, "d8"));
+            var damage = new TestDamage();
+            MetaEngine.Initialize(damage);
+            damage.Setup();
+
+            damage.AddMod("Weapon Damage", "d8", x => x.Blast);
 
             var json = JsonConvert.SerializeObject(damage);
             var damage2 = JsonConvert.DeserializeObject<Damage>(json);
@@ -86,7 +109,7 @@ namespace Rpg.SciFi.Engine.Tests
             Assert.IsNotNull(damage2);
             Assert.AreEqual<string>("1d8 + 1d6", damage2.Blast);
 
-            damage2.ClearMods();
+            damage2.RemoveMods();
             Assert.AreEqual<string>("1d6", damage2.Blast);
         }
     }

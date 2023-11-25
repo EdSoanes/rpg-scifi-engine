@@ -1,15 +1,16 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
+using Rpg.SciFi.Engine.Artifacts.Meta;
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
-    public enum ModifierType
+    public enum ModDurationType
     {
-        Permanent, //Always applied, such as stat bonuses, skill increases
-        Turn, //Duration in number of turns
+        Permanent,
+        Turn,
         Encounter,
-        Immediate //Effect is applied immediately and the modifier is removed, such as damage application
+        Conditional
     }
 
     public enum DeleteOn
@@ -42,11 +43,10 @@ namespace Rpg.SciFi.Engine.Artifacts
 
     public sealed class Modifier
     {
-        [JsonProperty] private int? _diceRoll { get; set; } = null;
-
         public Modifier(string name, Dice dice, MetaModLocator target)
         {
             Name = name;
+            DurationType = ModDurationType.Permanent;
             Dice = dice;
             Target = target;
         }
@@ -54,64 +54,48 @@ namespace Rpg.SciFi.Engine.Artifacts
         public Modifier(string name, MetaModLocator source, MetaModLocator target)
         {
             Name = name;
+            DurationType = ModDurationType.Permanent;
+            Source = source;
+            Target = target;
+        }
+
+        public Modifier(string name, ModDurationType durationType, Dice dice, MetaModLocator target)
+        {
+            Name = name;
+            DurationType = durationType;
+            Dice = dice;
+            Target = target;
+        }
+
+        public Modifier(string name, ModDurationType durationType, MetaModLocator source, MetaModLocator target)
+        {
+            Name = name;
+            DurationType = durationType;
             Source = source;
             Target = target;
         }
 
         [JsonProperty] public string Name { get; private set; }
+        [JsonProperty] public ModDurationType DurationType { get; private set; }
         [JsonProperty] public Dice? Dice { get; private set; }
         [JsonProperty] public MetaModLocator? Source { get; private set; }
         [JsonProperty] public MetaModLocator Target { get; private set; }
 
-        public int Roll()
+        public Dice Evaluate()
         {
-            if (_diceRoll == null)
-                _diceRoll = MetaDiscovery.GetDice(Source)?.Roll() ?? Dice?.Roll();
+            if (Dice != null)
+                return Dice.Value;
 
-            return _diceRoll ?? 0;
+            if (Source?.Id == null)
+                return "0";
+
+            var dice = Source.Id.Meta().Evaluate(Source.Prop);
+            return dice;
         }
     }
 
-    public abstract class Modifiable
+    public abstract class Modifiable : Entity
     {
-        [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
         [JsonProperty] public string Name { get; protected set; } = nameof(Modifiable);
-        [JsonProperty] protected List<Modifier> Modifiers { get; private set; } = new List<Modifier>();
-
-        public Dice ModifierDice(string prop)
-        {
-            var exprs = Modifiers
-                .Where(x => x.Target.Prop == prop)
-                .Select(x => x.Dice)
-                .Where(x => x != null)
-                .Cast<Dice>();
-
-            Dice dice = string.Concat(exprs);
-
-            return dice;
-        }
-
-        public int ModifierRoll(string prop)
-        {
-            return Modifiers.Where(x => x.Target.Prop == prop).Sum(x => x.Roll());
-        }
-
-        public void ClearMods()
-        {
-            Modifiers.Clear();
-        }
-
-        public void AddModifier(Modifier mod)
-        {
-            if (!Modifiers.Any(x => x.Name == mod.Name))
-                Modifiers.Add(mod);
-        }
-
-        public void RemoveModifier(string name)
-        {
-            var mod = Modifiers.SingleOrDefault(x => x.Name == name);
-            if (mod != null)
-                Modifiers.Remove(mod);
-        }
     }
 }

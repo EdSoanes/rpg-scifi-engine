@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Core;
+using Rpg.SciFi.Engine.Artifacts.Meta;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,8 +23,12 @@ namespace Rpg.SciFi.Engine.Artifacts
                 BaseIntelligence = 14,
                 BaseDexterity = 5
             };
+        }
 
-            Stats.AddModifier(this.Modifies(nameof(Stats.StrengthBonus), (c) => c.Damage.Impact, (c) => c.Stats.StrengthBonus));
+        [Setup]
+        public void Setup()
+        {
+            Stats.Modifies(Damage, (s) => s.StrengthBonus, (d) => d.Impact);
         }
 
         [JsonProperty] public StatPoints Stats { get; private set; }

@@ -6,244 +6,256 @@ using System.Reflection;
 
 namespace Rpg.SciFi.Engine.Artifacts.Core
 {
-    public static class MetaDiscovery
-    {
-        private static object? _context;
-        public static Game? Context { get; private set; }
-        public static MetaEntity[]? MetaEntities { get; private set; }
+    //public static class MetaDiscovery
+    //{
+    //    private static object? _context;
+    //    public static Game? Context { get; private set; }
+    //    public static MetaEntity[]? MetaEntities { get; private set; }
 
-        public static void Initialize(Game game)
-        {
-            Context = game;
-            MetaEntities = Discover(game)
-                .OrderBy(x => x.Path)
-                .ToArray();
-        }
-        public static Dice? GetDice(MetaModLocator? locator)
-        {
-            if (locator == null)
-                return null;
+    //    public static List<object> _setups = new List<object>();
 
-            var entity = Find(locator.Id);
-            Dice dice = entity!.GetType().GetProperty(locator.Prop)!.GetValue(entity)?.ToString() ?? "0";
+    //    public static void Initialize(Game game)
+    //    {
+    //        Context = game;
+    //        MetaEntities = Discover(game)
+    //            .OrderBy(x => x.Path)
+    //            .ToArray();
+    //    }
 
-            return dice;
-        }
+    //    public static Dice? GetDice(MetaModLocator? locator)
+    //    {
+    //        if (locator == null)
+    //            return null;
 
-        public static MetaModLocator GetModLocator<T, TResult>(object? obj, Expression<Func<T, TResult>> expression)
-        {
-            var locator = new MetaModLocator();
+    //        var entity = Find<Modifiable>(locator.Id);
+    //        Dice dice = entity!.GetType().GetProperty(locator.Prop)!.GetValue(entity)?.ToString() ?? "0";
 
-            var memberExpression = expression.Body as MemberExpression;
-            if (memberExpression == null)
-                throw new ArgumentException($"Invalid path expression. {expression.Name} not a member expression");
+    //        return dice;
+    //    }
 
-            var path = new List<string>();
-            int pos = 0;
-            while (memberExpression != null)
-            {
-                path.Add(memberExpression.Member.Name);
+    //    public static MetaModLocator GetModLocator<T, TResult>(object? obj, Expression<Func<T, TResult>> expression, bool source = false)
+    //    {
+    //        var locator = new MetaModLocator();
 
-                //The first member (last property in the expression) must be moddable
-                if (pos == 0)
-                {
-                    var moddable = memberExpression.Member.GetCustomAttribute<ModdableAttribute>() != null;
-                    if (!moddable)
-                        throw new ArgumentException($"Invalid path. Property {memberExpression.Member.Name} must have the attribute {nameof(ModdableAttribute)}");
+    //        var memberExpression = expression.Body as MemberExpression;
+    //        if (memberExpression == null)
+    //            throw new ArgumentException($"Invalid path expression. {expression.Name} not a member expression");
 
-                    locator.Prop = memberExpression.Member.Name;
-                }
-                //The direct parent of the last property must be on a class inheriting from the Modifiable class
-                else if (pos == 1)
-                {
-                    var modifiable = memberExpression.Type.IsAssignableTo(typeof(Modifiable));
-                    if (!modifiable)
-                        throw new ArgumentException($"Invalid path. Parent object {memberExpression.Member.Name} must inherit from {nameof(Modifiable)}");
-                }
+    //        var path = new List<string>();
+    //        int pos = 0;
+    //        while (memberExpression != null)
+    //        {
+    //            path.Add(memberExpression.Member.Name);
 
-                memberExpression = memberExpression.Expression as MemberExpression;
-                pos++;
-            }
+    //            //The first member (last property in the expression) must be moddable
+    //            if (pos == 0)
+    //            {
+    //                var moddable = memberExpression.Member.GetCustomAttribute<ModdableAttribute>() != null;
+    //                if (!moddable && !source)
+    //                    throw new ArgumentException($"Invalid path. Property {memberExpression.Member.Name} must have the attribute {nameof(ModdableAttribute)}");
 
-            path.Reverse();
-            if (obj != null)
-            {
-                var val = obj;
-                foreach (var prop in path.Take(path.Count() - 1))
-                {
-                    if (val == null)
-                        break;
+    //                locator.Prop = memberExpression.Member.Name;
+    //            }
+    //            //The direct parent of the last property must be on a class inheriting from the Modifiable class
+    //            else if (pos == 1)
+    //            {
+    //                var modifiable = memberExpression.Type.IsAssignableTo(typeof(Modifiable));
+    //                if (!modifiable && !source)
+    //                    throw new ArgumentException($"Invalid path. Parent object {memberExpression.Member.Name} must inherit from {nameof(Modifiable)}");
+    //            }
 
-                    val = val.GetType().GetProperty(prop)!.GetValue(val);
-                }
+    //            memberExpression = memberExpression.Expression as MemberExpression;
+    //            pos++;
+    //        }
 
-                locator.Id = (val as Modifiable)!.Id;
-            }
+    //        path.Reverse();
+    //        if (obj != null)
+    //        {
+    //            var val = obj;
+    //            foreach (var prop in path.Take(path.Count() - 1))
+    //            {
+    //                if (val == null)
+    //                    break;
 
-            return locator;
-        }
+    //                val = val.GetType().GetProperty(prop)!.GetValue(val);
+    //            }
 
-        public static MetaEntity? Find(Guid contextId)
-        {
-            if (MetaEntities == null)
-                throw new InvalidOperationException("MetaDiscovery not initialized");
+    //            locator.Id = (val as Modifiable)!.Id;
+    //        }
 
-            return MetaEntities.SingleOrDefault(x => x.Id == contextId);
-        }
+    //        return locator;
+    //    }
 
-        public static MetaEntity Find(string path, out string property)
-        {
-            if (MetaEntities == null)
-                throw new InvalidOperationException("MetaDiscovery not initialized");
+    //    public static MetaEntity? Find<T>(Guid contextId)
+    //    {
+    //        if (MetaEntities == null)
+    //            throw new InvalidOperationException("MetaDiscovery not initialized");
 
-            var parts = path.Split('.');
-            var entityPath = string.Join(".", parts.Take(parts.Length - 1));
-            var prop = parts.Last();
+    //        return MetaEntities.SingleOrDefault(x => x.Id == contextId && x.EntityType == typeof(T).Name);
+    //    }
 
-            var metaEntity = MetaEntities.SingleOrDefault(x => x.Path == entityPath && x.ModifiableProperties.Any(x => x == prop));
-            if (metaEntity == null)
-                throw new ArgumentException($"{path} is invalid");
+    //    public static MetaEntity Find(string path, out string property)
+    //    {
+    //        if (MetaEntities == null)
+    //            throw new InvalidOperationException("MetaDiscovery not initialized");
 
-            property = prop;
-            return metaEntity;
-        }
+    //        var parts = path.Split('.');
+    //        var entityPath = string.Join(".", parts.Take(parts.Length - 1));
+    //        var prop = parts.Last();
 
-        private static List<MetaEntity> Discover(object context, string basePath = "{context}")
-        {
-            var meta = new List<MetaEntity>();
+    //        var metaEntity = MetaEntities.SingleOrDefault(x => x.Path == entityPath && x.ModifiableProperties.Any(x => x == prop));
+    //        if (metaEntity == null)
+    //            throw new ArgumentException($"{path} is invalid");
 
-            var metaEntity = MetaEntity(context);
-            if (metaEntity != null)
-            {
-                metaEntity.Path = basePath;
-                meta.Add(metaEntity);
-            }
+    //        property = prop;
+    //        return metaEntity;
+    //    }
 
-            if (metaEntity?.EntityType == nameof(Artifact))
-            {
-                foreach (var methodInfo in context.GetType().GetMethods())
-                {
-                    var metaAction = AbilityMethod(methodInfo);
-                    if (metaAction != null)
-                        metaEntity?.Actions?.Add(metaAction);
-                }
-            }
+    //    private static List<MetaEntity> Discover(object context, string basePath = "{context}")
+    //    {
+    //        var meta = new List<MetaEntity>();
 
-            var propertyInfos = GetFilteredProperties(context);
-            foreach (var propertyInfo in propertyInfos)
-            {
-                if (IsModifiableProperty(propertyInfo) && metaEntity != null)
-                {
-                    metaEntity.ModifiableProperties?.Add(propertyInfo.Name);
-                }
+    //        var metaEntity = MetaEntity(context);
+    //        if (metaEntity != null)
+    //        {
+    //            metaEntity.Path = basePath;
+    //            meta.Add(metaEntity);
+    //        }
 
-                var items = GetPropertyObjects(propertyInfo, context, out var isEnumerable);
-                var path = $"{basePath}.{propertyInfo.Name}{(isEnumerable ? "[]" : "")}";
-                foreach (var item in items)
-                {
-                    var subEntities = Discover(item, path);
-                    meta.AddRange(subEntities);
-                }
-            }
+    //        if (metaEntity?.EntityType == nameof(Artifact))
+    //        {
+    //            foreach (var methodInfo in context.GetType().GetMethods())
+    //            {
+    //                var metaAction = AbilityMethod(methodInfo);
+    //                if (metaAction != null)
+    //                    metaEntity?.AbilityMethods?.Add(metaAction);
+    //            }
+    //        }
 
-            return meta;
-        }
+    //        var propertyInfos = GetFilteredProperties(context);
+    //        foreach (var propertyInfo in propertyInfos)
+    //        {
+    //            if (IsModifiableProperty(propertyInfo) && metaEntity != null)
+    //            {
+    //                metaEntity.ModifiableProperties?.Add(propertyInfo.Name);
+    //            }
 
-        private static MetaEntity? MetaEntity(object? obj)
-        {
-            if (obj == null)
-                return null;
+    //            var items = GetPropertyObjects(propertyInfo, context, out var isEnumerable);
+    //            var path = $"{basePath}.{propertyInfo.Name}{(isEnumerable ? "[]" : "")}";
+    //            foreach (var item in items)
+    //            {
+    //                var subEntities = Discover(item, path);
+    //                meta.AddRange(subEntities);
+    //            }
+    //        }
 
-            if (obj.GetType().IsAssignableTo(typeof(Modifiable)))
-            {
-                var modifiable = (Modifiable)obj;
-                return new MetaEntity
-                {
-                    Id = modifiable.Id,
-                    Name = modifiable.Name,
-                    EntityType = nameof(Modifiable),
-                    Entity = obj
-                };
-            }
+    //        return meta;
+    //    }
 
-            if (obj.GetType().IsAssignableTo(typeof(Artifact)))
-            {
-                var artifact = (Artifact)obj;
-                return new MetaEntity
-                {
-                    Id = artifact.Id,
-                    Name = artifact.Name,
-                    EntityType = nameof(Artifact),
-                    Entity = obj
-                };
-            }
+    //    private static MetaEntity? MetaEntity(object? obj)
+    //    {
+    //        if (obj == null)
+    //            return null;
 
-            return null;
-        }
+    //        var metaEntity = new MetaEntity
+    //        {
+    //            Entity = obj,
+    //            EntityType = "object",
+    //            SetupMethods = GetSetupMethods(obj)
+    //        };
 
-        private static IEnumerable<object> GetPropertyObjects(PropertyInfo propertyInfo, object entity, out bool isEnumerable)
-        {
-            isEnumerable = false;
+    //        if (obj.GetType().IsAssignableTo(typeof(Modifiable)))
+    //        {
+    //            var modifiable = (Modifiable)obj;
+    //            metaEntity.Id = modifiable.Id;
+    //            metaEntity.Name = modifiable.Name;
+    //            metaEntity.EntityType = nameof(Modifiable);
+    //        }
 
-            var obj = propertyInfo.GetValue(entity, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, null, null);
-            if (obj == null || obj is string || obj.GetType().IsPrimitive)
-                return Enumerable.Empty<object>();
+    //        else if (obj.GetType().IsAssignableTo(typeof(Artifact)))
+    //        {
+    //            var artifact = (Artifact)obj;
+    //            metaEntity.Id = artifact.Id;
+    //            metaEntity.Name = artifact.Name;
+    //            metaEntity.EntityType = nameof(Modifiable);
+    //        }
 
-            if (obj is IEnumerable)
-            {
-                isEnumerable = true;
-                return (obj as IEnumerable)!.Cast<object>();
-            }
+    //        return null;
+    //    }
 
-            return new List<object> { obj };
-        }
+    //    private static string[] GetSetupMethods(object obj)
+    //    {
+    //        var setupMethods = obj.GetType().GetMethods()
+    //            .Where(x => x.GetCustomAttribute<SetupAttribute>() != null)
+    //            .Select(x => x.Name)
+    //            .ToArray();
 
-        private static bool IsModifiableProperty(PropertyInfo propertyInfo)
-        {
-            var attr = propertyInfo.GetCustomAttribute<ModdableAttribute>();
-            return attr != null;
-        }
+    //        return setupMethods;
+    //    }
 
-        private static MetaAction? AbilityMethod(MethodInfo methodInfo)
-        {
-            var attr = methodInfo.GetCustomAttribute<AbilityAttribute>();
-            if (attr != null && methodInfo.ReturnType == typeof(TurnAction))
-            {
-                var metaAction = new MetaAction
-                {
-                    Name = attr.Name
-                };
+    //    private static IEnumerable<object> GetPropertyObjects(PropertyInfo propertyInfo, object entity, out bool isEnumerable)
+    //    {
+    //        isEnumerable = false;
 
-                var inputAttrs = methodInfo.GetCustomAttributes<InputAttribute>();
+    //        var obj = propertyInfo.GetValue(entity, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, null, null);
+    //        if (obj == null || obj is string || obj.GetType().IsPrimitive)
+    //            return Enumerable.Empty<object>();
 
-                foreach (var parameter in methodInfo.GetParameters())
-                {
-                    var inputAttr = inputAttrs.FirstOrDefault(x => x.Param == parameter.Name);
-                    if (inputAttr == null)
-                        throw new ArgumentException($"{methodInfo.Name} missing matching Input attribute");
+    //        if (obj is IEnumerable)
+    //        {
+    //            isEnumerable = true;
+    //            return (obj as IEnumerable)!.Cast<object>();
+    //        }
 
-                    var metaActionInput = new MetaActionInput
-                    {
-                        Name = inputAttr.Param,
-                        BindsTo = inputAttr.BindsTo,
-                        InputSource = inputAttr.InputSource
-                    };
+    //        return new List<object> { obj };
+    //    }
 
-                    metaAction.Inputs.Add(metaActionInput);
-                }
+    //    private static bool IsModifiableProperty(PropertyInfo propertyInfo)
+    //    {
+    //        var attr = propertyInfo.GetCustomAttribute<ModdableAttribute>();
+    //        return attr != null;
+    //    }
 
-                return metaAction;
-            }
+    //    private static MetaAction? AbilityMethod(MethodInfo methodInfo)
+    //    {
+    //        var attr = methodInfo.GetCustomAttribute<AbilityAttribute>();
+    //        if (attr != null && methodInfo.ReturnType == typeof(TurnAction))
+    //        {
+    //            var metaAction = new MetaAction
+    //            {
+    //                Name = attr.Name
+    //            };
 
-            return null;
-        }
+    //            var inputAttrs = methodInfo.GetCustomAttributes<InputAttribute>();
 
-        private static PropertyInfo[] GetFilteredProperties(object context)
-        {
-            return context.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(c => (c.GetMethod != null && (c.GetMethod.IsPublic || c.GetMethod.IsFamily)) || (c.SetMethod != null && (c.SetMethod.IsPublic || c.SetMethod.IsFamily)))
-                .Where(x => !(x.PropertyType.Namespace!.StartsWith("System") && x.PropertyType.Name.StartsWith("Func")))
-                .ToArray();
-        }
-    }
+    //            foreach (var parameter in methodInfo.GetParameters())
+    //            {
+    //                var inputAttr = inputAttrs.FirstOrDefault(x => x.Param == parameter.Name);
+    //                if (inputAttr == null)
+    //                    throw new ArgumentException($"{methodInfo.Name} missing matching Input attribute");
+
+    //                var metaActionInput = new MetaActionInput
+    //                {
+    //                    Name = inputAttr.Param,
+    //                    BindsTo = inputAttr.BindsTo,
+    //                    InputSource = inputAttr.InputSource
+    //                };
+
+    //                metaAction.Inputs.Add(metaActionInput);
+    //            }
+
+    //            return metaAction;
+    //        }
+
+    //        return null;
+    //    }
+
+    //    private static PropertyInfo[] GetFilteredProperties(object context)
+    //    {
+    //        return context.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+    //            .Where(c => (c.GetMethod != null && (c.GetMethod.IsPublic || c.GetMethod.IsFamily)) || (c.SetMethod != null && (c.SetMethod.IsPublic || c.SetMethod.IsFamily)))
+    //            .Where(x => !(x.PropertyType.Namespace!.StartsWith("System") && x.PropertyType.Name.StartsWith("Func")))
+    //            .ToArray();
+    //    }
+    //}
 }

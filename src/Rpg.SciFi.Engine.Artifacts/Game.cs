@@ -1,4 +1,5 @@
 ﻿using Rpg.SciFi.Engine.Artifacts.Core;
+using Rpg.SciFi.Engine.Artifacts.Meta;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,15 +8,10 @@ using System.Threading.Tasks;
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
-    public class Game
+    public class Game : Entity
     {
         public Character Character { get; set; }
         public Environment Environment { get; set; } = new Environment();
         public List<Character> Players { get; set; } = new List<Character>();
-
-        public void Initialize()
-        {
-            MetaDiscovery.Initialize(this);
-        }
     }
 }

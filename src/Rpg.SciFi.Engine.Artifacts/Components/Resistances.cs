@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
+using Rpg.SciFi.Engine.Artifacts.Meta;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,6 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         public Resistances(int baseImpact, int basePierce, int baseBlast, int baseBurn, int baseEnergy)
             : this()
         {
-
             BaseImpact = baseImpact;
             BasePierce = basePierce;
             BaseBlast = baseBlast;
@@ -32,11 +32,21 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [JsonProperty] public virtual int BaseHeat { get; protected set; }
         [JsonProperty] public virtual int BaseEnergy { get; protected set; }
 
-        [Moddable] public virtual int Impact { get => BaseImpact + ModifierRoll(nameof(BaseImpact)); }
-        [Moddable] public virtual int Pierce { get => BasePierce + ModifierRoll(nameof(BasePierce));}
-        [Moddable] public virtual int Blast { get => BaseBlast + ModifierRoll(nameof(BaseBlast)); }
-        [Moddable] public virtual int Heat { get => BaseHeat + ModifierRoll(nameof(BaseHeat)); }
-        [Moddable] public virtual int Energy { get => BaseEnergy + ModifierRoll(nameof(BaseEnergy)); }
+        [Moddable] public virtual int Impact { get => this.Resolve(nameof(BaseImpact)); }
+        [Moddable] public virtual int Pierce { get => this.Resolve(nameof(BasePierce));}
+        [Moddable] public virtual int Blast { get => this.Resolve(nameof(BaseBlast)); }
+        [Moddable] public virtual int Heat { get => this.Resolve(nameof(BaseHeat)); }
+        [Moddable] public virtual int Energy { get => this.Resolve(nameof(BaseEnergy)); }
+
+        [Setup]
+        public void Setup()
+        {
+            this.AddMod(x => x.BaseImpact, x => x.Impact);
+            this.AddMod(x => x.BasePierce, x => x.Pierce);
+            this.AddMod(x => x.BaseBlast, x => x.Blast);
+            this.AddMod(x => x.BaseHeat, x => x.Heat);
+            this.AddMod(x => x.BaseEnergy, x => x.Energy);
+        }
     }
 
     public class CompositeResistances : Resistances

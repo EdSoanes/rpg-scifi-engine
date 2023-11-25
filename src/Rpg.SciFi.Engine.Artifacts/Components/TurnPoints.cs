@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
+using Rpg.SciFi.Engine.Artifacts.Meta;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
@@ -14,8 +15,8 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [JsonProperty] public int BaseExertion { get; protected set; }
         [JsonProperty] public int BaseFocus { get; protected set; }
 
-        [Moddable] public int Action { get => BaseAction + ModifierRoll(nameof(Action)); }
-        [Moddable] public int Exertion { get => BaseExertion + ModifierRoll(nameof(Exertion)); }
-        [Moddable] public int Focus { get => BaseFocus + ModifierRoll(nameof(Focus)); }
+        [Moddable] public int Action { get => this.Resolve(nameof(Action)); }
+        [Moddable] public int Exertion { get => this.Resolve(nameof(Exertion)); }
+        [Moddable] public int Focus { get => this.Resolve(nameof(Focus)); }
     }
 }

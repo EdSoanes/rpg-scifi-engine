@@ -2,6 +2,7 @@
 using Rpg.SciFi.Engine.Artifacts;
 using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Core;
+using Rpg.SciFi.Engine.Artifacts.Meta;
 using Rpg.SciFi.Engine.Artifacts.Turns;
 
 namespace Rpg.SciFi.Engine.Tests
@@ -27,9 +28,9 @@ namespace Rpg.SciFi.Engine.Tests
             Resistances = new CompositeResistances(Parts.Select(x => x.Resistances).ToArray());
             States = new States(
                 new State("Activated",
-                    this.Mod("Noise", (car) => car.Emissions.Sound.Value, 20),
-                    this.Mod("Heat", (car) => car.Emissions.Heat.Value, 15),
-                    this.Mod("Electronics", (car) => car.Emissions.Electromagnetic.Value, 10)
+                    this.Modifies("Noise", 20, (car) => car.Emissions.Sound.Value),
+                    this.Modifies("Heat", 15, (car) => car.Emissions.Heat.Value),
+                    this.Modifies("Electronics", 10, (car) => car.Emissions.Electromagnetic.Value)
                 ));
         }
 
@@ -63,9 +64,9 @@ namespace Rpg.SciFi.Engine.Tests
         {
             var game = new Game();
             game.Environment.Contains.Add(new Car());
-            MetaDiscovery.Initialize(game);
+            MetaEngine.Initialize(game);
 
-            Assert.IsNotNull(MetaDiscovery.MetaEntities);
+            Assert.IsNotNull(MetaEngine.MetaEntities);
         }
 
         [TestMethod]
@@ -74,36 +75,36 @@ namespace Rpg.SciFi.Engine.Tests
             var car = new Car();
             var game = new Game();
             game.Environment.Contains.Add(car);
-            MetaDiscovery.Initialize(game);
-            Assert.IsNotNull(MetaDiscovery.MetaEntities);
+            MetaEngine.Initialize(game);
+            Assert.IsNotNull(MetaEngine.MetaEntities);
 
-            var meta = MetaDiscovery.Find(car.Id);
+            var meta = car.Meta();
             Assert.IsNotNull(meta);
 
-            meta = MetaDiscovery.Find(car.Emissions.VisibleLight.Id);
+            meta = car.Emissions.VisibleLight.Meta();
             Assert.IsNotNull(meta);
 
-            meta = MetaDiscovery.Find(car.Emissions.Electromagnetic.Id);
+            meta = car.Emissions.Electromagnetic.Meta();
             Assert.IsNotNull(meta);
 
-            meta = MetaDiscovery.Find(car.Emissions.Heat.Id);
+            meta = car.Emissions.Heat.Meta();
             Assert.IsNotNull(meta);
 
-            meta = MetaDiscovery.Find(car.Emissions.Radiation.Id);
+            meta = car.Emissions.Radiation.Meta();
             Assert.IsNotNull(meta);
 
-            meta = MetaDiscovery.Find(car.Emissions.Sound.Id);
+            meta =  car.Emissions.Sound.Meta();
             Assert.IsNotNull(meta);
 
-            meta = MetaDiscovery.Find(car.Movement.Id);
+            meta = car.Movement.Meta();
             Assert.IsNotNull(meta);
 
             foreach (var carPart in car.Parts)
             {
-                meta = MetaDiscovery.Find(carPart.Health.Id);
+                meta = carPart.Health.Meta();
                 Assert.IsNotNull(meta);
 
-                meta = MetaDiscovery.Find(carPart.Resistances.Id);
+                meta = carPart.Resistances.Meta();
                 Assert.IsNotNull(meta);
             }
         }

@@ -5,7 +5,7 @@ using Rpg.SciFi.Engine.Artifacts.Turns;
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
-    public abstract class Artifact
+    public abstract class Artifact : Entity
     {
         public Artifact() 
         {
@@ -15,7 +15,6 @@ namespace Rpg.SciFi.Engine.Artifacts
             Health = new Health();
         }
 
-        [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
         [JsonProperty] public string Name { get; protected set; }
         [JsonProperty] public double BaseWeight { get; protected set; }
         public virtual double Weight => BaseWeight;
