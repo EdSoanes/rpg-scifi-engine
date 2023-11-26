@@ -28,7 +28,8 @@ namespace Rpg.SciFi.Engine.Artifacts
         [Setup]
         public void Setup()
         {
-            Stats.Modifies(Damage, (s) => s.StrengthBonus, (d) => d.Impact);
+            Damage.Setup();
+            this.AddMod(x => x.Stats.StrengthBonus, x => x.Damage.Impact);
         }
 
         [JsonProperty] public StatPoints Stats { get; private set; }

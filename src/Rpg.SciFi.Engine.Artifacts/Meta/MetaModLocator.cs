@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
-using Rpg.SciFi.Engine.Artifacts.Meta;
 
-namespace Rpg.SciFi.Engine.Artifacts.Core
+namespace Rpg.SciFi.Engine.Artifacts.Meta
 {
     public class MetaModLocator
     {
@@ -16,7 +15,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Core
 
         public override string ToString()
         {
-            var metaEntity = MetaEngine.Meta<Entity>(Id);
+            var metaEntity = Id.MetaData();
             return metaEntity != null
                 ? $"{metaEntity.Type}[{Id}].{Prop}"
                 : $"{{unknown}}[{Id}].{Prop}";
@@ -33,7 +32,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Core
 
         public override bool Equals(object? obj)
         {
-            if (obj == null || !(obj is MetaModLocator)) 
+            if (obj == null || !(obj is MetaModLocator))
                 return false;
 
             return this == (MetaModLocator)obj;

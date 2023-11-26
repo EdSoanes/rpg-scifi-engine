@@ -1,15 +1,11 @@
 ﻿using Newtonsoft.Json;
-using Rpg.SciFi.Engine.Artifacts.Core;
+using Rpg.SciFi.Engine.Artifacts;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Rpg.SciFi.Engine.Artifacts.Meta;
 
 namespace Rpg.SciFi.Engine.Tests
 {
-    public class DiceContext
+    public class DiceContext : Entity
     {
         public int Num { get; set; }
         public string DiceExpr { get; set; }
@@ -33,7 +29,6 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void PositiveExpression()
         {
-            Nexus.Context = new DiceContext();
             Dice dice = "2d6 + 7 - d6 + 2";
 
             Assert.AreEqual("1d6 + 9", dice.ToString());
@@ -42,7 +37,6 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void NegativeExpression()
         {
-            Nexus.Context = new DiceContext();
             Dice dice = "2d6 - 3d6 + 2";
 
             Assert.AreEqual("-1d6 + 2", dice.ToString());
@@ -51,11 +45,11 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void WithSubExpression()
         {
-            Nexus.Context = new DiceContext
+            Meta.Initialize(new DiceContext
             {
                 Num = 3,
                 DiceExpr = "d6"
-            };
+            });
 
             Dice dice = "2d6 + [Num] + 2";
             Assert.AreEqual("2d6 + 5", dice.ToString());
@@ -64,11 +58,11 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void WithSubExpression_Simplified()
         {
-            Nexus.Context = new DiceContext
+            Meta.Initialize(new DiceContext
             {
                 Num = 3,
                 DiceExpr = "d6"
-            };
+            });
 
             Dice dice = "2d6 + [DiceExpr] + 2";
             Assert.AreEqual("3d6 + 2", dice.ToString());
@@ -77,11 +71,11 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void WithSubExpression_AvgMinMax()
         {
-            Nexus.Context = new DiceContext
+            Meta.Initialize(new DiceContext
             {
                 Num = 3,
                 DiceExpr = "d6+2"
-            };
+            });
 
             Dice dice = "2d6 + [DiceExpr] + 2 - [Num]";
             Assert.AreEqual("3d6 + 1", dice.ToString());

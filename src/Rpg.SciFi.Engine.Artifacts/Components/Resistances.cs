@@ -9,15 +9,10 @@ using System.Threading.Tasks;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
-    public class Resistances : Modifiable
+    public class Resistances : Entity
     {
-        public Resistances() 
-        {
-            Name = nameof(Resistances);
-        }
-
+        public Resistances() { }
         public Resistances(int baseImpact, int basePierce, int baseBlast, int baseBurn, int baseEnergy)
-            : this()
         {
             BaseImpact = baseImpact;
             BasePierce = basePierce;
@@ -53,13 +48,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
     {
         [JsonProperty] private Resistances[] _resistances { get; set; } = new Resistances[0];
 
-        public CompositeResistances()
-        {
-            Name = nameof(Resistances);
-        }
-
         public CompositeResistances(params Resistances[] resistances)
-            : this()
         {
             _resistances = resistances;
         }

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
-    public class Contains : Modifiable
+    public class Contains : Entity
     {
         public Contains(int baseEncumbrance = int.MaxValue)
         {

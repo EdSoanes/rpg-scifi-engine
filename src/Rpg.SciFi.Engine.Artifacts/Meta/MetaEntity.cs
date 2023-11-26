@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
-using Rpg.SciFi.Engine.Artifacts.Meta;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rpg.SciFi.Engine.Artifacts.Core
+namespace Rpg.SciFi.Engine.Artifacts.Meta
 {
     public class MetaEntity
     {
@@ -44,7 +43,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Core
         {
             var mods = GetMods(prop);
             if (mods == null)
-                return Entity?.GetValue(prop)?.ToString() ?? "0";
+                return Entity?.PropertyValue<string>(prop) ?? "0";
 
             if (!mods.Any())
                 return "0";

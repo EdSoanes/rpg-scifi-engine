@@ -7,14 +7,16 @@ namespace Rpg.SciFi.Engine.Tests
     public class CharacterTests
     {
         [TestMethod]
+
         public void Character_Init_DamageBuff()
         {
             var game = new Game();
             game.Character = new Character();
-            MetaEngine.Initialize(game);
+            Meta.Initialize(game);
+            game.Character.Setup();
 
-            Assert.AreEqual("1d6", game.Character.Damage.BaseImpact.ToString());
-            Assert.AreEqual("1d6 + 4", game.Character.Damage.Impact.ToString());
+            Assert.AreEqual<string>("1d6", game.Character.Damage.BaseImpact);
+            Assert.AreEqual<string>("1d6 + 4", game.Character.Damage.Impact);
         }
     }
 }

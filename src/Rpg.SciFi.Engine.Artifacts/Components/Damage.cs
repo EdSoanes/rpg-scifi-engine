@@ -5,15 +5,9 @@ using Rpg.SciFi.Engine.Artifacts.Meta;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
-    public class Damage : Modifiable
+    public class Damage : Entity
     {
-        public Damage() 
-        {
-            Name = nameof(Damage);
-        }
-
         public Damage(Dice baseImpact, Dice basePierce, Dice baseBlast, Dice baseBurn, Dice baseEnergy)
-            : this()
         {
             BaseImpact = baseImpact;
             BasePierce = basePierce;

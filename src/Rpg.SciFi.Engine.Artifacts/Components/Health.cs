@@ -9,15 +9,10 @@ using System.Threading.Tasks;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
-    public class Health : Modifiable
+    public class Health : Entity
     {
-        public Health() 
-        {
-            Name = nameof(Health);
-        }
-
+        public Health() { }
         public Health(int basePhysical, int baseMental)
-            : this()
         {
             BasePhysical = basePhysical;
             BaseMental = baseMental;
@@ -33,7 +28,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         public void Setup()
         {
             this.AddMod(x => x.BasePhysical, x => x.Physical);
-            this.Modifies(x => x.BaseMental, x => x.Mental);
+            this.AddMod(x => x.BaseMental, x => x.Mental);
         }
     }
 
@@ -43,7 +38,6 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
 
         public CompositeHealth(Health[] healths)
         {
-            Name = nameof(Health);
             _healths = healths;
         }
 

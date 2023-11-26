@@ -4,20 +4,9 @@ using Rpg.SciFi.Engine.Artifacts.Meta;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
-    public class Emission : Modifiable
+    public class Emission : Entity
     {
-        public Emission() 
-        {
-            Name = nameof(Emission);
-        }
-
-        public Emission(string name)
-        {
-            Name = name;
-        }
-
         public Emission(string name, int baseValue)
-            : this(name)
         {
             BaseValue = baseValue;
         }
@@ -31,6 +20,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
             BaseRadius = baseRadius;
         }
 
+        [JsonProperty] public string Name { get; private set; } = nameof(Emission);
         [JsonProperty] public int BaseMin { get; private set; } = 0;
         [JsonProperty] public int BaseMax { get; private set; } = 100;
         [JsonProperty] public int BaseValue { get; private set; } = 0;
@@ -60,11 +50,11 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
             Emission? sound = null, 
             Emission? electromagnetic = null)
         {
-            VisibleLight = visibleLight ?? new Emission(nameof(VisibleLight));
-            Heat = heat ?? new Emission(nameof(Heat));
-            Radiation = radiation ?? new Emission(nameof(Radiation));
-            Sound = sound ?? new Emission(nameof(Sound));
-            Electromagnetic = electromagnetic ?? new Emission(nameof(Electromagnetic));
+            VisibleLight = visibleLight ?? new Emission(nameof(VisibleLight), 0);
+            Heat = heat ?? new Emission(nameof(Heat), 0);
+            Radiation = radiation ?? new Emission(nameof(Radiation), 0);
+            Sound = sound ?? new Emission(nameof(Sound), 0);
+            Electromagnetic = electromagnetic ?? new Emission(nameof(Electromagnetic), 0);
         }
 
         [JsonProperty] public Emission VisibleLight { get; protected set; }

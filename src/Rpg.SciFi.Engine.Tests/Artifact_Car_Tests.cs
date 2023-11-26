@@ -28,9 +28,9 @@ namespace Rpg.SciFi.Engine.Tests
             Resistances = new CompositeResistances(Parts.Select(x => x.Resistances).ToArray());
             States = new States(
                 new State("Activated",
-                    this.Modifies("Noise", 20, (car) => car.Emissions.Sound.Value),
-                    this.Modifies("Heat", 15, (car) => car.Emissions.Heat.Value),
-                    this.Modifies("Electronics", 10, (car) => car.Emissions.Electromagnetic.Value)
+                    this.Modifies("Noise", "20", (car) => car.Emissions.Sound.Value),
+                    this.Modifies("Heat", "15", (car) => car.Emissions.Heat.Value),
+                    this.Modifies("Electronics", "10", (car) => car.Emissions.Electromagnetic.Value)
                 ));
         }
 
@@ -64,9 +64,9 @@ namespace Rpg.SciFi.Engine.Tests
         {
             var game = new Game();
             game.Environment.Contains.Add(new Car());
-            MetaEngine.Initialize(game);
+            Meta.Initialize(game);
 
-            Assert.IsNotNull(MetaEngine.MetaEntities);
+            Assert.IsNotNull(Meta.MetaEntities);
         }
 
         [TestMethod]
@@ -75,36 +75,36 @@ namespace Rpg.SciFi.Engine.Tests
             var car = new Car();
             var game = new Game();
             game.Environment.Contains.Add(car);
-            MetaEngine.Initialize(game);
-            Assert.IsNotNull(MetaEngine.MetaEntities);
+            Meta.Initialize(game);
+            Assert.IsNotNull(Meta.MetaEntities);
 
-            var meta = car.Meta();
+            var meta = car.MetaData();
             Assert.IsNotNull(meta);
 
-            meta = car.Emissions.VisibleLight.Meta();
+            meta = car.Emissions.VisibleLight.MetaData();
             Assert.IsNotNull(meta);
 
-            meta = car.Emissions.Electromagnetic.Meta();
+            meta = car.Emissions.Electromagnetic.MetaData();
             Assert.IsNotNull(meta);
 
-            meta = car.Emissions.Heat.Meta();
+            meta = car.Emissions.Heat.MetaData();
             Assert.IsNotNull(meta);
 
-            meta = car.Emissions.Radiation.Meta();
+            meta = car.Emissions.Radiation.MetaData();
             Assert.IsNotNull(meta);
 
-            meta =  car.Emissions.Sound.Meta();
+            meta =  car.Emissions.Sound.MetaData();
             Assert.IsNotNull(meta);
 
-            meta = car.Movement.Meta();
+            meta = car.Movement.MetaData();
             Assert.IsNotNull(meta);
 
             foreach (var carPart in car.Parts)
             {
-                meta = carPart.Health.Meta();
+                meta = carPart.Health.MetaData();
                 Assert.IsNotNull(meta);
 
-                meta = carPart.Resistances.Meta();
+                meta = carPart.Resistances.MetaData();
                 Assert.IsNotNull(meta);
             }
         }

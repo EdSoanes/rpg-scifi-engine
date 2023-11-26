@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Rpg.SciFi.Engine.Artifacts.Core;
+using Rpg.SciFi.Engine.Artifacts.Meta;
 
 namespace Rpg.SciFi.Engine.Artifacts.Expressions.Parsers
 {
@@ -155,7 +156,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Expressions.Parsers
                 }
                 else if (DiceExpressionToken.IsMatch(nextToken))
                 {
-                    var subExpr = Nexus.EvaluateProperty<string>(nextToken.Replace("[", "").Replace("]", ""));
+                    var subExpr = Meta.Meta.Context!.PropertyValue<string>(nextToken.Replace("[", "").Replace("]", ""));
 
                     var subNodes = Parse(subExpr!);
                     if (subNodes.Any())

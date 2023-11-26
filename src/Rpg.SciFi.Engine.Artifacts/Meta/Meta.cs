@@ -1,16 +1,47 @@
 ﻿using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
-using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Rpg.SciFi.Engine.Artifacts.Meta
 {
-    public static class PropEngine
+    public static class Meta
     {
+        public static Entity? Context { get; private set; }
+        public static MetaEntity[]? MetaEntities { get; private set; }
+
+        public static List<object> _setups = new List<object>();
+
+        public static void Initialize(Entity context)
+        {
+            Context = context;
+            var meta = context.TraverseMetaGraph((metaEntity, path, propertyInfo) =>
+            {
+                if (propertyInfo.IsModdableProperty())
+                    metaEntity.ModifiableProperties?.Add(propertyInfo.Name);
+            });
+
+            MetaEntities = meta
+                .OrderBy(x => x.Path)
+                .ToArray();
+        }
+
+        public static MetaEntity? MetaData(this Entity entity)
+        {
+            return MetaEntities?.SingleOrDefault(x => x.Id == entity.Id && x.Type == entity.GetType().Name);
+        }
+
+        public static MetaEntity MetaData(this Guid id)
+        {
+            if (MetaEntities == null)
+                throw new InvalidOperationException($"{nameof(Artifacts.Meta.Meta)} not initialized");
+
+            return MetaEntities.Single(x => x.Id == id);
+        }
+
         public static Dice Evaluate(this Entity entity, string prop)
         {
-            var meta = entity.Meta();
+            var meta = entity.MetaData();
             var mods = meta?.GetMods(prop)?.ToList() ?? new List<Modifier>();
 
             Dice dice = "0";
@@ -21,7 +52,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Meta
 
         public static int Resolve(this Entity entity, string prop)
         {
-            var meta = entity.Meta();
+            var meta = entity.MetaData();
             var mods = meta?.GetMods(prop);
 
             Dice dice = mods != null
@@ -34,7 +65,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Meta
 
         public static string[] Describe(this Entity entity, string prop)
         {
-            var meta = entity.Meta();
+            var meta = entity.MetaData();
             var mods = meta?.GetMods(prop);
 
             var res = mods?
@@ -44,88 +75,50 @@ namespace Rpg.SciFi.Engine.Artifacts.Meta
             return res;
         }
 
-        //public static bool AddMod(this Entity entity, Modifier mod)
-        //{
-        //    var meta = mod.Target.Id.Meta();
-        //    return meta.AddMod(mod);
-        //}
-
-        //public static bool AddMod(this Guid id, Modifier mod)
-        //{
-        //    var meta = id.Meta();
-        //    return meta.AddMod(mod);
-        //}
-
         public static Modifier[] RemoveMods(this Entity entity)
         {
-            var meta = entity.Meta();
+            var meta = entity.MetaData();
             return meta?.RemoveMods() ?? new Modifier[0];
         }
 
         public static Modifier[] RemoveMods(this Entity entity, string prop)
         {
-            var meta = entity.Meta();
+            var meta = entity.MetaData();
             return meta?.RemoveMods(prop) ?? new Modifier[0];
         }
 
         public static Modifier[] RemoveMods(this Guid id, string prop)
         {
-            var meta = id.Meta();
+            var meta = id.MetaData();
             return meta?.RemoveMods(prop) ?? new Modifier[0];
         }
 
         public static Modifier[] RemoveModsByName(Guid id, string name)
         {
-            var meta = id.Meta();
+            var meta = id.MetaData();
             return meta?.RemoveModsByName(name) ?? new Modifier[0];
         }
 
         public static Modifier[] RemoveModsByName(this Entity entity, string name)
         {
-            var meta = entity.Meta();
+            var meta = entity.MetaData();
             return meta?.RemoveModsByName(name) ?? new Modifier[0];
         }
 
-        public static void AddMod<TSource, TTarget, T>(this TSource source, TTarget target, string modifierName, Expression<Func<TSource, T>> sourceExpr, Expression<Func<TTarget, T>> targetExpr)
-            where TSource : Entity
-            where TTarget : Entity
-        {
-            var mod = source.Modifies(target, modifierName, sourceExpr, targetExpr);
-            target.Meta()?.AddMod(mod);
-        }
-
-        public static Modifier Modifies<TSource, TTarget, T>(this TSource source, TTarget target, string modifierName, Expression<Func<TSource, T>> sourceExpr, Expression<Func<TTarget, T>> targetExpr)
+        public static void AddMod<TSource, TTarget, T>(this TSource source, Expression<Func<TSource, T>> sourceExpr, TTarget target, Expression<Func<TTarget, T>> targetExpr)
             where TSource : Entity
             where TTarget : Entity
         {
             var sourceLocator = GetModLocator(source, sourceExpr, true);
             var targetLocator = GetModLocator(target, targetExpr);
-            return new Modifier(modifierName, sourceLocator, targetLocator);
-        }
-
-        public static void AddMod<TSource, TTarget, T>(this TSource source, TTarget target, Expression<Func<TSource, T>> sourceExpr, Expression<Func<TTarget, T>> targetExpr)
-            where TSource : Entity
-            where TTarget : Entity
-        {
-            var sourceLocator = GetModLocator(source, sourceExpr, true);
-            var targetLocator = GetModLocator(target, targetExpr);
-            target.Meta()?.AddMod(new Modifier(targetLocator.Prop, sourceLocator, targetLocator));
-        }
-
-        public static Modifier Modifies<TSource, TTarget, T>(this TSource source, TTarget target, Expression<Func<TSource, T>> sourceExpr, Expression<Func<TTarget, T>> targetExpr)
-            where TSource : Entity
-            where TTarget : Entity
-        {
-            var sourceLocator = GetModLocator(source, sourceExpr, true);
-            var targetLocator = GetModLocator(target, targetExpr);
-            return new Modifier(targetLocator.Prop, sourceLocator, targetLocator);
+            target.MetaData()?.AddMod(new Modifier(targetLocator.Prop, sourceLocator, targetLocator));
         }
 
         public static void AddMod<TTarget, T1>(this TTarget target, string modifierName, Dice dice, Expression<Func<TTarget, T1>> targetExpr)
             where TTarget : Entity
         {
             var targetLocator = GetModLocator(target, targetExpr);
-            target.Meta()?.AddMod(new Modifier(modifierName, dice, targetLocator));
+            target.MetaData()?.AddMod(new Modifier(modifierName, dice, targetLocator));
         }
 
         public static Modifier Modifies<TTarget, T1>(this TTarget target, string modifierName, Dice dice, Expression<Func<TTarget, T1>> targetExpr)
@@ -135,43 +128,19 @@ namespace Rpg.SciFi.Engine.Artifacts.Meta
             return new Modifier(modifierName, dice, targetLocator);
         }
 
-        public static void AddMod<TSource, T1, T2>(this TSource source, string modifierName, Expression<Func<TSource, T1>> sourceExpr, Expression<Func<TSource, T2>> targetExpr)
-            where TSource : Entity
-        {
-            var sourceLocator = GetModLocator(source, sourceExpr, true);
-            var targetLocator = GetModLocator(source, targetExpr);
-            source.Meta()?.AddMod(new Modifier(modifierName, sourceLocator, targetLocator));
-        }
-
-        public static Modifier Modifies<TSource, T1, T2>(this TSource source, string modifierName, Expression<Func<TSource, T1>> sourceExpr, Expression<Func<TSource, T2>> targetExpr)
-            where TSource : Entity
-        {
-            var sourceLocator = GetModLocator(source, sourceExpr, true);
-            var targetLocator = GetModLocator(source, targetExpr);
-            return new Modifier(modifierName, sourceLocator, targetLocator);
-        }
-
         public static void AddMod<TSource, T1, T2>(this TSource source, Expression<Func<TSource, T1>> sourceExpr, Expression<Func<TSource, T2>> targetExpr)
             where TSource : Entity
         {
             var sourceLocator = GetModLocator(source, sourceExpr, true);
             var targetLocator = GetModLocator(source, targetExpr);
-            source.Meta()?.AddMod(new Modifier(targetLocator.Prop, sourceLocator, targetLocator));
-        }
-
-        public static Modifier Modifies<TSource, T1, T2>(this TSource source, Expression<Func<TSource, T1>> sourceExpr, Expression<Func<TSource, T2>> targetExpr)
-            where TSource : Entity
-        {
-            var sourceLocator = GetModLocator(source, sourceExpr, true);
-            var targetLocator = GetModLocator(source, targetExpr);
-            return new Modifier(targetLocator.Prop, sourceLocator, targetLocator);
+            source.MetaData()?.AddMod(new Modifier(targetLocator.Prop, sourceLocator, targetLocator));
         }
 
         public static void AddMod<TSource, T1, T2>(this TSource source, Expression<Func<TSource, T1>> sourceExpr, Expression<Func<TSource, T2>> targetExpr, Expression<Func<Func<Dice, Dice>>> diceCalc)
             where TSource : Entity
         {
             var mod = source.Modifies(sourceExpr, targetExpr, diceCalc);
-            source.Meta()?.AddMod(mod);
+            source.MetaData()?.AddMod(mod);
         }
 
         public static Modifier Modifies<TSource, T1, T2>(this TSource source, Expression<Func<TSource, T1>> sourceExpr, Expression<Func<TSource, T2>> targetExpr, Expression<Func<Func<Dice, Dice>>> diceCalc)
@@ -207,7 +176,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Meta
             pathSegments.Reverse();
             var path = string.Join(".", pathSegments);
 
-            var pathEntity = entity.GetEntityFromPath(path) ?? throw new ArgumentException($"Invalid path. Property path {path} is not an Entity object");
+            var pathEntity = entity.PropertyValue<Entity>(path) ?? throw new ArgumentException($"Invalid path. Property path {path} is not an Entity object");
             var locator = new MetaModLocator(pathEntity.Id, prop);
             return locator;
         }
@@ -229,6 +198,32 @@ namespace Rpg.SciFi.Engine.Artifacts.Meta
             pathSegments.Reverse();
 
             return string.Join(".", pathSegments);
+        }
+
+        public static T? PropertyValue<T>(this Entity entity, string path)
+        {
+            if (string.IsNullOrEmpty(path))
+                return entity is T
+                    ? (T?)(object)entity
+                    : default;
+
+            object? res = entity;
+            var parts = path.Split('.');
+            foreach (var part in parts)
+            {
+                var propInfo = res.MetaProperty(part);
+                res = propInfo?.GetValue(res, null);
+                if (res == null)
+                    break;
+            }
+
+            if (res is T)
+                return (T?)res;
+
+            if (typeof(T) == typeof(string))
+                return (T?)(object?)res?.ToString();
+
+            return default;
         }
     }
 }

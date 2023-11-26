@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.Meta;
 
@@ -30,7 +29,6 @@ namespace Rpg.SciFi.Engine.Artifacts
         public Guid EntityId { get; set; }
         public string State { get; set; }
         public bool Not { get; set; }
-        public Property Property { get; set; }
         public int PropertyValue { get; set; }
     }
 
@@ -89,13 +87,8 @@ namespace Rpg.SciFi.Engine.Artifacts
             if (Source?.Id == null)
                 return "0";
 
-            var dice = Source.Id.Meta().Evaluate(Source.Prop);
+            var dice = Source.Id.MetaData().Evaluate(Source.Prop);
             return dice;
         }
-    }
-
-    public abstract class Modifiable : Entity
-    {
-        [JsonProperty] public string Name { get; protected set; } = nameof(Modifiable);
     }
 }

@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rpg.SciFi.Engine.Artifacts.Core
+namespace Rpg.SciFi.Engine.Artifacts.Meta
 {
-    public class MetaAction
+    public class MetaSetupMethod
     {
         public string Name { get; set; }
-        public List<MetaActionInput> Inputs { get; set; } = new List<MetaActionInput>();
+        public object Object { get; set; }
     }
 }

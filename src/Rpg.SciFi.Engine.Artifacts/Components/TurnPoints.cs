@@ -4,13 +4,8 @@ using Rpg.SciFi.Engine.Artifacts.Meta;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
-    public class TurnPoints : Modifiable
+    public class TurnPoints : Entity
     {
-        public TurnPoints() 
-        {
-            Name = nameof(TurnPoints);
-        }
-
         [JsonProperty] public int BaseAction { get; protected set; }
         [JsonProperty] public int BaseExertion { get; protected set; }
         [JsonProperty] public int BaseFocus { get; protected set; }

@@ -22,7 +22,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Meta
 
             foreach (var propertyInfo in context.MetaProperties())
             {
-                var items = context.GetPropertyObjects(propertyInfo, out var isEnumerable);
+                var items = context.PropertyObjects(propertyInfo, out var isEnumerable);
                 var path = $"{basePath}.{propertyInfo.Name}{(isEnumerable ? "[]" : "")}";
 
                 processContext.Invoke(metaEntity, path, propertyInfo);
@@ -39,9 +39,6 @@ namespace Rpg.SciFi.Engine.Artifacts.Meta
 
         internal static string GetEntityClass(this object obj)
         {
-            if (obj.GetType().IsAssignableTo(typeof(Modifiable)))
-                return nameof(Modifiable);
-
             if (obj.GetType().IsAssignableTo(typeof(Artifact)))
                 return nameof(Artifact);
 
@@ -114,30 +111,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Meta
                 .ToArray();
         }
 
-        internal static Entity? GetEntityFromPath(this Entity context, string path)
-        {
-            if (string.IsNullOrEmpty(path))
-                return context;
-
-            object? res = context;
-            var parts = path.Split('.');
-            foreach (var part in parts)
-            {
-                var propInfo = context.MetaProperty(part);
-                res = propInfo?.GetValue(res, null);
-                if (res == null)
-                    break;
-            }
-
-            return res as Entity;
-        }
-
-        internal static object? GetValue(this Entity entity, string prop)
-        {
-            return entity.GetType().GetProperty(prop)?.GetValue(entity, null);
-        }
-
-        internal static IEnumerable<object> GetPropertyObjects(this object context, PropertyInfo propertyInfo, out bool isEnumerable)
+        private static IEnumerable<object> PropertyObjects(this object context, PropertyInfo propertyInfo, out bool isEnumerable)
         {
             isEnumerable = false;
 

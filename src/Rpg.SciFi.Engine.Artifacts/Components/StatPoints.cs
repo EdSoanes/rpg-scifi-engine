@@ -1,17 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
-using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.Meta;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
-    public class StatPoints : Modifiable
+    public class StatPoints : Entity
     {
-        public StatPoints() 
-        {
-            Name = nameof(StatPoints);
-        }
-
         [JsonProperty] public virtual int BaseStrength { get; set; }
         [JsonProperty] public virtual int BaseDexterity { get; set; }
         [JsonProperty] public virtual int BaseIntelligence { get; set; }

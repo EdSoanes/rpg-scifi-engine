@@ -9,14 +9,9 @@ using System.Threading.Tasks;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
-    public class Movement : Modifiable
+    public class Movement : Entity
     {
-        public Movement() 
-        {
-            Name = nameof(Movement);
-        }
         public Movement(int baseSpeed, int baseAcceleration, int baseDeceleration, int baseManeuverability)
-            : this()
         {
             BaseSpeed = baseSpeed;
             BaseAcceleration = baseAcceleration;

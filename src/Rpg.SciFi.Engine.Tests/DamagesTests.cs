@@ -21,7 +21,7 @@ namespace Rpg.SciFi.Engine.Tests
         public void StatPoints_Test()
         {
             var statPoints = new StatPoints();
-            MetaEngine.Initialize(statPoints);
+            Meta.Initialize(statPoints);
             statPoints.Setup();
 
             Assert.IsNotNull(statPoints);
@@ -33,7 +33,7 @@ namespace Rpg.SciFi.Engine.Tests
         public void Damage_TestDamage()
         {
             var damage = new TestDamage();
-            MetaEngine.Initialize(damage);
+            Meta.Initialize(damage);
             damage.Setup();
 
             Assert.IsNotNull(damage);
@@ -48,7 +48,7 @@ namespace Rpg.SciFi.Engine.Tests
         public void Damage_Serialization()
         {
             var damage = new TestDamage();
-            MetaEngine.Initialize(damage);
+            Meta.Initialize(damage);
             damage.Setup();
 
             var json = JsonConvert.SerializeObject(damage);
@@ -79,7 +79,7 @@ namespace Rpg.SciFi.Engine.Tests
         public void Damage_ApplyMod() 
         {
             var damage = new Damage("d6", "d6", "d6", "d6", "d6");
-            MetaEngine.Initialize(damage);
+            Meta.Initialize(damage);
             damage.Setup();
 
             Assert.IsNotNull(damage);
@@ -98,7 +98,7 @@ namespace Rpg.SciFi.Engine.Tests
         public void Damage_Serialization_WithMod()
         {
             var damage = new TestDamage();
-            MetaEngine.Initialize(damage);
+            Meta.Initialize(damage);
             damage.Setup();
 
             damage.AddMod("Weapon Damage", "d8", x => x.Blast);
