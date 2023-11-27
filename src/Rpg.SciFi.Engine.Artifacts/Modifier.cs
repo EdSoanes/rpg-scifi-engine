@@ -50,36 +50,56 @@ namespace Rpg.SciFi.Engine.Artifacts
 
     public sealed class Modifier
     {
-        public Modifier(string name, Dice dice, MetaModLocator target)
+        public Modifier(MetaModLocator source, MetaModLocator target, string? diceCalc = null)
         {
-            Name = name;
+            Name = source.Prop;
+            Type = ModType.Base;
+            Source = source;
+            Target = target;
+            DiceCalc = diceCalc;
+        }
+
+        public Modifier(ModType type, MetaModLocator source, MetaModLocator target, string? diceCalc = null)
+            : this(source, target, diceCalc)
+        {
+            Type = type;
+        }
+
+
+        public Modifier(Dice dice, MetaModLocator target, string? diceCalc = null)
+        {
+            Name = target.Prop;
             Type = ModType.Base;
             Dice = dice;
             Target = target;
+            DiceCalc = diceCalc;
         }
 
-        public Modifier(string name, MetaModLocator source, MetaModLocator target)
+        public Modifier(string name, MetaModLocator source, MetaModLocator target, string? diceCalc = null)
         {
             Name = name;
             Type = ModType.Base;
             Source = source;
             Target = target;
+            DiceCalc= diceCalc;
         }
 
-        public Modifier(string name, ModType type, Dice dice, MetaModLocator target)
+        public Modifier(string name, ModType type, Dice dice, MetaModLocator target, string? diceCalc = null)
         {
             Name = name;
             Type = type;
             Dice = dice;
             Target = target;
+            DiceCalc = diceCalc;
         }
 
-        public Modifier(string name, ModType type, MetaModLocator source, MetaModLocator target)
+        public Modifier(string name, ModType type, MetaModLocator source, MetaModLocator target, string? diceCalc = null)
         {
             Name = name;
             Type = type;
             Source = source;
             Target = target;
+            DiceCalc = diceCalc;
         }
 
         [JsonProperty] public string Name { get; private set; }
@@ -87,6 +107,7 @@ namespace Rpg.SciFi.Engine.Artifacts
         [JsonProperty] public Dice? Dice { get; private set; }
         [JsonProperty] public MetaModLocator? Source { get; private set; }
         [JsonProperty] public MetaModLocator Target { get; private set; }
+        [JsonProperty] public string? DiceCalc { get; private set; }
 
         public Dice Evaluate()
         {
@@ -97,6 +118,10 @@ namespace Rpg.SciFi.Engine.Artifacts
                 return "0";
 
             var dice = Source.Id.MetaData().Evaluate(Source.Prop);
+
+            if (!string.IsNullOrEmpty(DiceCalc))
+                dice = Meta.Meta.RunCalculationMethod(DiceCalc, dice);
+
             return dice;
         }
     }

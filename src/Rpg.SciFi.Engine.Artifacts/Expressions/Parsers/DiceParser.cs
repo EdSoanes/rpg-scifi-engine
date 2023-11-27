@@ -27,10 +27,10 @@ namespace Rpg.SciFi.Engine.Artifacts.Expressions.Parsers
             Number = number;
         }
 
-        public double Avg() => Number;
-        public int Roll() => Number;
-        public int Min() => Number;
-        public int Max() => Number;
+        public double Avg() => Number * Multiplier;
+        public int Roll() => Number * Multiplier;
+        public int Min() => Number * Multiplier;
+        public int Max() => Number * Multiplier;
 
         public static IDiceNode? Create(int multiplier, string token)
         {

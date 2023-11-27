@@ -25,7 +25,7 @@ namespace Rpg.SciFi.Engine.Tests
             statPoints.Setup();
 
             Assert.IsNotNull(statPoints);
-            Assert.AreEqual(0, statPoints.StrengthBonus);
+            Assert.AreEqual(-5, statPoints.StrengthBonus);
 
         }
 

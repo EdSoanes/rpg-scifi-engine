@@ -106,29 +106,37 @@ namespace Rpg.SciFi.Engine.Artifacts.Meta
             return meta?.RemoveModsByName(name) ?? new Modifier[0];
         }
 
-        public static void AddBaseMod<TSource, T1, T2>(this TSource source, Expression<Func<TSource, T1>> sourceExpr, Expression<Func<TSource, T2>> targetExpr, LambdaExpression? diceCalc = null)
+        public static void AddBaseMod<TSource, T1, T2>(this TSource source, Expression<Func<TSource, T1>> sourceExpr, Expression<Func<TSource, T2>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
             where TSource : Entity
         => source.AddMod(ModType.Base, sourceExpr, source, targetExpr, diceCalc);
 
-        public static void AddMod<TSource, T1, T2>(this TSource source, ModType type, Expression<Func<TSource, T1>> sourceExpr, Expression<Func<TSource, T2>> targetExpr, LambdaExpression? diceCalc = null)
+        public static void AddMod<TSource, T1, T2>(this TSource source, ModType type, Expression<Func<TSource, T1>> sourceExpr, Expression<Func<TSource, T2>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
             where TSource : Entity
                 => source.AddMod(type, sourceExpr, source, targetExpr, diceCalc);
 
-        public static void AddMod<TSource, TTarget, T1, T2>(this TSource source, ModType type, Expression<Func<TSource, T1>> sourceExpr, TTarget target, Expression<Func<TTarget, T2>> targetExpr, LambdaExpression? diceCalc = null)
+        public static void AddMod<TSource, TTarget, T1, T2>(
+            this TSource source, 
+            ModType type, 
+            Expression<Func<TSource, T1>> sourceExpr, 
+            TTarget target, 
+            Expression<Func<TTarget, T2>> targetExpr, 
+            Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
             where TSource : Entity
             where TTarget : Entity
         {
             var sourceLocator = GetModLocator(source, sourceExpr, true);
             var targetLocator = GetModLocator(target, targetExpr);
-            var calc = diceCalc != null ? MethodName(diceCalc) : null;
-            target.MetaData()?.AddMod(new Modifier(targetLocator.Prop, type, sourceLocator, targetLocator));
+            var calc = diceCalc != null ? GetCalculationMethod(diceCalc) : null;
+
+            targetLocator.Id.MetaData()
+                ?.AddMod(new Modifier(type, sourceLocator, targetLocator, calc));
         }
 
         public static void AddMod<TTarget, T1>(this TTarget target, ModType type, string modifierName, Dice dice, Expression<Func<TTarget, T1>> targetExpr)
             where TTarget : Entity
         {
             var targetLocator = GetModLocator(target, targetExpr);
-            target.MetaData()?.AddMod(new Modifier(modifierName, type, dice, targetLocator));
+            targetLocator.Id.MetaData()?.AddMod(new Modifier(modifierName, type, dice, targetLocator));
         }
 
         public static Modifier Modifies<TTarget, T1>(this TTarget target, ModType type, string modifierName, Dice dice, Expression<Func<TTarget, T1>> targetExpr)
@@ -167,28 +175,39 @@ namespace Rpg.SciFi.Engine.Artifacts.Meta
             return locator;
         }
 
-        private static bool IsNET45 = Type.GetType("System.Reflection.ReflectionContext", false) != null;
+        public static T RunCalculationMethod<T>(string method, T input, object? obj = null)
+        {
+            var parts = method.Split('.');
+            if (parts.Length != 2)
+                throw new ArgumentException($"Specified method {method} is invalid");
 
-        public static string MethodName(LambdaExpression expression)
+            var cls = parts[0];
+            var mthd = parts[1];
+            var type = Assembly.GetExecutingAssembly()
+                .GetTypes()
+                .FirstOrDefault(x => x.Name == cls);
+
+            if (type == null)
+                throw new ArgumentException($"Class in {method} does not exist");
+
+            var methodInfo = type?.GetMethod(mthd);
+            if (methodInfo == null)
+                throw new ArgumentException($"Method in {method} does not exist");
+
+            var res = methodInfo.IsStatic
+                ? (T?)methodInfo?.Invoke(null, new object?[] { input })
+                : (T?)methodInfo?.Invoke(obj, new object?[] { input });
+
+            return res ?? default;
+        }
+
+        public static string GetCalculationMethod<T>(Expression<Func<Func<T, T>>> expression)
         {
             var unaryExpression = (UnaryExpression)expression.Body;
             var methodCallExpression = (MethodCallExpression)unaryExpression.Operand;
             var methodInfoExpression = (ConstantExpression)methodCallExpression.Object!;
             var methodInfo = (MemberInfo)methodInfoExpression.Value!;
             return $"{methodInfo.DeclaringType!.Name}.{methodInfo.Name}";
-        }
-
-        public static string GetDiceCalculation(Expression<Func<Dice, Dice>> diceCalc)
-        {
-            var expression = diceCalc.Body as MethodCallExpression;
-            if (expression != null)
-            {
-                var name = expression.Method.Name;
-                var className = expression.Method.DeclaringType!.Name;
-                return $"{className}.{name}";
-            }
-
-            return string.Empty;
         }
 
         public static T? PropertyValue<T>(this Entity entity, string path)

@@ -25,6 +25,10 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         public void Setup()
         {
             //TODO: Need rules calculator functionality here for bonuses
+            this.AddBaseMod(x => x.BaseStrength, x => x.Strength);
+            this.AddBaseMod(x => x.BaseDexterity, x => x.Dexterity);
+            this.AddBaseMod(x => x.BaseIntelligence, x => x.Intelligence);
+
             this.AddBaseMod(x => x.Strength, x => x.StrengthBonus, () => Rules.CalculateStatBonus);
             this.AddBaseMod(x => x.Dexterity, x => x.DexterityBonus, () => Rules.CalculateStatBonus);
             this.AddBaseMod(x => x.Intelligence, x => x.IntelligenceBonus, () => Rules.CalculateStatBonus);
