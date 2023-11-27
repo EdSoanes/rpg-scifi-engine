@@ -31,11 +31,11 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Setup]
         public void Setup()
         {
-            this.AddMod(x => x.BaseBlast, x => x.Blast);
-            this.AddMod(x => x.BasePierce, x => x.Pierce);
-            this.AddMod(x => x.BaseImpact, x => x.Impact);
-            this.AddMod(x => x.BaseBurn,x => x.Burn);
-            this.AddMod(x => x.BaseEnergy, x => x.Energy);
+            this.AddBaseMod(x => x.BaseBlast, x => x.Blast);
+            this.AddBaseMod(x => x.BasePierce, x => x.Pierce);
+            this.AddBaseMod(x => x.BaseImpact, x => x.Impact);
+            this.AddBaseMod(x => x.BaseBurn,x => x.Burn);
+            this.AddBaseMod(x => x.BaseEnergy, x => x.Energy);
         }
     }
 }

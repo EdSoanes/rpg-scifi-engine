@@ -27,8 +27,8 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Setup]
         public void Setup()
         {
-            this.AddMod(x => x.BasePhysical, x => x.Physical);
-            this.AddMod(x => x.BaseMental, x => x.Mental);
+            this.AddBaseMod(x => x.BasePhysical, x => x.Physical);
+            this.AddBaseMod(x => x.BaseMental, x => x.Mental);
         }
     }
 

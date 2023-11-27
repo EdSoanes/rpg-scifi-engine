@@ -24,6 +24,15 @@ namespace Rpg.SciFi.Engine.Artifacts
         ConditionsMet,
     }
 
+    public enum ModType
+    {
+        Base,
+        User,
+        Instant,
+        Permanent,
+        Conditional
+    }
+
     public class DeleteCondition
     {
         public Guid EntityId { get; set; }
@@ -44,7 +53,7 @@ namespace Rpg.SciFi.Engine.Artifacts
         public Modifier(string name, Dice dice, MetaModLocator target)
         {
             Name = name;
-            DurationType = ModDurationType.Permanent;
+            Type = ModType.Base;
             Dice = dice;
             Target = target;
         }
@@ -52,29 +61,29 @@ namespace Rpg.SciFi.Engine.Artifacts
         public Modifier(string name, MetaModLocator source, MetaModLocator target)
         {
             Name = name;
-            DurationType = ModDurationType.Permanent;
+            Type = ModType.Base;
             Source = source;
             Target = target;
         }
 
-        public Modifier(string name, ModDurationType durationType, Dice dice, MetaModLocator target)
+        public Modifier(string name, ModType type, Dice dice, MetaModLocator target)
         {
             Name = name;
-            DurationType = durationType;
+            Type = type;
             Dice = dice;
             Target = target;
         }
 
-        public Modifier(string name, ModDurationType durationType, MetaModLocator source, MetaModLocator target)
+        public Modifier(string name, ModType type, MetaModLocator source, MetaModLocator target)
         {
             Name = name;
-            DurationType = durationType;
+            Type = type;
             Source = source;
             Target = target;
         }
 
         [JsonProperty] public string Name { get; private set; }
-        [JsonProperty] public ModDurationType DurationType { get; private set; }
+        [JsonProperty] public ModType Type { get; private set; }
         [JsonProperty] public Dice? Dice { get; private set; }
         [JsonProperty] public MetaModLocator? Source { get; private set; }
         [JsonProperty] public MetaModLocator Target { get; private set; }

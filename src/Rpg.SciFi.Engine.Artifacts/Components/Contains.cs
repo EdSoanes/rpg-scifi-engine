@@ -24,7 +24,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Setup]
         public void Setup()
         {
-            this.AddMod(x => x.BaseEncumbrance, x => x.Encumbrance);
+            this.AddBaseMod(x => x.BaseEncumbrance, x => x.Encumbrance);
         }
 
         public void Add(Artifact artifact)

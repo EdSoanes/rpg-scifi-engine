@@ -32,10 +32,10 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Setup]
         public void Setup()
         {
-            this.AddMod(x => x.BaseSpeed, x => x.Speed);
-            this.AddMod(x => x.BaseAcceleration, x => x.Acceleration);
-            this.AddMod(x => x.BaseDeceleration, x => x.Deceleration);
-            this.AddMod(x => x.BaseManeuverability, x => x.Maneuverability);
+            this.AddBaseMod(x => x.BaseSpeed, x => x.Speed);
+            this.AddBaseMod(x => x.BaseAcceleration, x => x.Acceleration);
+            this.AddBaseMod(x => x.BaseDeceleration, x => x.Deceleration);
+            this.AddBaseMod(x => x.BaseManeuverability, x => x.Maneuverability);
         }
     }
 }

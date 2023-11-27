@@ -2,6 +2,7 @@
 using Rpg.SciFi.Engine.Artifacts.Expressions;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Xml.Linq;
 
 namespace Rpg.SciFi.Engine.Artifacts.Meta
 {
@@ -105,51 +106,36 @@ namespace Rpg.SciFi.Engine.Artifacts.Meta
             return meta?.RemoveModsByName(name) ?? new Modifier[0];
         }
 
-        public static void AddMod<TSource, TTarget, T>(this TSource source, Expression<Func<TSource, T>> sourceExpr, TTarget target, Expression<Func<TTarget, T>> targetExpr)
+        public static void AddBaseMod<TSource, T1, T2>(this TSource source, Expression<Func<TSource, T1>> sourceExpr, Expression<Func<TSource, T2>> targetExpr, LambdaExpression? diceCalc = null)
+            where TSource : Entity
+        => source.AddMod(ModType.Base, sourceExpr, source, targetExpr, diceCalc);
+
+        public static void AddMod<TSource, T1, T2>(this TSource source, ModType type, Expression<Func<TSource, T1>> sourceExpr, Expression<Func<TSource, T2>> targetExpr, LambdaExpression? diceCalc = null)
+            where TSource : Entity
+                => source.AddMod(type, sourceExpr, source, targetExpr, diceCalc);
+
+        public static void AddMod<TSource, TTarget, T1, T2>(this TSource source, ModType type, Expression<Func<TSource, T1>> sourceExpr, TTarget target, Expression<Func<TTarget, T2>> targetExpr, LambdaExpression? diceCalc = null)
             where TSource : Entity
             where TTarget : Entity
         {
             var sourceLocator = GetModLocator(source, sourceExpr, true);
             var targetLocator = GetModLocator(target, targetExpr);
-            target.MetaData()?.AddMod(new Modifier(targetLocator.Prop, sourceLocator, targetLocator));
+            var calc = diceCalc != null ? MethodName(diceCalc) : null;
+            target.MetaData()?.AddMod(new Modifier(targetLocator.Prop, type, sourceLocator, targetLocator));
         }
 
-        public static void AddMod<TTarget, T1>(this TTarget target, string modifierName, Dice dice, Expression<Func<TTarget, T1>> targetExpr)
+        public static void AddMod<TTarget, T1>(this TTarget target, ModType type, string modifierName, Dice dice, Expression<Func<TTarget, T1>> targetExpr)
             where TTarget : Entity
         {
             var targetLocator = GetModLocator(target, targetExpr);
-            target.MetaData()?.AddMod(new Modifier(modifierName, dice, targetLocator));
+            target.MetaData()?.AddMod(new Modifier(modifierName, type, dice, targetLocator));
         }
 
-        public static Modifier Modifies<TTarget, T1>(this TTarget target, string modifierName, Dice dice, Expression<Func<TTarget, T1>> targetExpr)
+        public static Modifier Modifies<TTarget, T1>(this TTarget target, ModType type, string modifierName, Dice dice, Expression<Func<TTarget, T1>> targetExpr)
             where TTarget : Entity
         {
             var targetLocator = GetModLocator(target, targetExpr);
-            return new Modifier(modifierName, dice, targetLocator);
-        }
-
-        public static void AddMod<TSource, T1, T2>(this TSource source, Expression<Func<TSource, T1>> sourceExpr, Expression<Func<TSource, T2>> targetExpr)
-            where TSource : Entity
-        {
-            var sourceLocator = GetModLocator(source, sourceExpr, true);
-            var targetLocator = GetModLocator(source, targetExpr);
-            source.MetaData()?.AddMod(new Modifier(targetLocator.Prop, sourceLocator, targetLocator));
-        }
-
-        public static void AddMod<TSource, T1, T2>(this TSource source, Expression<Func<TSource, T1>> sourceExpr, Expression<Func<TSource, T2>> targetExpr, Expression<Func<Func<Dice, Dice>>> diceCalc)
-            where TSource : Entity
-        {
-            var mod = source.Modifies(sourceExpr, targetExpr, diceCalc);
-            source.MetaData()?.AddMod(mod);
-        }
-
-        public static Modifier Modifies<TSource, T1, T2>(this TSource source, Expression<Func<TSource, T1>> sourceExpr, Expression<Func<TSource, T2>> targetExpr, Expression<Func<Func<Dice, Dice>>> diceCalc)
-            where TSource : Entity
-        {
-            var sourceLocator = GetModLocator(source, sourceExpr, true);
-            var targetLocator = GetModLocator(source, targetExpr);
-            var calc = GetDiceCalculation(diceCalc);
-            return new Modifier(targetLocator.Prop, sourceLocator, targetLocator);
+            return new Modifier(modifierName, type, dice, targetLocator);
         }
 
         public static MetaModLocator GetModLocator<T, TResult>(Entity entity, Expression<Func<T, TResult>> expression, bool source = false)
@@ -181,23 +167,28 @@ namespace Rpg.SciFi.Engine.Artifacts.Meta
             return locator;
         }
 
-        public static string GetDiceCalculation(Expression<Func<Func<Dice, Dice>>> diceCalc)
-        {
-            var memberExpression = diceCalc.Body as MemberExpression;
-            if (memberExpression == null)
-                throw new ArgumentException($"Invalid path expression. {diceCalc.Name} not a member expression");
+        private static bool IsNET45 = Type.GetType("System.Reflection.ReflectionContext", false) != null;
 
-            var pathSegments = new List<string>();
-            while (memberExpression != null)
+        public static string MethodName(LambdaExpression expression)
+        {
+            var unaryExpression = (UnaryExpression)expression.Body;
+            var methodCallExpression = (MethodCallExpression)unaryExpression.Operand;
+            var methodInfoExpression = (ConstantExpression)methodCallExpression.Object!;
+            var methodInfo = (MemberInfo)methodInfoExpression.Value!;
+            return $"{methodInfo.DeclaringType!.Name}.{methodInfo.Name}";
+        }
+
+        public static string GetDiceCalculation(Expression<Func<Dice, Dice>> diceCalc)
+        {
+            var expression = diceCalc.Body as MethodCallExpression;
+            if (expression != null)
             {
-                memberExpression = memberExpression.Expression as MemberExpression;
-                if (memberExpression != null)
-                    pathSegments.Add(memberExpression.Member.Name);
+                var name = expression.Method.Name;
+                var className = expression.Method.DeclaringType!.Name;
+                return $"{className}.{name}";
             }
 
-            pathSegments.Reverse();
-
-            return string.Join(".", pathSegments);
+            return string.Empty;
         }
 
         public static T? PropertyValue<T>(this Entity entity, string path)

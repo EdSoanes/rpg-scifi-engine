@@ -85,7 +85,7 @@ namespace Rpg.SciFi.Engine.Tests
             Assert.IsNotNull(damage);
 
             Assert.AreEqual<string>("1d6", damage.Blast);
-            damage.AddMod("Weapon Damage", "d8", x => x.Blast);
+            damage.AddMod(ModType.Instant, "Weapon Damage", "d8", x => x.Blast);
 
             Assert.AreEqual<string>("1d8 + 1d6", damage.Blast);
 
@@ -101,7 +101,7 @@ namespace Rpg.SciFi.Engine.Tests
             Meta.Initialize(damage);
             damage.Setup();
 
-            damage.AddMod("Weapon Damage", "d8", x => x.Blast);
+            damage.AddMod(ModType.Instant, "Weapon Damage", "d8", x => x.Blast);
 
             var json = JsonConvert.SerializeObject(damage);
             var damage2 = JsonConvert.DeserializeObject<Damage>(json);

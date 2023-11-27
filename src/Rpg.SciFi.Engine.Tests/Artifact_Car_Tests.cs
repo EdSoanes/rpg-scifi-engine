@@ -28,9 +28,9 @@ namespace Rpg.SciFi.Engine.Tests
             Resistances = new CompositeResistances(Parts.Select(x => x.Resistances).ToArray());
             States = new States(
                 new State("Activated",
-                    this.Modifies("Noise", "20", (car) => car.Emissions.Sound.Value),
-                    this.Modifies("Heat", "15", (car) => car.Emissions.Heat.Value),
-                    this.Modifies("Electronics", "10", (car) => car.Emissions.Electromagnetic.Value)
+                    this.Modifies(ModType.Conditional, "Noise", "20", (car) => car.Emissions.Sound.Value),
+                    this.Modifies(ModType.Conditional, "Heat", "15", (car) => car.Emissions.Heat.Value),
+                    this.Modifies(ModType.Conditional, "Electronics", "10", (car) => car.Emissions.Electromagnetic.Value)
                 ));
         }
 

@@ -91,13 +91,14 @@ namespace Rpg.SciFi.Engine.Artifacts.Meta
 
         public Modifier[] RemoveMods(string prop)
         {
-            var removed = Modifiers.ContainsKey(prop)
-                ? Modifiers[prop].ToArray()
+            var toRemove = Modifiers.ContainsKey(prop)
+                ? Modifiers[prop].Where(x => x.Type != ModType.Base).ToArray()
                 : new Modifier[0];
 
-            Modifiers[prop].Clear();
+            foreach (var mod in toRemove)
+                Modifiers[prop].Remove(mod);
 
-            return removed;
+            return toRemove;
         }
 
         public Modifier[] RemoveModsByName(string name)
