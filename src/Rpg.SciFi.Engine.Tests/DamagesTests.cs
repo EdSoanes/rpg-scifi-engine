@@ -32,7 +32,7 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void Damage_TestDamage()
         {
-            var damage = new TestDamage();
+            var damage = new Damage("d6", "d6", "d10", "d6", "d6");
             Meta.Initialize(damage);
             damage.Setup();
 
@@ -47,14 +47,22 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void Damage_Serialization()
         {
-            var damage = new TestDamage();
+            var damage = new Damage("d6", "d6", "d10", "d6", "d6");
             Meta.Initialize(damage);
             damage.Setup();
 
-            var json = JsonConvert.SerializeObject(damage);
-            var damage2 = JsonConvert.DeserializeObject<Damage>(json);
+            var state = Meta.Serialize();
+            Meta.Clear();
+            Assert.IsNull(Meta.Context);
+            Assert.IsNull(Meta.MetaEntities);
 
-            Assert.IsNotNull(damage2);
+
+            Meta.Deserialize<Damage>(state);
+
+            Assert.IsNotNull(Meta.Context);
+            Assert.IsNotNull(Meta.MetaEntities);
+
+            var damage2 = (Damage)Meta.Context;
             Assert.AreEqual<string>(damage.Blast, damage2.Blast);
             Assert.AreEqual<string>(damage.BaseBlast, damage2.Blast);
 
@@ -97,14 +105,19 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void Damage_Serialization_WithMod()
         {
-            var damage = new TestDamage();
+            var damage = new Damage("d6", "d6", "d6", "d6", "d6");
             Meta.Initialize(damage);
             damage.Setup();
 
+            Assert.IsNotNull(damage);
+
             damage.AddMod(ModType.Instant, "Weapon Damage", "d8", x => x.Blast);
 
-            var json = JsonConvert.SerializeObject(damage);
-            var damage2 = JsonConvert.DeserializeObject<Damage>(json);
+            var state = Meta.Serialize();
+            Meta.Clear();
+            Meta.Deserialize<Damage>(state);
+
+            var damage2 = (Damage)Meta.Context!;
 
             Assert.IsNotNull(damage2);
             Assert.AreEqual<string>("1d8 + 1d6", damage2.Blast);

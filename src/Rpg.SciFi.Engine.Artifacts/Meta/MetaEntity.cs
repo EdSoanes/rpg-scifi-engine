@@ -16,11 +16,21 @@ namespace Rpg.SciFi.Engine.Artifacts.Meta
         [JsonProperty] public string Path { get; private set; }
         [JsonProperty] public string Type { get; private set; }
         [JsonProperty] public string Class { get; private set; }
-        [JsonProperty] public Entity? Entity { get; private set; }
-        [JsonProperty] public string[] SetupMethods { get; private set; }
-        [JsonProperty] public MetaAction[] AbilityMethods { get; private set; }
+        [JsonIgnore] public Entity? Entity { get; private set; }
+        [JsonProperty] public string[] SetupMethods { get; private set; } = new string[0];
+        [JsonProperty] public MetaAction[] AbilityMethods { get; private set; } = new MetaAction[0];
         [JsonProperty] public List<string> ModifiableProperties { get; private set; } = new List<string>();
         [JsonProperty] public Dictionary<string, List<Modifier>> Modifiers { get; private set; } = new Dictionary<string, List<Modifier>>();
+
+        internal void SetEntity(Entity entity) => Entity = entity;
+
+        [JsonConstructor]
+        public MetaEntity(string path, string type, string @class)
+        {
+            Path = path;
+            Type = type;
+            Class = @class;
+        }
 
         public MetaEntity(object obj, string path)
         {

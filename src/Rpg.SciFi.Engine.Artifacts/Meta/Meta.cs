@@ -1,7 +1,9 @@
-﻿using Rpg.SciFi.Engine.Artifacts.Core;
+﻿using Newtonsoft.Json;
+using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
 using System.Xml.Linq;
 
 namespace Rpg.SciFi.Engine.Artifacts.Meta
@@ -25,6 +27,41 @@ namespace Rpg.SciFi.Engine.Artifacts.Meta
             MetaEntities = meta
                 .OrderBy(x => x.Path)
                 .ToArray();
+        }
+
+        public static void Clear()
+        {
+            Context = null;
+            MetaEntities = null;
+            _setups.Clear();
+        }
+
+        public static string Serialize()
+        {
+            var entityJson = JsonConvert.SerializeObject(Context, Formatting.None);
+            var metaJson = JsonConvert.SerializeObject(MetaEntities, Formatting.None);
+
+            var sb = new StringBuilder();
+            sb.AppendLine(entityJson);
+            sb.AppendLine(metaJson);
+            return sb.ToString();
+        }
+
+        public static void Deserialize<T>(string state)
+            where T : Entity
+        {
+            var files = state.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            if (files.Length != 2)
+                throw new ArgumentException("State should contain 2 files");
+
+            Context = JsonConvert.DeserializeObject<T>(files[0]);
+            MetaEntities = JsonConvert.DeserializeObject<MetaEntity[]>(files[1]);
+
+            ReflectionEngine.TraverseMetaGraph(Context!, (e, _, _) =>
+            {
+                var metaEntity = MetaEntities!.Single(x => x.Id == e.Id);
+                metaEntity.SetEntity(e.Entity!);
+            });
         }
 
         public static MetaEntity? MetaData(this Entity entity)

@@ -50,6 +50,8 @@ namespace Rpg.SciFi.Engine.Artifacts
 
     public sealed class Modifier
     {
+        [JsonConstructor] private Modifier() { }
+
         public Modifier(MetaModLocator source, MetaModLocator target, string? diceCalc = null)
         {
             Name = source.Prop;
