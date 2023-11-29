@@ -2,27 +2,18 @@
 using Rpg.SciFi.Engine.Artifacts;
 using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Core;
-using Rpg.SciFi.Engine.Artifacts.Meta;
+using Rpg.SciFi.Engine.Artifacts.MetaData;
 
 namespace Rpg.SciFi.Engine.Tests
 {
     [TestClass]
     public class DamagesTests
     {
-        internal class TestDamage : Damage
-        {
-            public TestDamage()
-                : base("d6", "d6", "d10", "d6", "d6")
-            {
-            }
-        }
-
         [TestMethod]
         public void StatPoints_Test()
         {
             var statPoints = new StatPoints();
             Meta.Initialize(statPoints);
-            statPoints.Setup();
 
             Assert.IsNotNull(statPoints);
             Assert.AreEqual(-5, statPoints.StrengthBonus);
@@ -34,7 +25,6 @@ namespace Rpg.SciFi.Engine.Tests
         {
             var damage = new Damage("d6", "d6", "d10", "d6", "d6");
             Meta.Initialize(damage);
-            damage.Setup();
 
             Assert.IsNotNull(damage);
             Assert.AreEqual<string>("1d10", damage.Blast);
@@ -49,9 +39,8 @@ namespace Rpg.SciFi.Engine.Tests
         {
             var damage = new Damage("d6", "d6", "d10", "d6", "d6");
             Meta.Initialize(damage);
-            damage.Setup();
 
-            var state = Meta.Serialize();
+            var state = Meta.Serialize<Damage>();
             Meta.Clear();
             Assert.IsNull(Meta.Context);
             Assert.IsNull(Meta.MetaEntities);
@@ -88,7 +77,6 @@ namespace Rpg.SciFi.Engine.Tests
         {
             var damage = new Damage("d6", "d6", "d6", "d6", "d6");
             Meta.Initialize(damage);
-            damage.Setup();
 
             Assert.IsNotNull(damage);
 
@@ -107,13 +95,12 @@ namespace Rpg.SciFi.Engine.Tests
         {
             var damage = new Damage("d6", "d6", "d6", "d6", "d6");
             Meta.Initialize(damage);
-            damage.Setup();
 
             Assert.IsNotNull(damage);
 
             damage.AddMod(ModType.Instant, "Weapon Damage", "d8", x => x.Blast);
 
-            var state = Meta.Serialize();
+            var state = Meta.Serialize<Damage>();
             Meta.Clear();
             Meta.Deserialize<Damage>(state);
 

@@ -1,6 +1,6 @@
 ﻿using Rpg.SciFi.Engine.Artifacts;
 using Rpg.SciFi.Engine.Artifacts.Core;
-using Rpg.SciFi.Engine.Artifacts.Meta;
+using Rpg.SciFi.Engine.Artifacts.MetaData;
 
 namespace Rpg.SciFi.Engine.Tests
 {
@@ -23,7 +23,6 @@ namespace Rpg.SciFi.Engine.Tests
             var game = new Game();
             game.Character = new Character();
             Meta.Initialize(game);
-            game.Character.Setup();
 
             Assert.AreEqual<string>("1d6", game.Character.Damage.BaseImpact);
             Assert.AreEqual<string>("1d6 + 4", game.Character.Damage.Impact);

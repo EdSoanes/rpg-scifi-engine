@@ -1,11 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
-using Rpg.SciFi.Engine.Artifacts.Meta;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Rpg.SciFi.Engine.Artifacts.MetaData;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {

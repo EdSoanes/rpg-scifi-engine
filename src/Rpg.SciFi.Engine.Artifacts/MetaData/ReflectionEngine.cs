@@ -3,7 +3,7 @@ using Rpg.SciFi.Engine.Artifacts.Turns;
 using System.Collections;
 using System.Reflection;
 
-namespace Rpg.SciFi.Engine.Artifacts.Meta
+namespace Rpg.SciFi.Engine.Artifacts.MetaData
 {
     internal static class ReflectionEngine
     {
@@ -13,29 +13,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Meta
             return attr != null;
         }
 
-        internal static List<MetaEntity> TraverseMetaGraph(this object context, Action<MetaEntity, string, PropertyInfo> processContext, string basePath = "{}")
-        {
-            var entities = new List<MetaEntity>();
 
-            var metaEntity = new MetaEntity(context, basePath);
-            entities.Add(metaEntity);
-
-            foreach (var propertyInfo in context.MetaProperties())
-            {
-                var items = context.PropertyObjects(propertyInfo, out var isEnumerable);
-                var path = $"{basePath}.{propertyInfo.Name}{(isEnumerable ? "[]" : "")}";
-
-                processContext.Invoke(metaEntity, path, propertyInfo);
-
-                foreach (var item in items)
-                {
-                    var childEntities = TraverseMetaGraph(item, processContext, path);
-                    entities.AddRange(childEntities);
-                }
-            }
-
-            return entities;
-        }
 
         internal static string GetEntityClass(this object obj)
         {
@@ -111,9 +89,11 @@ namespace Rpg.SciFi.Engine.Artifacts.Meta
                 .ToArray();
         }
 
-        private static IEnumerable<object> PropertyObjects(this object context, PropertyInfo propertyInfo, out bool isEnumerable)
+        internal static IEnumerable<object> PropertyObjects(this object context, PropertyInfo propertyInfo, out bool isEnumerable)
         {
             isEnumerable = false;
+            if (propertyInfo.IsModdableProperty())
+                return Enumerable.Empty<object>();
 
             var obj = propertyInfo.GetValue(context, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, null, null);
             if (obj == null || obj is string || obj.GetType().IsPrimitive)

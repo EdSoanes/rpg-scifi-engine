@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
-using Rpg.SciFi.Engine.Artifacts.Meta;
+using Rpg.SciFi.Engine.Artifacts.MetaData;
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
@@ -33,19 +33,18 @@ namespace Rpg.SciFi.Engine.Artifacts
         Conditional
     }
 
-    public class DeleteCondition
+    public sealed class ModifierSet
     {
-        public Guid EntityId { get; set; }
-        public string State { get; set; }
-        public bool Not { get; set; }
-        public int PropertyValue { get; set; }
-    }
+        [JsonProperty] public string Name { get; private set; }
+        [JsonProperty] public Modifier[] Modifiers { get; private set; }
 
-    public class DeleteRule
-    {
-        public DeleteOn DeleteOn { get; set; } = DeleteOn.Never;
-        public int OnTurnNo { get; set; } = 0;
-        public DeleteCondition[] DeleteConditions { get; set; } = new DeleteCondition[0];
+        [JsonConstructor] private ModifierSet() { }
+
+        public ModifierSet(string name, params Modifier[] modifiers)
+        {
+            Name = name;
+            Modifiers = modifiers;
+        }
     }
 
     public sealed class Modifier
@@ -122,7 +121,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             var dice = Source.Id.MetaData().Evaluate(Source.Prop);
 
             if (!string.IsNullOrEmpty(DiceCalc))
-                dice = Meta.Meta.RunCalculationMethod(DiceCalc, dice);
+                dice =Target.Id.MetaData().Entity.ExecuteFunction<Dice, Dice>(DiceCalc, dice);
 
             return dice;
         }

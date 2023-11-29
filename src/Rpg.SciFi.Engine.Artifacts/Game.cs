@@ -1,5 +1,5 @@
 ﻿using Rpg.SciFi.Engine.Artifacts.Core;
-using Rpg.SciFi.Engine.Artifacts.Meta;
+using Rpg.SciFi.Engine.Artifacts.MetaData;
 using System;
 using System.Collections.Generic;
 using System.Linq;

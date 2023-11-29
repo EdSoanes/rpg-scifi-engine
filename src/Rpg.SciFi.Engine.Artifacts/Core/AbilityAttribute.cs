@@ -9,13 +9,8 @@ namespace Rpg.SciFi.Engine.Artifacts.Core
     [AttributeUsage(AttributeTargets.Method)]
     public class AbilityAttribute : Attribute
     {
-        public string Name { get; set; }
-        public string Description { get; set; }
-
-        public AbilityAttribute(string name, string description)
+        public AbilityAttribute()
         {
-            Name = name;
-            Description = description;
         }
     }
 }

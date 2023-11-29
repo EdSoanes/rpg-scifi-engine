@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Rpg.SciFi.Engine.Artifacts.Meta
+namespace Rpg.SciFi.Engine.Artifacts.MetaData
 {
     public class MetaModLocator
     {

@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Core;
-using Rpg.SciFi.Engine.Artifacts.Meta;
+using Rpg.SciFi.Engine.Artifacts.MetaData;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +17,10 @@ namespace Rpg.SciFi.Engine.Artifacts
         {
             Emissions = new EmissionSignature(null, new Emission("Heat", 36));
             Health = new Health(10, 10);
+            TurnPoints = new TurnPoints(8, 8, 8);
+            Damage = new Damage("d6", "0", "0", "0", "0");
+            Equipment = new Contains();
+
             Stats = new StatPoints
             {
                 BaseStrength = 18,
@@ -25,18 +29,18 @@ namespace Rpg.SciFi.Engine.Artifacts
             };
         }
 
+        [JsonProperty] public TurnPoints TurnPoints { get; private set; }
+        [JsonProperty] public StatPoints Stats { get; private set; }
+        [JsonProperty] public Contains Equipment { get; private set; }
+        [JsonProperty] public Damage Damage { get; private set; }
+
         [Setup]
         public void Setup()
         {
-            Stats.Setup();
             this.AddBaseMod(x => x.Stats.StrengthBonus, x => x.Damage.Impact);
-            Damage.Setup();
+            this.AddBaseMod(x => x.Stats.DexterityBonus, x => x.TurnPoints.Action);
+            this.AddBaseMod(x => x.Stats.StrengthBonus, x => x.TurnPoints.Exertion);
+            this.AddBaseMod(x => x.Stats.IntelligenceBonus, x => x.TurnPoints.Focus);
         }
-
-        [JsonProperty] public StatPoints Stats { get; private set; }
-
-        [JsonProperty] public Contains Equipment { get; private set; } = new Contains();
-
-        [JsonProperty] public Damage Damage { get; private set; } = new Damage("d6", "0", "0", "0", "0");
     }
 }

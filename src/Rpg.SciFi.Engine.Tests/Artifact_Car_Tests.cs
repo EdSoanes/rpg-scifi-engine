@@ -2,7 +2,7 @@
 using Rpg.SciFi.Engine.Artifacts;
 using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Core;
-using Rpg.SciFi.Engine.Artifacts.Meta;
+using Rpg.SciFi.Engine.Artifacts.MetaData;
 using Rpg.SciFi.Engine.Artifacts.Turns;
 
 namespace Rpg.SciFi.Engine.Tests

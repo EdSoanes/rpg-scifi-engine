@@ -10,7 +10,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
         [JsonProperty] public string Name { get; private set; } = nameof(Ability);
         [JsonProperty] public string Description { get; private set; } = string.Empty;
-        [JsonProperty] public TurnPoints Costs { get; private set; } = new TurnPoints();
+        [JsonProperty] public TurnPoints Costs { get; private set; } = new TurnPoints(0, 0, 0);
     }
 
     public sealed class Abilities

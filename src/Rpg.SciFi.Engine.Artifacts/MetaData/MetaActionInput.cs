@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Rpg.SciFi.Engine.Artifacts.Core;
 
-namespace Rpg.SciFi.Engine.Artifacts.Meta
+namespace Rpg.SciFi.Engine.Artifacts.MetaData
 {
     public class MetaActionInput
     {

@@ -20,6 +20,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Core
         public string Param { get; set; }
         public string BindsTo { get; set; }
 
+        public InputAttribute() { }
         public InputAttribute(string param, string bindsTo)
         {
             Param = param;

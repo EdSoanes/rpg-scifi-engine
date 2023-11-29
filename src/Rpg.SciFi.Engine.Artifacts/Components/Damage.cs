@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
-using Rpg.SciFi.Engine.Artifacts.Meta;
+using Rpg.SciFi.Engine.Artifacts.MetaData;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
