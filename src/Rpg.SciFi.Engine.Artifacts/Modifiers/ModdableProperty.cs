@@ -1,13 +1,13 @@
 ﻿using Newtonsoft.Json;
 
-namespace Rpg.SciFi.Engine.Artifacts.MetaData
+namespace Rpg.SciFi.Engine.Artifacts.Modifiers
 {
-    public class MetaModLocator
+    public class ModdableProperty
     {
         [JsonProperty] public Guid Id { get; private set; }
         [JsonProperty] public string Prop { get; private set; }
 
-        public MetaModLocator(Guid id, string prop)
+        public ModdableProperty(Guid id, string prop)
         {
             Id = id;
             Prop = prop;
@@ -21,9 +21,9 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                 : $"{{unknown}}[{Id}].{Prop}";
         }
 
-        public static bool operator ==(MetaModLocator m1, MetaModLocator m2) => m1.Id == m2.Id && m1.Prop == m2.Prop;
+        public static bool operator ==(ModdableProperty m1, ModdableProperty m2) => m1.Id == m2.Id && m1.Prop == m2.Prop;
 
-        public static bool operator !=(MetaModLocator m1, MetaModLocator m2) => m1.Id != m2.Id || m1.Prop != m2.Prop;
+        public static bool operator !=(ModdableProperty m1, ModdableProperty m2) => m1.Id != m2.Id || m1.Prop != m2.Prop;
 
         public override int GetHashCode()
         {
@@ -32,10 +32,10 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
         public override bool Equals(object? obj)
         {
-            if (obj == null || !(obj is MetaModLocator))
+            if (obj == null || !(obj is ModdableProperty))
                 return false;
 
-            return this == (MetaModLocator)obj;
+            return this == (ModdableProperty)obj;
         }
     }
 }

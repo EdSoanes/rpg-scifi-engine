@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Core;
+using Rpg.SciFi.Engine.Artifacts.Expressions;
+using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using Rpg.SciFi.Engine.Artifacts.Turns;
 
 namespace Rpg.SciFi.Engine.Artifacts
@@ -13,6 +15,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             Emissions = new EmissionSignature();
             Resistances = new Resistances();
             Health = new Health();
+            States = new States();
         }
 
         [JsonProperty] public string Name { get; protected set; }
@@ -22,11 +25,17 @@ namespace Rpg.SciFi.Engine.Artifacts
         [JsonProperty] public EmissionSignature Emissions { get; protected set; }
         [JsonProperty] public Resistances Resistances { get; protected set; }
         [JsonProperty] public Health Health { get; protected set; }
+        [JsonProperty] public States States { get; protected set; }
 
-        [Ability("Destroy", "Destroy item")]
+        [Moddable] public bool Destroyed { get => Resolve(nameof(Destroyed)) > 0; }
+
+        [Ability]
         public TurnAction Destroy()
         {
-            return new TurnAction();
+            return new TurnAction(
+                new TurnPoints(0, 0, 0), 
+                new State("Destroyed", 
+                    this.Mod("Destroyed", new Dice("1"), () => Destroyed).IsBase()));
         }
     }
 }

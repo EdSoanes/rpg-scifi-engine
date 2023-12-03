@@ -2,6 +2,7 @@
 using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
+using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
@@ -31,11 +32,11 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Setup]
         public void Setup()
         {
-            this.AddBaseMod(x => x.BaseBlast, x => x.Blast);
-            this.AddBaseMod(x => x.BasePierce, x => x.Pierce);
-            this.AddBaseMod(x => x.BaseImpact, x => x.Impact);
-            this.AddBaseMod(x => x.BaseBurn,x => x.Burn);
-            this.AddBaseMod(x => x.BaseEnergy, x => x.Energy);
+            this.Mod(() => BaseBlast, () => Blast).IsBase().Apply();
+            this.Mod(() => BasePierce, () => Pierce).IsBase().Apply();
+            this.Mod(() => BaseImpact, () => Impact).IsBase().Apply();
+            this.Mod(() => BaseBurn, () => Burn).IsBase().Apply();
+            this.Mod(() => BaseEnergy, () => Energy).IsBase().Apply();
         }
     }
 }

@@ -1,13 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Core;
-using Rpg.SciFi.Engine.Artifacts.MetaData;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
@@ -37,10 +30,10 @@ namespace Rpg.SciFi.Engine.Artifacts
         [Setup]
         public void Setup()
         {
-            this.AddBaseMod(x => x.Stats.StrengthBonus, x => x.Damage.Impact);
-            this.AddBaseMod(x => x.Stats.DexterityBonus, x => x.TurnPoints.Action);
-            this.AddBaseMod(x => x.Stats.StrengthBonus, x => x.TurnPoints.Exertion);
-            this.AddBaseMod(x => x.Stats.IntelligenceBonus, x => x.TurnPoints.Focus);
+            this.Mod(() => Stats.StrengthBonus, () => Damage.Impact).IsBase().Apply();
+            this.Mod(() => Stats.StrengthBonus, () => TurnPoints.Exertion).IsBase().Apply();
+            this.Mod(() => Stats.DexterityBonus, () => TurnPoints.Action).IsBase().Apply();
+            this.Mod(() => Stats.IntelligenceBonus, () => TurnPoints.Focus).IsBase().Apply();
         }
     }
 }

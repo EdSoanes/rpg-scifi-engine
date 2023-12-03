@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
+using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
@@ -34,10 +35,10 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Setup]
         public void Setup()
         {
-            this.AddBaseMod((e) => e.BaseMin, (e) => e.Min);
-            this.AddBaseMod((e) => e.BaseMax, (e) => e.Max);
-            this.AddBaseMod((e) => e.BaseValue, (e) => e.Value);
-            this.AddBaseMod((e) => e.BaseRadius, (e) => e.Radius);
+            this.Mod(() => BaseMin, () => Min).IsBase().Apply();
+            this.Mod(() => BaseMax, () => Max).IsBase().Apply();
+            this.Mod(() => BaseValue, () => Value).IsBase().Apply();
+            this.Mod(() => BaseRadius, () => Radius).IsBase().Apply();
         }
     }
 

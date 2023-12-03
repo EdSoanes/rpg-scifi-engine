@@ -1,4 +1,5 @@
 ﻿using Rpg.SciFi.Engine.Artifacts.Expressions;
+using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Artifacts.Core
 {

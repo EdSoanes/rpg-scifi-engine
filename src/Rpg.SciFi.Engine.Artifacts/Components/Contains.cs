@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
+using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +25,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Setup]
         public void Setup()
         {
-            this.AddBaseMod(x => x.BaseEncumbrance, x => x.Encumbrance);
+            this.Mod(() => BaseEncumbrance, () => Encumbrance).IsBase().Apply();
         }
 
         public void Add(Artifact artifact)

@@ -22,7 +22,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             var meta = TraverseMetaGraph(Context, (metaEntity, path, propertyInfo) =>
             {
                 if (propertyInfo.IsModdableProperty())
-                    metaEntity.ModifiableProperties?.Add(propertyInfo.Name);
+                    metaEntity.Mods.ModdableProperties?.Add(propertyInfo.Name);
             });
 
             MetaEntities = meta

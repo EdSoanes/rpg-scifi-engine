@@ -1,8 +1,7 @@
-﻿using Newtonsoft.Json;
-using Rpg.SciFi.Engine.Artifacts;
-using Rpg.SciFi.Engine.Artifacts.Components;
-using Rpg.SciFi.Engine.Artifacts.Core;
+﻿using Rpg.SciFi.Engine.Artifacts.Components;
+using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
+using Rpg.SciFi.Engine.Artifacts;
 
 namespace Rpg.SciFi.Engine.Tests
 {
@@ -81,11 +80,11 @@ namespace Rpg.SciFi.Engine.Tests
             Assert.IsNotNull(damage);
 
             Assert.AreEqual<string>("1d6", damage.Blast);
-            damage.AddMod(ModType.Instant, "Weapon Damage", "d8", x => x.Blast);
+            damage.Mod<Dice>("Weapon Damage", "d8", nameof(damage.Blast)).IsInstant().Apply();
 
             Assert.AreEqual<string>("1d8 + 1d6", damage.Blast);
 
-            damage.RemoveMods();
+            damage.ClearMods();
 
             Assert.AreEqual<string>("1d6", damage.Blast);
         }
@@ -98,7 +97,7 @@ namespace Rpg.SciFi.Engine.Tests
 
             Assert.IsNotNull(damage);
 
-            damage.AddMod(ModType.Instant, "Weapon Damage", "d8", x => x.Blast);
+            damage.Mod<Dice>("Weapon Damage", "d8", nameof(damage.Blast)).IsInstant().Apply();
 
             var state = Meta.Serialize<Damage>();
             Meta.Clear();
@@ -109,7 +108,7 @@ namespace Rpg.SciFi.Engine.Tests
             Assert.IsNotNull(damage2);
             Assert.AreEqual<string>("1d8 + 1d6", damage2.Blast);
 
-            damage2.RemoveMods();
+            damage2.ClearMods();
             Assert.AreEqual<string>("1d6", damage2.Blast);
         }
     }

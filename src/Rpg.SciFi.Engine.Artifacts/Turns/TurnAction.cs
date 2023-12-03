@@ -1,29 +1,29 @@
-﻿using Rpg.SciFi.Engine.Artifacts.Components;
-using Rpg.SciFi.Engine.Artifacts.Core;
+﻿using Newtonsoft.Json;
+using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Artifacts.Turns
 {
-    public class TurnAction
+    public class TurnAction : ModifierStore
     {
-        public string Type { get; set; } = "Immediate";
-        public int ActionPoints { get; set; } = 1;
-        public int Exertion { get; set; } = 1;
-        
-        public int Focus { get; set; } = 1;
-        public Modifier[] Modifiers = new Modifier[0];
-        [Moddable] public Dice DiceRoll { get => this.Evaluate(nameof(DiceRoll)); }
+        [JsonConstructor] private TurnAction() { }
 
-        //public Artifact? UsingArtifact { get; set; }
-        //public Consequence[]? SuccessConsequences { get; set; }
-        //public Consequence[]? FailConsequences { get; set; }
-        //public int ActionPointCost { get; set; }
-        //public int ExertionCost { get; set; }
-        //public int SuccessRoll {  get; set; }
+        public TurnAction(TurnPoints costs, State success)
+        {
+            Costs = costs;
+            States = new States(success);
+        }
+
+        public TurnAction(TurnPoints costs, State success, State failure)
+        {
+            Costs = costs;
+            States = new States(success, failure);
+        }
+
+        [JsonProperty] public TurnPoints Costs { get; private set; }
+        [JsonProperty] public States States { get; private set; }
+
+        [Moddable] public Dice DiceRoll { get => Evaluate(nameof(DiceRoll)); }
     }
 }

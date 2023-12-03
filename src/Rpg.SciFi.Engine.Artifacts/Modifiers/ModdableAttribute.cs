@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rpg.SciFi.Engine.Artifacts.Core
+namespace Rpg.SciFi.Engine.Artifacts.Modifiers
 {
     [AttributeUsage(AttributeTargets.Property)]
     public class ModdableAttribute : Attribute

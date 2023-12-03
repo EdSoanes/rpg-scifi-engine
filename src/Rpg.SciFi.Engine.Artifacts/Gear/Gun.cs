@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Core;
+using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
+using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using Rpg.SciFi.Engine.Artifacts.Turns;
 using System;
 using System.Collections.Generic;
@@ -31,18 +33,13 @@ namespace Rpg.SciFi.Engine.Artifacts.Gear
         [Input(InputSource = InputSource.Player, Param = "target", BindsTo = "Target")]
         public TurnAction Fire(Character character, Artifact target)
         {
-            character.Describe(nameof(Character.Stats.MissileAttackBonus))
-            return new TurnAction
-            {
-                ActionPoints = 3,
-                Exertion = 1,
-                Focus = 1,
-                Modifiers = new[]
-                {
-                    target.AddMod(ModType.Instant)
-                }
+            character.Describe(nameof(Character.Stats.MissileAttackBonus));
+            var shot = new State("Shot");
+            var action = new TurnAction(new TurnPoints(3, 1, 1), shot);
 
-            }
+            action.Add(this.Mod(() => Damage.Impact, () => character.Health.Physical).IsInstant());
+
+            return action;
         }
     }
 }

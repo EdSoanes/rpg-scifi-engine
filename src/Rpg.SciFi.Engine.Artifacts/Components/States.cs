@@ -1,17 +1,20 @@
 ﻿using Newtonsoft.Json;
+using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
     public class State
     {
+        [JsonConstructor] private State() { }
+
         public State(string name, params Modifier[] modifiers)
         {
             Name = name;
-            Modifiers = modifiers;
+            Modifiers = modifiers.Select(x => x.IsState(name)).ToArray();
         }
 
-        public virtual string Name { get; set; } = string.Empty;
-        public virtual Modifier[] Modifiers { get; set; } = new Modifier[0];
+        [JsonProperty] public virtual string Name { get; set; } = string.Empty;
+        [JsonProperty] public virtual Modifier[] Modifiers { get; set; } = new Modifier[0];
     }
 
     public sealed class States

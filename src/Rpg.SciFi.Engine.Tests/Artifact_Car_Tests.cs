@@ -3,6 +3,7 @@ using Rpg.SciFi.Engine.Artifacts;
 using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
+using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using Rpg.SciFi.Engine.Artifacts.Turns;
 
 namespace Rpg.SciFi.Engine.Tests
@@ -28,9 +29,9 @@ namespace Rpg.SciFi.Engine.Tests
             Resistances = new CompositeResistances(Parts.Select(x => x.Resistances).ToArray());
             States = new States(
                 new State("Activated",
-                    this.Modifies(ModType.Conditional, "Noise", "20", (car) => car.Emissions.Sound.Value),
-                    this.Modifies(ModType.Conditional, "Heat", "15", (car) => car.Emissions.Heat.Value),
-                    this.Modifies(ModType.Conditional, "Electronics", "10", (car) => car.Emissions.Electromagnetic.Value)
+                    this.Mod("Noise", "20", () => Emissions.Sound.Value),
+                    this.Mod("Heat", "15", () => Emissions.Heat.Value),
+                    this.Mod("Electronics", "10", () => Emissions.Electromagnetic.Value)
                 ));
         }
 
@@ -42,16 +43,12 @@ namespace Rpg.SciFi.Engine.Tests
             baseDeceleration: 30, 
             baseManeuverability: 5);
 
-        [JsonProperty] public States States { get; protected set; }
-
-
         [JsonProperty] public Abilities Abilities { get; protected set; } = new Abilities();
-        [JsonProperty] public EmissionSignature Emissions { get; protected set; } = new EmissionSignature();
 
-        [Ability("Start", "Start the car")]
+        [Ability]
         public TurnAction Start()
         {
-            return new TurnAction();
+            return new TurnAction(new TurnPoints(1, 1, 1), new State("Started"));
         }
 
     }

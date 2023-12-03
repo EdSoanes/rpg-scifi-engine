@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
+using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
@@ -22,8 +23,8 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Setup]
         public void Setup()
         {
-            this.AddBaseMod(x => x.BasePhysical, x => x.Physical);
-            this.AddBaseMod(x => x.BaseMental, x => x.Mental);
+            this.Mod(() => BasePhysical, () => Physical).IsBase().Apply();
+            this.Mod(() => BaseMental, () => Mental).IsBase().Apply();
         }
     }
 

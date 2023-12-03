@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
+using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,10 +33,10 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Setup]
         public void Setup()
         {
-            this.AddBaseMod(x => x.BaseSpeed, x => x.Speed);
-            this.AddBaseMod(x => x.BaseAcceleration, x => x.Acceleration);
-            this.AddBaseMod(x => x.BaseDeceleration, x => x.Deceleration);
-            this.AddBaseMod(x => x.BaseManeuverability, x => x.Maneuverability);
+            this.Mod(() => BaseSpeed, () => Speed).IsBase().Apply();
+            this.Mod(() => BaseAcceleration, () => Acceleration).IsBase().Apply();
+            this.Mod(() => BaseDeceleration, () => Deceleration).IsBase().Apply();
+            this.Mod(() => BaseManeuverability, () => Maneuverability).IsBase().Apply();
         }
     }
 }

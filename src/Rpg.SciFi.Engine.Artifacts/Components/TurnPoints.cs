@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
-using Rpg.SciFi.Engine.Artifacts.MetaData;
+using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
@@ -30,13 +30,13 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Setup]
         public void Setup()
         {
-            this.AddBaseMod(x => x.BaseAction, x => x.MaxAction);
-            this.AddBaseMod(x => x.BaseExertion, x => x.MaxExertion);
-            this.AddBaseMod(x => x.BaseFocus, x => x.MaxFocus);
+            this.Mod(() => BaseAction, () => MaxAction).IsBase().Apply();
+            this.Mod(() => BaseExertion, () => MaxExertion).IsBase().Apply();
+            this.Mod(() => BaseFocus, () => MaxFocus).IsBase().Apply();
 
-            this.AddBaseMod(x => x.MaxAction, x => x.Action);
-            this.AddBaseMod(x => x.MaxExertion, x => x.Exertion);
-            this.AddBaseMod(x => x.MaxFocus, x => x.Focus);
+            this.Mod(() => MaxAction, () => Action).IsBase().Apply();
+            this.Mod(() => MaxExertion, () => Exertion).IsBase().Apply();
+            this.Mod(() => MaxFocus, () => Focus).IsBase().Apply();
         }
     }
 }
