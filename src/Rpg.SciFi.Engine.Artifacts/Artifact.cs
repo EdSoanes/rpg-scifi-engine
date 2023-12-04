@@ -32,10 +32,7 @@ namespace Rpg.SciFi.Engine.Artifacts
         [Ability]
         public TurnAction Destroy()
         {
-            return new TurnAction(
-                new TurnPoints(0, 0, 0), 
-                new State("Destroyed", 
-                    this.Mod("Destroyed", new Dice("1"), () => Destroyed).IsBase()));
+            return new TurnAction(0, 0, 0);
         }
     }
 }

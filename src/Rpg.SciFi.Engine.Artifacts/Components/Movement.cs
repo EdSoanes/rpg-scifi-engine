@@ -33,10 +33,10 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Setup]
         public void Setup()
         {
-            this.Mod(() => BaseSpeed, () => Speed).IsBase().Apply();
-            this.Mod(() => BaseAcceleration, () => Acceleration).IsBase().Apply();
-            this.Mod(() => BaseDeceleration, () => Deceleration).IsBase().Apply();
-            this.Mod(() => BaseManeuverability, () => Maneuverability).IsBase().Apply();
+            this.Mod((x) => x.BaseSpeed, (x) => x.Speed).IsBase().Apply();
+            this.Mod((x) => x.BaseAcceleration, (x) => x.Acceleration).IsBase().Apply();
+            this.Mod((x) => x.BaseDeceleration, (x) => x.Deceleration).IsBase().Apply();
+            this.Mod((x) => x.BaseManeuverability, (x) => x.Maneuverability).IsBase().Apply();
         }
     }
 }

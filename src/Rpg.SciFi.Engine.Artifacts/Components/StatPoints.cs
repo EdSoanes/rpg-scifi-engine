@@ -25,16 +25,16 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         public void Setup()
         {
             //TODO: Need rules calculator functionality here for bonuses
-            this.Mod(() => BaseStrength, () => Strength).IsBase().Apply();
-            this.Mod(() => BaseDexterity, () => Dexterity).IsBase().Apply();
-            this.Mod(() => BaseIntelligence, () => Intelligence).IsBase().Apply();
+            this.Mod((x) => x.BaseStrength, (x) => x.Strength).IsBase().Apply();
+            this.Mod((x) => x.BaseDexterity, (x) => x.Dexterity).IsBase().Apply();
+            this.Mod((x) => x.BaseIntelligence, (x) => x.Intelligence).IsBase().Apply();
 
-            this.Mod(() => Strength, () => StrengthBonus, () => Rules.CalculateStatBonus).IsBase().Apply();
-            this.Mod(() => Dexterity, () => DexterityBonus, () => Rules.CalculateStatBonus).IsBase().Apply();
-            this.Mod(() => Intelligence, () => IntelligenceBonus, () => Rules.CalculateStatBonus).IsBase().Apply();
+            this.Mod((x) => x.Strength, (x) => x.StrengthBonus, () => Rules.CalculateStatBonus).IsBase().Apply();
+            this.Mod((x) => x.Dexterity, (x) => x.DexterityBonus, () => Rules.CalculateStatBonus).IsBase().Apply();
+            this.Mod((x) => x.Intelligence, (x) => x.IntelligenceBonus, () => Rules.CalculateStatBonus).IsBase().Apply();
 
-            this.Mod(() => StrengthBonus, () => MeleeAttackBonus).IsBase().Apply();
-            this.Mod(() => DexterityBonus, () => MissileAttackBonus).IsBase().Apply();
+            this.Mod((x) => x.StrengthBonus, (x) => x.MeleeAttackBonus).IsBase().Apply();
+            this.Mod((x) => x.DexterityBonus, (x) => x.MissileAttackBonus).IsBase().Apply();
         }
     }
 }

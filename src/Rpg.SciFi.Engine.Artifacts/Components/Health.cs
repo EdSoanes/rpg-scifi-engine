@@ -23,8 +23,8 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Setup]
         public void Setup()
         {
-            this.Mod(() => BasePhysical, () => Physical).IsBase().Apply();
-            this.Mod(() => BaseMental, () => Mental).IsBase().Apply();
+            this.Mod((x) => x.BasePhysical, (x) => x.Physical).IsBase().Apply();
+            this.Mod((x) => x.BaseMental, (x) => x.Mental).IsBase().Apply();
         }
     }
 

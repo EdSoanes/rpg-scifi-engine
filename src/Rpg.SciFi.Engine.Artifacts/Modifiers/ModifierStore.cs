@@ -25,7 +25,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
             return dice;
         }
 
-        public List<Modifier>? Get(string prop)
+        public List<Modifier> Get(string prop)
         {
             if (!ModdableProperties.Any() || ModdableProperties.Contains(prop))
             {
@@ -35,7 +35,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
                 return Modifiers[prop];
             }
 
-            return null;
+            return new List<Modifier>();
         }
 
         public Modifier Create(string name, Dice dice, ModdableProperty target, string? diceCalc = null)
@@ -51,8 +51,19 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
         public bool Add(Modifier mod)
         {
             var mods = Get(mod.Target.Prop);
-            if (mods == null)
-                return false;
+
+            var existing = mods.SingleOrDefault(x => x.Name == mod.Name);
+            if (existing != null)
+                mods.Remove(existing);
+
+            mods.Add(mod);
+
+            return true;
+        }
+
+        public bool Store(string prop, Modifier mod)
+        {
+            var mods = Get(prop);
 
             var existing = mods.SingleOrDefault(x => x.Name == mod.Name);
             if (existing != null)

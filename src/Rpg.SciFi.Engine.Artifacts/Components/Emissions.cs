@@ -35,10 +35,10 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Setup]
         public void Setup()
         {
-            this.Mod(() => BaseMin, () => Min).IsBase().Apply();
-            this.Mod(() => BaseMax, () => Max).IsBase().Apply();
-            this.Mod(() => BaseValue, () => Value).IsBase().Apply();
-            this.Mod(() => BaseRadius, () => Radius).IsBase().Apply();
+            this.Mod((x) => x.BaseMin, (x) => x.Min).IsBase().Apply();
+            this.Mod((x) => x.BaseMax, (x) => x.Max).IsBase().Apply();
+            this.Mod((x) => x.BaseValue, (x) => x.Value).IsBase().Apply();
+            this.Mod((x) => x.BaseRadius, (x) => x.Radius).IsBase().Apply();
         }
     }
 

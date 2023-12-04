@@ -2,14 +2,8 @@
 using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
-using Rpg.SciFi.Engine.Artifacts.MetaData;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using Rpg.SciFi.Engine.Artifacts.Turns;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.SciFi.Engine.Artifacts.Gear
 {
@@ -30,16 +24,27 @@ namespace Rpg.SciFi.Engine.Artifacts.Gear
 
         [Ability()]
         [Input(Param = "character", BindsTo = "Character")]
-        [Input(InputSource = InputSource.Player, Param = "target", BindsTo = "Target")]
-        public TurnAction Fire(Character character, Artifact target)
+        [Input(InputSource = InputSource.Player, Param = "target")]
+        [Input(InputSource = InputSource.Player, Param = "range")]
+        public TurnAction Fire(Character character, Artifact target, int range)
         {
-            character.Describe(nameof(Character.Stats.MissileAttackBonus));
-            var shot = new State("Shot");
-            var action = new TurnAction(new TurnPoints(3, 1, 1), shot);
+            var action = new TurnAction(3, 1, 1)
+                .OnDiceRoll("d20")
+                .OnDiceRoll(character, (c) => c.Stats.MissileAttackBonus)
+                .OnDiceRoll(nameof(range), range, () => CalculateRange);
 
-            action.Add(this.Mod(() => Damage.Impact, () => character.Health.Physical).IsInstant());
+            action
+                .OnSuccess(this.Mod((x) => x.Damage.Blast, target, (t) => t.Health.Physical).IsInstant())
+                .OnSuccess(this.Mod((x) => x.Damage.Impact, target, (t) => t.Health.Physical).IsInstant())
+                .OnSuccess(this.Mod((x) => x.Damage.Pierce, target, (t) => t.Health.Physical).IsInstant());
 
             return action;
+        }
+
+        public Dice CalculateRange(Dice range)
+        {
+            Dice res = -(int)Math.Floor((double)10 / Range * range.Roll()) + 2;
+            return res;
         }
     }
 }

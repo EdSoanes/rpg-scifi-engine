@@ -55,7 +55,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             string targetPropPath,
             Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
         {
-            var tgt = entity.ToModdableProperty<T1>(targetPropPath);
+            var tgt = entity.ToModdableProperty(targetPropPath);
             var calc = ReflectionEngine.GetCalculationMethod(diceCalcExpr);
 
             return new Modifier(name, dice, tgt, calc);
@@ -65,7 +65,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             this TSource entity, 
             string name,
             Dice dice,
-            Expression<Func<T1>> targetExpr,
+            Expression<Func<TSource, T1>> targetExpr,
             Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TSource : Entity
         {
@@ -77,17 +77,17 @@ namespace Rpg.SciFi.Engine.Artifacts
 
         public static Modifier Mod<TSource, T1, T2>(
             this TSource entity,
-            Expression<Func<T1>> sourceExpr,
-            Expression<Func<T2>> targetExpr,
+            Expression<Func<TSource, T1>> sourceExpr,
+            Expression<Func<TSource, T2>> targetExpr,
             Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TSource : Entity
             => entity.Mod(null, sourceExpr, entity, targetExpr, diceCalcExpr);
 
         public static Modifier Mod<TSource, TTarget, T1, T2>(
             this TSource entity,
-            Expression<Func<T1>> sourceExpr,
+            Expression<Func<TSource, T1>> sourceExpr,
             TTarget target,
-            Expression<Func<T2>> targetExpr,
+            Expression<Func<TTarget, T2>> targetExpr,
             Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TSource : Entity
             where TTarget : Entity
@@ -96,9 +96,9 @@ namespace Rpg.SciFi.Engine.Artifacts
         private static Modifier Mod<TSource, TTarget, T1, T2>(
             this TSource entity,
             string? name,
-            Expression<Func<T1>> sourceExpr,
+            Expression<Func<TSource, T1>> sourceExpr,
             TTarget target,
-            Expression<Func<T2>> targetExpr,
+            Expression<Func<TTarget, T2>> targetExpr,
             Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TSource : Entity
             where TTarget : Entity
@@ -111,7 +111,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             return new Modifier(name, src, tgt, calc);
         }
 
-        public static ModdableProperty ToModdableProperty<TResult>(this Entity entity, string propPath, bool source = false)
+        public static ModdableProperty ToModdableProperty(this Entity entity, string propPath, bool source = false)
         {
             var parts = propPath.Split('.');
             var path = string.Join(".", parts.Take(parts.Length - 1));
@@ -125,11 +125,9 @@ namespace Rpg.SciFi.Engine.Artifacts
             return locator;
         }
 
-        public static ModdableProperty ToModdableProperty<TSource, TResult>(this TSource sourceEntity, Expression<Func<TResult>> expression, bool source = false)
-            where TSource : Entity
+        public static ModdableProperty ToModdableProperty<T, TResult>(this T sourceEntity, Expression<Func<T, TResult>> expression, bool source = false)
+            where T : Entity
         {
-            Entity? pathEntity = null;
-
             var memberExpression = expression.Body as MemberExpression;
             if (memberExpression == null)
                 throw new ArgumentException($"Invalid path expression. {expression.Name} not a member expression");
@@ -142,34 +140,16 @@ namespace Rpg.SciFi.Engine.Artifacts
             if (!moddable && !source)
                 throw new ArgumentException($"Invalid path. Property {memberExpression.Member.Name} must have the attribute {nameof(ModdableAttribute)}");
 
-            //Get the Entity with the property
             while (memberExpression != null)
             {
-                var constantExpression = memberExpression.Expression as ConstantExpression;
-                if (constantExpression != null)
-                {
-                    pathEntity = constantExpression.Value is Entity
-                        ? (Entity)constantExpression.Value
-                        : null;
-                    break;
-                }
-
                 memberExpression = memberExpression.Expression as MemberExpression;
                 if (memberExpression != null)
                     pathSegments.Add(memberExpression.Member.Name);
             }
 
-            if (pathEntity == null)
-                throw new ArgumentException("Could not determine an Entity for the specified prop");
-            
-            if (pathSegments.Count() > 0)
-            {
-                pathSegments.Reverse();
-                var path = string.Join(".", pathSegments);
-                pathEntity = pathEntity.PropertyValue<Entity>(path);
-                if (pathEntity == null)
-                    throw new ArgumentException($"Could not determine an Entity for the specified prop {path}");
-            }
+            pathSegments.Reverse();
+            var path = string.Join(".", pathSegments);
+            var pathEntity = sourceEntity.PropertyValue<Entity>(path);
 
             var locator = new ModdableProperty(pathEntity!.Id, prop);
             return locator;

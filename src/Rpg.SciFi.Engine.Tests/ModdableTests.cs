@@ -22,13 +22,13 @@ namespace Rpg.SciFi.Engine.Tests
 
         [Setup] public void Setup()
         {
-            this.Mod(() => BaseIntValue, () => ModdedValue).IsBase().Apply();
-            this.Mod(() => BaseIntValue, () => ModdableCalculatedValue, () => CalculateValue).Apply();
+            this.Mod((x) => x.BaseIntValue, (x) => x.ModdedValue).IsBase().Apply();
+            this.Mod((x) => x.BaseIntValue, (x) => x.ModdableCalculatedValue, () => CalculateValue).Apply();
         }
 
         public void Buff()
         {
-            this.Mod("Buff", "d6", () => ModdableValue).IsInstant().Apply();
+            this.Mod("Buff", "d6", (x) => x.ModdableValue).IsInstant().Apply();
         }
 
         public Dice CalculateValue(Dice dice)
@@ -83,7 +83,7 @@ namespace Rpg.SciFi.Engine.Tests
 
             Assert.AreEqual<string>("0", entity.ModdableValue);
 
-            entity.Mod("Buff", "d6", () => entity.ModdableValue).IsInstant().Apply();
+            entity.Mod("Buff", "d6", (x) => x.ModdableValue).IsInstant().Apply();
 
             Assert.AreEqual<string>("1d6", entity.ModdableValue);
         }

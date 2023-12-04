@@ -30,13 +30,13 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Setup]
         public void Setup()
         {
-            this.Mod(() => BaseAction, () => MaxAction).IsBase().Apply();
-            this.Mod(() => BaseExertion, () => MaxExertion).IsBase().Apply();
-            this.Mod(() => BaseFocus, () => MaxFocus).IsBase().Apply();
+            this.Mod((x) => x.BaseAction, (x) => x.MaxAction).IsBase().Apply();
+            this.Mod((x) => x.BaseExertion, (x) => x.MaxExertion).IsBase().Apply();
+            this.Mod((x) => x.BaseFocus, (x) => x.MaxFocus).IsBase().Apply();
 
-            this.Mod(() => MaxAction, () => Action).IsBase().Apply();
-            this.Mod(() => MaxExertion, () => Exertion).IsBase().Apply();
-            this.Mod(() => MaxFocus, () => Focus).IsBase().Apply();
+            this.Mod((x) => x.MaxAction, (x) => x.Action).IsBase().Apply();
+            this.Mod((x) => x.MaxExertion, (x) => x.Exertion).IsBase().Apply();
+            this.Mod((x) => x.MaxFocus, (x) => x.Focus).IsBase().Apply();
         }
     }
 }

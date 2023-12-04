@@ -29,9 +29,9 @@ namespace Rpg.SciFi.Engine.Tests
             Resistances = new CompositeResistances(Parts.Select(x => x.Resistances).ToArray());
             States = new States(
                 new State("Activated",
-                    this.Mod("Noise", "20", () => Emissions.Sound.Value),
-                    this.Mod("Heat", "15", () => Emissions.Heat.Value),
-                    this.Mod("Electronics", "10", () => Emissions.Electromagnetic.Value)
+                    this.Mod("Noise", "20", (x) => x.Emissions.Sound.Value),
+                    this.Mod("Heat", "15", (x) => x.Emissions.Heat.Value),
+                    this.Mod("Electronics", "10", (x) => x.Emissions.Electromagnetic.Value)
                 ));
         }
 
@@ -48,9 +48,8 @@ namespace Rpg.SciFi.Engine.Tests
         [Ability]
         public TurnAction Start()
         {
-            return new TurnAction(new TurnPoints(1, 1, 1), new State("Started"));
+            return new TurnAction(1, 1, 1);
         }
-
     }
 
     [TestClass]
