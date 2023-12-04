@@ -30,8 +30,12 @@ namespace Rpg.SciFi.Engine.Artifacts.Gear
         {
             var action = new TurnAction(3, 1, 1)
                 .OnDiceRoll("d20")
-                .OnDiceRoll(character, (c) => c.Stats.MissileAttackBonus)
+                .OnDiceRoll(character, (x) => x.Stats.MissileAttackBonus)
+                .OnDiceRoll(this, (x) => x.Attack)
                 .OnDiceRoll(nameof(range), range, () => CalculateRange);
+
+            action
+                .OnDiceRollTarget(target, (x) => x.MissileToHit);
 
             action
                 .OnSuccess(this.Mod((x) => x.Damage.Blast, target, (t) => t.Health.Physical).IsInstant())
@@ -45,6 +49,14 @@ namespace Rpg.SciFi.Engine.Artifacts.Gear
         {
             Dice res = -(int)Math.Floor((double)10 / Range * range.Roll()) + 2;
             return res;
+        }
+
+        [Setup]
+        public override void Setup()
+        {
+            base.Setup();
+            this.Mod((x) => x.Range, (x) => x.BaseRange).IsBase().Apply();
+            this.Mod((x) => x.Attack, (x) => x.BaseAttack).IsBase().Apply();
         }
     }
 }

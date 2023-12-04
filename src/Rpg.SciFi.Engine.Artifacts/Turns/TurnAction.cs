@@ -20,7 +20,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
         [JsonProperty] public TurnPoints Costs { get; private set; }
 
         [Moddable] public Dice DiceRoll { get => _modStore.Evaluate(nameof(DiceRoll)); }
-
+        [Moddable] public Dice DiceRollTarget { get => _modStore.Evaluate(nameof(DiceRollTarget)); }
         [Moddable] public Modifier[] Success { get => _modStore.Get(nameof(OnSuccess)).ToArray(); }
         [Moddable] public Modifier[] Failure { get => _modStore.Get(nameof(OnSuccess)).ToArray(); }
         
@@ -55,6 +55,25 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
         }
 
         public TurnAction OnDiceRoll<T, TR>(T source, Expression<Func<T, TR>> sExpr, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
+            where T : Entity
+        {
+            source.Mod(sExpr, this, (x) => x.DiceRoll, diceCalc)
+                .IsInstant()
+                .Apply(_modStore);
+
+            return this;
+        }
+
+        public TurnAction OnDiceRollTarget(string name, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
+        {
+            this.Mod(name, dice, (x) => x.DiceRoll, diceCalc)
+                .IsInstant()
+                .Apply(_modStore);
+
+            return this;
+        }
+
+        public TurnAction OnDiceRollTarget<T, TR>(T source, Expression<Func<T, TR>> sExpr, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
             where T : Entity
         {
             source.Mod(sExpr, this, (x) => x.DiceRoll, diceCalc)

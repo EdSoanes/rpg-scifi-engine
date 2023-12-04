@@ -55,7 +55,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                 methodInfo.Invoke(obj, args);
         }
 
-        public static string? GetCalculationMethod<T>(Expression<Func<Func<T, T>>>? expression)
+        public static string? GetDiceCalcFunction<T>(Expression<Func<Func<T, T>>>? expression)
         {
             if (expression == null)
                 return null;

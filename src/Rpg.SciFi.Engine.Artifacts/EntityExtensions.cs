@@ -56,7 +56,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
         {
             var tgt = entity.ToModdableProperty(targetPropPath);
-            var calc = ReflectionEngine.GetCalculationMethod(diceCalcExpr);
+            var calc = ReflectionEngine.GetDiceCalcFunction(diceCalcExpr);
 
             return new Modifier(name, dice, tgt, calc);
         }
@@ -70,7 +70,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             where TSource : Entity
         {
             var tgt = entity.ToModdableProperty(targetExpr);
-            var calc = ReflectionEngine.GetCalculationMethod(diceCalcExpr);
+            var calc = ReflectionEngine.GetDiceCalcFunction(diceCalcExpr);
 
             return new Modifier(name, dice, tgt, calc);
         }
@@ -105,7 +105,7 @@ namespace Rpg.SciFi.Engine.Artifacts
         {
             var src = entity.ToModdableProperty(sourceExpr, true);
             var tgt = target.ToModdableProperty(targetExpr);
-            var calc = ReflectionEngine.GetCalculationMethod(diceCalcExpr);
+            var calc = ReflectionEngine.GetDiceCalcFunction(diceCalcExpr);
 
             name ??= src.Prop;
             return new Modifier(name, src, tgt, calc);
@@ -121,7 +121,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             if (!source && !pathEntity.IsModdableProperty(prop))
                 throw new ArgumentException($"Invalid path. Property {prop} must have the attribute {nameof(ModdableAttribute)}");
 
-            var locator = new ModdableProperty(pathEntity.Id, prop);
+            var locator = new ModdableProperty(pathEntity.Id, prop, null);
             return locator;
         }
 
@@ -151,7 +151,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             var path = string.Join(".", pathSegments);
             var pathEntity = sourceEntity.PropertyValue<Entity>(path);
 
-            var locator = new ModdableProperty(pathEntity!.Id, prop);
+            var locator = new ModdableProperty(pathEntity!.Id, prop, null);
             return locator;
         }
     }

@@ -5,12 +5,16 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
     public class ModdableProperty
     {
         [JsonProperty] public Guid Id { get; private set; }
-        [JsonProperty] public string Prop { get; private set; }
+        [JsonProperty] public string? Prop { get; private set; }
+        [JsonProperty] public string? Method { get; private set; }
 
-        public ModdableProperty(Guid id, string prop)
+        private string Source { get => Prop ?? Method ?? throw new ArgumentException("Either Prop or Method must be set"); }
+
+        public ModdableProperty(Guid id, string? prop, string? method)
         {
             Id = id;
             Prop = prop;
+            Method = method;
         }
 
         public override string ToString()
@@ -21,9 +25,9 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
                 : $"{{unknown}}[{Id}].{Prop}";
         }
 
-        public static bool operator ==(ModdableProperty m1, ModdableProperty m2) => m1.Id == m2.Id && m1.Prop == m2.Prop;
+        public static bool operator ==(ModdableProperty m1, ModdableProperty m2) => m1.Id == m2.Id && m1.Source == m2.Source;
 
-        public static bool operator !=(ModdableProperty m1, ModdableProperty m2) => m1.Id != m2.Id || m1.Prop != m2.Prop;
+        public static bool operator !=(ModdableProperty m1, ModdableProperty m2) => m1.Id != m2.Id || m1.Source != m2.Source;
 
         public override int GetHashCode()
         {
