@@ -60,9 +60,17 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
             DiceCalc = diceCalc;
         }
 
-        internal Modifier(string name, ModdableProperty source, ModdableProperty target, string? diceCalc = null)
+        internal Modifier(ModdableProperty source, ModdableProperty target, string? diceCalc = null)
         {
-            Name = name;
+            Name = source.Source;
+            Source = source;
+            Target = target;
+            DiceCalc = diceCalc;
+        }
+
+        internal Modifier(string? name, ModdableProperty source, ModdableProperty target, string? diceCalc = null)
+        {
+            Name = name ?? source.Source;
             Source = source;
             Target = target;
             DiceCalc = diceCalc;
@@ -77,14 +85,22 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
 
         public Dice Evaluate()
         {
-            Dice? dice = Dice
-                ?? Source?.Id.PropertyValue<string>(Source.Prop) 
+            Dice dice = Dice
+                ?? Source?.Id.PropertyValue<string>(Source.Prop!) 
                 ?? "0";
 
-            if (!string.IsNullOrEmpty(DiceCalc))
-                dice = Target.Id.MetaData().Entity.ExecuteFunction<Dice, Dice>(DiceCalc, dice.Value);
+            return Calculate(dice);
+        }
 
-            return dice.Value;
+        private Dice Calculate(Dice dice)
+        {
+            if (string.IsNullOrEmpty(DiceCalc))
+                return dice;
+
+            var val = Source?.Id.MetaData()?.Entity?.ExecuteFunction<Dice, Dice>(DiceCalc, dice)
+                ?? Target?.Id.MetaData()?.Entity?.ExecuteFunction<Dice, Dice>(DiceCalc, dice);
+
+            return val != null ? val.Value : "0";
         }
 
         public Modifier IsState(string state)

@@ -48,6 +48,23 @@ namespace Rpg.SciFi.Engine.Artifacts.Expressions
         public double Avg() => _nodes.Sum(x => x.Avg());
         public int Min() => _nodes.Sum(x => x.Min());
         public int Max() => _nodes.Sum(x => x.Max());
+        public Dice Negate()
+        {
+            var dice = new Dice(_expr);
+            foreach (var node in dice._nodes)
+                node.Multiplier = node.Multiplier < 0 ? 0 : -1;
+
+            return dice;
+        }
+
+        public static Dice Sum(IEnumerable<Dice> dice)
+        {
+            var res = new Dice();
+            foreach (var d in dice)
+                res += d;
+
+            return res;
+        }
 
         public override string ToString()
         {

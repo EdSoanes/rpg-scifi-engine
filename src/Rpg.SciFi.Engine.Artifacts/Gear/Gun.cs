@@ -9,10 +9,12 @@ namespace Rpg.SciFi.Engine.Artifacts.Gear
 {
     public class Gun : Artifact
     {
-        public Gun()
+        public Gun(int baseRange, int baseAttack)
         {
             Name = nameof(Gun);
             Damage = new Damage("d6", "d8", 0, 0, 0);
+            BaseRange = baseRange;
+            BaseAttack = baseAttack;
         }
 
         [JsonProperty] public int BaseRange { get; private set; }
@@ -55,8 +57,8 @@ namespace Rpg.SciFi.Engine.Artifacts.Gear
         public override void Setup()
         {
             base.Setup();
-            this.Mod((x) => x.Range, (x) => x.BaseRange).IsBase().Apply();
-            this.Mod((x) => x.Attack, (x) => x.BaseAttack).IsBase().Apply();
+            this.Mod((x) => x.BaseRange, (x) => x.Range).IsBase().Apply();
+            this.Mod((x) => x.BaseAttack, (x) => x.Attack).IsBase().Apply();
         }
     }
 }

@@ -21,8 +21,24 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
             if (!mods?.Any() ?? true)
                 return "0";
 
-            Dice dice = string.Concat(mods!.Select(x => x.Evaluate()));
+            Dice dice = Dice.Sum(mods!.Select(x => x.Evaluate()));
             return dice;
+        }
+
+        public string[] Describe(string prop)
+        {
+            var res = new List<string>();
+            foreach (var mod in Get(prop))
+            {
+                if (mod.Source != null)
+                {
+                    res.Add($"{mod.Source.Source ?? "Set"} => {mod.Evaluate()}");
+                    var subs = mod.Source.Id.MetaData()?.Entity?.Describe(mod.Source.Prop);
+                    res.AddRange(subs.Select(x => $"  {x}"));
+                }
+            }
+
+            return res.ToArray();
         }
 
         public List<Modifier> Get(string prop)

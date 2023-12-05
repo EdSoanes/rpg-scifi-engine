@@ -5,7 +5,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Core
 {
     public static class Rules
     {
-        public static Dice Calc(Dice dice) => dice;
+        public static Dice Minus(Dice dice) => dice.Negate();
 
         public static Dice CalculateStatBonus(Dice dice) => (int) Math.Floor((double)(dice.Roll() - 10) / 2);
 

@@ -23,7 +23,9 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
         [Moddable] public Dice DiceRollTarget { get => _modStore.Evaluate(nameof(DiceRollTarget)); }
         [Moddable] public Modifier[] Success { get => _modStore.Get(nameof(OnSuccess)).ToArray(); }
         [Moddable] public Modifier[] Failure { get => _modStore.Get(nameof(OnSuccess)).ToArray(); }
-        
+
+        public override string[] Describe(string prop) => _modStore.Describe(prop);
+
         public TurnAction OnSuccess(Modifier mod)
         {
             _modStore.Store(nameof(Success), mod);

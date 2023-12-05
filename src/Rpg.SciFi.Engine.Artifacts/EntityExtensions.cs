@@ -8,12 +8,12 @@ namespace Rpg.SciFi.Engine.Artifacts
 {
     public static class EntityExtensions
     {
-        public static MetaEntity MetaData(this Guid id)
+        public static MetaEntity? MetaData(this Guid id)
         {
             if (Meta.MetaEntities == null)
                 throw new InvalidOperationException($"{nameof(Meta)} not initialized");
 
-            return Meta.MetaEntities.Single(x => x.Id == id);
+            return Meta.MetaEntities.SingleOrDefault(x => x.Id == id);
         }
 
         public static T? PropertyValue<T>(this Guid id, string path)
@@ -121,7 +121,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             if (!source && !pathEntity.IsModdableProperty(prop))
                 throw new ArgumentException($"Invalid path. Property {prop} must have the attribute {nameof(ModdableAttribute)}");
 
-            var locator = new ModdableProperty(pathEntity.Id, prop, null);
+            var locator = new ModdableProperty(pathEntity.Id, pathEntity.GetType().Name, prop, null);
             return locator;
         }
 
@@ -151,7 +151,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             var path = string.Join(".", pathSegments);
             var pathEntity = sourceEntity.PropertyValue<Entity>(path);
 
-            var locator = new ModdableProperty(pathEntity!.Id, prop, null);
+            var locator = new ModdableProperty(pathEntity!.Id, pathEntity!.GetType().Name, prop, null);
             return locator;
         }
     }

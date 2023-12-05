@@ -36,20 +36,24 @@ namespace Rpg.SciFi.Engine.Artifacts
         [Moddable] public int Size { get => Resolve(nameof(Size)); }
         [Moddable] public int Weight { get => Resolve(nameof(Weight)); }
         [Moddable] public int Speed { get => Resolve(nameof(Speed)); }
+
         [Moddable] public int MeleeToHit { get => Resolve(nameof(MeleeToHit)); }
         [Moddable] public int MissileToHit { get => Resolve(nameof(MissileToHit)); }
-        [Moddable] public bool Destroyed { get => Resolve(nameof(Destroyed)) > 0; }
 
-        public int SpeedWeightBonus { get => Size - Speed; }
+        [Moddable] public bool Destroyed { get => Resolve(nameof(Destroyed)) > 0; }
 
         public virtual void Setup()
         {
             this.Mod((x) => BaseSize, (x) => Size).IsBase().Apply();
             this.Mod((x) => BaseWeight, (x) => Weight).IsBase().Apply();
             this.Mod((x) => BaseSpeed, (x) => Speed).IsBase().Apply();
+
             this.Mod((x) => BaseMeleeToHit, (x) => MeleeToHit).IsBase().Apply();
+            this.Mod((x) => Size, (x) => MeleeToHit).IsBase().Apply();
+
             this.Mod((x) => BaseMissileToHit, (x) => MissileToHit).IsBase().Apply();
-            this.Mod((x) => SpeedWeightBonus, (x) => MissileToHit).IsBase().Apply();
+            this.Mod((x) => Size, (x) => MissileToHit).IsBase().Apply();
+            this.Mod((x) => Speed, (x) => MissileToHit, () => Rules.Minus).IsBase().Apply();
         }
 
         [Ability]

@@ -29,9 +29,7 @@ namespace Rpg.SciFi.Engine.Artifacts
 
         public Dice Evaluate(string prop)
         {
-            Dice dice = "0";
-            Mods(prop).ForEach(x => dice += x.Evaluate());
-
+            Dice dice = Dice.Sum(Mods(prop).Select(x => x.Evaluate()));
             return dice;
         }
 
@@ -42,13 +40,13 @@ namespace Rpg.SciFi.Engine.Artifacts
             return dice.Roll();
         }
 
-        public string[] Describe(string prop)
+        public virtual string[] Describe(string prop)
         {
-            var res = Mods(prop)
-                .Select(x => $"{x.Source?.Prop ?? "Set"} => {x.Target.Prop} {x.Dice}")
-                .ToArray() ?? new string[0];
+            var description = MetaData()
+                ?.Mods.Describe(prop)
+                ?? new string[0];
 
-            return res;
+            return description;
         }
     }
 }
