@@ -1,4 +1,5 @@
 ﻿using Rpg.SciFi.Engine.Artifacts.Core;
+using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using Rpg.SciFi.Engine.Artifacts.Turns;
 using System.Collections;
@@ -187,7 +188,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                 return Enumerable.Empty<object>();
 
             var obj = propertyInfo.GetValue(context, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, null, null);
-            if (obj == null || obj is string || obj.GetType().IsPrimitive)
+            if (obj == null || obj is string || obj.GetType().IsPrimitive || obj is Guid || obj is Dice)
                 return Enumerable.Empty<object>();
 
             if (obj is IEnumerable)

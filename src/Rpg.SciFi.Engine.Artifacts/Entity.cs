@@ -2,14 +2,15 @@
 using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
-using System.Linq.Expressions;
-using System.Reflection;
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
     public abstract class Entity
     {
         [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
+        [JsonProperty] public string Name { get; set; }
+
+        public Entity() => Name = GetType().Name;
 
         public MetaEntity? MetaData()
         {
@@ -42,6 +43,8 @@ namespace Rpg.SciFi.Engine.Artifacts
 
         public virtual string[] Describe(string prop)
         {
+            var res = new List<string> { $"{Name}.{prop} => {Evaluate(prop)}" };
+
             var description = MetaData()
                 ?.Mods.Describe(prop)
                 ?? new string[0];

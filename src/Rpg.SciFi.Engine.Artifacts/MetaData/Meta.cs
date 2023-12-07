@@ -36,6 +36,12 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             }
         }
 
+        public static string[] Describe()
+        {
+            var res = MetaEntities.OrderBy(x => x.Path).Select(x => x.ToString()).ToArray();
+            return res;
+        }
+
         public static void Clear()
         {
             Context = null;
@@ -71,7 +77,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             foreach (var propertyInfo in context.MetaProperties())
             {
                 var items = context.PropertyObjects(propertyInfo, out var isEnumerable);
-                var path = $"{basePath}.{propertyInfo.Name}{(isEnumerable ? "[]" : "")}";
+                var path = $"{basePath}.{propertyInfo.Name}{(isEnumerable ? $"[{metaEntity.Id}]" : "")}";
 
                 processContext.Invoke(metaEntity, path, propertyInfo);
 

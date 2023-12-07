@@ -22,14 +22,21 @@ namespace Rpg.SciFi.Engine.Artifacts
             };
         }
 
+        public Character(string name)
+            : this()
+        {
+            Name = name;
+        }
+
         [JsonProperty] public TurnPoints TurnPoints { get; private set; }
         [JsonProperty] public StatPoints Stats { get; private set; }
         [JsonProperty] public Contains Equipment { get; private set; }
         [JsonProperty] public Damage Damage { get; private set; }
 
         [Setup]
-        public void Setup()
+        public override void Setup()
         {
+            base.Setup();
             this.Mod((x) => x.Stats.StrengthBonus, (x) => x.Damage.Impact).IsBase().Apply();
             this.Mod((x) => x.Stats.StrengthBonus, (x) => x.TurnPoints.Exertion).IsBase().Apply();
             this.Mod((x) => x.Stats.DexterityBonus, (x) => x.TurnPoints.Action).IsBase().Apply();

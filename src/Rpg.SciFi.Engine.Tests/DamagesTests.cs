@@ -93,6 +93,8 @@ namespace Rpg.SciFi.Engine.Tests
         public void Damage_Serialization_WithMod()
         {
             var damage = new Damage("d6", "d6", "d6", "d6", "d6");
+            damage.Name = "Something";
+
             Meta.Initialize(damage);
 
             Assert.IsNotNull(damage);
@@ -106,6 +108,7 @@ namespace Rpg.SciFi.Engine.Tests
             var damage2 = (Damage)Meta.Context!;
 
             Assert.IsNotNull(damage2);
+            Assert.AreEqual("Something", damage2.Name);
             Assert.AreEqual<string>("1d8 + 1d6", damage2.Blast);
 
             damage2.ClearMods();

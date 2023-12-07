@@ -6,7 +6,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
     public class MetaEntity
     {
         [JsonProperty] public Guid? Id { get; private set; }
-        [JsonProperty] public string? Name { get; private set; }
+        [JsonProperty] public string Name { get; private set; }
         [JsonProperty] public string Path { get; private set; }
         [JsonProperty] public string Type { get; private set; }
         [JsonProperty] public string Class { get; private set; }
@@ -19,18 +19,19 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         internal void SetEntity(Entity entity) => Entity = entity;
 
         [JsonConstructor]
-        public MetaEntity(string path, string type, string @class)
+        public MetaEntity(string path, string type, string @class, string name)
         {
             Path = path;
             Type = type;
             Class = @class;
+            Name = name;
         }
 
         public MetaEntity(object obj, string path)
         {
-
             Id = (obj as Entity)?.Id;
             Entity = obj as Entity;
+            Name = (obj as Entity)?.Name ?? obj.GetType().Name;
             Type = obj.GetType().Name;
             Class = obj.GetEntityClass();
             SetupMethods = obj.GetSetupMethods();
@@ -40,7 +41,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
         public override string ToString()
         {
-            return $"{Type}[{Name}]={Path}";
+            return $"{Path} => [{Id}].{Type}({(Name == Type ? "" : Name)})";
         }
     }
 }

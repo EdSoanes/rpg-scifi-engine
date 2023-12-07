@@ -8,6 +8,16 @@ namespace Rpg.SciFi.Engine.Artifacts
 {
     public static class EntityExtensions
     {
+        public static Modifier[] Mods(this Entity? entity, string prop)
+        {
+            return entity?.Mods(prop).ToArray() ?? new Modifier[0];
+        }
+
+        public static Modifier[] Mods(this Guid id, string prop)
+        {
+            return id.MetaData()?.Entity?.Mods(prop).ToArray() ?? new Modifier[0];
+        }
+
         public static MetaEntity? MetaData(this Guid id)
         {
             if (Meta.MetaEntities == null)
@@ -121,11 +131,11 @@ namespace Rpg.SciFi.Engine.Artifacts
             if (!source && !pathEntity.IsModdableProperty(prop))
                 throw new ArgumentException($"Invalid path. Property {prop} must have the attribute {nameof(ModdableAttribute)}");
 
-            var locator = new ModdableProperty(pathEntity.Id, pathEntity.GetType().Name, prop, null);
+            var locator = new ModdableProperty(entity.Id, pathEntity.Id, pathEntity.GetType().Name, prop, null);
             return locator;
         }
 
-        public static ModdableProperty ToModdableProperty<T, TResult>(this T sourceEntity, Expression<Func<T, TResult>> expression, bool source = false)
+        public static ModdableProperty ToModdableProperty<T, TResult>(this T entity, Expression<Func<T, TResult>> expression, bool source = false)
             where T : Entity
         {
             var memberExpression = expression.Body as MemberExpression;
@@ -149,9 +159,9 @@ namespace Rpg.SciFi.Engine.Artifacts
 
             pathSegments.Reverse();
             var path = string.Join(".", pathSegments);
-            var pathEntity = sourceEntity.PropertyValue<Entity>(path);
+            var pathEntity = entity.PropertyValue<Entity>(path);
 
-            var locator = new ModdableProperty(pathEntity!.Id, pathEntity!.GetType().Name, prop, null);
+            var locator = new ModdableProperty(entity.Id, pathEntity!.Id, pathEntity!.GetType().Name, prop, null);
             return locator;
         }
     }

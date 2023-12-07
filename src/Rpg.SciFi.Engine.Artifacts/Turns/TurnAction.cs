@@ -21,10 +21,10 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
 
         [Moddable] public Dice DiceRoll { get => _modStore.Evaluate(nameof(DiceRoll)); }
         [Moddable] public Dice DiceRollTarget { get => _modStore.Evaluate(nameof(DiceRollTarget)); }
-        [Moddable] public Modifier[] Success { get => _modStore.Get(nameof(OnSuccess)).ToArray(); }
-        [Moddable] public Modifier[] Failure { get => _modStore.Get(nameof(OnSuccess)).ToArray(); }
+        [Moddable] public Modifier[] Success { get => _modStore.Get(nameof(Success)).ToArray(); }
+        [Moddable] public Modifier[] Failure { get => _modStore.Get(nameof(Failure)).ToArray(); }
 
-        public override string[] Describe(string prop) => _modStore.Describe(prop);
+        public override string[] Describe(string prop) => _modStore.Describe(prop, true);
 
         public TurnAction OnSuccess(Modifier mod)
         {
@@ -40,7 +40,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
 
         public TurnAction OnDiceRoll(Dice dice)
         {
-            this.Mod(nameof(DiceRoll), dice, (x) => x.DiceRoll)
+            this.Mod("Base", dice, (x) => x.DiceRoll)
                 .IsInstant()
                 .Apply(_modStore);
 
@@ -66,9 +66,9 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
             return this;
         }
 
-        public TurnAction OnDiceRollTarget(string name, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
+        public TurnAction OnDiceRollTarget(Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
         {
-            this.Mod(name, dice, (x) => x.DiceRoll, diceCalc)
+            this.Mod("Base", dice, (x) => x.DiceRollTarget, diceCalc)
                 .IsInstant()
                 .Apply(_modStore);
 
@@ -78,7 +78,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
         public TurnAction OnDiceRollTarget<T, TR>(T source, Expression<Func<T, TR>> sExpr, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
             where T : Entity
         {
-            source.Mod(sExpr, this, (x) => x.DiceRoll, diceCalc)
+            source.Mod(sExpr, this, (x) => x.DiceRollTarget, diceCalc)
                 .IsInstant()
                 .Apply(_modStore);
 

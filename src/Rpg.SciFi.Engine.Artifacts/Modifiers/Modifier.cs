@@ -2,6 +2,7 @@
 using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
+using System.Xml;
 
 namespace Rpg.SciFi.Engine.Artifacts.Modifiers
 {
@@ -85,12 +86,45 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
 
         public Dice Evaluate()
         {
-            Dice dice = Dice
-                ?? Source?.Id.PropertyValue<string>(Source.Prop!) 
-                ?? "0";
-
+            Dice dice = SourceDice();
             return Calculate(dice);
         }
+
+        public string[] Describe(bool includeEntityInformation = false)
+        {
+            var desc = DescribeSource(includeEntityInformation);
+
+            if (includeEntityInformation && Target.Id.MetaData() != null)
+                desc += $" to {DescribeTarget()}";
+
+            var res = new List<string>() { desc };
+
+            if (Source?.Prop != null)
+            {
+                foreach (var mod in Source.Id.Mods(Source.Prop))
+                    res.AddRange(mod.Describe().Select(x =>  $"  {x}"));
+            }
+ 
+            return res.ToArray();
+        }
+
+        public override string ToString() => $"{DescribeSource(true)} to {DescribeTarget()}";
+
+        private string DescribeSource(bool includeEntityInformation = false)
+        {
+            var desc = includeEntityInformation && Source != null
+                ? $"{Source.RootId.MetaData()?.Name}.{Source.Id.MetaData()?.Name ?? Name}.{Source.Prop ?? Source.Method}".Trim('.')
+                : Source?.Prop ?? Source?.Method ?? Name;
+
+            desc += $" => {SourceDice()}";
+
+            if (DiceCalc != null)
+                desc += $" => {DiceCalc}() => {Evaluate()}";
+
+            return desc;
+        }
+
+        private string DescribeTarget() => $"{Target.RootId.MetaData()?.Name}.{Target.Id.MetaData()!.Name}.{Target.Prop}".Trim('.');
 
         private Dice Calculate(Dice dice)
         {
@@ -103,6 +137,14 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
             return val != null ? val.Value : "0";
         }
 
+        private Dice SourceDice()
+        {
+            Dice dice = Dice
+                ?? Source?.Id.PropertyValue<string>(Source.Prop!)
+                ?? "0";
+
+            return dice;
+        }
         public Modifier IsState(string state)
         {
             ModCondition = new ModifierCondition(state);

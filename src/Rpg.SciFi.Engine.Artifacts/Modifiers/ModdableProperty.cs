@@ -4,14 +4,16 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
 {
     public class ModdableProperty
     {
+        [JsonProperty] public Guid RootId { get; private set; }
         [JsonProperty] public Guid Id { get; private set; }
         [JsonProperty] public string Type { get; private set; }
         [JsonProperty] public string? Prop { get; private set; }
         [JsonProperty] public string? Method { get; private set; }
         [JsonProperty] public string Source { get; private set; }
 
-        public ModdableProperty(Guid id, string type, string? prop, string? method)
+        public ModdableProperty(Guid rootId, Guid id, string type, string? prop, string? method)
         {
+            RootId = rootId;
             Id = id;
             Type = type;
             Prop = prop;
@@ -23,8 +25,8 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
         {
             var metaEntity = Id.MetaData();
             return metaEntity != null
-                ? $"{metaEntity.Type}[{Id}].{Prop}"
-                : $"{{unknown}}[{Id}].{Prop}";
+                ? $"{Id}({metaEntity.Name}).{Prop}"
+                : $"{Id}(unknown).{Prop}";
         }
 
         public static bool operator ==(ModdableProperty? m1, ModdableProperty? m2) => (m1 == null && m2 == null) || (m1?.Id == m2?.Id && m1?.Source == m2?.Source);

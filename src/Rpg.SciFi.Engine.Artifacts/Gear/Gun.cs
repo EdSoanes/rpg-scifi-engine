@@ -37,7 +37,8 @@ namespace Rpg.SciFi.Engine.Artifacts.Gear
                 .OnDiceRoll(nameof(range), range, () => CalculateRange);
 
             action
-                .OnDiceRollTarget(target, (x) => x.MissileToHit);
+                .OnDiceRollTarget(10)
+                .OnDiceRollTarget(target, (x) => x.MissileDefence);
 
             action
                 .OnSuccess(this.Mod((x) => x.Damage.Blast, target, (t) => t.Health.Physical).IsInstant())

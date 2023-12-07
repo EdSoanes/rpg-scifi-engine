@@ -25,18 +25,11 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
             return dice;
         }
 
-        public string[] Describe(string prop)
+        public string[] Describe(string prop, bool includeEntityInformation = false)
         {
             var res = new List<string>();
             foreach (var mod in Get(prop))
-            {
-                if (mod.Source != null)
-                {
-                    res.Add($"{mod.Source.Source ?? "Set"} => {mod.Evaluate()}");
-                    var subs = mod.Source.Id.MetaData()?.Entity?.Describe(mod.Source.Prop);
-                    res.AddRange(subs.Select(x => $"  {x}"));
-                }
-            }
+                res.AddRange(mod.Describe(includeEntityInformation).Select(x => $"  {x}"));
 
             return res.ToArray();
         }

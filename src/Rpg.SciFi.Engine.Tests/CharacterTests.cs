@@ -9,48 +9,58 @@ namespace Rpg.SciFi.Engine.Tests
     [TestClass]
     public class CharacterTests
     {
+        private Game _game = new Game();
+        private Gun _gun;
+        private Character _target;
+
+        [TestInitialize]
+        public void Initialize()
+        {
+            _gun = new Gun(10, 2)
+            {
+                Name = "Blaster"
+            };
+
+            var player = new Character("The Player");
+            player.Equipment.Add(_gun);
+
+            _target = new Character("The Target");
+
+            _game.Character = player;
+            _game.Environment.Contains.Add(_target);
+
+            Meta.Initialize(_game);
+        }
+
         [TestMethod]
         public void Rules_CalculateStatBonus()
         {
             Assert.AreEqual<int>(0, Rules.CalculateStatBonus(10).Roll());
             Assert.AreEqual<int>(4, Rules.CalculateStatBonus(18).Roll());
             Assert.AreEqual<int>(-4, Rules.CalculateStatBonus(3).Roll());
-
         }
 
         [TestMethod]
 
         public void Character_Init_DamageBuff()
         {
-            var game = new Game();
-            game.Character = new Character();
-            Meta.Initialize(game);
-
-            Assert.AreEqual<string>("1d6", game.Character.Damage.BaseImpact);
-            Assert.AreEqual<string>("1d6 + 4", game.Character.Damage.Impact);
+            Assert.AreEqual<string>("1d6", _game.Character.Damage.BaseImpact);
+            Assert.AreEqual<string>("1d6 + 4", _game.Character.Damage.Impact);
         }
 
         [TestMethod]
         public void Character_Gun_Fire()
         {
-            var game = new Game();
-            var player = new Character();
-            var target = new Character();
-            var gun = new Gun(10, 2);
-
-            game.Character = player;
-            game.Character.Equipment.Add(gun);
-            game.Environment.Contains.Add(target);
-
-            Meta.Initialize(game);
-
-            var action = gun.Fire(game.Character, target, 3);
+            var action = _gun.Fire(_game.Character, _target, 3);
             Assert.AreEqual<string>("1d20 - 1", action.DiceRoll);
 
-            var description = action.Describe(nameof(TurnAction.DiceRoll));
+            var diceRollDesc = action.Describe(nameof(TurnAction.DiceRoll));
+            var diceRollTargetDesc = action.Describe(nameof(TurnAction.DiceRollTarget));
+            var successDesc = action.Success.SelectMany(x => x.Describe(true));
+            var failureDesc = action.Failure.SelectMany(x => x.Describe(true));
 
-            Assert.AreEqual<string>("1d6", game.Character.Damage.BaseImpact);
-            Assert.AreEqual<string>("1d6 + 4", game.Character.Damage.Impact);
+            Assert.AreEqual<string>("1d20 - 1", action.DiceRoll);
+            Assert.AreEqual<string>("11", action.DiceRollTarget);
         }
     }
 }
