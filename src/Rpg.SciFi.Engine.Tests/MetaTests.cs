@@ -1,49 +1,47 @@
 ﻿using Rpg.SciFi.Engine.Artifacts;
-using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Gear;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
-using Rpg.SciFi.Engine.Artifacts.Turns;
 
 namespace Rpg.SciFi.Engine.Tests
 {
     [TestClass]
     public class MetaTests
     {
+        private Meta<Game> _meta;
+        private Game _game = new Game();
+        private Gun _gun;
+        private Character _target;
+
+        [TestInitialize]
+        public void Initialize()
+        {
+            _gun = new Gun(10, 2) { Name = "Blaster" };
+
+            var player = new Character("The Player");
+            player.Equipment.Add(_gun);
+
+            _target = new Character("The Target");
+
+            _game.Character = player;
+            _game.Environment.Contains.Add(_target);
+
+            _meta = new Meta<Game>();
+            _meta.Initialize(_game);
+        }
+
         [TestMethod]
         public void Game_Describe()
         {
-            var game = new Game();
-            var player = new Character("The Player");
-            var target = new Character("The Target");
-            var gun = new Gun(10, 2);
-
-            game.Character = player;
-            game.Character.Equipment.Add(gun);
-            game.Environment.Contains.Add(target);
-
-            Meta.Initialize(game);
-
-            var desc = Meta.Describe();
+            var desc = _meta.Describe();
             Assert.IsNotNull(desc);
         }
 
         [TestMethod]
         public void Game_Describe_Gun_Mods()
         {
-            var game = new Game();
-            var player = new Character("The Player");
-            var target = new Character("The Target");
-            var gun = new Gun(10, 2);
-
-            game.Character = player;
-            game.Character.Equipment.Add(gun);
-            game.Environment.Contains.Add(target);
-
-            Meta.Initialize(game);
-
-            foreach (var prop in gun.MetaData().Mods.ModdableProperties)
+            foreach (var prop in _gun.Meta.Mods.ModdableProperties)
             {
-                var desc = gun.Describe(prop);
+                var desc = _gun.Describe(prop);
                 Assert.IsNotNull(desc);
             } 
         }
@@ -51,20 +49,9 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void Game_Describe_Target_Mods()
         {
-            var game = new Game();
-            var player = new Character("The Player");
-            var target = new Character("The Target");
-            var gun = new Gun(10, 2);
-
-            game.Character = player;
-            game.Character.Equipment.Add(gun);
-            game.Environment.Contains.Add(target);
-
-            Meta.Initialize(game);
-
-            foreach (var prop in target.MetaData().Mods.ModdableProperties)
+            foreach (var prop in _target.Meta.Mods.ModdableProperties)
             {
-                var desc = target.Describe(prop);
+                var desc = _target.Describe(prop);
                 Assert.IsNotNull(desc);
             }
         }

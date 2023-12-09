@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.SciFi.Engine.Artifacts.MetaData;
 
 namespace Rpg.SciFi.Engine.Artifacts.Modifiers
 {
@@ -23,7 +24,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
 
         public override string ToString()
         {
-            var metaEntity = Id.MetaData();
+            var metaEntity = Meta.Get(Id)?.Meta;
             return metaEntity != null
                 ? $"{Id}({metaEntity.Name}).{Prop}"
                 : $"{Id}(unknown).{Prop}";

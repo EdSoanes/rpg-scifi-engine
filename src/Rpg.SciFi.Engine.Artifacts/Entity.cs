@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
-using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
@@ -9,28 +8,17 @@ namespace Rpg.SciFi.Engine.Artifacts
     {
         [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
         [JsonProperty] public string Name { get; set; }
+        [JsonProperty] public MetaEntity Meta { get; private set; }
 
-        public Entity() => Name = GetType().Name;
-
-        public MetaEntity? MetaData()
+        public Entity()
         {
-            return Meta.MetaEntities?.SingleOrDefault(x => x.Id == Id && x.Type == GetType().Name);
+            Name = GetType().Name;
+            Meta = this.CreateMetaEntity("");
         }
-
-        public List<Modifier> Mods(string prop)
-        {
-            var mods = MetaData()
-                ?.Mods.Get(prop)
-                ?? new List<Modifier>();
-
-            return mods;
-        }
-
-        public void ClearMods() => MetaData()?.Mods.Clear();
 
         public Dice Evaluate(string prop)
         {
-            Dice dice = Dice.Sum(Mods(prop).Select(x => x.Evaluate()));
+            Dice dice = Dice.Sum(Meta.Mods.Get(prop).Select(x => x.Evaluate()));
             return dice;
         }
 
@@ -45,8 +33,7 @@ namespace Rpg.SciFi.Engine.Artifacts
         {
             var res = new List<string> { $"{Name}.{prop} => {Evaluate(prop)}" };
 
-            var description = MetaData()
-                ?.Mods.Describe(prop)
+            var description = Meta.Mods.Describe(prop)
                 ?? new string[0];
 
             return description;

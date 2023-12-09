@@ -39,6 +39,8 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
             Artifacts.Add(artifact);
         }
 
+        public Artifact? Get(Guid id) => Artifacts.FirstOrDefault(x => x.Id == id);
+
         public void Remove(Guid id)
         {
             if (!Artifacts.Any(x => x.Id == id))

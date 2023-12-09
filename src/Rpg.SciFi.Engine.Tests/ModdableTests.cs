@@ -22,13 +22,13 @@ namespace Rpg.SciFi.Engine.Tests
 
         [Setup] public void Setup()
         {
-            this.Mod((x) => x.BaseIntValue, (x) => x.ModdedValue).IsBase().Apply();
-            this.Mod((x) => x.BaseIntValue, (x) => x.ModdableCalculatedValue, () => CalculateValue).Apply();
+            Meta.Mods.Add(this.Mod((x) => x.BaseIntValue, (x) => x.ModdedValue).IsBase());
+            Meta.Mods.Add(this.Mod((x) => x.BaseIntValue, (x) => x.ModdableCalculatedValue, () => CalculateValue));
         }
 
         public void Buff()
         {
-            this.Mod("Buff", "d6", (x) => x.ModdableValue).IsInstant().Apply();
+            Meta.Mods.Add(this.Mod("Buff", "d6", (x) => x.ModdableValue).IsInstant());
         }
 
         public Dice CalculateValue(Dice dice)
@@ -40,52 +40,56 @@ namespace Rpg.SciFi.Engine.Tests
     [TestClass]
     public class ModdableTests
     {
-        [TestMethod]
-        public void Mod_Setup_Test()
+        private AnEntity _anEntity;
+        private Meta<AnEntity> _meta;
+
+        [TestInitialize]
+        public void Initialize()
         {
-            var entity = new AnEntity
+            _anEntity = new AnEntity
             {
                 BaseIntValue = 1
             };
 
-            Meta.Initialize(entity);
+            _meta = new Meta<AnEntity>();
+            _meta.Initialize(_anEntity);
+        }
 
-            Assert.AreEqual(1, entity.BaseIntValue);
-            Assert.AreEqual(1, entity.ModdedValue.Roll());
-            Assert.AreEqual(3, entity.ModdableCalculatedValue.Roll());
-            Assert.AreEqual(0, entity.ModdableValue.Roll());
+        [TestMethod]
+        public void Mod_Setup_Test()
+        {
+            Assert.AreEqual(1, _anEntity.BaseIntValue);
+            Assert.AreEqual(1, _anEntity.ModdedValue.Roll());
+            Assert.AreEqual(3, _anEntity.ModdableCalculatedValue.Roll());
+            Assert.AreEqual(0, _anEntity.ModdableValue.Roll());
         }
 
         [TestMethod]
         public void Mod_ModdableValue_Test()
         {
-            var entity = new AnEntity
-            {
-                BaseIntValue = 1
-            };
-
-            Meta.Initialize(entity);
-
-            entity.Buff();
-
-            Assert.AreEqual<string>("1d6", entity.ModdableValue);
+            _anEntity.Buff();
+            Assert.AreEqual<string>("1d6", _anEntity.ModdableValue);
         }
 
         [TestMethod]
         public void PropExpr_Path()
         {
+            Assert.AreEqual<string>("0", _anEntity.ModdableValue);
+
+            _anEntity.Mod("Buff", "d6", (x) => x.ModdableValue).IsInstant().Apply();
+
+            Assert.AreEqual<string>("1d6", _anEntity.ModdableValue);
+        }
+
+        [TestMethod]
+        public void PropertyValue_By_Path()
+        {
             var entity = new AnEntity
             {
-                BaseIntValue = 1
+                BaseIntValue = 2
             };
 
-            Meta.Initialize(entity);
-
-            Assert.AreEqual<string>("0", entity.ModdableValue);
-
-            entity.Mod("Buff", "d6", (x) => x.ModdableValue).IsInstant().Apply();
-
-            Assert.AreEqual<string>("1d6", entity.ModdableValue);
+            Assert.AreEqual(2, entity.PropertyValue<int>(nameof(AnEntity.BaseIntValue)));
         }
     }
 }

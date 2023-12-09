@@ -8,26 +8,26 @@ namespace Rpg.SciFi.Engine.Artifacts
 {
     public static class EntityExtensions
     {
-        public static Modifier[] Mods(this Entity? entity, string prop)
-        {
-            return entity?.Mods(prop).ToArray() ?? new Modifier[0];
-        }
+        //public static Modifier[] Mods(this Entity? entity, string prop)
+        //{
+        //    return entity?.Mods(prop).ToArray() ?? new Modifier[0];
+        //}
 
-        public static Modifier[] Mods(this Guid id, string prop)
-        {
-            return id.MetaData()?.Entity?.Mods(prop).ToArray() ?? new Modifier[0];
-        }
+        //public static Modifier[] Mods(this Guid id, string prop)
+        //{
+        //    return id.MetaData()?.Entity?.Mods(prop).ToArray() ?? new Modifier[0];
+        //}
 
-        public static MetaEntity? MetaData(this Guid id)
-        {
-            if (Meta.MetaEntities == null)
-                throw new InvalidOperationException($"{nameof(Meta)} not initialized");
+        //public static MetaEntity? MetaData(this Guid id)
+        //{
+        //    if (Meta.Entities == null)
+        //        throw new InvalidOperationException($"{nameof(Meta)} not initialized");
 
-            return Meta.MetaEntities.SingleOrDefault(x => x.Id == id);
-        }
+        //    return Meta.Entities.SingleOrDefault(x => x.Id == id);
+        //}
 
-        public static T? PropertyValue<T>(this Guid id, string path)
-            => (id.MetaData()?.Entity).PropertyValue<T>(path);
+        //public static T? PropertyValue<T>(this Guid id, string path)
+        //    => (id.MetaData()?.Entity).PropertyValue<T>(path);
 
         public static T? PropertyValue<T>(this Entity? entity, string path)
         {
@@ -58,7 +58,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             return default;
         }
 
-        public static Modifier Mod<T1>(
+        public static Modifier ModByPath<T1>(
             this Entity entity,
             string name,
             Dice dice,

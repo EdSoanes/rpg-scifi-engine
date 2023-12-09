@@ -155,7 +155,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Expressions.Parsers
                 }
                 else if (DiceExpressionToken.IsMatch(nextToken))
                 {
-                    var subExpr = Meta.Context!.PropertyValue<string>(nextToken.Replace("[", "").Replace("]", ""));
+                    var subExpr = Meta.ValueByPath<string>(nextToken.Replace("[", "").Replace("]", ""));
 
                     var subNodes = Parse(subExpr!);
                     if (subNodes.Any())

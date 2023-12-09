@@ -55,7 +55,7 @@ namespace Rpg.SciFi.Engine.Artifacts
         [Ability]
         public TurnAction Destroy()
         {
-            return new TurnAction(0, 0, 0);
+            return new TurnAction(nameof(Destroy), 0, 0, 0);
         }
     }
 }

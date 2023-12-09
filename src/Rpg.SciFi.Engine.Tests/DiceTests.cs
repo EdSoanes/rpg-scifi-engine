@@ -45,7 +45,8 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void WithSubExpression()
         {
-            Meta.Initialize(new DiceContext
+            var meta = new Meta<DiceContext>();
+            meta.Initialize(new DiceContext
             {
                 Num = 3,
                 DiceExpr = "d6"
@@ -58,7 +59,8 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void WithSubExpression_Simplified()
         {
-            Meta.Initialize(new DiceContext
+            var meta = new Meta<DiceContext>();
+            meta.Initialize(new DiceContext
             {
                 Num = 3,
                 DiceExpr = "d6"
@@ -71,7 +73,8 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void WithSubExpression_AvgMinMax()
         {
-            Meta.Initialize(new DiceContext
+            var meta = new Meta<DiceContext>();
+            meta.Initialize(new DiceContext
             {
                 Num = 3,
                 DiceExpr = "d6+2"

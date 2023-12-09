@@ -9,6 +9,7 @@ namespace Rpg.SciFi.Engine.Tests
     [TestClass]
     public class CharacterTests
     {
+        private Meta<Game> _meta;
         private Game _game = new Game();
         private Gun _gun;
         private Character _target;
@@ -29,7 +30,8 @@ namespace Rpg.SciFi.Engine.Tests
             _game.Character = player;
             _game.Environment.Contains.Add(_target);
 
-            Meta.Initialize(_game);
+            _meta = new Meta<Game>();
+            _meta.Initialize(_game);
         }
 
         [TestMethod]
@@ -52,7 +54,6 @@ namespace Rpg.SciFi.Engine.Tests
         public void Character_Gun_Fire()
         {
             var action = _gun.Fire(_game.Character, _target, 3);
-            Assert.AreEqual<string>("1d20 - 1", action.DiceRoll);
 
             var diceRollDesc = action.Describe(nameof(TurnAction.DiceRoll));
             var diceRollTargetDesc = action.Describe(nameof(TurnAction.DiceRollTarget));
@@ -61,6 +62,36 @@ namespace Rpg.SciFi.Engine.Tests
 
             Assert.AreEqual<string>("1d20 - 1", action.DiceRoll);
             Assert.AreEqual<string>("11", action.DiceRollTarget);
+        }
+
+        [TestMethod]
+        public void Character_Gun_Fire_Success()
+        {
+            var action = _gun.Fire(_game.Character, _target, 3);
+            Assert.AreEqual(8, _game.Character.Turns.Action);
+            Assert.AreEqual(10, _target.Health.Physical);
+
+            var oldHealth = _target.Health.Physical;
+            var nextAction = _meta.Apply(_game.Character, action, 11);
+            Assert.IsNull(nextAction);
+
+            Assert.AreEqual(5, _game.Character.Turns.Action);
+            Assert.IsTrue(oldHealth > _target.Health.Physical);
+        }
+
+        [TestMethod]
+        public void Character_Gun_Fire_Failure()
+        {
+            var action = _gun.Fire(_game.Character, _target, 3);
+            Assert.AreEqual(8, _game.Character.Turns.Action);
+            Assert.AreEqual(10, _target.Health.Physical);
+
+            var oldHealth = _target.Health.Physical;
+            var nextAction = _meta.Apply(_game.Character, action, 4);
+            Assert.IsNull(nextAction);
+
+            Assert.AreEqual(5, _game.Character.Turns.Action);
+            Assert.IsTrue(oldHealth == _target.Health.Physical);
         }
     }
 }

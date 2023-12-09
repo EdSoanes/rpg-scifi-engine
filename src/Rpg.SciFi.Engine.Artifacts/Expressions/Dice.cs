@@ -44,6 +44,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Expressions
         public static bool operator ==(Dice d1, Dice d2) => d1.ToString() == d2.ToString();
         public static bool operator !=(Dice d1, Dice d2) => d1.ToString() != d2.ToString();
 
+        public bool IsConstant { get => _nodes.All(x => x.Min() == x.Max()); }
         public int Roll() => _nodes.Sum(x => x.Roll());
         public double Avg() => _nodes.Sum(x => x.Avg());
         public int Min() => _nodes.Sum(x => x.Min());

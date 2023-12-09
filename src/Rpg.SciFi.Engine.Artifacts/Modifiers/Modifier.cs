@@ -51,6 +51,8 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
 
     public sealed class Modifier
     {
+        [JsonProperty] private int? Resolution { get; set; }
+
         [JsonConstructor] private Modifier() { }
 
         internal Modifier(string name, Dice dice, ModdableProperty target, string? diceCalc = null)
@@ -83,6 +85,19 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
         [JsonProperty] public ModdableProperty Target { get; private set; }
         [JsonProperty] public string? DiceCalc { get; private set; }
         [JsonProperty] private ModifierCondition? ModCondition{ get; set; }
+        
+        public int Resolve(int? diceRoll = null)
+        {
+            if (diceRoll != null)
+                Resolution = diceRoll;
+            else
+            {
+                var dice = Evaluate();
+                Resolution = dice.Roll();
+            }
+
+            return Resolution.Value;
+        }
 
         public Dice Evaluate()
         {
@@ -94,14 +109,14 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
         {
             var desc = DescribeSource(includeEntityInformation);
 
-            if (includeEntityInformation && Target.Id.MetaData() != null)
+            if (includeEntityInformation && Meta.Get(Target.Id)?.Meta != null)
                 desc += $" to {DescribeTarget()}";
 
             var res = new List<string>() { desc };
 
             if (Source?.Prop != null)
             {
-                foreach (var mod in Source.Id.Mods(Source.Prop))
+                foreach (var mod in Meta.Get(Source.Id)!.Meta.Mods.Get(Source.Prop))
                     res.AddRange(mod.Describe().Select(x =>  $"  {x}"));
             }
  
@@ -113,7 +128,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
         private string DescribeSource(bool includeEntityInformation = false)
         {
             var desc = includeEntityInformation && Source != null
-                ? $"{Source.RootId.MetaData()?.Name}.{Source.Id.MetaData()?.Name ?? Name}.{Source.Prop ?? Source.Method}".Trim('.')
+                ? $"{Meta.Get(Source.RootId)!.Name}.{Meta.Get(Source.Id)?.Name ?? Name}.{Source.Prop ?? Source.Method}".Trim('.')
                 : Source?.Prop ?? Source?.Method ?? Name;
 
             desc += $" => {SourceDice()}";
@@ -124,15 +139,15 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
             return desc;
         }
 
-        private string DescribeTarget() => $"{Target.RootId.MetaData()?.Name}.{Target.Id.MetaData()!.Name}.{Target.Prop}".Trim('.');
+        private string DescribeTarget() => $"{Meta.Get(Target.RootId)?.Name}.{Meta.Get(Target.Id)!.Name}.{Target.Prop}".Trim('.');
 
         private Dice Calculate(Dice dice)
         {
             if (string.IsNullOrEmpty(DiceCalc))
                 return dice;
 
-            var val = Source?.Id.MetaData()?.Entity?.ExecuteFunction<Dice, Dice>(DiceCalc, dice)
-                ?? Target?.Id.MetaData()?.Entity?.ExecuteFunction<Dice, Dice>(DiceCalc, dice);
+            var val = Meta.Get(Source?.Id)?.ExecuteFunction<Dice, Dice>(DiceCalc, dice)
+                ?? Meta.Get(Target.Id)?.ExecuteFunction<Dice, Dice>(DiceCalc, dice);
 
             return val != null ? val.Value : "0";
         }
@@ -140,7 +155,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
         private Dice SourceDice()
         {
             Dice dice = Dice
-                ?? Source?.Id.PropertyValue<string>(Source.Prop!)
+                ?? Meta.Get(Source!.Id).PropertyValue<string>(Source.Prop!)
                 ?? "0";
 
             return dice;
@@ -167,13 +182,16 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
         {
             ModCondition ??= new ModifierCondition(ModifierConditionType.Instant);
 
-            modifierStore ??= Target.Id.MetaData()?.Mods;
+            if (ModCondition.OnTurn == (int)ModifierConditionType.Instant)
+                Resolve();
+
+            modifierStore ??= Meta.Get(Target.Id)!.Meta.Mods;
             modifierStore?.Add(this);
         }
 
         public void Remove(ModifierStore? modifierStore = null)
         {
-            modifierStore ??= Target.Id.MetaData()?.Mods;
+            modifierStore ??= Meta.Get(Target.Id)!.Meta.Mods;
             modifierStore?.Remove(this);
         }
 

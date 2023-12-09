@@ -3,6 +3,7 @@ using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using Rpg.SciFi.Engine.Artifacts.Turns;
 using System.Collections;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -10,6 +11,25 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 {
     internal static class ReflectionEngine
     {
+        public static MetaEntity CreateMetaEntity(this Entity entity, string basePath)
+        {
+            var metaEntity = new MetaEntity
+            {
+                Entity = entity,
+                Class = entity.GetEntityClass(),
+                SetupMethods = entity.GetSetupMethods(),
+                AbilityMethods = entity.GetAbilityMethods()
+            };
+
+            foreach (var propertyInfo in entity.MetaProperties())
+            {
+                if (propertyInfo.IsModdableProperty())
+                    metaEntity.Mods.ModdableProperties?.Add(propertyInfo.Name);
+            }
+
+            return metaEntity;
+        }
+
         internal static bool IsModdableProperty(this Entity entity, string prop)
         {
             return entity.GetType().GetProperty(prop)?.IsModdableProperty() ?? false;
@@ -80,10 +100,9 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             Type? type = null;
             if (!string.IsNullOrEmpty(className))
             {
-                if (Meta.Context != null)
-                    type = Assembly.GetAssembly(Meta.Context.GetType())!
-                        .GetTypes()
-                        .FirstOrDefault(x => x.Name == className);
+                type = Assembly.GetAssembly(typeof(Meta<Entity>))!
+                    .GetTypes()
+                    .FirstOrDefault(x => x.Name == className);
 
                 if (type == null)
                     type = Assembly.GetExecutingAssembly()
@@ -169,35 +188,51 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         internal static PropertyInfo? MetaProperty(this object context, string prop)
         {
             return context.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(c => (c.GetMethod != null && (c.GetMethod.IsPublic || c.GetMethod.IsFamily)) || (c.SetMethod != null && (c.SetMethod.IsPublic || c.SetMethod.IsFamily)))
-                .FirstOrDefault(x => x.Name == prop);
+                .FirstOrDefault(x => x.Name == prop && x.IsMetaProperty());
         }
 
         internal static PropertyInfo[] MetaProperties(this object context)
         {
             return context.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(c => (c.GetMethod != null && (c.GetMethod.IsPublic || c.GetMethod.IsFamily)) || (c.SetMethod != null && (c.SetMethod.IsPublic || c.SetMethod.IsFamily)))
-                .Where(x => !(x.PropertyType.Namespace!.StartsWith("System") && x.PropertyType.Name.StartsWith("Func")))
+                .Where(IsMetaProperty)
                 .ToArray();
+        }
+
+        internal static bool IsMetaProperty(this PropertyInfo propertyInfo)
+        {
+            return propertyInfo.GetMethod != null
+                && (propertyInfo.GetMethod.IsPublic || propertyInfo.GetMethod.IsFamily)
+                && !(propertyInfo.PropertyType.Namespace!.StartsWith("System") && propertyInfo.PropertyType.Name.StartsWith("Func"))
+                && !(propertyInfo.DeclaringType?.IsAssignableTo(typeof(MetaEntity)) ?? false);
         }
 
         internal static IEnumerable<object> PropertyObjects(this object context, PropertyInfo propertyInfo, out bool isEnumerable)
         {
-            isEnumerable = false;
-            if (propertyInfo.IsModdableProperty())
-                return Enumerable.Empty<object>();
-
-            var obj = propertyInfo.GetValue(context, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, null, null);
-            if (obj == null || obj is string || obj.GetType().IsPrimitive || obj is Guid || obj is Dice)
-                return Enumerable.Empty<object>();
-
-            if (obj is IEnumerable)
+            try
             {
-                isEnumerable = true;
-                return (obj as IEnumerable)!.Cast<object>();
-            }
+                isEnumerable = false;
+                if (propertyInfo.IsModdableProperty())
+                    return Enumerable.Empty<object>();
 
-            return new List<object> { obj };
+                var obj = propertyInfo.GetValue(context, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, null, null);
+                if (obj == null || obj is string || obj.GetType().IsPrimitive || obj is Guid || obj is Dice)
+                    return Enumerable.Empty<object>();
+
+                if (obj is IEnumerable)
+                {
+                    isEnumerable = true;
+                    return (obj as IEnumerable)!.Cast<object>();
+                }
+
+                return new List<object> { obj };
+            }
+            catch (Exception ex)
+            {
+                //What happened?
+                var x = ex;
+                isEnumerable = false;
+                return Enumerable.Empty<object>();
+            }
         }
     }
 }
