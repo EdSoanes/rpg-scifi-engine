@@ -30,6 +30,7 @@ namespace Rpg.SciFi.Engine.Artifacts
         [Setup]
         public void Setup()
         {
+            base.Setup();
             this.Mod((x) => x.Stats.StrengthBonus, (x) => x.Damage.Impact).IsBase().Apply();
             this.Mod((x) => x.Stats.StrengthBonus, (x) => x.TurnPoints.Exertion).IsBase().Apply();
             this.Mod((x) => x.Stats.DexterityBonus, (x) => x.TurnPoints.Action).IsBase().Apply();

@@ -45,9 +45,10 @@ namespace Rpg.SciFi.Engine.Tests
             Meta.Initialize(game);
 
             var action = gun.Fire(game.Character, target, 3);
+            var description = action.Describe(nameof(TurnAction.DiceRoll));
+
             Assert.AreEqual<string>("1d20 - 1", action.DiceRoll);
 
-            var description = action.Describe(nameof(TurnAction.DiceRoll));
 
             Assert.AreEqual<string>("1d6", game.Character.Damage.BaseImpact);
             Assert.AreEqual<string>("1d6 + 4", game.Character.Damage.Impact);

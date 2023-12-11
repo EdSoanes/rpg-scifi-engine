@@ -16,6 +16,37 @@ namespace Rpg.SciFi.Engine.Artifacts
             return Meta.MetaEntities.SingleOrDefault(x => x.Id == id);
         }
 
+        public static string[] Describe(this Entity? entity, string prop)
+        {
+            var res = new List<string>();
+            res.Add($"{entity.GetType().Name}.{prop}");
+            res.AddRange(entity.Describe(prop, 1));
+            return res.ToArray();
+        }
+        private static string[] Describe(this Entity? entity, string prop, int level = 0)
+        {
+            var res = new List<string>();
+
+            if (entity != null)
+            {
+                foreach (var mod in entity.Mods(prop))
+                {
+                    res.Add($"{(level == 0 ? "" : level.ToString())} {mod.Source?.Source ?? mod.Name} => {mod.Evaluate()}");
+                    if (mod.Source?.Prop != null)
+                    {
+                        var subs = mod.Source.Id.MetaData()
+                            ?.Entity
+                            ?.Describe(mod.Source.Prop, level + 1) 
+                            ?? new string[0];
+
+                        res.AddRange(subs);
+                    }
+                }
+            }
+
+            return res.ToArray();
+        }
+
         public static T? PropertyValue<T>(this Guid id, string path)
             => (id.MetaData()?.Entity).PropertyValue<T>(path);
 

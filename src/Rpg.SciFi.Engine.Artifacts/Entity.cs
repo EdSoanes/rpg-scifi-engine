@@ -16,7 +16,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             return Meta.MetaEntities?.SingleOrDefault(x => x.Id == Id && x.Type == GetType().Name);
         }
 
-        public List<Modifier> Mods(string prop)
+        public virtual List<Modifier> Mods(string prop)
         {
             var mods = MetaData()
                 ?.Mods.Get(prop)
@@ -25,7 +25,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             return mods;
         }
 
-        public void ClearMods() => MetaData()?.Mods.Clear();
+        public virtual void ClearMods() => MetaData()?.Mods.Clear();
 
         public Dice Evaluate(string prop)
         {
@@ -38,15 +38,6 @@ namespace Rpg.SciFi.Engine.Artifacts
             //TODO: We need to store the result so we don't get different resolutions each time this is called.
             Dice dice = Evaluate(prop);
             return dice.Roll();
-        }
-
-        public virtual string[] Describe(string prop)
-        {
-            var description = MetaData()
-                ?.Mods.Describe(prop)
-                ?? new string[0];
-
-            return description;
         }
     }
 }

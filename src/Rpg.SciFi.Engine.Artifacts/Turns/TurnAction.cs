@@ -24,7 +24,8 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
         [Moddable] public Modifier[] Success { get => _modStore.Get(nameof(OnSuccess)).ToArray(); }
         [Moddable] public Modifier[] Failure { get => _modStore.Get(nameof(OnSuccess)).ToArray(); }
 
-        public override string[] Describe(string prop) => _modStore.Describe(prop);
+        public override List<Modifier> Mods(string prop) => _modStore.Get(prop);
+        public override void ClearMods() => _modStore.Clear();
 
         public TurnAction OnSuccess(Modifier mod)
         {
