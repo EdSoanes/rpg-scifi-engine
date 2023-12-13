@@ -9,6 +9,6 @@ namespace Rpg.SciFi.Engine.Artifacts
             Name = nameof(Environment);
         }
 
-        public Contains Contains { get; set; } = new Contains();
+        public Container Contains { get; set; } = new Container();
     }
 }

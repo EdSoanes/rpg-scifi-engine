@@ -39,7 +39,7 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void Game_Describe_Gun_Mods()
         {
-            foreach (var prop in _gun.Meta.Mods.ModdableProperties)
+            foreach (var prop in _gun.MetaData.ModdableProperties)
             {
                 var desc = _gun.Describe(prop);
                 Assert.IsNotNull(desc);
@@ -49,7 +49,7 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void Game_Describe_Target_Mods()
         {
-            foreach (var prop in _target.Meta.Mods.ModdableProperties)
+            foreach (var prop in _target.MetaData.ModdableProperties)
             {
                 var desc = _target.Describe(prop);
                 Assert.IsNotNull(desc);

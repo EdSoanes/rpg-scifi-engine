@@ -24,7 +24,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
 
         public override string ToString()
         {
-            var metaEntity = Meta.Get(Id)?.Meta;
+            var metaEntity = Meta.Get(Id)?.MetaData;
             return metaEntity != null
                 ? $"{Id}({metaEntity.Name}).{Prop}"
                 : $"{Id}(unknown).{Prop}";

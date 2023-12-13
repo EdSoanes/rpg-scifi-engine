@@ -8,26 +8,16 @@ namespace Rpg.SciFi.Engine.Artifacts
 {
     public abstract class Artifact : Entity
     {
-        public Artifact() 
-        {
-            BaseSize = 1;
-            BaseWeight = 1;
-            Emissions = new EmissionSignature();
-            Resistances = new Resistances();
-            Health = new Health();
-            States = new States();
-        }
+        [JsonProperty] public EmissionSignature Emissions { get; protected set; } = new EmissionSignature();
+        [JsonProperty] public Resistances Resistances { get; protected set; } = new Resistances();
+        [JsonProperty] public Health Health { get; protected set; } = new Health();
+        [JsonProperty] public States States { get; protected set; } = new States();
 
-        [JsonProperty] public EmissionSignature Emissions { get; protected set; }
-        [JsonProperty] public Resistances Resistances { get; protected set; }
-        [JsonProperty] public Health Health { get; protected set; }
-        [JsonProperty] public States States { get; protected set; }
-
-        [JsonProperty] public int BaseSize { get; protected set; }
-        [JsonProperty] public int BaseWeight { get; protected set; }
-        [JsonProperty] public int BaseSpeed { get; protected set; }
-        [JsonProperty] public int BaseMeleeDefence { get; protected set; }
-        [JsonProperty] public int BaseMissileDefence { get; protected set; }
+        [Moddable] public int BaseSize { get => Resolve(nameof(BaseSize)); }
+        [Moddable] public int BaseWeight { get => Resolve(nameof(BaseWeight)); }
+        [Moddable] public int BaseSpeed { get => Resolve(nameof(BaseSpeed)); }
+        [Moddable] public int BaseMeleeDefence { get => Resolve(nameof(BaseMeleeDefence)); }
+        [Moddable] public int BaseMissileDefence { get => Resolve(nameof(BaseMissileDefence)); }
 
         [Moddable] public int Size { get => Resolve(nameof(Size)); }
         [Moddable] public int Weight { get => Resolve(nameof(Weight)); }
@@ -38,18 +28,26 @@ namespace Rpg.SciFi.Engine.Artifacts
 
         [Moddable] public bool Destroyed { get => Resolve(nameof(Destroyed)) > 0; }
 
-        public virtual void Setup()
+        public virtual Modifier[] Setup()
         {
-            this.Mod((x) => BaseSize, (x) => Size).IsBase().Apply();
-            this.Mod((x) => BaseWeight, (x) => Weight).IsBase().Apply();
-            this.Mod((x) => BaseSpeed, (x) => Speed).IsBase().Apply();
+            return new[]
+            {
+                this.Mod(nameof(BaseSize), 1, (x) => BaseSize),
+                this.Mod(nameof(BaseWeight), 1, (x) => BaseWeight),
+                this.Mod(nameof(BaseSpeed), 0, (x) => BaseSpeed),
+                this.Mod(nameof(BaseMeleeDefence), 0, (x) => BaseMeleeDefence),
+                this.Mod(nameof(BaseMissileDefence), 0, (x) => BaseMissileDefence),
 
-            this.Mod((x) => BaseMeleeDefence, (x) => MeleeDefence).IsBase().Apply();
-            this.Mod((x) => Size, (x) => MeleeDefence).IsBase().Apply();
+                this.Mod((x) => BaseSize, (x) => Size),
+                this.Mod((x) => BaseWeight, (x) => Weight),
+                this.Mod((x) => BaseSpeed, (x) => Speed),
+                this.Mod((x) => BaseMeleeDefence, (x) => MeleeDefence),
+                this.Mod((x) => BaseMissileDefence, (x) => MissileDefence),
 
-            this.Mod((x) => BaseMissileDefence, (x) => MissileDefence).IsBase().Apply();
-            this.Mod((x) => Size, (x) => MissileDefence).IsBase().Apply();
-            this.Mod((x) => Speed, (x) => MissileDefence, () => Rules.Minus).IsBase().Apply();
+                this.Mod((x) => Size, (x) => MeleeDefence),
+                this.Mod((x) => Size, (x) => MissileDefence),
+                this.Mod((x) => Speed, (x) => MissileDefence, () => Rules.Minus)
+            };
         }
 
         [Ability]

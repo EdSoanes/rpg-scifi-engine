@@ -2,33 +2,67 @@
 
 namespace Rpg.SciFi.Engine.Artifacts.Modifiers
 {
-    public enum ModifierConditionType
+    public enum ModifierType
     {
-        Base = -1,
-        Instant = -2,
-        State = -3
+        Base,
+        Player,
+        Custom,
+        Conditional,
+        Additive,
+        Subtractive
+    }
+
+    public enum ModifierConditional
+    {
+        Instant,
+        Turn,
+        Encounter,
+        State,
+        Permanent
     }
 
     public class ModifierCondition
     {
-        public string? State { get; set; }
-        public int OnTurn { get; set; }
+        [JsonProperty] public ModifierType Type { get; private set; }
+        [JsonProperty] public ModifierConditional Condition { get; private set; }
+        [JsonProperty] public string? State { get; private set; }
+        [JsonProperty] public int UntilTurn { get; set; }
 
         [JsonConstructor] private ModifierCondition() { }
+
         public ModifierCondition(string state)
         {
             State = state;
-            OnTurn = (int)ModifierConditionType.State;
+            Type = ModifierType.Conditional;
+            Condition = ModifierConditional.State;
         }
 
-        public ModifierCondition(ModifierConditionType type)
+        public ModifierCondition(ModifierType modifierType)
         {
-            OnTurn = (int)type;
+            if (modifierType == ModifierType.Conditional)
+                throw new ArgumentException(nameof(modifierType));
+
+            Type = modifierType;
+            Condition = modifierType == ModifierType.Additive || modifierType == ModifierType.Subtractive
+                ? ModifierConditional.Instant
+                : ModifierConditional.Permanent;
         }
 
-        public ModifierCondition(int onTurn)
+        public ModifierCondition(int untilTurn)
         {
-            OnTurn = onTurn;
+            Type = ModifierType.Conditional;
+            Condition = ModifierConditional.Turn;
+            UntilTurn = untilTurn;
         }
+
+        public ModifierCondition(ModifierConditional conditional)
+        {
+            if (conditional == ModifierConditional.State)
+                throw new ArgumentException(nameof(conditional));
+
+            Type = ModifierType.Conditional;
+            Condition = conditional;
+        }
+
     }
 }

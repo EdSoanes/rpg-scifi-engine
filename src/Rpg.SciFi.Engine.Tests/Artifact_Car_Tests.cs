@@ -72,33 +72,33 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void Artifact()
         {
-            var meta = _car.Meta;
+            var meta = _car.MetaData;
             Assert.IsNotNull(meta);
 
-            meta = _car.Emissions.VisibleLight.Meta;
+            meta = _car.Emissions.VisibleLight.MetaData;
             Assert.IsNotNull(meta);
 
-            meta = _car.Emissions.Electromagnetic.Meta;
+            meta = _car.Emissions.Electromagnetic.MetaData;
             Assert.IsNotNull(meta);
 
-            meta = _car.Emissions.Heat.Meta;
+            meta = _car.Emissions.Heat.MetaData;
             Assert.IsNotNull(meta);
 
-            meta = _car.Emissions.Radiation.Meta;
+            meta = _car.Emissions.Radiation.MetaData;
             Assert.IsNotNull(meta);
 
-            meta = _car.Emissions.Sound.Meta;
+            meta = _car.Emissions.Sound.MetaData;
             Assert.IsNotNull(meta);
 
-            meta = _car.Movement.Meta;
+            meta = _car.Movement.MetaData;
             Assert.IsNotNull(meta);
 
             foreach (var carPart in _car.Parts)
             {
-                meta = carPart.Health.Meta;
+                meta = carPart.Health.MetaData;
                 Assert.IsNotNull(meta);
 
-                meta = carPart.Resistances.Meta;
+                meta = carPart.Resistances.MetaData;
                 Assert.IsNotNull(meta);
             }
         }

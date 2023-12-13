@@ -6,9 +6,9 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
 {
     public class StatPoints : Entity
     {
-        [JsonProperty] public virtual int BaseStrength { get; set; }
-        [JsonProperty] public virtual int BaseDexterity { get; set; }
-        [JsonProperty] public virtual int BaseIntelligence { get; set; }
+        [Moddable] public virtual int BaseStrength { get => this.Resolve(nameof(BaseStrength)); }
+        [Moddable] public virtual int BaseDexterity { get => this.Resolve(nameof(BaseDexterity)); }
+        [Moddable] public virtual int BaseIntelligence { get => this.Resolve(nameof(BaseIntelligence)); }
 
         [Moddable] public virtual int Strength { get => this.Resolve(nameof(Strength)); }
         [Moddable] public virtual int Dexterity { get => this.Resolve(nameof(Dexterity)); }
@@ -22,19 +22,21 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Moddable] public virtual int MeleeAttackBonus { get => this.Resolve(nameof(MeleeAttackBonus)); }
 
         [Setup]
-        public void Setup()
+        public Modifier[] Setup()
         {
-            //TODO: Need rules calculator functionality here for bonuses
-            this.Mod((x) => x.BaseStrength, (x) => x.Strength).IsBase().Apply();
-            this.Mod((x) => x.BaseDexterity, (x) => x.Dexterity).IsBase().Apply();
-            this.Mod((x) => x.BaseIntelligence, (x) => x.Intelligence).IsBase().Apply();
+            return new[]
+            {
+                this.Mod((x) => x.BaseStrength, (x) => x.Strength),
+                this.Mod((x) => x.BaseDexterity, (x) => x.Dexterity),
+                this.Mod((x) => x.BaseIntelligence, (x) => x.Intelligence),
 
-            this.Mod((x) => x.Strength, (x) => x.StrengthBonus, () => Rules.CalculateStatBonus).IsBase().Apply();
-            this.Mod((x) => x.Dexterity, (x) => x.DexterityBonus, () => Rules.CalculateStatBonus).IsBase().Apply();
-            this.Mod((x) => x.Intelligence, (x) => x.IntelligenceBonus, () => Rules.CalculateStatBonus).IsBase().Apply();
+                this.Mod((x) => x.Strength, (x) => x.StrengthBonus, () => Rules.CalculateStatBonus),
+                this.Mod((x) => x.Dexterity, (x) => x.DexterityBonus, () => Rules.CalculateStatBonus),
+                this.Mod((x) => x.Intelligence, (x) => x.IntelligenceBonus, () => Rules.CalculateStatBonus),
 
-            this.Mod((x) => x.StrengthBonus, (x) => x.MeleeAttackBonus).IsBase().Apply();
-            this.Mod((x) => x.DexterityBonus, (x) => x.MissileAttackBonus).IsBase().Apply();
+                this.Mod((x) => x.StrengthBonus, (x) => x.MeleeAttackBonus),
+                this.Mod((x) => x.DexterityBonus, (x) => x.MissileAttackBonus)
+            };
         }
     }
 }

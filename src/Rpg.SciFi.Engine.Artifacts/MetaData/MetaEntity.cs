@@ -15,8 +15,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         [JsonProperty] public string Class { get; set; }
         [JsonProperty] public string[] SetupMethods { get; set; } = new string[0];
         [JsonProperty] public MetaAction[] AbilityMethods { get; set; } = new MetaAction[0];
-
-        [JsonProperty] public ModifierStore Mods { get; private set; } = new ModifierStore();
+        [JsonProperty] public List<string> ModdableProperties { get; private set; } = new List<string>();
 
         public override string ToString()
         {

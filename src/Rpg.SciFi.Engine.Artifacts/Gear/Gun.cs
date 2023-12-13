@@ -9,17 +9,19 @@ namespace Rpg.SciFi.Engine.Artifacts.Gear
 {
     public class Gun : Artifact
     {
+        private readonly int _baseRange;
+        private readonly int _baseAttack;
+
         public Gun(int baseRange, int baseAttack)
         {
-            Name = nameof(Gun);
-            Damage = new Damage("d6", "d8", 0, 0, 0);
-            BaseRange = baseRange;
-            BaseAttack = baseAttack;
+            _baseRange = baseRange;
+            _baseAttack = baseAttack;
         }
 
-        [JsonProperty] public int BaseRange { get; private set; }
-        [JsonProperty] public int BaseAttack { get; private set; }
-        [JsonProperty] public Damage Damage { get; private set; }
+        [JsonProperty] public Damage Damage { get; private set; } = new Damage();
+
+        [Moddable] public int BaseRange { get => this.Resolve(nameof(BaseRange)); }
+        [Moddable] public int BaseAttack { get => this.Resolve(nameof(BaseAttack)); }
 
         [Moddable] public int Range { get => this.Resolve(nameof(Range)); }
         [Moddable] public int Attack { get => this.Resolve(nameof(Attack)); }
@@ -41,9 +43,9 @@ namespace Rpg.SciFi.Engine.Artifacts.Gear
                 .OnDiceRollTarget(target, (x) => x.MissileDefence);
 
             action
-                .OnSuccess(this.Mod((x) => x.Damage.Blast, target, (t) => t.Health.Physical).IsInstant())
-                .OnSuccess(this.Mod((x) => x.Damage.Impact, target, (t) => t.Health.Physical).IsInstant())
-                .OnSuccess(this.Mod((x) => x.Damage.Pierce, target, (t) => t.Health.Physical).IsInstant());
+                .OnSuccess(this.Mod((x) => x.Damage.Blast, target, (t) => t.Health.Physical).IsAdditive())
+                .OnSuccess(this.Mod((x) => x.Damage.Impact, target, (t) => t.Health.Physical).IsAdditive())
+                .OnSuccess(this.Mod((x) => x.Damage.Pierce, target, (t) => t.Health.Physical).IsAdditive());
 
             return action;
         }
@@ -55,11 +57,18 @@ namespace Rpg.SciFi.Engine.Artifacts.Gear
         }
 
         [Setup]
-        public override void Setup()
+        public override Modifier[] Setup()
         {
-            base.Setup();
-            this.Mod((x) => x.BaseRange, (x) => x.Range).IsBase().Apply();
-            this.Mod((x) => x.BaseAttack, (x) => x.Attack).IsBase().Apply();
+            var mods = new List<Modifier>(base.Setup())
+            {
+                this.Mod(nameof(BaseRange), _baseRange, (x) => x.BaseRange),
+                this.Mod(nameof(BaseAttack), _baseAttack, (x) => x.BaseAttack),
+
+                this.Mod((x) => x.BaseRange, (x) => x.Range),
+                this.Mod((x) => x.BaseAttack, (x) => x.Attack)
+            };
+
+            return mods.ToArray();
         }
     }
 }

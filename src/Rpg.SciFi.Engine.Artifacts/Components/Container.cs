@@ -1,31 +1,29 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
-using Rpg.SciFi.Engine.Artifacts.MetaData;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
-    public class Contains : Entity
+    public class Container : Entity
     {
-        public Contains(int baseEncumbrance = int.MaxValue)
+        private readonly int _maxCapacity;
+        public Container(int maxCapacity = int.MaxValue)
         {
-            BaseEncumbrance = baseEncumbrance;
+            _maxCapacity = maxCapacity;
         }
 
         [JsonProperty] protected List<Artifact> Artifacts { get; set; } = new List<Artifact>();
-        [JsonProperty] public int BaseEncumbrance { get; protected set; }
 
-        [Moddable] public int Encumbrance { get => this.Resolve(nameof(Encumbrance)); }
+        [Moddable] public int MaxCapacity { get => this.Resolve(nameof(MaxCapacity)); }
+        public int Encumbrance { get => Artifacts.Sum(x => x.Weight); }
 
         [Setup]
-        public void Setup()
+        public Modifier[] Setup()
         {
-            this.Mod((x) => x.BaseEncumbrance, (x) => x.Encumbrance).IsBase().Apply();
+            return new[]
+            {
+                this.Mod(nameof(MaxCapacity), _maxCapacity, x => x.MaxCapacity)
+            };
         }
 
         public void Add(Artifact artifact)
@@ -33,8 +31,8 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
             if (Artifacts.Any(x => x.Id == artifact.Id))
                 throw new ArgumentException($"Artifact {artifact.Id} {artifact.Name} exists in container");
 
-            if (Artifacts.Sum(x => x.Weight) + artifact.Weight > Encumbrance)
-                throw new ArgumentException($"Adding artifact {artifact.Id} {artifact.Name} would exceed encumbrance");
+            if (Artifacts.Sum(x => x.Weight) + artifact.Weight > MaxCapacity)
+                throw new ArgumentException($"Adding artifact {artifact.Id} {artifact.Name} would exceed capacity");
 
             Artifacts.Add(artifact);
         }

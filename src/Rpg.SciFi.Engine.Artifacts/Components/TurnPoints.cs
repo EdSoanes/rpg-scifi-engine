@@ -6,18 +6,22 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
 {
     public class TurnPoints : Entity
     {
-        [JsonConstructor] private TurnPoints() { }
+        private readonly int _baseAction;
+        private readonly int _baseExertion;
+        private readonly int _baseFocus;
+
+        [JsonConstructor] public TurnPoints() { }
 
         public TurnPoints(int baseAction, int baseExertion, int baseFocus)
         {
-            BaseAction = baseAction;
-            BaseExertion = baseExertion;
-            BaseFocus = baseFocus;
+            _baseAction = baseAction;
+            _baseExertion = baseExertion;
+            _baseFocus = baseFocus;
         }
 
-        [JsonProperty] public int BaseAction { get; protected set; }
-        [JsonProperty] public int BaseExertion { get; protected set; }
-        [JsonProperty] public int BaseFocus { get; protected set; }
+        [Moddable] public int BaseAction { get => this.Resolve(nameof(BaseAction)); }
+        [Moddable] public int BaseExertion { get => this.Resolve(nameof(BaseExertion)); }
+        [Moddable] public int BaseFocus { get => this.Resolve(nameof(BaseFocus)); }
 
         [Moddable] public int MaxAction { get => this.Resolve(nameof(MaxAction)); }
         [Moddable] public int MaxExertion { get => this.Resolve(nameof(MaxExertion)); }
@@ -28,15 +32,22 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Moddable] public int Focus { get => this.Resolve(nameof(Focus)); }
 
         [Setup]
-        public void Setup()
+        public Modifier[] Setup()
         {
-            this.Mod((x) => x.BaseAction, (x) => x.MaxAction).IsBase().Apply();
-            this.Mod((x) => x.BaseExertion, (x) => x.MaxExertion).IsBase().Apply();
-            this.Mod((x) => x.BaseFocus, (x) => x.MaxFocus).IsBase().Apply();
+            return new[]
+            {
+                this.Mod(nameof(BaseAction), _baseAction, (x) => x.BaseAction),
+                this.Mod(nameof(BaseExertion), _baseExertion, (x) => x.BaseExertion),
+                this.Mod(nameof(BaseFocus), _baseFocus, (x) => x.BaseFocus),
 
-            this.Mod((x) => x.MaxAction, (x) => x.Action).IsBase().Apply();
-            this.Mod((x) => x.MaxExertion, (x) => x.Exertion).IsBase().Apply();
-            this.Mod((x) => x.MaxFocus, (x) => x.Focus).IsBase().Apply();
+                this.Mod((x) => x.BaseAction, (x) => x.MaxAction),
+                this.Mod((x) => x.BaseExertion, (x) => x.MaxExertion),
+                this.Mod((x) => x.BaseFocus, (x) => x.MaxFocus),
+
+                this.Mod((x) => x.MaxAction, (x) => x.Action),
+                this.Mod((x) => x.MaxExertion, (x) => x.Exertion),
+                this.Mod((x) => x.MaxFocus, (x) => x.Focus),
+            };
         }
     }
 }

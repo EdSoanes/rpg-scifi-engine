@@ -1,29 +1,30 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
-using Rpg.SciFi.Engine.Artifacts.MetaData;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
     public class Movement : Entity
     {
+        private readonly int _baseSpeed;
+        private readonly int _baseAcceleration;
+        private readonly int _baseDeceleration;
+        private readonly int _baseManeuverability;
+
+        [JsonConstructor] private Movement() { }
+
         public Movement(int baseSpeed, int baseAcceleration, int baseDeceleration, int baseManeuverability)
         {
-            BaseSpeed = baseSpeed;
-            BaseAcceleration = baseAcceleration;
-            BaseDeceleration = baseDeceleration;
-            BaseManeuverability = baseManeuverability;
+            _baseSpeed = baseSpeed;
+            _baseAcceleration = baseAcceleration;
+            _baseDeceleration = baseDeceleration;
+            _baseManeuverability = baseManeuverability;
         }
 
-        [JsonProperty] public int BaseSpeed { get; protected set; }
-        [JsonProperty] public int BaseAcceleration { get; protected set; }
-        [JsonProperty] public int BaseDeceleration { get; protected set; }
-        [JsonProperty] public int BaseManeuverability { get; protected set; }
+        [Moddable] public int BaseSpeed { get => this.Resolve(nameof(BaseSpeed)); }
+        [Moddable] public int BaseAcceleration { get => this.Resolve(nameof(BaseAcceleration)); }
+        [Moddable] public int BaseDeceleration { get => this.Resolve(nameof(BaseDeceleration)); }
+        [Moddable] public int BaseManeuverability { get => this.Resolve(nameof(BaseManeuverability)); }
 
         [Moddable] public int Speed { get => this.Resolve(nameof(Speed)); }
         [Moddable] public int Acceleration { get => this.Resolve(nameof(Acceleration)); }
@@ -31,12 +32,20 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Moddable] public int Maneuverability { get => this.Resolve(nameof(Maneuverability)); }
 
         [Setup]
-        public void Setup()
+        public Modifier[] Setup()
         {
-            this.Mod((x) => x.BaseSpeed, (x) => x.Speed).IsBase().Apply();
-            this.Mod((x) => x.BaseAcceleration, (x) => x.Acceleration).IsBase().Apply();
-            this.Mod((x) => x.BaseDeceleration, (x) => x.Deceleration).IsBase().Apply();
-            this.Mod((x) => x.BaseManeuverability, (x) => x.Maneuverability).IsBase().Apply();
+            return new[]
+            {
+                this.Mod(nameof(BaseSpeed), _baseSpeed, (x) => x.BaseSpeed),
+                this.Mod(nameof(BaseAcceleration), _baseAcceleration, (x) => x.BaseAcceleration),
+                this.Mod(nameof(BaseDeceleration), _baseDeceleration, (x) => x.BaseDeceleration),
+                this.Mod(nameof(BaseManeuverability), _baseManeuverability, (x) => x.BaseManeuverability),
+
+                this.Mod((x) => x.BaseSpeed, (x) => x.Speed),
+                this.Mod((x) => x.BaseAcceleration, (x) => x.Acceleration),
+                this.Mod((x) => x.BaseDeceleration, (x) => x.Deceleration),
+                this.Mod((x) => x.BaseManeuverability, (x) => x.Maneuverability)
+            };
         }
     }
 }

@@ -1,54 +1,9 @@
 ﻿using Newtonsoft.Json;
-using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
-using System.Xml;
 
 namespace Rpg.SciFi.Engine.Artifacts.Modifiers
 {
-    public enum ModDurationType
-    {
-        Permanent,
-        Turn,
-        Encounter,
-        Conditional
-    }
-
-    public enum DeleteOn
-    {
-        Never,
-        EndOfThisTurn,
-        StartOfNextTurn,
-        StartOfTurnNo,
-        EndOfTurnNo,
-        EndOfEncounter,
-        Encounter,
-        ConditionsMet,
-    }
-
-    public enum ModType
-    {
-        Base,
-        User,
-        Instant,
-        Permanent,
-        Conditional
-    }
-
-    public sealed class ModifierSet
-    {
-        [JsonProperty] public string Name { get; private set; }
-        [JsonProperty] public Modifier[] Modifiers { get; private set; }
-
-        [JsonConstructor] private ModifierSet() { }
-
-        public ModifierSet(string name, params Modifier[] modifiers)
-        {
-            Name = name;
-            Modifiers = modifiers;
-        }
-    }
-
     public sealed class Modifier
     {
         [JsonProperty] private int? Resolution { get; set; }
@@ -79,13 +34,14 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
             DiceCalc = diceCalc;
         }
 
+        [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
         [JsonProperty] public string Name { get; private set; }
         [JsonProperty] public Dice? Dice { get; private set; }
         [JsonProperty] public ModdableProperty? Source { get; private set; }
         [JsonProperty] public ModdableProperty Target { get; private set; }
         [JsonProperty] public string? DiceCalc { get; private set; }
-        [JsonProperty] private ModifierCondition? ModCondition{ get; set; }
-        
+        [JsonProperty] private ModifierCondition? ModCondition{ get; set; } = new ModifierCondition(ModifierType.Base);
+
         public int Resolve(int? diceRoll = null)
         {
             if (diceRoll != null)
@@ -109,14 +65,15 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
         {
             var desc = DescribeSource(includeEntityInformation);
 
-            if (includeEntityInformation && Meta.Get(Target.Id)?.Meta != null)
+            if (includeEntityInformation && Meta.Get(Target.Id)?.MetaData != null)
                 desc += $" to {DescribeTarget()}";
 
             var res = new List<string>() { desc };
 
-            if (Source?.Prop != null)
+            var mods = Meta.Mods.Get(Source);
+            if (mods != null)
             {
-                foreach (var mod in Meta.Get(Source.Id)!.Meta.Mods.Get(Source.Prop))
+                foreach (var mod in mods)
                     res.AddRange(mod.Describe().Select(x =>  $"  {x}"));
             }
  
@@ -166,58 +123,84 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
             return this;
         }
 
-        public Modifier IsInstant()
+        public Modifier IsAdditive()
         {
-            ModCondition = new ModifierCondition(ModifierConditionType.Instant);
+            ModCondition = new ModifierCondition(ModifierType.Additive);
+            return this;
+        }
+
+        public Modifier IsSubtractive()
+        {
+            ModCondition = new ModifierCondition(ModifierType.Subtractive);
             return this;
         }
 
         public Modifier IsBase()
         {
-            ModCondition = new ModifierCondition(ModifierConditionType.Base);
+            ModCondition = new ModifierCondition(ModifierType.Base);
             return this;
         }
 
-        public void Apply(ModifierStore? modifierStore = null)
+        public Modifier IsCustom()
         {
-            ModCondition ??= new ModifierCondition(ModifierConditionType.Instant);
-
-            if (ModCondition.OnTurn == (int)ModifierConditionType.Instant)
-                Resolve();
-
-            modifierStore ??= Meta.Get(Target.Id)!.Meta.Mods;
-            modifierStore?.Add(this);
+            ModCondition = new ModifierCondition(ModifierType.Custom);
+            return this;
         }
 
-        public void Remove(ModifierStore? modifierStore = null)
+        public Modifier IsPlayer()
         {
-            modifierStore ??= Meta.Get(Target.Id)!.Meta.Mods;
-            modifierStore?.Remove(this);
+            ModCondition = new ModifierCondition(ModifierType.Player);
+            return this;
         }
+
+        public Modifier UntilTurn(int untilTurn)
+        {
+            ModCondition = new ModifierCondition(untilTurn);
+            return this;
+        }
+
+        public Modifier UntilEncounterEnds()
+        {
+            ModCondition = new ModifierCondition(ModifierConditional.Encounter);
+            return this;
+        }
+        //public void Apply(ModifierStore? modifierStore = null)
+        //{
+        //    ModCondition ??= new ModifierCondition(ModifierType.Additive);
+
+        //    modifierStore ??= Meta.Get(Target.Id)!.MetaData.Mods;
+        //    modifierStore?.Add(this);
+        //}
+
+        //public void Remove(ModifierStore? modifierStore = null)
+        //{
+        //    modifierStore ??= Meta.Get(Target.Id)!.MetaData.Mods;
+        //    modifierStore?.Remove(this);
+        //}
 
         public bool ShouldBeRemoved(int turn)
         {
             if (ModCondition == null)
                 return true;
 
-            if (ModCondition.OnTurn == (int)ModifierConditionType.Base)
-                return false;
+            if (ModCondition.Condition == ModifierConditional.Encounter)
+                return turn <= 0;
 
-            if (ModCondition.OnTurn == (int)ModifierConditionType.Instant)
-                return true;
+            if (ModCondition.Condition == ModifierConditional.Turn)
+                return turn >= ModCondition.UntilTurn;
 
-            if (ModCondition.OnTurn == (int)ModifierConditionType.State && !string.IsNullOrEmpty(ModCondition.State))
+            if (ModCondition.Condition == ModifierConditional.State)
             {
-                //Check if the specified state is applied to the source
+                //Check if the specified target entity has the specified state applied
                 //source.Id.MetaData().Entity.
             }
 
-            return ModCondition.OnTurn > 0 && ModCondition.OnTurn <= turn;
+            return false;
         }
 
         public bool CanBeCleared()
         {
-            return ModCondition != null && ModCondition.OnTurn != (int)ModifierConditionType.Base;
+            return ModCondition != null && ModCondition.Condition != ModifierConditional.Permanent;
         }
     }
 }

@@ -24,7 +24,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             foreach (var propertyInfo in entity.MetaProperties())
             {
                 if (propertyInfo.IsModdableProperty())
-                    metaEntity.Mods.ModdableProperties?.Add(propertyInfo.Name);
+                    metaEntity.ModdableProperties.Add(propertyInfo.Name);
             }
 
             return metaEntity;
@@ -140,7 +140,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         internal static string[] GetSetupMethods(this object obj)
         {
             var setupMethods = obj.GetType().GetMethods()
-                .Where(x => x.GetCustomAttribute<SetupAttribute>() != null)
+                .Where(x => x.IsSetupMethod())
                 .Select(x => x.Name)
                 .ToArray();
 
@@ -196,6 +196,13 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             return context.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                 .Where(IsMetaProperty)
                 .ToArray();
+        }
+
+        internal static bool IsSetupMethod(this MethodInfo method)
+        {
+            return method.GetCustomAttribute<SetupAttribute>() != null
+                && method.ReturnType.IsAssignableTo(typeof(Modifier[]))
+                && !(method.GetParameters()?.Any() ?? false);
         }
 
         internal static bool IsMetaProperty(this PropertyInfo propertyInfo)

@@ -32,6 +32,14 @@ namespace Rpg.SciFi.Engine.Tests
 
             _meta = new Meta<Game>();
             _meta.Initialize(_game);
+
+            Meta.Mods.Add(player.Mod("Strength", 18, x => x.Stats.BaseStrength).IsPlayer());
+            Meta.Mods.Add(player.Mod("Dexterity", 5, x => x.Stats.BaseDexterity).IsPlayer());
+            Meta.Mods.Add(player.Mod("Intelligence", 14, x => x.Stats.BaseIntelligence).IsPlayer());
+
+            Meta.Mods.Add(player.Mod("Actions", 18, x => x.Turns.BaseAction).IsPlayer());
+            Meta.Mods.Add(player.Mod("Exertion", 5, x => x.Turns.BaseExertion).IsPlayer());
+            Meta.Mods.Add(player.Mod("Focus", 14, x => x.Turns.BaseFocus).IsPlayer());
         }
 
         [TestMethod]
@@ -83,6 +91,8 @@ namespace Rpg.SciFi.Engine.Tests
         public void Character_Gun_Fire_Failure()
         {
             var action = _gun.Fire(_game.Character, _target, 3);
+
+            Assert.IsNotNull(_game.Character.Turns.Describe("Action"));
             Assert.AreEqual(8, _game.Character.Turns.Action);
             Assert.AreEqual(10, _target.Health.Physical);
 

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Core;
+using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using Rpg.SciFi.Engine.Artifacts.Turns;
 
 namespace Rpg.SciFi.Engine.Artifacts.MetaData
@@ -8,7 +9,8 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
     public abstract class Meta
     {
         protected static object _lock = new object();
-        protected static List<Entity>? Entities { get; set; }
+        public static List<Entity>? Entities { get; set; }
+        public static MetaModifierStore Mods { get; set; } = new MetaModifierStore();
 
         public static Entity? Get(Guid? id)
         {
@@ -22,9 +24,10 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         {
             if (entity != null && Get(entity.Id) == null)
             {
-                InitializeEntityGraph(entity, "{}");
-                lock (_lock)
-                    Entities?.Add(entity);
+                var entities = new List<Entity>();
+                InitEntity(entity, "{}", entities.Add);
+                InsertEntity(entity);
+                SetupEntity(entity);
             }
         }
 
@@ -40,14 +43,6 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             }
         }
 
-        //public static TurnAction CreateAction(string name, int actionCost, int exertionCost, int focusCost)
-        //{
-        //    var action = new TurnAction(name, actionCost, exertionCost, focusCost);
-        //    Entities.Add(action);
-
-        //    return action;
-        //}
-
         public static Entity? GetByPath(string path)
         {
             if (!path.StartsWith("{}"))
@@ -56,7 +51,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                     : "{}." + path;
 
             lock (_lock)
-                return Entities?.SingleOrDefault(x => x.Meta.Path == path);
+                return Entities?.SingleOrDefault(x => x.MetaData.Path == path);
         }
 
         public static T? ValueByPath<T>(string path)
@@ -75,12 +70,12 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             return default;
         }
 
-        protected static void InitializeEntityGraph(object context, string basePath, Action<Entity>? processContext = null)
+        protected static void InitEntity(object context, string basePath, Action<Entity>? processContext = null)
         {
             var entity = context as Entity;
             if (entity != null)
             {
-                entity.Meta.Path = basePath;
+                entity.MetaData.Path = basePath;
                 processContext?.Invoke(entity);
             }
 
@@ -91,10 +86,49 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
                 foreach (var item in items)
                 {
-                    InitializeEntityGraph(item, path, processContext);
+                    InitEntity(item, path, processContext);
                 }
             }
         }
+
+        protected static void SetupEntities(List<Entity> entities)
+        {
+            foreach (var entity in Entities)
+                SetupEntity(entity);
+        }
+
+        protected static void SetupEntity(Entity entity)
+        {
+            foreach (var setup in entity.MetaData.SetupMethods)
+            {
+                var mods = entity.ExecuteFunction<Modifier[]>(setup);
+                if (mods != null)
+                    Mods.Add(mods);
+            }
+        }
+
+        protected static void InsertEntities(IEnumerable<Entity> entities)
+        {
+            lock (_lock)
+            {
+                if (Entities == null)
+                {
+                    Entities = entities
+                        .OrderBy(x => x.MetaData.Path)
+                        .ToList();
+                }
+                else
+                {
+                    foreach (var entity in Entities)
+                    {
+                        if (Get(entity.Id) == null)
+                            Entities.Add(entity);
+                    }
+                }
+            }
+        }
+
+        protected static void InsertEntity(Entity entity) => InsertEntities(new[] { entity });
     }
 
     public class Meta<T> : Meta 
@@ -104,45 +138,29 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
         public void Initialize(T context)
         {
+            Mods.Clear();
             Context = context;
             var entities = new List<Entity>();
-            InitializeEntityGraph(Context, "{}", entities.Add);
-
-            lock (_lock )
-            {
-                Entities = entities
-                    .OrderBy(x => x.Meta.Path)
-                    .ToList();
-
-                foreach (var entity in Entities)
-                {
-                    foreach (var setup in entity.Meta.SetupMethods)
-                        entity.ExecuteAction(setup);
-                }
-            }
+            InitEntity(Context, "{}", entities.Add);
+            InsertEntities(entities);
+            SetupEntities(entities);
         }
 
         public TurnAction? Apply(Character actor, TurnAction turnAction, int diceRoll = 0)
         {
             var modifiers = turnAction.Resolve(diceRoll);
 
-            var actionCost = turnAction.Costs.Action;
+            var actionCost = turnAction.Action;
             if (actionCost != 0)
-                actor.Mod(nameof(TurnPoints.Action), actionCost, (x) => x.Turns.Action, () => Rules.Minus).IsInstant().Apply();
+                Mods.Add(actor.Mod(nameof(TurnPoints.Action), actionCost, (x) => x.Turns.Action, () => Rules.Minus).IsAdditive());
 
-            var exertionCost = turnAction.Costs.Exertion;
+            var exertionCost = turnAction.Exertion;
             if (exertionCost != 0)
-                actor.Mod(nameof(TurnPoints.Action), exertionCost, (x) => x.Turns.Exertion, () => Rules.Minus).IsInstant().Apply();
+                Mods.Add(actor.Mod(nameof(TurnPoints.Exertion), exertionCost, (x) => x.Turns.Exertion, () => Rules.Minus).IsAdditive());
 
-            var focusCost = turnAction.Costs.Focus;
+            var focusCost = turnAction.Focus;
             if (focusCost != 0)
-                actor.Mod(nameof(TurnPoints.Action), focusCost, (x) => x.Turns.Focus, () => Rules.Minus).IsInstant().Apply();
-
-            foreach (var modifier in modifiers)
-            {
-                var res = modifier.Resolve();
-                modifier.Apply(); // Will need to be able to roll dice for modifiers as required.
-            }
+                Mods.Add(actor.Mod(nameof(TurnPoints.Focus), focusCost, (x) => x.Turns.Focus, () => Rules.Minus).IsAdditive());
 
             return turnAction.NextAction();
         }
@@ -151,7 +169,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         {
             lock (_lock)
             {
-                var res = Entities!.OrderBy(x => x.Meta.Path).Select(x => x.ToString()).ToArray();
+                var res = Entities!.OrderBy(x => x.MetaData.Path).Select(x => x.ToString()).ToArray();
                 return res;
             }
         }

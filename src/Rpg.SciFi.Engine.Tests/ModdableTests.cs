@@ -20,15 +20,13 @@ namespace Rpg.SciFi.Engine.Tests
         [Moddable] public Dice ModdableValue { get => this.Evaluate(nameof(ModdableValue)); }
         [Moddable] public Dice ModdableCalculatedValue { get => this.Evaluate(nameof(ModdableCalculatedValue)); }
 
-        [Setup] public void Setup()
+        [Setup] public Modifier[] Setup()
         {
-            Meta.Mods.Add(this.Mod((x) => x.BaseIntValue, (x) => x.ModdedValue).IsBase());
-            Meta.Mods.Add(this.Mod((x) => x.BaseIntValue, (x) => x.ModdableCalculatedValue, () => CalculateValue));
-        }
-
-        public void Buff()
-        {
-            Meta.Mods.Add(this.Mod("Buff", "d6", (x) => x.ModdableValue).IsInstant());
+            return new[]
+            {
+                this.Mod((x) => x.BaseIntValue, (x) => x.ModdedValue),
+                this.Mod((x) => x.BaseIntValue, (x) => x.ModdableCalculatedValue, () => CalculateValue)
+            };
         }
 
         public Dice CalculateValue(Dice dice)
@@ -65,18 +63,11 @@ namespace Rpg.SciFi.Engine.Tests
         }
 
         [TestMethod]
-        public void Mod_ModdableValue_Test()
-        {
-            _anEntity.Buff();
-            Assert.AreEqual<string>("1d6", _anEntity.ModdableValue);
-        }
-
-        [TestMethod]
         public void PropExpr_Path()
         {
             Assert.AreEqual<string>("0", _anEntity.ModdableValue);
 
-            _anEntity.Mod("Buff", "d6", (x) => x.ModdableValue).IsInstant().Apply();
+            Meta.Mods.Add(_anEntity.Mod("Buff", "d6", (x) => x.ModdableValue).IsAdditive());
 
             Assert.AreEqual<string>("1d6", _anEntity.ModdableValue);
         }

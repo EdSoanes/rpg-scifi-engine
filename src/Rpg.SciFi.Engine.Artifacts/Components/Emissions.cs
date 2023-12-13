@@ -1,44 +1,55 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
-using Rpg.SciFi.Engine.Artifacts.MetaData;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
     public class Emission : Entity
     {
+        private readonly int _baseMin = 0;
+        private readonly int _baseMax = 100;
+        private readonly int _baseValue = 0;
+        private readonly int _baseRadius = 100;
+
         public Emission(string name, int baseValue)
         {
-            BaseValue = baseValue;
+            Name = name;
+            _baseValue = baseValue;
         }
 
         public Emission(string name, int baseMin, int baseMax, int baseValue, int baseRadius)
+            : this(name, baseValue)
         {
-            Name = name;
-            BaseMin = baseMin;
-            BaseMax = baseMax;
-            BaseValue = baseValue;
-            BaseRadius = baseRadius;
+            _baseMin = baseMin;
+            _baseMax = baseMax;
+            _baseRadius = baseRadius;
         }
 
-        [JsonProperty] public string Name { get; private set; } = nameof(Emission);
-        [JsonProperty] public int BaseMin { get; private set; } = 0;
-        [JsonProperty] public int BaseMax { get; private set; } = 100;
-        [JsonProperty] public int BaseValue { get; private set; } = 0;
-        [JsonProperty] public int BaseRadius { get; private set; } = 100;
+        [Moddable] public int BaseMin { get => this.Resolve(nameof(BaseMin)); }
+        [Moddable] public int BaseMax { get => this.Resolve(nameof(BaseMax)); }
+        [Moddable] public int BaseValue { get => this.Resolve(nameof(BaseValue)); }
+        [Moddable] public int BaseRadius { get => this.Resolve(nameof(BaseRadius)); }
 
-        [Moddable] public int Min => this.Resolve(nameof(Min));
-        [Moddable] public int Max => this.Resolve(nameof(Max));
-        [Moddable] public int Value => this.Resolve(nameof(Value));
-        [Moddable] public int Radius => this.Resolve(nameof(Radius));
+        [Moddable] public int Min { get => this.Resolve(nameof(Min)); }
+        [Moddable] public int Max { get => this.Resolve(nameof(Max)); }
+        [Moddable] public int Value { get => this.Resolve(nameof(Value)); }
+        [Moddable] public int Radius { get => this.Resolve(nameof(Radius)); }
 
         [Setup]
-        public void Setup()
+        public Modifier[] Setup()
         {
-            this.Mod((x) => x.BaseMin, (x) => x.Min).IsBase().Apply();
-            this.Mod((x) => x.BaseMax, (x) => x.Max).IsBase().Apply();
-            this.Mod((x) => x.BaseValue, (x) => x.Value).IsBase().Apply();
-            this.Mod((x) => x.BaseRadius, (x) => x.Radius).IsBase().Apply();
+            return new[]
+            {
+                this.Mod(nameof(BaseMin), _baseMin, (x) => x.BaseMin),
+                this.Mod(nameof(BaseMax), _baseMax, (x) => x.BaseMax),
+                this.Mod(nameof(BaseValue), _baseValue, (x) => x.BaseValue),
+                this.Mod(nameof(BaseRadius), _baseRadius, (x) => x.BaseRadius),
+
+                this.Mod((x) => x.BaseMin, (x) => x.Min),
+                this.Mod((x) => x.BaseMax, (x) => x.Max),
+                this.Mod((x) => x.BaseValue, (x) => x.Value),
+                this.Mod((x) => x.BaseRadius, (x) => x.Radius)
+            };
         }
     }
 
