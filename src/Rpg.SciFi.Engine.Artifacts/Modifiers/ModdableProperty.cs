@@ -22,14 +22,6 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
             Source = $"{Type}.{Prop ?? Method ?? throw new ArgumentException("Either Prop or Method must be set")}";
         }
 
-        public override string ToString()
-        {
-            var metaEntity = Meta.Get(Id)?.MetaData;
-            return metaEntity != null
-                ? $"{Id}({metaEntity.Name}).{Prop}"
-                : $"{Id}(unknown).{Prop}";
-        }
-
         public static bool operator ==(ModdableProperty? m1, ModdableProperty? m2) => (m1 == null && m2 == null) || (m1?.Id == m2?.Id && m1?.Source == m2?.Source);
 
         public static bool operator !=(ModdableProperty? m1, ModdableProperty? m2) => m1?.Id != m2?.Id || m1?.Source != m2?.Source;

@@ -3,15 +3,14 @@ using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using Rpg.SciFi.Engine.Artifacts.Turns;
 using System.Collections;
-using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Rpg.SciFi.Engine.Artifacts.MetaData
 {
-    internal static class ReflectionEngine
+    public static class ReflectionEngine
     {
-        public static MetaEntity CreateMetaEntity(this Entity entity, string basePath)
+        public static MetaEntity CreateMetaEntity(this Entity entity)
         {
             var metaEntity = new MetaEntity
             {
@@ -28,6 +27,64 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             }
 
             return metaEntity;
+        }
+
+        public static T? PropertyValue<T>(this Entity? entity, string path)
+        {
+            if (entity == null)
+                return default;
+
+            if (string.IsNullOrEmpty(path))
+                return entity is T
+                    ? (T?)(object)entity
+                    : default;
+
+            object? res = entity;
+            var parts = path.Split('.');
+            foreach (var part in parts)
+            {
+                var propInfo = res.MetaProperty(part);
+                res = propInfo?.GetValue(res, null);
+                if (res == null)
+                    break;
+            }
+
+            if (res is T)
+                return (T?)res;
+
+            if (typeof(T) == typeof(string))
+                return (T?)(object?)res?.ToString();
+
+            return default;
+        }
+
+        public static void PropertyValue<T>(this object? entity, string path, T? value)
+        {
+            if (entity != null && !string.IsNullOrEmpty(path))
+            {
+                var parts = path.Split('.');
+                if (parts.Length > 0)
+                {
+                    object? res = entity;
+
+                    var prop = parts.Last();
+                    if (parts.Length > 1)
+                    {
+                        foreach (var part in parts.Take(parts.Length - 1))
+                        {
+                            var propInfo = res.MetaProperty(part);
+                            res = propInfo?.GetValue(res, null);
+                            if (res == null)
+                                break;
+                        }
+                    }
+                    var propertyInfo = res?.GetType().GetProperty(prop, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (propertyInfo?.SetMethod != null)
+                        propertyInfo?.SetValue(res, value);
+                    else
+                        return;
+                }
+            }
         }
 
         internal static bool IsModdableProperty(this Entity entity, string prop)
@@ -210,6 +267,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             return propertyInfo.GetMethod != null
                 && (propertyInfo.GetMethod.IsPublic || propertyInfo.GetMethod.IsFamily)
                 && !(propertyInfo.PropertyType.Namespace!.StartsWith("System") && propertyInfo.PropertyType.Name.StartsWith("Func"))
+                && !(propertyInfo.PropertyType?.IsAssignableTo(typeof(IContext)) ?? false)
                 && !(propertyInfo.DeclaringType?.IsAssignableTo(typeof(MetaEntity)) ?? false);
         }
 

@@ -32,7 +32,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Gear
         [Input(InputSource = InputSource.Player, Param = "range")]
         public TurnAction Fire(Character character, Artifact target, int range)
         {
-            var action = new TurnAction(nameof(Fire), 3, 1, 1)
+            var action = Context.CreateTurnAction(nameof(Fire), 3, 1, 1)
                 .OnDiceRoll("d20")
                 .OnDiceRoll(character, (x) => x.Stats.MissileAttackBonus)
                 .OnDiceRoll(this, (x) => x.Attack)

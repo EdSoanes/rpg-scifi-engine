@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Rpg.SciFi.Engine.Artifacts.Expressions;
+﻿using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
@@ -10,6 +9,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
     public class MetaModifierStore : IDictionary<string, List<Modifier>>
     {
         private readonly Dictionary<Guid, Dictionary<string, List<Modifier>>> _store = new Dictionary<Guid, Dictionary<string, List<Modifier>>>();
+        protected IContext Context { get; set; }
 
         public List<Modifier> this[string key]
         {
@@ -84,13 +84,28 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
         public void Add(KeyValuePair<string, List<Modifier>> item) => Add(item.Key, item.Value);
 
+        public Dice Evaluate(Modifier modifier)
+        {
+            var sourceEntity = Context.Entities.Get(modifier.Source);
+            var targetEntity = Context.Entities.Get(modifier.Target);
+
+            var dice = SourceDice(sourceEntity, modifier);
+            if (!string.IsNullOrEmpty(modifier.DiceCalc))
+            {
+                var val = (sourceEntity ?? targetEntity)?.ExecuteFunction<Dice, Dice>(modifier.DiceCalc, dice);
+                return val ?? "0";
+            }
+
+            return dice;
+        }
+
         public Dice Evaluate(Guid id, string prop)
         {
             var mods = Get(id, prop);
 
             if (mods != null)
             {
-                Dice dice = Dice.Sum(mods.Select(x => x.Evaluate()));
+                Dice dice = Dice.Sum(mods.Select(x => Evaluate(x)));
                 return dice;
             }
 
@@ -109,12 +124,65 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
             var mods = Get(entity.Id, prop);
             var descriptions = mods?
-                .SelectMany(x => x.Describe())
+                .SelectMany(x => Describe(x))
                 .ToArray();
 
             res.AddRange(descriptions ?? new string[0]);
 
             return res.ToArray();
+        }
+
+        public string[] Describe(Modifier modifier, bool includeEntityInformation = false)
+        {
+            var desc = DescribeSource(modifier, includeEntityInformation);
+
+            if (includeEntityInformation && Context.Entities.Get(modifier.Target.Id)?.MetaData != null)
+                desc += $" to {DescribeTarget(modifier)}";
+
+            var res = new List<string>() { desc };
+
+            var mods = Get(modifier.Source);
+            if (mods != null)
+            {
+                foreach (var mod in mods)
+                    res.AddRange(Describe(mod).Select(x => $"  {x}"));
+            }
+
+            return res.ToArray();
+        }
+
+        private string DescribeSource(Modifier mod, bool includeEntityInformation = false)
+        {
+            var rootEntity = Context.Entities.Get(mod.Source?.RootId);
+            var sourceEntity = Context.Entities.Get(mod.Source);
+
+            var desc = includeEntityInformation
+                ? $"{rootEntity?.Name}.{sourceEntity?.Name}."
+                : "";
+            
+            desc += $"{mod.Source?.Prop ?? mod.Source?.Method ?? mod.Name} => {SourceDice(sourceEntity, mod)}";
+
+            if (mod.DiceCalc != null && mod.Source?.Prop != null)
+                desc += $" => {mod.DiceCalc}() => {Evaluate(mod.Source.Id, mod.Source.Prop)}";
+
+            return desc;
+        }
+
+        private string DescribeTarget(Modifier modifier)
+        {
+            var rootEntity = Context.Entities.Get(modifier.Target.RootId);
+            var targetEntity = Context.Entities.Get(modifier.Target);
+            
+            return $"{rootEntity?.Name}.{targetEntity?.Name}.{modifier.Target.Prop}".Trim('.');
+        }
+
+        public Dice SourceDice(Entity? entity, Modifier mod)
+        {
+            Dice dice = mod.Dice 
+                ?? (mod.Source?.Prop != null ? entity?.PropertyValue<string>(mod.Source.Prop) : null)
+                ?? "0";
+
+            return dice;
         }
 
         public void Clear() => _store.Clear();

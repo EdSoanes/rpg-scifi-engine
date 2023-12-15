@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
-using Rpg.SciFi.Engine.Artifacts.MetaData;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using System.Linq.Expressions;
 
@@ -25,8 +24,6 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
             _baseAction = actionCost;
             _baseExertion = exertionCost;
             _baseFocus = focusCost;
-
-            Meta.Add(this);
         }
 
         [JsonProperty] public List<Modifier> Success { get; private set; } = new List<Modifier>();
@@ -142,33 +139,33 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
 
         public TurnAction OnDiceRoll(Dice dice)
         {
-            Meta.Mods.Add(this.Mod("Base", dice, (x) => x.DiceRoll));
+            Context.Mods.Add(this.Mod("Base", dice, (x) => x.DiceRoll));
             return this;
         }
 
         public TurnAction OnDiceRoll(string name, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
         {
-            Meta.Mods.Add(this.Mod(name, dice, (x) => x.DiceRoll, diceCalc));
+            Context.Mods.Add(this.Mod(name, dice, (x) => x.DiceRoll, diceCalc));
             return this;
         }
 
         public TurnAction OnDiceRoll<T, TR>(T source, Expression<Func<T, TR>> sExpr, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
             where T : Entity
         {
-            Meta.Mods.Add(source.Mod(sExpr, this, (x) => x.DiceRoll, diceCalc));
+            Context.Mods.Add(source.Mod(sExpr, this, (x) => x.DiceRoll, diceCalc));
             return this;
         }
 
         public TurnAction OnDiceRollTarget(Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
         {
-            Meta.Mods.Add(this.Mod("Base", dice, (x) => x.DiceRollTarget, diceCalc));
+            Context.Mods.Add(this.Mod("Base", dice, (x) => x.DiceRollTarget, diceCalc));
             return this;
         }
 
         public TurnAction OnDiceRollTarget<T, TR>(T source, Expression<Func<T, TR>> sExpr, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
             where T : Entity
         {
-            Meta.Mods.Add(source.Mod(sExpr, this, (x) => x.DiceRollTarget, diceCalc));
+            Context.Mods.Add(source.Mod(sExpr, this, (x) => x.DiceRollTarget, diceCalc));
             return this;
         }
     }

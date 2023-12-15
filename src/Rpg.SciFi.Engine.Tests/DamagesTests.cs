@@ -76,11 +76,11 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void Damage_ApplyMod() 
         {
-            Meta.Mods.Add(_damage.ModByPath<Dice>("Weapon Damage", "d8", nameof(_damage.Blast)).IsAdditive());
+            _meta.Mods.Add(_damage.ModByPath<Dice>("Weapon Damage", "d8", nameof(_damage.Blast)).IsAdditive());
 
             Assert.AreEqual<string>("1d10 + 1d8", _damage.Blast);
 
-            Meta.Mods.Clear(_damage.Id);
+            _meta.Mods.Clear(_damage.Id);
 
             Assert.AreEqual<string>("1d10", _damage.Blast);
         }
@@ -90,7 +90,7 @@ namespace Rpg.SciFi.Engine.Tests
         {
             _damage.Name = "Something";
 
-            Meta.Mods.Add(_damage.ModByPath<Dice>("Weapon Damage", "d8", nameof(_damage.Blast)).IsAdditive());
+            _meta.Mods.Add(_damage.ModByPath<Dice>("Weapon Damage", "d8", nameof(_damage.Blast)).IsAdditive());
 
             var state = _meta.Serialize();
             _meta.Clear();
@@ -102,7 +102,7 @@ namespace Rpg.SciFi.Engine.Tests
             Assert.AreEqual("Something", damage2.Name);
             Assert.AreEqual<string>("1d10 + 1d8", damage2.Blast);
 
-            Meta.Mods.Clear(damage2.Id);
+            _meta.Mods.Clear(damage2.Id);
             Assert.AreEqual<string>("1d10", damage2.Blast);
         }
     }

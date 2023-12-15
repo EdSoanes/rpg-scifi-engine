@@ -29,35 +29,6 @@ namespace Rpg.SciFi.Engine.Artifacts
         //public static T? PropertyValue<T>(this Guid id, string path)
         //    => (id.MetaData()?.Entity).PropertyValue<T>(path);
 
-        public static T? PropertyValue<T>(this Entity? entity, string path)
-        {
-            if (entity == null)
-                return default;
-
-            if (string.IsNullOrEmpty(path))
-                return entity is T
-                    ? (T?)(object)entity
-                    : default;
-
-            object? res = entity;
-            var parts = path.Split('.');
-            foreach (var part in parts)
-            {
-                var propInfo = res.MetaProperty(part);
-                res = propInfo?.GetValue(res, null);
-                if (res == null)
-                    break;
-            }
-
-            if (res is T)
-                return (T?)res;
-
-            if (typeof(T) == typeof(string))
-                return (T?)(object?)res?.ToString();
-
-            return default;
-        }
-
         public static Modifier ModByPath<T1>(
             this Entity entity,
             string name,

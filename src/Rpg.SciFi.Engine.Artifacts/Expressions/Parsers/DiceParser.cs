@@ -155,7 +155,9 @@ namespace Rpg.SciFi.Engine.Artifacts.Expressions.Parsers
                 }
                 else if (DiceExpressionToken.IsMatch(nextToken))
                 {
-                    var subExpr = Meta.ValueByPath<string>(nextToken.Replace("[", "").Replace("]", ""));
+                    //TODO: Fix dice expressions
+                    //var subExpr = Meta.ValueByPath<string>(nextToken.Replace("[", "").Replace("]", ""));
+                    var subExpr = nextToken.Replace("[", "").Replace("]", "");
 
                     var subNodes = Parse(subExpr!);
                     if (subNodes.Any())
