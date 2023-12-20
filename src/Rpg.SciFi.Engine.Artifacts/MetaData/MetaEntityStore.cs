@@ -144,21 +144,5 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                     Init(item, path, processContext);
             }
         }
-
-        public void Setup()
-        {
-            foreach (var entity in _store.Values)
-                Setup(entity);
-        }
-
-        protected void Setup(Entity entity)
-        {
-            foreach (var setup in entity.MetaData.SetupMethods)
-            {
-                var mods = entity.ExecuteFunction<Modifier[]>(setup);
-                if (mods != null)
-                    Context.Mods.Add(mods);
-            }
-        }
     }
 }

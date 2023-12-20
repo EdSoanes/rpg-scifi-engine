@@ -110,7 +110,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
             if (!IsResolved)
             {
                 if (SuccessAction == null && !string.IsNullOrEmpty(name))
-                    SuccessAction = new TurnAction(name, actionCost, exertionCost, focusCost);
+                    SuccessAction = Context.CreateTurnAction(name, actionCost, exertionCost, focusCost);
 
                 if (SuccessAction == null)
                     throw new ArgumentException($"{nameof(OnSuccessAction)} invalid. No {nameof(SuccessAction)}", nameof(OnSuccessAction));
@@ -126,7 +126,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
             if (!IsResolved)
             {
                 if (FailureAction == null && !string.IsNullOrEmpty(name))
-                    FailureAction = new TurnAction(name, actionCost, exertionCost, focusCost);
+                    FailureAction = Context.CreateTurnAction(name, actionCost, exertionCost, focusCost);
 
                 if (FailureAction == null)
                     throw new ArgumentException($"{nameof(OnSuccessAction)} invalid. No {nameof(FailureAction)}", nameof(OnFailureAction));
@@ -139,33 +139,33 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
 
         public TurnAction OnDiceRoll(Dice dice)
         {
-            Context.Mods.Add(this.Mod("Base", dice, (x) => x.DiceRoll));
+            Context.AddMod(this.Mod("Base", dice, (x) => x.DiceRoll));
             return this;
         }
 
         public TurnAction OnDiceRoll(string name, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
         {
-            Context.Mods.Add(this.Mod(name, dice, (x) => x.DiceRoll, diceCalc));
+            Context.AddMod(this.Mod(name, dice, (x) => x.DiceRoll, diceCalc));
             return this;
         }
 
         public TurnAction OnDiceRoll<T, TR>(T source, Expression<Func<T, TR>> sExpr, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
             where T : Entity
         {
-            Context.Mods.Add(source.Mod(sExpr, this, (x) => x.DiceRoll, diceCalc));
+            Context.AddMod(source.Mod(sExpr, this, (x) => x.DiceRoll, diceCalc));
             return this;
         }
 
         public TurnAction OnDiceRollTarget(Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
         {
-            Context.Mods.Add(this.Mod("Base", dice, (x) => x.DiceRollTarget, diceCalc));
+            Context.AddMod(this.Mod("Base", dice, (x) => x.DiceRollTarget, diceCalc));
             return this;
         }
 
         public TurnAction OnDiceRollTarget<T, TR>(T source, Expression<Func<T, TR>> sExpr, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
             where T : Entity
         {
-            Context.Mods.Add(source.Mod(sExpr, this, (x) => x.DiceRollTarget, diceCalc));
+            Context.AddMod(source.Mod(sExpr, this, (x) => x.DiceRollTarget, diceCalc));
             return this;
         }
     }

@@ -36,7 +36,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Gear
                 .OnDiceRoll("d20")
                 .OnDiceRoll(character, (x) => x.Stats.MissileAttackBonus)
                 .OnDiceRoll(this, (x) => x.Attack)
-                .OnDiceRoll(nameof(range), range, () => CalculateRange);
+                .OnDiceRoll(nameof(range), range, () => this.CalculateRange);
 
             action
                 .OnDiceRollTarget(10)

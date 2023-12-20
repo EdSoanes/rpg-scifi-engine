@@ -67,7 +67,7 @@ namespace Rpg.SciFi.Engine.Tests
         {
             Assert.AreEqual<string>("0", _anEntity.ModdableValue);
 
-            _meta.Mods.Add(_anEntity.Mod("Buff", "d6", (x) => x.ModdableValue).IsAdditive());
+            _meta.AddMod(_anEntity.Mod("Buff", "d6", (x) => x.ModdableValue).IsAdditive());
 
             Assert.AreEqual<string>("1d6", _anEntity.ModdableValue);
         }

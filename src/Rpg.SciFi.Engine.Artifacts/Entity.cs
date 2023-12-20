@@ -17,10 +17,10 @@ namespace Rpg.SciFi.Engine.Artifacts
             MetaData = this.CreateMetaEntity();
         }
 
-        public Dice Evaluate(string prop) => Context?.Mods.Evaluate(Id, prop) ?? 0;
+        public Dice Evaluate(string prop) => Context?.Evaluate(Id, prop) ?? 0;
 
-        public int Resolve(string prop) => Context?.Mods.Resolve(Id, prop) ?? 0;
+        public int Resolve(string prop) => Context?.Resolve(Id, prop) ?? 0;
 
-        public string[] Describe(string prop) => Context?.Mods.Describe(this, prop) ?? new string[0];
+        public string[] Describe(string prop) => Context?.Describe(this, prop) ?? new string[0];
     }
 }

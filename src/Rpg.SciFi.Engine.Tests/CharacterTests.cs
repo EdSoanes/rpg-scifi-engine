@@ -33,13 +33,13 @@ namespace Rpg.SciFi.Engine.Tests
             _meta = new Meta<Game>();
             _meta.Initialize(_game);
 
-            _meta.Mods.Add(player.Mod("Strength", 18, x => x.Stats.BaseStrength).IsPlayer());
-            _meta.Mods.Add(player.Mod("Dexterity", 5, x => x.Stats.BaseDexterity).IsPlayer());
-            _meta.Mods.Add(player.Mod("Intelligence", 14, x => x.Stats.BaseIntelligence).IsPlayer());
+            _meta.AddMod(player.Mod("Strength", 18, x => x.Stats.BaseStrength).IsPlayer());
+            _meta.AddMod(player.Mod("Dexterity", 5, x => x.Stats.BaseDexterity).IsPlayer());
+            _meta.AddMod(player.Mod("Intelligence", 14, x => x.Stats.BaseIntelligence).IsPlayer());
 
-            _meta.Mods.Add(player.Mod("Actions", 18, x => x.Turns.BaseAction).IsPlayer());
-            _meta.Mods.Add(player.Mod("Exertion", 5, x => x.Turns.BaseExertion).IsPlayer());
-            _meta.Mods.Add(player.Mod("Focus", 14, x => x.Turns.BaseFocus).IsPlayer());
+            _meta.AddMod(player.Mod("Actions", 18, x => x.Turns.BaseAction).IsPlayer());
+            _meta.AddMod(player.Mod("Exertion", 5, x => x.Turns.BaseExertion).IsPlayer());
+            _meta.AddMod(player.Mod("Focus", 14, x => x.Turns.BaseFocus).IsPlayer());
         }
 
         [TestMethod]
@@ -65,8 +65,8 @@ namespace Rpg.SciFi.Engine.Tests
 
             var diceRollDesc = action.Describe(nameof(TurnAction.DiceRoll));
             var diceRollTargetDesc = action.Describe(nameof(TurnAction.DiceRollTarget));
-            var successDesc = action.Success.SelectMany(x => _meta.Mods.Describe(x, true));
-            var failureDesc = action.Failure.SelectMany(x => _meta.Mods.Describe(x, true));
+            var successDesc = action.Success.SelectMany(x => _meta.Describe(x, true));
+            var failureDesc = action.Failure.SelectMany(x => _meta.Describe(x, true));
 
             Assert.AreEqual<string>("1d20 - 1", action.DiceRoll);
             Assert.AreEqual<string>("11", action.DiceRollTarget);

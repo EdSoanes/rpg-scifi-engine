@@ -8,8 +8,8 @@ namespace Rpg.SciFi.Engine.Tests
     [TestClass]
     public class DamagesTests
     {
-        private Damage _damage;
-        private Meta<Damage> _meta;
+        private Damage? _damage;
+        private Meta<Damage>? _meta;
 
         [TestInitialize]
         public void Initialize()
@@ -44,15 +44,17 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void Damage_Serialization()
         {
+            Assert.IsNotNull(_damage);
+            Assert.IsNotNull(_meta);
+
             var state = _meta.Serialize();
-            _meta.Clear();
-            Assert.IsNull(_meta.Context);
 
-            _meta.Deserialize(state);
+            var meta = Meta<Damage>.Deserialize(state);
 
-            Assert.IsNotNull(_meta.Context);
+            Assert.IsNotNull(meta);
+            Assert.IsNotNull(meta.Context);
 
-            var damage2 = _meta.Context;
+            var damage2 = meta.Context;
             Assert.AreEqual<string>(_damage.Blast, damage2.Blast);
             Assert.AreEqual<string>(_damage.BaseBlast, damage2.Blast);
 
@@ -76,11 +78,11 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void Damage_ApplyMod() 
         {
-            _meta.Mods.Add(_damage.ModByPath<Dice>("Weapon Damage", "d8", nameof(_damage.Blast)).IsAdditive());
+            _meta.AddMod(_damage.ModByPath<Dice>("Weapon Damage", "d8", nameof(_damage.Blast)).IsAdditive());
 
             Assert.AreEqual<string>("1d10 + 1d8", _damage.Blast);
 
-            _meta.Mods.Clear(_damage.Id);
+            _meta.ClearMods(_damage.Id);
 
             Assert.AreEqual<string>("1d10", _damage.Blast);
         }
@@ -88,21 +90,26 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void Damage_Serialization_WithMod()
         {
+            Assert.IsNotNull(_damage);
+            Assert.IsNotNull(_meta);
+
             _damage.Name = "Something";
 
-            _meta.Mods.Add(_damage.ModByPath<Dice>("Weapon Damage", "d8", nameof(_damage.Blast)).IsAdditive());
+            _meta.AddMod(_damage.ModByPath<Dice>("Weapon Damage", "d8", nameof(_damage.Blast)).IsAdditive());
 
             var state = _meta.Serialize();
-            _meta.Clear();
-            _meta.Deserialize(state);
 
+            _meta = Meta<Damage>.Deserialize(state);
+
+            Assert.IsNotNull(_meta);
+            Assert.IsNotNull(_meta.Context);
             var damage2 = _meta.Context!;
 
             Assert.IsNotNull(damage2);
             Assert.AreEqual("Something", damage2.Name);
             Assert.AreEqual<string>("1d10 + 1d8", damage2.Blast);
 
-            _meta.Mods.Clear(damage2.Id);
+            _meta.ClearMods(damage2.Id);
             Assert.AreEqual<string>("1d10", damage2.Blast);
         }
     }
