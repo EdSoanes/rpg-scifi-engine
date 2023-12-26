@@ -13,6 +13,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             : this()
         {
             Name = name;
+            Health = new Health(10, 10);
         }
 
         [JsonProperty] public TurnPoints Turns { get; private set; } = new TurnPoints();
@@ -25,10 +26,11 @@ namespace Rpg.SciFi.Engine.Artifacts
         {
             var mods = new List<Modifier>(base.Setup())
             {
-                this.Mod((x) => x.Stats.StrengthBonus, (x) => x.Damage.Impact),
-                this.Mod((x) => x.Stats.StrengthBonus, (x) => x.Turns.Exertion),
-                this.Mod((x) => x.Stats.DexterityBonus, (x) => x.Turns.Action),
-                this.Mod((x) => x.Stats.IntelligenceBonus, (x) => x.Turns.Focus)
+                BaseModifier.Create(this, "d6", x => x.Damage.BaseImpact),
+                BaseModifier.Create(this, x => x.Stats.StrengthBonus, x => x.Damage.Impact),
+                BaseModifier.Create(this, x => x.Stats.StrengthBonus, x => x.Turns.Exertion),
+                BaseModifier.Create(this, x => x.Stats.DexterityBonus, x => x.Turns.Action),
+                BaseModifier.Create(this, x => x.Stats.IntelligenceBonus, x => x.Turns.Focus),
             };
 
             return mods.ToArray();

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
+using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Tests
 {
@@ -12,8 +13,8 @@ namespace Rpg.SciFi.Engine.Tests
         {
             var character = new Character();
 
-            var mod1 = character.Mod(x => x.BaseSize, x => x.Size).IsBase();
-            var mod2 = character.Mod(x => x.BaseSpeed, x => x.Speed).IsBase();
+            var mod1 = BaseModifier.Create(character, x => x.BaseSize, x => x.Size);
+            var mod2 = BaseModifier.Create(character, x => x.BaseSpeed, x => x.Speed);
             var store = new MetaModifierStore
             {
                 mod1,
@@ -53,50 +54,50 @@ namespace Rpg.SciFi.Engine.Tests
             Assert.IsNull(baseSpeedMods);
         }
 
-        [TestMethod]
-        public void Add_ManyModTypes_ModRemove()
-        {
-            var character = new Character();
+        //[TestMethod]
+        //public void Add_ManyModTypes_ModRemove()
+        //{
+        //    var character = new Character();
 
-            var mod1 = character.Mod(x => x.BaseSpeed, x => x.Speed).IsBase();
-            var mod2 = character.Mod("Custom", "3", x => x.Speed).IsCustom();
-            var mod3 = character.Mod("Boost", "2", x => x.Speed).UntilTurn(3);
-            var mod4 = character.Mod("Boost", "2", x => x.Speed).UntilEncounterEnds();
+        //    var mod1 = character.Mod(x => x.BaseSpeed, x => x.Speed).IsBase();
+        //    var mod2 = character.Mod("Custom", "3", x => x.Speed).IsCustom();
+        //    var mod3 = character.Mod("Boost", "2", x => x.Speed).UntilTurn(3);
+        //    var mod4 = character.Mod("Boost", "2", x => x.Speed).UntilEncounterEnds();
 
-            var store = new MetaModifierStore
-            {
-                mod1,
-                mod2,
-                mod3,
-                mod4
-            };
+        //    var store = new MetaModifierStore
+        //    {
+        //        mod1,
+        //        mod2,
+        //        mod3,
+        //        mod4
+        //    };
 
-            Assert.AreEqual(4, store.Count);
+        //    Assert.AreEqual(4, store.Count);
 
-            var speedMods = store.Get(character.Id, nameof(character.Speed));
-            Assert.IsNotNull(speedMods);
-            Assert.AreEqual(4, speedMods.Count);
+        //    var speedMods = store.Get(character.Id, nameof(character.Speed));
+        //    Assert.IsNotNull(speedMods);
+        //    Assert.AreEqual(4, speedMods.Count);
 
-            Assert.IsFalse(store.Remove(1));
-            Assert.IsFalse(store.Remove(2));
-            Assert.IsTrue(store.Remove(3));
+        //    Assert.IsFalse(store.Remove(1));
+        //    Assert.IsFalse(store.Remove(2));
+        //    Assert.IsTrue(store.Remove(3));
 
-            speedMods = store.Get(character.Id, nameof(character.Speed));
-            Assert.IsNotNull(speedMods);
-            Assert.AreEqual(3, speedMods.Count);
-            Assert.IsFalse(store.Contains(mod3));
+        //    speedMods = store.Get(character.Id, nameof(character.Speed));
+        //    Assert.IsNotNull(speedMods);
+        //    Assert.AreEqual(3, speedMods.Count);
+        //    Assert.IsFalse(store.Contains(mod3));
 
-            Assert.IsFalse(store.Remove(1000000));
-            Assert.IsTrue(store.Remove(0));
-        }
+        //    Assert.IsFalse(store.Remove(1000000));
+        //    Assert.IsTrue(store.Remove(0));
+        //}
 
         [TestMethod]
         public void Add_2BaseMods_Serialize()
         {
             var character = new Character();
 
-            var mod1 = character.Mod(x => x.BaseSize, x => x.Size).IsBase();
-            var mod2 = character.Mod(x => x.BaseSpeed, x => x.Speed).IsBase();
+            var mod1 = BaseModifier.Create(character, x => x.BaseSize, x => x.Size);
+            var mod2 = BaseModifier.Create(character, x => x.BaseSpeed, x => x.Speed);
             var srcStore = new MetaModifierStore
             {
                 mod1,

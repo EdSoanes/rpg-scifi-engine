@@ -10,7 +10,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         public State(string name, params Modifier[] modifiers)
         {
             Name = name;
-            Modifiers = modifiers.Select(x => x.IsState(name)).ToArray();
+            Modifiers = modifiers.Where(x => x.ModifierType == ModifierType.State).ToArray();
         }
 
         [JsonProperty] public virtual string Name { get; set; } = string.Empty;

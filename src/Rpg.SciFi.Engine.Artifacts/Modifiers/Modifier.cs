@@ -1,123 +1,98 @@
 ﻿using Newtonsoft.Json;
+using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
+using System.Diagnostics.Metrics;
+using System.Linq.Expressions;
+using System.Numerics;
+using System.Reflection.Metadata;
 
 namespace Rpg.SciFi.Engine.Artifacts.Modifiers
 {
-    public sealed class Modifier
+    public class Modifier
     {
         [JsonProperty] private int? Resolution { get; set; }
 
-        [JsonConstructor] private Modifier() { }
+        [JsonConstructor] protected Modifier() { }
 
-        internal Modifier(string name, Dice dice, ModdableProperty target, string? diceCalc = null)
+        protected Modifier(string? name, Dice? dice, ModdableProperty? source, ModdableProperty target, string? diceCalc, ModifierType modifierType, ModifierAction modifierAction, bool isPermanent)
         {
-            Name = name;
+            Name = name ?? source?.Source ?? target.Prop ?? GetType().Name;
             Dice = dice;
             Target = target;
             DiceCalc = diceCalc;
+            ModifierType = modifierType;
+            ModifierAction = modifierAction;
+            IsPermanent = isPermanent;
         }
 
-        internal Modifier(ModdableProperty source, ModdableProperty target, string? diceCalc = null)
+        [JsonProperty] public Guid Id { get; protected set; } = Guid.NewGuid();
+        [JsonProperty] public string Name { get; protected set; }
+        [JsonProperty] public Dice? Dice { get; protected set; }
+        [JsonProperty] public ModdableProperty? Source { get; protected set; } = null;
+        [JsonProperty] public ModdableProperty Target { get; protected set; }
+        [JsonProperty] public string? DiceCalc { get; protected set; }
+        [JsonProperty] public ModifierType ModifierType { get; protected set; }
+        [JsonProperty] public ModifierAction ModifierAction { get; protected set; } = ModifierAction.Accumulate;
+        [JsonProperty] public bool IsPermanent { get; protected set; } = false;
+        [JsonProperty] public int RemoveOnTurn { get; set; }
+
+        protected static Modifier _Create<TMod, TEntity, T1, TEntity2, T2>(TEntity? entity, string? name, Dice? dice, Expression<Func<TEntity, T1>>? sourceExpr, TEntity2 target, Expression<Func<TEntity2, T2>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TMod: Modifier
+            where TEntity : Entity
+            where TEntity2 : Entity
         {
-            Name = source.Source;
-            Source = source;
-            Target = target;
-            DiceCalc = diceCalc;
+            var mod = Activator.CreateInstance<TMod>();
+            mod.Dice = dice;
+            mod.Source = entity != null && sourceExpr != null
+                ? ModdableProperty.Create(entity, sourceExpr, true)
+                : null;
+
+            mod.Target = ModdableProperty.Create(target, targetExpr);
+            mod.DiceCalc = ReflectionEngine.GetDiceCalcFunction(diceCalcExpr);
+            mod.Name = name ?? mod.Source?.Source ?? mod.Target.Prop ?? entity?.GetType().Name ?? target.Name;
+
+            return mod;
         }
 
-        internal Modifier(string? name, ModdableProperty source, ModdableProperty target, string? diceCalc = null)
+        protected static Modifier CreateByPath<TMod, T1>(Entity entity, string name, Dice dice, string targetPropPath, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TMod : Modifier
         {
-            Name = name ?? source.Source;
-            Source = source;
-            Target = target;
-            DiceCalc = diceCalc;
+            var mod = Activator.CreateInstance<TMod>();
+
+            mod.Target = ModdableProperty.Create(entity, targetPropPath);
+            mod.DiceCalc = ReflectionEngine.GetDiceCalcFunction(diceCalcExpr);
+            mod.Dice = dice;
+            mod.Name = name ?? mod.Target.Prop ?? entity.GetType().Name;
+
+            return mod;
         }
 
-        [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
-        [JsonProperty] public string Name { get; private set; }
-        [JsonProperty] public Dice? Dice { get; private set; }
-        [JsonProperty] public ModdableProperty? Source { get; private set; }
-        [JsonProperty] public ModdableProperty Target { get; private set; }
-        [JsonProperty] public string? DiceCalc { get; private set; }
-        [JsonProperty] private ModifierCondition? ModCondition{ get; set; } = new ModifierCondition(ModifierType.Base);
-
-        public Modifier IsState(string state)
+        public void SetDice(Dice dice)
         {
-            ModCondition = new ModifierCondition(state);
-            return this;
+            Dice = dice;
+            Source = null;
         }
-
-        public Modifier IsAdditive()
-        {
-            ModCondition = new ModifierCondition(ModifierType.Additive);
-            return this;
-        }
-
-        public Modifier IsSubtractive()
-        {
-            ModCondition = new ModifierCondition(ModifierType.Subtractive);
-            return this;
-        }
-
-        public Modifier IsBase()
-        {
-            ModCondition = new ModifierCondition(ModifierType.Base);
-            return this;
-        }
-
-        public Modifier IsCustom()
-        {
-            ModCondition = new ModifierCondition(ModifierType.Custom);
-            return this;
-        }
-
-        public Modifier IsPlayer()
-        {
-            ModCondition = new ModifierCondition(ModifierType.Player);
-            return this;
-        }
-
-        public Modifier UntilTurn(int untilTurn)
-        {
-            ModCondition = new ModifierCondition(untilTurn);
-            return this;
-        }
-
-        public Modifier UntilEncounterEnds()
-        {
-            ModCondition = new ModifierCondition(ModifierConditional.Encounter);
-            return this;
-        }
-        //public void Apply(ModifierStore? modifierStore = null)
-        //{
-        //    ModCondition ??= new ModifierCondition(ModifierType.Additive);
-
-        //    modifierStore ??= Meta.Get(Target.Id)!.MetaData.Mods;
-        //    modifierStore?.Add(this);
-        //}
-
-        //public void Remove(ModifierStore? modifierStore = null)
-        //{
-        //    modifierStore ??= Meta.Get(Target.Id)!.MetaData.Mods;
-        //    modifierStore?.Remove(this);
-        //}
 
         public bool ShouldBeRemoved(int turn)
         {
-            if (ModCondition == null)
-                return true;
-
-            if (ModCondition.Condition == ModifierConditional.Encounter)
-                return turn <= 0;
-
-            if (ModCondition.Condition == ModifierConditional.Turn)
-                return turn >= ModCondition.UntilTurn;
-
-            if (ModCondition.Condition == ModifierConditional.State)
+            if (ModifierType == ModifierType.Transient)
             {
-                //Check if the specified target entity has the specified state applied
-                //source.Id.MetaData().Entity.
+                if (RemoveOnTurn == RemoveTurn.WhenZero && Dice != null && Dice.Value.Roll() == 0)
+                    return true;
+
+                if (RemoveOnTurn == RemoveTurn.This)
+                    return true;
+
+                if (RemoveOnTurn == RemoveTurn.Encounter && turn == 0)
+                    return true;
+
+                return RemoveOnTurn <= turn;
+            }
+
+            if (ModifierType == ModifierType.State)
+            {
+                //Do state stuff...
             }
 
             return false;
@@ -125,7 +100,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
 
         public bool CanBeCleared()
         {
-            return ModCondition != null && ModCondition.Condition != ModifierConditional.Permanent;
+            return !IsPermanent;
         }
     }
 }

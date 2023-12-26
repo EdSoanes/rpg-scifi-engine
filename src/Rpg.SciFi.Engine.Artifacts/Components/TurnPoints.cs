@@ -36,17 +36,17 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         {
             return new[]
             {
-                this.Mod(nameof(BaseAction), _baseAction, (x) => x.BaseAction),
-                this.Mod(nameof(BaseExertion), _baseExertion, (x) => x.BaseExertion),
-                this.Mod(nameof(BaseFocus), _baseFocus, (x) => x.BaseFocus),
+                BaseModifier.Create(this, _baseAction, x => x.BaseAction),
+                BaseModifier.Create(this, _baseExertion, x => x.BaseExertion),
+                BaseModifier.Create(this, _baseFocus, x => x.BaseFocus),
 
-                this.Mod((x) => x.BaseAction, (x) => x.MaxAction),
-                this.Mod((x) => x.BaseExertion, (x) => x.MaxExertion),
-                this.Mod((x) => x.BaseFocus, (x) => x.MaxFocus),
+                BaseModifier.Create(this, x => x.BaseAction, x => x.MaxAction),
+                BaseModifier.Create(this, x => x.BaseExertion, x => x.MaxExertion),
+                BaseModifier.Create(this, x => x.BaseFocus, x => x.MaxFocus),
 
-                this.Mod((x) => x.MaxAction, (x) => x.Action),
-                this.Mod((x) => x.MaxExertion, (x) => x.Exertion),
-                this.Mod((x) => x.MaxFocus, (x) => x.Focus),
+                BaseModifier.Create(this, x => x.BaseAction, x => x.Action),
+                BaseModifier.Create(this, x => x.BaseExertion, x => x.Exertion),
+                BaseModifier.Create(this, x => x.BaseFocus, x => x.Focus),
             };
         }
     }

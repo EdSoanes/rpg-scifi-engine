@@ -3,6 +3,7 @@ using Rpg.SciFi.Engine.Artifacts;
 using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
+using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using Rpg.SciFi.Engine.Artifacts.Turns;
 
 namespace Rpg.SciFi.Engine.Tests
@@ -28,9 +29,9 @@ namespace Rpg.SciFi.Engine.Tests
             Resistances = new CompositeResistances(Parts.Select(x => x.Resistances).ToArray());
             States = new States(
                 new State("Activated",
-                    this.Mod("Noise", "20", (x) => x.Emissions.Sound.Value),
-                    this.Mod("Heat", "15", (x) => x.Emissions.Heat.Value),
-                    this.Mod("Electronics", "10", (x) => x.Emissions.Electromagnetic.Value)
+                    BaseModifier.Create(this, "20", (x) => x.Emissions.Sound.Value),
+                    BaseModifier.Create(this, "15", (x) => x.Emissions.Heat.Value),
+                    BaseModifier.Create(this, "10", (x) => x.Emissions.Electromagnetic.Value)
                 ));
         }
 

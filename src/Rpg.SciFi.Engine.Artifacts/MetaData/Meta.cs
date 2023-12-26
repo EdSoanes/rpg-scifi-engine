@@ -41,8 +41,9 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         int Resolve(Guid entityId, string prop);
         int Resolve<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression);
 
-        string[] Describe(Entity entity, string prop);
+        string[] Describe(Entity entity, string prop, bool includeEntityInformation = false);
         string[] Describe(Modifier mod, bool includeEntityInformation = false);
+        string[] Describe(ModdableProperty? moddableProperty, bool includeEntityInformation = false);
 
         TurnAction CreateTurnAction(string name, int actionCost, int exertionCost, int focusCost);
     }
@@ -113,22 +114,23 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         public List<Modifier>? GetMods(Guid id, string prop) => Mods.Get(id, prop);
         public List<Modifier>? GetMods(ModdableProperty? moddableProperty) => Mods.Get(moddableProperty);
         public List<Modifier>? GetMods(Entity entity, string prop) => Mods.Get(entity.Id, prop);
-        public List<Modifier>? GetMods<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression) => Mods.Get(entity.ToModdableProperty(expression, true));
+        public List<Modifier>? GetMods<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression) => Mods.Get(ModdableProperty.Create(entity, expression, true));
 
         public bool RemoveMods(int currentTurn) => Mods.Remove(currentTurn);
         public bool RemoveMods(Guid entityId, string prop) => Mods.Remove(entityId, prop);
         public bool RemoveMods(Entity entity, string prop) => Mods.Remove(entity.Id, prop);
-        public bool RemoveMods<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression) => Mods.Remove(entity.ToModdableProperty(expression, true));
+        public bool RemoveMods<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression) => Mods.Remove(ModdableProperty.Create(entity, expression, true));
 
         public Dice Evaluate(Modifier mod) => Mods.Evaluate(mod);
         public Dice Evaluate(Guid entityId, string prop) => Mods.Evaluate(entityId, prop);
-        public Dice Evaluate<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression) => Mods.Evaluate(entity.ToModdableProperty(expression));
+        public Dice Evaluate<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression) => Mods.Evaluate(ModdableProperty.Create(entity, expression));
 
         public int Resolve(Guid entityId, string prop) => Mods.Resolve(entityId, prop);
-        public int Resolve<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression) => Mods.Resolve(entity.ToModdableProperty(expression));
+        public int Resolve<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression) => Mods.Resolve(ModdableProperty.Create(entity, expression));
 
-        public string[] Describe(Entity entity, string prop) => Mods.Describe(entity, prop);
+        public string[] Describe(Entity entity, string prop, bool includeEntityInformation = false) => Mods.Describe(entity, prop, includeEntityInformation);
         public string[] Describe(Modifier mod, bool includeEntityInformation = false) => Mods.Describe(mod, includeEntityInformation);
+        public string[] Describe(ModdableProperty? moddableProperty, bool includeEntityInformation = false) => Mods.Describe(moddableProperty, includeEntityInformation);
 
         private void Setup() => Setup(Entities.Values);
 
@@ -159,19 +161,20 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
         public TurnAction? Apply(Character actor, TurnAction turnAction, int diceRoll = 0)
         {
-            var modifiers = turnAction.Resolve(diceRoll);
-
             var actionCost = turnAction.Action;
             if (actionCost != 0)
-                Mods.Add(actor.Mod(nameof(TurnPoints.Action), actionCost, (x) => x.Turns.Action, () => Rules.Minus).IsAdditive());
+                Mods.Add(CostModifier.Create(actionCost, actor, x => x.Turns.Action, () => Rules.Minus));
 
             var exertionCost = turnAction.Exertion;
             if (exertionCost != 0)
-                Mods.Add(actor.Mod(nameof(TurnPoints.Exertion), exertionCost, (x) => x.Turns.Exertion, () => Rules.Minus).IsAdditive());
+                Mods.Add(CostModifier.Create(exertionCost, actor, x => x.Turns.Exertion, () => Rules.Minus));
 
             var focusCost = turnAction.Focus;
             if (focusCost != 0)
-                Mods.Add(actor.Mod(nameof(TurnPoints.Focus), focusCost, (x) => x.Turns.Focus, () => Rules.Minus).IsAdditive());
+                Mods.Add(CostModifier.Create(focusCost, actor, x => x.Turns.Focus, () => Rules.Minus));
+
+            var modifiers = turnAction.Resolve(diceRoll);
+            Mods.Add(modifiers);
 
             return turnAction.NextAction();
         }

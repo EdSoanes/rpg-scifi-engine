@@ -49,10 +49,10 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         {
             Init(value, "{}", entity =>
             {
-                if (!_store.ContainsKey(key))
-                    _store.Add(key, value);
+                if (!_store.ContainsKey(entity.Id))
+                    _store.Add(entity.Id, entity);
                 else
-                    _store[key] = value;
+                    _store[entity.Id] = entity;
             });
         }
 

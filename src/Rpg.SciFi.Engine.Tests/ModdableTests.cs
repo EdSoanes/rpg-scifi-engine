@@ -24,8 +24,8 @@ namespace Rpg.SciFi.Engine.Tests
         {
             return new[]
             {
-                this.Mod((x) => x.BaseIntValue, (x) => x.ModdedValue),
-                this.Mod((x) => x.BaseIntValue, (x) => x.ModdableCalculatedValue, () => CalculateValue)
+                BaseModifier.Create(this, x => x.BaseIntValue, x => x.ModdedValue),
+                BaseModifier.Create(this, x => x.BaseIntValue, x => x.ModdableCalculatedValue, () => this.CalculateValue)
             };
         }
 
@@ -67,7 +67,7 @@ namespace Rpg.SciFi.Engine.Tests
         {
             Assert.AreEqual<string>("0", _anEntity.ModdableValue);
 
-            _meta.AddMod(_anEntity.Mod("Buff", "d6", (x) => x.ModdableValue).IsAdditive());
+            _meta.AddMod(BaseModifier.Create(_anEntity, "Buff", "d6", (x) => x.ModdableValue));
 
             Assert.AreEqual<string>("1d6", _anEntity.ModdableValue);
         }

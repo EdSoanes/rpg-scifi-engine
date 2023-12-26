@@ -40,17 +40,17 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         {
             return new[]
             {
-                this.Mod(nameof(BaseBlast), _baseBlast, (x) => x.BaseBlast),
-                this.Mod(nameof(BasePierce), _basePierce, (x) => x.BasePierce),
-                this.Mod(nameof(BaseImpact), _baseImpact, (x) => x.BaseImpact),
-                this.Mod(nameof(BaseBurn), _baseBurn, (x) => x.BaseBurn),
-                this.Mod(nameof(BaseEnergy), _baseEnergy, (x) => x.BaseEnergy),
+                BaseModifier.Create(this, _baseBlast, x => x.BaseBlast),
+                BaseModifier.Create(this, _basePierce, x => x.BasePierce),
+                BaseModifier.Create(this, _baseImpact, x => x.BaseImpact),
+                BaseModifier.Create(this, _baseBurn, x => x.BaseBurn),
+                BaseModifier.Create(this, _baseEnergy, x => x.BaseEnergy),
 
-                this.Mod((x) => x.BaseBlast, (x) => x.Blast),
-                this.Mod((x) => x.BasePierce, (x) => x.Pierce),
-                this.Mod((x) => x.BaseImpact, (x) => x.Impact),
-                this.Mod((x) => x.BaseBurn, (x) => x.Burn),
-                this.Mod((x) => x.BaseEnergy, (x) => x.Energy)
+                BaseModifier.Create(this, x => x.BaseBlast, x => x.Blast),
+                BaseModifier.Create(this, x => x.BasePierce, x => x.Pierce),
+                BaseModifier.Create(this, x => x.BaseImpact, x => x.Impact),
+                BaseModifier.Create(this, x => x.BaseBurn, x => x.Burn),
+                BaseModifier.Create(this, x => x.BaseEnergy, x => x.Energy)
             };
         }
     }

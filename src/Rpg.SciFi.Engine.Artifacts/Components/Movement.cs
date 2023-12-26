@@ -36,15 +36,15 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         {
             return new[]
             {
-                this.Mod(nameof(BaseSpeed), _baseSpeed, (x) => x.BaseSpeed),
-                this.Mod(nameof(BaseAcceleration), _baseAcceleration, (x) => x.BaseAcceleration),
-                this.Mod(nameof(BaseDeceleration), _baseDeceleration, (x) => x.BaseDeceleration),
-                this.Mod(nameof(BaseManeuverability), _baseManeuverability, (x) => x.BaseManeuverability),
+                BaseModifier.Create(this, _baseSpeed, x => x.BaseSpeed),
+                BaseModifier.Create(this, _baseAcceleration, x => x.BaseAcceleration),
+                BaseModifier.Create(this, _baseDeceleration, x => x.BaseDeceleration),
+                BaseModifier.Create(this, _baseManeuverability, x => x.BaseManeuverability),
 
-                this.Mod((x) => x.BaseSpeed, (x) => x.Speed),
-                this.Mod((x) => x.BaseAcceleration, (x) => x.Acceleration),
-                this.Mod((x) => x.BaseDeceleration, (x) => x.Deceleration),
-                this.Mod((x) => x.BaseManeuverability, (x) => x.Maneuverability)
+                BaseModifier.Create(this, x => x.BaseSpeed, x => x.Speed),
+                BaseModifier.Create(this, x => x.BaseAcceleration, x => x.Acceleration),
+                BaseModifier.Create(this, x => x.BaseDeceleration, x => x.Deceleration),
+                BaseModifier.Create(this, x => x.BaseManeuverability, x => x.Maneuverability)
             };
         }
     }

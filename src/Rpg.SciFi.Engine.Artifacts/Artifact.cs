@@ -32,21 +32,21 @@ namespace Rpg.SciFi.Engine.Artifacts
         {
             return new[]
             {
-                this.Mod(nameof(BaseSize), 1, (x) => BaseSize),
-                this.Mod(nameof(BaseWeight), 1, (x) => BaseWeight),
-                this.Mod(nameof(BaseSpeed), 0, (x) => BaseSpeed),
-                this.Mod(nameof(BaseMeleeDefence), 0, (x) => BaseMeleeDefence),
-                this.Mod(nameof(BaseMissileDefence), 0, (x) => BaseMissileDefence),
+                BaseModifier.Create(this, 1, x => BaseSize),
+                BaseModifier.Create(this, 1, x => BaseWeight),
+                BaseModifier.Create(this, 0, x => BaseSpeed),
+                BaseModifier.Create(this, 0, x => BaseMeleeDefence),
+                BaseModifier.Create(this, 0, x => BaseMissileDefence),
 
-                this.Mod((x) => BaseSize, (x) => Size),
-                this.Mod((x) => BaseWeight, (x) => Weight),
-                this.Mod((x) => BaseSpeed, (x) => Speed),
-                this.Mod((x) => BaseMeleeDefence, (x) => MeleeDefence),
-                this.Mod((x) => BaseMissileDefence, (x) => MissileDefence),
+                BaseModifier.Create(this, x => BaseSize, x => Size),
+                BaseModifier.Create(this, x => BaseWeight, x => Weight),
+                BaseModifier.Create(this, x => BaseSpeed, x => Speed),
+                BaseModifier.Create(this, x => BaseMeleeDefence, x => MeleeDefence),
+                BaseModifier.Create(this, x => BaseMissileDefence, x => MissileDefence),
 
-                this.Mod((x) => Size, (x) => MeleeDefence),
-                this.Mod((x) => Size, (x) => MissileDefence),
-                this.Mod((x) => Speed, (x) => MissileDefence, () => Rules.Minus)
+                BaseModifier.Create(this, x => Size, x => MeleeDefence),
+                BaseModifier.Create(this, x => Size, x => MissileDefence),
+                BaseModifier.Create(this, x => Speed, x => MissileDefence, () => Rules.Minus)
             };
         }
 

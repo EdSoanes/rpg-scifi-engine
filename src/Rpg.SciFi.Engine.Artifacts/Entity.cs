@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
+using Rpg.SciFi.Engine.Artifacts.Modifiers;
+using System.ComponentModel;
+using System.Linq.Expressions;
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
@@ -21,6 +24,7 @@ namespace Rpg.SciFi.Engine.Artifacts
 
         public int Resolve(string prop) => Context?.Resolve(Id, prop) ?? 0;
 
-        public string[] Describe(string prop) => Context?.Describe(this, prop) ?? new string[0];
+        public string[] Describe(string prop) => Context?.Describe(this, prop, true) ?? new string[0];
+        public string[] Describe(ModdableProperty? moddableProperty) => Context?.Describe(moddableProperty, true) ?? new string[0];
     }
 }

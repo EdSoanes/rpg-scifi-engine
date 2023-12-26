@@ -17,8 +17,8 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
             _baseMental = baseMental;
         }
 
-        [Moddable] public virtual int BasePhysical { get; protected set; }
-        [Moddable] public virtual int BaseMental { get; protected set; }
+        [Moddable] public virtual int BasePhysical { get => this.Resolve(nameof(BasePhysical)); }
+        [Moddable] public virtual int BaseMental { get => this.Resolve(nameof(BasePhysical)); }
 
         [Moddable] public virtual int Physical { get => this.Resolve(nameof(Physical)); }
         [Moddable] public virtual int Mental { get => this.Resolve(nameof(Mental)); }
@@ -26,14 +26,19 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Setup]
         public Modifier[] Setup()
         {
-            return new[]
+            var mods = new List<Modifier>
             {
-                this.Mod(nameof(BasePhysical), _basePhysical, (x) => x.BasePhysical),
-                this.Mod(nameof(BaseMental), _baseMental, (x) => x.BaseMental),
-
-                this.Mod((x) => x.BasePhysical, (x) => x.Physical),
-                this.Mod((x) => x.BaseMental, (x) => x.Mental)
+                BaseModifier.Create(this, x => x.BasePhysical, x => x.Physical),
+                BaseModifier.Create(this, x => x.BaseMental, x => x.Mental)
             };
+
+            if (_basePhysical > 0)
+                mods.Add(BaseModifier.Create(this, _basePhysical, x => x.BasePhysical));
+
+            if (_baseMental > 0)
+                mods.Add(BaseModifier.Create(this, _baseMental, x => x.BaseMental));
+
+            return mods.ToArray();
         }
     }
 

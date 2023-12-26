@@ -26,16 +26,16 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         {
             return new[]
             {
-                this.Mod((x) => x.BaseStrength, (x) => x.Strength),
-                this.Mod((x) => x.BaseDexterity, (x) => x.Dexterity),
-                this.Mod((x) => x.BaseIntelligence, (x) => x.Intelligence),
+                BaseModifier.Create(this, x => x.BaseStrength, x => x.Strength),
+                BaseModifier.Create(this, x => x.BaseDexterity, x => x.Dexterity),
+                BaseModifier.Create(this, x => x.BaseIntelligence, x => x.Intelligence),
 
-                this.Mod((x) => x.Strength, (x) => x.StrengthBonus, () => Rules.CalculateStatBonus),
-                this.Mod((x) => x.Dexterity, (x) => x.DexterityBonus, () => Rules.CalculateStatBonus),
-                this.Mod((x) => x.Intelligence, (x) => x.IntelligenceBonus, () => Rules.CalculateStatBonus),
+                BaseModifier.Create(this, x => x.Strength, x => x.StrengthBonus, () => Rules.CalculateStatBonus),
+                BaseModifier.Create(this, x => x.Dexterity, x => x.DexterityBonus, () => Rules.CalculateStatBonus),
+                BaseModifier.Create(this, x => x.Intelligence, x => x.IntelligenceBonus, () => Rules.CalculateStatBonus),
 
-                this.Mod((x) => x.StrengthBonus, (x) => x.MeleeAttackBonus),
-                this.Mod((x) => x.DexterityBonus, (x) => x.MissileAttackBonus)
+                BaseModifier.Create(this, x => x.StrengthBonus, x => x.MeleeAttackBonus),
+                BaseModifier.Create(this, x => x.DexterityBonus, x => x.MissileAttackBonus)
             };
         }
     }

@@ -2,6 +2,7 @@
 using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
 using Rpg.SciFi.Engine.Artifacts;
+using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Tests
 {
@@ -78,9 +79,14 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void Damage_ApplyMod() 
         {
-            _meta.AddMod(_damage.ModByPath<Dice>("Weapon Damage", "d8", nameof(_damage.Blast)).IsAdditive());
+            Assert.IsNotNull(_meta);
+            Assert.IsNotNull(_damage);
 
-            Assert.AreEqual<string>("1d10 + 1d8", _damage.Blast);
+            _meta.AddMod(TimedModifier.Create(RemoveTurn.WhenZero, _damage, "Weapon Damage", "d8", x => x.Blast));
+
+            var desc = _damage.Describe(x => x.Blast);
+
+            Assert.AreEqual<string>("1d10 + 1d8", _damage!.Blast);
 
             _meta.ClearMods(_damage.Id);
 
@@ -95,7 +101,7 @@ namespace Rpg.SciFi.Engine.Tests
 
             _damage.Name = "Something";
 
-            _meta.AddMod(_damage.ModByPath<Dice>("Weapon Damage", "d8", nameof(_damage.Blast)).IsAdditive());
+            _meta.AddMod(TimedModifier.Create(RemoveTurn.WhenZero, _damage, "Weapon Damage", "d8", x => x.Blast));
 
             var state = _meta.Serialize();
 

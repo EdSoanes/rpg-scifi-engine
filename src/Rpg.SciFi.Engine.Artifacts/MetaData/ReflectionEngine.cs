@@ -3,6 +3,7 @@ using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using Rpg.SciFi.Engine.Artifacts.Turns;
 using System.Collections;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -141,8 +142,33 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             var unaryExpression = (UnaryExpression)expression.Body;
             var methodCallExpression = (MethodCallExpression)unaryExpression.Operand;
             var methodInfoExpression = (ConstantExpression)methodCallExpression.Object!;
-            var methodInfo = (MemberInfo)methodInfoExpression.Value!;
-            return $"{methodInfo.DeclaringType!.Name}.{methodInfo.Name}";
+            var methodInfo = (MethodInfo)methodInfoExpression.Value!;
+
+            if (methodInfo.IsStatic)
+                return $"{methodInfo.DeclaringType!.Name}.{methodInfo.Name}";
+
+            var memberExpression = methodCallExpression.Arguments?.Last() as MemberExpression;
+            if (memberExpression != null)
+            {
+                var constantExpression = memberExpression.Expression as ConstantExpression;
+                var fieldInfo = memberExpression?.Member as FieldInfo;
+                var entity = fieldInfo?.GetValue(constantExpression?.Value) as Entity;
+
+                return entity != null
+                    ? $"{entity.Id}.{methodInfo.Name}"
+                    : null;
+            }
+            else
+            {
+                var constantExpression = methodCallExpression.Arguments?.Last() as ConstantExpression;
+                var entity = constantExpression?.Value as Entity;
+
+                return entity != null
+                    ? $"{entity.Id}.{methodInfo.Name}"
+                    : null;
+            }
+            
+            return null;            
         }
 
         private static MethodInfo GetMethodInfo(this object? obj, string method)

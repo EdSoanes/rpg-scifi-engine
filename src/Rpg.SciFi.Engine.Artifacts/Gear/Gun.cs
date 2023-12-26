@@ -43,9 +43,9 @@ namespace Rpg.SciFi.Engine.Artifacts.Gear
                 .OnDiceRollTarget(target, (x) => x.MissileDefence);
 
             action
-                .OnSuccess(this.Mod((x) => x.Damage.Blast, target, (t) => t.Health.Physical).IsAdditive())
-                .OnSuccess(this.Mod((x) => x.Damage.Impact, target, (t) => t.Health.Physical).IsAdditive())
-                .OnSuccess(this.Mod((x) => x.Damage.Pierce, target, (t) => t.Health.Physical).IsAdditive());
+                .OnSuccess(DamageModifier.Create(this, x => x.Damage.Blast, target, t => t.Health.Physical))
+                .OnSuccess(DamageModifier.Create(this, x => x.Damage.Impact, target, t => t.Health.Physical))
+                .OnSuccess(DamageModifier.Create(this, x => x.Damage.Pierce, target, t => t.Health.Physical));
 
             return action;
         }
@@ -61,11 +61,12 @@ namespace Rpg.SciFi.Engine.Artifacts.Gear
         {
             var mods = new List<Modifier>(base.Setup())
             {
-                this.Mod(nameof(BaseRange), _baseRange, (x) => x.BaseRange),
-                this.Mod(nameof(BaseAttack), _baseAttack, (x) => x.BaseAttack),
+                BaseModifier.Create(this, "d6", x => x.Damage.BaseImpact),
+                BaseModifier.Create(this, _baseRange, x => x.BaseRange),
+                BaseModifier.Create(this, _baseAttack,x => x.BaseAttack),
 
-                this.Mod((x) => x.BaseRange, (x) => x.Range),
-                this.Mod((x) => x.BaseAttack, (x) => x.Attack)
+                BaseModifier.Create(this, x => x.BaseRange, x => x.Range),
+                BaseModifier.Create(this, x => x.BaseAttack, x => x.Attack)
             };
 
             return mods.ToArray();

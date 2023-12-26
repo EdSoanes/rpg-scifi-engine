@@ -2,7 +2,6 @@
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using System.Xml.Linq;
 
 namespace Rpg.SciFi.Engine.Artifacts.MetaData
 {
@@ -30,70 +29,100 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
         public bool IsReadOnly => false;
 
-        public List<Modifier>? Get(ModdableProperty? moddableProperty)
+        public List<Modifier>? Get(ModdableProperty? moddableProperty, bool createMissingEntries = false)
         {
             return moddableProperty != null
-                ? Get(moddableProperty.Id, moddableProperty.Prop!)
+                ? Get(moddableProperty.Id, moddableProperty.Prop!, createMissingEntries)
                 : null;
         }
 
-        public List<Modifier>? Get(Guid entityId, string prop)
+        public List<Modifier>? Get(Guid entityId, string prop, bool createMissingEntries = false)
         {
-            return TryGetValue(MakeKey(entityId, prop), out var res)
-                ? res
-                : null;
+            if (createMissingEntries)
+            {
+                if (!_store.ContainsKey(entityId))
+                    _store.Add(entityId, new Dictionary<string, List<Modifier>>());
+
+                var entityMods = _store[entityId];
+                if (!entityMods.ContainsKey(prop))
+                    entityMods.Add(prop, new List<Modifier>());
+
+                return entityMods[prop];
+            }
+            else
+            {
+                return TryGetValue(MakeKey(entityId, prop), out var res)
+                    ? res
+                    : null;
+            }
         }
 
         public void Add(Modifier[] mods)
         {
             foreach (var mod in mods)
-                Add(mod.IsBase());
-        }
-
-        public void Add(Modifier mod)
-        {
-            if (!string.IsNullOrEmpty(mod.Target.Prop))
-            {
-                if (!_store.ContainsKey(mod.Target.Id))
-                    _store.Add(mod.Target.Id, new Dictionary<string, List<Modifier>>());
-
-                var entityMods = _store[mod.Target.Id];
-                if (!entityMods.ContainsKey(mod.Target.Prop))
-                    entityMods.Add(mod.Target.Prop, new List<Modifier>());
-
-                var mods = entityMods[mod.Target.Prop];
-                if (!mods.Any(x => x.Id == mod.Id))
-                    mods.Add(mod);
-            }
+                Add(mod);
         }
 
         public void Add(string key, List<Modifier> value)
         {
-            if (TryParseKey(key, out (Guid, string) res))
-            {
-                if (!_store.ContainsKey(res.Item1))
-                    _store.Add(res.Item1, new Dictionary<string, List<Modifier>>());
-
-                var entityMods = _store[res.Item1];
-                if (!entityMods.ContainsKey(res.Item2))
-                    entityMods.Add(res.Item2, value);
-                else
-                    entityMods[res.Item2] = value;
-            }
+            foreach (var mod in value)
+                Add(mod);
         }
 
         public void Add(KeyValuePair<string, List<Modifier>> item) => Add(item.Key, item.Value);
+
+        public void Add(Modifier mod)
+        {
+            var mods = Get(mod.Target, true)!;
+            if (mod.ModifierAction == ModifierAction.Accumulate || mod.Target.IsDiceProperty)
+            {
+                mods.Add(mod);
+            }
+
+            else
+            {
+                var existingMods = mods
+                    .Where(x => x.Id == mod.Id || (x.Name == mod.Name && x.ModifierType == mod.ModifierType))
+                    .ToList();
+
+                if (mod.ModifierAction == ModifierAction.Sum)
+                {
+                    Dice dice = Dice.Sum(existingMods.Select(x => SourceDice(x))) + SourceDice(mod);
+                    mod.SetDice(dice);
+                }
+
+                foreach (var existingMod in existingMods)
+                    mods.Remove(existingMod);
+
+                mods.Add(mod);
+            }
+        }
 
         public Dice Evaluate(Modifier modifier)
         {
             var sourceEntity = Context.Get(modifier.Source);
             var targetEntity = Context.Get(modifier.Target);
 
-            var dice = SourceDice(sourceEntity, modifier);
+            var dice = SourceDice(modifier, sourceEntity);
             if (!string.IsNullOrEmpty(modifier.DiceCalc))
             {
-                var val = (sourceEntity ?? targetEntity)?.ExecuteFunction<Dice, Dice>(modifier.DiceCalc, dice);
-                return val ?? "0";
+                var parts = modifier.DiceCalc.Split('.', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                var entity = sourceEntity ?? targetEntity;
+
+                if (parts.Length == 2)
+                {
+                    if (Guid.TryParse(parts[0], out var id))
+                        entity = Context.Get(id);
+                    else
+                        entity = null;
+                }
+
+                var funcName = entity != null
+                    ? parts.Last()
+                    : modifier.DiceCalc;
+
+                Dice val = entity.ExecuteFunction<Dice, Dice>(funcName, dice);
+                return val;
             }
 
             return dice;
@@ -134,13 +163,21 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             return dice.Roll();
         }
 
-        public string[] Describe(Entity entity, string prop)
+        public string[] Describe(ModdableProperty? moddableProperty, bool includeEntityInformation = false)
+        {
+            if (moddableProperty == null)
+                return new string[0];
+
+            return Describe(Context.Get(moddableProperty.Id)!, moddableProperty.Prop!, includeEntityInformation);
+        }
+
+        public string[] Describe(Entity entity, string prop, bool includeEntityInformation = false)
         {
             var res = new List<string> { $"{entity.Name}.{prop} => {Evaluate(entity.Id, prop)}" };
 
             var mods = Get(entity.Id, prop);
             var descriptions = mods?
-                .SelectMany(x => Describe(x))
+                .SelectMany(x => Describe(x, includeEntityInformation))
                 .ToArray();
 
             res.AddRange(descriptions ?? new string[0]);
@@ -152,8 +189,8 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         {
             var desc = DescribeSource(modifier, includeEntityInformation);
 
-            if (includeEntityInformation && Context.Get(modifier.Target.Id)?.MetaData != null)
-                desc += $" to {DescribeTarget(modifier)}";
+            //if (includeEntityInformation && Context.Get(modifier.Target.Id)?.MetaData != null)
+            //    desc += $" to {DescribeTarget(modifier)}";
 
             var res = new List<string>() { desc };
 
@@ -169,17 +206,28 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
         private string DescribeSource(Modifier mod, bool includeEntityInformation = false)
         {
-            var rootEntity = mod.Source != null ? Context.Get(mod.Source.RootId) : null;
+            if (mod.Source == null)
+                return $"{mod.Name} => {mod.Dice ?? "0"}";
+
+            var rootEntity = Context.Get(mod.Source.RootId);
             var sourceEntity = Context.Get(mod.Source);
 
-            var desc = includeEntityInformation
-                ? $"{rootEntity?.Name}.{sourceEntity?.Name}."
-                : "";
-            
-            desc += $"{mod.Source?.Prop ?? mod.Source?.Method ?? mod.Name} => {SourceDice(sourceEntity, mod)}";
+            var desc = "";
+            if (includeEntityInformation)
+            {
+                desc += rootEntity?.Id != sourceEntity?.Id
+                    ? $"{rootEntity?.Name}.{sourceEntity?.Name}"
+                    : sourceEntity?.Name;
 
-            if (mod.DiceCalc != null && mod.Source?.Prop != null)
-                desc += $" => {mod.DiceCalc}() => {Evaluate(mod.Source.Id, mod.Source.Prop)}";
+                desc = desc.Trim('.');
+                if (!string.IsNullOrEmpty(desc))
+                    desc += ".";
+            }
+
+            desc += $"{mod.Source.Prop ?? mod.Source.Method ?? mod.Name} => {SourceDice(mod, sourceEntity)}";
+
+            if (mod.DiceCalc != null)
+                desc += $" => {DescribeDiceCalc(mod.DiceCalc)}() => {Evaluate(mod)}";
 
             return desc;
         }
@@ -192,13 +240,31 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             return $"{rootEntity?.Name}.{targetEntity?.Name}.{modifier.Target.Prop}".Trim('.');
         }
 
-        public Dice SourceDice(Entity? entity, Modifier mod)
+        private string DescribeDiceCalc(string? diceCalc)
         {
-            Dice dice = mod.Dice 
-                ?? (mod.Source?.Prop != null ? entity?.PropertyValue<string>(mod.Source.Prop) : null)
-                ?? "0";
+            if (string.IsNullOrEmpty(diceCalc))
+                return diceCalc;
 
-            return dice;
+            var parts = diceCalc.Split('.', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 1)
+                return diceCalc;
+
+            if (parts.Length == 2 && Guid.TryParse(parts[0], out var id))
+                return $"{Context.Get(id)?.Name}.{parts[1]}".Trim('.');
+
+            return diceCalc;
+        }
+
+        public Dice SourceDice(Modifier mod, Entity? sourceEntity = null)
+        {
+            if (mod.Dice != null)
+                return mod.Dice.Value;
+
+            sourceEntity ??= mod.Source != null
+                ? Context.Get(mod.Source.Id)
+                : null;
+
+            return sourceEntity?.PropertyValue<string>(mod.Source!.Prop!) ?? "0";
         }
 
         public void Clear() => _store.Clear();

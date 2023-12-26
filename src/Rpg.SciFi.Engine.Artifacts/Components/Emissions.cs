@@ -40,15 +40,15 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         {
             return new[]
             {
-                this.Mod(nameof(BaseMin), _baseMin, (x) => x.BaseMin),
-                this.Mod(nameof(BaseMax), _baseMax, (x) => x.BaseMax),
-                this.Mod(nameof(BaseValue), _baseValue, (x) => x.BaseValue),
-                this.Mod(nameof(BaseRadius), _baseRadius, (x) => x.BaseRadius),
+                BaseModifier.Create(this, _baseMin, x => x.BaseMin),
+                BaseModifier.Create(this, _baseMax, x => x.BaseMax),
+                BaseModifier.Create(this, _baseValue, x => x.BaseValue),
+                BaseModifier.Create(this, _baseRadius, x => x.BaseRadius),
 
-                this.Mod((x) => x.BaseMin, (x) => x.Min),
-                this.Mod((x) => x.BaseMax, (x) => x.Max),
-                this.Mod((x) => x.BaseValue, (x) => x.Value),
-                this.Mod((x) => x.BaseRadius, (x) => x.Radius)
+                BaseModifier.Create(this, x => x.BaseMin, x => x.BaseMin),
+                BaseModifier.Create(this, x => x.BaseMax, x => x.BaseMax),
+                BaseModifier.Create(this, x => x.BaseValue, x => x.BaseValue),
+                BaseModifier.Create(this, x => x.BaseRadius, x => x.BaseRadius)
             };
         }
     }

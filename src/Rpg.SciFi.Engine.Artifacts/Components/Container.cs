@@ -22,7 +22,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         {
             return new[]
             {
-                this.Mod(nameof(MaxCapacity), _maxCapacity, x => x.MaxCapacity)
+                BaseModifier.Create(this, _maxCapacity, x => x.MaxCapacity)
             };
         }
 

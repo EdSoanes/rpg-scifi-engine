@@ -1,7 +1,9 @@
 ﻿using Rpg.SciFi.Engine.Artifacts;
+using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Gear;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
+using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using Rpg.SciFi.Engine.Artifacts.Turns;
 
 namespace Rpg.SciFi.Engine.Tests
@@ -33,13 +35,21 @@ namespace Rpg.SciFi.Engine.Tests
             _meta = new Meta<Game>();
             _meta.Initialize(_game);
 
-            _meta.AddMod(player.Mod("Strength", 18, x => x.Stats.BaseStrength).IsPlayer());
-            _meta.AddMod(player.Mod("Dexterity", 5, x => x.Stats.BaseDexterity).IsPlayer());
-            _meta.AddMod(player.Mod("Intelligence", 14, x => x.Stats.BaseIntelligence).IsPlayer());
+            _meta.AddMod(PlayerModifier.Create(player, 18, x => x.Stats.BaseStrength));
+            _meta.AddMod(PlayerModifier.Create(player, 5, x => x.Stats.BaseDexterity));
+            _meta.AddMod(PlayerModifier.Create(player, 14, x => x.Stats.BaseIntelligence));
 
-            _meta.AddMod(player.Mod("Actions", 18, x => x.Turns.BaseAction).IsPlayer());
-            _meta.AddMod(player.Mod("Exertion", 5, x => x.Turns.BaseExertion).IsPlayer());
-            _meta.AddMod(player.Mod("Focus", 14, x => x.Turns.BaseFocus).IsPlayer());
+            _meta.AddMod(PlayerModifier.Create(player, 5, x => x.Turns.BaseAction));
+            _meta.AddMod(PlayerModifier.Create(player, 5, x => x.Turns.BaseExertion));
+            _meta.AddMod(PlayerModifier.Create(player, 5, x => x.Turns.BaseFocus));
+
+            _meta.AddMod(PlayerModifier.Create(_target, 18, x => x.Stats.BaseStrength));
+            _meta.AddMod(PlayerModifier.Create(_target, 5, x => x.Stats.BaseDexterity));
+            _meta.AddMod(PlayerModifier.Create(_target, 14, x => x.Stats.BaseIntelligence));
+
+            _meta.AddMod(PlayerModifier.Create(_target, 5, x => x.Turns.BaseAction));
+            _meta.AddMod(PlayerModifier.Create(_target, 5, x => x.Turns.BaseExertion));
+            _meta.AddMod(PlayerModifier.Create(_target, 5, x => x.Turns.BaseFocus));
         }
 
         [TestMethod]
@@ -68,40 +78,64 @@ namespace Rpg.SciFi.Engine.Tests
             var successDesc = action.Success.SelectMany(x => _meta.Describe(x, true));
             var failureDesc = action.Failure.SelectMany(x => _meta.Describe(x, true));
 
-            Assert.AreEqual<string>("1d20 - 1", action.DiceRoll);
+            Assert.AreEqual<string>("1d20 - 2", action.DiceRoll);
             Assert.AreEqual<string>("11", action.DiceRollTarget);
         }
 
         [TestMethod]
         public void Character_Gun_Fire_Success()
         {
-            var action = _gun.Fire(_game.Character, _target, 3);
-            Assert.AreEqual(8, _game.Character.Turns.Action);
             Assert.AreEqual(10, _target.Health.Physical);
+            var action = _gun.Fire(_game.Character, _target, 3);
+
+            var desc = _game.Character.Describe(x => x.Turns.Action);
+            var descHealth = _game.Character.Describe(x => x.Health.Physical);
+
+            Assert.AreEqual(10, _target.Health.Physical);
+            Assert.AreEqual(2, _game.Character.Turns.Action);
+            Assert.AreEqual(9, _game.Character.Turns.Exertion);
+            Assert.AreEqual(7, _game.Character.Turns.Focus);
 
             var oldHealth = _target.Health.Physical;
             var nextAction = _meta.Apply(_game.Character, action, 11);
             Assert.IsNull(nextAction);
 
-            Assert.AreEqual(5, _game.Character.Turns.Action);
+            var da = _game.Character.Describe(x => x.Turns.Action);
+            var de = _game.Character.Describe(x => x.Turns.Exertion);
+            var df = _game.Character.Describe(x => x.Turns.Focus);
+
             Assert.IsTrue(oldHealth > _target.Health.Physical);
+            Assert.AreEqual(-1, _game.Character.Turns.Action);
+            Assert.AreEqual(8, _game.Character.Turns.Exertion);
+            Assert.AreEqual(6, _game.Character.Turns.Focus);
         }
 
         [TestMethod]
         public void Character_Gun_Fire_Failure()
         {
+            Assert.AreEqual(10, _target.Health.Physical);
             var action = _gun.Fire(_game.Character, _target, 3);
 
-            Assert.IsNotNull(_game.Character.Turns.Describe("Action"));
-            Assert.AreEqual(8, _game.Character.Turns.Action);
+            var desc = _game.Character.Describe(x => x.Turns.Action);
+            var descHealth = _game.Character.Describe(x => x.Health.Physical);
+
             Assert.AreEqual(10, _target.Health.Physical);
+            Assert.AreEqual(2, _game.Character.Turns.Action);
+            Assert.AreEqual(9, _game.Character.Turns.Exertion);
+            Assert.AreEqual(7, _game.Character.Turns.Focus);
 
             var oldHealth = _target.Health.Physical;
             var nextAction = _meta.Apply(_game.Character, action, 4);
             Assert.IsNull(nextAction);
 
-            Assert.AreEqual(5, _game.Character.Turns.Action);
+            var da = _game.Character.Describe(x => x.Turns.Action);
+            var de = _game.Character.Describe(x => x.Turns.Exertion);
+            var df = _game.Character.Describe(x => x.Turns.Focus);
+
             Assert.IsTrue(oldHealth == _target.Health.Physical);
+            Assert.AreEqual(-1, _game.Character.Turns.Action);
+            Assert.AreEqual(8, _game.Character.Turns.Exertion);
+            Assert.AreEqual(6, _game.Character.Turns.Focus);
         }
     }
 }
