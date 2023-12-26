@@ -1,11 +1,8 @@
 ﻿using Newtonsoft.Json;
-using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using Rpg.SciFi.Engine.Artifacts.Turns;
-using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace Rpg.SciFi.Engine.Artifacts.MetaData
@@ -25,7 +22,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         List<Modifier>? GetMods(Guid id, string prop);
         List<Modifier>? GetMods(ModdableProperty? moddableProperty);
         List<Modifier>? GetMods(Entity entity, string prop);
-        List<Modifier>? GetMods<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression);
+        List<Modifier>? GetMods<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression) where TEntity: Entity;
 
         void ClearMods(Guid entityId);
 
@@ -45,6 +42,10 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         string[] Describe(Modifier mod, bool includeEntityInformation = false);
         string[] Describe(ModdableProperty? moddableProperty, bool includeEntityInformation = false);
 
+        int CurrentTurn { get; }
+        void StartEncounter();
+        void EndEncounter();
+        void IncrementTurn();
         TurnAction CreateTurnAction(string name, int actionCost, int exertionCost, int focusCost);
     }
 
@@ -64,11 +65,13 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         [JsonProperty] public T? Context { get; private set; }
         [JsonProperty] protected MetaEntityStore Entities { get; set; }
         [JsonProperty] protected MetaModifierStore Mods { get; set; }
+        [JsonProperty] protected MetaEncounter Encounter { get; set; }
 
         public Meta()
         {
             Entities = new MetaEntityStore();
             Mods = new MetaModifierStore();
+            Encounter = new MetaEncounter();
 
             InitContext();
         }
@@ -77,6 +80,8 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         {
             Mods.Clear();
             Entities.Clear();
+            Encounter.EndEncounter();
+
             Context = context;
 
             Entities.Add(Context);
@@ -114,7 +119,9 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         public List<Modifier>? GetMods(Guid id, string prop) => Mods.Get(id, prop);
         public List<Modifier>? GetMods(ModdableProperty? moddableProperty) => Mods.Get(moddableProperty);
         public List<Modifier>? GetMods(Entity entity, string prop) => Mods.Get(entity.Id, prop);
-        public List<Modifier>? GetMods<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression) => Mods.Get(ModdableProperty.Create(entity, expression, true));
+        public List<Modifier>? GetMods<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
+            where TEntity: Entity
+                => Mods.Get(ModdableProperty.Create(entity, expression, true));
 
         public bool RemoveMods(int currentTurn) => Mods.Remove(currentTurn);
         public bool RemoveMods(Guid entityId, string prop) => Mods.Remove(entityId, prop);
@@ -148,6 +155,25 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                 if (mods != null)
                     Mods.Add(mods);
             }
+        }
+
+        public int CurrentTurn => Encounter.CurrentTurn;
+        public void StartEncounter()
+        {
+            Encounter.StartEncounter();
+            Mods.Remove(Encounter.CurrentTurn);
+        }
+
+        public void EndEncounter()
+        {
+            Encounter.EndEncounter();
+            Mods.Remove(Encounter.CurrentTurn);
+        }
+
+        public void IncrementTurn()
+        {
+            Encounter.IncrementTurn();
+            Mods.Remove(Encounter.CurrentTurn);
         }
 
         public TurnAction CreateTurnAction(string name, int actionCost, int exertionCost, int focusCost)

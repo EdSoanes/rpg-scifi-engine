@@ -19,7 +19,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
         public const string Base = "Base";
         public const string Damage = "Damage";
         public const string Cost = "Cost";
-        public const string Health = "Health";
+        public const string Turn = "Turn";
     }
 
     public enum ModifierType

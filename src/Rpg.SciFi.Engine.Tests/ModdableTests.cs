@@ -82,5 +82,122 @@ namespace Rpg.SciFi.Engine.Tests
 
             Assert.AreEqual(2, entity.PropertyValue<int>(nameof(AnEntity.BaseIntValue)));
         }
+
+        [TestMethod]
+        public void ModdableValue_RemoveOn_Turn3()
+        {
+            Assert.AreEqual(0, _meta.CurrentTurn);
+            Assert.AreEqual(0, _anEntity.ModdableValue);
+
+            _meta.StartEncounter();
+            _meta.AddMod(TimedModifier.Create(3, _anEntity, "Weakened", 1, x => x.ModdableValue, () => Rules.Minus));
+            
+            Assert.AreEqual(1, _meta.CurrentTurn);
+            Assert.AreEqual(-1, _anEntity.ModdableValue);
+
+            _meta.IncrementTurn();
+
+            Assert.AreEqual(2, _meta.CurrentTurn);
+            Assert.AreEqual(-1, _anEntity.ModdableValue);
+
+            _meta.IncrementTurn();
+
+            Assert.AreEqual(3, _meta.CurrentTurn);
+            Assert.AreEqual(0, _anEntity.ModdableValue);
+        }
+
+        [TestMethod]
+        public void ModdableValue_RemoveOn_Turn3_WithTurnMod()
+        {
+            Assert.AreEqual(0, _meta.CurrentTurn);
+            Assert.AreEqual(0, _anEntity.ModdableValue);
+            Assert.AreEqual(1, _anEntity.ModdedValue);
+
+            _meta.StartEncounter();
+            _meta.AddMod(TimedModifier.Create(3, _anEntity, "Weakened", 1, x => x.ModdableValue, () => Rules.Minus));
+            _meta.AddMod(TurnModifier.Create("Noise", 10, _anEntity, x => x.ModdedValue));
+
+            Assert.AreEqual(1, _meta.CurrentTurn);
+            Assert.AreEqual(-1, _anEntity.ModdableValue);
+            Assert.AreEqual(11, _anEntity.ModdedValue);
+
+            _meta.IncrementTurn();
+
+            Assert.AreEqual(2, _meta.CurrentTurn);
+            Assert.AreEqual(-1, _anEntity.ModdableValue);
+            Assert.AreEqual(1, _anEntity.ModdedValue);
+
+            _meta.IncrementTurn();
+
+            Assert.AreEqual(3, _meta.CurrentTurn);
+            Assert.AreEqual(0, _anEntity.ModdableValue);
+            Assert.AreEqual(1, _anEntity.ModdedValue);
+        }
+
+        [TestMethod]
+        public void ModdableValue_RemoveOn_EndEncounter()
+        {
+            Assert.AreEqual(0, _meta.CurrentTurn);
+            Assert.AreEqual(0, _anEntity.ModdableValue);
+
+            _meta.StartEncounter();
+            _meta.AddMod(TimedModifier.Create(RemoveTurn.Encounter, _anEntity, "Weakened", 1, x => x.ModdableValue, () => Rules.Minus));
+
+            Assert.AreEqual(1, _meta.CurrentTurn);
+            Assert.AreEqual(-1, _anEntity.ModdableValue);
+
+            _meta.IncrementTurn();
+
+            Assert.AreEqual(2, _meta.CurrentTurn);
+            Assert.AreEqual(-1, _anEntity.ModdableValue);
+
+            _meta.IncrementTurn();
+
+            Assert.AreEqual(3, _meta.CurrentTurn);
+            Assert.AreEqual(-1, _anEntity.ModdableValue);
+
+            _meta.EndEncounter();
+
+            Assert.AreEqual(0, _meta.CurrentTurn);
+            Assert.AreEqual(0, _anEntity.ModdableValue);
+        }
+
+        [TestMethod]
+        public void ModdableValue_Remove_WhenZero()
+        {
+            _meta.AddMod(BaseModifier.Create(_anEntity, 1, x => x.ModdableValue));
+
+            Assert.AreEqual(0, _meta.CurrentTurn);
+            Assert.AreEqual(1, _anEntity.ModdableValue);
+            Assert.AreEqual(1, _meta.GetMods(_anEntity, x => x.ModdableValue)!.Count());
+
+            _meta.StartEncounter();
+            _meta.AddMod(DamageModifier.Create(1, _anEntity, x => x.ModdableValue));
+
+            Assert.AreEqual(1, _meta.CurrentTurn);
+            Assert.AreEqual(0, _anEntity.ModdableValue);
+            Assert.AreEqual(2, _meta.GetMods(_anEntity, x => x.ModdableValue)!.Count());
+
+            _meta.IncrementTurn();
+
+            Assert.AreEqual(2, _meta.CurrentTurn);
+            Assert.AreEqual(0, _anEntity.ModdableValue);
+
+            _meta.IncrementTurn();
+
+            Assert.AreEqual(3, _meta.CurrentTurn);
+            Assert.AreEqual(0, _anEntity.ModdableValue);
+
+            _meta.EndEncounter();
+
+            Assert.AreEqual(0, _meta.CurrentTurn);
+            Assert.AreEqual(0, _anEntity.ModdableValue);
+
+            _meta.AddMod(HealingModifier.Create(1, _anEntity, x => x.ModdableValue));
+
+            Assert.AreEqual(0, _meta.CurrentTurn);
+            Assert.AreEqual(1, _anEntity.ModdableValue);
+            Assert.AreEqual(1, _meta.GetMods(_anEntity, x => x.ModdableValue)!.Count());
+        }
     }
 }

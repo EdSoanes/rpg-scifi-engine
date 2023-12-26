@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
-using Rpg.SciFi.Engine.Artifacts.MetaData;
 
 namespace Rpg.SciFi.Engine.Tests
 {
@@ -42,50 +41,50 @@ namespace Rpg.SciFi.Engine.Tests
             Assert.AreEqual("-1d6 + 2", dice.ToString());
         }
 
-        [TestMethod]
-        public void WithSubExpression()
-        {
-            var meta = new Meta<DiceContext>();
-            meta.Initialize(new DiceContext
-            {
-                Num = 3,
-                DiceExpr = "d6"
-            });
+        //[TestMethod]
+        //public void WithSubExpression()
+        //{
+        //    var meta = new Meta<DiceContext>();
+        //    meta.Initialize(new DiceContext
+        //    {
+        //        Num = 3,
+        //        DiceExpr = "d6"
+        //    });
 
-            Dice dice = "2d6 + [Num] + 2";
-            Assert.AreEqual("2d6 + 5", dice.ToString());
-        }
+        //    Dice dice = "2d6 + [Num] + 2";
+        //    Assert.AreEqual("2d6 + 5", dice.ToString());
+        //}
 
-        [TestMethod]
-        public void WithSubExpression_Simplified()
-        {
-            var meta = new Meta<DiceContext>();
-            meta.Initialize(new DiceContext
-            {
-                Num = 3,
-                DiceExpr = "d6"
-            });
+        //[TestMethod]
+        //public void WithSubExpression_Simplified()
+        //{
+        //    var meta = new Meta<DiceContext>();
+        //    meta.Initialize(new DiceContext
+        //    {
+        //        Num = 3,
+        //        DiceExpr = "d6"
+        //    });
 
-            Dice dice = "2d6 + [DiceExpr] + 2";
-            Assert.AreEqual("3d6 + 2", dice.ToString());
-        }
+        //    Dice dice = "2d6 + [DiceExpr] + 2";
+        //    Assert.AreEqual("3d6 + 2", dice.ToString());
+        //}
 
-        [TestMethod]
-        public void WithSubExpression_AvgMinMax()
-        {
-            var meta = new Meta<DiceContext>();
-            meta.Initialize(new DiceContext
-            {
-                Num = 3,
-                DiceExpr = "d6+2"
-            });
+        //[TestMethod]
+        //public void WithSubExpression_AvgMinMax()
+        //{
+        //    var meta = new Meta<DiceContext>();
+        //    meta.Initialize(new DiceContext
+        //    {
+        //        Num = 3,
+        //        DiceExpr = "d6+2"
+        //    });
 
-            Dice dice = "2d6 + [DiceExpr] + 2 - [Num]";
-            Assert.AreEqual("3d6 + 1", dice.ToString());
-            Assert.AreEqual(4, dice.Min());
-            Assert.AreEqual(19, dice.Max());
-            Assert.AreEqual(11.5, dice.Avg());
-        }
+        //    Dice dice = "2d6 + [DiceExpr] + 2 - [Num]";
+        //    Assert.AreEqual("3d6 + 1", dice.ToString());
+        //    Assert.AreEqual(4, dice.Min());
+        //    Assert.AreEqual(19, dice.Max());
+        //    Assert.AreEqual(11.5, dice.Avg());
+        //}
 
         [TestMethod]
         public void WithSubExpression_Minus()

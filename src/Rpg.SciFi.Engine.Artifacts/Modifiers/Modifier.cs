@@ -72,6 +72,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
         {
             Dice = dice;
             Source = null;
+            DiceCalc = null;
         }
 
         public bool ShouldBeRemoved(int turn)
@@ -87,7 +88,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
                 if (RemoveOnTurn == RemoveTurn.Encounter && turn == 0)
                     return true;
 
-                return RemoveOnTurn <= turn;
+                return RemoveOnTurn > 0 && (RemoveOnTurn <= turn || turn == 0);
             }
 
             if (ModifierType == ModifierType.State)
