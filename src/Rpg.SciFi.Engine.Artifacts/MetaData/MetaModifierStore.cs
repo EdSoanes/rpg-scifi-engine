@@ -94,8 +94,14 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                 foreach (var existingMod in existingMods)
                     mods.Remove(existingMod);
 
-                if (mod.ModifierType != ModifierType.Transient || Evaluate(mod) != Dice.Zero)
+                if (mod.ModifierType != ModifierType.Transient)
                     mods.Add(mod);
+                else
+                {
+                    var dice = Evaluate(mod);
+                    if (!dice.IsConstant || dice.Roll() != 0)
+                        mods.Add(mod);
+                }
             }
         }
 

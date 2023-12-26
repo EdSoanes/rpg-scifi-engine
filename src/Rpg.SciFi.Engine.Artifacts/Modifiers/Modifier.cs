@@ -1,11 +1,7 @@
 ﻿using Newtonsoft.Json;
-using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
-using System.Diagnostics.Metrics;
 using System.Linq.Expressions;
-using System.Numerics;
-using System.Reflection.Metadata;
 
 namespace Rpg.SciFi.Engine.Artifacts.Modifiers
 {
@@ -102,6 +98,37 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
         public bool CanBeCleared()
         {
             return !IsPermanent;
+        }
+
+        public override string ToString()
+        {
+            var modType = ModifierType switch
+            {
+                ModifierType.Base => "b",
+                ModifierType.Custom => "c",
+                ModifierType.State => "s",
+                ModifierType.Transient => "t",
+                ModifierType.Player => "p",
+                _ => "_"
+            };
+
+            var actionType = ModifierAction switch
+            {
+                ModifierAction.Replace => "r",
+                ModifierAction.Sum => "s",
+                ModifierAction.Accumulate => "a",
+                _ => "_"
+            };
+
+            var removeOnTurn = RemoveOnTurn.ToString();
+            if (RemoveOnTurn == RemoveTurn.This)
+                removeOnTurn = "t";
+            else if (RemoveOnTurn == RemoveTurn.Encounter)
+                removeOnTurn = "e";
+            else if (RemoveOnTurn == RemoveTurn.WhenZero)
+                removeOnTurn = "z";
+
+            return $"({modType},{actionType},{removeOnTurn}) {Name} {(Dice != null ? Dice : null)} => {Target.Prop}";
         }
     }
 }

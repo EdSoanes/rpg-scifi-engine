@@ -25,7 +25,7 @@ namespace Rpg.SciFi.Engine.Tests
             };
 
             var player = new Character("The Player");
-            player.Equipment.Add(_gun);
+            player.AddArtifact(Container.LeftHand, _gun);
 
             _target = new Character("The Target");
 

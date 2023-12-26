@@ -6,6 +6,10 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
 {
     public class Container : Entity
     {
+        public const string LeftHand = "LeftHand";
+        public const string RightHand = "RightHand";
+        public const string Equipment = "Equipment";
+
         private readonly int _maxCapacity;
         public Container(int maxCapacity = int.MaxValue)
         {
@@ -39,13 +43,15 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
 
         public Artifact? Get(Guid id) => Artifacts.FirstOrDefault(x => x.Id == id);
 
-        public void Remove(Guid id)
+        public Artifact? Remove(Guid id)
         {
             if (!Artifacts.Any(x => x.Id == id))
                 throw new ArgumentException($"Artifact {id} does not exist in container");
             
             var toRemove = Artifacts.Single(x => x.Id == id);
             Artifacts.Remove(toRemove);
+
+            return toRemove;
         }
 
         public void Clear()

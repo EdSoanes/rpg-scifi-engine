@@ -14,11 +14,14 @@ namespace Rpg.SciFi.Engine.Artifacts
         {
             Name = name;
             Health = new Health(10, 10);
+
+            Containers.Add(Container.LeftHand, new Container());
+            Containers.Add(Container.RightHand, new Container());
+            Containers.Add(Container.Equipment, new Container());
         }
 
         [JsonProperty] public TurnPoints Turns { get; private set; } = new TurnPoints();
         [JsonProperty] public StatPoints Stats { get; private set; } = new StatPoints();
-        [JsonProperty] public Container Equipment { get; private set; } = new Container();
         [JsonProperty] public Damage Damage { get; private set; } = new Damage();
 
         [Setup]
