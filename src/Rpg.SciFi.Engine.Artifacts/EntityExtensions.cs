@@ -14,7 +14,7 @@ namespace Rpg.SciFi.Engine.Artifacts
 
         public static string[] Describe<T, TResult>(this T entity, Expression<Func<T, TResult>> expression) where T : Entity
         {
-            var moddableProperty = ModdableProperty.Create(entity, expression);
+            var moddableProperty = PropReference.FromPath(entity, expression);
             return entity.Describe(moddableProperty);
         }
 

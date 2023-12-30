@@ -30,7 +30,7 @@ namespace Rpg.SciFi.Engine.Tests
             _target = new Character("The Target");
 
             _game.Character = player;
-            _game.Environment.Contains.Add(_target);
+            _game.Environment.GetContainer(Container.Environment)!.Add(_target);
 
             _meta = new Meta<Game>();
             _meta.Initialize(_game);
@@ -73,8 +73,8 @@ namespace Rpg.SciFi.Engine.Tests
         {
             var action = _gun.Fire(_game.Character, _target, 3);
 
-            var diceRollDesc = action.Describe(nameof(TurnAction.DiceRoll));
-            var diceRollTargetDesc = action.Describe(nameof(TurnAction.DiceRollTarget));
+            var diceRollDesc = action.Describe(nameof(Artifacts.Turns.Action.DiceRoll));
+            var diceRollTargetDesc = action.Describe(nameof(Artifacts.Turns.Action.DiceRollTarget));
             var successDesc = action.Success.SelectMany(x => _meta.Describe(x, true));
             var failureDesc = action.Failure.SelectMany(x => _meta.Describe(x, true));
 

@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace Rpg.SciFi.Engine.Artifacts.Turns
 {
-    public class TurnAction : Entity
+    public class Action : Entity
     {
         private readonly int _baseAction;
         private readonly int _baseExertion;
@@ -15,9 +15,9 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
         [JsonProperty] private int? Resolution { get; set; }
         [JsonProperty] private int? TargetResolution { get; set; }
 
-        [JsonConstructor] private TurnAction() { }
+        [JsonConstructor] private Action() { }
 
-        public TurnAction(string name, int actionCost, int exertionCost, int focusCost)
+        public Action(string name, int actionCost, int exertionCost, int focusCost)
         {
             Name = name;
 
@@ -26,37 +26,37 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
             _baseFocus = focusCost;
         }
 
+        [Moddable] public int BaseActionCost { get => this.Resolve(nameof(BaseActionCost)); }
+        [Moddable] public int BaseExertionCost { get => this.Resolve(nameof(BaseExertionCost)); }
+        [Moddable] public int BaseFocusCost { get => this.Resolve(nameof(BaseFocusCost)); }
+
+        [Moddable] public int ActionCost { get => this.Resolve(nameof(ActionCost)); }
+        [Moddable] public int ExertionCost { get => this.Resolve(nameof(ExertionCost)); }
+        [Moddable] public int FocusCost { get => this.Resolve(nameof(FocusCost)); }
+
         [JsonProperty] public List<Modifier> Success { get; private set; } = new List<Modifier>();
         [JsonProperty] public List<Modifier> Failure { get; private set; } = new List<Modifier>();
-
-        [Moddable] public int BaseAction { get => this.Resolve(nameof(BaseAction)); }
-        [Moddable] public int BaseExertion { get => this.Resolve(nameof(BaseExertion)); }
-        [Moddable] public int BaseFocus { get => this.Resolve(nameof(BaseFocus)); }
-
-        [Moddable] public int Action { get => this.Resolve(nameof(Action)); }
-        [Moddable] public int Exertion { get => this.Resolve(nameof(Exertion)); }
-        [Moddable] public int Focus { get => this.Resolve(nameof(Focus)); }
 
         [Moddable] public Dice DiceRoll { get => Evaluate(nameof(DiceRoll)); }
         [Moddable] public Dice DiceRollTarget { get => Evaluate(nameof(DiceRollTarget)); }
 
         public bool IsResolved { get => Resolution != null; }
 
-        private TurnAction? SuccessAction { get; set; }
-        private TurnAction? FailureAction { get; set; }
+        private Action? SuccessAction { get; set; }
+        private Action? FailureAction { get; set; }
 
         [Setup]
         public Modifier[] Setup()
         {
             return new[]
             {
-                BaseModifier.Create(this, _baseAction, x => BaseAction),
-                BaseModifier.Create(this, _baseExertion, x => BaseExertion),
-                BaseModifier.Create(this, _baseFocus, x => BaseFocus),
+                BaseModifier.Create(this, _baseAction, x => BaseActionCost),
+                BaseModifier.Create(this, _baseExertion, x => BaseExertionCost),
+                BaseModifier.Create(this, _baseFocus, x => BaseFocusCost),
 
-                BaseModifier.Create(this, x => BaseAction, x => Action),
-                BaseModifier.Create(this, x => BaseExertion, x => Exertion),
-                BaseModifier.Create(this, x => BaseFocus, x => Focus)
+                BaseModifier.Create(this, x => BaseActionCost, x => ActionCost),
+                BaseModifier.Create(this, x => BaseExertionCost, x => ExertionCost),
+                BaseModifier.Create(this, x => BaseFocusCost, x => FocusCost)
             };
         }
 
@@ -75,7 +75,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
             return res.ToArray();
         }
 
-        public TurnAction? NextAction()
+        public Action? NextAction()
         {
             if (IsResolved)
             {
@@ -89,7 +89,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
             return null;
         }
 
-        public TurnAction OnSuccess(Modifier mod)
+        public Action OnSuccess(Modifier mod)
         {
             if (!IsResolved && !Success.Any(x => x.Id == mod.Id))
                 Success.Add(mod);
@@ -97,7 +97,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
             return this;
         }
 
-        public TurnAction OnFailure(Modifier mod)
+        public Action OnFailure(Modifier mod)
         {
             if (!IsResolved && !Failure.Any(x => x.Id == mod.Id))
                 Failure.Add(mod);
@@ -105,7 +105,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
             return this;
         }
 
-        public TurnAction OnSuccessAction(Modifier mod, string? name = null, int actionCost = 0, int exertionCost = 0, int focusCost = 0)
+        public Action OnSuccessAction(Modifier mod, string? name = null, int actionCost = 0, int exertionCost = 0, int focusCost = 0)
         {
             if (!IsResolved)
             {
@@ -121,7 +121,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
             return this;
         }
 
-        public TurnAction OnFailureAction(Modifier mod, string? name = null, int actionCost = 0, int exertionCost = 0, int focusCost = 0)
+        public Action OnFailureAction(Modifier mod, string? name = null, int actionCost = 0, int exertionCost = 0, int focusCost = 0)
         {
             if (!IsResolved)
             {
@@ -129,7 +129,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
                     FailureAction = Context.CreateTurnAction(name, actionCost, exertionCost, focusCost);
 
                 if (FailureAction == null)
-                    throw new ArgumentException($"{nameof(OnSuccessAction)} invalid. No {nameof(FailureAction)}", nameof(OnFailureAction));
+                    throw new ArgumentException($"{nameof(OnFailureAction)} invalid. No {nameof(FailureAction)}", nameof(OnFailureAction));
 
                 FailureAction.Failure.Add(mod);
             }
@@ -137,32 +137,32 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
             return this;
         }
 
-        public TurnAction OnDiceRoll(Dice dice)
+        public Action OnDiceRoll(Dice dice)
         {
             Context.AddMod(BaseModifier.Create(this, dice, x => x.DiceRoll));
             return this;
         }
 
-        public TurnAction OnDiceRoll(string name, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
+        public Action OnDiceRoll(string name, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
         {
             Context.AddMod(BaseModifier.Create(this, name, dice, x => x.DiceRoll, diceCalc));
             return this;
         }
 
-        public TurnAction OnDiceRoll<T, TR>(T source, Expression<Func<T, TR>> sExpr, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
+        public Action OnDiceRoll<T, TR>(T source, Expression<Func<T, TR>> sExpr, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
             where T : Entity
         {
             Context.AddMod(BaseModifier.Create(source, sExpr, this, x => x.DiceRoll, diceCalc));
             return this;
         }
 
-        public TurnAction OnDiceRollTarget(Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
+        public Action OnDiceRollTarget(Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
         {
             Context.AddMod(BaseModifier.Create(this, dice, x => x.DiceRollTarget, diceCalc));
             return this;
         }
 
-        public TurnAction OnDiceRollTarget<T, TR>(T source, Expression<Func<T, TR>> sExpr, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
+        public Action OnDiceRollTarget<T, TR>(T source, Expression<Func<T, TR>> sExpr, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
             where T : Entity
         {
             Context.AddMod(BaseModifier.Create(source, sExpr, this, x => x.DiceRollTarget, diceCalc));

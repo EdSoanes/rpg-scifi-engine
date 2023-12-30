@@ -134,43 +134,6 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                 methodInfo.Invoke(obj, args);
         }
 
-        public static string? GetDiceCalcFunction<T>(Expression<Func<Func<T, T>>>? expression)
-        {
-            if (expression == null)
-                return null;
-
-            var unaryExpression = (UnaryExpression)expression.Body;
-            var methodCallExpression = (MethodCallExpression)unaryExpression.Operand;
-            var methodInfoExpression = (ConstantExpression)methodCallExpression.Object!;
-            var methodInfo = (MethodInfo)methodInfoExpression.Value!;
-
-            if (methodInfo.IsStatic)
-                return $"{methodInfo.DeclaringType!.Name}.{methodInfo.Name}";
-
-            var memberExpression = methodCallExpression.Arguments?.Last() as MemberExpression;
-            if (memberExpression != null)
-            {
-                var constantExpression = memberExpression.Expression as ConstantExpression;
-                var fieldInfo = memberExpression?.Member as FieldInfo;
-                var entity = fieldInfo?.GetValue(constantExpression?.Value) as Entity;
-
-                return entity != null
-                    ? $"{entity.Id}.{methodInfo.Name}"
-                    : null;
-            }
-            else
-            {
-                var constantExpression = methodCallExpression.Arguments?.Last() as ConstantExpression;
-                var entity = constantExpression?.Value as Entity;
-
-                return entity != null
-                    ? $"{entity.Id}.{methodInfo.Name}"
-                    : null;
-            }
-            
-            return null;            
-        }
-
         private static MethodInfo GetMethodInfo(this object? obj, string method)
         {
             var parts = method.Split('.', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
@@ -237,7 +200,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             foreach (var methodInfo in context.GetType().GetMethods())
             {
                 var attr = methodInfo.GetCustomAttribute<AbilityAttribute>();
-                if (attr == null || methodInfo.ReturnType != typeof(TurnAction))
+                if (attr == null || methodInfo.ReturnType != typeof(Turns.Action))
                     continue;
 
                 var metaAbilityMethod = new MetaAction

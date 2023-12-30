@@ -5,7 +5,7 @@ using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
-    public class Character : Artifact
+    public class Character : Actor
     {
         [JsonConstructor] public Character() { }
 
@@ -20,7 +20,6 @@ namespace Rpg.SciFi.Engine.Artifacts
             Containers.Add(Container.Equipment, new Container());
         }
 
-        [JsonProperty] public TurnPoints Turns { get; private set; } = new TurnPoints();
         [JsonProperty] public StatPoints Stats { get; private set; } = new StatPoints();
         [JsonProperty] public Damage Damage { get; private set; } = new Damage();
 

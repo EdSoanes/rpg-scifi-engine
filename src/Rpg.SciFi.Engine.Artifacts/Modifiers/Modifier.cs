@@ -7,16 +7,13 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
 {
     public class Modifier
     {
-        [JsonProperty] private int? Resolution { get; set; }
-
         [JsonConstructor] protected Modifier() { }
 
-        protected Modifier(string? name, Dice? dice, ModdableProperty? source, ModdableProperty target, string? diceCalc, ModifierType modifierType, ModifierAction modifierAction, bool isPermanent)
+        protected Modifier(string? name, PropReference source, PropReference target, string? diceCalc, ModifierType modifierType, ModifierAction modifierAction, bool isPermanent)
         {
-            Name = name ?? source?.Source ?? target.Prop ?? GetType().Name;
-            Dice = dice;
+            Name = name ?? source.Prop ?? target.Prop ?? GetType().Name;
             Target = target;
-            DiceCalc = diceCalc;
+            DiceCalc = new ModifierDiceCalc(diceCalc);
             ModifierType = modifierType;
             ModifierAction = modifierAction;
             IsPermanent = isPermanent;
@@ -24,10 +21,9 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
 
         [JsonProperty] public Guid Id { get; protected set; } = Guid.NewGuid();
         [JsonProperty] public string Name { get; protected set; }
-        [JsonProperty] public Dice? Dice { get; protected set; }
-        [JsonProperty] public ModdableProperty? Source { get; protected set; } = null;
-        [JsonProperty] public ModdableProperty Target { get; protected set; }
-        [JsonProperty] public string? DiceCalc { get; protected set; }
+        [JsonProperty] public PropReference Source { get; protected set; } = null;
+        [JsonProperty] public PropReference Target { get; protected set; }
+        [JsonProperty] public ModifierDiceCalc DiceCalc { get; protected set; }
         [JsonProperty] public ModifierType ModifierType { get; protected set; }
         [JsonProperty] public ModifierAction ModifierAction { get; protected set; } = ModifierAction.Accumulate;
         [JsonProperty] public bool IsPermanent { get; protected set; } = false;
@@ -39,14 +35,13 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
             where TEntity2 : Entity
         {
             var mod = Activator.CreateInstance<TMod>();
-            mod.Dice = dice;
             mod.Source = entity != null && sourceExpr != null
-                ? ModdableProperty.Create(entity, sourceExpr, true)
-                : null;
+                ? PropReference.FromPath(entity, sourceExpr, true)
+                : PropReference.FromDice(dice);
 
-            mod.Target = ModdableProperty.Create(target, targetExpr);
-            mod.DiceCalc = ReflectionEngine.GetDiceCalcFunction(diceCalcExpr);
-            mod.Name = name ?? mod.Source?.Source ?? mod.Target.Prop ?? entity?.GetType().Name ?? target.Name;
+            mod.Target = PropReference.FromPath(target, targetExpr);
+            mod.DiceCalc.SetDiceCalc(diceCalcExpr);
+            mod.Name = name ?? mod.Source.Prop ?? mod.Target.Prop ?? entity?.GetType().Name ?? target.Name;
 
             return mod;
         }
@@ -56,9 +51,9 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
         {
             var mod = Activator.CreateInstance<TMod>();
 
-            mod.Target = ModdableProperty.Create(entity, targetPropPath);
-            mod.DiceCalc = ReflectionEngine.GetDiceCalcFunction(diceCalcExpr);
-            mod.Dice = dice;
+            mod.Source = PropReference.FromPath(entity, dice);
+            mod.Target = PropReference.FromPath(entity, targetPropPath);
+            mod.DiceCalc.SetDiceCalc(diceCalcExpr);
             mod.Name = name ?? mod.Target.Prop ?? entity.GetType().Name;
 
             return mod;
@@ -66,8 +61,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
 
         public void SetDice(Dice dice)
         {
-            Dice = dice;
-            Source = null;
+            Source = PropReference.FromDice(Source.RootId, Source.Id, dice);
             DiceCalc = null;
         }
 
@@ -75,7 +69,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
         {
             if (ModifierType == ModifierType.Transient)
             {
-                if (RemoveOnTurn == RemoveTurn.WhenZero && Dice != null && Dice.Value.Roll() == 0)
+                if (RemoveOnTurn == RemoveTurn.WhenZero && Source.PropType == PropType.Dice && new Dice(Source.Prop).Roll() == 0)
                     return true;
 
                 if (RemoveOnTurn == RemoveTurn.This)
@@ -128,7 +122,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
             else if (RemoveOnTurn == RemoveTurn.WhenZero)
                 removeOnTurn = "z";
 
-            return $"({modType},{actionType},{removeOnTurn}) {Name} {(Dice != null ? Dice : null)} => {Target.Prop}";
+            return $"({modType},{actionType},{removeOnTurn}) {Name} {Source.Prop} => {Target.Prop}";
         }
     }
 }

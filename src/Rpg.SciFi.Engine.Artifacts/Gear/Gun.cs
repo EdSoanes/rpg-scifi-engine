@@ -30,7 +30,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Gear
         [Input(Param = "character", BindsTo = "Character")]
         [Input(InputSource = InputSource.Player, Param = "target")]
         [Input(InputSource = InputSource.Player, Param = "range")]
-        public TurnAction Fire(Character character, Artifact target, int range)
+        public Turns.Action Fire(Character character, Artifact target, int range)
         {
             var action = Context.CreateTurnAction(nameof(Fire), 3, 1, 1)
                 .OnDiceRoll("d20")

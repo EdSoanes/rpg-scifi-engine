@@ -19,6 +19,7 @@ namespace Rpg.SciFi.Engine.Tests
             _meta = new Meta<Damage>();
             _meta.Initialize(_damage);
         }
+
         [TestMethod]
         public void StatPoints_Test()
         {
@@ -56,6 +57,7 @@ namespace Rpg.SciFi.Engine.Tests
             Assert.IsNotNull(meta.Context);
 
             var damage2 = meta.Context;
+            var modProp = meta.GetModProp(damage2, x => x.Blast);
             Assert.AreEqual<string>(_damage.Blast, damage2.Blast);
             Assert.AreEqual<string>(_damage.BaseBlast, damage2.Blast);
 

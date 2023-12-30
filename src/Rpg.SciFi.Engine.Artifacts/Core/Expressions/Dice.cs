@@ -44,11 +44,11 @@ namespace Rpg.SciFi.Engine.Artifacts.Expressions
         public static bool operator ==(Dice d1, Dice d2) => d1.ToString() == d2.ToString();
         public static bool operator !=(Dice d1, Dice d2) => d1.ToString() != d2.ToString();
 
-        public bool IsConstant { get => _nodes.All(x => x.Min() == x.Max()); }
-        public int Roll() => _nodes.Sum(x => x.Roll());
-        public double Avg() => _nodes.Sum(x => x.Avg());
-        public int Min() => _nodes.Sum(x => x.Min());
-        public int Max() => _nodes.Sum(x => x.Max());
+        public bool IsConstant { get => _nodes?.All(x => x.Min() == x.Max()) ?? true; }
+        public int Roll() => _nodes?.Sum(x => x.Roll()) ?? 0;
+        public double Avg() => _nodes?.Sum(x => x.Avg()) ?? 0;
+        public int Min() => _nodes?.Sum(x => x.Min()) ?? 0;
+        public int Max() => _nodes?.Sum(x => x.Max()) ?? 0;
         public Dice Negate()
         {
             var dice = new Dice(_expr);
@@ -72,8 +72,9 @@ namespace Rpg.SciFi.Engine.Artifacts.Expressions
             if (_nodes == null || !_nodes.Any())
                 return "0";
 
-            var sb = new StringBuilder(_nodes.First().ToString());
-            foreach (var node in _nodes.Skip(1))
+            var nodes = _nodes.Where(x => !(x is NumberNode) || x.Roll() != 0);
+            var sb = new StringBuilder(nodes.First().ToString());
+            foreach (var node in nodes.Skip(1))
             {
                 if (node.Multiplier >= 0)
                     sb.Append(" + ").Append(node.ToString());

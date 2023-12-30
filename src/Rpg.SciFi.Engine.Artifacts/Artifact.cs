@@ -28,6 +28,8 @@ namespace Rpg.SciFi.Engine.Artifacts
 
         [Moddable] public bool Destroyed { get => Resolve(nameof(Destroyed)) > 0; }
 
+        public Guid? ContainerId { get; set; }
+
         public virtual Modifier[] Setup()
         {
             return new[]
@@ -51,7 +53,7 @@ namespace Rpg.SciFi.Engine.Artifacts
         }
 
         [Ability]
-        public TurnAction Destroy()
+        public Turns.Action Destroy()
         {
             return Context.CreateTurnAction(nameof(Destroy), 0, 0, 0);
         }

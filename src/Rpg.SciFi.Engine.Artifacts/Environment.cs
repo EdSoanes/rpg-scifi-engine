@@ -7,8 +7,7 @@ namespace Rpg.SciFi.Engine.Artifacts
         public Environment() 
         {
             Name = nameof(Environment);
+            Containers.Add(Container.Environment, new Container());
         }
-
-        public Container Contains { get; set; } = new Container();
     }
 }

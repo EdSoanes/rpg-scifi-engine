@@ -46,9 +46,9 @@ namespace Rpg.SciFi.Engine.Tests
         [JsonProperty] public Abilities Abilities { get; protected set; } = new Abilities();
 
         [Ability]
-        public TurnAction Start()
+        public Artifacts.Turns.Action Start()
         {
-            return new TurnAction(nameof(Start), 1, 1, 1);
+            return new Artifacts.Turns.Action(nameof(Start), 1, 1, 1);
         }
     }
 
@@ -64,7 +64,7 @@ namespace Rpg.SciFi.Engine.Tests
             _car = new Car();
 
             var game = new Game();
-            game.Environment.Contains.Add(_car);
+            game.Environment.GetContainer(Container.Environment)!.Add(_car);
 
             _meta = new Meta<Game>();
             _meta.Initialize(game);

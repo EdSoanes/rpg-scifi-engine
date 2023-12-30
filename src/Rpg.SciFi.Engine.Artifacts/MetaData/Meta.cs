@@ -14,14 +14,18 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         void Add(Entity entity);
         void AddRange(IEnumerable<Entity> entities);
         Entity? Get(Guid id);
-        Entity? Get(ModdableProperty? moddableProperty);
+        Entity? Get(PropReference? moddableProperty);
         bool Remove(Entity entity);
         void AddMod(Modifier mod);
-        void AddMods(IEnumerable<Modifier> mods);
+        void AddMods(params Modifier[] mods);
 
-        List<Modifier>? GetMods(Guid id, string prop);
-        List<Modifier>? GetMods(ModdableProperty? moddableProperty);
-        List<Modifier>? GetMods(Entity entity, string prop);
+        //List<Modifier>? GetMods(Guid id, string prop);
+        //List<Modifier>? GetMods(ModdableProperty? moddableProperty);
+        //List<Modifier>? GetMods(Entity entity, string prop);
+
+        MetaModdableProperty? GetModProp(PropReference? moddableProperty);
+        MetaModdableProperty? GetModProp(Guid id, string prop);
+        MetaModdableProperty? GetModProp<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression) where TEntity : Entity;
         List<Modifier>? GetMods<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression) where TEntity: Entity;
 
         void ClearMods(Guid entityId);
@@ -31,7 +35,6 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         bool RemoveMods(Entity entity, string prop);
         bool RemoveMods<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression);
 
-        Dice Evaluate(Modifier mod);
         Dice Evaluate(Guid entityId, string prop);
         Dice Evaluate<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression);
 
@@ -40,13 +43,13 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
         string[] Describe(Entity entity, string prop, bool includeEntityInformation = false);
         string[] Describe(Modifier mod, bool includeEntityInformation = false);
-        string[] Describe(ModdableProperty? moddableProperty, bool includeEntityInformation = false);
+        string[] Describe(PropReference? moddableProperty, bool includeEntityInformation = false);
 
         int CurrentTurn { get; }
         void StartEncounter();
         void EndEncounter();
         void IncrementTurn();
-        TurnAction CreateTurnAction(string name, int actionCost, int exertionCost, int focusCost);
+        Turns.Action CreateTurnAction(string name, int actionCost, int exertionCost, int focusCost);
     }
 
     public class Meta<T> : IContext
@@ -101,7 +104,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         }
 
         public Entity? Get(Guid id) => Entities.Get(id);
-        public Entity? Get(ModdableProperty? moddableProperty) => Entities.Get(moddableProperty);
+        public Entity? Get(PropReference? moddableProperty) => Entities.Get(moddableProperty);
 
         public bool Remove(Entity entity)
         {
@@ -114,30 +117,44 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         public void ClearMods(Guid entityId) => Mods.Clear(entityId);
 
         public void AddMod(Modifier mod) => Mods.Add(mod);
-        public void AddMods(IEnumerable<Modifier> mods) => Mods.Add(mods.ToArray());
+        public void AddMods(params Modifier[] mods) => Mods.Add(mods);
 
-        public List<Modifier>? GetMods(Guid id, string prop) => Mods.Get(id, prop);
-        public List<Modifier>? GetMods(ModdableProperty? moddableProperty) => Mods.Get(moddableProperty);
-        public List<Modifier>? GetMods(Entity entity, string prop) => Mods.Get(entity.Id, prop);
+        public MetaModdableProperty? GetModProp(Guid id, string prop) 
+            => Mods.Get(id, prop);
+
+        public MetaModdableProperty? GetModProp(PropReference moddableProperty)
+            => Mods.Get(moddableProperty);
+
+        public MetaModdableProperty? GetModProp<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
+            where TEntity : Entity
+                => Mods.Get(PropReference.FromPath(entity, expression, true));
+        //public List<Modifier>? GetMods(Guid id, string prop) => Mods.Get(id, prop)?.Modifiers;
+        //public List<Modifier>? GetMods(ModdableProperty? moddableProperty) => Mods.Get(moddableProperty)?.Modifiers;
+        //public List<Modifier>? GetMods(Entity entity, string prop) => Mods.Get(entity.Id, prop)?.Modifiers;
         public List<Modifier>? GetMods<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
             where TEntity: Entity
-                => Mods.Get(ModdableProperty.Create(entity, expression, true));
+                => Mods.Get(PropReference.FromPath(entity, expression, true))?.Modifiers;
 
         public bool RemoveMods(int currentTurn) => Mods.Remove(currentTurn);
         public bool RemoveMods(Guid entityId, string prop) => Mods.Remove(entityId, prop);
         public bool RemoveMods(Entity entity, string prop) => Mods.Remove(entity.Id, prop);
-        public bool RemoveMods<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression) => Mods.Remove(ModdableProperty.Create(entity, expression, true));
+        public bool RemoveMods<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression) => Mods.Remove(PropReference.FromPath(entity, expression, true));
 
-        public Dice Evaluate(Modifier mod) => Mods.Evaluate(mod);
-        public Dice Evaluate(Guid entityId, string prop) => Mods.Evaluate(entityId, prop);
-        public Dice Evaluate<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression) => Mods.Evaluate(ModdableProperty.Create(entity, expression));
+        public Dice Evaluate(Guid entityId, string prop) 
+            => Mods.Evaluate(entityId, prop);
 
-        public int Resolve(Guid entityId, string prop) => Mods.Resolve(entityId, prop);
-        public int Resolve<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression) => Mods.Resolve(ModdableProperty.Create(entity, expression));
+        public Dice Evaluate<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression)
+            => Mods.Evaluate(PropReference.FromPath(entity, expression));
+
+        public int Resolve(Guid entityId, string prop) 
+            => Mods.Resolve(entityId, prop);
+
+        public int Resolve<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression) 
+            => Mods.Resolve(PropReference.FromPath(entity, expression));
 
         public string[] Describe(Entity entity, string prop, bool includeEntityInformation = false) => Mods.Describe(entity, prop, includeEntityInformation);
         public string[] Describe(Modifier mod, bool includeEntityInformation = false) => Mods.Describe(mod, includeEntityInformation);
-        public string[] Describe(ModdableProperty? moddableProperty, bool includeEntityInformation = false) => Mods.Describe(moddableProperty, includeEntityInformation);
+        public string[] Describe(PropReference? moddableProperty, bool includeEntityInformation = false) => Mods.Describe(moddableProperty, includeEntityInformation);
 
         private void Setup() => Setup(Entities.Values);
 
@@ -176,26 +193,26 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             Mods.Remove(Encounter.CurrentTurn);
         }
 
-        public TurnAction CreateTurnAction(string name, int actionCost, int exertionCost, int focusCost)
+        public Turns.Action CreateTurnAction(string name, int actionCost, int exertionCost, int focusCost)
         {
-            var action = new TurnAction(name, actionCost, exertionCost, focusCost);
+            var action = new Turns.Action(name, actionCost, exertionCost, focusCost);
             Entities.Add(action);
             Setup(action);
 
             return action;
         }
 
-        public TurnAction? Apply(Character actor, TurnAction turnAction, int diceRoll = 0)
+        public Turns.Action? Apply(Character actor, Turns.Action turnAction, int diceRoll = 0)
         {
-            var actionCost = turnAction.Action;
+            var actionCost = turnAction.ActionCost;
             if (actionCost != 0)
                 Mods.Add(CostModifier.Create(actionCost, actor, x => x.Turns.Action, () => Rules.Minus));
 
-            var exertionCost = turnAction.Exertion;
+            var exertionCost = turnAction.ExertionCost;
             if (exertionCost != 0)
                 Mods.Add(CostModifier.Create(exertionCost, actor, x => x.Turns.Exertion, () => Rules.Minus));
 
-            var focusCost = turnAction.Focus;
+            var focusCost = turnAction.FocusCost;
             if (focusCost != 0)
                 Mods.Add(CostModifier.Create(focusCost, actor, x => x.Turns.Focus, () => Rules.Minus));
 
@@ -238,6 +255,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
             Context = Entities?.Get(Context?.Id) as T;
             Mods?.PropertyValue("Context", this as IContext);
+            //Mods?.EvaluateAll();
         }
     }
 }

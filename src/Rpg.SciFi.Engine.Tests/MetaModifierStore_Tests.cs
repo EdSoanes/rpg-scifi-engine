@@ -8,137 +8,115 @@ namespace Rpg.SciFi.Engine.Tests
     [TestClass]
     public class MetaModifierStore_Tests
     {
-        [TestMethod]
-        public void Add_2BaseMods_EnsureStored()
+        private Meta<Character> SetupMeta()
         {
+            var meta = new Meta<Character>();
             var character = new Character();
+            meta.Initialize(character);
+            meta.StartEncounter();
 
-            var mod1 = BaseModifier.Create(character, x => x.BaseSize, x => x.Size);
-            var mod2 = BaseModifier.Create(character, x => x.BaseSpeed, x => x.Speed);
-            var store = new MetaModifierStore
-            {
-                mod1,
-                mod2
-            };
+            var mod1 = TurnModifier.Create("Boost", 3, character, x => x.Size);
+            var mod2 = TurnModifier.Create("Boost", 3, character, x => x.Speed);
 
-            Assert.AreEqual(2, store.Count);
-
-            var sizeMods = store.Get(character.Id, nameof(character.Size));
-            Assert.IsNotNull(sizeMods);
-            Assert.AreEqual(1, sizeMods.Count);
-            Assert.AreEqual(character.Id, sizeMods[0].Source?.Id);
-            Assert.AreEqual(character.Id, sizeMods[0].Target.Id);
-            Assert.AreEqual(nameof(character.BaseSize), sizeMods[0].Source?.Prop);
-            Assert.AreEqual(nameof(character.Size), sizeMods[0].Target?.Prop);
-
-            Assert.AreEqual(mod1.Id, sizeMods[0].Id);
-            Assert.IsFalse(sizeMods[0].CanBeCleared());
-            Assert.IsFalse(sizeMods[0].ShouldBeRemoved(1));
-
-            var speedMods = store.Get(character.Id, nameof(character.Speed));
-            Assert.IsNotNull(speedMods);
-            Assert.AreEqual(1, speedMods.Count);
-            Assert.AreEqual(character.Id, speedMods[0].Source?.Id);
-            Assert.AreEqual(character.Id, speedMods[0].Target.Id);
-            Assert.AreEqual(nameof(character.BaseSpeed), speedMods[0].Source?.Prop);
-            Assert.AreEqual(nameof(character.Speed), speedMods[0].Target?.Prop);
-
-            Assert.AreEqual(mod2.Id, speedMods[0].Id);
-            Assert.IsFalse(speedMods[0].CanBeCleared());
-            Assert.IsFalse(speedMods[0].ShouldBeRemoved(1));
-
-            var baseSizeMods = store.Get(character.Id, nameof(character.BaseSize));
-            Assert.IsNull(baseSizeMods);
-
-            var baseSpeedMods = store.Get(character.Id, nameof(character.BaseSpeed));
-            Assert.IsNull(baseSpeedMods);
+            meta.AddMods(mod1, mod2);
+            
+            return meta;
         }
 
-        //[TestMethod]
-        //public void Add_ManyModTypes_ModRemove()
-        //{
-        //    var character = new Character();
+        [TestMethod]
+        public void Speed_2TurnMods_IncrementTurn_EnsureValues()
+        {
+            var meta = SetupMeta();
+            var character = meta.Context;
 
-        //    var mod1 = character.Mod(x => x.BaseSpeed, x => x.Speed).IsBase();
-        //    var mod2 = character.Mod("Custom", "3", x => x.Speed).IsCustom();
-        //    var mod3 = character.Mod("Boost", "2", x => x.Speed).UntilTurn(3);
-        //    var mod4 = character.Mod("Boost", "2", x => x.Speed).UntilEncounterEnds();
+            Assert.IsNotNull(meta);
+            Assert.IsNotNull(character);
 
-        //    var store = new MetaModifierStore
-        //    {
-        //        mod1,
-        //        mod2,
-        //        mod3,
-        //        mod4
-        //    };
+            Assert.AreEqual(1, meta.CurrentTurn);
+            Assert.AreEqual(3, character.Speed);
 
-        //    Assert.AreEqual(4, store.Count);
+            meta.AddMods(
+                TurnModifier.Create("Buff", "10", character, x => x.Speed)
+            );
 
-        //    var speedMods = store.Get(character.Id, nameof(character.Speed));
-        //    Assert.IsNotNull(speedMods);
-        //    Assert.AreEqual(4, speedMods.Count);
+            Assert.AreEqual(13, character.Speed);
 
-        //    Assert.IsFalse(store.Remove(1));
-        //    Assert.IsFalse(store.Remove(2));
-        //    Assert.IsTrue(store.Remove(3));
+            meta.IncrementTurn();
 
-        //    speedMods = store.Get(character.Id, nameof(character.Speed));
-        //    Assert.IsNotNull(speedMods);
-        //    Assert.AreEqual(3, speedMods.Count);
-        //    Assert.IsFalse(store.Contains(mod3));
+            Assert.AreEqual(2, meta.CurrentTurn);
+            Assert.AreEqual(0, character.Speed);
+        }
 
-        //    Assert.IsFalse(store.Remove(1000000));
-        //    Assert.IsTrue(store.Remove(0));
-        //}
 
         [TestMethod]
-        public void Add_2BaseMods_Serialize()
+        public void Size_2TurnMods_EnsureValues()
         {
-            var character = new Character();
+            var meta = SetupMeta();
+            var character = meta.Context;
 
-            var mod1 = BaseModifier.Create(character, x => x.BaseSize, x => x.Size);
-            var mod2 = BaseModifier.Create(character, x => x.BaseSpeed, x => x.Speed);
-            var srcStore = new MetaModifierStore
-            {
-                mod1,
-                mod2
-            };
+            Assert.IsNotNull(meta);
+            Assert.IsNotNull(character);
 
-            var json = JsonConvert.SerializeObject(srcStore, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Include });
-            var store = JsonConvert.DeserializeObject<MetaModifierStore>(json);
+            Assert.AreEqual(4, character.Size);
+ 
+            meta.AddMods(
+                TurnModifier.Create("Buff", "4", character, x => x.Size)
+            );
 
-            Assert.IsNotNull(store);
-            Assert.AreEqual(2, store.Count);
+            Assert.AreEqual(8, character.Size);
+        }
 
-            var sizeMods = store.Get(character.Id, nameof(character.Size));
+        [TestMethod]
+        public void SpeedAndSize_2TurnMods_Serialize()
+        {
+            var meta = SetupMeta();
+            var character = meta.Context;
+
+            Assert.IsNotNull(meta);
+            Assert.IsNotNull(character);
+
+            var json = meta.Serialize();
+            var meta2 = Meta<Character>.Deserialize(json);
+            var character2 = meta.Context;
+
+            Assert.IsNotNull(meta2);
+            Assert.IsNotNull(character2);
+
+            var sizeMods = meta2.GetMods(character2, x => x.Size);
             Assert.IsNotNull(sizeMods);
-            Assert.AreEqual(1, sizeMods.Count);
-            Assert.AreEqual(character.Id, sizeMods[0].Source?.Id);
-            Assert.AreEqual(character.Id, sizeMods[0].Target.Id);
-            Assert.AreEqual(nameof(character.BaseSize), sizeMods[0].Source?.Prop);
-            Assert.AreEqual(nameof(character.Size), sizeMods[0].Target?.Prop);
+            Assert.AreEqual(2, sizeMods.Count);
 
-            Assert.AreEqual(mod1.Id, sizeMods[0].Id);
-            Assert.IsFalse(sizeMods[0].CanBeCleared());
-            Assert.IsFalse(sizeMods[0].ShouldBeRemoved(1));
+            //Assert base mod
+            var baseSizeMod = sizeMods.Single(x => x.ModifierType == ModifierType.Base);
+            Assert.AreEqual(character2.Id, baseSizeMod.Target.Id);
+            Assert.AreEqual(nameof(character2.BaseSize), baseSizeMod.Source.Prop);
+            Assert.AreEqual(nameof(character2.Size), baseSizeMod.Target.Prop);
+            Assert.IsFalse(baseSizeMod.CanBeCleared());
+            Assert.IsFalse(baseSizeMod.ShouldBeRemoved(1));
 
-            var speedMods = store.Get(character.Id, nameof(character.Speed));
+            //Assert boost mod
+            var sizeBoostMod = sizeMods.Single(x => x.ModifierType == ModifierType.Transient);
+            Assert.AreEqual("Boost", sizeBoostMod.Name);
+            Assert.AreEqual(character2.Id, sizeBoostMod.Target.Id);
+            Assert.AreEqual(nameof(character2.Size), sizeBoostMod.Target.Prop);
+
+            var speedMods = meta.GetMods(character2, x => x.Speed);
             Assert.IsNotNull(speedMods);
-            Assert.AreEqual(1, speedMods.Count);
-            Assert.AreEqual(character.Id, speedMods[0].Source?.Id);
-            Assert.AreEqual(character.Id, speedMods[0].Target.Id);
-            Assert.AreEqual(nameof(character.BaseSpeed), speedMods[0].Source?.Prop);
-            Assert.AreEqual(nameof(character.Speed), speedMods[0].Target?.Prop);
+            Assert.AreEqual(2, speedMods.Count);
 
-            Assert.AreEqual(mod2.Id, speedMods[0].Id);
-            Assert.IsFalse(speedMods[0].CanBeCleared());
-            Assert.IsFalse(speedMods[0].ShouldBeRemoved(1));
+            //Assert base mod
+            var baseSpeedMod = speedMods.Single(x => x.ModifierType == ModifierType.Base);
+            Assert.AreEqual(character2.Id, baseSpeedMod.Target.Id);
+            Assert.AreEqual(nameof(character2.BaseSpeed), baseSpeedMod.Source.Prop);
+            Assert.AreEqual(nameof(character2.Speed), baseSpeedMod.Target.Prop);
+            Assert.IsFalse(baseSpeedMod.CanBeCleared());
+            Assert.IsFalse(baseSpeedMod.ShouldBeRemoved(1));
 
-            var baseSizeMods = store.Get(character.Id, nameof(character.BaseSize));
-            Assert.IsNull(baseSizeMods);
-
-            var baseSpeedMods = store.Get(character.Id, nameof(character.BaseSpeed));
-            Assert.IsNull(baseSpeedMods);
+            //Assert boost mod
+            var speedBoostMod = speedMods.Single(x => x.ModifierType == ModifierType.Transient);
+            Assert.AreEqual("Boost", speedBoostMod.Name);
+            Assert.AreEqual(character2.Id, speedBoostMod.Target.Id);
+            Assert.AreEqual(nameof(character2.Speed), speedBoostMod.Target.Prop);
         }
     }
 }

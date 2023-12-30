@@ -27,7 +27,7 @@ namespace Rpg.SciFi.Engine.Artifacts
         public int Resolve(string prop) => Context?.Resolve(Id, prop) ?? 0;
 
         public string[] Describe(string prop) => Context?.Describe(this, prop, true) ?? new string[0];
-        public string[] Describe(ModdableProperty? moddableProperty) => Context?.Describe(moddableProperty, true) ?? new string[0];
+        public string[] Describe(PropReference? moddableProperty) => Context?.Describe(moddableProperty, true) ?? new string[0];
 
         public bool AddContainer(Container container)
         {
@@ -67,5 +67,11 @@ namespace Rpg.SciFi.Engine.Artifacts
 
         public Artifact? GetArtifact(string container, Guid id) => GetContainer(container)?.Get(id);
         public Artifact? RemoveArtifact(string container, Guid id) => GetContainer(container)?.Remove(id);
+        public bool HasArtifacts(string containerName)
+        {
+            var container = GetContainer(containerName);
+            return container?.Any() ?? false;
+        }
+
     }
 }

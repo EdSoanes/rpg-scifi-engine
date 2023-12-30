@@ -1,4 +1,5 @@
 ﻿using Rpg.SciFi.Engine.Artifacts;
+using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Gear;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
 
@@ -18,12 +19,12 @@ namespace Rpg.SciFi.Engine.Tests
             _gun = new Gun(10, 2) { Name = "Blaster" };
 
             var player = new Character("The Player");
-            player.Equipment.Add(_gun);
+            player.GetContainer(Container.RightHand)!.Add(_gun);
 
             _target = new Character("The Target");
 
             _game.Character = player;
-            _game.Environment.Contains.Add(_target);
+            _game.Environment.GetContainer(Container.Environment)!.Add(_target);
 
             _meta = new Meta<Game>();
             _meta.Initialize(_game);

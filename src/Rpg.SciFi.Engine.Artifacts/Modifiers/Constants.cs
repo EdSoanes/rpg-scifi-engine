@@ -7,6 +7,18 @@ using System.Threading.Tasks;
 
 namespace Rpg.SciFi.Engine.Artifacts.Modifiers
 {
+    public enum PropReturnType
+    {
+        Integer,
+        Dice
+    }
+
+    public enum PropType
+    {
+        Path,
+        Dice
+    }
+
     public static class RemoveTurn
     {
         public const int WhenZero = -2;

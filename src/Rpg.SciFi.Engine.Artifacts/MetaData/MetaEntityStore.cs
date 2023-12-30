@@ -63,9 +63,10 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                 : null;
         }
 
-        public Entity? Get(ModdableProperty? moddableProperty)
+        public Entity? Get(PropReference? moddableProperty)
         {
-            return moddableProperty?.Id != null && TryGetValue(moddableProperty.Id, out var entity)
+            var id = moddableProperty?.Id;
+            return id != null && TryGetValue(id.Value, out var entity)
                 ? entity
                 : null;
         }
