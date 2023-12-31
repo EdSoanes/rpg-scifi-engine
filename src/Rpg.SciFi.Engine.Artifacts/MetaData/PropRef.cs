@@ -1,12 +1,12 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
-using Rpg.SciFi.Engine.Artifacts.MetaData;
+using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Rpg.SciFi.Engine.Artifacts.Modifiers
+namespace Rpg.SciFi.Engine.Artifacts.MetaData
 {
-    public class PropReference
+    public class PropRef
     {
         [JsonProperty] public Guid? RootId { get; private set; }
         [JsonProperty] public Guid? Id { get; private set; }
@@ -14,9 +14,9 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
         [JsonProperty] public PropType PropType { get; private set; } = PropType.Path;
         [JsonProperty] public PropReturnType PropReturnType { get; private set; } = PropReturnType.Integer;
 
-        [JsonConstructor] private PropReference() { }
+        [JsonConstructor] private PropRef() { }
 
-        public PropReference(Guid? rootId, Guid? id, int val)
+        public PropRef(Guid? rootId, Guid? id, int val)
         {
             RootId = rootId;
             Id = id;
@@ -25,7 +25,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
             Prop = val.ToString();
         }
 
-        public PropReference(Guid? rootId, Guid? id, Dice dice)
+        public PropRef(Guid? rootId, Guid? id, Dice dice)
         {
             RootId = rootId;
             Id = id;
@@ -34,7 +34,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
             Prop = dice;
         }
 
-        public PropReference(Guid? rootId, Guid? id, string propPath, PropReturnType propReturnType)
+        public PropRef(Guid? rootId, Guid? id, string propPath, PropReturnType propReturnType)
         {
             RootId = rootId;
             Id = id;
@@ -43,36 +43,58 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
             Prop = propPath;
         }
 
-        public static PropReference FromInt(Guid entityId, int val)
+        public string Describe(EntityStore entityStore, bool addEntityInfo = false)
         {
-            var locator = new PropReference(entityId, entityId, val);
+            var desc = "";
+            if (PropType == PropType.Path && addEntityInfo)
+            {
+                var rootEntity = entityStore.Get(RootId!.Value);
+                var sourceEntity = entityStore.Get(Id);
+
+                desc += rootEntity?.Id != sourceEntity?.Id
+                    ? $"{rootEntity?.Name}.{sourceEntity?.Name}"
+                    : sourceEntity?.Name;
+
+                desc = desc.Trim('.');
+                if (!string.IsNullOrEmpty(desc))
+                    desc += ".";
+            }
+
+            desc += Prop;
+
+            return desc;
+        }
+
+        public static PropRef FromInt(Guid entityId, int val)
+        {
+            var locator = new PropRef(entityId, entityId, val);
             return locator;
         }
-        public static PropReference FromInt(Guid rootId, Guid entityId, int val)
+        public static PropRef FromInt(Guid rootId, Guid entityId, int val)
         {
-            var locator = new PropReference(rootId, entityId, val);
+            var locator = new PropRef(rootId, entityId, val);
             return locator;
         }
 
-        public static PropReference FromDice(Dice? dice)
+        public static PropRef FromDice(Dice? dice)
         {
-            var locator = new PropReference(null, null, dice ?? "0");
+            var locator = new PropRef(null, null, dice ?? "0");
             return locator;
         }
 
-        public static PropReference FromDice(Guid? entityId, Dice? dice)
+        public static PropRef FromDice(Guid? entityId, Dice? dice)
         {
-            var locator = new PropReference(entityId, entityId, dice ?? "0");
+            var locator = new PropRef(entityId, entityId, dice ?? "0");
             return locator;
         }
 
-        public static PropReference FromDice(Guid? rootId, Guid? entityId, Dice? dice)
+        public static PropRef FromDice(Guid? rootId, Guid? entityId, Dice? dice)
         {
-            var locator = new PropReference(rootId, entityId, dice ?? "0");
+            var locator = new PropRef(rootId, entityId, dice ?? "0");
             return locator;
         }
 
-        public static PropReference FromPath(Entity entity, string propPath, bool source = false)
+        public static PropRef FromPath(Entity entity, string propPath, bool source = false)
         {
             var parts = propPath.Split('.');
             var path = string.Join(".", parts.Take(parts.Length - 1));
@@ -83,11 +105,11 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
                 throw new ArgumentException($"Invalid path. Property {prop} must have the attribute {nameof(ModdableAttribute)}");
 
             var propReturnType = ToReturnType(pathEntity.GetType().GetProperty(prop)?.PropertyType);
-            var locator = new PropReference(entity.Id, pathEntity.Id, prop, propReturnType);
+            var locator = new PropRef(entity.Id, pathEntity.Id, prop, propReturnType);
             return locator;
         }
 
-        public static PropReference FromPath<T, TResult>(T entity, Expression<Func<T, TResult>> expression, bool source = false)
+        public static PropRef FromPath<T, TResult>(T entity, Expression<Func<T, TResult>> expression, bool source = false)
             where T : Entity
         {
             var memberExpression = expression.Body as MemberExpression;
@@ -117,7 +139,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
             var path = string.Join(".", pathSegments);
             var pathEntity = entity.PropertyValue<Entity>(path);
 
-            var locator = new PropReference(entity.Id, pathEntity!.Id, prop, ToReturnType(propReturnType));
+            var locator = new PropRef(entity.Id, pathEntity!.Id, prop, ToReturnType(propReturnType));
             return locator;
         }
 

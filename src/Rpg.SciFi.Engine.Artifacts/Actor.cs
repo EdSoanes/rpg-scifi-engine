@@ -9,13 +9,5 @@ namespace Rpg.SciFi.Engine.Artifacts
         [JsonConstructor] public Actor() { }
 
         [JsonProperty] public TurnPoints Turns { get; private set; } = new TurnPoints();
-
-        public Turns.Action Act(Entity target, string actionName, int actionCost, int exertionCost, int focusCost)
-        {
-            var action = new Turns.Action(actionName, actionCost, exertionCost, focusCost);
-            Context.Add(action);
-
-            return action;
-        }
     }
 }

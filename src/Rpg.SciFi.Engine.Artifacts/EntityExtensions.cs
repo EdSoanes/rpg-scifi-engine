@@ -1,4 +1,4 @@
-﻿using Rpg.SciFi.Engine.Artifacts.Modifiers;
+﻿using Rpg.SciFi.Engine.Artifacts.MetaData;
 using System.Linq.Expressions;
 
 namespace Rpg.SciFi.Engine.Artifacts
@@ -14,8 +14,8 @@ namespace Rpg.SciFi.Engine.Artifacts
 
         public static string[] Describe<T, TResult>(this T entity, Expression<Func<T, TResult>> expression) where T : Entity
         {
-            var moddableProperty = PropReference.FromPath(entity, expression);
-            return entity.Describe(moddableProperty);
+            var moddableProperty = PropRef.FromPath(entity, expression);
+            return entity.Describe(moddableProperty.Prop);
         }
 
         //public static Modifier ModByPath<T1>(

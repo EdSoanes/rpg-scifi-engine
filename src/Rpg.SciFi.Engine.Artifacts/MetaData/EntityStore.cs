@@ -4,10 +4,13 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Rpg.SciFi.Engine.Artifacts.MetaData
 {
-    public class MetaEntityStore : IDictionary<Guid, Entity>
+    public class EntityStore : IDictionary<Guid, Entity>
     {
+        private ModStore? _modStore;
+        private IPropEvaluator? _propEvaluator;
+        private TurnManager? _turnManager;
+
         private readonly Dictionary<Guid, Entity> _store = new Dictionary<Guid, Entity>();
-        protected IContext Context { get; set; }
 
         public Entity this[Guid key]
         {
@@ -35,6 +38,13 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
         public bool IsReadOnly => false;
 
+        public void Initialize(ModStore modStore, IPropEvaluator propEvaluator, TurnManager turnManager)
+        {
+            _modStore = modStore;
+            _propEvaluator = propEvaluator;
+            _turnManager = turnManager;
+        }
+
         public void Add(Entity entity) => Add(entity.Id, entity);
 
         public void Add(KeyValuePair<Guid, Entity> item) => Add(item.Key, item.Value);
@@ -45,15 +55,31 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                 Add(entity.Id, entity);
         }
 
-        public void Add(Guid key, Entity value)
+        public void Add(Guid key, Entity value) => Add(value, "{}");
+
+        private void Add(object obj, string basePath)
         {
-            Init(value, "{}", entity =>
+            var entity = obj as Entity;
+            if (entity != null)
             {
+                entity.MetaData.Path = basePath;
+
                 if (!_store.ContainsKey(entity.Id))
                     _store.Add(entity.Id, entity);
                 else
                     _store[entity.Id] = entity;
-            });
+
+                Setup(entity);
+            }
+
+            foreach (var propertyInfo in obj.MetaProperties())
+            {
+                var items = obj.PropertyObjects(propertyInfo, out var isEnumerable)?.ToArray() ?? new object[0];
+                var path = $"{basePath}.{propertyInfo.Name}{(isEnumerable ? $"[{entity?.Id}]" : "")}";
+
+                foreach (var item in items)
+                    Add(item, path);
+            }
         }
 
         public Entity? Get(Guid? id)
@@ -63,7 +89,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                 : null;
         }
 
-        public Entity? Get(PropReference? moddableProperty)
+        public Entity? Get(PropRef? moddableProperty)
         {
             var id = moddableProperty?.Id;
             return id != null && TryGetValue(id.Value, out var entity)
@@ -117,32 +143,40 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         public bool Remove(Guid key)
         {
             var toRemove = Get(key);
-            return toRemove != null
-                ? _store.Remove(key)
-                : false;
+            if (toRemove != null)
+            {
+                _store.Remove(key);
+                _modStore!.Remove(toRemove.Id);
+                return true;
+            }
+
+            return false;
         }
 
         public bool TryGetValue(Guid key, [MaybeNullWhen(false)] out Entity value) => _store.TryGetValue(key, out value);
 
         IEnumerator IEnumerable.GetEnumerator() => _store.GetEnumerator();
 
-        protected void Init(object obj, string basePath, Action<Entity>? processContext = null)
+        public void Setup() => Setup(Values);
+        private void Setup(IEnumerable<Entity> entities)
         {
-            var entity = obj as Entity;
-            if (entity != null)
-            {
-                entity.MetaData.Path = basePath;
-                entity.PropertyValue("Context", Context);
-                processContext?.Invoke(entity);
-            }
+            //Execute in reverse order to set up child entities first so
+            // parent entity mods on children can override child entity mods
+            foreach (var entity in entities.Reverse())
+                Setup(entity);
+        }
 
-            foreach (var propertyInfo in obj.MetaProperties())
+        private void Setup(Entity entity)
+        {
+            if (_modStore != null && _propEvaluator != null && _turnManager != null)
             {
-                var items = obj.PropertyObjects(propertyInfo, out var isEnumerable)?.ToArray() ?? new object[0];
-                var path = $"{basePath}.{propertyInfo.Name}{(isEnumerable ? $"[{entity?.Id}]" : "")}";
-
-                foreach (var item in items)
-                    Init(item, path, processContext);
+                entity.Initialize(_modStore, _propEvaluator, _turnManager);
+                foreach (var setup in entity.MetaData.SetupMethods)
+                {
+                    var mods = entity.ExecuteFunction<Modifier[]>(setup);
+                    if (mods != null)
+                        _modStore.Add(mods);
+                }
             }
         }
     }

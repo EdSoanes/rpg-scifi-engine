@@ -65,5 +65,17 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
             FuncName = methodInfo.Name;
             return;
         }
+
+        public string? Describe(EntityStore entityStore)
+        {
+            if (!IsCalc)
+                return null;
+
+            var src = EntityId != null
+                ? entityStore.Get(EntityId.Value)?.Name
+                : ClassName;
+
+            return $"{src}.{FuncName}".Trim('.');
+        }
     }
 }

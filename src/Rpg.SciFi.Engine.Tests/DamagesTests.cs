@@ -10,13 +10,13 @@ namespace Rpg.SciFi.Engine.Tests
     public class DamagesTests
     {
         private Damage? _damage;
-        private Meta<Damage>? _meta;
+        private EntityManager<Damage>? _meta;
 
         [TestInitialize]
         public void Initialize()
         {
             _damage = new Damage("d6", "d6", "d10", "d6", "d6");
-            _meta = new Meta<Damage>();
+            _meta = new EntityManager<Damage>();
             _meta.Initialize(_damage);
         }
 
@@ -24,7 +24,7 @@ namespace Rpg.SciFi.Engine.Tests
         public void StatPoints_Test()
         {
             var statPoints = new StatPoints();
-            var meta = new Meta<StatPoints>();
+            var meta = new EntityManager<StatPoints>();
             meta.Initialize(statPoints);
 
             Assert.IsNotNull(statPoints);
@@ -51,7 +51,7 @@ namespace Rpg.SciFi.Engine.Tests
 
             var state = _meta.Serialize();
 
-            var meta = Meta<Damage>.Deserialize(state);
+            var meta = EntityManager<Damage>.Deserialize(state);
 
             Assert.IsNotNull(meta);
             Assert.IsNotNull(meta.Context);
@@ -107,7 +107,7 @@ namespace Rpg.SciFi.Engine.Tests
 
             var state = _meta.Serialize();
 
-            _meta = Meta<Damage>.Deserialize(state);
+            _meta = EntityManager<Damage>.Deserialize(state);
 
             Assert.IsNotNull(_meta);
             Assert.IsNotNull(_meta.Context);

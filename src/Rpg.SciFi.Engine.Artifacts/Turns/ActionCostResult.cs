@@ -34,7 +34,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
 
         public bool ShouldResolve(int target = 0, int result = 0) => true;
 
-        public void Resolve(IContext context, Actor actor)
+        public void Resolve(IEntityManager context, Actor actor)
         {
             if (ActionCost != 0)
                 context.AddMod(CostModifier.Create(ActionCost, actor, x => x.Turns.Action, () => Rules.Minus));

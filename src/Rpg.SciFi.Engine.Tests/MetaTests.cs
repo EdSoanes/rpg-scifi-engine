@@ -8,7 +8,7 @@ namespace Rpg.SciFi.Engine.Tests
     [TestClass]
     public class MetaTests
     {
-        private Meta<Game> _meta;
+        private EntityManager<Game> _meta;
         private Game _game = new Game();
         private Gun _gun;
         private Character _target;
@@ -26,7 +26,7 @@ namespace Rpg.SciFi.Engine.Tests
             _game.Character = player;
             _game.Environment.GetContainer(Container.Environment)!.Add(_target);
 
-            _meta = new Meta<Game>();
+            _meta = new EntityManager<Game>();
             _meta.Initialize(_game);
         }
 

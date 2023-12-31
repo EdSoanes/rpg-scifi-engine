@@ -55,7 +55,7 @@ namespace Rpg.SciFi.Engine.Artifacts
         [Ability]
         public Turns.Action Destroy()
         {
-            return Context.CreateTurnAction(nameof(Destroy), 0, 0, 0);
+            return _turnManager!.CreateAction(nameof(Destroy), 0, 0, 0);
         }
     }
 }

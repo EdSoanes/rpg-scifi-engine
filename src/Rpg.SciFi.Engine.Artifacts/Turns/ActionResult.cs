@@ -16,7 +16,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
 
         public bool ShouldResolve(int target = 0, int result = 0) => result >= target;
 
-        public void Resolve(IContext context)
+        public void Resolve(IEntityManager context)
         {
 
         }

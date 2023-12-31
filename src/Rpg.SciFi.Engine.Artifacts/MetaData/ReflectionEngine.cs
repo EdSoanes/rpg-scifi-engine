@@ -146,7 +146,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             Type? type = null;
             if (!string.IsNullOrEmpty(className))
             {
-                type = Assembly.GetAssembly(typeof(Meta<Entity>))!
+                type = Assembly.GetAssembly(typeof(EntityManager<Entity>))!
                     .GetTypes()
                     .FirstOrDefault(x => x.Name == className);
 
@@ -256,7 +256,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             return propertyInfo.GetMethod != null
                 && (propertyInfo.GetMethod.IsPublic || propertyInfo.GetMethod.IsFamily)
                 && !(propertyInfo.PropertyType.Namespace!.StartsWith("System") && propertyInfo.PropertyType.Name.StartsWith("Func"))
-                && !(propertyInfo.PropertyType?.IsAssignableTo(typeof(IContext)) ?? false)
+                && !(propertyInfo.PropertyType?.IsAssignableTo(typeof(IEntityManager)) ?? false)
                 && !(propertyInfo.DeclaringType?.IsAssignableTo(typeof(MetaEntity)) ?? false);
         }
 

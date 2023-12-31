@@ -8,9 +8,9 @@ namespace Rpg.SciFi.Engine.Tests
     [TestClass]
     public class MetaModifierStore_Tests
     {
-        private Meta<Character> SetupMeta()
+        private EntityManager<Character> SetupMeta()
         {
-            var meta = new Meta<Character>();
+            var meta = new EntityManager<Character>();
             var character = new Character();
             meta.Initialize(character);
             meta.StartEncounter();
@@ -76,7 +76,7 @@ namespace Rpg.SciFi.Engine.Tests
             Assert.IsNotNull(character);
 
             var json = meta.Serialize();
-            var meta2 = Meta<Character>.Deserialize(json);
+            var meta2 = EntityManager<Character>.Deserialize(json);
             var character2 = meta.Context;
 
             Assert.IsNotNull(meta2);

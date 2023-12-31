@@ -2,14 +2,14 @@
 using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
-using Rpg.SciFi.Engine.Artifacts.Modifiers;
-using System.Xml.Linq;
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
     public abstract class Entity
     {
-        [JsonIgnore] protected IContext Context { get; set; }
+        protected ModStore? _modStore;
+        protected IPropEvaluator? _propEvaluator;
+        protected TurnManager? _turnManager;
 
         [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
         [JsonProperty] public string Name { get; set; }
@@ -22,12 +22,18 @@ namespace Rpg.SciFi.Engine.Artifacts
             MetaData = this.CreateMetaEntity();
         }
 
-        public Dice Evaluate(string prop) => Context?.Evaluate(Id, prop) ?? 0;
+        public void Initialize(ModStore modStore, IPropEvaluator propEvaluator, TurnManager turnManager)
+        {
+            _modStore = modStore;
+            _propEvaluator = propEvaluator;
+            _turnManager = turnManager;
+        }
 
-        public int Resolve(string prop) => Context?.Resolve(Id, prop) ?? 0;
+        public Dice Evaluate(string prop) => _propEvaluator?.Evaluate(Id, prop) ?? 0;
 
-        public string[] Describe(string prop) => Context?.Describe(this, prop, true) ?? new string[0];
-        public string[] Describe(PropReference? moddableProperty) => Context?.Describe(moddableProperty, true) ?? new string[0];
+        public int Resolve(string prop) => _propEvaluator?.Evaluate(Id, prop).Roll() ?? 0;
+
+        public string[] Describe(string prop) => _propEvaluator?.Describe(Id, prop, true) ?? new string[0];
 
         public bool AddContainer(Container container)
         {
@@ -72,6 +78,5 @@ namespace Rpg.SciFi.Engine.Artifacts
             var container = GetContainer(containerName);
             return container?.Any() ?? false;
         }
-
     }
 }

@@ -11,8 +11,8 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
 
         [JsonProperty] public Guid Id { get; protected set; } = Guid.NewGuid();
         [JsonProperty] public string Name { get; protected set; }
-        [JsonProperty] public PropReference Source { get; protected set; }
-        [JsonProperty] public PropReference Target { get; protected set; }
+        [JsonProperty] public PropRef Source { get; protected set; }
+        [JsonProperty] public PropRef Target { get; protected set; }
         [JsonProperty] public ModifierDiceCalc DiceCalc { get; protected set; } = new ModifierDiceCalc();
         [JsonProperty] public ModifierType ModifierType { get; protected set; }
         [JsonProperty] public ModifierAction ModifierAction { get; protected set; } = ModifierAction.Accumulate;
@@ -26,10 +26,10 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
         {
             var mod = Activator.CreateInstance<TMod>();
             mod.Source = entity != null && sourceExpr != null
-                ? PropReference.FromPath(entity, sourceExpr, true)
-                : PropReference.FromDice(dice);
+                ? PropRef.FromPath(entity, sourceExpr, true)
+                : PropRef.FromDice(dice);
 
-            mod.Target = PropReference.FromPath(target, targetExpr);
+            mod.Target = PropRef.FromPath(target, targetExpr);
             mod.DiceCalc.SetDiceCalc(diceCalcExpr);
             mod.Name = name ?? mod.Source.Prop ?? mod.Target.Prop ?? entity?.GetType().Name ?? target.Name;
 
@@ -41,8 +41,8 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
         {
             var mod = Activator.CreateInstance<TMod>();
 
-            mod.Source = PropReference.FromPath(entity, dice);
-            mod.Target = PropReference.FromPath(entity, targetPropPath);
+            mod.Source = PropRef.FromPath(entity, dice);
+            mod.Target = PropRef.FromPath(entity, targetPropPath);
             mod.DiceCalc.SetDiceCalc(diceCalcExpr);
             mod.Name = name ?? mod.Target.Prop ?? entity.GetType().Name;
 
@@ -51,7 +51,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
 
         public void SetDice(Dice dice)
         {
-            Source = PropReference.FromDice(Source.RootId, Source.Id, dice);
+            Source = PropRef.FromDice(Source.RootId, Source.Id, dice);
             DiceCalc.Clear();
         }
 

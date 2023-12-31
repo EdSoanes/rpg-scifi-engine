@@ -55,7 +55,7 @@ namespace Rpg.SciFi.Engine.Tests
     [TestClass]
     public class ArtifactTests
     {
-        private Meta<Game> _meta;
+        private EntityManager<Game> _meta;
         private Car _car;
 
         [TestInitialize]
@@ -66,7 +66,7 @@ namespace Rpg.SciFi.Engine.Tests
             var game = new Game();
             game.Environment.GetContainer(Container.Environment)!.Add(_car);
 
-            _meta = new Meta<Game>();
+            _meta = new EntityManager<Game>();
             _meta.Initialize(game);
         }
 

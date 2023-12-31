@@ -105,67 +105,67 @@ namespace Rpg.SciFi.Engine.Artifacts.Turns
             return this;
         }
 
-        public Action OnSuccessAction(Modifier mod, string? name = null, int actionCost = 0, int exertionCost = 0, int focusCost = 0)
-        {
-            if (!IsResolved)
-            {
-                if (SuccessAction == null && !string.IsNullOrEmpty(name))
-                    SuccessAction = Context.CreateTurnAction(name, actionCost, exertionCost, focusCost);
+        //public Action OnSuccessAction(Modifier mod, string? name = null, int actionCost = 0, int exertionCost = 0, int focusCost = 0)
+        //{
+        //    if (!IsResolved)
+        //    {
+        //        if (SuccessAction == null && !string.IsNullOrEmpty(name))
+        //            SuccessAction = EntityManager.CreateTurnAction(name, actionCost, exertionCost, focusCost);
 
-                if (SuccessAction == null)
-                    throw new ArgumentException($"{nameof(OnSuccessAction)} invalid. No {nameof(SuccessAction)}", nameof(OnSuccessAction));
+        //        if (SuccessAction == null)
+        //            throw new ArgumentException($"{nameof(OnSuccessAction)} invalid. No {nameof(SuccessAction)}", nameof(OnSuccessAction));
 
-                SuccessAction.Success.Add(mod);
-            }
+        //        SuccessAction.Success.Add(mod);
+        //    }
 
-            return this;
-        }
+        //    return this;
+        //}
 
-        public Action OnFailureAction(Modifier mod, string? name = null, int actionCost = 0, int exertionCost = 0, int focusCost = 0)
-        {
-            if (!IsResolved)
-            {
-                if (FailureAction == null && !string.IsNullOrEmpty(name))
-                    FailureAction = Context.CreateTurnAction(name, actionCost, exertionCost, focusCost);
+        //public Action OnFailureAction(Modifier mod, string? name = null, int actionCost = 0, int exertionCost = 0, int focusCost = 0)
+        //{
+        //    if (!IsResolved)
+        //    {
+        //        if (FailureAction == null && !string.IsNullOrEmpty(name))
+        //            FailureAction = EntityManager.CreateTurnAction(name, actionCost, exertionCost, focusCost);
 
-                if (FailureAction == null)
-                    throw new ArgumentException($"{nameof(OnFailureAction)} invalid. No {nameof(FailureAction)}", nameof(OnFailureAction));
+        //        if (FailureAction == null)
+        //            throw new ArgumentException($"{nameof(OnFailureAction)} invalid. No {nameof(FailureAction)}", nameof(OnFailureAction));
 
-                FailureAction.Failure.Add(mod);
-            }
+        //        FailureAction.Failure.Add(mod);
+        //    }
 
-            return this;
-        }
+        //    return this;
+        //}
 
         public Action OnDiceRoll(Dice dice)
         {
-            Context.AddMod(BaseModifier.Create(this, dice, x => x.DiceRoll));
+            _modStore!.Add(BaseModifier.Create(this, dice, x => x.DiceRoll));
             return this;
         }
 
         public Action OnDiceRoll(string name, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
         {
-            Context.AddMod(BaseModifier.Create(this, name, dice, x => x.DiceRoll, diceCalc));
+            _modStore!.Add(BaseModifier.Create(this, name, dice, x => x.DiceRoll, diceCalc));
             return this;
         }
 
         public Action OnDiceRoll<T, TR>(T source, Expression<Func<T, TR>> sExpr, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
             where T : Entity
         {
-            Context.AddMod(BaseModifier.Create(source, sExpr, this, x => x.DiceRoll, diceCalc));
+            _modStore!.Add(BaseModifier.Create(source, sExpr, this, x => x.DiceRoll, diceCalc));
             return this;
         }
 
         public Action OnDiceRollTarget(Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
         {
-            Context.AddMod(BaseModifier.Create(this, dice, x => x.DiceRollTarget, diceCalc));
+            _modStore!.Add(BaseModifier.Create(this, dice, x => x.DiceRollTarget, diceCalc));
             return this;
         }
 
         public Action OnDiceRollTarget<T, TR>(T source, Expression<Func<T, TR>> sExpr, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
             where T : Entity
         {
-            Context.AddMod(BaseModifier.Create(source, sExpr, this, x => x.DiceRollTarget, diceCalc));
+            _modStore!.Add(BaseModifier.Create(source, sExpr, this, x => x.DiceRollTarget, diceCalc));
             return this;
         }
     }

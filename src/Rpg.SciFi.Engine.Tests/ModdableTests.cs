@@ -33,7 +33,7 @@ namespace Rpg.SciFi.Engine.Tests
     public class ModdableTests
     {
         private AnEntity _anEntity;
-        private Meta<AnEntity> _meta;
+        private EntityManager<AnEntity> _meta;
 
         [TestInitialize]
         public void Initialize()
@@ -43,7 +43,7 @@ namespace Rpg.SciFi.Engine.Tests
                 BaseIntValue = 1
             };
 
-            _meta = new Meta<AnEntity>();
+            _meta = new EntityManager<AnEntity>();
             _meta.Initialize(_anEntity);
         }
 

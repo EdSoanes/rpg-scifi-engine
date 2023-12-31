@@ -3,7 +3,6 @@ using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
-using Rpg.SciFi.Engine.Artifacts.Turns;
 
 namespace Rpg.SciFi.Engine.Artifacts.Gear
 {
@@ -32,7 +31,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Gear
         [Input(InputSource = InputSource.Player, Param = "range")]
         public Turns.Action Fire(Character character, Artifact target, int range)
         {
-            var action = Context.CreateTurnAction(nameof(Fire), 3, 1, 1)
+            var action = _turnManager!.CreateAction(nameof(Fire), 3, 1, 1)
                 .OnDiceRoll("d20")
                 .OnDiceRoll(character, (x) => x.Stats.MissileAttackBonus)
                 .OnDiceRoll(this, (x) => x.Attack)

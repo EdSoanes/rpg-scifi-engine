@@ -38,7 +38,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Input(InputSource = InputSource.Player, Param = "artifact")]
         public Turns.Action Get(Actor actor, Artifact artifact)
         {
-            var action = actor.Act(this, nameof(Get), 1, 1, 1);
+            var action = _turnManager!.CreateAction(nameof(Get), 1, 1, 1);
             action.AddArtifact(TurnAction, artifact);
             return action;
         }
@@ -48,7 +48,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Input(InputSource = InputSource.Player, Param = "artifact")]
         public Turns.Action Put(Actor actor, Artifact artifact)
         {
-            var action = actor.Act(this, nameof(Put), 1, 1, 1);
+            var action = _turnManager!.CreateAction(nameof(Put), 1, 1, 1);
             action.AddArtifact(TurnAction, artifact);
             return action;
         }
