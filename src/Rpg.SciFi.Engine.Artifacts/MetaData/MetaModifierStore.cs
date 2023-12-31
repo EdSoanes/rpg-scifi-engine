@@ -77,96 +77,26 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         public void Add(Modifier mod)
         {
             var modProp = Get(mod.Target, true)!;
-            if (mod.ModifierAction == ModifierAction.Accumulate || (mod.Target.PropReturnType == PropReturnType.Dice && !Evaluate(mod.Target).IsConstant))
+            if (mod.ModifierAction == ModifierAction.Accumulate)
             {
                 modProp.Modifiers.Add(mod);
             }
-
-            else
+            else if (mod.ModifierAction == ModifierAction.Sum)
             {
-                var existingMods = modProp.Modifiers
-                    .Where(x => x.Id == mod.Id || (x.Name == mod.Name && x.ModifierType == mod.ModifierType))
-                    .ToList();
-
-                if (mod.ModifierAction == ModifierAction.Sum)
+                var modDice = Context.Evaluate(modProp.MatchingMods(mod)) + Context.Evaluate(new[] { mod });
+                modProp.RemoveMatchingMods(mod);
+                if (modDice != Dice.Zero)
                 {
-                    Dice dice = Dice.Sum(existingMods.Select(x => x.DiceCalc.Apply(SourceDice(x), Context.Get(x.Source)))) + mod.DiceCalc.Apply(SourceDice(mod), Context.Get(mod.Source));
-                    mod.SetDice(dice);
-                }
-
-                foreach (var existingMod in existingMods)
-                    modProp.Modifiers.Remove(existingMod);
-
-                if (mod.ModifierType != ModifierType.Transient)
+                    mod.SetDice(modDice);
                     modProp.Modifiers.Add(mod);
-                else
-                {
-                    var dice = Evaluate(mod);
-                    if (!dice.IsConstant || dice.Roll() != 0)
-                        modProp.Modifiers.Add(mod);
                 }
             }
-
-            modProp.DiceIsSet = false;
-            modProp.IsDiceProperty = mod.Target.PropType == PropType.Dice;
-        }
-
-        private Dice ApplyDiceCalc(Dice dice, string? diceCalc, Entity? entity = null)
-        {
-            if (string.IsNullOrEmpty(diceCalc))
-                return dice;
-
-            var parts = diceCalc.Split('.', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            if (parts.Length == 2)
+            else if (mod.ModifierAction == ModifierAction.Replace)
             {
-                if (Guid.TryParse(parts[0], out var id))
-                    entity = Context.Get(id);
-                else
-                    entity = null;
+                modProp.RemoveMatchingMods(mod);
+                modProp.Modifiers.Add(mod);
             }
-
-            var funcName = entity != null
-                ? parts.Last()
-                : diceCalc;
-
-            Dice val = entity.ExecuteFunction<Dice, Dice>(funcName, dice);
-            return val;
         }
-
-        public Dice Evaluate(PropReference? moddableProperty) 
-            => Evaluate(moddableProperty?.Id, moddableProperty?.Prop);
-
-        public Dice Evaluate(Guid? id, string? prop)
-        {
-            var modProp = Get(id, prop);
-            if (modProp == null)
-                return "0";
-            
-            if (modProp.DiceIsSet)
-                return modProp.Dice;
-
-            modProp.Dice = Dice.Sum(modProp.Modifiers.Select(Evaluate));
-            return modProp.Dice;
-        }
-
-        public Dice Evaluate(Modifier modifier)
-        {
-            if (modifier.Source.PropType == PropType.Dice)
-                return modifier.Source.Prop;
-
-            var sourceEntity = Context.Get(modifier.Source);
-            var dice = SourceDice(modifier, sourceEntity);
-
-            dice = ApplyDiceCalc(dice, modifier.DiceCalc, sourceEntity ?? targetEntity);
-
-            return dice;
-        }
-
-        public int Resolve(PropReference? moddableProperty) 
-            => Evaluate(moddableProperty?.Id, moddableProperty?.Prop).Roll();
-
-        public int Resolve(Guid? id, string? prop)
-            => Evaluate(id, prop).Roll();
 
         public string[] Describe(PropReference? moddableProperty, bool includeEntityInformation = false)
         {
@@ -178,7 +108,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
         public string[] Describe(Entity entity, string prop, bool includeEntityInformation = false)
         {
-            var res = new List<string> { $"{entity.Name}.{prop} => {Evaluate(entity.Id, prop)}" };
+            var res = new List<string> { $"{entity.Name}.{prop} => {Context.Evaluate(entity.Id, prop)}" };
 
             var modProp = Get(entity.Id, prop);
             var descriptions = modProp?.Modifiers
@@ -228,7 +158,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             desc += $"{mod.Source.Prop ?? mod.Name} => {SourceDice(mod, sourceEntity)}";
 
             if (mod.DiceCalc != null)
-                desc += $" => {DescribeDiceCalc(mod.DiceCalc)}() => {Evaluate(mod)}";
+                desc += $" => {DescribeDiceCalc(mod.DiceCalc)}() => {Context.Evaluate(new[] { mod })}";
 
             return desc;
         }
@@ -241,19 +171,16 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             return $"{rootEntity?.Name}.{targetEntity?.Name}.{modifier.Target.Prop}".Trim('.');
         }
 
-        private string DescribeDiceCalc(string? diceCalc)
+        private string DescribeDiceCalc(ModifierDiceCalc diceCalc)
         {
-            if (string.IsNullOrEmpty(diceCalc))
-                return diceCalc!;
+            if (!diceCalc.IsCalc)
+                return string.Empty;
 
-            var parts = diceCalc.Split('.', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length == 1)
-                return diceCalc;
-
-            if (parts.Length == 2 && Guid.TryParse(parts[0], out var id))
-                return $"{Context.Get(id)?.Name}.{parts[1]}".Trim('.');
-
-            return diceCalc;
+            var src = diceCalc.EntityId != null
+                ? Context.Get(diceCalc.EntityId.Value)?.Name
+                : diceCalc.ClassName;
+            
+            return $"{src}.{diceCalc.FuncName}".Trim('.');
         }
 
         public Dice SourceDice(Modifier mod, Entity? sourceEntity = null)
@@ -328,18 +255,11 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                 {
                     var modProp = entityMods[mod.Target.Prop];
                     var toRemove = modProp.Modifiers.FirstOrDefault(x => x.Id == mod.Id && mod.CanBeCleared());
-
                     if (toRemove != null)
                     {
                         modProp.Modifiers.Remove(toRemove);
                         res = true;
                     }
-
-                    if (!modProp.Modifiers.Any())
-                        entityMods.Remove(mod.Target.Prop);
-
-                    if (!entityMods.Any())
-                        _store.Remove(mod.Target.Id!.Value);
                 }
             }
 

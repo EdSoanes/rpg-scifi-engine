@@ -19,12 +19,6 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         void AddMod(Modifier mod);
         void AddMods(params Modifier[] mods);
 
-        //List<Modifier>? GetMods(Guid id, string prop);
-        //List<Modifier>? GetMods(ModdableProperty? moddableProperty);
-        //List<Modifier>? GetMods(Entity entity, string prop);
-
-        MetaModdableProperty? GetModProp(PropReference? moddableProperty);
-        MetaModdableProperty? GetModProp(Guid id, string prop);
         MetaModdableProperty? GetModProp<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression) where TEntity : Entity;
         List<Modifier>? GetMods<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression) where TEntity: Entity;
 
@@ -35,6 +29,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         bool RemoveMods(Entity entity, string prop);
         bool RemoveMods<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression);
 
+        Dice Evaluate(IEnumerable<Modifier> mods);
         Dice Evaluate(Guid entityId, string prop);
         Dice Evaluate<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression);
 
@@ -70,11 +65,14 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         [JsonProperty] protected MetaModifierStore Mods { get; set; }
         [JsonProperty] protected MetaEncounter Encounter { get; set; }
 
+        private MetaModdablePropertyEvaluator Evaluator { get; set; }
+
         public Meta()
         {
             Entities = new MetaEntityStore();
             Mods = new MetaModifierStore();
             Encounter = new MetaEncounter();
+            Evaluator = new MetaModdablePropertyEvaluator(Mods, Entities);
 
             InitContext();
         }
@@ -119,18 +117,10 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         public void AddMod(Modifier mod) => Mods.Add(mod);
         public void AddMods(params Modifier[] mods) => Mods.Add(mods);
 
-        public MetaModdableProperty? GetModProp(Guid id, string prop) 
-            => Mods.Get(id, prop);
-
-        public MetaModdableProperty? GetModProp(PropReference moddableProperty)
-            => Mods.Get(moddableProperty);
-
         public MetaModdableProperty? GetModProp<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
             where TEntity : Entity
                 => Mods.Get(PropReference.FromPath(entity, expression, true));
-        //public List<Modifier>? GetMods(Guid id, string prop) => Mods.Get(id, prop)?.Modifiers;
-        //public List<Modifier>? GetMods(ModdableProperty? moddableProperty) => Mods.Get(moddableProperty)?.Modifiers;
-        //public List<Modifier>? GetMods(Entity entity, string prop) => Mods.Get(entity.Id, prop)?.Modifiers;
+
         public List<Modifier>? GetMods<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
             where TEntity: Entity
                 => Mods.Get(PropReference.FromPath(entity, expression, true))?.Modifiers;
@@ -140,17 +130,23 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         public bool RemoveMods(Entity entity, string prop) => Mods.Remove(entity.Id, prop);
         public bool RemoveMods<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression) => Mods.Remove(PropReference.FromPath(entity, expression, true));
 
+        public Dice Evaluate(IEnumerable<Modifier> mods)
+            => Evaluator.Evaluate(mods);
+
         public Dice Evaluate(Guid entityId, string prop) 
-            => Mods.Evaluate(entityId, prop);
+            => Evaluator.Evaluate(entityId, prop);
 
         public Dice Evaluate<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression)
-            => Mods.Evaluate(PropReference.FromPath(entity, expression));
+        {
+            var propRef = PropReference.FromPath(entity, expression);
+            return Evaluator.Evaluate(propRef.Id!.Value, propRef.Prop);
+        }
 
         public int Resolve(Guid entityId, string prop) 
-            => Mods.Resolve(entityId, prop);
+            => Evaluate(entityId, prop).Roll();
 
         public int Resolve<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression) 
-            => Mods.Resolve(PropReference.FromPath(entity, expression));
+            => Evaluate(entity, expression).Roll();
 
         public string[] Describe(Entity entity, string prop, bool includeEntityInformation = false) => Mods.Describe(entity, prop, includeEntityInformation);
         public string[] Describe(Modifier mod, bool includeEntityInformation = false) => Mods.Describe(mod, includeEntityInformation);
@@ -160,7 +156,9 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
         private void Setup(IEnumerable<Entity> entities)
         {
-            foreach (var entity in entities)
+            //Execute in reverse order to set up child entities first so
+            // parent entity mods on children can override child entity mods
+            foreach (var entity in entities.Reverse())
                 Setup(entity);
         }
 
@@ -238,24 +236,24 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
         public static Meta<T>? Deserialize(string json)
         {
-            var meta = JsonConvert.DeserializeObject<Meta<T>>(json, JsonSettings);
-            meta?.InitContext();
+            var meta = JsonConvert.DeserializeObject<Meta<T>>(json, JsonSettings)!;
+            meta.InitContext();
+
+            meta.Context = meta.Entities.Get(meta.Context?.Id) as T;
+            meta.Evaluator = new MetaModdablePropertyEvaluator(meta.Mods, meta.Entities);
 
             return meta;
         }
 
         private void InitContext()
         {
-            Entities?.PropertyValue("Context", this as IContext);
-            if (Entities?.Values.Any() ?? false)
+            Mods.PropertyValue("Context", this as IContext);
+            Entities.PropertyValue("Context", this as IContext);
+            if (Entities.Values.Any())
             {
                 foreach (var entity in Entities.Values)
                     entity.PropertyValue("Context", this as IContext);
             }
-
-            Context = Entities?.Get(Context?.Id) as T;
-            Mods?.PropertyValue("Context", this as IContext);
-            //Mods?.EvaluateAll();
         }
     }
 }

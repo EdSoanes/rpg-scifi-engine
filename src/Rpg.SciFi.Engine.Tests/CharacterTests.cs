@@ -85,6 +85,10 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void Character_Gun_Fire_Success()
         {
+            var baseImpactModProp = _meta.GetModProp(_gun, x => x.Damage.BaseImpact);
+            Assert.IsNotNull(baseImpactModProp);
+            Assert.AreEqual(1, baseImpactModProp.Modifiers.Count);
+
             Assert.AreEqual(10, _target.Health.Physical);
             var action = _gun.Fire(_game.Character, _target, 3);
 

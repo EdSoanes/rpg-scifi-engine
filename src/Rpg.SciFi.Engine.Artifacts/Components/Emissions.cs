@@ -45,10 +45,10 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
                 BaseModifier.Create(this, _baseValue, x => x.BaseValue),
                 BaseModifier.Create(this, _baseRadius, x => x.BaseRadius),
 
-                BaseModifier.Create(this, x => x.BaseMin, x => x.BaseMin),
-                BaseModifier.Create(this, x => x.BaseMax, x => x.BaseMax),
-                BaseModifier.Create(this, x => x.BaseValue, x => x.BaseValue),
-                BaseModifier.Create(this, x => x.BaseRadius, x => x.BaseRadius)
+                BaseModifier.Create(this, x => x.BaseMin, x => x.Min),
+                BaseModifier.Create(this, x => x.BaseMax, x => x.Max),
+                BaseModifier.Create(this, x => x.BaseValue, x => x.Value),
+                BaseModifier.Create(this, x => x.BaseRadius, x => x.Radius)
             };
         }
     }

@@ -9,21 +9,11 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
     {
         [JsonConstructor] protected Modifier() { }
 
-        protected Modifier(string? name, PropReference source, PropReference target, string? diceCalc, ModifierType modifierType, ModifierAction modifierAction, bool isPermanent)
-        {
-            Name = name ?? source.Prop ?? target.Prop ?? GetType().Name;
-            Target = target;
-            DiceCalc = new ModifierDiceCalc(diceCalc);
-            ModifierType = modifierType;
-            ModifierAction = modifierAction;
-            IsPermanent = isPermanent;
-        }
-
         [JsonProperty] public Guid Id { get; protected set; } = Guid.NewGuid();
         [JsonProperty] public string Name { get; protected set; }
-        [JsonProperty] public PropReference Source { get; protected set; } = null;
+        [JsonProperty] public PropReference Source { get; protected set; }
         [JsonProperty] public PropReference Target { get; protected set; }
-        [JsonProperty] public ModifierDiceCalc DiceCalc { get; protected set; }
+        [JsonProperty] public ModifierDiceCalc DiceCalc { get; protected set; } = new ModifierDiceCalc();
         [JsonProperty] public ModifierType ModifierType { get; protected set; }
         [JsonProperty] public ModifierAction ModifierAction { get; protected set; } = ModifierAction.Accumulate;
         [JsonProperty] public bool IsPermanent { get; protected set; } = false;
@@ -62,7 +52,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
         public void SetDice(Dice dice)
         {
             Source = PropReference.FromDice(Source.RootId, Source.Id, dice);
-            DiceCalc = null;
+            DiceCalc.Clear();
         }
 
         public bool ShouldBeRemoved(int turn)

@@ -23,23 +23,11 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
         public bool IsCalc => !string.IsNullOrWhiteSpace(FuncName)
             && (EntityId != null || !string.IsNullOrWhiteSpace(ClassName));
 
-        [JsonConstructor] private ModifierDiceCalc() { }
-
-        public ModifierDiceCalc(string? diceCalc) 
+        public void Clear()
         {
-            if (!string.IsNullOrEmpty(diceCalc))
-            {
-                var parts = diceCalc.Split('.', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-                if (parts.Length == 2)
-                {
-                    if (Guid.TryParse(parts[0], out var id))
-                        EntityId = id;
-                    else
-                        ClassName = parts[0];
-                }
-
-                FuncName = parts.Last();
-            }
+            EntityId = null;
+            ClassName = null;
+            FuncName = null;
         }
 
         public void SetDiceCalc<T>(Expression<Func<Func<T, T>>>? expression)
@@ -76,20 +64,6 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
             EntityId = entity?.Id;
             FuncName = methodInfo.Name;
             return;
-        }
-
-        public Dice Apply(Dice dice, Entity? entity)
-        {
-            if (!IsCalc)
-                return dice;
-
-            if (IsStatic)
-                return this.ExecuteFunction<Dice, Dice>($"{ClassName}.{FuncName}", dice);
-
-            if (entity != null && entity.Id == EntityId)
-                return entity.ExecuteFunction<Dice, Dice>(FuncName!, dice);
-
-            return dice;
         }
     }
 }

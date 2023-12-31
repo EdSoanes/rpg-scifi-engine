@@ -36,5 +36,18 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             EntityId = entityId;
             Prop = prop;
         }
+
+        public Modifier[] MatchingMods(Modifier mod)
+        {
+            return Modifiers
+                .Where(x => x.Name == mod.Name && x.ModifierType == mod.ModifierType)
+                .ToArray();
+        }
+
+        public void RemoveMatchingMods(Modifier mod)
+        {
+            var matching = MatchingMods(mod);
+            Modifiers = Modifiers.Except(matching).ToList();
+        }
     }
 }
