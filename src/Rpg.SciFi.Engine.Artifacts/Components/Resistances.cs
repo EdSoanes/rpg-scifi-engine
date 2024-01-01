@@ -23,17 +23,17 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
             _baseEnergy = baseEnergy;
         }
 
-        [Moddable] public virtual int BaseImpact { get => this.Resolve(nameof(BaseImpact)); }
-        [Moddable] public virtual int BasePierce { get => this.Resolve(nameof(BasePierce)); }
-        [Moddable] public virtual int BaseBlast { get => this.Resolve(nameof(BaseBlast)); }
-        [Moddable] public virtual int BaseBurn { get => this.Resolve(nameof(BaseBurn)); }
-        [Moddable] public virtual int BaseEnergy { get => this.Resolve(nameof(BaseEnergy)); }
+        [Moddable] public virtual int BaseImpact { get => Resolve(); }
+        [Moddable] public virtual int BasePierce { get => Resolve(); }
+        [Moddable] public virtual int BaseBlast { get => Resolve(); }
+        [Moddable] public virtual int BaseBurn { get => Resolve(); }
+        [Moddable] public virtual int BaseEnergy { get => Resolve(); }
 
-        [Moddable] public virtual int Impact { get => this.Resolve(nameof(Impact)); }
-        [Moddable] public virtual int Pierce { get => this.Resolve(nameof(Pierce)); }
-        [Moddable] public virtual int Blast { get => this.Resolve(nameof(Blast)); }
-        [Moddable] public virtual int Burn { get => this.Resolve(nameof(Burn)); }
-        [Moddable] public virtual int Energy { get => this.Resolve(nameof(Energy)); }
+        [Moddable] public virtual int Impact { get => Resolve(); }
+        [Moddable] public virtual int Pierce { get => Resolve(); }
+        [Moddable] public virtual int Blast { get => Resolve(); }
+        [Moddable] public virtual int Burn { get => Resolve(); }
+        [Moddable] public virtual int Energy { get => Resolve(); }
 
         [Setup]
         public Modifier[] Setup()

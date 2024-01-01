@@ -8,13 +8,12 @@ using System.Linq.Expressions;
 
 namespace Rpg.SciFi.Engine.Artifacts.MetaData
 {
-    public class ModStore : IDictionary<string, MetaModdableProperty>, INotifyPropertyChanged
+    public class ModStore : IDictionary<string, MetaModdableProperty>
     {
+        private EntityStore? _entityStore;
+        private PropEvaluator? _evaluator;
+        
         private readonly Dictionary<Guid, Dictionary<string, MetaModdableProperty>> _store = new Dictionary<Guid, Dictionary<string, MetaModdableProperty>>();
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        [JsonIgnore] protected IPropEvaluator? PropEvaluator { get; set; }
 
         public MetaModdableProperty this[string key]
         {
@@ -35,9 +34,10 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
         public bool IsReadOnly => false;
 
-        public void Initialize(IPropEvaluator propEvaluator)
+        public void Initialize(EntityStore entityStore, PropEvaluator propEvaluator)
         {
-            PropEvaluator = propEvaluator;
+            _entityStore = entityStore;
+            _evaluator = propEvaluator;
         }
 
         public List<Modifier>? GetMods<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
@@ -102,7 +102,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             }
             else if (mod.ModifierAction == ModifierAction.Sum)
             {
-                var modDice = PropEvaluator!.Evaluate(modProp.MatchingMods(mod)) + PropEvaluator!.Evaluate(new[] { mod });
+                var modDice = _evaluator!.Evaluate(modProp.MatchingMods(mod)) + _evaluator!.Evaluate(new[] { mod });
                 modProp.RemoveMatchingMods(mod);
                 if (modDice != Dice.Zero)
                 {
@@ -337,14 +337,28 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
         private void NotifyPropertyChanged(MetaModdableProperty modProp)
         {
-            var props = AllValues()
-                .Where(x => x.Modifiers.Any(m => m.Source.Id == modProp.Id && m.Source.Prop == modProp.Prop))
-                .Select(x => $"{x.Id}.{x.Prop}")
-                .Distinct()
-                .ToArray();
+            var entity = _entityStore?.Get(modProp.Id);
+            if (entity != null)
+                NotifyPropertyChanged(entity, modProp.Prop);
+        }
 
-            foreach (var prop in props)
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
+        private void NotifyPropertyChanged(Entity? entity, string prop)
+        {
+            if (_entityStore != null && entity != null)
+            {
+                entity.PropChanged(prop);
+
+                var modProps = AllValues()
+                    .Where(x => x.Modifiers.Any(m => m.Source.Id == entity.Id && m.Source.Prop == prop));
+
+                foreach (var mpg in modProps.GroupBy(x => x.Id))
+                {
+                    entity = _entityStore.Get(mpg.Key);
+                    if (entity != null)
+                        foreach (var mp in mpg)
+                            NotifyPropertyChanged(entity, mp.Prop);
+                }
+            }
         }
     }
 }

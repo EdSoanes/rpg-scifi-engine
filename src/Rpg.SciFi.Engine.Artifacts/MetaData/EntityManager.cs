@@ -1,7 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Rpg.SciFi.Engine.Artifacts.Expressions;
-using Rpg.SciFi.Engine.Artifacts.Modifiers;
-using System.Linq.Expressions;
 
 namespace Rpg.SciFi.Engine.Artifacts.MetaData
 {
@@ -63,7 +60,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         private void InitContext()
         {
             Evaluator.Initialize(Mods, Entities);
-            Mods.Initialize(Evaluator);
+            Mods.Initialize(Entities, Evaluator);
             Entities.Initialize(Mods, Evaluator, Turns);
             Turns.Initialize(Mods, Entities);
         }

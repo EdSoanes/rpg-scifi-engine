@@ -19,17 +19,17 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
             _baseFocus = baseFocus;
         }
 
-        [Moddable] public int BaseAction { get => this.Resolve(nameof(BaseAction)); }
-        [Moddable] public int BaseExertion { get => this.Resolve(nameof(BaseExertion)); }
-        [Moddable] public int BaseFocus { get => this.Resolve(nameof(BaseFocus)); }
+        [Moddable] public int BaseAction { get => Resolve(); }
+        [Moddable] public int BaseExertion { get => Resolve(); }
+        [Moddable] public int BaseFocus { get => Resolve(); }
 
-        [Moddable] public int MaxAction { get => this.Resolve(nameof(MaxAction)); }
-        [Moddable] public int MaxExertion { get => this.Resolve(nameof(MaxExertion)); }
-        [Moddable] public int MaxFocus { get => this.Resolve(nameof(MaxFocus)); }
+        [Moddable] public int MaxAction { get => Resolve(); }
+        [Moddable] public int MaxExertion { get => Resolve(); }
+        [Moddable] public int MaxFocus { get => Resolve(); }
 
-        [Moddable] public int Action { get => this.Resolve(nameof(Action)); }
-        [Moddable] public int Exertion { get => this.Resolve(nameof(Exertion)); }
-        [Moddable] public int Focus { get => this.Resolve(nameof(Focus)); }
+        [Moddable] public int Action { get => Resolve(); }
+        [Moddable] public int Exertion { get => Resolve(); }
+        [Moddable] public int Focus { get => Resolve(); }
 
         [Setup]
         public Modifier[] Setup()

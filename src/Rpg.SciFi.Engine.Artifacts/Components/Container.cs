@@ -21,7 +21,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
 
         [JsonProperty] protected List<Artifact> Artifacts { get; set; } = new List<Artifact>();
 
-        [Moddable] public int MaxCapacity { get => this.Resolve(nameof(MaxCapacity)); }
+        [Moddable] public int MaxCapacity { get => Resolve(); }
         public int Encumbrance { get => Artifacts.Sum(x => x.Weight); }
 
         [Setup]

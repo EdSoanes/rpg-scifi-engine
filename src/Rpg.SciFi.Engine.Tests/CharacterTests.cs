@@ -69,6 +69,34 @@ namespace Rpg.SciFi.Engine.Tests
         }
 
         [TestMethod]
+        public void CharacterStats_BaseStrengthUpdate_PropertyNotification()
+        {
+            var propNames = new List<string>();
+            _game.Character.Stats.PropertyChanged += (sender, e) =>
+            {
+                propNames.Add($"Stats.{e.PropertyName}");
+            };
+            _game.Character.Turns.PropertyChanged += (sender, e) =>
+            {
+                propNames.Add($"Turns.{e.PropertyName}");
+            };
+            _game.Character.Damage.PropertyChanged += (sender, e) =>
+            {
+                propNames.Add($"Damage.{e.PropertyName}");
+            };
+
+            _meta.Mods.Add(PlayerModifier.Create(_game.Character, 1, x => x.Stats.BaseStrength));
+
+            Assert.IsTrue(propNames.Contains("Stats.BaseStrength"));
+            Assert.IsTrue(propNames.Contains("Stats.Strength"));
+            Assert.IsTrue(propNames.Contains("Stats.StrengthBonus"));
+            Assert.IsTrue(propNames.Contains("Stats.MeleeAttackBonus"));
+            Assert.IsTrue(propNames.Contains("Turns.Exertion"));
+            Assert.IsTrue(propNames.Contains("Damage.Impact"));
+
+        }
+
+        [TestMethod]
         public void Character_Gun_Fire()
         {
             var action = _gun.Fire(_game.Character, _target, 3);

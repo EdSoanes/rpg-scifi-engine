@@ -24,17 +24,17 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
             _baseEnergy = baseEnergy;
         }
 
-        [Moddable] public Dice BaseImpact { get => this.Evaluate(nameof(BaseImpact)); }
-        [Moddable] public Dice BasePierce { get => this.Evaluate(nameof(BasePierce)); }
-        [Moddable] public Dice BaseBlast { get => this.Evaluate(nameof(BaseBlast)); }
-        [Moddable] public Dice BaseBurn { get => this.Evaluate(nameof(BaseBurn)); }
-        [Moddable] public Dice BaseEnergy { get => this.Evaluate(nameof(BaseEnergy)); }
+        [Moddable] public Dice BaseImpact { get => Evaluate(); }
+        [Moddable] public Dice BasePierce { get => Evaluate(); }
+        [Moddable] public Dice BaseBlast { get => Evaluate(); }
+        [Moddable] public Dice BaseBurn { get => Evaluate(); }
+        [Moddable] public Dice BaseEnergy { get => Evaluate(); }
 
-        [Moddable] public Dice Impact { get => this.Evaluate(nameof(Impact)); }
-        [Moddable] public Dice Pierce { get => this.Evaluate(nameof(Pierce)); }
-        [Moddable] public Dice Blast { get => this.Evaluate(nameof(Blast)); }
-        [Moddable] public Dice Burn { get => this.Evaluate(nameof(Burn)); }
-        [Moddable] public Dice Energy { get => this.Evaluate(nameof(Energy)); }
+        [Moddable] public Dice Impact { get => Evaluate(); }
+        [Moddable] public Dice Pierce { get => Evaluate(); }
+        [Moddable] public Dice Blast { get => Evaluate(); }
+        [Moddable] public Dice Burn { get => Evaluate(); }
+        [Moddable] public Dice Energy { get => Evaluate(); }
 
         [Setup]
         public Modifier[] Setup()

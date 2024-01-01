@@ -17,11 +17,11 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
             _baseMental = baseMental;
         }
 
-        [Moddable] public virtual int BasePhysical { get => this.Resolve(nameof(BasePhysical)); }
-        [Moddable] public virtual int BaseMental { get => this.Resolve(nameof(BasePhysical)); }
+        [Moddable] public virtual int BasePhysical { get => Resolve(); }
+        [Moddable] public virtual int BaseMental { get => Resolve(); }
 
-        [Moddable] public virtual int Physical { get => this.Resolve(nameof(Physical)); }
-        [Moddable] public virtual int Mental { get => this.Resolve(nameof(Mental)); }
+        [Moddable] public virtual int Physical { get => Resolve(); }
+        [Moddable] public virtual int Mental { get => Resolve(); }
 
         [Setup]
         public Modifier[] Setup()

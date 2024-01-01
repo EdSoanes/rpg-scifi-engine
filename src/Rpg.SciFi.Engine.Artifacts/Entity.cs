@@ -6,11 +6,13 @@ using System.Runtime.CompilerServices;
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
-    public abstract class Entity
+    public abstract class Entity : System.ComponentModel.INotifyPropertyChanged
     {
         protected ModStore? _modStore;
         protected IPropEvaluator? _propEvaluator;
         protected TurnManager? _turnManager;
+
+        public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
 
         [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
         [JsonProperty] public string Name { get; set; }
@@ -28,6 +30,11 @@ namespace Rpg.SciFi.Engine.Artifacts
             _modStore = modStore;
             _propEvaluator = propEvaluator;
             _turnManager = turnManager;
+        }
+
+        internal void PropChanged(string prop)
+        {
+            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(prop));
         }
 
         public Dice Evaluate([CallerMemberName] string prop = "") => _propEvaluator?.Evaluate(Id, prop) ?? 0;

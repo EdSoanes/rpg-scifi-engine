@@ -25,15 +25,15 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
             _baseRadius = baseRadius;
         }
 
-        [Moddable] public int BaseMin { get => this.Resolve(nameof(BaseMin)); }
-        [Moddable] public int BaseMax { get => this.Resolve(nameof(BaseMax)); }
-        [Moddable] public int BaseValue { get => this.Resolve(nameof(BaseValue)); }
-        [Moddable] public int BaseRadius { get => this.Resolve(nameof(BaseRadius)); }
+        [Moddable] public int BaseMin { get => Resolve(); }
+        [Moddable] public int BaseMax { get => Resolve(); }
+        [Moddable] public int BaseValue { get => Resolve(); }
+        [Moddable] public int BaseRadius { get => Resolve(); }
 
-        [Moddable] public int Min { get => this.Resolve(nameof(Min)); }
-        [Moddable] public int Max { get => this.Resolve(nameof(Max)); }
-        [Moddable] public int Value { get => this.Resolve(nameof(Value)); }
-        [Moddable] public int Radius { get => this.Resolve(nameof(Radius)); }
+        [Moddable] public int Min { get => Resolve(); }
+        [Moddable] public int Max { get => Resolve(); }
+        [Moddable] public int Value { get => Resolve(); }
+        [Moddable] public int Radius { get => Resolve(); }
 
         [Setup]
         public Modifier[] Setup()

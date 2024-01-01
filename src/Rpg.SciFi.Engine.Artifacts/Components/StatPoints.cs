@@ -6,20 +6,20 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
 {
     public class StatPoints : Entity
     {
-        [Moddable] public virtual int BaseStrength { get => this.Resolve(nameof(BaseStrength)); }
-        [Moddable] public virtual int BaseDexterity { get => this.Resolve(nameof(BaseDexterity)); }
-        [Moddable] public virtual int BaseIntelligence { get => this.Resolve(nameof(BaseIntelligence)); }
+        [Moddable] public virtual int BaseStrength { get => Resolve(); }
+        [Moddable] public virtual int BaseDexterity { get => Resolve(); }
+        [Moddable] public virtual int BaseIntelligence { get => Resolve(); }
 
-        [Moddable] public virtual int Strength { get => this.Resolve(nameof(Strength)); }
-        [Moddable] public virtual int Dexterity { get => this.Resolve(nameof(Dexterity)); }
-        [Moddable] public virtual int Intelligence { get => this.Resolve(nameof(Intelligence)); }
+        [Moddable] public virtual int Strength { get => Resolve(); }
+        [Moddable] public virtual int Dexterity { get => Resolve(); }
+        [Moddable] public virtual int Intelligence { get => Resolve(); }
 
-        [Moddable] public virtual int StrengthBonus { get => this.Resolve(nameof(StrengthBonus)); }
-        [Moddable] public virtual int DexterityBonus { get => this.Resolve(nameof(DexterityBonus)); }
-        [Moddable] public virtual int IntelligenceBonus { get => this.Resolve(nameof(IntelligenceBonus)); }
+        [Moddable] public virtual int StrengthBonus { get => Resolve(); }
+        [Moddable] public virtual int DexterityBonus { get => Resolve(); }
+        [Moddable] public virtual int IntelligenceBonus { get => Resolve(); }
 
-        [Moddable] public virtual int MissileAttackBonus { get => this.Resolve(nameof(MissileAttackBonus)); }
-        [Moddable] public virtual int MeleeAttackBonus { get => this.Resolve(nameof(MeleeAttackBonus)); }
+        [Moddable] public virtual int MissileAttackBonus { get => Resolve(); }
+        [Moddable] public virtual int MeleeAttackBonus { get => Resolve(); }
 
         [Setup]
         public Modifier[] Setup()

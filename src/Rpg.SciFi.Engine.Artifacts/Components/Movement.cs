@@ -21,15 +21,15 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
             _baseManeuverability = baseManeuverability;
         }
 
-        [Moddable] public int BaseSpeed { get => this.Resolve(nameof(BaseSpeed)); }
-        [Moddable] public int BaseAcceleration { get => this.Resolve(nameof(BaseAcceleration)); }
-        [Moddable] public int BaseDeceleration { get => this.Resolve(nameof(BaseDeceleration)); }
-        [Moddable] public int BaseManeuverability { get => this.Resolve(nameof(BaseManeuverability)); }
+        [Moddable] public int BaseSpeed { get => Resolve(); }
+        [Moddable] public int BaseAcceleration { get => Resolve(); }
+        [Moddable] public int BaseDeceleration { get => Resolve(); }
+        [Moddable] public int BaseManeuverability { get => Resolve(); }
 
-        [Moddable] public int Speed { get => this.Resolve(nameof(Speed)); }
-        [Moddable] public int Acceleration { get => this.Resolve(nameof(Acceleration)); }
-        [Moddable] public int Deceleration { get => this.Resolve(nameof(Deceleration)); }
-        [Moddable] public int Maneuverability { get => this.Resolve(nameof(Maneuverability)); }
+        [Moddable] public int Speed { get => Resolve(); }
+        [Moddable] public int Acceleration { get => Resolve(); }
+        [Moddable] public int Deceleration { get => Resolve(); }
+        [Moddable] public int Maneuverability { get => Resolve(); }
 
         [Setup]
         public Modifier[] Setup()
