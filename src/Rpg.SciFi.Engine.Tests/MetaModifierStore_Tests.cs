@@ -13,12 +13,12 @@ namespace Rpg.SciFi.Engine.Tests
             var meta = new EntityManager<Character>();
             var character = new Character();
             meta.Initialize(character);
-            meta.StartEncounter();
+            meta.Turns.StartEncounter();
 
             var mod1 = TurnModifier.Create("Boost", 3, character, x => x.Size);
             var mod2 = TurnModifier.Create("Boost", 3, character, x => x.Speed);
 
-            meta.AddMods(mod1, mod2);
+            meta.Mods.Add(mod1, mod2);
             
             return meta;
         }
@@ -32,18 +32,18 @@ namespace Rpg.SciFi.Engine.Tests
             Assert.IsNotNull(meta);
             Assert.IsNotNull(character);
 
-            Assert.AreEqual(1, meta.CurrentTurn);
+            Assert.AreEqual(1, meta.Turns.Current);
             Assert.AreEqual(3, character.Speed);
 
-            meta.AddMods(
+            meta.Mods.Add(
                 TurnModifier.Create("Buff", "10", character, x => x.Speed)
             );
 
             Assert.AreEqual(13, character.Speed);
 
-            meta.IncrementTurn();
+            meta.Turns.Increment();
 
-            Assert.AreEqual(2, meta.CurrentTurn);
+            Assert.AreEqual(2, meta.Turns.Current);
             Assert.AreEqual(0, character.Speed);
         }
 
@@ -59,7 +59,7 @@ namespace Rpg.SciFi.Engine.Tests
 
             Assert.AreEqual(4, character.Size);
  
-            meta.AddMods(
+            meta.Mods.Add(
                 TurnModifier.Create("Buff", "4", character, x => x.Size)
             );
 
@@ -82,7 +82,7 @@ namespace Rpg.SciFi.Engine.Tests
             Assert.IsNotNull(meta2);
             Assert.IsNotNull(character2);
 
-            var sizeMods = meta2.GetMods(character2, x => x.Size);
+            var sizeMods = meta2.Mods.GetMods(character2, x => x.Size);
             Assert.IsNotNull(sizeMods);
             Assert.AreEqual(2, sizeMods.Count);
 
@@ -100,7 +100,7 @@ namespace Rpg.SciFi.Engine.Tests
             Assert.AreEqual(character2.Id, sizeBoostMod.Target.Id);
             Assert.AreEqual(nameof(character2.Size), sizeBoostMod.Target.Prop);
 
-            var speedMods = meta.GetMods(character2, x => x.Speed);
+            var speedMods = meta.Mods.GetMods(character2, x => x.Speed);
             Assert.IsNotNull(speedMods);
             Assert.AreEqual(2, speedMods.Count);
 

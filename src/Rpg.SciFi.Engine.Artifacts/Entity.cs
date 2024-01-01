@@ -2,6 +2,7 @@
 using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
+using System.Runtime.CompilerServices;
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
@@ -29,9 +30,9 @@ namespace Rpg.SciFi.Engine.Artifacts
             _turnManager = turnManager;
         }
 
-        public Dice Evaluate(string prop) => _propEvaluator?.Evaluate(Id, prop) ?? 0;
+        public Dice Evaluate([CallerMemberName] string prop = "") => _propEvaluator?.Evaluate(Id, prop) ?? 0;
 
-        public int Resolve(string prop) => _propEvaluator?.Evaluate(Id, prop).Roll() ?? 0;
+        public int Resolve([CallerMemberName] string prop = "") => _propEvaluator?.Evaluate(Id, prop).Roll() ?? 0;
 
         public string[] Describe(string prop) => _propEvaluator?.Describe(Id, prop, true) ?? new string[0];
 

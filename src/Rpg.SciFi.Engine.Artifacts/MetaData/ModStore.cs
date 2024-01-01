@@ -2,13 +2,18 @@
 using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using System.Collections;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 
 namespace Rpg.SciFi.Engine.Artifacts.MetaData
 {
-    public class ModStore : IDictionary<string, MetaModdableProperty>
+    public class ModStore : IDictionary<string, MetaModdableProperty>, INotifyPropertyChanged
     {
         private readonly Dictionary<Guid, Dictionary<string, MetaModdableProperty>> _store = new Dictionary<Guid, Dictionary<string, MetaModdableProperty>>();
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         [JsonIgnore] protected IPropEvaluator? PropEvaluator { get; set; }
 
         public MetaModdableProperty this[string key]
@@ -35,10 +40,18 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             PropEvaluator = propEvaluator;
         }
 
-        public MetaModdableProperty? Get(PropRef? moddableProperty, bool createMissingEntries = false)
+        public List<Modifier>? GetMods<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
+            where TEntity : Entity
+                => Get(PropRef.FromPath(entity, expression, true))?.Modifiers;
+
+        public MetaModdableProperty? Get<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
+            where TEntity : Entity
+                => Get(PropRef.FromPath(entity, expression, true));
+
+        public MetaModdableProperty? Get(PropRef propRef, bool createMissingEntries = false)
         {
-            return moddableProperty?.Id != null
-                ? Get(moddableProperty.Id.Value, moddableProperty.Prop!, createMissingEntries)
+            return propRef.Id != null
+                ? Get(propRef.Id!.Value, propRef.Prop!, createMissingEntries)
                 : null;
         }
 
@@ -66,7 +79,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             }
         }
 
-        public void Add(Modifier[] mods)
+        public void Add(params Modifier[] mods)
         {
             foreach (var mod in mods)
                 Add(mod);
@@ -102,6 +115,8 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                 modProp.RemoveMatchingMods(mod);
                 modProp.Modifiers.Add(mod);
             }
+
+            NotifyPropertyChanged(modProp);
         }
 
         public void Clear() => _store.Clear();
@@ -177,7 +192,13 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             if (!_store.ContainsKey(entityId))
                 return false;
 
-            return _store.Remove(entityId);
+            var modProps = _store[entityId];
+            _store.Remove(entityId);
+
+            foreach (var modProp in modProps)
+                NotifyPropertyChanged(modProp.Value);
+
+            return true;
         }
 
         public bool Remove(PropRef? moddableProperty)
@@ -190,6 +211,9 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             {
                 var removed = modProp.Modifiers.Count > 0;
                 modProp.Modifiers.Clear();
+
+                if (removed)
+                    NotifyPropertyChanged(modProp);
 
                 return removed;
             }
@@ -221,7 +245,10 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                     modProp.Modifiers.Remove(mod);
 
                 if (toRemove.Any())
+                {
                     res = true;
+                    NotifyPropertyChanged(modProp);
+                }
             }
 
             return res;
@@ -306,6 +333,18 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                     res.Add(_store[id][prop]);
             }
             return res.ToArray();
+        }
+
+        private void NotifyPropertyChanged(MetaModdableProperty modProp)
+        {
+            var props = AllValues()
+                .Where(x => x.Modifiers.Any(m => m.Source.Id == modProp.Id && m.Source.Prop == modProp.Prop))
+                .Select(x => $"{x.Id}.{x.Prop}")
+                .Distinct()
+                .ToArray();
+
+            foreach (var prop in props)
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
         }
     }
 }

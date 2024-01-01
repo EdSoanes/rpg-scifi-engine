@@ -1,7 +1,6 @@
-﻿using Rpg.SciFi.Engine.Artifacts.Components;
-using Rpg.SciFi.Engine.Artifacts.Expressions;
+﻿using Rpg.SciFi.Engine.Artifacts;
+using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
-using Rpg.SciFi.Engine.Artifacts;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Tests
@@ -57,7 +56,7 @@ namespace Rpg.SciFi.Engine.Tests
             Assert.IsNotNull(meta.Context);
 
             var damage2 = meta.Context;
-            var modProp = meta.GetModProp(damage2, x => x.Blast);
+            var modProp = meta.Mods.Get(damage2, x => x.Blast);
             Assert.AreEqual<string>(_damage.Blast, damage2.Blast);
             Assert.AreEqual<string>(_damage.BaseBlast, damage2.Blast);
 
@@ -84,13 +83,13 @@ namespace Rpg.SciFi.Engine.Tests
             Assert.IsNotNull(_meta);
             Assert.IsNotNull(_damage);
 
-            _meta.AddMod(TimedModifier.Create(RemoveTurn.WhenZero, _damage, "Weapon Damage", "d8", x => x.Blast));
+            _meta.Mods.Add(TimedModifier.Create(RemoveTurn.WhenZero, _damage, "Weapon Damage", "d8", x => x.Blast));
 
             var desc = _damage.Describe(x => x.Blast);
 
             Assert.AreEqual<string>("1d10 + 1d8", _damage!.Blast);
 
-            _meta.ClearMods(_damage.Id);
+            _meta.Mods.Clear(_damage.Id);
 
             Assert.AreEqual<string>("1d10", _damage.Blast);
         }
@@ -103,7 +102,7 @@ namespace Rpg.SciFi.Engine.Tests
 
             _damage.Name = "Something";
 
-            _meta.AddMod(TimedModifier.Create(RemoveTurn.WhenZero, _damage, "Weapon Damage", "d8", x => x.Blast));
+            _meta.Mods.Add(TimedModifier.Create(RemoveTurn.WhenZero, _damage, "Weapon Damage", "d8", x => x.Blast));
 
             var state = _meta.Serialize();
 
@@ -117,7 +116,7 @@ namespace Rpg.SciFi.Engine.Tests
             Assert.AreEqual("Something", damage2.Name);
             Assert.AreEqual<string>("1d10 + 1d8", damage2.Blast);
 
-            _meta.ClearMods(damage2.Id);
+            _meta.Mods.Clear(damage2.Id);
             Assert.AreEqual<string>("1d10", damage2.Blast);
         }
     }

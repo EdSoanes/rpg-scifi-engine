@@ -1,12 +1,15 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
+using Rpg.SciFi.Engine.Artifacts.Expressions.Parsers;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
+using System.Xml.Linq;
 
 namespace Rpg.SciFi.Engine.Artifacts.MetaData
 {
-    public class PropRef
+    public struct PropRef
     {
         [JsonProperty] public Guid? RootId { get; private set; }
         [JsonProperty] public Guid? Id { get; private set; }
@@ -14,7 +17,10 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         [JsonProperty] public PropType PropType { get; private set; } = PropType.Path;
         [JsonProperty] public PropReturnType PropReturnType { get; private set; } = PropReturnType.Integer;
 
-        [JsonConstructor] private PropRef() { }
+        public static bool operator ==(PropRef d1, PropRef d2) => d1.Equals(d2);
+        public static bool operator !=(PropRef d1, PropRef d2) => !d1.Equals(d2);
+
+        [JsonConstructor] public PropRef() { }
 
         public PropRef(Guid? rootId, Guid? id, int val)
         {
@@ -148,5 +154,21 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             "Dice" => PropReturnType.Dice,
             _ => PropReturnType.Integer
         };
+
+        public override string ToString()
+        {
+            return $"{Id?.ToString() ?? "Dice"}.{Prop}";
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj?.ToString() == this.ToString();
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
     }
 }

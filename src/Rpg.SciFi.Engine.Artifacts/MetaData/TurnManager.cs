@@ -24,10 +24,29 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
         public int Current { get; private set; }
 
-        public void StartEncounter() => Current = 1;
-        public void Increment() => Current++;
-        public void SetTurn(int turn) => Current = turn;
-        public void EndEncounter() => Current = 0;
+        public void StartEncounter()
+        {
+            Current = 1;
+            _modStore?.Remove(Current);
+        }
+        
+        public void Increment()
+        {
+            Current++;
+            _modStore?.Remove(Current);
+        }
+
+        public void SetTurn(int turn)
+        {
+            Current = turn;
+            _modStore?.Remove(Current);
+        }
+
+        public void EndEncounter()
+        {
+            Current = 0;
+            _modStore?.Remove(Current);
+        }
 
         public Turns.Action CreateAction(string name, int actionCost, int exertionCost, int focusCost)
         {

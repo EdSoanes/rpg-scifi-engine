@@ -13,20 +13,20 @@ namespace Rpg.SciFi.Engine.Artifacts
         [JsonProperty] public Health Health { get; protected set; } = new Health();
         [JsonProperty] public States States { get; protected set; } = new States();
 
-        [Moddable] public int BaseSize { get => Resolve(nameof(BaseSize)); }
-        [Moddable] public int BaseWeight { get => Resolve(nameof(BaseWeight)); }
-        [Moddable] public int BaseSpeed { get => Resolve(nameof(BaseSpeed)); }
-        [Moddable] public int BaseMeleeDefence { get => Resolve(nameof(BaseMeleeDefence)); }
-        [Moddable] public int BaseMissileDefence { get => Resolve(nameof(BaseMissileDefence)); }
+        [Moddable] public int BaseSize { get => Resolve(); }
+        [Moddable] public int BaseWeight { get => Resolve(); }
+        [Moddable] public int BaseSpeed { get => Resolve(); }
+        [Moddable] public int BaseMeleeDefence { get => Resolve(); }
+        [Moddable] public int BaseMissileDefence { get => Resolve(); }
 
-        [Moddable] public int Size { get => Resolve(nameof(Size)); }
-        [Moddable] public int Weight { get => Resolve(nameof(Weight)); }
-        [Moddable] public int Speed { get => Resolve(nameof(Speed)); }
+        [Moddable] public int Size { get => Resolve(); }
+        [Moddable] public int Weight { get => Resolve(); }
+        [Moddable] public int Speed { get => Resolve(); }
 
-        [Moddable] public int MeleeDefence { get => Resolve(nameof(MeleeDefence)); }
-        [Moddable] public int MissileDefence { get => Resolve(nameof(MissileDefence)); }
+        [Moddable] public int MeleeDefence { get => Resolve(); }
+        [Moddable] public int MissileDefence { get => Resolve(); }
 
-        [Moddable] public bool Destroyed { get => Resolve(nameof(Destroyed)) > 0; }
+        [Moddable] public bool Destroyed { get => Resolve() > 0; }
 
         public Guid? ContainerId { get; set; }
 
