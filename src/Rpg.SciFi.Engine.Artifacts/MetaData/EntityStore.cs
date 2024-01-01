@@ -43,6 +43,9 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             _modStore = modStore;
             _propEvaluator = propEvaluator;
             _turnManager = turnManager;
+
+            foreach (var entity in _store.Values)
+                entity?.Initialize(modStore, propEvaluator, turnManager);
         }
 
         public void Add(Entity entity) => Add(entity.Id, entity);
@@ -68,8 +71,6 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                     _store.Add(entity.Id, entity);
                 else
                     _store[entity.Id] = entity;
-
-                Setup(entity);
             }
 
             foreach (var propertyInfo in obj.MetaProperties())
@@ -80,6 +81,8 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                 foreach (var item in items)
                     Add(item, path);
             }
+
+            SetupMods(entity);
         }
 
         public Entity? Get(Guid? id)
@@ -163,12 +166,12 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             //Execute in reverse order to set up child entities first so
             // parent entity mods on children can override child entity mods
             foreach (var entity in entities.Reverse())
-                Setup(entity);
+                SetupMods(entity);
         }
 
-        private void Setup(Entity entity)
+        private void SetupMods(Entity? entity)
         {
-            if (_modStore != null && _propEvaluator != null && _turnManager != null)
+            if (entity != null && _modStore != null && _propEvaluator != null && _turnManager != null)
             {
                 entity.Initialize(_modStore, _propEvaluator, _turnManager);
                 foreach (var setup in entity.MetaData.SetupMethods)

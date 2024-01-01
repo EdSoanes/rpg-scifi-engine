@@ -42,9 +42,9 @@ namespace Rpg.SciFi.Engine.Artifacts.Gear
                 .OnDiceRollTarget(target, (x) => x.MissileDefence);
 
             action
-                .OnSuccess(DamageModifier.Create(this, x => x.Damage.Blast, target, t => t.Health.Physical))
-                .OnSuccess(DamageModifier.Create(this, x => x.Damage.Impact, target, t => t.Health.Physical))
-                .OnSuccess(DamageModifier.Create(this, x => x.Damage.Pierce, target, t => t.Health.Physical));
+//                .OnSuccess(DamageModifier.Create(this, x => x.Damage.Blast, target, t => t.Health.Physical))
+                .OnSuccess(DamageModifier.Create(this, x => x.Damage.Impact, target, t => t.Health.Physical));
+//                .OnSuccess(DamageModifier.Create(this, x => x.Damage.Pierce, target, t => t.Health.Physical));
 
             return action;
         }

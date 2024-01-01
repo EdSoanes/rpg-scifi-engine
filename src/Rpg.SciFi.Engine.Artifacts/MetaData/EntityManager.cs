@@ -144,20 +144,17 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         public static EntityManager<T>? Deserialize(string json)
         {
             var meta = JsonConvert.DeserializeObject<EntityManager<T>>(json, JsonSettings)!;
-
             meta.InitContext();
-            meta.EntityStore.Setup();
-            meta.Context = meta.EntityStore.Get(meta.Context?.Id) as T;
-
+            meta.Context = meta.EntityStore.Get(meta.Context!.Id) as T;
             return meta;
         }
 
         private void InitContext()
         {
+            Evaluator.Initialize(ModStore, EntityStore);
             ModStore.Initialize(Evaluator);
             EntityStore.Initialize(ModStore, Evaluator, Turns);
             Turns.Initialize(ModStore, EntityStore);
-            Evaluator.Initialize(ModStore, EntityStore);
         }
     }
 }

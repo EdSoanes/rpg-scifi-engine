@@ -104,6 +104,8 @@ namespace Rpg.SciFi.Engine.Tests
             var nextAction = _meta.Apply(_game.Character, action, 11);
             Assert.IsNull(nextAction);
 
+            var x1 = _meta.GetModProp(_game, x => x.Character.Health.Physical);
+
             var da = _game.Character.Describe(x => x.Turns.Action);
             var de = _game.Character.Describe(x => x.Turns.Exertion);
             var df = _game.Character.Describe(x => x.Turns.Focus);

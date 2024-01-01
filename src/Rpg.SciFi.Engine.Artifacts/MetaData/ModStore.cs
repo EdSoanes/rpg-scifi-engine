@@ -1,4 +1,5 @@
-﻿using Rpg.SciFi.Engine.Artifacts.Expressions;
+﻿using Newtonsoft.Json;
+using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
@@ -8,7 +9,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
     public class ModStore : IDictionary<string, MetaModdableProperty>
     {
         private readonly Dictionary<Guid, Dictionary<string, MetaModdableProperty>> _store = new Dictionary<Guid, Dictionary<string, MetaModdableProperty>>();
-        protected IPropEvaluator? PropEvaluator { get; set; }
+        [JsonIgnore] protected IPropEvaluator? PropEvaluator { get; set; }
 
         public MetaModdableProperty this[string key]
         {
@@ -121,9 +122,6 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                         var toRemove = modProp.Modifiers.Where(x => x.CanBeCleared()).ToArray();
                         foreach (var remove in toRemove)
                             modProp.Modifiers.Remove(remove);
-
-                        if (toRemove.Any())
-                            modProp.DiceIsSet = false;
                     }
                 }
             }
@@ -192,7 +190,6 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             {
                 var removed = modProp.Modifiers.Count > 0;
                 modProp.Modifiers.Clear();
-                modProp.DiceIsSet = false;
 
                 return removed;
             }
@@ -224,10 +221,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                     modProp.Modifiers.Remove(mod);
 
                 if (toRemove.Any())
-                {
-                    modProp.DiceIsSet = false;
                     res = true;
-                }
             }
 
             return res;
