@@ -6,37 +6,9 @@ using System.Linq.Expressions;
 
 namespace Rpg.SciFi.Engine.Artifacts.MetaData
 {
-    public class TurnAction : ModdableObject
+    public class TurnAction : BaseAction
     {
-        private readonly int _baseAction;
-        private readonly int _baseExertion;
-        private readonly int _baseFocus;
-
-        [JsonProperty] private int? Resolution { get; set; }
-        [JsonProperty] private int? TargetResolution { get; set; }
-
-        [JsonConstructor] private TurnAction() { }
-
-        public TurnAction(ModStore modStore, PropEvaluator evaluator, string name, int actionCost, int exertionCost, int focusCost)
-        {
-            Initialize(modStore, evaluator);
-
-            Name = name;
-
-            _baseAction = actionCost;
-            _baseExertion = exertionCost;
-            _baseFocus = focusCost;
-
-            ModStore.Add(Setup());
-        }
-
-        [Moddable] public int BaseActionCost { get => Resolve(); }
-        [Moddable] public int BaseExertionCost { get => Resolve(); }
-        [Moddable] public int BaseFocusCost { get => Resolve(); }
-
-        [Moddable] public int ActionCost { get => Resolve(); }
-        [Moddable] public int ExertionCost { get => Resolve(); }
-        [Moddable] public int FocusCost { get => Resolve(); }
+        [JsonProperty] private int? ResolutionTarget { get; set; }
 
         [JsonProperty] public List<Modifier> Success { get; private set; } = new List<Modifier>();
         [JsonProperty] public List<Modifier> Failure { get; private set; } = new List<Modifier>();
@@ -44,60 +16,29 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         [Moddable] public Dice DiceRoll { get => Evaluate(); }
         [Moddable] public Dice DiceRollTarget { get => Evaluate(); }
 
-        public bool IsResolved { get => Resolution != null; }
-
         private TurnAction? SuccessAction { get; set; }
         private TurnAction? FailureAction { get; set; }
 
-        public override Modifier[] Setup()
+        public TurnAction(ModStore modStore, PropEvaluator evaluator, string name, int actionCost, int exertionCost, int focusCost)
+            : base(modStore, evaluator, name, actionCost, exertionCost, focusCost)
         {
-            return new[]
-            {
-                BaseModifier.Create(this, _baseAction, x => BaseActionCost),
-                BaseModifier.Create(this, _baseExertion, x => BaseExertionCost),
-                BaseModifier.Create(this, _baseFocus, x => BaseFocusCost),
-
-                BaseModifier.Create(this, x => BaseActionCost, x => ActionCost),
-                BaseModifier.Create(this, x => BaseExertionCost, x => ExertionCost),
-                BaseModifier.Create(this, x => BaseFocusCost, x => FocusCost)
-            };
         }
 
-        public virtual TurnAction? Act(Actor actor, int diceRoll = 0)
+        protected override void OnAct(Actor actor, int diceRoll = 0)
         {
-            if (!IsResolved)
-            {
-                Resolution = diceRoll;
-                TargetResolution = DiceRollTarget.Roll();
+            ResolutionTarget = DiceRollTarget.Roll();
+            var modifiers = Resolution >= ResolutionTarget
+                ? Success
+                : Failure;
 
-                var actionCost = ActionCost;
-                if (actionCost != 0)
-                    ModStore!.Add(CostModifier.Create(actionCost, actor, x => x.Turns.Action, () => Rules.Minus));
-
-                var exertionCost = ExertionCost;
-                if (exertionCost != 0)
-                    ModStore!.Add(CostModifier.Create(exertionCost, actor, x => x.Turns.Exertion, () => Rules.Minus));
-
-                var focusCost = FocusCost;
-                if (focusCost != 0)
-                    ModStore!.Add(CostModifier.Create(focusCost, actor, x => x.Turns.Focus, () => Rules.Minus));
-
-                var modifiers = Resolution >= TargetResolution
-                    ? Success
-                    : Failure;
-
-                ModStore!.Add(modifiers.ToArray());
-                ModStore.Remove(Id);
-            }
-
-            return NextAction();
+            ModStore!.Add(modifiers.ToArray());
         }
 
-        public TurnAction? NextAction()
+        protected override BaseAction? NextAction()
         {
             if (IsResolved)
             {
-                var res = Resolution >= TargetResolution
+                var res = Resolution >= ResolutionTarget
                     ? SuccessAction
                     : FailureAction;
 
