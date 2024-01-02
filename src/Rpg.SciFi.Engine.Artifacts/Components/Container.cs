@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
+using Rpg.SciFi.Engine.Artifacts.MetaData;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
-using Rpg.SciFi.Engine.Artifacts.Turns;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
@@ -24,8 +24,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Moddable] public int MaxCapacity { get => Resolve(); }
         public int Encumbrance { get => Artifacts.Sum(x => x.Weight); }
 
-        [Setup]
-        public Modifier[] Setup()
+        public override Modifier[] Setup()
         {
             return new[]
             {
@@ -36,20 +35,20 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Ability()]
         [Input(Param = "actor", BindsTo = "Actor")]
         [Input(InputSource = InputSource.Player, Param = "artifact")]
-        public Turns.Action Get(Actor actor, Artifact artifact)
+        public TurnAction Get(Actor actor, Artifact artifact)
         {
-            var action = _turnManager!.CreateAction(nameof(Get), 1, 1, 1);
-            action.AddArtifact(TurnAction, artifact);
+            var action = new TurnAction(ModStore!, Evaluator!, nameof(Get), 1, 1, 1);
+            //action.AddArtifact(TurnAction, artifact);
             return action;
         }
 
         [Ability()]
         [Input(Param = "actor", BindsTo = "Actor")]
         [Input(InputSource = InputSource.Player, Param = "artifact")]
-        public Turns.Action Put(Actor actor, Artifact artifact)
+        public TurnAction Put(Actor actor, Artifact artifact)
         {
-            var action = _turnManager!.CreateAction(nameof(Put), 1, 1, 1);
-            action.AddArtifact(TurnAction, artifact);
+            var action = new TurnAction(ModStore!, Evaluator!, nameof(Put), 1, 1, 1);
+            //action.AddArtifact(TurnAction, artifact);
             return action;
         }
 

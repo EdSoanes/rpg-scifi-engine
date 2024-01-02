@@ -1,18 +1,17 @@
-﻿using Rpg.SciFi.Engine.Artifacts.Modifiers;
-using System.Collections;
+﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Rpg.SciFi.Engine.Artifacts.MetaData
 {
-    public class EntityStore : IDictionary<Guid, Entity>
+    public class EntityStore : IDictionary<Guid, ModdableObject>
     {
         private ModStore? _modStore;
-        private IPropEvaluator? _propEvaluator;
+        private PropEvaluator? _propEvaluator;
         private TurnManager? _turnManager;
 
-        private readonly Dictionary<Guid, Entity> _store = new Dictionary<Guid, Entity>();
+        private readonly Dictionary<Guid, ModdableObject> _store = new Dictionary<Guid, ModdableObject>();
 
-        public Entity this[Guid key]
+        public ModdableObject this[Guid key]
         {
             get
             {
@@ -32,37 +31,37 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
         public ICollection<Guid> Keys => _store.Keys;
 
-        public ICollection<Entity> Values => _store.Values;
+        public ICollection<ModdableObject> Values => _store.Values;
 
         public int Count => _store.Count;
 
         public bool IsReadOnly => false;
 
-        public void Initialize(ModStore modStore, IPropEvaluator propEvaluator, TurnManager turnManager)
+        public void Initialize(ModStore modStore, PropEvaluator propEvaluator, TurnManager turnManager)
         {
             _modStore = modStore;
             _propEvaluator = propEvaluator;
             _turnManager = turnManager;
 
             foreach (var entity in _store.Values)
-                entity?.Initialize(modStore, propEvaluator, turnManager);
+                entity?.Initialize(modStore, propEvaluator);
         }
 
-        public void Add(Entity entity) => Add(entity.Id, entity);
+        public void Add(ModdableObject entity) => Add(entity.Id, entity);
 
-        public void Add(KeyValuePair<Guid, Entity> item) => Add(item.Key, item.Value);
+        public void Add(KeyValuePair<Guid, ModdableObject> item) => Add(item.Key, item.Value);
 
-        public void AddRange(IEnumerable<Entity> entities)
+        public void AddRange(IEnumerable<ModdableObject> entities)
         {
             foreach (var entity in entities)
                 Add(entity.Id, entity);
         }
 
-        public void Add(Guid key, Entity value) => Add(value, "{}");
+        public void Add(Guid key, ModdableObject value) => Add(value, "{}");
 
         private void Add(object obj, string basePath)
         {
-            var entity = obj as Entity;
+            var entity = obj as ModdableObject;
             if (entity != null)
             {
                 entity.MetaData.Path = basePath;
@@ -85,14 +84,14 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             SetupMods(entity);
         }
 
-        public Entity? Get(Guid? id)
+        public ModdableObject? Get(Guid? id)
         {
             return id != null && TryGetValue(id.Value, out var entity)
                 ? entity
                 : null;
         }
 
-        public Entity? Get(PropRef? moddableProperty)
+        public ModdableObject? Get(PropRef? moddableProperty)
         {
             var id = moddableProperty?.Id;
             return id != null && TryGetValue(id.Value, out var entity)
@@ -100,7 +99,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                 : null;
         }
 
-        public Entity? GetByPath(string path)
+        public ModdableObject? GetByPath(string path)
         {
             if (!path.StartsWith("{}"))
                 path = string.IsNullOrEmpty(path)
@@ -112,7 +111,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         }
 
         public T? ValueByPath<T>(string path)
-            where T : Entity
+            where T : ModdableObject
         {
             var parts = path.Split('.', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             path = parts.Length == 1
@@ -130,18 +129,18 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
         public void Clear() => _store.Clear();
 
-        public bool Contains(KeyValuePair<Guid, Entity> item) => _store.Contains(item);
+        public bool Contains(KeyValuePair<Guid, ModdableObject> item) => _store.Contains(item);
 
         public bool ContainsKey(Guid key) => _store.ContainsKey(key);
 
-        public void CopyTo(KeyValuePair<Guid, Entity>[] array, int arrayIndex)
+        public void CopyTo(KeyValuePair<Guid, ModdableObject>[] array, int arrayIndex)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerator<KeyValuePair<Guid, Entity>> GetEnumerator() => _store.GetEnumerator();
+        public IEnumerator<KeyValuePair<Guid, ModdableObject>> GetEnumerator() => _store.GetEnumerator();
 
-        public bool Remove(KeyValuePair<Guid, Entity> item) => _store.Remove(item.Key);
+        public bool Remove(KeyValuePair<Guid, ModdableObject> item) => _store.Remove(item.Key);
 
         public bool Remove(Guid key)
         {
@@ -156,12 +155,12 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             return false;
         }
 
-        public bool TryGetValue(Guid key, [MaybeNullWhen(false)] out Entity value) => _store.TryGetValue(key, out value);
+        public bool TryGetValue(Guid key, [MaybeNullWhen(false)] out ModdableObject value) => _store.TryGetValue(key, out value);
 
         IEnumerator IEnumerable.GetEnumerator() => _store.GetEnumerator();
 
         public void Setup() => Setup(Values);
-        private void Setup(IEnumerable<Entity> entities)
+        private void Setup(IEnumerable<ModdableObject> entities)
         {
             //Execute in reverse order to set up child entities first so
             // parent entity mods on children can override child entity mods
@@ -169,17 +168,15 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                 SetupMods(entity);
         }
 
-        private void SetupMods(Entity? entity)
+        private void SetupMods(ModdableObject? entity)
         {
             if (entity != null && _modStore != null && _propEvaluator != null && _turnManager != null)
             {
-                entity.Initialize(_modStore, _propEvaluator, _turnManager);
-                foreach (var setup in entity.MetaData.SetupMethods)
-                {
-                    var mods = entity.ExecuteFunction<Modifier[]>(setup);
-                    if (mods != null)
-                        _modStore.Add(mods);
-                }
+                entity.Initialize(_modStore, _propEvaluator);
+
+                var mods = entity.Setup();
+                if (mods != null)
+                    _modStore.Add(mods);
             }
         }
     }

@@ -1,11 +1,12 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
+using Rpg.SciFi.Engine.Artifacts.MetaData;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
-    public class Resistances : Entity
-    {
+    public class Resistances : ModdableObject
+    { 
         private readonly int _baseImpact;
         private readonly int _basePierce;
         private readonly int _baseBlast;
@@ -35,8 +36,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Moddable] public virtual int Burn { get => Resolve(); }
         [Moddable] public virtual int Energy { get => Resolve(); }
 
-        [Setup]
-        public Modifier[] Setup()
+        public override Modifier[] Setup()
         {
             return new[]
             {

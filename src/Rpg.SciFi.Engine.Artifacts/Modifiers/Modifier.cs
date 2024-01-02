@@ -21,8 +21,8 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
 
         protected static Modifier _Create<TMod, TEntity, T1, TEntity2, T2>(TEntity? entity, string? name, Dice? dice, Expression<Func<TEntity, T1>>? sourceExpr, TEntity2 target, Expression<Func<TEntity2, T2>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TMod: Modifier
-            where TEntity : Entity
-            where TEntity2 : Entity
+            where TEntity : ModdableObject
+            where TEntity2 : ModdableObject
         {
             var mod = Activator.CreateInstance<TMod>();
             mod.Source = entity != null && sourceExpr != null
@@ -36,7 +36,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
             return mod;
         }
 
-        protected static Modifier CreateByPath<TMod, T1>(Entity entity, string name, Dice dice, string targetPropPath, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+        protected static Modifier CreateByPath<TMod, T1>(ModdableObject entity, string name, Dice dice, string targetPropPath, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TMod : Modifier
         {
             var mod = Activator.CreateInstance<TMod>();

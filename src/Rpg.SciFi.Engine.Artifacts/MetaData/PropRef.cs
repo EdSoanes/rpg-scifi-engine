@@ -100,13 +100,13 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             return locator;
         }
 
-        public static PropRef FromPath(Entity entity, string propPath, bool source = false)
+        public static PropRef FromPath(ModdableObject entity, string propPath, bool source = false)
         {
             var parts = propPath.Split('.');
             var path = string.Join(".", parts.Take(parts.Length - 1));
             var prop = parts.Last();
 
-            var pathEntity = entity.PropertyValue<Entity>(path) ?? throw new ArgumentException($"Invalid path. Property path {path} is not an Entity object");
+            var pathEntity = entity.PropertyValue<ModdableObject>(path) ?? throw new ArgumentException($"Invalid path. Property path {path} is not an Entity object");
             if (!source && !pathEntity.IsModdableProperty(prop))
                 throw new ArgumentException($"Invalid path. Property {prop} must have the attribute {nameof(ModdableAttribute)}");
 
@@ -116,7 +116,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         }
 
         public static PropRef FromPath<T, TResult>(T entity, Expression<Func<T, TResult>> expression, bool source = false)
-            where T : Entity
+            where T : ModdableObject
         {
             var memberExpression = expression.Body as MemberExpression;
             if (memberExpression == null)
@@ -143,7 +143,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
             pathSegments.Reverse();
             var path = string.Join(".", pathSegments);
-            var pathEntity = entity.PropertyValue<Entity>(path);
+            var pathEntity = entity.PropertyValue<ModdableObject>(path);
 
             var locator = new PropRef(entity.Id, pathEntity!.Id, prop, ToReturnType(propReturnType));
             return locator;

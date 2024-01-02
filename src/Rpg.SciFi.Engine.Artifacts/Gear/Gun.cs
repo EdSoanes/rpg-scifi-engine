@@ -2,6 +2,7 @@
 using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
+using Rpg.SciFi.Engine.Artifacts.MetaData;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Artifacts.Gear
@@ -19,19 +20,19 @@ namespace Rpg.SciFi.Engine.Artifacts.Gear
 
         [JsonProperty] public Damage Damage { get; private set; } = new Damage();
 
-        [Moddable] public int BaseRange { get => this.Resolve(nameof(BaseRange)); }
-        [Moddable] public int BaseAttack { get => this.Resolve(nameof(BaseAttack)); }
+        [Moddable] public int BaseRange { get => Resolve(); }
+        [Moddable] public int BaseAttack { get => Resolve(); }
 
-        [Moddable] public int Range { get => this.Resolve(nameof(Range)); }
-        [Moddable] public int Attack { get => this.Resolve(nameof(Attack)); }
+        [Moddable] public int Range { get => Resolve(); }
+        [Moddable] public int Attack { get => Resolve(); }
 
         [Ability()]
         [Input(Param = "character", BindsTo = "Character")]
         [Input(InputSource = InputSource.Player, Param = "target")]
         [Input(InputSource = InputSource.Player, Param = "range")]
-        public Turns.Action Fire(Character character, Artifact target, int range)
+        public TurnAction Fire(Character character, Artifact target, int range)
         {
-            var action = _turnManager!.CreateAction(nameof(Fire), 3, 1, 1)
+            var action = new TurnAction(ModStore!, Evaluator!, nameof(Fire), 3, 1, 1)
                 .OnDiceRoll("d20")
                 .OnDiceRoll(character, (x) => x.Stats.MissileAttackBonus)
                 .OnDiceRoll(this, (x) => x.Attack)

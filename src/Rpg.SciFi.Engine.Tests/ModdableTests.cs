@@ -6,15 +6,15 @@ using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Tests
 {
-    public class AnEntity : Entity
+    public class AnEntity : ModdableObject
     {
         public int BaseIntValue { get; set; }
 
-        [Moddable] public Dice ModdedValue { get => this.Evaluate(nameof(ModdedValue)); }
-        [Moddable] public Dice ModdableValue { get => this.Evaluate(nameof(ModdableValue)); }
-        [Moddable] public Dice ModdableCalculatedValue { get => this.Evaluate(nameof(ModdableCalculatedValue)); }
+        [Moddable] public Dice ModdedValue { get => Evaluate(); }
+        [Moddable] public Dice ModdableValue { get => Evaluate(); }
+        [Moddable] public Dice ModdableCalculatedValue { get => Evaluate(); }
 
-        [Setup] public Modifier[] Setup()
+        public override Modifier[] Setup()
         {
             return new[]
             {

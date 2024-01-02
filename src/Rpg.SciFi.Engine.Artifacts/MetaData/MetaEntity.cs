@@ -4,21 +4,14 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 {
     public class MetaEntity
     {
-        [JsonIgnore] public Entity Entity { get; set; }
-
-        public Guid? Id { get => Entity.Id; }
-        public string Name { get => Entity.Name; }
-        public string Type { get => Entity.GetType().Name; }
-
-        [JsonProperty] public string Path { get; set; }
-        [JsonProperty] public string Class { get; set; }
-        [JsonProperty] public string[] SetupMethods { get; set; } = new string[0];
-        [JsonProperty] public MetaAction[] AbilityMethods { get; set; } = new MetaAction[0];
-        [JsonProperty] public List<string> ModdableProperties { get; private set; } = new List<string>();
+        public Guid? Id { get; set; }
+        public string Type { get; set; }
+        public string Path { get; set; }
+        public MetaAction[] AbilityMethods { get; set; } = new MetaAction[0];
 
         public override string ToString()
         {
-            return $"{Path} => [{Id}].{Type}({(Name == Type ? "" : Name)})";
+            return $"{Path} => {Type}({Id})";
         }
     }
 }

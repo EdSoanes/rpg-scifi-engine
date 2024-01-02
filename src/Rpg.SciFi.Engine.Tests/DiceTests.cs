@@ -1,10 +1,10 @@
 ﻿using Newtonsoft.Json;
-using Rpg.SciFi.Engine.Artifacts;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
+using Rpg.SciFi.Engine.Artifacts.MetaData;
 
 namespace Rpg.SciFi.Engine.Tests
 {
-    public class DiceContext : Entity
+    public class DiceContext : ModdableObject
     {
         public int Num { get; set; }
         public string DiceExpr { get; set; }

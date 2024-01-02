@@ -2,7 +2,7 @@
 
 namespace Rpg.SciFi.Engine.Artifacts.MetaData
 {
-    public class EntityManager<T> where T : Entity
+    public class EntityManager<T> where T : ModdableObject
     {
         private static JsonSerializerSettings JsonSettings = new JsonSerializerSettings
         {

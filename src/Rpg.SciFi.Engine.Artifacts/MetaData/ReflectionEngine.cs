@@ -1,36 +1,26 @@
 ﻿using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
-using Rpg.SciFi.Engine.Artifacts.Turns;
 using System.Collections;
-using System.Diagnostics;
-using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Rpg.SciFi.Engine.Artifacts.MetaData
 {
     public static class ReflectionEngine
     {
-        public static MetaEntity CreateMetaEntity(this Entity entity)
+        public static MetaEntity GetMeta(this ModdableObject entity)
         {
             var metaEntity = new MetaEntity
             {
-                Entity = entity,
-                Class = entity.GetEntityClass(),
-                SetupMethods = entity.GetSetupMethods(),
+                Id = entity.Id,
+                Type = entity.GetType().Name,
                 AbilityMethods = entity.GetAbilityMethods()
             };
-
-            foreach (var propertyInfo in entity.MetaProperties())
-            {
-                if (propertyInfo.IsModdableProperty())
-                    metaEntity.ModdableProperties.Add(propertyInfo.Name);
-            }
 
             return metaEntity;
         }
 
-        public static T? PropertyValue<T>(this Entity? entity, string path)
+        public static T? PropertyValue<T>(this ModdableObject? entity, string path)
         {
             if (entity == null)
                 return default;
@@ -88,7 +78,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             }
         }
 
-        internal static bool IsModdableProperty(this Entity entity, string prop)
+        internal static bool IsModdableProperty(this ModdableObject entity, string prop)
         {
             return entity.GetType().GetProperty(prop)?.IsModdableProperty() ?? false;
         }
@@ -146,7 +136,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             Type? type = null;
             if (!string.IsNullOrEmpty(className))
             {
-                type = Assembly.GetAssembly(typeof(EntityManager<Entity>))!
+                type = Assembly.GetAssembly(typeof(EntityManager<ModdableObject>))!
                     .GetTypes()
                     .FirstOrDefault(x => x.Name == className);
 
@@ -172,27 +162,6 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             return methodInfo;
         }
 
-        internal static string GetEntityClass(this object obj)
-        {
-            if (obj.GetType().IsAssignableTo(typeof(Artifact)))
-                return nameof(Artifact);
-
-            if (obj.GetType().IsAssignableTo(typeof(Entity)))
-                return nameof(Entity);
-
-            return nameof(Object);
-        }
-
-        internal static string[] GetSetupMethods(this object obj)
-        {
-            var setupMethods = obj.GetType().GetMethods()
-                .Where(x => x.IsSetupMethod())
-                .Select(x => x.Name)
-                .ToArray();
-
-            return setupMethods;
-        }
-
         internal static MetaAction[] GetAbilityMethods(this object context)
         {
             var metaAbilityMethods = new List<MetaAction>();
@@ -200,7 +169,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             foreach (var methodInfo in context.GetType().GetMethods())
             {
                 var attr = methodInfo.GetCustomAttribute<AbilityAttribute>();
-                if (attr == null || methodInfo.ReturnType != typeof(Turns.Action))
+                if (attr == null || methodInfo.ReturnType != typeof(TurnAction))
                     continue;
 
                 var metaAbilityMethod = new MetaAction
@@ -256,7 +225,6 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             return propertyInfo.GetMethod != null
                 && (propertyInfo.GetMethod.IsPublic || propertyInfo.GetMethod.IsFamily)
                 && !(propertyInfo.PropertyType.Namespace!.StartsWith("System") && propertyInfo.PropertyType.Name.StartsWith("Func"))
-                && !(propertyInfo.PropertyType?.IsAssignableTo(typeof(IEntityManager)) ?? false)
                 && !(propertyInfo.DeclaringType?.IsAssignableTo(typeof(MetaEntity)) ?? false);
         }
 

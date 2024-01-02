@@ -36,25 +36,5 @@ namespace Rpg.SciFi.Engine.Tests
             var desc = _meta.Describe();
             Assert.IsNotNull(desc);
         }
-
-        [TestMethod]
-        public void Game_Describe_Gun_Mods()
-        {
-            foreach (var prop in _gun.MetaData.ModdableProperties)
-            {
-                var desc = _gun.Describe(prop);
-                Assert.IsNotNull(desc);
-            } 
-        }
-
-        [TestMethod]
-        public void Game_Describe_Target_Mods()
-        {
-            foreach (var prop in _target.MetaData.ModdableProperties)
-            {
-                var desc = _target.Describe(prop);
-                Assert.IsNotNull(desc);
-            }
-        }
     }
 }

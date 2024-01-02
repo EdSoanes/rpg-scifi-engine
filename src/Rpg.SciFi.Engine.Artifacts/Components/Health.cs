@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
+using Rpg.SciFi.Engine.Artifacts.MetaData;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
-    public class Health : Entity
+    public class Health : ModdableObject
     {
         private readonly int _basePhysical;
         private readonly int _baseMental;
@@ -23,8 +24,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Moddable] public virtual int Physical { get => Resolve(); }
         [Moddable] public virtual int Mental { get => Resolve(); }
 
-        [Setup]
-        public Modifier[] Setup()
+        public override Modifier[] Setup()
         {
             var mods = new List<Modifier>
             {

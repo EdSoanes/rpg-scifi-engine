@@ -1,4 +1,5 @@
 ﻿using Rpg.SciFi.Engine.Artifacts.Expressions;
+using Rpg.SciFi.Engine.Artifacts.MetaData;
 using System.Linq.Expressions;
 
 namespace Rpg.SciFi.Engine.Artifacts.Modifiers
@@ -14,7 +15,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
         }
 
         public static Modifier Create<TEntity, T1>(Dice dice, TEntity target, Expression<Func<TEntity, T1>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TEntity : Entity
+            where TEntity : ModdableObject
                 => _Create<CostModifier, TEntity, T1, TEntity, T1>(null, ModNames.Cost, dice, null, target, targetExpr, diceCalcExpr);
     }
 }

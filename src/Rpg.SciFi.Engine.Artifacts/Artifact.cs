@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Core;
+using Rpg.SciFi.Engine.Artifacts.MetaData;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
-using Rpg.SciFi.Engine.Artifacts.Turns;
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
@@ -30,7 +30,7 @@ namespace Rpg.SciFi.Engine.Artifacts
 
         public Guid? ContainerId { get; set; }
 
-        public virtual Modifier[] Setup()
+        public override Modifier[] Setup()
         {
             return new[]
             {
@@ -53,9 +53,9 @@ namespace Rpg.SciFi.Engine.Artifacts
         }
 
         [Ability]
-        public Turns.Action Destroy()
+        public TurnAction Destroy()
         {
-            return _turnManager!.CreateAction(nameof(Destroy), 0, 0, 0);
+            return new TurnAction(ModStore!, Evaluator!, nameof(Destroy), 0, 0, 0);
         }
     }
 }

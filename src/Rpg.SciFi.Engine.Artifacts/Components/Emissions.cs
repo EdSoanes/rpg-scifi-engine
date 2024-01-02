@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
+using Rpg.SciFi.Engine.Artifacts.MetaData;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
-    public class Emission : Entity
+    public class Emission : ModdableObject
     {
         private readonly int _baseMin = 0;
         private readonly int _baseMax = 100;
@@ -35,8 +36,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Moddable] public int Value { get => Resolve(); }
         [Moddable] public int Radius { get => Resolve(); }
 
-        [Setup]
-        public Modifier[] Setup()
+        public override Modifier[] Setup()
         {
             return new[]
             {

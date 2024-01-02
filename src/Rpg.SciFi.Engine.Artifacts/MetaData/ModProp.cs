@@ -4,16 +4,16 @@ using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Artifacts.MetaData
 {
-    public class MetaModdableProperty
+    public class ModProp
     {
         public Guid Id { get; set; }
         public string Prop { get; set; }
 
         public List<Modifier> Modifiers { get; set; } = new List<Modifier>();
 
-        [JsonConstructor] private MetaModdableProperty() { }
+        [JsonConstructor] private ModProp() { }
 
-        public MetaModdableProperty(Guid id, string prop)
+        public ModProp(Guid id, string prop)
         {
             Id = id;
             Prop = prop;

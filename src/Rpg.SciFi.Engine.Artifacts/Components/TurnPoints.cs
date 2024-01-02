@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
+using Rpg.SciFi.Engine.Artifacts.MetaData;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
-    public class TurnPoints : Entity
+    public class TurnPoints : ModdableObject
     {
         private readonly int _baseAction;
         private readonly int _baseExertion;
@@ -31,8 +32,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Moddable] public int Exertion { get => Resolve(); }
         [Moddable] public int Focus { get => Resolve(); }
 
-        [Setup]
-        public Modifier[] Setup()
+        public override Modifier[] Setup()
         {
             return new[]
             {

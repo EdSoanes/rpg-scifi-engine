@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
+using Rpg.SciFi.Engine.Artifacts.MetaData;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
-    public class Movement : Entity
+    public class Movement : ModdableObject
     {
         private readonly int _baseSpeed;
         private readonly int _baseAcceleration;
@@ -31,8 +32,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Moddable] public int Deceleration { get => Resolve(); }
         [Moddable] public int Maneuverability { get => Resolve(); }
 
-        [Setup]
-        public Modifier[] Setup()
+        public override Modifier[] Setup()
         {
             return new[]
             {

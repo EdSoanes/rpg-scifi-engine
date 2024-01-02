@@ -47,18 +47,18 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
                 return;
             }
 
-            Entity? entity = null;
+            ModdableObject? entity = null;
             var memberExpression = methodCallExpression.Arguments?.Last() as MemberExpression;
             if (memberExpression != null)
             {
                 var constantExpression = memberExpression.Expression as ConstantExpression;
                 var fieldInfo = memberExpression?.Member as FieldInfo;
-                entity = fieldInfo?.GetValue(constantExpression?.Value) as Entity;
+                entity = fieldInfo?.GetValue(constantExpression?.Value) as ModdableObject;
             }
             else
             {
                 var constantExpression = methodCallExpression.Arguments?.Last() as ConstantExpression;
-                entity = constantExpression?.Value as Entity;
+                entity = constantExpression?.Value as ModdableObject;
             }
 
             EntityId = entity?.Id;

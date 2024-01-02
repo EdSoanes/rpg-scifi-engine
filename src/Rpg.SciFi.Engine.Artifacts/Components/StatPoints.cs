@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
+using Rpg.SciFi.Engine.Artifacts.MetaData;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
-    public class StatPoints : Entity
+    public class StatPoints : ModdableObject
     {
         [Moddable] public virtual int BaseStrength { get => Resolve(); }
         [Moddable] public virtual int BaseDexterity { get => Resolve(); }
@@ -21,8 +22,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Moddable] public virtual int MissileAttackBonus { get => Resolve(); }
         [Moddable] public virtual int MeleeAttackBonus { get => Resolve(); }
 
-        [Setup]
-        public Modifier[] Setup()
+        public override Modifier[] Setup()
         {
             return new[]
             {

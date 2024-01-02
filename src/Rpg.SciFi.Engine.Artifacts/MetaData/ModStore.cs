@@ -8,14 +8,14 @@ using System.Linq.Expressions;
 
 namespace Rpg.SciFi.Engine.Artifacts.MetaData
 {
-    public class ModStore : IDictionary<string, MetaModdableProperty>
+    public class ModStore : IDictionary<string, ModProp>
     {
         private EntityStore? _entityStore;
         private PropEvaluator? _evaluator;
         
-        private readonly Dictionary<Guid, Dictionary<string, MetaModdableProperty>> _store = new Dictionary<Guid, Dictionary<string, MetaModdableProperty>>();
+        private readonly Dictionary<Guid, Dictionary<string, ModProp>> _store = new Dictionary<Guid, Dictionary<string, ModProp>>();
 
-        public MetaModdableProperty this[string key]
+        public ModProp this[string key]
         {
             get
             {
@@ -28,7 +28,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
         public ICollection<string> Keys => AllKeys();
 
-        public ICollection<MetaModdableProperty> Values => AllValues();
+        public ICollection<ModProp> Values => AllValues();
 
         public int Count => _store.Sum(x => x.Value.Sum(y => y.Value.Modifiers.Count()));
 
@@ -41,21 +41,21 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         }
 
         public List<Modifier>? GetMods<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
-            where TEntity : Entity
+            where TEntity : ModdableObject
                 => Get(PropRef.FromPath(entity, expression, true))?.Modifiers;
 
-        public MetaModdableProperty? Get<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
-            where TEntity : Entity
+        public ModProp? Get<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
+            where TEntity : ModdableObject
                 => Get(PropRef.FromPath(entity, expression, true));
 
-        public MetaModdableProperty? Get(PropRef propRef, bool createMissingEntries = false)
+        public ModProp? Get(PropRef propRef, bool createMissingEntries = false)
         {
             return propRef.Id != null
                 ? Get(propRef.Id!.Value, propRef.Prop!, createMissingEntries)
                 : null;
         }
 
-        public MetaModdableProperty? Get(Guid? entityId, string? prop, bool createMissingEntries = false)
+        public ModProp? Get(Guid? entityId, string? prop, bool createMissingEntries = false)
         {
             if (entityId == null  || string.IsNullOrEmpty(prop))
                 return null;
@@ -63,11 +63,11 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             if (createMissingEntries)
             {
                 if (!_store.ContainsKey(entityId.Value))
-                    _store.Add(entityId.Value, new Dictionary<string, MetaModdableProperty>());
+                    _store.Add(entityId.Value, new Dictionary<string, ModProp>());
 
                 var entityMods = _store[entityId.Value];
                 if (!entityMods.ContainsKey(prop))
-                    entityMods.Add(prop, new MetaModdableProperty(entityId.Value, prop));
+                    entityMods.Add(prop, new ModProp(entityId.Value, prop));
 
                 return entityMods[prop];
             }
@@ -85,13 +85,13 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                 Add(mod);
         }
 
-        public void Add(string key, MetaModdableProperty value)
+        public void Add(string key, ModProp value)
         {
             foreach (var mod in value.Modifiers)
                 Add(mod);
         }
 
-        public void Add(KeyValuePair<string, MetaModdableProperty> item) => Add(item.Key, item.Value);
+        public void Add(KeyValuePair<string, ModProp> item) => Add(item.Key, item.Value);
 
         public void Add(Modifier mod)
         {
@@ -143,7 +143,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
         }
 
         public bool Contains(Modifier mod) => Get(mod.Target.Id, mod.Target.Prop!)?.Modifiers.Any(x => x.Id == mod.Target.Id) ?? false;
-        public bool Contains(KeyValuePair<string, MetaModdableProperty> item) => ContainsKey(item.Key);
+        public bool Contains(KeyValuePair<string, ModProp> item) => ContainsKey(item.Key);
 
         public bool ContainsKey(string key)
         {
@@ -153,16 +153,16 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             return _store.ContainsKey(res.Item1) && _store[res.Item1].ContainsKey(res.Item2);
         }
 
-        public void CopyTo(KeyValuePair<string, MetaModdableProperty>[] array, int arrayIndex)
+        public void CopyTo(KeyValuePair<string, ModProp>[] array, int arrayIndex)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerator<KeyValuePair<string, MetaModdableProperty>> GetEnumerator()
+        public IEnumerator<KeyValuePair<string, ModProp>> GetEnumerator()
         {
             foreach (var id in _store.Keys)
                 foreach (var prop in _store[id].Keys)
-                    yield return new KeyValuePair<string, MetaModdableProperty>(MakeKey(id, prop), _store[id][prop]);
+                    yield return new KeyValuePair<string, ModProp>(MakeKey(id, prop), _store[id][prop]);
         }
 
         public bool Remove(Modifier mod)
@@ -254,20 +254,20 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             return res;
         }
 
-        public bool Remove(KeyValuePair<string, MetaModdableProperty> item) => Remove(item.Key);
+        public bool Remove(KeyValuePair<string, ModProp> item) => Remove(item.Key);
 
-        public bool TryGetValue(string key, [MaybeNullWhen(false)] out MetaModdableProperty value)
+        public bool TryGetValue(string key, [MaybeNullWhen(false)] out ModProp value)
         {
             if (TryParseKey(key, out (Guid, string) res))
             {
-                Dictionary<string, MetaModdableProperty> entityMods;
+                Dictionary<string, ModProp> entityMods;
                 if (_store.ContainsKey(res.Item1))
                 {
                     entityMods = _store[res.Item1];
                 }
                 else
                 {
-                    entityMods = new Dictionary<string, MetaModdableProperty>();
+                    entityMods = new Dictionary<string, ModProp>();
                     _store.Add(res.Item1, entityMods);
                 }
 
@@ -278,7 +278,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                 }
                 else
                 {
-                    value = new MetaModdableProperty(res.Item1, res.Item2);
+                    value = new ModProp(res.Item1, res.Item2);
                     entityMods.Add(res.Item2, value);
                     
                     return true;
@@ -324,9 +324,9 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             return res.ToArray();
         }
 
-        private ICollection<MetaModdableProperty> AllValues()
+        private ICollection<ModProp> AllValues()
         {
-            var res = new List<MetaModdableProperty>();
+            var res = new List<ModProp>();
             foreach (var id in _store.Keys)
             {
                 foreach (var prop in _store[id].Keys)
@@ -335,14 +335,14 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
             return res.ToArray();
         }
 
-        private void NotifyPropertyChanged(MetaModdableProperty modProp)
+        private void NotifyPropertyChanged(ModProp modProp)
         {
             var entity = _entityStore?.Get(modProp.Id);
             if (entity != null)
                 NotifyPropertyChanged(entity, modProp.Prop);
         }
 
-        private void NotifyPropertyChanged(Entity? entity, string prop)
+        private void NotifyPropertyChanged(ModdableObject? entity, string prop)
         {
             if (_entityStore != null && entity != null)
             {

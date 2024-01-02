@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace Rpg.SciFi.Engine.Artifacts.MetaData
 {
-    public class PropEvaluator : IPropEvaluator
+    public class PropEvaluator
     {
         private ModStore? _modStore;
         private EntityStore? _entityStore;
@@ -24,13 +24,13 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                 : GetDice(id, prop, PropType.Dice, idStack);
         }
 
-        public Dice Evaluate<TResult>(Entity entity, Expression<Func<Entity, TResult>> expression)
+        public Dice Evaluate<TResult>(ModdableObject entity, Expression<Func<ModdableObject, TResult>> expression)
         {
             var propRef = PropRef.FromPath(entity, expression);
             return Evaluate(propRef.Id!.Value, propRef.Prop);
         }
 
-        public Dice Evaluate(MetaModdableProperty? modProp) => Evaluate(modProp!.Modifiers);
+        public Dice Evaluate(ModProp? modProp) => Evaluate(modProp!.Modifiers);
 
         public Dice Evaluate(IEnumerable<Modifier> mods) => Evaluate(mods, new Stack<Guid>());
 
@@ -56,9 +56,8 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
         public string[] Describe(Modifier modifier, bool addEntityInfo) => Describe(modifier, new Stack<Guid>(), addEntityInfo);
 
-        public string[] Describe(Guid id, string prop, bool addEntityInfo = false)
+        public string[] Describe(ModdableObject entity, string prop, bool addEntityInfo = false)
         {
-            var entity = _entityStore!.Get(id)!;
             var modProp = _modStore!.Get(entity.Id, prop);
 
             var res = new List<string> 

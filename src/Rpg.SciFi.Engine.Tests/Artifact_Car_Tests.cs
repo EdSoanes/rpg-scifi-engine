@@ -4,7 +4,6 @@ using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
-using Rpg.SciFi.Engine.Artifacts.Turns;
 
 namespace Rpg.SciFi.Engine.Tests
 {
@@ -46,9 +45,9 @@ namespace Rpg.SciFi.Engine.Tests
         [JsonProperty] public Abilities Abilities { get; protected set; } = new Abilities();
 
         [Ability]
-        public Artifacts.Turns.Action Start()
+        public TurnAction Start()
         {
-            return new Artifacts.Turns.Action(nameof(Start), 1, 1, 1);
+            return new TurnAction(ModStore!, Evaluator!, nameof(Start), 1, 1, 1);
         }
     }
 

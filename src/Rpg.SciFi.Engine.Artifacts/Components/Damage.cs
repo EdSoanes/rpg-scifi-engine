@@ -1,11 +1,12 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
+using Rpg.SciFi.Engine.Artifacts.MetaData;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
-    public class Damage : Entity
+    public class Damage : ModdableObject
     {
         private readonly Dice _baseImpact;
         private readonly Dice _basePierce;
@@ -36,8 +37,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [Moddable] public Dice Burn { get => Evaluate(); }
         [Moddable] public Dice Energy { get => Evaluate(); }
 
-        [Setup]
-        public Modifier[] Setup()
+        public override Modifier[] Setup()
         {
             return new[]
             {

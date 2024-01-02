@@ -4,7 +4,6 @@ using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Gear;
 using Rpg.SciFi.Engine.Artifacts.MetaData;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
-using Rpg.SciFi.Engine.Artifacts.Turns;
 
 namespace Rpg.SciFi.Engine.Tests
 {
@@ -101,8 +100,8 @@ namespace Rpg.SciFi.Engine.Tests
         {
             var action = _gun.Fire(_game.Character, _target, 3);
 
-            var diceRollDesc = action.Describe(nameof(Artifacts.Turns.Action.DiceRoll));
-            var diceRollTargetDesc = action.Describe(nameof(Artifacts.Turns.Action.DiceRollTarget));
+            var diceRollDesc = action.Describe(nameof(TurnAction.DiceRoll));
+            var diceRollTargetDesc = action.Describe(nameof(TurnAction.DiceRollTarget));
             var successDesc = action.Success.SelectMany(x => _meta.Evaluator.Describe(x, true));
             var failureDesc = action.Failure.SelectMany(x => _meta.Evaluator.Describe(x, true));
 
@@ -129,7 +128,7 @@ namespace Rpg.SciFi.Engine.Tests
             Assert.AreEqual(7, _game.Character.Turns.Focus);
 
             var oldHealth = _target.Health.Physical;
-            var nextAction = _meta.Turns.Apply(_game.Character, action, 11);
+            var nextAction = action.Act(_game.Character, 11);
             Assert.IsNull(nextAction);
 
             var x1 = _meta.Mods.Get(_game, x => x.Character.Health.Physical);
@@ -159,7 +158,7 @@ namespace Rpg.SciFi.Engine.Tests
             Assert.AreEqual(7, _game.Character.Turns.Focus);
 
             var oldHealth = _target.Health.Physical;
-            var nextAction = _meta.Turns.Apply(_game.Character, action, 4);
+            var nextAction = action.Act(_game.Character, 4);
             Assert.IsNull(nextAction);
 
             var da = _game.Character.Describe(x => x.Turns.Action);
