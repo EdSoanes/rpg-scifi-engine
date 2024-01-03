@@ -175,6 +175,7 @@ namespace Rpg.SciFi.Engine.Artifacts
                     if (toRemove != null)
                     {
                         modProp.Modifiers.Remove(toRemove);
+                        NotifyPropertyChanged(modProp);
                         res = true;
                     }
                 }
@@ -226,10 +227,11 @@ namespace Rpg.SciFi.Engine.Artifacts
                             }
                         }
 
-                        entity?.PropChanged(mp.Prop);
                         removed = true;
                     }
                 }
+
+                PropertyChanged(affectedProps);
             }
 
             return removed;
@@ -261,7 +263,7 @@ namespace Rpg.SciFi.Engine.Artifacts
                 if (toRemove.Any())
                 {
                     res = true;
-                    NotifyPropertyChanged(modProp);
+                    PropertyChanged(modProp);
                 }
             }
 
@@ -349,15 +351,41 @@ namespace Rpg.SciFi.Engine.Artifacts
             return res.ToArray();
         }
 
-        private void NotifyPropertyChanged(ModProp modProp)
+        public void NotifyPropertyChanged(ModProp modProp)
         {
-            var affectedProperties = GetAffectedModProps(modProp);
-            foreach (var mp in affectedProperties.GroupBy(x => x.Id))
+            var modProps = GetAffectedModProps(modProp);
+            PropertyChanged(modProps);
+        }
+
+        public void NotifyPropertyChanged(Guid id, string prop)
+        {
+            var modProp = Get(id, prop);
+            if (modProp != null)
+            {
+                var modProps = GetAffectedModProps(modProp);
+                PropertyChanged(modProps);
+            }
+            else
+            {
+                var modProps = GetAffectedModProps(id, prop);
+                PropertyChanged(modProps);
+            }
+        }
+
+        private void PropertyChanged(IEnumerable<ModProp> modProps)
+        {
+            foreach (var mp in modProps.GroupBy(x => x.Id))
             {
                 var entity = _graph!.Entities!.Get(mp.Key);
                 foreach (var p in mp)
                     entity?.PropChanged(p.Prop);
             }
+        }
+
+        private void PropertyChanged(ModProp? modProp)
+        {
+            if (modProp != null)
+                PropertyChanged(new[] { modProp });
         }
 
         private List<ModProp> GetAffectedModProps(ModProp modProp)
@@ -367,9 +395,20 @@ namespace Rpg.SciFi.Engine.Artifacts
             if (_graph != null && modProp != null)
             {
                 res.Add(modProp);
+                res.AddRange(GetAffectedModProps(modProp.Id, modProp.Prop));
+            }
 
+            return res;
+        }
+
+        private List<ModProp> GetAffectedModProps(Guid id, string prop)
+        {
+            var res = new List<ModProp>();
+
+            if (_graph != null)
+            {
                 var modProps = AllValues()
-                    .Where(x => x.Modifiers.Any(m => m.Source.Id == modProp.Id && m.Source.Prop == modProp.Prop));
+                    .Where(x => x.Modifiers.Any(m => m.Source.Id == id && m.Source.Prop == prop));
 
                 foreach (var mp in modProps)
                     res.AddRange(GetAffectedModProps(mp));

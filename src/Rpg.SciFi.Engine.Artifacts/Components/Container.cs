@@ -1,12 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Actions;
 using Rpg.SciFi.Engine.Artifacts.Archetypes;
-using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
 {
-    public class Container : Entity
+    public class Container : ModdableObject
     {
         public const string TurnAction = "TurnAction";
         public const string LeftHand = "LeftHand";
@@ -15,9 +14,12 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         public const string Environment = "Environment";
 
         private readonly int _maxCapacity;
-        public Container(int maxCapacity = int.MaxValue)
+        private readonly int _maxArtifacts;
+
+        public Container(int maxCapacity = int.MaxValue, int maxArtifacts = int.MaxValue)
         {
             _maxCapacity = maxCapacity;
+            _maxArtifacts = maxArtifacts;
         }
 
         [JsonProperty] public ActionCost AddCost { get; private set; } = new ActionCost();
@@ -26,13 +28,15 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         [JsonProperty] protected List<Artifact> Artifacts { get; set; } = new List<Artifact>();
 
         [Moddable] public int MaxCapacity { get => Resolve(); }
+        [Moddable] public int MaxArtifacts { get => Resolve(); }
         public int Encumbrance { get => Artifacts.Sum(x => x.Weight); }
 
         public override Modifier[] Setup()
         {
             return new[]
             {
-                BaseModifier.Create(this, _maxCapacity, x => x.MaxCapacity)
+                BaseModifier.Create(this, _maxCapacity, x => x.MaxCapacity),
+                BaseModifier.Create(this, _maxArtifacts, x => x.MaxArtifacts)
             };
         }
 
@@ -49,6 +53,8 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
 
             artifact.ContainerId = Id;
             Artifacts.Add(artifact);
+
+            Graph?.Mods?.NotifyPropertyChanged(Id, nameof(Encumbrance));
         }
 
         public Artifact? Get(Guid id) => Artifacts.FirstOrDefault(x => x.Id == id);
@@ -62,6 +68,8 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
 
             Artifacts.Remove(toRemove);
             toRemove.ContainerId = null;
+
+            Graph!.Mods!.NotifyPropertyChanged(Id, nameof(Encumbrance));
 
             return toRemove;
         }

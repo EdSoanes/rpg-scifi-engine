@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Components;
+using Rpg.SciFi.Engine.Artifacts.Components.Containers;
 using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
@@ -15,9 +16,9 @@ namespace Rpg.SciFi.Engine.Artifacts.Archetypes
             Name = name;
             Health = new Health(10, 10);
 
-            Containers.Add(Container.LeftHand, new Container());
-            Containers.Add(Container.RightHand, new Container());
-            Containers.Add(Container.Equipment, new Container());
+            AddContainer(new LeftHand());
+            AddContainer(new RightHand());
+            AddContainer(new Equipment());
         }
 
         [JsonProperty] public StatPoints Stats { get; private set; } = new StatPoints();
