@@ -9,13 +9,12 @@ namespace Rpg.SciFi.Engine.Artifacts.Archetypes
 {
     public class Gun : Artifact
     {
-        private readonly int _baseRange;
-        private readonly int _baseAttack;
+        private readonly GunTemplate _template;
 
-        public Gun(int baseRange, int baseAttack)
+        public Gun(GunTemplate template)
         {
-            _baseRange = baseRange;
-            _baseAttack = baseAttack;
+            Name = template.GetType().Name;
+            _template = template;
         }
 
         [JsonProperty] public Damage Damage { get; private set; } = new Damage();
@@ -32,7 +31,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Archetypes
         [Input(InputSource = InputSource.Player, Param = "range")]
         public TurnAction Fire(Character character, Artifact target, int range)
         {
-            var action = new TurnAction(ModStore!, Evaluator!, nameof(Fire), 3, 1, 1)
+            var action = new TurnAction(Graph!, nameof(Fire), 3, 1, 1)
                 .OnDiceRoll("d20")
                 .OnDiceRoll(character, (x) => x.Stats.MissileAttackBonus)
                 .OnDiceRoll(this, (x) => x.Attack)
@@ -61,9 +60,9 @@ namespace Rpg.SciFi.Engine.Artifacts.Archetypes
         {
             var mods = new List<Modifier>(base.Setup())
             {
-                BaseModifier.Create(this, "d6", x => x.Damage.BaseImpact),
-                BaseModifier.Create(this, _baseRange, x => x.BaseRange),
-                BaseModifier.Create(this, _baseAttack,x => x.BaseAttack),
+                BaseModifier.Create(this, _template.Impact, x => x.Damage.BaseImpact),
+                BaseModifier.Create(this, _template.Range, x => x.BaseRange),
+                BaseModifier.Create(this, _template.Attack, x => x.BaseAttack),
 
                 BaseModifier.Create(this, x => x.BaseRange, x => x.Range),
                 BaseModifier.Create(this, x => x.BaseAttack, x => x.Attack)

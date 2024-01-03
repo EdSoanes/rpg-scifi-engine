@@ -1,5 +1,6 @@
 ﻿using Rpg.SciFi.Engine.Artifacts;
 using Rpg.SciFi.Engine.Artifacts.Archetypes;
+using Rpg.SciFi.Engine.Artifacts.Archetypes.Templates;
 
 namespace Rpg.SciFi.Engine.Tests
 {
@@ -9,11 +10,11 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void Gun_Verify_Mods()
         {
-            var gun = new Gun(10, 10);
-            var mgr = new EntityManager<Gun>();
-            mgr.Initialize(gun);
+            var gun = new Gun(new Rifle());
+            var graph = new EntityGraph();
+            graph.Initialize(gun);
 
-            Assert.IsNotNull(mgr.Context);
+            Assert.IsNotNull(graph.Context);
             Assert.IsNotNull(gun);
 
             Assert.AreEqual<string>("1d6", gun.Damage.BaseImpact);

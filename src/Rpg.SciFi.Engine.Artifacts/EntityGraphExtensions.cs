@@ -1,24 +1,19 @@
-﻿using Rpg.SciFi.Engine.Artifacts.Actions;
-using Rpg.SciFi.Engine.Artifacts.Core;
+﻿using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using System.Collections;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
-    public static class ReflectionEngine
+    public static class EntityGraphExtensions
     {
-        public static MetaEntity GetMeta(this ModdableObject entity)
+        public static string[] Describe<T, TResult>(this T entity, Expression<Func<T, TResult>> expression)
+            where T : ModdableObject
         {
-            var metaEntity = new MetaEntity
-            {
-                Id = entity.Id,
-                Type = entity.GetType().Name,
-                AbilityMethods = entity.GetAbilityMethods()
-            };
-
-            return metaEntity;
+            var moddableProperty = PropRef.FromPath(entity, expression);
+            return entity.Describe(moddableProperty.Prop);
         }
 
         public static T? PropertyValue<T>(this ModdableObject? entity, string path)
@@ -137,7 +132,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             Type? type = null;
             if (!string.IsNullOrEmpty(className))
             {
-                type = Assembly.GetAssembly(typeof(EntityManager<ModdableObject>))!
+                type = Assembly.GetAssembly(typeof(EntityGraph))!
                     .GetTypes()
                     .FirstOrDefault(x => x.Name == className);
 
@@ -163,43 +158,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             return methodInfo;
         }
 
-        internal static MetaAction[] GetAbilityMethods(this object context)
-        {
-            var metaAbilityMethods = new List<MetaAction>();
 
-            foreach (var methodInfo in context.GetType().GetMethods())
-            {
-                var attr = methodInfo.GetCustomAttribute<AbilityAttribute>();
-                if (attr == null || methodInfo.ReturnType != typeof(TurnAction))
-                    continue;
-
-                var metaAbilityMethod = new MetaAction
-                {
-                    Name = methodInfo.Name
-                };
-
-                var inputAttrs = methodInfo.GetCustomAttributes<InputAttribute>();
-                foreach (var parameter in methodInfo.GetParameters())
-                {
-                    var inputAttr = inputAttrs.FirstOrDefault(x => x.Param == parameter.Name);
-                    if (inputAttr == null)
-                        throw new ArgumentException($"{methodInfo.Name} missing matching Input attribute");
-
-                    var metaActionInput = new MetaActionInput
-                    {
-                        Name = inputAttr.Param,
-                        BindsTo = inputAttr.BindsTo,
-                        InputSource = inputAttr.InputSource
-                    };
-
-                    metaAbilityMethod.Inputs.Add(metaActionInput);
-                }
-
-                metaAbilityMethods.Add(metaAbilityMethod);
-            }
-
-            return metaAbilityMethods.ToArray();
-        }
 
         internal static PropertyInfo? MetaProperty(this object context, string prop)
         {

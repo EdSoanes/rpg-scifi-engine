@@ -13,11 +13,11 @@ namespace Rpg.SciFi.Engine.Artifacts.Modifiers
             IsPermanent = false;
         }
 
-        public static Modifier Create<TEntity, T1>(string name, Dice dice, TEntity target, Expression<Func<TEntity, T1>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+        public static Modifier Create<TEntity, T1>(TEntity target, string name, Dice dice, Expression<Func<TEntity, T1>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModdableObject
                 => _Create<TurnModifier, TEntity, T1, TEntity, T1>(null, name, dice, null, target, targetExpr, diceCalcExpr);
 
-        public static Modifier Create<TEntity, T1>(Dice dice, TEntity target, Expression<Func<TEntity, T1>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+        public static Modifier Create<TEntity, T1>(TEntity target, Dice dice, Expression<Func<TEntity, T1>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModdableObject
                 => _Create<TurnModifier, TEntity, T1, TEntity, T1>(null, ModNames.Turn, dice, null, target, targetExpr, diceCalcExpr);
     }

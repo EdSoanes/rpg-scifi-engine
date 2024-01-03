@@ -1,8 +1,9 @@
 ﻿using Newtonsoft.Json;
+using Rpg.SciFi.Engine.Artifacts.Actions;
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
-    public class EntityManager<T> where T : ModdableObject
+    public class EntityGraph
     {
         private static JsonSerializerSettings JsonSettings = new JsonSerializerSettings
         {
@@ -13,35 +14,34 @@ namespace Rpg.SciFi.Engine.Artifacts
             ObjectCreationHandling = ObjectCreationHandling.Reuse
         };
 
-        [JsonProperty] public T? Context { get; private set; }
+        [JsonProperty] public ModdableObject? Context { get; private set; }
         [JsonProperty] public EntityStore Entities { get; private set; }
         [JsonProperty] public ModStore Mods { get; private set; }
-        [JsonProperty] public TurnManager Turns { get; private set; }
+        [JsonProperty] public ActionManager Actions { get; private set; }
 
         public PropEvaluator Evaluator { get; private set; }
 
-        public EntityManager()
+        public EntityGraph()
         {
             Mods = new ModStore();
             Entities = new EntityStore();
-            Turns = new TurnManager();
+            Actions = new ActionManager();
             Evaluator = new PropEvaluator();
 
             InitContext();
         }
 
-        public void Initialize(T context)
+        public void Initialize(ModdableObject context)
         {
             Mods.Clear();
             Entities.Clear();
-            Turns.EndEncounter();
+            Actions.EndEncounter();
+            Entities.Add(context);
 
             Context = context;
-
-            Entities.Add(Context);
         }
 
-        public string[] Describe() => Entities.Values.OrderBy(x => x.MetaData.Path).Select(x => x.ToString()).ToArray();
+        public string[] Describe() => Entities.Values.OrderBy(x => x.Meta.Path).Select(x => x.ToString()).ToArray();
 
         public string Serialize()
         {
@@ -49,20 +49,19 @@ namespace Rpg.SciFi.Engine.Artifacts
             return json;
         }
 
-        public static EntityManager<T>? Deserialize(string json)
+        public static EntityGraph? Deserialize(string json)
         {
-            var meta = JsonConvert.DeserializeObject<EntityManager<T>>(json, JsonSettings)!;
+            var meta = JsonConvert.DeserializeObject<EntityGraph>(json, JsonSettings)!;
             meta.InitContext();
-            meta.Context = meta.Entities.Get(meta.Context!.Id) as T;
             return meta;
         }
 
         private void InitContext()
         {
-            Evaluator.Initialize(Mods, Entities);
-            Mods.Initialize(Entities, Evaluator);
-            Entities.Initialize(Mods, Evaluator, Turns);
-            Turns.Initialize(Mods, Entities);
+            Evaluator.Initialize(this);
+            Mods.Initialize(this);
+            Entities.Initialize(this);
+            Actions.Initialize(this);
         }
     }
 }

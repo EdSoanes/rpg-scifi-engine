@@ -15,6 +15,8 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
 
         [JsonProperty] public virtual string Name { get; set; } = string.Empty;
         [JsonProperty] public virtual Modifier[] Modifiers { get; set; } = new Modifier[0];
+
+        public virtual bool CanActivate(string[] activeStates, string[] inactiveStates) => true;
     }
 
     public sealed class States
@@ -27,6 +29,13 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         {
             _states = states;
         }
+
+        public string[] AllStates => _states.Select(x => x.Name).ToArray();
+        public string[] ActiveStates => _activeStates.Select(x => x.Name).ToArray();
+        public string[] InactiveStates => AllStates.Except(ActiveStates).ToArray();
+
+        public bool CanActivate(string stateName) 
+            => _states.FirstOrDefault(x => x.Name == stateName)?.CanActivate(ActiveStates, InactiveStates) ?? false;
 
         public bool HasState(string stateName)
         {

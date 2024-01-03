@@ -1,6 +1,7 @@
 ﻿using Rpg.SciFi.Engine.Artifacts;
 using Rpg.SciFi.Engine.Artifacts.Actions;
 using Rpg.SciFi.Engine.Artifacts.Archetypes;
+using Rpg.SciFi.Engine.Artifacts.Archetypes.Templates;
 using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
@@ -10,7 +11,7 @@ namespace Rpg.SciFi.Engine.Tests
     [TestClass]
     public class CharacterTests
     {
-        private EntityManager<Game> _meta;
+        private EntityGraph _graph;
         private Game _game = new Game();
         private Gun _gun;
         private Character _target;
@@ -18,7 +19,7 @@ namespace Rpg.SciFi.Engine.Tests
         [TestInitialize]
         public void Initialize()
         {
-            _gun = new Gun(10, 2)
+            _gun = new Gun(new Rifle { Attack = 2 })
             {
                 Name = "Blaster"
             };
@@ -31,24 +32,24 @@ namespace Rpg.SciFi.Engine.Tests
             _game.Character = player;
             _game.Environment.GetContainer(Container.Environment)!.Add(_target);
 
-            _meta = new EntityManager<Game>();
-            _meta.Initialize(_game);
+            _graph = new EntityGraph();
+            _graph.Initialize(_game);
 
-            _meta.Mods.Add(PlayerModifier.Create(player, 18, x => x.Stats.BaseStrength));
-            _meta.Mods.Add(PlayerModifier.Create(player, 5, x => x.Stats.BaseDexterity));
-            _meta.Mods.Add(PlayerModifier.Create(player, 14, x => x.Stats.BaseIntelligence));
+            _graph.Mods.Add(PlayerModifier.Create(player, 18, x => x.Stats.BaseStrength));
+            _graph.Mods.Add(PlayerModifier.Create(player, 5, x => x.Stats.BaseDexterity));
+            _graph.Mods.Add(PlayerModifier.Create(player, 14, x => x.Stats.BaseIntelligence));
 
-            _meta.Mods.Add(PlayerModifier.Create(player, 5, x => x.Turns.BaseAction));
-            _meta.Mods.Add(PlayerModifier.Create(player, 5, x => x.Turns.BaseExertion));
-            _meta.Mods.Add(PlayerModifier.Create(player, 5, x => x.Turns.BaseFocus));
+            _graph.Mods.Add(PlayerModifier.Create(player, 5, x => x.Turns.BaseAction));
+            _graph.Mods.Add(PlayerModifier.Create(player, 5, x => x.Turns.BaseExertion));
+            _graph.Mods.Add(PlayerModifier.Create(player, 5, x => x.Turns.BaseFocus));
 
-            _meta.Mods.Add(PlayerModifier.Create(_target, 18, x => x.Stats.BaseStrength));
-            _meta.Mods.Add(PlayerModifier.Create(_target, 5, x => x.Stats.BaseDexterity));
-            _meta.Mods.Add(PlayerModifier.Create(_target, 14, x => x.Stats.BaseIntelligence));
+            _graph.Mods.Add(PlayerModifier.Create(_target, 18, x => x.Stats.BaseStrength));
+            _graph.Mods.Add(PlayerModifier.Create(_target, 5, x => x.Stats.BaseDexterity));
+            _graph.Mods.Add(PlayerModifier.Create(_target, 14, x => x.Stats.BaseIntelligence));
 
-            _meta.Mods.Add(PlayerModifier.Create(_target, 5, x => x.Turns.BaseAction));
-            _meta.Mods.Add(PlayerModifier.Create(_target, 5, x => x.Turns.BaseExertion));
-            _meta.Mods.Add(PlayerModifier.Create(_target, 5, x => x.Turns.BaseFocus));
+            _graph.Mods.Add(PlayerModifier.Create(_target, 5, x => x.Turns.BaseAction));
+            _graph.Mods.Add(PlayerModifier.Create(_target, 5, x => x.Turns.BaseExertion));
+            _graph.Mods.Add(PlayerModifier.Create(_target, 5, x => x.Turns.BaseFocus));
         }
 
         [TestMethod]
@@ -84,7 +85,7 @@ namespace Rpg.SciFi.Engine.Tests
                 propNames.Add($"Damage.{e.PropertyName}");
             };
 
-            _meta.Mods.Add(PlayerModifier.Create(_game.Character, 1, x => x.Stats.BaseStrength));
+            _graph.Mods.Add(PlayerModifier.Create(_game.Character, 1, x => x.Stats.BaseStrength));
 
             Assert.IsTrue(propNames.Contains("Stats.BaseStrength"));
             Assert.IsTrue(propNames.Contains("Stats.Strength"));
@@ -102,8 +103,8 @@ namespace Rpg.SciFi.Engine.Tests
 
             var diceRollDesc = action.Describe(nameof(TurnAction.DiceRoll));
             var diceRollTargetDesc = action.Describe(nameof(TurnAction.DiceRollTarget));
-            var successDesc = action.Success.SelectMany(x => _meta.Evaluator.Describe(x, true));
-            var failureDesc = action.Failure.SelectMany(x => _meta.Evaluator.Describe(x, true));
+            var successDesc = action.Success.SelectMany(x => _graph.Evaluator.Describe(x, true));
+            var failureDesc = action.Failure.SelectMany(x => _graph.Evaluator.Describe(x, true));
 
             Assert.AreEqual<string>("1d20 - 2", action.DiceRoll);
             Assert.AreEqual<string>("11", action.DiceRollTarget);
@@ -112,7 +113,7 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void Character_Gun_Fire_Success()
         {
-            var baseImpactModProp = _meta.Mods.Get(_gun, x => x.Damage.BaseImpact);
+            var baseImpactModProp = _graph.Mods.Get(_gun, x => x.Damage.BaseImpact);
             Assert.IsNotNull(baseImpactModProp);
             Assert.AreEqual(1, baseImpactModProp.Modifiers.Count);
 
@@ -131,7 +132,7 @@ namespace Rpg.SciFi.Engine.Tests
             var nextAction = action.Act(_game.Character, 11);
             Assert.IsNull(nextAction);
 
-            var x1 = _meta.Mods.Get(_game, x => x.Character.Health.Physical);
+            var x1 = _graph.Mods.Get(_game, x => x.Character.Health.Physical);
 
             var da = _game.Character.Describe(x => x.Turns.Action);
             var de = _game.Character.Describe(x => x.Turns.Exertion);

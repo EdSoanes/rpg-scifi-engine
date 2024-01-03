@@ -1,19 +1,16 @@
 ﻿using Newtonsoft.Json;
-using Rpg.SciFi.Engine.Artifacts.Actions;
 
-namespace Rpg.SciFi.Engine.Artifacts
+namespace Rpg.SciFi.Engine.Artifacts.Actions
 {
-    public class TurnManager
+    public class ActionManager
     {
-        private ModStore? _modStore;
-        private EntityStore? _entityStore;
+        private EntityGraph? _graph;
         
         [JsonProperty] public List<TurnAction> Actions { get; private set; } = new List<TurnAction>();
 
-        public void Initialize(ModStore modStore, EntityStore entityStore)
+        public void Initialize(EntityGraph graph)
         {
-            _modStore = modStore;
-            _entityStore = entityStore;
+            _graph = graph;
         }
 
         public int Current { get; private set; }
@@ -21,25 +18,25 @@ namespace Rpg.SciFi.Engine.Artifacts
         public void StartEncounter()
         {
             Current = 1;
-            _modStore?.Remove(Current);
+            _graph!.Mods!.Remove(Current);
         }
         
         public void Increment()
         {
             Current++;
-            _modStore?.Remove(Current);
+            _graph!.Mods!.Remove(Current);
         }
 
         public void SetTurn(int turn)
         {
             Current = turn;
-            _modStore?.Remove(Current);
+            _graph!.Mods!.Remove(Current);
         }
 
         public void EndEncounter()
         {
             Current = 0;
-            _modStore?.Remove(Current);
+            _graph!.Mods!.Remove(Current);
         }
     }
 }

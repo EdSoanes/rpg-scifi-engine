@@ -8,8 +8,7 @@ namespace Rpg.SciFi.Engine.Artifacts
 {
     public class ModStore : IDictionary<string, ModProp>
     {
-        private EntityStore? _entityStore;
-        private PropEvaluator? _evaluator;
+        private EntityGraph? _graph;
         
         private readonly Dictionary<Guid, Dictionary<string, ModProp>> _store = new Dictionary<Guid, Dictionary<string, ModProp>>();
 
@@ -32,10 +31,9 @@ namespace Rpg.SciFi.Engine.Artifacts
 
         public bool IsReadOnly => false;
 
-        public void Initialize(EntityStore entityStore, PropEvaluator propEvaluator)
+        public void Initialize(EntityGraph graph)
         {
-            _entityStore = entityStore;
-            _evaluator = propEvaluator;
+            _graph = graph;
         }
 
         public List<Modifier>? GetMods<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
@@ -100,7 +98,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             }
             else if (mod.ModifierAction == ModifierAction.Sum)
             {
-                var modDice = _evaluator!.Evaluate(modProp.MatchingMods(mod)) + _evaluator!.Evaluate(new[] { mod });
+                var modDice = _graph!.Evaluator!.Evaluate(modProp.MatchingMods(mod)) + _graph!.Evaluator!.Evaluate(new[] { mod });
                 modProp.RemoveMatchingMods(mod);
                 if (modDice != Dice.Zero)
                 {
@@ -213,11 +211,20 @@ namespace Rpg.SciFi.Engine.Artifacts
                 {
                     foreach (var mp in group)
                     {
-                        var entity = _entityStore!.Get(mp.Id);
+                        var entity = _graph!.Entities!.Get(mp.Id);
                         var toRemove = mp.Modifiers.Where(x => x.Source.Prop == modProp.Prop).ToList();
 
                         foreach (var r in toRemove)
-                            mp.Modifiers.Remove(r);
+                        {
+                            if (!r.DiceCalc.IsCalc)
+                                mp.Modifiers.Remove(r);
+                            else
+                            {
+                                var dice = _graph!.Evaluator!.Evaluate(r);
+                                if (dice == Dice.Zero)
+                                    mp.Modifiers.Remove(r);
+                            }
+                        }
 
                         entity?.PropChanged(mp.Prop);
                         removed = true;
@@ -347,7 +354,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             var affectedProperties = GetAffectedModProps(modProp);
             foreach (var mp in affectedProperties.GroupBy(x => x.Id))
             {
-                var entity = _entityStore!.Get(mp.Key);
+                var entity = _graph!.Entities!.Get(mp.Key);
                 foreach (var p in mp)
                     entity?.PropChanged(p.Prop);
             }
@@ -357,7 +364,7 @@ namespace Rpg.SciFi.Engine.Artifacts
         {
             var res = new List<ModProp>();
 
-            if (_entityStore != null && modProp != null)
+            if (_graph != null && modProp != null)
             {
                 res.Add(modProp);
 

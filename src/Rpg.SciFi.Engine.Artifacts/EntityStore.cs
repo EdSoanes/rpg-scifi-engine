@@ -1,13 +1,12 @@
-﻿using System.Collections;
+﻿using Rpg.SciFi.Engine.Artifacts.Actions;
+using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
     public class EntityStore : IDictionary<Guid, ModdableObject>
     {
-        private ModStore? _modStore;
-        private PropEvaluator? _propEvaluator;
-        private TurnManager? _turnManager;
+        private EntityGraph? _graph;
 
         private readonly Dictionary<Guid, ModdableObject> _store = new Dictionary<Guid, ModdableObject>();
 
@@ -37,14 +36,12 @@ namespace Rpg.SciFi.Engine.Artifacts
 
         public bool IsReadOnly => false;
 
-        public void Initialize(ModStore modStore, PropEvaluator propEvaluator, TurnManager turnManager)
+        public void Initialize(EntityGraph graph)
         {
-            _modStore = modStore;
-            _propEvaluator = propEvaluator;
-            _turnManager = turnManager;
+            _graph = graph;
 
             foreach (var entity in _store.Values)
-                entity?.Initialize(modStore, propEvaluator);
+                entity?.Initialize(graph);
         }
 
         public void Add(ModdableObject entity) => Add(entity.Id, entity);
@@ -64,7 +61,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             var entity = obj as ModdableObject;
             if (entity != null)
             {
-                entity.MetaData.Path = basePath;
+                entity.Meta.Path = basePath;
 
                 if (!_store.ContainsKey(entity.Id))
                     _store.Add(entity.Id, entity);
@@ -99,34 +96,6 @@ namespace Rpg.SciFi.Engine.Artifacts
                 : null;
         }
 
-        public ModdableObject? GetByPath(string path)
-        {
-            if (!path.StartsWith("{}"))
-                path = string.IsNullOrEmpty(path)
-                    ? "{}"
-                    : "{}." + path;
-
-            return _store.Values
-                ?.SingleOrDefault(x => x.MetaData.Path == path);
-        }
-
-        public T? ValueByPath<T>(string path)
-            where T : ModdableObject
-        {
-            var parts = path.Split('.', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            path = parts.Length == 1
-                ? string.Empty
-                : string.Join('.', parts.Take(parts.Length - 1));
-
-            var prop = parts.Last();
-
-            var entity = GetByPath(path);
-            if (entity != null)
-                return entity.PropertyValue<T>(prop);
-
-            return default;
-        }
-
         public void Clear() => _store.Clear();
 
         public bool Contains(KeyValuePair<Guid, ModdableObject> item) => _store.Contains(item);
@@ -148,7 +117,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             if (toRemove != null)
             {
                 _store.Remove(key);
-                _modStore!.Remove(toRemove.Id);
+                _graph!.Mods!.Remove(toRemove.Id);
                 return true;
             }
 
@@ -170,13 +139,13 @@ namespace Rpg.SciFi.Engine.Artifacts
 
         private void SetupMods(ModdableObject? entity)
         {
-            if (entity != null && _modStore != null && _propEvaluator != null && _turnManager != null)
+            if (entity != null && _graph != null)
             {
-                entity.Initialize(_modStore, _propEvaluator);
+                entity.Initialize(_graph);
 
                 var mods = entity.Setup();
                 if (mods != null)
-                    _modStore.Add(mods);
+                    _graph!.Mods!.Add(mods);
             }
         }
     }

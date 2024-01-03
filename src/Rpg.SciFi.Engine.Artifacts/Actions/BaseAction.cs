@@ -7,25 +7,26 @@ namespace Rpg.SciFi.Engine.Artifacts.Actions
 {
     public abstract class BaseAction : ModdableObject
     {
-        private readonly int _baseAction;
-        private readonly int _baseExertion;
-        private readonly int _baseFocus;
+        private readonly ActionCost _actionCost;
 
         [JsonProperty] protected int? Resolution { get; set; }
         
         [JsonConstructor] private BaseAction() { }
 
-        protected BaseAction(ModStore modStore, PropEvaluator evaluator, string name, int actionCost, int exertionCost, int focusCost)
+        protected BaseAction(EntityGraph entityGraph, string name, ActionCost actionCost)
         {
-            Initialize(modStore, evaluator);
+            Initialize(entityGraph);
 
             Name = name;
 
-            _baseAction = actionCost;
-            _baseExertion = exertionCost;
-            _baseFocus = focusCost;
+            _actionCost = actionCost;
 
-            ModStore!.Add(Setup());
+            Graph!.Mods!.Add(Setup());
+        }
+
+        protected BaseAction(EntityGraph entityGraph, string name, int actionCost, int exertionCost, int focusCost)
+            : this(entityGraph, name, new ActionCost(actionCost, exertionCost, focusCost))
+        {
         }
 
         [Moddable] public int BaseActionCost { get => Resolve(); }
@@ -45,9 +46,9 @@ namespace Rpg.SciFi.Engine.Artifacts.Actions
         {
             return new[]
             {
-                BaseModifier.Create(this, _baseAction, x => BaseActionCost),
-                BaseModifier.Create(this, _baseExertion, x => BaseExertionCost),
-                BaseModifier.Create(this, _baseFocus, x => BaseFocusCost),
+                BaseModifier.Create(this, _actionCost.Action, x => BaseActionCost),
+                BaseModifier.Create(this, _actionCost.Exertion, x => BaseExertionCost),
+                BaseModifier.Create(this, _actionCost.Focus, x => BaseFocusCost),
 
                 BaseModifier.Create(this, x => BaseActionCost, x => ActionCost),
                 BaseModifier.Create(this, x => BaseExertionCost, x => ExertionCost),
@@ -63,19 +64,19 @@ namespace Rpg.SciFi.Engine.Artifacts.Actions
 
                 var actionCost = ActionCost;
                 if (actionCost != 0)
-                    ModStore!.Add(CostModifier.Create(actionCost, actor, x => x.Turns.Action, () => Rules.Minus));
+                    Graph!.Mods!.Add(CostModifier.Create(actionCost, actor, x => x.Turns.Action, () => Rules.Minus));
 
                 var exertionCost = ExertionCost;
                 if (exertionCost != 0)
-                    ModStore!.Add(CostModifier.Create(exertionCost, actor, x => x.Turns.Exertion, () => Rules.Minus));
+                    Graph!.Mods!.Add(CostModifier.Create(exertionCost, actor, x => x.Turns.Exertion, () => Rules.Minus));
 
                 var focusCost = FocusCost;
                 if (focusCost != 0)
-                    ModStore!.Add(CostModifier.Create(focusCost, actor, x => x.Turns.Focus, () => Rules.Minus));
+                    Graph!.Mods!.Add(CostModifier.Create(focusCost, actor, x => x.Turns.Focus, () => Rules.Minus));
 
                 OnAct(actor, diceRoll);
 
-                ModStore!.Remove(Id);
+                Graph!.Mods!.Remove(Id);
             }
 
             return NextAction();

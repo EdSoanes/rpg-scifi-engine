@@ -8,22 +8,22 @@ namespace Rpg.SciFi.Engine.Tests
     public class DamagesTests
     {
         private Damage? _damage;
-        private EntityManager<Damage>? _meta;
+        private EntityGraph? _graph;
 
         [TestInitialize]
         public void Initialize()
         {
             _damage = new Damage("d6", "d6", "d10", "d6", "d6");
-            _meta = new EntityManager<Damage>();
-            _meta.Initialize(_damage);
+            _graph = new EntityGraph();
+            _graph.Initialize(_damage);
         }
 
         [TestMethod]
         public void StatPoints_Test()
         {
             var statPoints = new StatPoints();
-            var meta = new EntityManager<StatPoints>();
-            meta.Initialize(statPoints);
+            var graph = new EntityGraph();
+            graph.Initialize(statPoints);
 
             Assert.IsNotNull(statPoints);
             Assert.AreEqual(-5, statPoints.StrengthBonus);
@@ -45,17 +45,17 @@ namespace Rpg.SciFi.Engine.Tests
         public void Damage_Serialization()
         {
             Assert.IsNotNull(_damage);
-            Assert.IsNotNull(_meta);
+            Assert.IsNotNull(_graph);
 
-            var state = _meta.Serialize();
+            var state = _graph.Serialize();
 
-            var meta = EntityManager<Damage>.Deserialize(state);
+            var graph = EntityGraph.Deserialize(state);
 
-            Assert.IsNotNull(meta);
-            Assert.IsNotNull(meta.Context);
+            Assert.IsNotNull(graph);
+            Assert.IsNotNull(graph.Context);
 
-            var damage2 = meta.Context;
-            var modProp = meta.Mods.Get(damage2, x => x.Blast);
+            var damage2 = graph.Context as Damage;
+            var modProp = graph.Mods.Get(damage2, x => x.Blast);
             Assert.AreEqual<string>(_damage.Blast, damage2.Blast);
             Assert.AreEqual<string>(_damage.BaseBlast, damage2.Blast);
 
@@ -79,16 +79,16 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void Damage_ApplyMod() 
         {
-            Assert.IsNotNull(_meta);
+            Assert.IsNotNull(_graph);
             Assert.IsNotNull(_damage);
 
-            _meta.Mods.Add(TimedModifier.Create(RemoveTurn.WhenZero, _damage, "Weapon Damage", "d8", x => x.Blast));
+            _graph.Mods.Add(TimedModifier.Create(RemoveTurn.WhenZero, _damage, "Weapon Damage", "d8", x => x.Blast));
 
             var desc = _damage.Describe(x => x.Blast);
 
             Assert.AreEqual<string>("1d10 + 1d8", _damage!.Blast);
 
-            _meta.Mods.Clear(_damage.Id);
+            _graph.Mods.Clear(_damage.Id);
 
             Assert.AreEqual<string>("1d10", _damage.Blast);
         }
@@ -97,25 +97,25 @@ namespace Rpg.SciFi.Engine.Tests
         public void Damage_Serialization_WithMod()
         {
             Assert.IsNotNull(_damage);
-            Assert.IsNotNull(_meta);
+            Assert.IsNotNull(_graph);
 
             _damage.Name = "Something";
 
-            _meta.Mods.Add(TimedModifier.Create(RemoveTurn.WhenZero, _damage, "Weapon Damage", "d8", x => x.Blast));
+            _graph.Mods.Add(TimedModifier.Create(RemoveTurn.WhenZero, _damage, "Weapon Damage", "d8", x => x.Blast));
 
-            var state = _meta.Serialize();
+            var state = _graph.Serialize();
 
-            _meta = EntityManager<Damage>.Deserialize(state);
+            _graph = EntityGraph.Deserialize(state);
 
-            Assert.IsNotNull(_meta);
-            Assert.IsNotNull(_meta.Context);
-            var damage2 = _meta.Context!;
+            Assert.IsNotNull(_graph);
+            Assert.IsNotNull(_graph.Context);
+            var damage2 = _graph.Context as Damage;
 
             Assert.IsNotNull(damage2);
             Assert.AreEqual("Something", damage2.Name);
             Assert.AreEqual<string>("1d10 + 1d8", damage2.Blast);
 
-            _meta.Mods.Clear(damage2.Id);
+            _graph.Mods.Clear(damage2.Id);
             Assert.AreEqual<string>("1d10", damage2.Blast);
         }
     }

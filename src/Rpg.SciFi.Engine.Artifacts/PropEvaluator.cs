@@ -6,19 +6,17 @@ namespace Rpg.SciFi.Engine.Artifacts
 {
     public class PropEvaluator
     {
-        private ModStore? _modStore;
-        private EntityStore? _entityStore;
+        private EntityGraph? _graph;
 
-        public void Initialize(ModStore modStore, EntityStore entityStore)
+        public void Initialize(EntityGraph graph)
         {
-            _modStore = modStore;
-            _entityStore = entityStore;
+            _graph = graph;
         }
 
         public Dice Evaluate(Guid id, string prop)
         {
             var idStack = new Stack<Guid>();
-            var modProp = _modStore!.Get(id, prop);
+            var modProp = _graph!.Mods!.Get(id, prop);
             return modProp != null
                 ? Evaluate(modProp.Modifiers, idStack)
                 : GetDice(id, prop, PropType.Dice, idStack);
@@ -34,21 +32,30 @@ namespace Rpg.SciFi.Engine.Artifacts
 
         public Dice Evaluate(IEnumerable<Modifier> mods) => Evaluate(mods, new Stack<Guid>());
 
+        public Dice Evaluate(Modifier mod, Stack<Guid>? idStack = null)
+        {
+            idStack ??= new Stack<Guid>();
+
+            if (idStack.Contains(mod.Id))
+                throw new Exception($"Recursion for mod {mod}");
+
+            idStack.Push(mod.Id);
+
+            var modDice = GetDice(mod.Source.Id, mod.Source.Prop, mod.Source.PropType, idStack);
+            var dice = ApplyDiceCalc(modDice, mod.DiceCalc);
+
+            idStack.Pop();
+
+            return dice;
+        }
+
         private Dice Evaluate(IEnumerable<Modifier> mods, Stack<Guid>? idStack)
         {
             idStack ??= new Stack<Guid>();
             Dice dice = "0";
             foreach (var mod in mods)
             {
-                if (idStack.Contains(mod.Id))
-                    throw new Exception($"Recursion for mod {mod}");
-                idStack.Push(mod.Id);
-
-                var modDice = GetDice(mod.Source.Id, mod.Source.Prop, mod.Source.PropType, idStack);
-                modDice = ApplyDiceCalc(modDice, mod.DiceCalc);
-                dice += modDice;
-
-                idStack.Pop();
+                dice += Evaluate(mod, idStack);
             }
 
             return dice;
@@ -58,7 +65,7 @@ namespace Rpg.SciFi.Engine.Artifacts
 
         public string[] Describe(ModdableObject entity, string prop, bool addEntityInfo = false)
         {
-            var modProp = _modStore!.Get(entity.Id, prop);
+            var modProp = _graph!.Mods!.Get(entity.Id, prop);
 
             var res = new List<string> 
             { 
@@ -85,7 +92,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             var desc = DescribeSource(modifier, idStack, addEntityInfo);
             var res = new List<string>() { desc };
 
-            var modProp = _modStore!.Get(modifier.Source);
+            var modProp = _graph!.Mods!.Get(modifier.Source);
             if (modProp != null && modProp.Modifiers.Any())
             {
                 foreach (var mod in modProp.Modifiers)
@@ -93,7 +100,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             }
             else
             {
-                var entity = _entityStore.Get(modifier.Source.Id);
+                var entity = _graph!.Entities!.Get(modifier.Source.Id);
                 if (entity != null)
                     res.Add($"  {modifier.Source.Prop} => {entity.PropertyValue<int>(modifier.Source.Prop)}");
             }
@@ -103,7 +110,7 @@ namespace Rpg.SciFi.Engine.Artifacts
 
         private string DescribeSource(Modifier mod, Stack<Guid> idStack, bool addEntityInfo = false)
         {
-            var desc = mod.Source.Describe(_entityStore!, addEntityInfo);
+            var desc = mod.Source.Describe(_graph!.Entities!, addEntityInfo);
             if (mod.Source.PropType == PropType.Dice)
                 desc = $"{mod.Name} => {desc}";
             else
@@ -112,7 +119,7 @@ namespace Rpg.SciFi.Engine.Artifacts
                 desc += $" => {dice}";
             }
 
-            var diceCalc = mod.DiceCalc.Describe(_entityStore!);
+            var diceCalc = mod.DiceCalc.Describe(_graph!.Entities!);
             if (diceCalc != null)
                 desc += $" => {diceCalc}() => {Evaluate(new[] { mod })}";
 
@@ -124,11 +131,11 @@ namespace Rpg.SciFi.Engine.Artifacts
             if (propType == PropType.Dice)
                 return prop;
 
-            var modProp = _modStore!.Get(id, prop);
+            var modProp = _graph!.Mods!.Get(id, prop);
             if (modProp != null && modProp.Modifiers.Any())
                 return Evaluate(modProp.Modifiers, idStack);
 
-            var entity = _entityStore!.Get(id);
+            var entity = _graph!.Entities!.Get(id);
             if (entity != null)
                 return entity.PropertyValue<int>(prop);
 
@@ -143,7 +150,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             if (diceCalc.IsStatic)
                 return this.ExecuteFunction<Dice, Dice>($"{diceCalc.ClassName}.{diceCalc.FuncName}", dice);
 
-            var entity = _entityStore!.Get(diceCalc.EntityId!.Value);
+            var entity = _graph!.Entities!.Get(diceCalc.EntityId!.Value);
             if (entity != null)
                 return entity.ExecuteFunction<Dice, Dice>(diceCalc.FuncName!, dice);
 

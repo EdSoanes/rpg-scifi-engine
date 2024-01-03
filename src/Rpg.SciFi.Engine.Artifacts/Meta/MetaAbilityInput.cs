@@ -2,7 +2,7 @@
 
 namespace Rpg.SciFi.Engine.Artifacts
 {
-    public class MetaActionInput
+    public class MetaAbilityInput
     {
         public string Name { get; set; }
         public string BindsTo { get; set; }

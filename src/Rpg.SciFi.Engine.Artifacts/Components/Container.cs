@@ -20,6 +20,9 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
             _maxCapacity = maxCapacity;
         }
 
+        [JsonProperty] public ActionCost AddCost { get; private set; } = new ActionCost();
+        [JsonProperty] public ActionCost RemoveCost { get; private set; } = new ActionCost();
+
         [JsonProperty] protected List<Artifact> Artifacts { get; set; } = new List<Artifact>();
 
         [Moddable] public int MaxCapacity { get => Resolve(); }
@@ -31,26 +34,6 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
             {
                 BaseModifier.Create(this, _maxCapacity, x => x.MaxCapacity)
             };
-        }
-
-        [Ability()]
-        [Input(Param = "actor", BindsTo = "Actor")]
-        [Input(InputSource = InputSource.Player, Param = "artifact")]
-        public TurnAction Get(Actor actor, Artifact artifact)
-        {
-            var action = new TurnAction(ModStore!, Evaluator!, nameof(Get), 1, 1, 1);
-            //action.AddArtifact(TurnAction, artifact);
-            return action;
-        }
-
-        [Ability()]
-        [Input(Param = "actor", BindsTo = "Actor")]
-        [Input(InputSource = InputSource.Player, Param = "artifact")]
-        public TurnAction Put(Actor actor, Artifact artifact)
-        {
-            var action = new TurnAction(ModStore!, Evaluator!, nameof(Put), 1, 1, 1);
-            //action.AddArtifact(TurnAction, artifact);
-            return action;
         }
 
         public void Add(Artifact artifact)

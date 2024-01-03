@@ -14,16 +14,19 @@ namespace Rpg.SciFi.Engine.Artifacts.Archetypes
         [JsonProperty] public States States { get; protected set; } = new States();
 
         [Moddable] public int BaseSize { get => Resolve(); }
-        [Moddable] public int BaseWeight { get => Resolve(); }
-        [Moddable] public int BaseSpeed { get => Resolve(); }
-        [Moddable] public int BaseMeleeDefence { get => Resolve(); }
-        [Moddable] public int BaseMissileDefence { get => Resolve(); }
-
         [Moddable] public int Size { get => Resolve(); }
-        [Moddable] public int Weight { get => Resolve(); }
-        [Moddable] public int Speed { get => Resolve(); }
 
+        [Moddable] public int BaseWeight { get => Resolve(); }
+        [Moddable] public int Weight { get => Resolve(); }
+
+        [Moddable] public int CurrentSpeed { get => Resolve(); }
+        [Moddable] public int MaxSpeed { get => Resolve(); }
+        [Moddable] public int Acceleration { get => Resolve(); }
+
+        [Moddable] public int BaseMeleeDefence { get => Resolve(); }
         [Moddable] public int MeleeDefence { get => Resolve(); }
+
+        [Moddable] public int BaseMissileDefence { get => Resolve(); }
         [Moddable] public int MissileDefence { get => Resolve(); }
 
         [Moddable] public bool Destroyed { get => Resolve() > 0; }
@@ -36,26 +39,25 @@ namespace Rpg.SciFi.Engine.Artifacts.Archetypes
             {
                 BaseModifier.Create(this, 1, x => BaseSize),
                 BaseModifier.Create(this, 1, x => BaseWeight),
-                BaseModifier.Create(this, 0, x => BaseSpeed),
+                BaseModifier.Create(this, 0, x => MaxSpeed),
                 BaseModifier.Create(this, 0, x => BaseMeleeDefence),
                 BaseModifier.Create(this, 0, x => BaseMissileDefence),
 
                 BaseModifier.Create(this, x => BaseSize, x => Size),
                 BaseModifier.Create(this, x => BaseWeight, x => Weight),
-                BaseModifier.Create(this, x => BaseSpeed, x => Speed),
                 BaseModifier.Create(this, x => BaseMeleeDefence, x => MeleeDefence),
                 BaseModifier.Create(this, x => BaseMissileDefence, x => MissileDefence),
 
                 BaseModifier.Create(this, x => Size, x => MeleeDefence),
                 BaseModifier.Create(this, x => Size, x => MissileDefence),
-                BaseModifier.Create(this, x => Speed, x => MissileDefence, () => Rules.Minus)
+                BaseModifier.Create(this, x => CurrentSpeed, x => MissileDefence, () => Rules.Minus)
             };
         }
 
         [Ability]
         public TurnAction Destroy()
         {
-            return new TurnAction(ModStore!, Evaluator!, nameof(Destroy), 0, 0, 0);
+            return new TurnAction(Graph!, nameof(Destroy), 0, 0, 0);
         }
     }
 }

@@ -19,8 +19,13 @@ namespace Rpg.SciFi.Engine.Artifacts.Actions
         private TurnAction? SuccessAction { get; set; }
         private TurnAction? FailureAction { get; set; }
 
-        public TurnAction(ModStore modStore, PropEvaluator evaluator, string name, int actionCost, int exertionCost, int focusCost)
-            : base(modStore, evaluator, name, actionCost, exertionCost, focusCost)
+        public TurnAction(EntityGraph graph, string name, ActionCost actionCost)
+            : base(graph, name, actionCost)
+        {
+        }
+
+        public TurnAction(EntityGraph graph, string name, int actionCost, int exertionCost, int focusCost)
+            : base(graph, name, new ActionCost(actionCost, exertionCost, focusCost))
         {
         }
 
@@ -31,7 +36,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Actions
                 ? Success
                 : Failure;
 
-            ModStore!.Add(modifiers.ToArray());
+            Graph!.Mods!.Add(modifiers.ToArray());
         }
 
         protected override BaseAction? NextAction()
@@ -66,33 +71,33 @@ namespace Rpg.SciFi.Engine.Artifacts.Actions
 
         public TurnAction OnDiceRoll(Dice dice)
         {
-            ModStore!.Add(BaseModifier.Create(this, dice, x => x.DiceRoll));
+            Graph!.Mods!.Add(BaseModifier.Create(this, dice, x => x.DiceRoll));
             return this;
         }
 
         public TurnAction OnDiceRoll(string name, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
         {
-            ModStore!.Add(BaseModifier.Create(this, name, dice, x => x.DiceRoll, diceCalc));
+            Graph!.Mods!.Add(BaseModifier.Create(this, name, dice, x => x.DiceRoll, diceCalc));
             return this;
         }
 
         public TurnAction OnDiceRoll<T, TR>(T source, Expression<Func<T, TR>> sExpr, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
             where T : ModdableObject
         {
-            ModStore!.Add(BaseModifier.Create(source, sExpr, this, x => x.DiceRoll, diceCalc));
+            Graph!.Mods!.Add(BaseModifier.Create(source, sExpr, this, x => x.DiceRoll, diceCalc));
             return this;
         }
 
         public TurnAction OnDiceRollTarget(Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
         {
-            ModStore!.Add(BaseModifier.Create(this, dice, x => x.DiceRollTarget, diceCalc));
+            Graph!.Mods!.Add(BaseModifier.Create(this, dice, x => x.DiceRollTarget, diceCalc));
             return this;
         }
 
         public TurnAction OnDiceRollTarget<T, TR>(T source, Expression<Func<T, TR>> sExpr, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
             where T : ModdableObject
         {
-            ModStore!.Add(BaseModifier.Create(source, sExpr, this, x => x.DiceRollTarget, diceCalc));
+            Graph!.Mods!.Add(BaseModifier.Create(source, sExpr, this, x => x.DiceRollTarget, diceCalc));
             return this;
         }
     }

@@ -48,14 +48,14 @@ namespace Rpg.SciFi.Engine.Tests
         [Ability]
         public TurnAction Start()
         {
-            return new TurnAction(ModStore!, Evaluator!, nameof(Start), 1, 1, 1);
+            return new TurnAction(Graph!, nameof(Start), 1, 1, 1);
         }
     }
 
     [TestClass]
     public class ArtifactTests
     {
-        private EntityManager<Game> _meta;
+        private EntityGraph _graph;
         private Car _car;
 
         [TestInitialize]
@@ -66,40 +66,40 @@ namespace Rpg.SciFi.Engine.Tests
             var game = new Game();
             game.Environment.GetContainer(Container.Environment)!.Add(_car);
 
-            _meta = new EntityManager<Game>();
-            _meta.Initialize(game);
+            _graph = new EntityGraph();
+            _graph.Initialize(game);
         }
 
         [TestMethod]
         public void Artifact()
         {
-            var meta = _car.MetaData;
+            var meta = _car.Meta;
             Assert.IsNotNull(meta);
 
-            meta = _car.Emissions.VisibleLight.MetaData;
+            meta = _car.Emissions.VisibleLight.Meta;
             Assert.IsNotNull(meta);
 
-            meta = _car.Emissions.Electromagnetic.MetaData;
+            meta = _car.Emissions.Electromagnetic.Meta;
             Assert.IsNotNull(meta);
 
-            meta = _car.Emissions.Heat.MetaData;
+            meta = _car.Emissions.Heat.Meta;
             Assert.IsNotNull(meta);
 
-            meta = _car.Emissions.Radiation.MetaData;
+            meta = _car.Emissions.Radiation.Meta;
             Assert.IsNotNull(meta);
 
-            meta = _car.Emissions.Sound.MetaData;
+            meta = _car.Emissions.Sound.Meta;
             Assert.IsNotNull(meta);
 
-            meta = _car.Movement.MetaData;
+            meta = _car.Movement.Meta;
             Assert.IsNotNull(meta);
 
             foreach (var carPart in _car.Parts)
             {
-                meta = carPart.Health.MetaData;
+                meta = carPart.Health.Meta;
                 Assert.IsNotNull(meta);
 
-                meta = carPart.Resistances.MetaData;
+                meta = carPart.Resistances.Meta;
                 Assert.IsNotNull(meta);
             }
         }
