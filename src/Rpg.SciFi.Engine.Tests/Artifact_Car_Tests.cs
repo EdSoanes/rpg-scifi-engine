@@ -1,8 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts;
+using Rpg.SciFi.Engine.Artifacts.Actions;
+using Rpg.SciFi.Engine.Artifacts.Archetypes;
 using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Core;
-using Rpg.SciFi.Engine.Artifacts.MetaData;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Tests

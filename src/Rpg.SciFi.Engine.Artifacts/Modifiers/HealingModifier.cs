@@ -1,6 +1,5 @@
 ﻿using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
-using Rpg.SciFi.Engine.Artifacts.MetaData;
 using System.Linq.Expressions;
 
 namespace Rpg.SciFi.Engine.Artifacts.Modifiers

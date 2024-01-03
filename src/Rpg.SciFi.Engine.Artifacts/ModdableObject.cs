@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 
-namespace Rpg.SciFi.Engine.Artifacts.MetaData
+namespace Rpg.SciFi.Engine.Artifacts
 {
     public abstract class ModdableObject : INotifyPropertyChanged
     {

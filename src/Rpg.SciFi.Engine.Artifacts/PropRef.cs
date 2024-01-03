@@ -1,13 +1,10 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
-using Rpg.SciFi.Engine.Artifacts.Expressions.Parsers;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Xml.Linq;
 
-namespace Rpg.SciFi.Engine.Artifacts.MetaData
+namespace Rpg.SciFi.Engine.Artifacts
 {
     public struct PropRef
     {
@@ -162,7 +159,7 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
         public override bool Equals(object? obj)
         {
-            return obj?.ToString() == this.ToString();
+            return obj?.ToString() == ToString();
         }
 
         public override int GetHashCode()

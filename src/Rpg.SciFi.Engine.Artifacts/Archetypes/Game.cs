@@ -1,12 +1,4 @@
-﻿using Rpg.SciFi.Engine.Artifacts.Core;
-using Rpg.SciFi.Engine.Artifacts.MetaData;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Rpg.SciFi.Engine.Artifacts
+﻿namespace Rpg.SciFi.Engine.Artifacts.Archetypes
 {
     public class Game : Entity
     {

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Rpg.SciFi.Engine.Artifacts.MetaData
+namespace Rpg.SciFi.Engine.Artifacts
 {
     public class EntityStore : IDictionary<Guid, ModdableObject>
     {

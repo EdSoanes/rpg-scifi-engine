@@ -1,10 +1,5 @@
-﻿using Rpg.SciFi.Engine.Artifacts.Gear;
-using Rpg.SciFi.Engine.Artifacts.MetaData;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Rpg.SciFi.Engine.Artifacts;
+using Rpg.SciFi.Engine.Artifacts.Archetypes;
 
 namespace Rpg.SciFi.Engine.Tests
 {

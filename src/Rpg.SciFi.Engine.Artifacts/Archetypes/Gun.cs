@@ -1,11 +1,11 @@
 ﻿using Newtonsoft.Json;
+using Rpg.SciFi.Engine.Artifacts.Actions;
 using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
-using Rpg.SciFi.Engine.Artifacts.MetaData;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
-namespace Rpg.SciFi.Engine.Artifacts.Gear
+namespace Rpg.SciFi.Engine.Artifacts.Archetypes
 {
     public class Gun : Artifact
     {
@@ -36,16 +36,16 @@ namespace Rpg.SciFi.Engine.Artifacts.Gear
                 .OnDiceRoll("d20")
                 .OnDiceRoll(character, (x) => x.Stats.MissileAttackBonus)
                 .OnDiceRoll(this, (x) => x.Attack)
-                .OnDiceRoll(nameof(range), range, () => this.CalculateRange);
+                .OnDiceRoll(nameof(range), range, () => CalculateRange);
 
             action
                 .OnDiceRollTarget(10)
                 .OnDiceRollTarget(target, (x) => x.MissileDefence);
 
             action
-//                .OnSuccess(DamageModifier.Create(this, x => x.Damage.Blast, target, t => t.Health.Physical))
+                //                .OnSuccess(DamageModifier.Create(this, x => x.Damage.Blast, target, t => t.Health.Physical))
                 .OnSuccess(DamageModifier.Create(this, x => x.Damage.Impact, target, t => t.Health.Physical));
-//                .OnSuccess(DamageModifier.Create(this, x => x.Damage.Pierce, target, t => t.Health.Physical));
+            //                .OnSuccess(DamageModifier.Create(this, x => x.Damage.Pierce, target, t => t.Health.Physical));
 
             return action;
         }

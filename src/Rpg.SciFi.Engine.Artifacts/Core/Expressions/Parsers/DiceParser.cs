@@ -1,5 +1,4 @@
-﻿using Rpg.SciFi.Engine.Artifacts.MetaData;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace Rpg.SciFi.Engine.Artifacts.Expressions.Parsers
 {

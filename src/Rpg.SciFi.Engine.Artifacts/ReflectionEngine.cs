@@ -1,10 +1,11 @@
-﻿using Rpg.SciFi.Engine.Artifacts.Core;
+﻿using Rpg.SciFi.Engine.Artifacts.Actions;
+using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using System.Collections;
 using System.Reflection;
 
-namespace Rpg.SciFi.Engine.Artifacts.MetaData
+namespace Rpg.SciFi.Engine.Artifacts
 {
     public static class ReflectionEngine
     {

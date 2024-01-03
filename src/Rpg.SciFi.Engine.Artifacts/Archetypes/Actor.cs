@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.SciFi.Engine.Artifacts.Components;
 
-namespace Rpg.SciFi.Engine.Artifacts
+namespace Rpg.SciFi.Engine.Artifacts.Archetypes
 {
     public abstract class Actor : Artifact
     {

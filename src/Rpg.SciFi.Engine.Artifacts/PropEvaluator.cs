@@ -2,7 +2,7 @@
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using System.Linq.Expressions;
 
-namespace Rpg.SciFi.Engine.Artifacts.MetaData
+namespace Rpg.SciFi.Engine.Artifacts
 {
     public class PropEvaluator
     {

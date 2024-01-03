@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Rpg.SciFi.Engine.Artifacts.MetaData
+namespace Rpg.SciFi.Engine.Artifacts
 {
     public class EntityManager<T> where T : ModdableObject
     {

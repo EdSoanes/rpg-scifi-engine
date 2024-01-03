@@ -3,7 +3,7 @@ using Rpg.SciFi.Engine.Artifacts.Components;
 using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
-namespace Rpg.SciFi.Engine.Artifacts
+namespace Rpg.SciFi.Engine.Artifacts.Archetypes
 {
     public class Character : Actor
     {

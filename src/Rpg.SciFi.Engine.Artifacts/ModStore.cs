@@ -1,12 +1,10 @@
-﻿using Newtonsoft.Json;
-using Rpg.SciFi.Engine.Artifacts.Expressions;
+﻿using Rpg.SciFi.Engine.Artifacts.Expressions;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 using System.Collections;
-using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
-namespace Rpg.SciFi.Engine.Artifacts.MetaData
+namespace Rpg.SciFi.Engine.Artifacts
 {
     public class ModStore : IDictionary<string, ModProp>
     {
@@ -193,10 +191,8 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
                 return false;
 
             var modProps = _store[entityId];
-            _store.Remove(entityId);
-
-            foreach (var modProp in modProps)
-                NotifyPropertyChanged(modProp.Value);
+            foreach (var prop in modProps.Values.Select(x => x.Prop).ToList())
+                Remove(entityId, prop);
 
             return true;
         }
@@ -206,19 +202,30 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
         public bool Remove(Guid? entityId, string? prop)
         {
+            bool removed = false;
+
             var modProp = Get(entityId, prop);
             if (modProp != null)
             {
-                var removed = modProp.Modifiers.Count > 0;
                 modProp.Modifiers.Clear();
+                var affectedProps = GetAffectedModProps(modProp);
+                foreach (var group in affectedProps.GroupBy(x => x.Id))
+                {
+                    foreach (var mp in group)
+                    {
+                        var entity = _entityStore!.Get(mp.Id);
+                        var toRemove = mp.Modifiers.Where(x => x.Source.Prop == modProp.Prop).ToList();
 
-                if (removed)
-                    NotifyPropertyChanged(modProp);
+                        foreach (var r in toRemove)
+                            mp.Modifiers.Remove(r);
 
-                return removed;
+                        entity?.PropChanged(mp.Prop);
+                        removed = true;
+                    }
+                }
             }
 
-            return false;
+            return removed;
         }
 
         public bool Remove(string key)
@@ -337,28 +344,31 @@ namespace Rpg.SciFi.Engine.Artifacts.MetaData
 
         private void NotifyPropertyChanged(ModProp modProp)
         {
-            var entity = _entityStore?.Get(modProp.Id);
-            if (entity != null)
-                NotifyPropertyChanged(entity, modProp.Prop);
+            var affectedProperties = GetAffectedModProps(modProp);
+            foreach (var mp in affectedProperties.GroupBy(x => x.Id))
+            {
+                var entity = _entityStore!.Get(mp.Key);
+                foreach (var p in mp)
+                    entity?.PropChanged(p.Prop);
+            }
         }
 
-        private void NotifyPropertyChanged(ModdableObject? entity, string prop)
+        private List<ModProp> GetAffectedModProps(ModProp modProp)
         {
-            if (_entityStore != null && entity != null)
+            var res = new List<ModProp>();
+
+            if (_entityStore != null && modProp != null)
             {
-                entity.PropChanged(prop);
+                res.Add(modProp);
 
                 var modProps = AllValues()
-                    .Where(x => x.Modifiers.Any(m => m.Source.Id == entity.Id && m.Source.Prop == prop));
+                    .Where(x => x.Modifiers.Any(m => m.Source.Id == modProp.Id && m.Source.Prop == modProp.Prop));
 
-                foreach (var mpg in modProps.GroupBy(x => x.Id))
-                {
-                    entity = _entityStore.Get(mpg.Key);
-                    if (entity != null)
-                        foreach (var mp in mpg)
-                            NotifyPropertyChanged(entity, mp.Prop);
-                }
+                foreach (var mp in modProps)
+                    res.AddRange(GetAffectedModProps(mp));
             }
+
+            return res;
         }
     }
 }

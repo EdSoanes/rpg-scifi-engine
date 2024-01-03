@@ -1,15 +1,4 @@
-﻿using Rpg.SciFi.Engine.Artifacts.Core;
-using Rpg.SciFi.Engine.Artifacts.Expressions;
-using Rpg.SciFi.Engine.Artifacts.Gear;
-using Rpg.SciFi.Engine.Artifacts.MetaData;
-using Rpg.SciFi.Engine.Artifacts.Modifiers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Rpg.SciFi.Engine.Tests
+﻿namespace Rpg.SciFi.Engine.Tests
 {
     [TestClass]
     public class ReflectionEngineTests
