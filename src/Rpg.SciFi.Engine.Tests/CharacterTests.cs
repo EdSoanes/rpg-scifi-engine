@@ -35,21 +35,28 @@ namespace Rpg.SciFi.Engine.Tests
             _graph = new EntityGraph();
             _graph.Initialize(_game);
 
-            _graph.Mods.Add(PlayerModifier.Create(player, 18, x => x.Stats.BaseStrength));
-            _graph.Mods.Add(PlayerModifier.Create(player, 5, x => x.Stats.BaseDexterity));
-            _graph.Mods.Add(PlayerModifier.Create(player, 14, x => x.Stats.BaseIntelligence));
+            _graph.Mods.Add(PlayerModifier.Create(player, 18, x => x.Stats.Strength));
+            _graph.Mods.Add(PlayerModifier.Create(player, 5, x => x.Stats.Dexterity));
+            _graph.Mods.Add(PlayerModifier.Create(player, 14, x => x.Stats.Intelligence));
 
-            _graph.Mods.Add(PlayerModifier.Create(player, 5, x => x.Turns.BaseAction));
-            _graph.Mods.Add(PlayerModifier.Create(player, 5, x => x.Turns.BaseExertion));
-            _graph.Mods.Add(PlayerModifier.Create(player, 5, x => x.Turns.BaseFocus));
+            _graph.Mods.Add(PlayerModifier.Create(player, 5, x => x.Turns.Action));
+            _graph.Mods.Add(PlayerModifier.Create(player, 5, x => x.Turns.Exertion));
+            _graph.Mods.Add(PlayerModifier.Create(player, 5, x => x.Turns.Focus));
 
-            _graph.Mods.Add(PlayerModifier.Create(_target, 18, x => x.Stats.BaseStrength));
-            _graph.Mods.Add(PlayerModifier.Create(_target, 5, x => x.Stats.BaseDexterity));
-            _graph.Mods.Add(PlayerModifier.Create(_target, 14, x => x.Stats.BaseIntelligence));
+            _graph.Mods.Add(PlayerModifier.Create(_target, 18, x => x.Stats.Strength));
+            _graph.Mods.Add(PlayerModifier.Create(_target, 5, x => x.Stats.Dexterity));
+            _graph.Mods.Add(PlayerModifier.Create(_target, 14, x => x.Stats.Intelligence));
 
-            _graph.Mods.Add(PlayerModifier.Create(_target, 5, x => x.Turns.BaseAction));
-            _graph.Mods.Add(PlayerModifier.Create(_target, 5, x => x.Turns.BaseExertion));
-            _graph.Mods.Add(PlayerModifier.Create(_target, 5, x => x.Turns.BaseFocus));
+            _graph.Mods.Add(PlayerModifier.Create(_target, 5, x => x.Turns.Action));
+            _graph.Mods.Add(PlayerModifier.Create(_target, 5, x => x.Turns.Exertion));
+            _graph.Mods.Add(PlayerModifier.Create(_target, 5, x => x.Turns.Focus));
+        }
+
+        [TestMethod]
+        public void CharacterGraph_Serialize()
+        {
+            var state = _graph.Serialize<Game>();
+            Assert.IsNotNull(state);
         }
 
         [TestMethod]
@@ -64,7 +71,6 @@ namespace Rpg.SciFi.Engine.Tests
 
         public void Character_Init_DamageBuff()
         {
-            Assert.AreEqual<string>("1d6", _game.Character.Damage.BaseImpact);
             Assert.AreEqual<string>("1d6 + 4", _game.Character.Damage.Impact);
         }
 
@@ -85,9 +91,8 @@ namespace Rpg.SciFi.Engine.Tests
                 propNames.Add($"Damage.{e.PropertyName}");
             };
 
-            _graph.Mods.Add(PlayerModifier.Create(_game.Character, 1, x => x.Stats.BaseStrength));
+            _graph.Mods.Add(PlayerModifier.Create(_game.Character, 1, x => x.Stats.Strength));
 
-            Assert.IsTrue(propNames.Contains("Stats.BaseStrength"));
             Assert.IsTrue(propNames.Contains("Stats.Strength"));
             Assert.IsTrue(propNames.Contains("Stats.StrengthBonus"));
             Assert.IsTrue(propNames.Contains("Stats.MeleeAttackBonus"));
@@ -113,7 +118,7 @@ namespace Rpg.SciFi.Engine.Tests
         [TestMethod]
         public void Character_Gun_Fire_Success()
         {
-            var baseImpactModProp = _graph.Mods.Get(_gun, x => x.Damage.BaseImpact);
+            var baseImpactModProp = _graph.Mods.Get(_gun, x => x.Damage.Impact);
             Assert.IsNotNull(baseImpactModProp);
             Assert.AreEqual(1, baseImpactModProp.Modifiers.Count);
 

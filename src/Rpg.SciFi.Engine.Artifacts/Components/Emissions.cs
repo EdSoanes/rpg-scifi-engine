@@ -25,11 +25,6 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
             _baseRadius = baseRadius;
         }
 
-        [Moddable] public int BaseMin { get => Resolve(); }
-        [Moddable] public int BaseMax { get => Resolve(); }
-        [Moddable] public int BaseValue { get => Resolve(); }
-        [Moddable] public int BaseRadius { get => Resolve(); }
-
         [Moddable] public int Min { get => Resolve(); }
         [Moddable] public int Max { get => Resolve(); }
         [Moddable] public int Value { get => Resolve(); }
@@ -39,15 +34,10 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         {
             return new[]
             {
-                BaseModifier.Create(this, _baseMin, x => x.BaseMin),
-                BaseModifier.Create(this, _baseMax, x => x.BaseMax),
-                BaseModifier.Create(this, _baseValue, x => x.BaseValue),
-                BaseModifier.Create(this, _baseRadius, x => x.BaseRadius),
-
-                BaseModifier.Create(this, x => x.BaseMin, x => x.Min),
-                BaseModifier.Create(this, x => x.BaseMax, x => x.Max),
-                BaseModifier.Create(this, x => x.BaseValue, x => x.Value),
-                BaseModifier.Create(this, x => x.BaseRadius, x => x.Radius)
+                BaseModifier.Create(this, _baseMin, x => x.Min),
+                BaseModifier.Create(this, _baseMax, x => x.Max),
+                BaseModifier.Create(this, _baseValue, x => x.Value),
+                BaseModifier.Create(this, _baseRadius, x => x.Radius)
             };
         }
     }

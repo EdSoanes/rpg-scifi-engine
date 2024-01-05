@@ -10,7 +10,8 @@ namespace Rpg.SciFi.Engine.Artifacts.Actions
         private readonly ActionCost _actionCost;
 
         [JsonProperty] protected int? Resolution { get; set; }
-        
+        public virtual bool IsResolved { get => Resolution != null; }
+
         [JsonConstructor] private BaseAction() { }
 
         protected BaseAction(EntityGraph entityGraph, string name, ActionCost actionCost)
@@ -37,7 +38,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Actions
         [Moddable] public int ExertionCost { get => Resolve(); }
         [Moddable] public int FocusCost { get => Resolve(); }
 
-        public virtual bool IsResolved { get => Resolution != null; }
+
         protected abstract void OnAct(Actor actor, int diceRoll = 0);
         protected abstract BaseAction? NextAction();
 

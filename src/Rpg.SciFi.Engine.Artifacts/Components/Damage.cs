@@ -24,12 +24,6 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
             _baseEnergy = baseEnergy;
         }
 
-        [Moddable] public Dice BaseImpact { get => Evaluate(); }
-        [Moddable] public Dice BasePierce { get => Evaluate(); }
-        [Moddable] public Dice BaseBlast { get => Evaluate(); }
-        [Moddable] public Dice BaseBurn { get => Evaluate(); }
-        [Moddable] public Dice BaseEnergy { get => Evaluate(); }
-
         [Moddable] public Dice Impact { get => Evaluate(); }
         [Moddable] public Dice Pierce { get => Evaluate(); }
         [Moddable] public Dice Blast { get => Evaluate(); }
@@ -40,17 +34,11 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         {
             return new[]
             {
-                BaseModifier.Create(this, _baseBlast, x => x.BaseBlast),
-                BaseModifier.Create(this, _basePierce,x => x.BasePierce),
-                BaseModifier.Create(this, _baseImpact, x => x.BaseImpact),
-                BaseModifier.Create(this, _baseBurn, x => x.BaseBurn),
-                BaseModifier.Create(this, _baseEnergy, x => x.BaseEnergy),
-
-                BaseModifier.Create(this, x => x.BaseBlast, x => x.Blast),
-                BaseModifier.Create(this, x => x.BasePierce, x => x.Pierce),
-                BaseModifier.Create(this, x => x.BaseImpact, x => x.Impact),
-                BaseModifier.Create(this, x => x.BaseBurn, x => x.Burn),
-                BaseModifier.Create(this, x => x.BaseEnergy, x => x.Energy)
+                BaseModifier.Create(this, _baseBlast, x => x.Blast),
+                BaseModifier.Create(this, _basePierce,x => x.Pierce),
+                BaseModifier.Create(this, _baseImpact, x => x.Impact),
+                BaseModifier.Create(this, _baseBurn, x => x.Burn),
+                BaseModifier.Create(this, _baseEnergy, x => x.Energy)
             };
         }
     }

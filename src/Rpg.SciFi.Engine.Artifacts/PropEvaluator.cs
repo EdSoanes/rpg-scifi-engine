@@ -53,7 +53,7 @@ namespace Rpg.SciFi.Engine.Artifacts
         {
             idStack ??= new Stack<Guid>();
             Dice dice = "0";
-            foreach (var mod in mods)
+            foreach (var mod in FilteredModifiers(mods))
             {
                 dice += Evaluate(mod, idStack);
             }
@@ -73,7 +73,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             };
 
             var idStack = new Stack<Guid>();
-            foreach (var mod in modProp!.Modifiers)
+            foreach (var mod in FilteredModifiers(modProp!.Modifiers))
             {
                 if (idStack.Contains(mod.Id))
                     throw new Exception($"Recursion for mod {mod}");
@@ -95,7 +95,7 @@ namespace Rpg.SciFi.Engine.Artifacts
             var modProp = _graph!.Mods!.Get(modifier.Source);
             if (modProp != null && modProp.Modifiers.Any())
             {
-                foreach (var mod in modProp.Modifiers)
+                foreach (var mod in FilteredModifiers(modProp.Modifiers))
                     res.AddRange(Describe(mod, idStack, false).Select(x => $"  {x}"));
             }
             else
@@ -155,6 +155,26 @@ namespace Rpg.SciFi.Engine.Artifacts
                 return entity.ExecuteFunction<Dice, Dice>(diceCalc.FuncName!, dice);
 
             return dice;
+        }
+
+        private Modifier[] FilteredModifiers(IEnumerable<Modifier> modifiers)
+        {
+            var res = modifiers
+                .Where(x => x.ModifierType != ModifierType.Base && x.ModifierType != ModifierType.Player)
+                .ToList();
+
+            var baseMods = modifiers
+                .Except(res)
+                .GroupBy(x => $"{x.Target.Id}.{x.Target.Prop}.{x.Name}");
+
+            foreach (var group in baseMods)
+            {
+                var mod = group.FirstOrDefault(x => x.ModifierType == ModifierType.Player) ?? group.FirstOrDefault(x => x.ModifierType == ModifierType.Base);
+                if (mod != null)
+                    res.Add(mod);
+            }
+
+            return res.ToArray();
         }
     }
 }

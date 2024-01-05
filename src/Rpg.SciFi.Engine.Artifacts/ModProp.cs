@@ -7,15 +7,17 @@ namespace Rpg.SciFi.Engine.Artifacts
     {
         public Guid Id { get; set; }
         public string Prop { get; set; }
+        public string ReturnType {  get; set; }
 
         public List<Modifier> Modifiers { get; set; } = new List<Modifier>();
 
         [JsonConstructor] private ModProp() { }
 
-        public ModProp(Guid id, string prop)
+        public ModProp(Guid id, string prop, string returnType)
         {
             Id = id;
             Prop = prop;
+            ReturnType = returnType;
         }
 
         public Modifier[] MatchingMods(Modifier mod)

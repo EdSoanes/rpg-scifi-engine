@@ -35,10 +35,7 @@ namespace Rpg.SciFi.Engine.Tests
         {
             Assert.IsNotNull(_damage);
             Assert.AreEqual<string>("1d10", _damage.Blast);
-            Assert.AreEqual<string>("1d10", _damage.BaseBlast);
-
             Assert.AreEqual<string>("1d6", _damage.Burn);
-            Assert.AreEqual<string>("1d6", _damage.BaseBurn);
         }
 
         [TestMethod]
@@ -47,33 +44,19 @@ namespace Rpg.SciFi.Engine.Tests
             Assert.IsNotNull(_damage);
             Assert.IsNotNull(_graph);
 
-            var state = _graph.Serialize();
-
-            var graph = EntityGraph.Deserialize(state);
+            var state = _graph.Serialize<Damage>();
+            var graph = EntityGraph.Deserialize<Damage>(state);
 
             Assert.IsNotNull(graph);
             Assert.IsNotNull(graph.Context);
 
             var damage2 = graph.Context as Damage;
-            var modProp = graph.Mods.Get(damage2, x => x.Blast);
+            Assert.IsNotNull(damage2);
             Assert.AreEqual<string>(_damage.Blast, damage2.Blast);
-            Assert.AreEqual<string>(_damage.BaseBlast, damage2.Blast);
-
-            Assert.IsNotNull(damage2);
             Assert.AreEqual<string>(_damage.Burn, damage2.Burn);
-            Assert.AreEqual<string>(_damage.BaseBurn, damage2.BaseBurn);
-
-            Assert.IsNotNull(damage2);
             Assert.AreEqual<string>(_damage.Energy, damage2.Energy);
-            Assert.AreEqual<string>(_damage.BaseEnergy, damage2.BaseEnergy);
-
-            Assert.IsNotNull(damage2);
             Assert.AreEqual<string>(_damage.Impact, damage2.Impact);
-            Assert.AreEqual<string>(_damage.BaseImpact, damage2.BaseImpact);
-
-            Assert.IsNotNull(damage2);
             Assert.AreEqual<string>(_damage.Pierce, damage2.Pierce);
-            Assert.AreEqual<string>(_damage.BasePierce, damage2.BasePierce);
         }
 
         [TestMethod]
@@ -103,13 +86,12 @@ namespace Rpg.SciFi.Engine.Tests
 
             _graph.Mods.Add(TimedModifier.Create(RemoveTurn.WhenZero, _damage, "Weapon Damage", "d8", x => x.Blast));
 
-            var state = _graph.Serialize();
+            var state = _graph.Serialize<Damage>();
+            var graph = EntityGraph.Deserialize<Damage>(state);
 
-            _graph = EntityGraph.Deserialize(state);
-
-            Assert.IsNotNull(_graph);
-            Assert.IsNotNull(_graph.Context);
-            var damage2 = _graph.Context as Damage;
+            Assert.IsNotNull(graph);
+            Assert.IsNotNull(graph.Context);
+            var damage2 = graph.Context as Damage;
 
             Assert.IsNotNull(damage2);
             Assert.AreEqual("Something", damage2.Name);

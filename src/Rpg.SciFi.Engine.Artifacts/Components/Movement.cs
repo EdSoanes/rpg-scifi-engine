@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Rpg.SciFi.Engine.Artifacts.Core;
 using Rpg.SciFi.Engine.Artifacts.Modifiers;
 
 namespace Rpg.SciFi.Engine.Artifacts.Components
@@ -21,11 +20,6 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
             _baseManeuverability = baseManeuverability;
         }
 
-        [Moddable] public int BaseSpeed { get => Resolve(); }
-        [Moddable] public int BaseAcceleration { get => Resolve(); }
-        [Moddable] public int BaseDeceleration { get => Resolve(); }
-        [Moddable] public int BaseManeuverability { get => Resolve(); }
-
         [Moddable] public int Speed { get => Resolve(); }
         [Moddable] public int Acceleration { get => Resolve(); }
         [Moddable] public int Deceleration { get => Resolve(); }
@@ -35,15 +29,10 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         {
             return new[]
             {
-                BaseModifier.Create(this, _baseSpeed, x => x.BaseSpeed),
-                BaseModifier.Create(this, _baseAcceleration, x => x.BaseAcceleration),
-                BaseModifier.Create(this, _baseDeceleration, x => x.BaseDeceleration),
-                BaseModifier.Create(this, _baseManeuverability, x => x.BaseManeuverability),
-
-                BaseModifier.Create(this, x => x.BaseSpeed, x => x.Speed),
-                BaseModifier.Create(this, x => x.BaseAcceleration, x => x.Acceleration),
-                BaseModifier.Create(this, x => x.BaseDeceleration, x => x.Deceleration),
-                BaseModifier.Create(this, x => x.BaseManeuverability, x => x.Maneuverability)
+                BaseModifier.Create(this, _baseSpeed, x => x.Speed),
+                BaseModifier.Create(this, _baseAcceleration, x => x.Acceleration),
+                BaseModifier.Create(this, _baseDeceleration, x => x.Deceleration),
+                BaseModifier.Create(this, _baseManeuverability, x => x.Maneuverability)
             };
         }
     }

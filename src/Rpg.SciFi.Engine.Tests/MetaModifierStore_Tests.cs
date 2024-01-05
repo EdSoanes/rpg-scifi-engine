@@ -74,8 +74,8 @@ namespace Rpg.SciFi.Engine.Tests
             Assert.IsNotNull(graph);
             Assert.IsNotNull(character);
 
-            var json = graph.Serialize();
-            var graph2 = EntityGraph.Deserialize(json);
+            var json = graph.Serialize<Character>();
+            var graph2 = EntityGraph.Deserialize<Character>(json);
             var character2 = graph.Context as Character;
 
             Assert.IsNotNull(graph2);
@@ -88,7 +88,6 @@ namespace Rpg.SciFi.Engine.Tests
             //Assert base mod
             var baseSizeMod = sizeMods.Single(x => x.ModifierType == ModifierType.Base);
             Assert.AreEqual(character2.Id, baseSizeMod.Target.Id);
-            Assert.AreEqual(nameof(character2.BaseSize), baseSizeMod.Source.Prop);
             Assert.AreEqual(nameof(character2.Size), baseSizeMod.Target.Prop);
             Assert.IsFalse(baseSizeMod.CanBeCleared());
             Assert.IsFalse(baseSizeMod.ShouldBeRemoved(1));
@@ -101,7 +100,7 @@ namespace Rpg.SciFi.Engine.Tests
 
             var speedMods = graph.Mods.GetMods(character2, x => x.CurrentSpeed);
             Assert.IsNotNull(speedMods);
-            Assert.AreEqual(1, speedMods.Count);
+            Assert.AreEqual(2, speedMods.Count);
 
             //Assert base mod
             var baseSpeedMod = speedMods.SingleOrDefault(x => x.ModifierType == ModifierType.Base);

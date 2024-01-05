@@ -31,29 +31,41 @@ namespace Rpg.SciFi.Engine.Artifacts
             InitContext();
         }
 
-        public void Initialize(ModdableObject context)
+        public void Initialize(ModdableObject context, ModStore? modStore = null)
         {
             Mods.Clear();
             Entities.Clear();
             Actions.EndEncounter();
             Entities.Add(context);
 
+            if (modStore != null)
+                Mods.Restore(modStore);
+
             Context = context;
         }
 
         public string[] Describe() => Entities.Values.OrderBy(x => x.Meta.Path).Select(x => x.ToString()).ToArray();
 
-        public string Serialize()
+        public string Serialize<T>() where T : ModdableObject
         {
-            var json = JsonConvert.SerializeObject(this, JsonSettings);
+            var state = new EntityGraphState<T>
+            {
+                Context = Context as T,
+                Mods = Mods
+            };
+
+            var json = JsonConvert.SerializeObject(state, JsonSettings);
             return json;
         }
 
-        public static EntityGraph? Deserialize(string json)
+        public static EntityGraph? Deserialize<T>(string json) where T : ModdableObject
         {
-            var meta = JsonConvert.DeserializeObject<EntityGraph>(json, JsonSettings)!;
-            meta.InitContext();
-            return meta;
+            var state = JsonConvert.DeserializeObject<EntityGraphState<T>>(json, JsonSettings)!;
+            var graph = new EntityGraph();
+
+            graph.Initialize(state.Context!, state.Mods);
+
+            return graph;
         }
 
         private void InitContext()

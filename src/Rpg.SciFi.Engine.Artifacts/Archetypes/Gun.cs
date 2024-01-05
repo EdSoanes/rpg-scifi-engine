@@ -19,9 +19,6 @@ namespace Rpg.SciFi.Engine.Artifacts.Archetypes
 
         [JsonProperty] public Damage Damage { get; private set; } = new Damage();
 
-        [Moddable] public int BaseRange { get => Resolve(); }
-        [Moddable] public int BaseAttack { get => Resolve(); }
-
         [Moddable] public int Range { get => Resolve(); }
         [Moddable] public int Attack { get => Resolve(); }
 
@@ -60,12 +57,9 @@ namespace Rpg.SciFi.Engine.Artifacts.Archetypes
         {
             var mods = new List<Modifier>(base.Setup())
             {
-                BaseModifier.Create(this, _template.Impact, x => x.Damage.BaseImpact),
-                BaseModifier.Create(this, _template.Range, x => x.BaseRange),
-                BaseModifier.Create(this, _template.Attack, x => x.BaseAttack),
-
-                BaseModifier.Create(this, x => x.BaseRange, x => x.Range),
-                BaseModifier.Create(this, x => x.BaseAttack, x => x.Attack)
+                BaseModifier.Create(this, _template.Impact, x => x.Damage.Impact),
+                BaseModifier.Create(this, _template.Range, x => x.Range),
+                BaseModifier.Create(this, _template.Attack, x => x.Attack)
             };
 
             return mods.ToArray();

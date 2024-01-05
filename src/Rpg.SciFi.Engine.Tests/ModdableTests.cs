@@ -187,7 +187,7 @@ namespace Rpg.SciFi.Engine.Tests
         }
 
         [TestMethod]
-        public void BaseIntValue_Update_NotifyAndUpdateOtherProps()
+        public void BaseIntValue_Update_Notify_RemoveTransientMods_Notify()
         {
             Assert.AreEqual(1, _anEntity.BaseIntValue);
             Assert.AreEqual(1, _anEntity.ModdedValue);
@@ -199,7 +199,7 @@ namespace Rpg.SciFi.Engine.Tests
                 propNames.Add(e.PropertyName!);
             };
 
-            _graph.Mods.Add(PlayerModifier.Create(_anEntity, 2, x => x.BaseIntValue));
+            _graph.Mods.Add(TurnModifier.Create(_anEntity, 2, x => x.BaseIntValue));
 
             Assert.AreEqual(3, propNames.Count);
             Assert.IsTrue(propNames.Contains(nameof(AnEntity.BaseIntValue)));
@@ -212,7 +212,7 @@ namespace Rpg.SciFi.Engine.Tests
 
             propNames.Clear();
 
-            _graph.Mods.Add(PlayerModifier.Create(_anEntity, 0, x => x.BaseIntValue));
+            _graph.Mods.Remove(_anEntity.Id, nameof(AnEntity.BaseIntValue), ModifierType.Transient);
 
             Assert.AreEqual(3, propNames.Count);
             Assert.IsTrue(propNames.Contains(nameof(AnEntity.BaseIntValue)));
@@ -284,6 +284,26 @@ namespace Rpg.SciFi.Engine.Tests
             Assert.AreEqual(0, _anEntity.BaseIntValue);
             Assert.AreEqual(0, _anEntity.ModdedValue);
             Assert.AreEqual(2, _anEntity.ModdableCalculatedValue);
+        }
+
+        [TestMethod]
+        public void BaseIntValue_ReplaceBaseWithPlayer_VerifyValues()
+        {
+            Assert.AreEqual(1, _anEntity.BaseIntValue);
+            Assert.AreEqual(1, _anEntity.ModdedValue);
+            Assert.AreEqual(3, _anEntity.ModdableCalculatedValue);
+
+            _graph.Mods.Add(PlayerModifier.Create(_anEntity, 3, x => x.BaseIntValue));
+
+            Assert.AreEqual(3, _anEntity.BaseIntValue);
+            Assert.AreEqual(3, _anEntity.ModdedValue);
+            Assert.AreEqual(5, _anEntity.ModdableCalculatedValue);
+
+            _graph.Mods.Remove(_anEntity.Id, nameof(AnEntity.BaseIntValue), ModifierType.Player);
+
+            Assert.AreEqual(1, _anEntity.BaseIntValue);
+            Assert.AreEqual(1, _anEntity.ModdedValue);
+            Assert.AreEqual(3, _anEntity.ModdableCalculatedValue);
         }
     }
 }

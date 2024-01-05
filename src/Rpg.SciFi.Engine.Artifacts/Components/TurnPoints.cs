@@ -19,10 +19,6 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
             _baseFocus = baseFocus;
         }
 
-        [Moddable] public int BaseAction { get => Resolve(); }
-        [Moddable] public int BaseExertion { get => Resolve(); }
-        [Moddable] public int BaseFocus { get => Resolve(); }
-
         [Moddable] public int MaxAction { get => Resolve(); }
         [Moddable] public int MaxExertion { get => Resolve(); }
         [Moddable] public int MaxFocus { get => Resolve(); }
@@ -35,17 +31,13 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         {
             return new[]
             {
-                BaseModifier.Create(this, _baseAction, x => x.BaseAction),
-                BaseModifier.Create(this, _baseExertion, x => x.BaseExertion),
-                BaseModifier.Create(this, _baseFocus, x => x.BaseFocus),
+                BaseModifier.Create(this, _baseAction, x => x.MaxAction),
+                BaseModifier.Create(this, _baseExertion, x => x.MaxExertion),
+                BaseModifier.Create(this, _baseFocus, x => x.MaxFocus),
 
-                BaseModifier.Create(this, x => x.BaseAction, x => x.MaxAction),
-                BaseModifier.Create(this, x => x.BaseExertion, x => x.MaxExertion),
-                BaseModifier.Create(this, x => x.BaseFocus, x => x.MaxFocus),
-
-                BaseModifier.Create(this, x => x.BaseAction, x => x.Action),
-                BaseModifier.Create(this, x => x.BaseExertion, x => x.Exertion),
-                BaseModifier.Create(this, x => x.BaseFocus, x => x.Focus),
+                BaseModifier.Create(this, _baseAction, x => x.Action),
+                BaseModifier.Create(this, _baseExertion, x => x.Exertion),
+                BaseModifier.Create(this, _baseFocus, x => x.Focus)
             };
         }
     }

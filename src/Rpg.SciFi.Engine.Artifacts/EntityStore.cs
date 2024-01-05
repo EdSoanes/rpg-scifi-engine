@@ -1,5 +1,6 @@
 ﻿using Rpg.SciFi.Engine.Artifacts.Actions;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Rpg.SciFi.Engine.Artifacts
@@ -44,41 +45,33 @@ namespace Rpg.SciFi.Engine.Artifacts
                 entity?.Initialize(graph);
         }
 
-        public void Add(ModdableObject entity) => Add(entity.Id, entity);
+        public void Add(KeyValuePair<Guid, ModdableObject> item) 
+            => Add(item.Value);
 
-        public void Add(KeyValuePair<Guid, ModdableObject> item) => Add(item.Key, item.Value);
+        public void Add(Guid key, ModdableObject value) 
+            => Add(value);
+
+        public void Add(ModdableObject entity) => AddRange(new[] { entity });
 
         public void AddRange(IEnumerable<ModdableObject> entities)
         {
+            var moddableObjects = new List<ModdableObject>();
             foreach (var entity in entities)
-                Add(entity.Id, entity);
-        }
-
-        public void Add(Guid key, ModdableObject value) => Add(value, "{}");
-
-        private void Add(object obj, string basePath)
-        {
-            var entity = obj as ModdableObject;
-            if (entity != null)
             {
-                entity.Meta.Path = basePath;
-
-                if (!_store.ContainsKey(entity.Id))
-                    _store.Add(entity.Id, entity);
-                else
-                    _store[entity.Id] = entity;
+                var modObjs = GetModdableObjects(entity);
+                moddableObjects.AddRange(modObjs);
             }
 
-            foreach (var propertyInfo in obj.MetaProperties())
+            foreach (var moddableObject in moddableObjects)
             {
-                var items = obj.PropertyObjects(propertyInfo, out var isEnumerable)?.ToArray() ?? new object[0];
-                var path = $"{basePath}.{propertyInfo.Name}{(isEnumerable ? $"[{entity?.Id}]" : "")}";
+                moddableObject.Initialize(_graph!);
+                if (_store.ContainsKey(moddableObject.Id))
+                    Remove(moddableObject.Id);
 
-                foreach (var item in items)
-                    Add(item, path);
+                _store.Add(moddableObject.Id, moddableObject);
             }
 
-            SetupMods(entity);
+            _graph?.Mods.Add(moddableObjects);
         }
 
         public ModdableObject? Get(Guid? id)
@@ -113,11 +106,16 @@ namespace Rpg.SciFi.Engine.Artifacts
 
         public bool Remove(Guid key)
         {
-            var toRemove = Get(key);
-            if (toRemove != null)
+            var entity = Get(key);
+            if (entity != null)
             {
-                _store.Remove(key);
-                _graph!.Mods!.Remove(toRemove.Id);
+                var toRemove = GetModdableObjects(entity);
+                foreach (var item in toRemove)
+                {
+                    _store.Remove(item.Id);
+                    _graph!.Mods!.Remove(item.Id);
+                }
+
                 return true;
             }
 
@@ -128,25 +126,25 @@ namespace Rpg.SciFi.Engine.Artifacts
 
         IEnumerator IEnumerable.GetEnumerator() => _store.GetEnumerator();
 
-        public void Setup() => Setup(Values);
-        private void Setup(IEnumerable<ModdableObject> entities)
+        private List<ModdableObject> GetModdableObjects(object obj)
         {
-            //Execute in reverse order to set up child entities first so
-            // parent entity mods on children can override child entity mods
-            foreach (var entity in entities.Reverse())
-                SetupMods(entity);
-        }
+            var res = new List<ModdableObject>();
+            var entity = obj as ModdableObject;
+            if (entity != null)
+                res.Add(entity);
 
-        private void SetupMods(ModdableObject? entity)
-        {
-            if (entity != null && _graph != null)
+            foreach (var propertyInfo in obj.MetaProperties())
             {
-                entity.Initialize(_graph);
-
-                var mods = entity.Setup();
-                if (mods != null)
-                    _graph!.Mods!.Add(mods);
+                var items = obj.PropertyObjects(propertyInfo, out var isEnumerable)?.ToArray() ?? new object[0];
+                foreach (var item in items)
+                {
+                    var childEntities = GetModdableObjects(item);
+                    res.AddRange(childEntities);
+                }
             }
+
+            return res;
         }
+
     }
 }

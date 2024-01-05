@@ -22,12 +22,6 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
             _baseEnergy = baseEnergy;
         }
 
-        [Moddable] public virtual int BaseImpact { get => Resolve(); }
-        [Moddable] public virtual int BasePierce { get => Resolve(); }
-        [Moddable] public virtual int BaseBlast { get => Resolve(); }
-        [Moddable] public virtual int BaseBurn { get => Resolve(); }
-        [Moddable] public virtual int BaseEnergy { get => Resolve(); }
-
         [Moddable] public virtual int Impact { get => Resolve(); }
         [Moddable] public virtual int Pierce { get => Resolve(); }
         [Moddable] public virtual int Blast { get => Resolve(); }
@@ -38,17 +32,11 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         {
             return new[]
             {
-                BaseModifier.Create(this, _baseBlast, x => x.BaseBlast),
-                BaseModifier.Create(this, _basePierce, x => x.BasePierce),
-                BaseModifier.Create(this, _baseImpact, x => x.BaseImpact),
-                BaseModifier.Create(this, _baseBurn, x => x.BaseBurn),
-                BaseModifier.Create(this, _baseEnergy, x => x.BaseEnergy),
-
-                BaseModifier.Create(this, x => x.BaseBlast, x => x.Blast),
-                BaseModifier.Create(this, x => x.BasePierce, x => x.Pierce),
-                BaseModifier.Create(this, x => x.BaseImpact, x => x.Impact),
-                BaseModifier.Create(this, x => x.BaseBurn, x => x.Burn),
-                BaseModifier.Create(this, x => x.BaseEnergy, x => x.Energy)
+                BaseModifier.Create(this, _baseBlast, x => x.Blast),
+                BaseModifier.Create(this, _basePierce, x => x.Pierce),
+                BaseModifier.Create(this, _baseImpact, x => x.Impact),
+                BaseModifier.Create(this, _baseBurn, x => x.Burn),
+                BaseModifier.Create(this, _baseEnergy, x => x.Energy)
             };
         }
     }
@@ -61,12 +49,6 @@ namespace Rpg.SciFi.Engine.Artifacts.Components
         {
             _resistances = resistances;
         }
-
-        public override int BaseImpact { get => _resistances.Sum(x => x.BaseImpact); }
-        public override int BasePierce { get => _resistances.Sum(x => x.BasePierce); }
-        public override int BaseBlast { get => _resistances.Sum(x => x.BaseBlast); }
-        public override int BaseBurn { get => _resistances.Sum(x => x.BaseBurn); }
-        public override int BaseEnergy { get => _resistances.Sum(x => x.BaseEnergy); }
 
         public override int Impact { get => _resistances.Sum(x => x.Impact); }
         public override int Pierce { get => _resistances.Sum(x => x.Pierce); }

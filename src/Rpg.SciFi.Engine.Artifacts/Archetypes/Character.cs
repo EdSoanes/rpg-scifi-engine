@@ -29,7 +29,7 @@ namespace Rpg.SciFi.Engine.Artifacts.Archetypes
         {
             var mods = new List<Modifier>(base.Setup())
             {
-                BaseModifier.Create(this, "d6", x => x.Damage.BaseImpact),
+                BaseModifier.Create(this, "d6", x => x.Damage.Impact),
                 BaseModifier.Create(this, x => x.Stats.StrengthBonus, x => x.Damage.Impact),
                 BaseModifier.Create(this, x => x.Stats.StrengthBonus, x => x.Turns.Exertion),
                 BaseModifier.Create(this, x => x.Stats.DexterityBonus, x => x.Turns.Action),

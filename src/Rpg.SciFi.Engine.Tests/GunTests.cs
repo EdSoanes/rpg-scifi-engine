@@ -17,7 +17,6 @@ namespace Rpg.SciFi.Engine.Tests
             Assert.IsNotNull(graph.Context);
             Assert.IsNotNull(gun);
 
-            Assert.AreEqual<string>("1d6", gun.Damage.BaseImpact);
             Assert.AreEqual<string>("1d6", gun.Damage.Impact);
         }
     }
