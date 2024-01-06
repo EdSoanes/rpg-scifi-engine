@@ -11,6 +11,8 @@ namespace Rpg.Sys.Tests
     {
         public int Strength { get; set; } = 16;
         public int StrengthBonus { get; set; }
+        public int Intelligence { get; set; } = 13;
+        public int IntelligenceBonus { get; set; }
         public Dice MeleeDamage { get; set; } = "1d6";
         public int MeleeAttack { get; set; } = 10;
 
@@ -20,7 +22,8 @@ namespace Rpg.Sys.Tests
         {
             var mods = new List<Modifier>(base.SetupModdableProperties(graph))
             {
-                BaseModifier.Create(this, x => x.StrengthBonus, x => x.Health.Physical)
+                BaseModifier.Create(this, x => x.StrengthBonus, x => x.Health.Physical),
+                BaseModifier.Create(this, x => x.Intelligence, x => x.IntelligenceBonus, () => DiceCalculations.CalculateStatBonus)
             };
 
             return mods.ToArray();

@@ -19,20 +19,19 @@ namespace Rpg.Sys
                 var activeModifiers = Modifiers.Where(x => x.Expiry == ModifierExpiry.Active);
 
                 var res = activeModifiers
-                    .Where(x => x.ModifierType != ModifierType.Base && x.ModifierType != ModifierType.Player)
+                    .Where(x => x.ModifierType != ModifierType.Base && x.ModifierType != ModifierType.BaseOverride)
                     .ToList();
 
                 var baseMods = activeModifiers
-                    .Except(res)
-                    .GroupBy(x => $"{x.Target.Id}.{x.Target.Prop}.{x.Name}");
+                    .Where(x => x.ModifierType == ModifierType.BaseOverride)
+                    .ToList();
 
-                foreach (var group in baseMods)
-                {
-                    var mod = group.FirstOrDefault(x => x.ModifierType == ModifierType.Player) ?? group.FirstOrDefault(x => x.ModifierType == ModifierType.Base);
-                    if (mod != null)
-                        res.Add(mod);
-                }
+                if (!baseMods.Any())
+                    baseMods = activeModifiers
+                        .Where(x => x.ModifierType == ModifierType.Base)
+                        .ToList();
 
+                res.AddRange(baseMods);
                 return res.ToArray();
             }
         }

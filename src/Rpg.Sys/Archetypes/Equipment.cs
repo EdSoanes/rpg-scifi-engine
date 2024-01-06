@@ -6,7 +6,7 @@ namespace Rpg.Sys.Archetypes
 {
     public class Equipment : Artifact
     {
-        [JsonConstructor] private Equipment() { }
+        [JsonConstructor] protected Equipment() { }
         
         public Equipment(ArtifactTemplate template)
             : base(template)

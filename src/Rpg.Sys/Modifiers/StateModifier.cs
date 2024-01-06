@@ -14,6 +14,14 @@ namespace Rpg.Sys.Modifiers
             ModifierAction = ModifierAction.Replace;
         }
 
+        public override void Expire(int turn)
+        {
+            EndTurn = turn;
+
+            //State modifiers always expire immediately, whether within an encounter or not
+            Expiry = ModifierExpiry.Expired;
+        }
+
         public static Modifier Create<TEntity, T1>(Guid artifactId, string stateName, TEntity entity, Dice dice, Expression<Func<TEntity, T1>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModdableObject
         {

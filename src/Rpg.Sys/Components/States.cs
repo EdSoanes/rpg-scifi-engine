@@ -58,17 +58,7 @@ namespace Rpg.Sys.Components
             var state = _states.SingleOrDefault(x => x.Name == stateName);
             if (state != null && state.IsActive && _graph != null)
             {
-                var mods = _graph.Mods.FindMods(mod =>
-                {
-                    var stateMod = mod as StateModifier;
-                    if (stateMod == null)
-                        return false;
-
-                    return stateMod.ModifierType == ModifierType.State
-                        && stateMod.ArtifactId == ArtifactId
-                        && stateMod.StateName == stateName;
-                });
-
+                var mods = _graph.Mods.FindStateMods(ArtifactId, stateName);
                 foreach (var mod in mods)
                 {
                     mod.Expire(_graph.Turn);

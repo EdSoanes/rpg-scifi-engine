@@ -41,7 +41,7 @@
     public enum ModifierType
     {
         Base,
-        Player,
+        BaseOverride,
         Transient,
         State
     }

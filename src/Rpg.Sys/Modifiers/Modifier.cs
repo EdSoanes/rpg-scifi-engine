@@ -66,7 +66,7 @@ namespace Rpg.Sys.Modifiers
             DiceCalc.Clear();
         }
 
-        public void Expire(int turn)
+        public virtual void Expire(int turn)
         {
             EndTurn = turn;
 
@@ -78,7 +78,9 @@ namespace Rpg.Sys.Modifiers
         public virtual void OnAdd(int turn) { }
         public virtual void OnUpdate(int turn) 
         {
-            if (EndTurn < int.MaxValue)
+            if (EndTurn == RemoveTurn.WhenZero)
+                Expiry = ModifierExpiry.Active;
+            else if (EndTurn < int.MaxValue)
             {
                 if (turn < 1 || StartTurn > EndTurn)
                     Expiry = ModifierExpiry.Remove;
@@ -105,7 +107,7 @@ namespace Rpg.Sys.Modifiers
                 ModifierType.Base => "b",
                 ModifierType.State => "s",
                 ModifierType.Transient => "t",
-                ModifierType.Player => "p",
+                ModifierType.BaseOverride => "p",
                 _ => "_"
             };
 

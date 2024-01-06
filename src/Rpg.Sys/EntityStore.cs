@@ -108,8 +108,8 @@ namespace Rpg.Sys
                 var toRemove = GetModdableObjects(entity);
                 foreach (var item in toRemove)
                 {
-                    _store.Remove(item.Id);
                     _graph!.Mods.Remove(item.Id);
+                    _store.Remove(item.Id);
                 }
 
                 return true;

@@ -35,6 +35,20 @@ namespace Rpg.Sys
 
         public bool IsReadOnly => false;
 
+        public IEnumerable<Modifier> FindStateMods(Guid artifactId, string? stateName = null)
+        {
+            return _graph!.Mods.FindMods(mod =>
+            {
+                var stateMod = mod as StateModifier;
+                if (stateMod == null)
+                    return false;
+
+                return stateMod.ModifierType == ModifierType.State
+                    && stateMod.ArtifactId == artifactId
+                    && (stateName == null || stateMod.StateName == stateName);
+            });
+        }
+
         public IEnumerable<Modifier> FindMods(Func<Modifier?, bool>? filter = null)
         {
             var allMods = _store.SelectMany(x => x.Value.Values.SelectMany(y => y.Modifiers));
@@ -230,7 +244,7 @@ namespace Rpg.Sys
                 if (!string.IsNullOrEmpty(mod.Target.Prop) && entityMods.ContainsKey(mod.Target.Prop))
                 {
                     var modProp = entityMods[mod.Target.Prop];
-                    var toRemove = modProp.Modifiers.FirstOrDefault(x => x.Id == mod.Id && mod.CanBeCleared());
+                    var toRemove = modProp.Modifiers.FirstOrDefault(x => x.Id == mod.Id);
                     if (toRemove != null)
                     {
                         modProp.Modifiers.Remove(toRemove);
@@ -245,14 +259,27 @@ namespace Rpg.Sys
 
         public bool Remove(Guid entityId)
         {
-            if (!_store.ContainsKey(entityId))
-                return false;
+            var res = false;
 
-            var modProps = _store[entityId];
-            foreach (var prop in modProps.Values.Select(x => x.Prop).ToList())
-                Remove(entityId, prop);
+            if (_store.ContainsKey(entityId))
+            {
+                var modProps = _store[entityId];
+                foreach (var prop in modProps.Values.Select(x => x.Prop).ToList())
+                {
+                    Remove(entityId, prop);
+                    res = true;
+                }
+            }
 
-            return true;
+            //Remove state mods
+            var stateMods = FindStateMods(entityId).ToList();
+            foreach (var mod in stateMods)
+            {
+                Remove(mod);
+                res = true;
+            }
+
+            return res;
         }
 
         public bool Remove(PropRef? moddableProperty)
