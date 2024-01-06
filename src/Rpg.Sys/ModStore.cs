@@ -35,6 +35,16 @@ namespace Rpg.Sys
 
         public bool IsReadOnly => false;
 
+        public IEnumerable<Modifier> FindMods(Func<Modifier?, bool>? filter = null)
+        {
+            var allMods = _store.SelectMany(x => x.Value.Values.SelectMany(y => y.Modifiers));
+            foreach (var mod in allMods)
+            {
+                if (filter == null || filter(mod))
+                    yield return mod;
+            }
+        }
+
         public List<Modifier>? GetMods<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
             where TEntity : ModdableObject
                 => Get(PropRef.FromPath(entity, expression, true))?.Modifiers;
@@ -86,7 +96,7 @@ namespace Rpg.Sys
             // parent entity mods on children can override child entity mods
             foreach (var entity in entities.Reverse())
             {
-                var mods = entity.SetupModdableProperties();
+                var mods = entity.SetupModdableProperties(_graph!);
                 Add(mods);
             }
         }
@@ -117,6 +127,9 @@ namespace Rpg.Sys
 
         public void Add(Modifier mod)
         {
+            if (!Restoring)
+                mod.OnAdd(_graph!.Turn);
+
             var modProp = Get(mod.Target)!;
             if (mod.ModifierAction == ModifierAction.Accumulate)
             {
@@ -307,24 +320,26 @@ namespace Rpg.Sys
                 : false;
         }
 
-        public bool Remove(int newTurn)
+        public bool UpdateOnTurn(int newTurn)
         {
             var res = false;
-            foreach (var modProp in  this.Select(x => x.Value))
+            foreach (var modProp in this.Select(x => x.Value))
             {
-                var toRemove = new List<Modifier>();
+                var updated = new List<Modifier>();
 
                 foreach (var mod in modProp.Modifiers)
                 {
-                    var expiry = mod.SetExpiry(newTurn);
-                    if (expiry == ModifierExpiry.Remove)
-                        toRemove.Add(mod);
+                    var oldExpiry = mod.Expiry;
+                    mod.OnUpdate(newTurn);
+
+                    if (mod.Expiry != oldExpiry)
+                        updated.Add(mod);
                 }
 
-                foreach (var mod in toRemove)
+                foreach (var mod in updated.Where(x => x.Expiry == ModifierExpiry.Remove))
                     modProp.Modifiers.Remove(mod);
 
-                if (toRemove.Any())
+                if (updated.Any())
                 {
                     res = true;
                     PropertyChanged(modProp);

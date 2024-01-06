@@ -16,7 +16,7 @@ namespace Rpg.Sys
             Name = GetType().Name;
         }
 
-        public virtual Modifier[] SetupModdableProperties()
+        public virtual Modifier[] SetupModdableProperties(Graph graph)
         {
             var mods = new List<Modifier>();
 

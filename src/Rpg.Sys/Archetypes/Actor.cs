@@ -21,9 +21,9 @@ namespace Rpg.Sys.Archetypes
             Stats = new StatPoints(template.Stats);
         }
 
-        public override Modifier[] SetupModdableProperties()
+        public override Modifier[] SetupModdableProperties(Graph graph)
         {
-            var mods = new List<Modifier>(base.SetupModdableProperties())
+            var mods = new List<Modifier>(base.SetupModdableProperties(graph))
             {
                 BaseModifier.Create(this, x => x.Stats.Strength.Bonus, x => x.Actions.Exertion.Max),
                 BaseModifier.Create(this, x => x.Stats.Dexterity.Bonus, x => x.Actions.Action.Max),
@@ -36,19 +36,17 @@ namespace Rpg.Sys.Archetypes
         public virtual ActionBase? ActivateState(Artifact artifact, string stateName)
         {
             var state = artifact.States.FirstOrDefault(x => x.Name == stateName);
-            if (state != null)
-                return new StateAction(this, artifact, state, true);
-            else
-                return null;
+            return state != null
+                ? new StateAction(artifact, state, true)
+                : null;
         }
 
         public virtual ActionBase? DeactivateState(Artifact artifact, string stateName)
         {
             var state = artifact.States.FirstOrDefault(x => x.Name == stateName);
-            if (state != null)
-                return new StateAction(this,artifact, state, false);
-            else
-                return null;
+            return state != null
+                ? new StateAction(artifact, state, false)
+                : null;
         }
 
         public virtual ActionBase Move(int distance)

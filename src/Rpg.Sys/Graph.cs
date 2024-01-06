@@ -69,19 +69,31 @@ namespace Rpg.Sys
         public void NewEncounter()
         {
             Turn = 1;
-            Mods.Remove(Turn);
+            Mods.UpdateOnTurn(Turn);
         }
 
         public void EndEncounter()
         {
             Turn = 0;
-            Mods.Remove(Turn);
+            Mods.UpdateOnTurn(Turn);
         }
 
         public void NewTurn()
         {
             Turn++;
-            Mods.Remove(Turn);
+            Mods.UpdateOnTurn(Turn);
+        }
+
+        public void PrevTurn()
+        {
+            Turn--;
+            Mods.UpdateOnTurn(Turn);
+        }
+
+        public void SetTurn(int turn)
+        {
+            Turn = turn;
+            Mods.UpdateOnTurn(Turn);
         }
     }
 }

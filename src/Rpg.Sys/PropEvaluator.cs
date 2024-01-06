@@ -27,7 +27,7 @@ namespace Rpg.Sys
             return entity?.GetModdableProperty(propRef.Prop) ?? Dice.Zero;
         }
 
-        public Dice Evaluate(ModProp? modProp) => Evaluate(modProp!.Modifiers);
+        public Dice Evaluate(ModProp? modProp) => Evaluate(modProp!.FilteredModifiers);
 
         public Dice Evaluate(IEnumerable<Modifier> mods) => Evaluate(mods, new Stack<Guid>());
 

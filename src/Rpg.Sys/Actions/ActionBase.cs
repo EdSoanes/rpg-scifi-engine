@@ -10,6 +10,8 @@ namespace Rpg.Sys.Actions
         [JsonProperty] protected int? Resolution { get; set; }
         public virtual bool IsResolved { get => Resolution != null; }
 
+        [JsonConstructor] protected ActionBase() { }
+
         protected ActionBase(string name, ActionCost actionCost) 
         {
             Name = name;

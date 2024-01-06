@@ -10,12 +10,6 @@ namespace Rpg.Sys.Modifiers
             ModifierAction = ModifierAction.Replace;
         }
 
-        public override ModifierExpiry SetExpiry(int turn)
-        {
-            Expiry = ModifierExpiry.Active;
-            return Expiry;
-        }
-
         public static Modifier Create<TEntity, T1>(TEntity entity, Dice dice, Expression<Func<TEntity, T1>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModdableObject
                 => _Create<PlayerModifier, TEntity, T1, TEntity, T1>(null, ModNames.Base, dice, null, entity, targetExpr, diceCalcExpr);

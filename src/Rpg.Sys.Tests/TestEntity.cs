@@ -16,9 +16,9 @@ namespace Rpg.Sys.Tests
 
         public TestHealth Health { get; set; } = new TestHealth();
 
-        public override Modifier[] SetupModdableProperties()
+        public override Modifier[] SetupModdableProperties(Graph graph)
         {
-            var mods = new List<Modifier>(base.SetupModdableProperties())
+            var mods = new List<Modifier>(base.SetupModdableProperties(graph))
             {
                 BaseModifier.Create(this, x => x.StrengthBonus, x => x.Health.Physical)
             };

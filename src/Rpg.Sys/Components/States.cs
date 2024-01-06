@@ -1,11 +1,30 @@
 ﻿using Newtonsoft.Json;
+using Rpg.Sys.Archetypes;
+using Rpg.Sys.Modifiers;
 using System.Collections;
 
 namespace Rpg.Sys.Components
 {
-    public class States : IList<IState>
+    public class States : ModdableObject, IList<IState>
     {
+        private Graph? _graph;
+
         [JsonProperty] private List<IState> _states { get; set; } = new List<IState>();
+        [JsonProperty] private Guid ArtifactId { get; set; }
+
+        [JsonConstructor] private States() { }
+
+        public States(Guid artifactId, IState[] states)
+        {
+            ArtifactId = artifactId;
+            Add(states);
+        }
+
+        public override Modifier[] SetupModdableProperties(Graph graph)
+        {
+            _graph = graph;
+            return base.SetupModdableProperties(graph);
+        }
 
         public void Add(params IState[] items)
         {
@@ -24,18 +43,37 @@ namespace Rpg.Sys.Components
             return true;
         }
 
-        public void Activate(string stateName)
+        public void Activate(Actor actor, string stateName)
         {
             var state = _states.SingleOrDefault(x => x.Name == stateName);
-            if (state != null)
+            if (state != null && !state.IsActive && _graph != null)
+            {
+                _graph.Mods.Add(state.Effects(actor));
                 state.IsActive = true;
+            }
         }
 
-        public void Deactivate(string stateName)
+        public void Deactivate(Actor actor, string stateName)
         {
             var state = _states.SingleOrDefault(x => x.Name == stateName);
-            if (state != null)
+            if (state != null && state.IsActive && _graph != null)
+            {
+                var mods = _graph.Mods.FindMods(mod =>
+                {
+                    var stateMod = mod as StateModifier;
+                    if (stateMod == null)
+                        return false;
+
+                    return stateMod.ModifierType == ModifierType.State
+                        && stateMod.ArtifactId == ArtifactId
+                        && stateMod.StateName == stateName;
+                });
+
+                foreach (var mod in mods)
+                    mod.Expire(_graph.Turn);
+
                 state.IsActive = false;
+            }
         }
 
         public IState? Remove(string stateName)

@@ -1,10 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Sys.Components;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.Sys.Archetypes
 {
@@ -15,6 +10,17 @@ namespace Rpg.Sys.Archetypes
         public Equipment(ArtifactTemplate template)
             : base(template)
         {
+            States.Add(
+                new OnState(Id)
+            );
+        }
+    }
+
+    public class OnState : State<Equipment> 
+    {
+        public OnState(Guid id) 
+            : base(id, "On") 
+        { 
         }
     }
 }

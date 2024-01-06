@@ -1,10 +1,5 @@
 ﻿using Rpg.Sys.Modifiers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.Sys.Tests
 {
@@ -35,6 +30,49 @@ namespace Rpg.Sys.Tests
             graph.NewTurn();
 
             Assert.That(entity.MeleeAttack, Is.EqualTo(10));
+        }
+
+        [Test]
+        public void AddTurnMod_RepeatSameTurn_TurnModNotRemoved()
+        {
+            var entity = new TestEntity();
+            var graph = new Graph();
+
+            graph.Initialize(entity);
+
+            Assert.That(entity.MeleeAttack, Is.EqualTo(10));
+
+            graph.NewEncounter();
+
+            Assert.That(graph.Turn, Is.EqualTo(1));
+            graph.Mods.Add(TurnModifier.Create(entity, 2, x => x.MeleeAttack));
+            Assert.That(entity.MeleeAttack, Is.EqualTo(12));
+
+            graph.SetTurn(1);
+            Assert.That(graph.Turn, Is.EqualTo(1));
+            Assert.That(entity.MeleeAttack, Is.EqualTo(12));
+        }
+
+        [Test]
+        public void AddTurnMod_RevertTurn_TurnModReapplied()
+        {
+            var entity = new TestEntity();
+            var graph = new Graph();
+
+            graph.Initialize(entity);
+
+            Assert.That(entity.MeleeAttack, Is.EqualTo(10));
+
+            graph.NewEncounter();
+
+            graph.Mods.Add(TurnModifier.Create(entity, 2, x => x.MeleeAttack));
+            Assert.That(entity.MeleeAttack, Is.EqualTo(12));
+
+            graph.NewTurn();
+            Assert.That(entity.MeleeAttack, Is.EqualTo(10));
+
+            graph.PrevTurn();
+            Assert.That(entity.MeleeAttack, Is.EqualTo(12));
         }
 
         [Test]
@@ -73,7 +111,7 @@ namespace Rpg.Sys.Tests
         }
 
         [Test]
-        public void AddTimedMod_NextTurn_TimedModRemovedOnTurn3()
+        public void AddTimedMod_NextTurn_TimedModRemovedAfter3Turns()
         {
             var entity = new TestEntity();
             var graph = new Graph();
@@ -95,11 +133,11 @@ namespace Rpg.Sys.Tests
             Assert.That(entity.MeleeAttack, Is.EqualTo(12));
 
             graph.NewTurn();
-            Assert.That(graph.Turn, Is.EqualTo(3));
+            Assert.That(graph.Turn, Is.EqualTo(4));
             Assert.That(entity.MeleeAttack, Is.EqualTo(12));
 
             graph.NewTurn();
-            Assert.That(graph.Turn, Is.EqualTo(4));
+            Assert.That(graph.Turn, Is.EqualTo(5));
             Assert.That(entity.MeleeAttack, Is.EqualTo(10));
         }
     }

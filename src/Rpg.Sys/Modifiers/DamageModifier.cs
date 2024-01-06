@@ -11,12 +11,6 @@ namespace Rpg.Sys.Modifiers
             EndTurn = RemoveTurn.WhenZero;
         }
 
-        public override ModifierExpiry SetExpiry(int turn)
-        {
-            Expiry = ModifierExpiry.Active;
-            return Expiry;
-        }
-
         public static Modifier Create<TEntity, T1>(Dice dice, TEntity target, Expression<Func<TEntity, T1>> targetExpr)
             where TEntity : ModdableObject
                 => _Create<DamageModifier, TEntity, T1, TEntity, T1>(null, ModNames.Damage, dice, null, target, targetExpr, () => DiceCalculations.Minus);

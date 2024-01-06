@@ -21,13 +21,8 @@ namespace Rpg.Sys.Archetypes
             Presence = new Presence(template.Presence);
             Defenses = new Defenses(template.Defenses);
             Damage = new Damage(template.Damage);
-
-            States = new States
-            {
-                template.States.ToArray()
-            };
-
             Health = new Health(template.Health);
+            States = new States(Id, template.States.ToArray());
         }
     }
 }

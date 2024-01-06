@@ -20,9 +20,9 @@ namespace Rpg.Sys.Components.Values
             Score = score;
         }
 
-        public override Modifier[] SetupModdableProperties()
+        public override Modifier[] SetupModdableProperties(Graph graph)
         {
-            var mods = new List<Modifier>(base.SetupModdableProperties())
+            var mods = new List<Modifier>(base.SetupModdableProperties(graph))
             {
                 BaseModifier.Create(this, x => x.Score, x => x.Bonus, () => CalculateStatBonus)
             };

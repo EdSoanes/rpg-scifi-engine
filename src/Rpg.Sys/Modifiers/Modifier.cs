@@ -66,7 +66,28 @@ namespace Rpg.Sys.Modifiers
             DiceCalc.Clear();
         }
 
-        public abstract ModifierExpiry SetExpiry(int turn);
+        public void Expire(int turn)
+        {
+            EndTurn = turn;
+        }
+
+        public virtual void OnAdd(int turn) { }
+        public virtual void OnUpdate(int turn) 
+        {
+            if (EndTurn < int.MaxValue)
+            {
+                if (turn < 1 || StartTurn > EndTurn)
+                    Expiry = ModifierExpiry.Remove;
+                else if (StartTurn > turn)
+                    Expiry = ModifierExpiry.Pending;
+                else if (EndTurn < turn)
+                    Expiry = ModifierExpiry.Expired;
+                else
+                    Expiry = ModifierExpiry.Active;
+            }
+            else
+                Expiry = ModifierExpiry.Active;
+        }
 
         public bool CanBeCleared()
         {

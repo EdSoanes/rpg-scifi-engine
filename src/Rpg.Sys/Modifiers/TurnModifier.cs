@@ -12,22 +12,10 @@ namespace Rpg.Sys.Modifiers
             EndTurn = RemoveTurn.EndOfTurn;
         }
 
-        public override ModifierExpiry SetExpiry(int turn)
+        public override void OnAdd(int turn)
         {
-            if (turn < 1)
-            {
-                Expiry = ModifierExpiry.Remove;
-                return Expiry;
-            }
-
-            if (EndTurn == RemoveTurn.EndOfTurn)
-            {
-                StartTurn = turn;
-                EndTurn = turn;
-            }
-
-            Expiry = ModifierExpiry.Expired;
-            return Expiry;
+            StartTurn = turn;
+            EndTurn = turn;
         }
 
         public static Modifier Create<TEntity, T1>(TEntity target, string name, Dice dice, Expression<Func<TEntity, T1>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)

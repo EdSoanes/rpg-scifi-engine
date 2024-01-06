@@ -14,14 +14,15 @@ namespace Rpg.Sys.Components
         ActionCost ActivateCost { get; }
         ActionCost DeactivateCost { get; }
         bool IsActive { get; set; }
-        Modifier[] Effects();
+        Modifier[] Effects(Actor actor);
         string[]? StatesPermittedWhenActive();
     }
 
     public abstract class State<T> : ModdableObject, IState
         where T : Artifact
     {
-        [JsonIgnore] internal T? Parent { get; private set; }
+        [JsonIgnore] private T? Artifact { get; set; }
+        [JsonProperty] private Guid ArtifactId { get; set; }
 
         [JsonProperty] public int Effect {  get; private set; }
         [JsonProperty] public int DurationTurns { get; private set; } = 1;
@@ -29,11 +30,30 @@ namespace Rpg.Sys.Components
         [JsonProperty] public ActionCost ActivateCost { get; private set; } = new ActionCost();
         [JsonProperty] public ActionCost DeactivateCost { get; private set; } = new ActionCost();
 
+        [JsonConstructor] private State() { }
+
+        public State(Guid artifactId, string stateName)
+        {
+            ArtifactId = artifactId;
+            Name = stateName;
+        }
+
         public bool IsActive { get; set; }
 
-        public Modifier[] Effects() => Effects(Parent);
+        public Modifier[] Effects(Actor actor) => Effects(actor, Artifact);
 
         public virtual string[]? StatesPermittedWhenActive() => null;
-        protected virtual Modifier[] Effects(T? parent) => new Modifier[0];
+        protected virtual Modifier[] Effects(Actor actor, T? artifact) => new Modifier[0];
+
+        public override Modifier[] SetupModdableProperties(Graph graph)
+        {
+            var mods = base.SetupModdableProperties(graph);
+             
+            var artifact = graph.Entities.Get(ArtifactId) as T;
+            if (artifact != null)
+                Artifact = artifact;
+
+            return mods;
+        }
     }
 }
