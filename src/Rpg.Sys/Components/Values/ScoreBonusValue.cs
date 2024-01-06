@@ -10,8 +10,8 @@ namespace Rpg.Sys.Components.Values
 {
     public class ScoreBonusValue : ModdableObject
     {
-        [JsonProperty] public int Score {  get; private set; }
-        [JsonProperty] public int Bonus { get; private set; }
+        [JsonProperty] public int Score {  get; protected set; }
+        [JsonProperty] public int Bonus { get; protected set; }
 
         [JsonConstructor] private ScoreBonusValue() { }
 

@@ -230,8 +230,14 @@ namespace Rpg.Sys
 
                 if (obj is IEnumerable)
                 {
+                    var res = new List<object>();
+                    if (obj is ModdableObject)
+                        res.Add(obj);
+
                     isEnumerable = true;
-                    return (obj as IEnumerable)!.Cast<object>();
+                    res.AddRange((obj as IEnumerable)!.Cast<object>());
+
+                    return res;
                 }
 
                 return new List<object> { obj };

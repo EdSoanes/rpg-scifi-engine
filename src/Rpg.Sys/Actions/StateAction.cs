@@ -27,17 +27,13 @@ namespace Rpg.Sys.Actions
 
         protected override void OnResolve(Actor actor, Graph graph)
         {
-            Resolution = 0;
-            if (!IsResolved)
+            var artifact = graph.Entities?.Get(ArtifactId) as Artifact;
+            if (artifact != null)
             {
-                var artifact = graph.Entities?.Get(ArtifactId) as Artifact;
-                if (artifact != null)
-                {
-                    if (Activate)
-                        artifact.States.Activate(actor, StateName);
-                    else
-                        artifact.States.Deactivate(actor, StateName);
-                }
+                if (Activate)
+                    artifact.States.Activate(actor, StateName);
+                else
+                    artifact.States.Deactivate(actor, StateName);
             }
         }
     }

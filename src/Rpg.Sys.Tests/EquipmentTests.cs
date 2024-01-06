@@ -73,5 +73,61 @@ namespace Rpg.Sys.Tests
             Assert.That(item.Health.Mental.Current, Is.EqualTo(0));
             Assert.That(item.Health.Mental.Max, Is.EqualTo(0));
         }
+
+        [Test]
+        public void Equipment_ActivateOnState_VerifySoundProperty()
+        {
+            var template = new ArtifactTemplate
+            {
+                Name = "Thing"
+            };
+
+            var graph = new Graph();
+            var equipment = new Equipment(template);
+            var actor = new Actor(new ActorTemplate
+            {
+                Name = "Ben",
+            });
+
+            graph.Initialize(actor);
+            graph.Entities.Add(equipment);
+
+            Assert.That(equipment, Is.Not.Null);
+            Assert.That(equipment.Presence.Sound.Current, Is.EqualTo(0));
+
+            var action = actor.ActivateState(equipment, "On");
+            action!.Resolve(actor, graph);
+
+            Assert.That(equipment.Presence.Sound.Current, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void Equipment_DeactivateOnState_VerifySoundProperty()
+        {
+            var template = new ArtifactTemplate
+            {
+                Name = "Thing"
+            };
+
+            var graph = new Graph();
+            var equipment = new Equipment(template);
+            var actor = new Actor(new ActorTemplate
+            {
+                Name = "Ben",
+            });
+
+            graph.Initialize(actor);
+            graph.Entities.Add(equipment);
+
+            var action = actor.ActivateState(equipment, "On");
+            action!.Resolve(actor, graph);
+
+            Assert.That(equipment.Presence.Sound.Current, Is.EqualTo(1));
+
+            action = actor.DeactivateState(equipment, "On");
+            action!.Resolve(actor, graph);
+
+            Assert.That(equipment.Presence.Sound.Current, Is.EqualTo(0));
+        }
     }
 }

@@ -5,7 +5,7 @@ using Rpg.Sys.Modifiers;
 
 namespace Rpg.Sys.Archetypes
 {
-    public abstract class Actor : Artifact
+    public class Actor : Artifact
     {
         [JsonProperty] public Movement Movement { get; private set; }
         [JsonProperty] public ActionPoints Actions { get; private set; }

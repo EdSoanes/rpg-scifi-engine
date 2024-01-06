@@ -69,6 +69,10 @@ namespace Rpg.Sys.Modifiers
         public void Expire(int turn)
         {
             EndTurn = turn;
+
+            //If we aren't in an encounter then expire the modifier immediately 
+            if (turn < 1)
+                Expiry = ModifierExpiry.Expired;
         }
 
         public virtual void OnAdd(int turn) { }

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Sys.Components;
+using Rpg.Sys.Modifiers;
 
 namespace Rpg.Sys.Archetypes
 {
@@ -20,7 +21,15 @@ namespace Rpg.Sys.Archetypes
     {
         public OnState(Guid id) 
             : base(id, "On") 
-        { 
+        {
+        }
+
+        protected override Modifier[] Effects(Actor actor, Equipment artifact)
+        {
+            return new[]
+            {
+                StateModifier.Create(artifact.Id, Name, artifact, 1, x => x.Presence.Sound.Current)
+            };
         }
     }
 }

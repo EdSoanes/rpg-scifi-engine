@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Rpg.Sys.Archetypes
 {
-    public abstract class ActorTemplate : ArtifactTemplate
+    public class ActorTemplate : ArtifactTemplate
     {
         public StatPointsTemplate Stats { get; set; } = new StatPointsTemplate();
         public MovementTemplate Movement { get; set; } = new MovementTemplate();

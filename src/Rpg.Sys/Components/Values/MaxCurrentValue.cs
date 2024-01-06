@@ -9,8 +9,8 @@ namespace Rpg.Sys.Components.Values
 {
     public class MaxCurrentValue : ModdableObject
     {
-        [JsonProperty] public int Max { get; private set; }
-        [JsonProperty] public int Current { get; private set; }
+        [JsonProperty] public int Max { get; protected set; }
+        [JsonProperty] public int Current { get; protected set; }
 
         [JsonConstructor] private MaxCurrentValue() { }
 

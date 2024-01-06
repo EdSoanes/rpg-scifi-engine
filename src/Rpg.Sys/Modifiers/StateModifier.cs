@@ -14,18 +14,20 @@ namespace Rpg.Sys.Modifiers
             ModifierAction = ModifierAction.Replace;
         }
 
-        public static Modifier Create<TEntity, T1>(string stateName, TEntity entity, Dice dice, Expression<Func<TEntity, T1>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+        public static Modifier Create<TEntity, T1>(Guid artifactId, string stateName, TEntity entity, Dice dice, Expression<Func<TEntity, T1>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModdableObject
         {
             var mod = _Create<StateModifier, TEntity, T1, TEntity, T1>(null, stateName, dice, null, entity, targetExpr, diceCalcExpr);
+            mod.ArtifactId = artifactId;
             mod.StateName = stateName;
             return mod;
         }
 
-        public static Modifier Create<TEntity, T1, T2>(string stateName, TEntity entity, Expression<Func<TEntity, T1>> sourceExpr, Expression<Func<TEntity, T2>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+        public static Modifier Create<TEntity, T1, T2>(Guid artifactId, string stateName, TEntity entity, Expression<Func<TEntity, T1>> sourceExpr, Expression<Func<TEntity, T2>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModdableObject
         {
             var mod = _Create<StateModifier, TEntity, T1, TEntity, T2>(entity, stateName, null, sourceExpr, entity, targetExpr, diceCalcExpr);
+            mod.ArtifactId = artifactId;
             mod.StateName = stateName;
             return mod;
         }

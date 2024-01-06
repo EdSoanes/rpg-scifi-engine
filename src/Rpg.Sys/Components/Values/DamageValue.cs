@@ -9,9 +9,9 @@ namespace Rpg.Sys.Components.Values
 {
     public class DamageValue : ModdableObject
     {
-        [JsonProperty] public Dice Dice { get; private set; }
-        [JsonProperty] public int ArmorPenetration { get; private set; }
-        [JsonProperty] public int Radius { get; private set; }
+        [JsonProperty] public Dice Dice { get; protected set; }
+        [JsonProperty] public int ArmorPenetration { get; protected set; }
+        [JsonProperty] public int Radius { get; protected set; }
 
         [JsonConstructor] private DamageValue() { }
 

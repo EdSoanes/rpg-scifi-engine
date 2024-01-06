@@ -43,7 +43,7 @@ namespace Rpg.Sys.Components
         public Modifier[] Effects(Actor actor) => Effects(actor, Artifact);
 
         public virtual string[]? StatesPermittedWhenActive() => null;
-        protected virtual Modifier[] Effects(Actor actor, T? artifact) => new Modifier[0];
+        protected virtual Modifier[] Effects(Actor actor, T artifact) => new Modifier[0];
 
         public override Modifier[] SetupModdableProperties(Graph graph)
         {

@@ -11,8 +11,8 @@ namespace Rpg.Sys.Components
     public class Movement : ModdableObject
     {
         [JsonProperty] public MaxCurrentValue Speed { get; private set; }
-        [JsonProperty] public int Acceleration { get; private set; }
-        [JsonProperty] public int Deceleration { get; private set; }
+        [JsonProperty] public int Acceleration { get; protected set; }
+        [JsonProperty] public int Deceleration { get; protected set; }
 
         [JsonConstructor] private Movement() { }
 

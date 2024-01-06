@@ -48,17 +48,6 @@ namespace Rpg.Sys.Actions
             return NextAction();
         }
 
-        public ActionBase? Act(Actor actor, int diceRoll = 0)
-        {
-            if (!IsResolved)
-            {
-                Resolution = diceRoll;
-                Act(actor);
-            }
-
-            return NextAction();
-        }
-
         protected abstract void OnResolve(Actor actor, Graph graph);
         protected virtual ActionBase? NextAction() => null;
     }

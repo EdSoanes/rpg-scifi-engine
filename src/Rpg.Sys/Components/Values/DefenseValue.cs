@@ -9,8 +9,8 @@ namespace Rpg.Sys.Components.Values
 {
     public class DefenseValue : ModdableObject
     {
-        [JsonProperty] public int Value { get; private set; }
-        [JsonProperty] public int Shielding { get; private set; }
+        [JsonProperty] public int Value { get; protected set; }
+        [JsonProperty] public int Shielding { get; protected set; }
 
         [JsonConstructor] private DefenseValue() { }
 

@@ -70,7 +70,10 @@ namespace Rpg.Sys.Components
                 });
 
                 foreach (var mod in mods)
+                {
                     mod.Expire(_graph.Turn);
+                    _graph.Mods.NotifyPropertyChanged(mod.Target.Id!.Value, mod.Target.Prop);
+                }
 
                 state.IsActive = false;
             }

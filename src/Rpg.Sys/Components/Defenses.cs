@@ -18,8 +18,8 @@ namespace Rpg.Sys.Components
         [JsonProperty] public DefenseValue Cyber { get; private set; }
         [JsonProperty] public DefenseValue Mental { get; private set; }
 
-        [JsonProperty] public int Evasion { get; private set; }
-        [JsonProperty] public int Concealment { get; private set; }
+        [JsonProperty] public int Evasion { get; protected set; }
+        [JsonProperty] public int Concealment { get; protected set; }
 
         [JsonConstructor] private Defenses() { }
 

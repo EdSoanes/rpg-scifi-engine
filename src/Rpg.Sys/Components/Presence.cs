@@ -5,8 +5,8 @@ namespace Rpg.Sys.Components
 {
     public class Presence : ModdableObject
     {
-        [JsonProperty] public int Size { get; private set; }
-        [JsonProperty] public int Weight { get; private set; }
+        [JsonProperty] public int Size { get; protected set; }
+        [JsonProperty] public int Weight { get; protected set; }
         [JsonProperty] public PresenceValue Sound { get; private set; }
         [JsonProperty] public PresenceValue Light { get; private set; }
         [JsonProperty] public PresenceValue Heat { get; private set; }
