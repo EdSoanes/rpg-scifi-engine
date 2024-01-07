@@ -6,7 +6,7 @@ namespace Rpg.Sys.Actions
 {
     public abstract class ActionBase : ModdableObject
     {
-        [JsonProperty] protected ActionCost Cost { get; set; }
+        [JsonProperty] public ActionCost Cost { get; private set; }
         [JsonProperty] protected int? Resolution { get; set; }
         public virtual bool IsResolved { get => Resolution != null; }
 
@@ -38,8 +38,12 @@ namespace Rpg.Sys.Actions
         {
             if (!IsResolved)
             {
-                var mods = OnResolutionCost(actor);
-                graph.Mods.Add(mods);
+                //Only apply costs if within an encounter, otherwise irrelevant
+                if (graph.Turn > 0)
+                { 
+                    var costMods = OnResolutionCost(actor);
+                    graph.Mods.Add(costMods);
+                }
 
                 Resolution = diceRoll;
                 OnResolve(actor, graph);

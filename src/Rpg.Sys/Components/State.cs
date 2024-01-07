@@ -45,11 +45,11 @@ namespace Rpg.Sys.Components
         public virtual string[]? StatesPermittedWhenActive() => null;
         protected virtual Modifier[] Effects(Actor actor, T artifact) => new Modifier[0];
 
-        public override Modifier[] SetupModdableProperties(Graph graph)
+        public override Modifier[] OnSetup()
         {
-            var mods = base.SetupModdableProperties(graph);
+            var mods = base.OnSetup();
              
-            var artifact = graph.Entities.Get(ArtifactId) as T;
+            var artifact = Graph.Entities.Get(ArtifactId) as T;
             if (artifact != null)
                 Artifact = artifact;
 

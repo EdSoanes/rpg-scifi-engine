@@ -8,7 +8,7 @@ namespace Rpg.Sys.Tests
     {
         private TestEquipment _equipment;
         private Graph _graph;
-        private Actor _actor;
+        private Actor _human;
 
         [SetUp]
         public void Setup()
@@ -19,7 +19,7 @@ namespace Rpg.Sys.Tests
                 Name = "Thing",
             });
 
-            _actor = new Actor(new ActorTemplate
+            _human = new Actor(new ActorTemplate
             {
                 Name = "Ben",
                 Health = new HealthTemplate
@@ -28,8 +28,18 @@ namespace Rpg.Sys.Tests
                 }
             });
 
-            _graph.Initialize(_actor);
+            _graph.Initialize(_human);
             _graph.Entities.Add(_equipment);
+        }
+
+        [Test]
+        public void CreateEquipment_IsA()
+        {
+            Assert.That(_equipment.Is.Count(), Is.EqualTo(4));
+            Assert.That(_equipment.Is, Contains.Item("ModdableObject"));
+            Assert.That(_equipment.Is, Contains.Item("Artifact"));
+            Assert.That(_equipment.Is, Contains.Item("Equipment"));
+            Assert.That(_equipment.Is, Contains.Item("TestEquipment"));
         }
 
         [Test]

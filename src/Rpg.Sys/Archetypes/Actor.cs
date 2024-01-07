@@ -21,9 +21,9 @@ namespace Rpg.Sys.Archetypes
             Stats = new StatPoints(template.Stats);
         }
 
-        public override Modifier[] SetupModdableProperties(Graph graph)
+        public override Modifier[] OnSetup()
         {
-            var mods = new List<Modifier>(base.SetupModdableProperties(graph))
+            var mods = new List<Modifier>(base.OnSetup())
             {
                 BaseModifier.Create(this, x => x.Stats.Strength.Bonus, x => x.Actions.Exertion.Max),
                 BaseModifier.Create(this, x => x.Stats.Dexterity.Bonus, x => x.Actions.Action.Max),
@@ -69,7 +69,7 @@ namespace Rpg.Sys.Archetypes
                 .OnSuccess(TurnModifier.Create(this, bonus, x => x.Defenses.Concealment));
         }
 
-        public virtual ActionBase Transfer(Container source, Container target, Artifact artifact)
+        public virtual ActionBase Transfer(Container? source, Container? target, Artifact artifact)
         {
             return new TransferItemAction(nameof(Transfer), source, target, artifact);
         }

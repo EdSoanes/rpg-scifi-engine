@@ -7,8 +7,6 @@ namespace Rpg.Sys.Components
 {
     public class States : ModdableObject, IList<IState>
     {
-        private Graph? _graph;
-
         [JsonProperty] private List<IState> _states { get; set; } = new List<IState>();
         [JsonProperty] private Guid ArtifactId { get; set; }
 
@@ -20,10 +18,9 @@ namespace Rpg.Sys.Components
             Add(states);
         }
 
-        public override Modifier[] SetupModdableProperties(Graph graph)
+        public override Modifier[] OnSetup()
         {
-            _graph = graph;
-            return base.SetupModdableProperties(graph);
+            return base.OnSetup();
         }
 
         public void Add(params IState[] items)
@@ -46,9 +43,9 @@ namespace Rpg.Sys.Components
         public void Activate(Actor actor, string stateName)
         {
             var state = _states.SingleOrDefault(x => x.Name == stateName);
-            if (state != null && !state.IsActive && _graph != null)
+            if (state != null && !state.IsActive && Graph != null)
             {
-                _graph.Mods.Add(state.Effects(actor));
+                Graph.Mods.Add(state.Effects(actor));
                 state.IsActive = true;
             }
         }
@@ -56,13 +53,13 @@ namespace Rpg.Sys.Components
         public void Deactivate(Actor actor, string stateName)
         {
             var state = _states.SingleOrDefault(x => x.Name == stateName);
-            if (state != null && state.IsActive && _graph != null)
+            if (state != null && state.IsActive && Graph != null)
             {
-                var mods = _graph.Mods.FindStateMods(ArtifactId, stateName);
+                var mods = Graph.Mods.FindStateMods(ArtifactId, stateName);
                 foreach (var mod in mods)
                 {
-                    mod.Expire(_graph.Turn);
-                    _graph.Mods.NotifyPropertyChanged(mod.Target.Id!.Value, mod.Target.Prop);
+                    mod.Expire(Graph.Turn);
+                    Graph.Mods.NotifyPropertyChanged(mod.Target.Id!.Value, mod.Target.Prop);
                 }
 
                 state.IsActive = false;

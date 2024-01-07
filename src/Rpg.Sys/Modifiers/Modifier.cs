@@ -3,6 +3,8 @@ using System.Linq.Expressions;
 
 namespace Rpg.Sys.Modifiers
 {
+    //TODO: Improved modifier lifecycle. Try to encode Start/End turns, Permanent, Conditional, etc into a more intuitive model.
+
     public abstract class Modifier
     {
         [JsonConstructor] protected Modifier() { }

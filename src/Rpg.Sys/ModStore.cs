@@ -1,5 +1,6 @@
 ﻿using Rpg.Sys.Modifiers;
 using System.Collections;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -110,7 +111,7 @@ namespace Rpg.Sys
             // parent entity mods on children can override child entity mods
             foreach (var entity in entities.Reverse())
             {
-                var mods = entity.SetupModdableProperties(_graph!);
+                var mods = entity.OnSetup();
                 Add(mods);
             }
         }
@@ -181,11 +182,9 @@ namespace Rpg.Sys
             foreach (var item in store.AllValues())
                 Add("", item);
 
-
             _restoring = false;
 
-            foreach (var modProp in AllValues())
-                PropertyChanged(modProp);
+            PropertyChanged(AllValues());
         }
 
         public void Clear() => _store.Clear();
@@ -465,39 +464,44 @@ namespace Rpg.Sys
                 else
                 {
                     var modProps = GetAffectedModProps(id, prop);
+                    PropertyChanged(id, prop);
                     PropertyChanged(modProps);
                 }
             }
         }
 
-        private void PropertyChanged(IEnumerable<ModProp> modProps)
+        private void PropertyChanged(Guid id, string prop)
         {
             if (!Restoring)
             {
-                foreach (var mp in modProps.GroupBy(x => x.Id))
+                var entity = _graph!.Entities.Get(id);
+                entity?.CallPropertyChanged(prop);
+            }
+        }
+
+        private void PropertyChanged(ModProp? modProp)
+            => PropertyChanged(new[] { modProp });
+
+        private void PropertyChanged(IEnumerable<ModProp?> modProps)
+        {
+            if (!Restoring)
+            {
+                foreach (var mp in modProps.Where(x => x != null).GroupBy(x => x!.Id))
                 {
                     var entity = _graph!.Entities.Get(mp.Key);
                     foreach (var p in mp)
                         entity?.SetModdableProperty(p.Prop, _evaluator!.Evaluate(p));
                 }
             }
-
-        }
-
-        private void PropertyChanged(ModProp? modProp)
-        {
-            if (!Restoring)
-            {
-                if (modProp != null)
-                    PropertyChanged(new[] { modProp });
-            }
         }
 
         private List<ModProp> GetAffectedModProps(ModProp modProp)
         {
-            var res = new List<ModProp>();
+            var res = new List<ModProp>
+            {
+                modProp
+            };
 
-            res.Add(modProp);
             res.AddRange(GetAffectedModProps(modProp.Id, modProp.Prop));
 
             return res;

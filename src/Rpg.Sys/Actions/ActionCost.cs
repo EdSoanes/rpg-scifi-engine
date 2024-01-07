@@ -2,9 +2,9 @@
 {
     public struct ActionCost
     {
-        public int Action { get; set; }
-        public int Exertion { get; set; }
-        public int Focus { get; set; }
+        public int Action { get; private set; }
+        public int Exertion { get; private set; }
+        public int Focus { get; private set; }
 
         public ActionCost() { }
         public ActionCost(int action, int exertion, int focus)

@@ -46,9 +46,9 @@ namespace Rpg.Sys
         public void Add(Guid key, ModdableObject value) 
             => Add(value);
 
-        public void Add(ModdableObject entity, bool setMods = true) => AddRange(new[] { entity }, setMods);
+        public void Add(ModdableObject entity) => AddRange(new[] { entity });
 
-        public void AddRange(IEnumerable<ModdableObject> entities, bool setMods = true)
+        public void AddRange(IEnumerable<ModdableObject> entities)
         {
             var moddableObjects = new List<ModdableObject>();
             foreach (var entity in entities)
@@ -59,14 +59,15 @@ namespace Rpg.Sys
 
             foreach (var moddableObject in moddableObjects)
             {
-                //moddableObject.Initialize(_graph!);
+                moddableObject.OnAdd(_graph!);
+
                 if (_store.ContainsKey(moddableObject.Id))
                     Remove(moddableObject.Id);
 
                 _store.Add(moddableObject.Id, moddableObject);
             }
 
-            if (setMods && _graph != null)
+            if (_graph?.Mods != null)
                 _graph.Mods.Add(moddableObjects);
         }
 

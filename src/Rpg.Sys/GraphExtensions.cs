@@ -24,6 +24,22 @@ namespace Rpg.Sys
             ScannableNamespaces = ScannableNamespaces.Distinct().ToList();
         }
 
+        public static string[] GetBaseTypes(this ModdableObject entity)
+        {
+            var res = new List<string>();
+            var t = entity.GetType();
+            while (t != null)
+            {
+                res.Add(t.Name);
+                t = t == typeof(ModdableObject)
+                    ? null
+                    :t.BaseType;
+            }
+
+            res.Reverse();
+            return res.ToArray();
+        }
+
         public static object? PropertyValue(this object? entity, string path)
         {
             if (entity == null || string.IsNullOrEmpty(path))

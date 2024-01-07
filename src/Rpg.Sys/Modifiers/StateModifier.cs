@@ -3,6 +3,10 @@ using System.Linq.Expressions;
 
 namespace Rpg.Sys.Modifiers
 {
+    //TODO: State manager for:
+    // State groups where only one can be active (E.g, FireMode = (Single, Burst, Grenade, etc...)
+    // Permitted States. E.g. Scanning state only allowed when device is PoweredUp
+    // Conditional states. Can only be active when certain conditions are met. E.g. PoweredUp only when power supply > threshold
     public class StateModifier : Modifier
     {
         [JsonProperty] public string StateName { get; protected set; }

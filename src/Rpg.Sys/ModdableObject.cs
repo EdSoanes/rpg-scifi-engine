@@ -6,17 +6,26 @@ namespace Rpg.Sys
 {
     public abstract class ModdableObject : INotifyPropertyChanged, IModSubscriber
     {
-        [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
+        protected Graph Graph { get; set; }
+
+        [JsonProperty] public Guid Id { get; private set; }
         [JsonProperty] public string Name { get; set; }
+        [JsonProperty] public string[] Is { get; private set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public ModdableObject()
         {
+            Id = Guid.NewGuid();
             Name = GetType().Name;
+            Is = this.GetBaseTypes();
         }
 
-        public virtual Modifier[] SetupModdableProperties(Graph graph)
+        public bool IsA(string type) => Is.Contains(type);
+
+        public virtual void OnAdd(Graph graph) => Graph = graph;
+
+        public virtual Modifier[] OnSetup()
         {
             var mods = new List<Modifier>();
 
@@ -35,6 +44,9 @@ namespace Rpg.Sys
             return mods.ToArray();
         }
 
+        public void CallPropertyChanged(string prop) 
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
+
         public Dice? GetModdableProperty(string prop)
         {
             var val = this.PropertyValue(prop);
@@ -52,7 +64,10 @@ namespace Rpg.Sys
         public void SetModdableProperty(string prop, Dice dice)
         {
             this.PropertyValue(prop, dice);
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
+            CallPropertyChanged(prop);
         }
+
+        protected void NotifyPropertyChanged(string prop)
+            => Graph?.Mods?.NotifyPropertyChanged(Id, prop);
     }
 }

@@ -36,7 +36,7 @@ namespace Rpg.Sys
         {
             Mods.Clear();
             Entities.Clear();
-            Entities.Add(context, modStore == null);
+            Entities.Add(context);
 
             Context = context;
 
