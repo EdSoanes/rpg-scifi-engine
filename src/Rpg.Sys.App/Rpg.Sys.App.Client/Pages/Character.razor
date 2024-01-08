@@ -1,0 +1,87 @@
+﻿@page "/character"
+@using Rpg.Sys.Archetypes
+@using Rpg.Sys.Components
+@using Rpg.Sys.Components.Values
+@using Rpg.Sys.Modifiers
+@rendermode InteractiveWebAssembly
+
+<PageTitle>@_human.Name</PageTitle>
+
+<h1>@_human.Name</h1>
+
+<ul>
+    <li>Strength: @_human.Stats.Strength.Score</li>
+    <li>Intelligence: @_human.Stats.Intelligence.Score</li>
+    <li>Wisdom: @_human.Stats.Wisdom.Score</li>
+    <li>Dexterity: @_human.Stats.Dexterity.Score</li>
+    <li>Constitution: @_human.Stats.Constitution.Score</li>
+    <li>Charisma: @_human.Stats.Charisma.Score</li>
+</ul>
+
+<ul>
+    <li>Strength Bonus: @_human.Stats.Strength.Bonus</li>
+    <li>Intelligence Bonus: @_human.Stats.Intelligence.Bonus</li>
+    <li>Wisdom Bonus: @_human.Stats.Wisdom.Bonus</li>
+    <li>Dexterity Bonus: @_human.Stats.Dexterity.Bonus</li>
+    <li>Constitution Bonus: @_human.Stats.Constitution.Bonus</li>
+    <li>Charisma Bonus: @_human.Stats.Charisma.Bonus</li>
+</ul>
+
+<button class="btn btn-primary" @onclick="IncrementStrength">Increase Strength</button>
+<button class="btn btn-primary" @onclick="DecrementStrength">Decrease Strength</button>
+<button class="btn btn-primary" @onclick="ResetStrength">Reset Strength</button>
+
+@code {
+    private Graph _graph = new Graph();
+    private Human _human = new Human(new ActorTemplate
+    {
+        Name = "Bartleby",
+        Stats = new StatPointsTemplate
+        {
+            Strength = 16,
+            Intelligence = 10,
+            Wisdom = 6,
+            Dexterity = 18,
+            Constitution = 8,
+            Charisma = 10
+        },
+        Health = new HealthTemplate
+        {
+            Physical = 10,
+            Mental = 10
+        },
+        Actions = new ActionPointsTemplate
+        {
+            Action = 10,
+            Exertion = 10,
+            Focus = 10
+        },
+    });
+
+    protected override Task OnInitializedAsync()
+    {
+        _human.RightHand.Add(new Equipment(new ArtifactTemplate { Name = "Device" }));
+        _human.Equipment.Add(new Equipment(new ArtifactTemplate { Name = "Another Device" }));
+
+        _graph.Initialize(_human);
+        return base.OnInitializedAsync();
+    }
+
+    protected void IncrementStrength()
+    {
+        var strength = _human.Stats.Strength.Score;
+        _graph.Mods.Add(BaseOverrideModifier.Create(_human, strength + 1, x => x.Stats.Strength.Score));
+    }
+
+    protected void DecrementStrength()
+    {
+        var strength = _human.Stats.Strength.Score;
+        _graph.Mods.Add(BaseOverrideModifier.Create(_human, strength - 1, x => x.Stats.Strength.Score));
+    }
+
+    protected void ResetStrength()
+    {
+        var strength = _human.Stats.Strength.Score;
+        _graph.Mods.Remove(_human.Stats.Strength.Id, nameof(ScoreBonusValue.Score), ModifierType.BaseOverride);
+    }
+}

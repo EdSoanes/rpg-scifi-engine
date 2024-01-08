@@ -71,13 +71,13 @@ namespace Rpg.Sys.Tests
 
             Assert.That(entity2, Is.Not.Null);
 
-            Assert.That(_entity.Strength, Is.EqualTo(16));
-            Assert.That(_entity.StrengthBonus, Is.EqualTo(3));
-            Assert.That(_entity.MeleeAttack, Is.EqualTo(10));
-            Assert.That(_entity.MeleeDamage, Is.EqualTo(new Dice("1d6")));
+            Assert.That(entity2.Strength, Is.EqualTo(_entity.Strength));
+            Assert.That(entity2.StrengthBonus, Is.EqualTo(_entity.StrengthBonus));
+            Assert.That(entity2.MeleeAttack, Is.EqualTo(_entity.MeleeAttack));
+            Assert.That(entity2.MeleeDamage, Is.EqualTo(_entity.MeleeDamage));
 
-            Assert.That(_entity.Health.Physical, Is.EqualTo(13));
-            Assert.That(_entity.Health.Mental, Is.EqualTo(10));
+            Assert.That(entity2.Health.Physical, Is.EqualTo(_entity.Health.Physical));
+            Assert.That(entity2.Health.Mental, Is.EqualTo(_entity.Health.Mental));
         }
 
         [Test]
