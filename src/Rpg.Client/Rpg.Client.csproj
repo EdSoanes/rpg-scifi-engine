@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-	<RootNamespace>BlazorApp.Client</RootNamespace>
+	<RootNamespace>$(MSBuildProjectName)</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,10 +15,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Rpg.Sys\Rpg.Sys.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Components\" />
   </ItemGroup>
 
 </Project>

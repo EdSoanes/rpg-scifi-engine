@@ -1,0 +1,47 @@
+﻿@using Rpg.Sys.Components
+@using System.ComponentModel
+@using System.Diagnostics
+@using Rpg.Sys.Components.Values
+@inject NavigationManager NavigationManager
+@inject IGameService<Human> Game
+
+<MudGrid>
+    <MudItem xs="8">
+        <MudNumericField @bind-Value="Score" Label="@StatName" Variant="Variant.Text" Min="0" Max="20" />
+    </MudItem>
+    <MudItem xs="4">
+        <MudNumericField @bind-Value="Bonus" Label="Bonus" Variant="Variant.Text" Min="0" Max="20" />
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter]
+    public string? StatName { get; set; }
+
+    [Parameter]
+    public ScoreBonusValue? ScoreBonus { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        ScoreBonus!.PropertyChanged += PropChanged;
+        return base.OnInitializedAsync();
+    }
+
+
+    private void PropChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        StateHasChanged();   
+    }
+
+    private int? Score
+    {
+        get => ScoreBonus?.Score;
+        set => Game.Graph.Mods.Add(BaseOverrideModifier.Create(ScoreBonus!, value ?? 0, x => x.Score));
+    }
+
+    private int? Bonus
+    {
+        get => ScoreBonus?.Bonus;
+        set => Game.Graph.Mods.Add(BaseOverrideModifier.Create(ScoreBonus!, value ?? 0, x => x.Bonus));
+    }
+}

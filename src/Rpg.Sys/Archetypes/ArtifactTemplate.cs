@@ -10,6 +10,7 @@ namespace Rpg.Sys.Archetypes
     public class ArtifactTemplate
     {
         public string? Name { get; set; }
+        public string? Description { get; set; }
         public PresenceTemplate Presence {  get; set; } = new PresenceTemplate();
         public DefensesTemplate Defenses { get; set; } = new DefensesTemplate();
         public DamageTemplate Damage { get; set; } = new DamageTemplate();

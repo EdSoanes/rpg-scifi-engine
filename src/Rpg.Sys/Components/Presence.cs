@@ -18,6 +18,8 @@ namespace Rpg.Sys.Components
 
         public Presence(PresenceTemplate template)
         {
+            Size = template.Size;
+            Weight = template.Weight;
             Sound = new PresenceValue(template.SoundMax, template.SoundCurrent, template.SoundRadius);
             Light = new PresenceValue(template.LightMax, template.LightCurrent, template.LightRadius);
             Heat = new PresenceValue(template.HeatMax, template.HeatCurrent, template.HeatRadius);

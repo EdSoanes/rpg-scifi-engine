@@ -11,6 +11,8 @@ namespace Rpg.SciFi.Engine.Artifacts
 
         private readonly Dictionary<Guid, ModdableObject> _store = new Dictionary<Guid, ModdableObject>();
 
+        public bool RestoreMods { get; set; } = true;
+
         public ModdableObject this[Guid key]
         {
             get
@@ -71,7 +73,7 @@ namespace Rpg.SciFi.Engine.Artifacts
                 _store.Add(moddableObject.Id, moddableObject);
             }
 
-            _graph?.Mods.Add(moddableObjects);
+            _graph?.Mods?.Add(moddableObjects);
         }
 
         public ModdableObject? Get(Guid? id)
@@ -113,7 +115,7 @@ namespace Rpg.SciFi.Engine.Artifacts
                 foreach (var item in toRemove)
                 {
                     _store.Remove(item.Id);
-                    _graph!.Mods!.Remove(item.Id);
+                    _graph!.Mods.Remove(item.Id);
                 }
 
                 return true;

@@ -27,6 +27,8 @@ namespace Rpg.Sys
             }
         }
 
+        public bool RestoreMods { get; set; } = true;
+
         public ICollection<Guid> Keys => _store.Keys;
 
         public ICollection<ModdableObject> Values => _store.Values;
@@ -67,8 +69,8 @@ namespace Rpg.Sys
                 _store.Add(moddableObject.Id, moddableObject);
             }
 
-            if (_graph?.Mods != null)
-                _graph.Mods.Add(moddableObjects);
+            if (RestoreMods)
+                _graph?.Mods.Add(moddableObjects);
         }
 
         public ModdableObject? Get(Guid? id)
