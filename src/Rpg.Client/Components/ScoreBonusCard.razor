@@ -5,14 +5,25 @@
 @inject NavigationManager NavigationManager
 @inject IGameService<Human> Game
 
-<MudGrid>
+@* <MudGrid>
     <MudItem xs="8">
         <MudNumericField @bind-Value="Score" Label="@StatName" Variant="Variant.Text" Min="0" Max="20" />
     </MudItem>
     <MudItem xs="4">
         <MudNumericField @bind-Value="Bonus" Label="Bonus" Variant="Variant.Text" Min="0" Max="20" />
     </MudItem>
-</MudGrid>
+</MudGrid> *@
+<div>
+    <MudGrid>
+        <MudItem xs="12" Class="relative">
+            <MudImage Fluid="true" ObjectFit="ObjectFit.Cover" Src="https://stackoverflow.design/assets/img/logos/so/logo-stackoverflow.png" />
+            <MudPaper Class="absolute paper">
+                <MudText>This is some text</MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</div>
+
 
 @code {
     [Parameter]
