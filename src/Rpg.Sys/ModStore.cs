@@ -1,6 +1,5 @@
 ﻿using Rpg.Sys.Modifiers;
 using System.Collections;
-using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -10,7 +9,6 @@ namespace Rpg.Sys
     public class ModStore : IDictionary<string, ModProp>
     {
         private Graph? _graph;
-        private PropEvaluator? _evaluator;
 
         private bool _restoring = false;
         private bool Restoring { get => _restoring || _graph?.Entities == null; }
@@ -71,9 +69,17 @@ namespace Rpg.Sys
         public void Initialize(Graph graph)
         {
             _graph = graph;
-            _evaluator = new PropEvaluator(_graph);
             GraphExtensions.RegisterAssembly(Assembly.GetExecutingAssembly());
         }
+
+        public Dice BaseValue<TEntity, T1>(TEntity entity, Expression<Func<TEntity, T1>> propExpr)
+            where TEntity : ModdableObject
+        {
+            var propRef = PropRef.FromPath(entity, propExpr, true);
+            return Get(propRef)?.BaseValue ?? Dice.Zero;
+        }
+
+        public ModProp? Get(string key) => this[key];
 
         public ModProp? Get(PropRef propRef)
         {
@@ -102,76 +108,59 @@ namespace Rpg.Sys
                     if (modProp == null)
                     {
                         modProp = new ModProp(entity.Id, propInfo.Name, propInfo.PropertyType.Name);
-                        Add("", modProp);
+                        _Add(modProp);
                     }
                 }
             }
 
             //Execute in reverse order to set up child entities first so
             // parent entity mods on children can override child entity mods
-            foreach (var entity in entities.Reverse())
-            {
-                var mods = entity.OnSetup();
-                Add(mods);
-            }
+            var mods = entities
+                .Reverse()
+                .SelectMany(x => x.OnSetup())
+                .ToArray();
+
+            Add(mods);
         }
 
         public void Add(params Modifier[] mods)
         {
+            var updated = new List<ModProp>();
             foreach (var mod in mods)
-                Add(mod);
+            {
+                var modProp = Get(mod.Target.Id, mod.Target.Prop);
+                if (modProp == null)
+                    throw new Exception($"Missing ModProp for {mod.Target}");
+
+                mod.OnAdd(_graph!.Turn);
+                if (modProp.Add(mod) && !updated.Any(x => x.EntityId == modProp.EntityId && x.Prop == modProp.Prop))
+                    updated.Add(modProp);
+            }
+
+            if (updated.Any())
+                NotifyPropertiesChanged(updated);
         }
 
         public void Add(string key, ModProp value)
         {
-            if (!_store.ContainsKey(value.Id))
-                _store.Add(value.Id, new Dictionary<string, ModProp>());
-
-            var modProp = Get(value.Id, value.Prop);
-            if (modProp == null)
-            {
-                _store[value.Id].Add(value.Prop, value);
-                modProp = value;
-            }
-
-            foreach (var mod in modProp.Modifiers)
-                Add(mod);
+            _Add(value);
+            NotifyPropertyChanged(value);
         }
 
-        public void Add(KeyValuePair<string, ModProp> item) => Add(item.Key, item.Value);
-
-        public void Add(Modifier mod)
+        private void _Add(ModProp value)
         {
-            if (!Restoring)
-                mod.OnAdd(_graph!.Turn);
+            if (!_store.ContainsKey(value.EntityId))
+                _store.Add(value.EntityId, new Dictionary<string, ModProp>());
+            else
+                _store[value.EntityId].Remove(MakeKey(value.EntityId, value.Prop));
 
-            var modProp = Get(mod.Target)!;
-            if (mod.ModifierAction == ModifierAction.Accumulate)
-            {
-                modProp.Modifiers.Add(mod);
-            }
-            else if (mod.ModifierAction == ModifierAction.Sum)
-            {
-                if (_evaluator == null)
-                    modProp.Modifiers.Add(mod);
-                else
-                {
-                    var modDice = _evaluator.Evaluate(modProp.MatchingMods(mod)) + _evaluator.Evaluate(new[] { mod });
-                    modProp.RemoveMatchingMods(mod);
-                    if (modDice != Dice.Zero || mod.EndTurn != RemoveTurn.WhenZero)
-                    {
-                        mod.SetDice(modDice);
-                        modProp.Modifiers.Add(mod);
-                    }
-                }
-            }
-            else if (mod.ModifierAction == ModifierAction.Replace)
-            {
-                modProp.RemoveMatchingMods(mod);
-                modProp.Modifiers.Add(mod);
-            }
+            _store[value.EntityId].Add(value.Prop, value);
+        }
 
-            NotifyPropertyChanged(modProp);
+        public void Add(KeyValuePair<string, ModProp> item)
+        {
+            _Add(item.Value);
+            NotifyPropertyChanged(item.Value);
         }
 
         public void Restore(ModStore store)
@@ -198,19 +187,10 @@ namespace Rpg.Sys
             foreach (var prop in entityMods.Keys)
             {
                 var modProp = Get(entityId, prop);
-                if (modProp != null)
-                {
-                    if (modProp.Modifiers.Any())
-                    {
-                        var toRemove = modProp.Modifiers.Where(x => x.CanBeCleared()).ToArray();
-                        foreach (var remove in toRemove)
-                            modProp.Modifiers.Remove(remove);
-                    }
-                }
+                modProp?.Clear();
             }
         }
 
-        public bool Contains(Modifier mod) => Get(mod.Target.Id, mod.Target.Prop!)?.Modifiers.Any(x => x.Id == mod.Target.Id) ?? false;
         public bool Contains(KeyValuePair<string, ModProp> item) => ContainsKey(item.Key);
 
         public bool ContainsKey(string key)
@@ -240,13 +220,12 @@ namespace Rpg.Sys
             if (_store.ContainsKey(mod.Target.Id!.Value))
             {
                 var entityMods = _store[mod.Target.Id!.Value];
-                if (!string.IsNullOrEmpty(mod.Target.Prop) && entityMods.ContainsKey(mod.Target.Prop))
+                if (entityMods.ContainsKey(mod.Target.Prop))
                 {
                     var modProp = entityMods[mod.Target.Prop];
-                    var toRemove = modProp.Modifiers.FirstOrDefault(x => x.Id == mod.Id);
-                    if (toRemove != null)
+                    var removed = modProp.Remove(mod);
+                    if (removed != null)
                     {
-                        modProp.Modifiers.Remove(toRemove);
                         NotifyPropertyChanged(modProp);
                         res = true;
                     }
@@ -292,52 +271,17 @@ namespace Rpg.Sys
 
         private bool RemoveByFilter(Guid? entityId, string? prop, Func<Modifier, bool>? filter)
         {
-            bool removed = false;
+            bool res = false;
 
             var modProp = Get(entityId, prop);
             if (modProp != null)
             {
-                var toRemove = modProp.Modifiers
-                    .Where(x => filter == null || filter(x))
-                    .ToList();
-
-                foreach (var r in toRemove)
-                    modProp.Modifiers.Remove(r);
-
-                var affectedProps = GetAffectedModProps(modProp);
-                foreach (var group in affectedProps.GroupBy(x => x.Id))
-                {
-                    foreach (var mp in group)
-                    {
-                        var entity = _graph!.Entities.Get(mp.Id);
-                        toRemove = mp.Modifiers
-                            .Where(x => x.Source.Prop == modProp.Prop && (filter == null || filter(x)))
-                            .ToList();
-
-                        foreach (var r in toRemove)
-                        {
-                            if (!r.DiceCalc.IsCalc)
-                                mp.Modifiers.Remove(r);
-                            else
-                            {
-                                var dice = _evaluator!.Evaluate(r);
-                                if (dice == Dice.Zero)
-                                    mp.Modifiers.Remove(r);
-                            }
-                        }
-
-                        removed = true;
-                    }
-                }
-
-                PropertyChanged(affectedProps);
+                if (modProp.Remove(filter).Any())
+                    NotifyPropertyChanged(modProp);
             }
 
-            return removed;
+            return res;
         }
-
-
-
 
         public bool Remove(string key)
         {
@@ -351,20 +295,7 @@ namespace Rpg.Sys
             var res = false;
             foreach (var modProp in this.Select(x => x.Value))
             {
-                var updated = new List<Modifier>();
-
-                foreach (var mod in modProp.Modifiers)
-                {
-                    var oldExpiry = mod.Expiry;
-                    mod.OnUpdate(newTurn);
-
-                    if (mod.Expiry != oldExpiry)
-                        updated.Add(mod);
-                }
-
-                foreach (var mod in updated.Where(x => x.Expiry == ModifierExpiry.Remove))
-                    modProp.Modifiers.Remove(mod);
-
+                var updated = modProp.Update(newTurn);
                 if (updated.Any())
                 {
                     res = true;
@@ -442,6 +373,26 @@ namespace Rpg.Sys
             return res.ToArray();
         }
 
+        public void NotifyPropertiesChanged(IEnumerable<ModProp> modProps)
+        {
+            if (!Restoring)
+            {
+                var affected = new List<ModProp>();
+                foreach (var modProp in modProps)
+                    affected.AddRange(GetAffectedModProps(modProp));
+
+                affected = affected
+                    .GroupBy(x => $"{x.EntityId}.{x.Prop}")
+                    .Select(x => x.First())
+                    .ToList();
+
+                foreach (var modProp in affected)
+                    modProp.Evaluate(_graph!);
+
+                PropertyChanged(affected);
+            }
+        }
+
         public void NotifyPropertyChanged(ModProp modProp)
         {
             if (!Restoring)
@@ -486,11 +437,14 @@ namespace Rpg.Sys
         {
             if (!Restoring)
             {
-                foreach (var mp in modProps.Where(x => x != null).GroupBy(x => x!.Id))
+                foreach (var mp in modProps.Where(x => x != null).GroupBy(x => x!.EntityId))
                 {
                     var entity = _graph!.Entities.Get(mp.Key);
                     foreach (var p in mp)
-                        entity?.SetModdableProperty(p.Prop, _evaluator!.Evaluate(p));
+                    {
+                        p.Evaluate(_graph);
+                        entity?.SetModdableProperty(p.Prop, p.Value);
+                    }
                 }
             }
         }
@@ -502,7 +456,7 @@ namespace Rpg.Sys
                 modProp
             };
 
-            res.AddRange(GetAffectedModProps(modProp.Id, modProp.Prop));
+            res.AddRange(GetAffectedModProps(modProp.EntityId, modProp.Prop));
 
             return res;
         }
@@ -511,9 +465,7 @@ namespace Rpg.Sys
         {
             var res = new List<ModProp>();
 
-            var modProps = AllValues()
-                .Where(x => x.Modifiers.Any(m => m.Source.Id == id && m.Source.Prop == prop));
-
+            var modProps = AllValues().Where(x => x.AffectedBy(id, prop));
             foreach (var mp in modProps)
                 res.AddRange(GetAffectedModProps(mp));
 

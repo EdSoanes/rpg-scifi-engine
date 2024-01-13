@@ -125,5 +125,17 @@ namespace Rpg.Sys.Tests
             Assert.That(_entity.Intelligence, Is.EqualTo(13));
             Assert.That(_entity.IntelligenceBonus, Is.EqualTo(1));
         }
+
+        [Test]
+        public void TestEntity_ReplaceIntelligenceBaseWithBaseOverrideMod_CompareBaseValueAndValue()
+        {
+            Assert.That(_entity.Intelligence, Is.EqualTo(13));
+            Assert.That(_entity.IntelligenceBonus, Is.EqualTo(1));
+
+            _graph.Mods.Add(BaseOverrideModifier.Create(_entity, 18, x => x.Intelligence));
+
+            Assert.That(_entity.Intelligence, Is.EqualTo(18));
+            Assert.That(_graph.Mods.BaseValue(_entity, x => x.Intelligence).Roll(), Is.EqualTo(13));
+        }
     }
 }

@@ -6,19 +6,28 @@
 @inject IGameService<Human> Game
 
 @* <MudGrid>
-    <MudItem xs="8">
+    <MudItem xs="4">
+        <MudText Label="Base">@Base</MudText>
+    </MudItem>
+    <MudItem xs="4">
         <MudNumericField @bind-Value="Score" Label="@StatName" Variant="Variant.Text" Min="0" Max="20" />
     </MudItem>
     <MudItem xs="4">
-        <MudNumericField @bind-Value="Bonus" Label="Bonus" Variant="Variant.Text" Min="0" Max="20" />
+        <MudNumericField @bind-Value="Bonus" Label="Bonus" Variant="Variant.Text" Min="0" Max="20" Format="@FormatBonus" />
     </MudItem>
 </MudGrid> *@
 <div>
     <MudGrid>
         <MudItem xs="12" Class="relative">
             <MudImage Fluid="true" ObjectFit="ObjectFit.Cover" Src="https://stackoverflow.design/assets/img/logos/so/logo-stackoverflow.png" />
-            <MudPaper Class="absolute paper">
-                <MudText>This is some text</MudText>
+            <MudPaper Class="absolute bonus">
+                <MudNumericField @bind-Value="Bonus" Label="Bonus" Variant="Variant.Text" Min="0" Max="20" Format="@FormatBonus" HideSpinButtons="true" DisableUnderLine="true" />
+            </MudPaper>
+            <MudPaper Class="absolute score">
+                <MudNumericField @bind-Value="Score" Label="@StatName" Variant="Variant.Text" Min="0" Max="20" HideSpinButtons="true" DisableUnderLine="true" />
+            </MudPaper>
+            <MudPaper Class="absolute base">
+                <MudText Label="Base">@Base</MudText>
             </MudPaper>
         </MudItem>
     </MudGrid>
@@ -38,10 +47,14 @@
         return base.OnInitializedAsync();
     }
 
-
     private void PropChanged(object? sender, PropertyChangedEventArgs e)
     {
         StateHasChanged();   
+    }
+
+    private int? Base
+    {
+        get => ScoreBonus != null ? Game.Graph.Mods.BaseValue(ScoreBonus, x => x.Score).Roll() : 0;
     }
 
     private int? Score
@@ -54,5 +67,10 @@
     {
         get => ScoreBonus?.Bonus;
         set => Game.Graph.Mods.Add(BaseOverrideModifier.Create(ScoreBonus!, value ?? 0, x => x.Bonus));
+    }
+
+    private string FormatBonus 
+    { 
+        get => Bonus > 0 ? "'+'##" : "##"; 
     }
 }

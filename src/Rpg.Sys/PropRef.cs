@@ -6,6 +6,8 @@ namespace Rpg.Sys
 {
     public struct PropRef
     {
+        private string? _description;
+
         [JsonProperty] public Guid? RootId { get; private set; }
         [JsonProperty] public Guid? Id { get; private set; }
         [JsonProperty] public string Prop { get; private set; }
@@ -44,26 +46,26 @@ namespace Rpg.Sys
             Prop = propPath;
         }
 
-        public string Describe(EntityStore entityStore, bool addEntityInfo = false)
+        internal string Describe(Graph graph)
         {
-            var desc = "";
-            if (PropType == PropType.Path && addEntityInfo)
+            if (string.IsNullOrEmpty(_description))
             {
-                var rootEntity = entityStore.Get(RootId!.Value);
-                var sourceEntity = entityStore.Get(Id);
+                if (PropType == PropType.Dice)
+                    _description = Prop;
+                else
+                {
+                    var parts = new []
+                    {
+                        graph.Entities.Get(RootId!.Value)?.Name,
+                        graph.Entities.Get(Id)?.Name,
+                        Prop
+                    };
 
-                desc += rootEntity?.Id != sourceEntity?.Id
-                    ? $"{rootEntity?.Name}.{sourceEntity?.Name}"
-                    : sourceEntity?.Name;
-
-                desc = desc.Trim('.');
-                if (!string.IsNullOrEmpty(desc))
-                    desc += ".";
+                    _description = string.Join('.', parts.Where(x => !string.IsNullOrEmpty(x)).Distinct());
+                }
             }
-
-            desc += Prop;
-
-            return desc;
+            
+            return _description;
         }
 
         public static PropRef FromInt(Guid entityId, int val)

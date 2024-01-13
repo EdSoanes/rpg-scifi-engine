@@ -132,13 +132,16 @@ namespace Rpg.Sys
             if (entity != null)
                 res.Add(entity);
 
-            foreach (var propertyInfo in obj.GetType().GetProperties())
+            if (!obj.GetType().IsPrimitive)
             {
-                var items = obj.PropertyObjects(propertyInfo, out var isEnumerable)?.ToArray() ?? new object[0];
-                foreach (var item in items)
+                foreach (var propertyInfo in obj.GetType().GetProperties())
                 {
-                    var childEntities = GetModdableObjects(item);
-                    res.AddRange(childEntities);
+                    var items = obj.PropertyObjects(propertyInfo, out var isEnumerable)?.ToArray() ?? new object[0];
+                    foreach (var item in items)
+                    {
+                        var childEntities = GetModdableObjects(item);
+                        res.AddRange(childEntities);
+                    }
                 }
             }
 

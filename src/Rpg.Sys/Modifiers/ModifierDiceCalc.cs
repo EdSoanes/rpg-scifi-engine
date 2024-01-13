@@ -59,13 +59,13 @@ namespace Rpg.Sys.Modifiers
             return;
         }
 
-        public string? Describe(EntityStore entityStore)
+        public string? Describe(Graph graph)
         {
             if (!IsCalc)
                 return null;
 
             var src = EntityId != null
-                ? entityStore.Get(EntityId.Value)?.Name
+                ? graph.Entities.Get(EntityId.Value)?.Name
                 : ClassName;
 
             return $"{src}.{FuncName}".Trim('.');

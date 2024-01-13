@@ -6,6 +6,13 @@ using System.Threading.Tasks;
 
 namespace Rpg.Sys
 {
+    public enum PropStatusType
+    {
+        Base,
+        Positive,
+        Negative
+    }
+
     public enum PropReturnType
     {
         Integer,

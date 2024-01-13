@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Sys.Modifiers;
 using System.ComponentModel;
+using System.Linq.Expressions;
 
 namespace Rpg.Sys
 {
