@@ -1,40 +1,34 @@
 ﻿body {
 }
 
-::deep .bonus {
-  z-index: 10;
-  background-color: white;
-  height: 100%;
+::deep .stat {
+  text-align: center;
+  font-size: 0.8rem;
+}
+
+::deep .bonus-input .mud-input {
+  margin-top: 0!important;
+}
+
+::deep .bonus-input input {
   width: 100%;
-  top: 0;
-  left: 0;
+  font-size: 2.3rem;
+  text-align: center;
 }
 
-  ::deep .bonus input {
-    height: 100%;
-    width: 100%;
-    font-size: 1.8rem;
-  }
-
-::deep .base {
-  z-index: 20;
-  bottom: 0;
-  left: 0;
+::deep .score-input .mud-input {
+  margin-top: 0 !important;
 }
 
-  ::deep .base input {
-    height: 100%;
-    width: 100%;
-  }
-
-::deep .score {
-  z-index: 30;
-  bottom: 0;
-  right: 0;
+::deep .score-input input {
+  width: 100%;
+  text-align: center;
 }
 
-  ::deep .score input {
-    height: 100%;
-    width: 100%;
-    font-size: 1.8rem;
-  }
+::deep .score-plus input {
+  color: green;
+}
+
+::deep .score-minus input {
+  color: red;
+}
