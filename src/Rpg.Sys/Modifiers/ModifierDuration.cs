@@ -38,6 +38,13 @@ namespace Rpg.Sys.Modifiers
             return expiry;
         }
 
+        public void Set(ModifierDuration duration)
+        {
+            StartTurn = duration.StartTurn;
+            EndTurn = duration.EndTurn;
+            Type = duration.Type;
+        }
+
         public void SetWhenPropertyZero()
         {
             Type = ModifierDurationType.WhenPropertyZero;
