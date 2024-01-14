@@ -94,7 +94,7 @@ namespace Rpg.Sys.Tests
             var enhanceMods = healthMods.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);
 
             Assert.That(enhanceMods.Count(), Is.EqualTo(1));
-            Assert.That(enhanceMods.First().Expiry, Is.EqualTo(ModifierExpiry.Expired));
+            Assert.That(enhanceMods.First().Duration.GetExpiry(_graph.Turn), Is.EqualTo(ModifierExpiry.Remove));
         }
 
         [Test]

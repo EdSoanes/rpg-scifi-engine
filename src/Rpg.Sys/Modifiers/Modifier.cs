@@ -16,9 +16,9 @@ namespace Rpg.Sys.Modifiers
         [JsonProperty] public ModifierDiceCalc DiceCalc { get; protected set; } = new ModifierDiceCalc();
         [JsonProperty] public ModifierType ModifierType { get; protected set; }
         [JsonProperty] public ModifierAction ModifierAction { get; protected set; } = ModifierAction.Accumulate;
-        [JsonProperty] public ModifierExpiry Expiry { get; protected set; } = ModifierExpiry.Active;
-        [JsonProperty] public int StartTurn { get; protected set; } = int.MinValue;
-        [JsonProperty] public int EndTurn { get; protected set; } = int.MaxValue;
+        //[JsonProperty] public ModifierExpiry Expiry { get; protected set; } = ModifierExpiry.Active;
+
+        [JsonProperty] public ModifierDuration Duration { get; protected set; } = new ModifierDuration();
 
         protected static TMod _Create<TMod, TEntity, T1, TEntity2, T2>(int startTurn, int duration, TEntity? entity, string? name, Dice? dice, Expression<Func<TEntity, T1>>? sourceExpr, TEntity2 target, Expression<Func<TEntity2, T2>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TMod : Modifier
@@ -26,9 +26,10 @@ namespace Rpg.Sys.Modifiers
             where TEntity2 : ModdableObject
         {
             var mod = _Create<TMod, TEntity, T1, TEntity2, T2>(entity, name, dice, sourceExpr, target, targetExpr, diceCalcExpr);
-            mod.StartTurn = startTurn;
-            mod.EndTurn = startTurn + duration;
+            
+            mod.Duration.SetOnTurnPeriod(startTurn, startTurn + duration);
             mod.ModifierType = ModifierType.Transient;
+
             return mod;
         }
 
@@ -68,39 +69,13 @@ namespace Rpg.Sys.Modifiers
             DiceCalc.Clear();
         }
 
-        public virtual void Expire(int turn)
-        {
-            EndTurn = turn;
-
-            //If we aren't in an encounter then expire the modifier immediately 
-            if (turn < 1)
-                Expiry = ModifierExpiry.Expired;
-        }
-
         public virtual void OnAdd(int turn) { }
-        public virtual void OnUpdate(int turn) 
-        {
-            if (EndTurn == RemoveTurn.WhenZero)
-                Expiry = ModifierExpiry.Active;
-            else if (EndTurn < int.MaxValue)
-            {
-                if (turn < 1 || StartTurn > EndTurn)
-                    Expiry = ModifierExpiry.Remove;
-                else if (StartTurn > turn)
-                    Expiry = ModifierExpiry.Pending;
-                else if (EndTurn < turn)
-                    Expiry = ModifierExpiry.Expired;
-                else
-                    Expiry = ModifierExpiry.Active;
-            }
-            else
-                Expiry = ModifierExpiry.Active;
-        }
+        public virtual void OnUpdate(int turn) { }
 
-        public bool CanBeCleared()
-        {
-            return Expiry != ModifierExpiry.Active;
-        }
+        //public bool CanBeCleared()
+        //{
+        //    return Expiry != ModifierExpiry.Active;
+        //}
 
         public override string ToString()
         {
@@ -121,12 +96,12 @@ namespace Rpg.Sys.Modifiers
                 _ => "_"
             };
 
-            var removeOnTurn = EndTurn.ToString();
-            if (EndTurn == RemoveTurn.EndOfTurn)
+            var removeOnTurn = Duration.EndTurn.ToString();
+            if (Duration.EndTurn == RemoveTurn.EndOfTurn)
                 removeOnTurn = "t";
-            else if (EndTurn == RemoveTurn.Encounter)
+            else if (Duration.EndTurn == RemoveTurn.Encounter)
                 removeOnTurn = "e";
-            else if (EndTurn == RemoveTurn.WhenZero)
+            else if (Duration.EndTurn == RemoveTurn.WhenZero)
                 removeOnTurn = "z";
 
             return $"({modType},{actionType},{removeOnTurn}) {Name} {Source.Prop} => {Target.Prop}";

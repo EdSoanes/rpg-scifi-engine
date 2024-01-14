@@ -23,7 +23,7 @@ namespace Rpg.Sys
             get
             {
                 var baseMods = Modifiers
-                    .Where(x => x.Expiry == ModifierExpiry.Active && x.ModifierType == ModifierType.Base)
+                    .Where(x => x.Duration.GetExpiry(_graph.Turn) == ModifierExpiry.Active && x.ModifierType == ModifierType.Base)
                     .ToArray();
 
                 return baseMods;
@@ -35,7 +35,7 @@ namespace Rpg.Sys
         {
             get
             {
-                var activeModifiers = Modifiers.Where(x => x.Expiry == ModifierExpiry.Active);
+                var activeModifiers = Modifiers.Where(x => x.Duration.GetExpiry(_graph.Turn) == ModifierExpiry.Active);
 
                 var res = activeModifiers
                     .Where(x => x.ModifierType != ModifierType.Base && x.ModifierType != ModifierType.BaseOverride)
@@ -106,7 +106,7 @@ namespace Rpg.Sys
             var dice = _Calculate(matchingMods) + _Calculate(new[] { mod });
 
             Modifiers = Modifiers.Except(matchingMods).ToList();
-            if (dice != Dice.Zero || mod.EndTurn != RemoveTurn.WhenZero)
+            if (dice != Dice.Zero || mod.Duration.EndTurn != RemoveTurn.WhenZero)
             {
                 mod.SetDice(dice);
                 Modifiers.Add(mod);
@@ -132,14 +132,20 @@ namespace Rpg.Sys
             var updated = new List<Modifier>();
             foreach (var mod in Modifiers)
             {
-                var oldExpiry = mod.Expiry;
                 mod.OnUpdate(newTurn);
 
-                if (mod.Expiry != oldExpiry)
+                var expiry = mod.Duration.GetExpiry(_graph.Turn);
+                if (expiry == ModifierExpiry.Remove)
                     updated.Add(mod);
+                else
+                {
+                    var oldExpiry = mod.Duration.GetExpiry(_graph.Turn - 1);
+                    if (expiry != oldExpiry)
+                        updated.Add(mod);
+                }
             }
 
-            foreach (var mod in updated.Where(x => x.Expiry == ModifierExpiry.Remove))
+            foreach (var mod in updated.Where(x => x.Duration.GetExpiry(_graph.Turn) == ModifierExpiry.Remove))
                 Modifiers.Remove(mod);
 
             return updated.ToArray();
@@ -171,7 +177,10 @@ namespace Rpg.Sys
 
         public void Clear()
         {
-            var toRemove = Modifiers.Where(x => x.CanBeCleared()).ToArray();
+            var toRemove = Modifiers
+                .Where(x => x.Duration.CanClear(_graph.Turn))
+                .ToArray();
+
             foreach (var remove in toRemove)
                 Modifiers.Remove(remove);
         }

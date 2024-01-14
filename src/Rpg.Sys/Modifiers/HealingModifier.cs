@@ -8,7 +8,7 @@ namespace Rpg.Sys.Modifiers
         {
             ModifierType = ModifierType.Transient;
             ModifierAction = ModifierAction.Sum;
-            EndTurn = RemoveTurn.WhenZero;
+            Duration.SetWhenPropertyZero();
         }
 
         public static Modifier Create<TEntity, T1>(Dice dice, TEntity target, Expression<Func<TEntity, T1>> targetExpr)

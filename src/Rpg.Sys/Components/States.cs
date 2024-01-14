@@ -58,7 +58,7 @@ namespace Rpg.Sys.Components
                 var mods = Graph.Mods.FindStateMods(ArtifactId, stateName);
                 foreach (var mod in mods)
                 {
-                    mod.Expire(Graph.Turn);
+                    mod.Duration.Expire(Graph.Turn);
                     Graph.Mods.NotifyPropertyChanged(mod.Target.Id!.Value, mod.Target.Prop);
                 }
 

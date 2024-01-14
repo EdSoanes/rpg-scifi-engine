@@ -12,6 +12,15 @@
         Dice
     }
 
+    public enum ModifierDurationType
+    {
+        Permanent,
+        OnTurn,
+        EndOfTurn,
+        EndOfEncounter,
+        WhenPropertyZero
+    }
+
     public static class RemoveTurn
     {
 

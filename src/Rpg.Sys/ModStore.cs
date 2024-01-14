@@ -128,11 +128,12 @@ namespace Rpg.Sys
             var updated = new List<ModProp>();
             foreach (var mod in mods)
             {
+                mod.OnAdd(_graph!.Turn);
+
                 var modProp = Get(mod.Target.Id, mod.Target.Prop);
                 if (modProp == null)
                     throw new Exception($"Missing ModProp for {mod.Target}");
 
-                mod.OnAdd(_graph!.Turn);
                 if (modProp.Add(mod) && !updated.Any(x => x.EntityId == modProp.EntityId && x.Prop == modProp.Prop))
                     updated.Add(modProp);
             }

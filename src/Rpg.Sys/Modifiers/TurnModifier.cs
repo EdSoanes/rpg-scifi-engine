@@ -8,14 +8,12 @@ namespace Rpg.Sys.Modifiers
         {
             ModifierType = ModifierType.Transient;
             ModifierAction = ModifierAction.Accumulate;
-            StartTurn = RemoveTurn.EndOfTurn;
-            EndTurn = RemoveTurn.EndOfTurn;
+            Duration.SetWhenEndOfTurn();
         }
 
         public override void OnAdd(int turn)
         {
-            StartTurn = turn;
-            EndTurn = turn;
+            Duration.SetTurn(turn);
         }
 
         public static Modifier Create<TEntity, T1>(TEntity target, string name, Dice dice, Expression<Func<TEntity, T1>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
