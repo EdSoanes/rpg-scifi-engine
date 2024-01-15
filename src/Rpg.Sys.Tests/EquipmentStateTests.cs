@@ -94,7 +94,35 @@ namespace Rpg.Sys.Tests
             var enhanceMods = healthMods.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);
 
             Assert.That(enhanceMods.Count(), Is.EqualTo(1));
-            Assert.That(enhanceMods.First().Duration.GetExpiry(_graph.Turn), Is.EqualTo(ModifierExpiry.Remove));
+        }
+
+        [Test]
+        public void Equipment_OnTurn2_DeactivateEnhanceActorState_VerifyActorPhysicalHealth()
+        {
+            Assert.That(_equipment, Is.Not.Null);
+            Assert.That(_actor, Is.Not.Null);
+
+            _graph.NewEncounter();
+
+            var action = _actor.ActivateState(_equipment, "Enhance");
+            action!.Resolve(_actor, _graph);
+
+            Assert.That(_actor.Health.Physical.Current, Is.EqualTo(13));
+
+            _graph.NewTurn();
+
+            action = _actor.DeactivateState(_equipment, "Enhance");
+            action!.Resolve(_actor, _graph);
+
+            Assert.That(_actor.Health.Physical.Current, Is.EqualTo(10));
+
+            var healthMods = _graph.Mods.GetMods(_actor, x => x.Health.Physical.Current);
+
+            Assert.NotNull(healthMods);
+            var enhanceMods = healthMods.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);
+
+            Assert.That(enhanceMods.Count(), Is.EqualTo(1));
+            Assert.That(enhanceMods.First().Duration.GetExpiry(_graph.Turn), Is.EqualTo(ModifierExpiry.Expired));
         }
 
         [Test]

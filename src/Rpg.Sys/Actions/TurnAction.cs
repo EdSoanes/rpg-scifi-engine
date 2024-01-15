@@ -53,18 +53,24 @@ namespace Rpg.Sys.Actions
             return null;
         }
 
-        public TurnAction OnSuccess(Modifier mod)
+        public TurnAction OnSuccess(params Modifier[] mods)
         {
-            if (!IsResolved && !Success.Any(x => x.Id == mod.Id))
-                Success.Add(mod);
+            if (!IsResolved)
+            {
+                foreach (var mod in mods.Where(x => !Success.Any(y => y.Id == x.Id)))
+                    Success.Add(mod);
+            }
 
             return this;
         }
 
-        public TurnAction OnFailure(Modifier mod)
+        public TurnAction OnFailure(params Modifier[] mods)
         {
-            if (!IsResolved && !Failure.Any(x => x.Id == mod.Id))
-                Failure.Add(mod);
+            if (!IsResolved)
+            {
+                foreach (var mod in mods.Where(x => !Failure.Any(y => y.Id == x.Id)))
+                    Failure.Add(mod);
+            }
 
             return this;
         }

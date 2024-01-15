@@ -45,8 +45,9 @@ namespace Rpg.Sys.Components
             var state = _states.SingleOrDefault(x => x.Name == stateName);
             if (state != null && !state.IsActive && Graph != null)
             {
-                Graph.Mods.Add(state.Effects(actor));
+                Graph.Conditions.Remove(state.ConditionName());
                 state.IsActive = true;
+                Graph.Conditions.Add(state.OnActive(actor));
             }
         }
 
@@ -55,14 +56,9 @@ namespace Rpg.Sys.Components
             var state = _states.SingleOrDefault(x => x.Name == stateName);
             if (state != null && state.IsActive && Graph != null)
             {
-                var mods = Graph.Mods.FindStateMods(ArtifactId, stateName);
-                foreach (var mod in mods)
-                {
-                    mod.Duration.Expire(Graph.Turn);
-                    Graph.Mods.NotifyPropertyChanged(mod.Target.Id!.Value, mod.Target.Prop);
-                }
-
+                Graph.Conditions.Remove(state.ConditionName());
                 state.IsActive = false;
+                Graph.Conditions.Add(state.OnInactive(actor));
             }
         }
 

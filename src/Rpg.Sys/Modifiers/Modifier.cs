@@ -11,12 +11,12 @@ namespace Rpg.Sys.Modifiers
 
         [JsonProperty] public Guid Id { get; protected set; } = Guid.NewGuid();
         [JsonProperty] public string Name { get; protected set; }
+        [JsonProperty] public string? ModifierSet { get; set; }
         [JsonProperty] public PropRef Source { get; protected set; }
         [JsonProperty] public PropRef Target { get; protected set; }
         [JsonProperty] public ModifierDiceCalc DiceCalc { get; protected set; } = new ModifierDiceCalc();
         [JsonProperty] public ModifierType ModifierType { get; protected set; }
         [JsonProperty] public ModifierAction ModifierAction { get; protected set; } = ModifierAction.Accumulate;
-        //[JsonProperty] public ModifierExpiry Expiry { get; protected set; } = ModifierExpiry.Active;
 
         [JsonProperty] public ModifierDuration Duration { get; protected set; } = new ModifierDuration();
 
@@ -71,11 +71,6 @@ namespace Rpg.Sys.Modifiers
 
         public virtual void OnAdd(int turn) { }
         public virtual void OnUpdate(int turn) { }
-
-        //public bool CanBeCleared()
-        //{
-        //    return Expiry != ModifierExpiry.Active;
-        //}
 
         public override string ToString()
         {

@@ -1,5 +1,6 @@
 ﻿using Rpg.Sys.Modifiers;
 using System.Collections;
+using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -34,7 +35,7 @@ namespace Rpg.Sys
 
         public bool IsReadOnly => false;
 
-        public IEnumerable<Modifier> FindStateMods(Guid artifactId, string? stateName = null)
+        public IEnumerable<Modifier> FindForModifierSet(Guid artifactId, string? modifierSet = null)
         {
             return _graph!.Mods.FindMods(mod =>
             {
@@ -44,7 +45,7 @@ namespace Rpg.Sys
 
                 return stateMod.ModifierType == ModifierType.State
                     && stateMod.ArtifactId == artifactId
-                    && (stateName == null || stateMod.StateName == stateName);
+                    && (modifierSet == null || stateMod.ModifierSet == modifierSet);
             });
         }
 
@@ -216,24 +217,19 @@ namespace Rpg.Sys
 
         public bool Remove(Modifier mod)
         {
-            var res = false;
-
-            if (_store.ContainsKey(mod.Target.Id!.Value))
+            var modified = ModOperation(mod, (modProp) =>
             {
-                var entityMods = _store[mod.Target.Id!.Value];
-                if (entityMods.ContainsKey(mod.Target.Prop))
+                var removed = modProp.Remove(mod);
+                if (removed != null)
                 {
-                    var modProp = entityMods[mod.Target.Prop];
-                    var removed = modProp.Remove(mod);
-                    if (removed != null)
-                    {
-                        NotifyPropertyChanged(modProp);
-                        res = true;
-                    }
+                    NotifyPropertyChanged(modProp);
+                    return true;
                 }
-            }
 
-            return res;
+                return false;
+            });
+
+            return modified;
         }
 
         public bool Remove(Guid entityId)
@@ -251,7 +247,7 @@ namespace Rpg.Sys
             }
 
             //Remove state mods
-            var stateMods = FindStateMods(entityId).ToList();
+            var stateMods = FindForModifierSet(entityId).ToList();
             foreach (var mod in stateMods)
             {
                 Remove(mod);
@@ -259,6 +255,27 @@ namespace Rpg.Sys
             }
 
             return res;
+        }
+
+        public bool Expire(params Modifier[] mods)
+        {
+            var updates = new List<ModProp>();
+            foreach (var mod in mods)
+            {
+                var updated = ModOperation(mod, (modProp) =>
+                {
+                    mod.Duration.Expire(_graph.Turn);
+                    return modProp;
+                });
+
+                if (updated != null)
+                    updates.Add(updated);
+            }
+
+            if (updates.Any())
+                NotifyPropertiesChanged(updates);
+
+            return updates.Any();
         }
 
         public bool Remove(PropRef? moddableProperty)
@@ -471,6 +488,22 @@ namespace Rpg.Sys
                 res.AddRange(GetAffectedModProps(mp));
 
             return res;
+        }
+
+        private T? ModOperation<T>(Modifier mod, Func<ModProp, T> op)
+        {
+            if (_store.ContainsKey(mod.Target.Id!.Value))
+            {
+                var entityMods = _store[mod.Target.Id!.Value];
+                if (entityMods.ContainsKey(mod.Target.Prop))
+                {
+                    var modProp = entityMods[mod.Target.Prop];
+                    if (modProp != null)
+                        return op.Invoke(modProp);
+                }
+            }
+
+            return default;
         }
     }
 }

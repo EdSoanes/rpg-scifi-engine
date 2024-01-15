@@ -1,9 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.Sys
 {
@@ -19,6 +14,7 @@ namespace Rpg.Sys
         [JsonProperty] public ModdableObject? Context { get; private set; }
         [JsonProperty] public EntityStore Entities { get; private set; }
         [JsonProperty] public ModStore Mods { get; private set; }
+        [JsonProperty] public ConditionStore Conditions { get; private set; }
 
         [JsonProperty] public int Turn { get; private set; }
         public bool EncounterActive => Turn > 1;
@@ -27,15 +23,18 @@ namespace Rpg.Sys
         {
             Mods = new ModStore();
             Entities = new EntityStore();
+            Conditions = new ConditionStore();
 
             Mods.Initialize(this);
             Entities.Initialize(this);
+            Conditions.Initialize(this);
         }
 
-        public void Initialize(ModdableObject context, ModStore? modStore = null)
+        public void Initialize(ModdableObject context, ModStore? modStore = null, ConditionStore? conditions = null)
         {
             Mods.Clear();
             Entities.Clear();
+            Conditions.Clear();
 
             Entities.RestoreMods = modStore == null;
             Entities.Add(context);
@@ -44,6 +43,9 @@ namespace Rpg.Sys
 
             if (modStore != null)
                 Mods.Restore(modStore);
+
+            if (conditions != null)
+                Conditions.AddRange(conditions);
         }
 
         public string Serialize<T>() where T : ModdableObject
@@ -51,7 +53,8 @@ namespace Rpg.Sys
             var state = new GraphState<T>
             {
                 Context = Context as T,
-                Mods = Mods
+                Mods = Mods,
+                Conditions = Conditions
             };
 
             var json = JsonConvert.SerializeObject(state, JsonSettings);
@@ -63,7 +66,7 @@ namespace Rpg.Sys
             var state = JsonConvert.DeserializeObject<GraphState<T>>(json, JsonSettings)!;
             var graph = new Graph();
 
-            graph.Initialize(state.Context!, state.Mods);
+            graph.Initialize(state.Context!, state.Mods, state.Conditions);
 
             return graph;
         }

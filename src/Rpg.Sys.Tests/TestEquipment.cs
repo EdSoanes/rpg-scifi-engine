@@ -20,14 +20,15 @@ namespace Rpg.Sys.Tests
 
     public class TestActorState : State<TestEquipment>
     {
-        public TestActorState(Guid id) : base(id, "Enhance") { }
+        public TestActorState(Guid id) 
+            : base(id, "Enhance") { }
 
-        protected override Modifier[] Effects(Actor actor, TestEquipment artifact)
+        protected override Condition OnActive(Actor actor, TestEquipment artifact)
         {
-            return new Modifier[]
-            {
-                StateModifier.Create(artifact.Id, Name, actor, 3, x => x.Health.Physical.Current)
-            };
+            var modSet = base.OnActive(actor, artifact)
+                .Add(StateModifier.Create(Name, artifact.Id, actor, 3, x => x.Health.Physical.Current));
+            
+            return modSet;
         }
     }
 }

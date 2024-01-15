@@ -10,5 +10,6 @@ namespace Rpg.Sys
     {
         public T? Context { get; set; }
         public ModStore? Mods { get; set; }
+        public ConditionStore? Conditions { get; set; }
     }
 }
