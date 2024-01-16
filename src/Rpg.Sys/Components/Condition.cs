@@ -13,6 +13,7 @@ namespace Rpg.Sys.Components
         [JsonProperty] private List<Modifier> Modifiers { get; set; } = new List<Modifier>();
 
         [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
+        [JsonProperty] public Guid? OwningEntityId { get; private set; }
         [JsonProperty] public string Name { get; private set; } = nameof(Condition);
         [JsonProperty] public ModifierDuration Duration { get; private set; } = new ModifierDuration();
 
@@ -25,9 +26,9 @@ namespace Rpg.Sys.Components
             : this(name)
                 => Duration.Set(duration);
 
-        public Condition(string name, ModifierDuration duration, params Modifier[] mods)
+        public Condition(Guid owningEntityId, string name, ModifierDuration duration)
             : this(name, duration)
-                => Add(mods);
+                => OwningEntityId = owningEntityId;
 
         public Condition Add(params Modifier[] mods)
         {

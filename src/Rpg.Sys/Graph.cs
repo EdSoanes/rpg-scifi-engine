@@ -1,9 +1,16 @@
 ﻿using Newtonsoft.Json;
+using Rpg.Sys.Components;
+using Rpg.Sys.GraphOperations;
 
 namespace Rpg.Sys
 {
     public class Graph
     {
+        public readonly Add AddOp;
+        public readonly Update UpdateOp;
+        public readonly Remove RemoveOp;
+        public readonly Expire ExpireOp;
+
         private static JsonSerializerSettings JsonSettings = new JsonSerializerSettings
         {
             TypeNameHandling = TypeNameHandling.Auto,
@@ -14,7 +21,7 @@ namespace Rpg.Sys
         [JsonProperty] public ModdableObject? Context { get; private set; }
         [JsonProperty] public EntityStore Entities { get; private set; }
         [JsonProperty] public ModStore Mods { get; private set; }
-        [JsonProperty] public ConditionStore Conditions { get; private set; }
+        [JsonProperty] public List<Condition> Conditions { get; private set; }
 
         [JsonProperty] public int Turn { get; private set; }
         public bool EncounterActive => Turn > 1;
@@ -23,21 +30,27 @@ namespace Rpg.Sys
         {
             Mods = new ModStore();
             Entities = new EntityStore();
-            Conditions = new ConditionStore();
+            Conditions = new List<Condition>();
+
+            AddOp = new Add(this);
+            RemoveOp = new Remove(this);
+            ExpireOp = new Expire(this);
+            UpdateOp = new Update(this, ExpireOp, RemoveOp);
 
             Mods.Initialize(this);
             Entities.Initialize(this);
-            Conditions.Initialize(this);
+            
         }
 
-        public void Initialize(ModdableObject context, ModStore? modStore = null, ConditionStore? conditions = null)
+        public void Initialize(ModdableObject context, ModStore? modStore = null, List<Condition>? conditions = null)
         {
             Mods.Clear();
             Entities.Clear();
             Conditions.Clear();
 
             Entities.RestoreMods = modStore == null;
-            Entities.Add(context);
+            AddOp.Execute(context);
+            //Entities.Add(context);
 
             Context = context;
 
@@ -45,7 +58,7 @@ namespace Rpg.Sys
                 Mods.Restore(modStore);
 
             if (conditions != null)
-                Conditions.AddRange(conditions);
+                AddOp.Execute(conditions.ToArray());
         }
 
         public string Serialize<T>() where T : ModdableObject

@@ -167,16 +167,11 @@ namespace Rpg.Sys
             return null;
         }
 
-        public Modifier[] Remove(Func<Modifier, bool>? filter)
+        public Modifier[] Remove()
         {
-            var toRemove = Modifiers
-                .Where(x => filter == null || filter(x))
-                .ToArray();
-
-            foreach (var r in toRemove)
-                Modifiers.Remove(r);
-
-            return toRemove;
+            var res = Modifiers.ToArray();
+            Modifiers.Clear();
+            return res;
         }
 
         public void Clear()

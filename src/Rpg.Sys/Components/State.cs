@@ -53,10 +53,10 @@ namespace Rpg.Sys.Components
             => null;
 
         protected virtual Condition OnActive(Actor actor, T artifact) 
-            => new Condition(ConditionName(), Duration);
+            => new Condition(artifact.Id, ConditionName(), Duration);
 
         protected virtual Condition OnInactive(Actor actor, T artifact) 
-            => new Condition(ConditionName(), Duration);
+            => new Condition(artifact.Id, ConditionName(), Duration);
 
         public override Modifier[] OnSetup()
         {

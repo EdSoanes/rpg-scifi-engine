@@ -42,7 +42,7 @@ namespace Rpg.Sys.Actions
                 if (graph.Turn > 0)
                 { 
                     var costMods = OnResolutionCost(actor);
-                    graph.Mods.Add(costMods);
+                    graph.AddOp.Execute(costMods);
                 }
 
                 Resolution = diceRoll;
