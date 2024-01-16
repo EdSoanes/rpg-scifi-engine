@@ -1,5 +1,7 @@
 ﻿using Rpg.Sys.Components;
+using Rpg.Sys.Modifiers;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Rpg.Sys
 {
@@ -78,10 +80,47 @@ namespace Rpg.Sys
                 : false;
         }
 
-        public bool Remove(Condition item)
+        public bool UpdateOnTurn(int newTurn)
         {
-            _graph!.Mods.Expire(item.GetModifiers());
-            return _store.Remove(item);
+            var toRemove = new List<Condition>();
+            foreach (var condition in _store)
+            {
+                var expiry = condition.Duration.GetExpiry(_graph!.Turn);
+                if (expiry == ModifierExpiry.Remove || expiry == ModifierExpiry.Expired)
+                    toRemove.Add(condition);
+                else
+                    _graph!.Mods.Expire(condition.GetModifiers());
+            }
+
+            return Remove(toRemove.ToArray());
+        }
+
+        public bool Expire(string conditionName)
+        {
+            var condition = _store.FirstOrDefault(x => x.Name == conditionName);
+            if (condition != null)
+            {
+                condition.Duration.Expire(_graph!.Turn);
+                return _graph!.Mods.Expire(condition.GetModifiers());
+            }
+
+            return false;
+        }
+
+        public bool Remove(Condition condition)
+            => Remove(new[] { condition });
+
+        public bool Remove(params Condition[] items)
+        {
+            var res = false;
+
+            var mods = items.SelectMany(x => x.GetModifiers()).ToArray();
+            _graph!.Mods.Remove(mods);
+
+            foreach (var item in items)
+                res |= _store.Remove(item);
+
+            return res;
         }
 
         public IEnumerator<Condition> GetEnumerator()

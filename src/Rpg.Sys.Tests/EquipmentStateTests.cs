@@ -87,21 +87,33 @@ namespace Rpg.Sys.Tests
             action!.Resolve(_actor, _graph);
 
             Assert.That(_actor.Health.Physical.Current, Is.EqualTo(10));
+        }
 
-            var healthMods = _graph.Mods.GetMods(_actor, x => x.Health.Physical.Current);
+        [Test]
+        public void Equipment_DeactivateEnhanceActorState_EnhanceModRemoved()
+        {
+            var enhanceMods = _graph.Mods.GetMods(_actor, x => x.Health.Physical.Current)!.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);
+            Assert.NotNull(enhanceMods);
+            Assert.That(enhanceMods.Count(), Is.EqualTo(0));
 
-            Assert.NotNull(healthMods);
-            var enhanceMods = healthMods.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);
+            var action = _actor.ActivateState(_equipment, "Enhance");
+            action!.Resolve(_actor, _graph);
 
+            enhanceMods = _graph.Mods.GetMods(_actor, x => x.Health.Physical.Current)!.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);
+            Assert.NotNull(enhanceMods);
             Assert.That(enhanceMods.Count(), Is.EqualTo(1));
+
+            action = _actor.DeactivateState(_equipment, "Enhance");
+            action!.Resolve(_actor, _graph);
+
+            enhanceMods = _graph.Mods.GetMods(_actor, x => x.Health.Physical.Current)!.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);
+            Assert.NotNull(enhanceMods);
+            Assert.That(enhanceMods.Count(), Is.EqualTo(0));
         }
 
         [Test]
         public void Equipment_OnTurn2_DeactivateEnhanceActorState_VerifyActorPhysicalHealth()
         {
-            Assert.That(_equipment, Is.Not.Null);
-            Assert.That(_actor, Is.Not.Null);
-
             _graph.NewEncounter();
 
             var action = _actor.ActivateState(_equipment, "Enhance");
@@ -115,12 +127,31 @@ namespace Rpg.Sys.Tests
             action!.Resolve(_actor, _graph);
 
             Assert.That(_actor.Health.Physical.Current, Is.EqualTo(10));
+        }
 
-            var healthMods = _graph.Mods.GetMods(_actor, x => x.Health.Physical.Current);
+        [Test]
+        public void Equipment_OnTurn2_DeactivateEnhanceActorState_EnhanceModExpired()
+        {
+            var enhanceMods = _graph.Mods.GetMods(_actor, x => x.Health.Physical.Current)!.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);
+            Assert.NotNull(enhanceMods);
+            Assert.That(enhanceMods.Count(), Is.EqualTo(0));
 
-            Assert.NotNull(healthMods);
-            var enhanceMods = healthMods.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);
+            _graph.NewEncounter();
 
+            var action = _actor.ActivateState(_equipment, "Enhance");
+            action!.Resolve(_actor, _graph);
+
+            enhanceMods = _graph.Mods.GetMods(_actor, x => x.Health.Physical.Current)!.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);
+            Assert.NotNull(enhanceMods);
+            Assert.That(enhanceMods.Count(), Is.EqualTo(1));
+
+            _graph.NewTurn();
+
+            action = _actor.DeactivateState(_equipment, "Enhance");
+            action!.Resolve(_actor, _graph);
+
+            enhanceMods = _graph.Mods.GetMods(_actor, x => x.Health.Physical.Current)!.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);
+            Assert.NotNull(enhanceMods);
             Assert.That(enhanceMods.Count(), Is.EqualTo(1));
             Assert.That(enhanceMods.First().Duration.GetExpiry(_graph.Turn), Is.EqualTo(ModifierExpiry.Expired));
         }
@@ -128,9 +159,6 @@ namespace Rpg.Sys.Tests
         [Test]
         public void Equipment_ActivateEnhanceActorState_RemoveEquipmentRemovesMods()
         {
-            Assert.That(_equipment, Is.Not.Null);
-            Assert.That(_actor, Is.Not.Null);
-
             Assert.That(_actor.Health.Physical.Current, Is.EqualTo(10));
 
             var action = _actor.ActivateState(_equipment, "Enhance");

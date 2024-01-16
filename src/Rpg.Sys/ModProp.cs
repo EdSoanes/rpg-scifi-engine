@@ -7,15 +7,19 @@ namespace Rpg.Sys
     {
         private Graph _graph;
 
-        public Guid EntityId { get; set; }
-        public string Prop { get; set; }
-        public string ReturnType {  get; set; }
+        [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
+        [JsonProperty] public Guid EntityId { get; private set; }
+        [JsonProperty] public string Prop { get; private set; }
+        [JsonProperty] public string ReturnType {  get; private set; }
 
         [JsonProperty] public Dice Value {  get; private set; }
         [JsonProperty] public Dice BaseValue { get; private set; }
         [JsonProperty] public string[] Description { get; private set; }
 
-        public List<Modifier> Modifiers { get; set; } = new List<Modifier>();
+        [JsonProperty] private List<Modifier> Modifiers { get; set; } = new List<Modifier>();
+
+        [JsonIgnore]
+        public Modifier[] AllModifiers {  get => Modifiers.ToArray(); }
 
         [JsonIgnore]
         public Modifier[] BaseModifiers
@@ -127,7 +131,7 @@ namespace Rpg.Sys
             return true;
         }
 
-        public Modifier[] Update(int newTurn)
+        public Modifier[] UpdateOnTurn(int newTurn)
         {
             var updated = new List<Modifier>();
             foreach (var mod in Modifiers)

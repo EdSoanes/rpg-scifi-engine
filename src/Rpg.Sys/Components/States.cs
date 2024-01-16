@@ -56,7 +56,10 @@ namespace Rpg.Sys.Components
             var state = _states.SingleOrDefault(x => x.Name == stateName);
             if (state != null && state.IsActive && Graph != null)
             {
-                Graph.Conditions.Remove(state.ConditionName());
+                var res = Graph.Turn > 0
+                    ? Graph.Conditions.Expire(state.ConditionName())
+                    : Graph.Conditions.Remove(state.ConditionName());
+
                 state.IsActive = false;
                 Graph.Conditions.Add(state.OnInactive(actor));
             }

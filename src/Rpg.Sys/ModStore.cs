@@ -31,7 +31,7 @@ namespace Rpg.Sys
 
         public ICollection<ModProp> Values => AllValues();
 
-        public int Count => _store.Sum(x => x.Value.Sum(y => y.Value.Modifiers.Count()));
+        public int Count => _store.Sum(x => x.Value.Sum(y => y.Value.AllModifiers.Count()));
 
         public bool IsReadOnly => false;
 
@@ -51,7 +51,7 @@ namespace Rpg.Sys
 
         public IEnumerable<Modifier> FindMods(Func<Modifier?, bool>? filter = null)
         {
-            var allMods = _store.SelectMany(x => x.Value.Values.SelectMany(y => y.Modifiers));
+            var allMods = _store.SelectMany(x => x.Value.Values.SelectMany(y => y.AllModifiers));
             foreach (var mod in allMods)
             {
                 if (filter == null || filter(mod))
@@ -59,9 +59,9 @@ namespace Rpg.Sys
             }
         }
 
-        public List<Modifier>? GetMods<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
+        public Modifier[]? GetMods<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
             where TEntity : ModdableObject
-                => Get(PropRef.FromPath(entity, expression, true))?.Modifiers;
+                => Get(PropRef.FromPath(entity, expression, true))?.AllModifiers;
 
         public ModProp? Get<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
             where TEntity : ModdableObject
@@ -232,6 +232,29 @@ namespace Rpg.Sys
             return modified;
         }
 
+        public bool Remove(params Modifier[] mods)
+        {
+            var changed = new List<ModProp>();
+            
+            foreach (var mod in mods)
+            {
+                var modified = ModOperation(mod, (modProp) =>
+                {
+                    var removed = modProp.Remove(mod);
+
+                    if (removed != null && !changed.Any(x => x.EntityId == modProp.EntityId && x.Prop == modProp.Prop))
+                        changed.Add(modProp);
+
+                    return removed;
+                });
+            }
+
+            if (changed.Any())
+                NotifyPropertiesChanged(changed);
+
+            return changed.Any();
+        }
+
         public bool Remove(Guid entityId)
         {
             var res = false;
@@ -264,7 +287,7 @@ namespace Rpg.Sys
             {
                 var updated = ModOperation(mod, (modProp) =>
                 {
-                    mod.Duration.Expire(_graph.Turn);
+                    mod.Duration.Expire(_graph!.Turn);
                     return modProp;
                 });
 
@@ -313,7 +336,7 @@ namespace Rpg.Sys
             var res = false;
             foreach (var modProp in this.Select(x => x.Value))
             {
-                var updated = modProp.Update(newTurn);
+                var updated = modProp.UpdateOnTurn(newTurn);
                 if (updated.Any())
                 {
                     res = true;
