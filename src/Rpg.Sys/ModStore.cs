@@ -2,17 +2,11 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
-using System.Reflection;
 
 namespace Rpg.Sys
 {
     public class ModStore : IDictionary<string, ModProp>
     {
-        private Graph? _graph;
-
-        private bool _restoring = false;
-        private bool Restoring { get => _restoring || _graph?.Entities == null; }
-
         private readonly Dictionary<Guid, Dictionary<string, ModProp>> _store = new Dictionary<Guid, Dictionary<string, ModProp>>();
 
         public ModProp this[string key]
@@ -41,12 +35,6 @@ namespace Rpg.Sys
         public ModProp? Get<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
             where TEntity : ModdableObject
                 => Get(PropRef.FromPath(entity, expression, true));
-
-        public void Initialize(Graph graph)
-        {
-            _graph = graph;
-            GraphExtensions.RegisterAssembly(Assembly.GetExecutingAssembly());
-        }
 
         public Dice BaseValue<TEntity, T1>(TEntity entity, Expression<Func<TEntity, T1>> propExpr)
             where TEntity : ModdableObject
@@ -110,34 +98,11 @@ namespace Rpg.Sys
             _store[value.EntityId].Add(value.Prop, value);
         }
 
+        public void Clear() 
+            => _store.Clear();
 
-        public void Restore(ModStore store)
-        {
-            _restoring = true;
-
-            Clear();
-            foreach (var item in store.AllValues())
-                Add("", item);
-
-            _restoring = false;
-        }
-
-        public void Clear() => _store.Clear();
-
-        public void Clear(Guid entityId)
-        {
-            if (!_store.ContainsKey(entityId))
-                return;
-
-            var entityMods = _store[entityId];
-            foreach (var prop in entityMods.Keys)
-            {
-                var modProp = Get(entityId, prop);
-                modProp?.Clear();
-            }
-        }
-
-        public bool Contains(KeyValuePair<string, ModProp> item) => ContainsKey(item.Key);
+        public bool Contains(KeyValuePair<string, ModProp> item) 
+            => ContainsKey(item.Key);
 
         public bool ContainsKey(string key)
         {
@@ -207,7 +172,8 @@ namespace Rpg.Sys
             return false;
         }
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() 
+            => GetEnumerator();
 
         public (Guid, string) EmptyKey => (Guid.Empty, string.Empty);
 

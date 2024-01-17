@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Rpg.Sys.Components;
+using Rpg.Sys.Modifiers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +11,8 @@ namespace Rpg.Sys
     public class GraphState<T> where T : ModdableObject
     {
         public T? Context { get; set; }
-        public ModStore? Mods { get; set; }
-        public ConditionStore? Conditions { get; set; }
+        public Modifier[]? Mods { get; set; }
+        public Condition[]? Conditions { get; set; }
+        public int Turn { get; set; }
     }
 }

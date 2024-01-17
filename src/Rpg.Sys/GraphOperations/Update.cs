@@ -15,10 +15,13 @@ namespace Rpg.Sys.GraphOperations
             _remove = remove;
         }
 
-        public override void Execute(params Condition[] conditions)
+        public void Conditions(params Condition[] conditions)
         {
             var toRemove = new List<Condition>();
             var toExpire = new List<Condition>();
+
+            if (!conditions.Any())
+                conditions = Graph.Conditions.ToArray();
 
             foreach (var condition in conditions)
             {
@@ -29,11 +32,11 @@ namespace Rpg.Sys.GraphOperations
                     toExpire.Add(condition);
             }
 
-            _expire.Execute(toExpire.ToArray());
-            _remove.Execute(toRemove.ToArray());
+            _expire.Conditions(toExpire.ToArray());
+            _remove.Conditions(toRemove.ToArray());
         }
 
-        public override void Execute(params Modifier[] mods) 
+        public void Mods(params Modifier[] mods) 
         {
             var toRemove = new List<Modifier>();
             var toExpire = new List<Modifier>();
@@ -56,15 +59,15 @@ namespace Rpg.Sys.GraphOperations
                     }
                     else if (expiry != mod.Duration.GetExpiry(Graph.Turn - 1))
                     {
-                        AddPropertyChanged(modProp);
+                        Graph.NotifyOp.Queue(modProp);
                     }
                 }
             }
 
-            _expire.Execute(toExpire.ToArray());
-            _remove.Execute(toRemove.ToArray());
+            _expire.Mods(toExpire.ToArray());
+            _remove.Mods(toRemove.ToArray());
 
-            NotifyPropertyChanged();
+            Graph.NotifyOp.Send();
         }
 
         private List<ModProp> GetModProps(IEnumerable<Modifier> mods)
@@ -87,19 +90,6 @@ namespace Rpg.Sys.GraphOperations
             }
 
             return modProps;
-        }
-
-        private void CreateModProps(ModdableObject entity)
-        {
-            foreach (var propInfo in entity.ModdableProperties())
-            {
-                var modProp = Graph.Mods.Get(entity.Id, propInfo.Name);
-                if (modProp == null)
-                {
-                    modProp = new ModProp(entity.Id, propInfo.Name, propInfo.PropertyType.Name);
-                    Graph.Mods.Add(modProp);
-                }
-            }
         }
     }
 }

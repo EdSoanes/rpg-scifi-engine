@@ -5,8 +5,6 @@ namespace Rpg.Sys
 {
     public class EntityStore : IDictionary<Guid, ModdableObject>
     {
-        private Graph? _graph;
-
         private readonly Dictionary<Guid, ModdableObject> _store = new Dictionary<Guid, ModdableObject>();
 
         public ModdableObject this[Guid key]
@@ -27,8 +25,6 @@ namespace Rpg.Sys
             }
         }
 
-        public bool RestoreMods { get; set; } = true;
-
         public ICollection<Guid> Keys => _store.Keys;
 
         public ICollection<ModdableObject> Values => _store.Values;
@@ -37,40 +33,19 @@ namespace Rpg.Sys
 
         public bool IsReadOnly => false;
 
-        public void Initialize(Graph graph)
-        {
-            _graph = graph;
-        }
-
         public void Add(KeyValuePair<Guid, ModdableObject> item) 
             => Add(item.Value);
 
         public void Add(Guid key, ModdableObject value) 
             => Add(value);
 
-        public void Add(ModdableObject entity) => AddRange(new[] { entity });
+        public void Add(ModdableObject entity) 
+            => Add(new[] { entity });
 
-        public void AddRange(IEnumerable<ModdableObject> entities)
+        public void Add(params ModdableObject[] entities)
         {
-            var moddableObjects = new List<ModdableObject>();
             foreach (var entity in entities)
-            {
-                var modObjs = GetModdableObjects(entity);
-                moddableObjects.AddRange(modObjs);
-            }
-
-            foreach (var moddableObject in moddableObjects)
-            {
-                moddableObject.OnAdd(_graph!);
-
-                if (_store.ContainsKey(moddableObject.Id))
-                    Remove(moddableObject.Id);
-
-                _store.Add(moddableObject.Id, moddableObject);
-            }
-
-            if (RestoreMods)
-                _graph?.Mods.Add(moddableObjects);
+                _store.Add(entity.Id, entity);
         }
 
         public ModdableObject? Get(Guid? id)
@@ -99,53 +74,19 @@ namespace Rpg.Sys
             throw new NotImplementedException();
         }
 
-        public IEnumerator<KeyValuePair<Guid, ModdableObject>> GetEnumerator() => _store.GetEnumerator();
+        public IEnumerator<KeyValuePair<Guid, ModdableObject>> GetEnumerator() 
+            => _store.GetEnumerator();
 
-        public bool Remove(KeyValuePair<Guid, ModdableObject> item) => _store.Remove(item.Key);
+        public bool Remove(KeyValuePair<Guid, ModdableObject> item) 
+            => _store.Remove(item.Key);
 
         public bool Remove(Guid key)
-        {
-            var entity = Get(key);
-            if (entity != null)
-            {
-                var toRemove = GetModdableObjects(entity);
-                foreach (var item in toRemove)
-                {
-                    _graph!.Mods.Remove(item.Id);
-                    _store.Remove(item.Id);
-                }
+            => _store.Remove(key);
 
-                return true;
-            }
+        public bool TryGetValue(Guid key, [MaybeNullWhen(false)] out ModdableObject value) 
+            => _store.TryGetValue(key, out value);
 
-            return false;
-        }
-
-        public bool TryGetValue(Guid key, [MaybeNullWhen(false)] out ModdableObject value) => _store.TryGetValue(key, out value);
-
-        IEnumerator IEnumerable.GetEnumerator() => _store.GetEnumerator();
-
-        private List<ModdableObject> GetModdableObjects(object obj)
-        {
-            var res = new List<ModdableObject>();
-            var entity = obj as ModdableObject;
-            if (entity != null)
-                res.Add(entity);
-
-            if (!obj.GetType().IsPrimitive)
-            {
-                foreach (var propertyInfo in obj.GetType().GetProperties())
-                {
-                    var items = obj.PropertyObjects(propertyInfo, out var isEnumerable)?.ToArray() ?? new object[0];
-                    foreach (var item in items)
-                    {
-                        var childEntities = GetModdableObjects(item);
-                        res.AddRange(childEntities);
-                    }
-                }
-            }
-
-            return res;
-        }
+        IEnumerator IEnumerable.GetEnumerator() 
+            => _store.GetEnumerator();
     }
 }

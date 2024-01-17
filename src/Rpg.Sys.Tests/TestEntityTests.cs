@@ -31,7 +31,7 @@ namespace Rpg.Sys.Tests
 
             Assert.That(_entity.Strength, Is.EqualTo(16));
             Assert.That(_entity.StrengthBonus, Is.EqualTo(0));
-            _graph.Mods.Add(BaseModifier.Create(_entity, x => x.Strength, x => x.StrengthBonus, () => DiceCalculations.CalculateStatBonus));
+            _graph.AddOp.Mods(BaseModifier.Create(_entity, x => x.Strength, x => x.StrengthBonus, () => DiceCalculations.CalculateStatBonus));
 
             Assert.That(_entity.StrengthBonus, Is.EqualTo(3));
         }
@@ -41,7 +41,7 @@ namespace Rpg.Sys.Tests
         {
             Assert.That(_entity.Health.Physical, Is.EqualTo(10));
 
-            _graph.Mods.Add(BaseModifier.Create(_entity, x => x.Strength, x => x.StrengthBonus, () => DiceCalculations.CalculateStatBonus));
+            _graph.AddOp.Mods(BaseModifier.Create(_entity, x => x.Strength, x => x.StrengthBonus, () => DiceCalculations.CalculateStatBonus));
 
             Assert.That(_entity.Health.Physical, Is.EqualTo(13));
         }
@@ -53,7 +53,7 @@ namespace Rpg.Sys.Tests
             _entity.PropertyChanged += (s, e) => propNames.Add(e.PropertyName!);
             _entity.Health.PropertyChanged += (s, e) => propNames.Add($"{nameof(TestEntity.Health)}.{e.PropertyName!}");
 
-            _graph.Mods.Add(BaseModifier.Create(_entity, x => x.Strength, x => x.StrengthBonus, () => DiceCalculations.CalculateStatBonus));
+            _graph.AddOp.Mods(BaseModifier.Create(_entity, x => x.Strength, x => x.StrengthBonus, () => DiceCalculations.CalculateStatBonus));
 
             Assert.That(propNames.Count, Is.EqualTo(2));
             Assert.That(propNames.Contains(nameof(TestEntity.StrengthBonus)), Is.True);
@@ -63,7 +63,7 @@ namespace Rpg.Sys.Tests
         [Test]
         public void TestEntity_Serialize_EnsureValues()
         {
-            _graph.Mods.Add(BaseModifier.Create(_entity, x => x.Strength, x => x.StrengthBonus, () => DiceCalculations.CalculateStatBonus));
+            _graph.AddOp.Mods(BaseModifier.Create(_entity, x => x.Strength, x => x.StrengthBonus, () => DiceCalculations.CalculateStatBonus));
 
             var json = _graph.Serialize<TestEntity>();
             var graph2 = Graph.Deserialize<TestEntity>(json);
@@ -85,9 +85,9 @@ namespace Rpg.Sys.Tests
         {
             _graph.NewEncounter();
 
-            _graph.Mods.Add(DamageModifier.Create(1, _entity, x => x.Health.Physical));
+            _graph.AddOp.Mods(DamageModifier.Create(1, _entity, x => x.Health.Physical));
 
-            var mods = _graph.Mods.GetMods(_entity, x => x.Health.Physical);
+            var mods = _graph.GetOp.Mods(_entity, x => x.Health.Physical);
             Assert.That(mods, Is.Not.Null);
             Assert.That(mods.Count(), Is.EqualTo(3));
 
@@ -99,7 +99,7 @@ namespace Rpg.Sys.Tests
             _graph.EndEncounter();
             Assert.That(_entity.Health.Physical, Is.EqualTo(9));
 
-            _graph.Mods.Add(HealingModifier.Create(1, _entity, x => x.Health.Physical));
+            _graph.AddOp.Mods(HealingModifier.Create(1, _entity, x => x.Health.Physical));
             Assert.That(_entity.Health.Physical, Is.EqualTo(10));
 
             mods = _graph.Mods.GetMods(_entity, x => x.Health.Physical);
@@ -115,12 +115,12 @@ namespace Rpg.Sys.Tests
             Assert.That(_entity.Intelligence, Is.EqualTo(13));
             Assert.That(_entity.IntelligenceBonus, Is.EqualTo(1));
 
-            _graph.Mods.Add(BaseOverrideModifier.Create(_entity, 18, x => x.Intelligence));
+            _graph.AddOp.Mods(BaseOverrideModifier.Create(_entity, 18, x => x.Intelligence));
 
             Assert.That(_entity.Intelligence, Is.EqualTo(18));
             Assert.That(_entity.IntelligenceBonus, Is.EqualTo(4));
 
-            _graph.Mods.Remove(_entity.Id, nameof(TestEntity.Intelligence), ModifierType.BaseOverride);
+            _graph.RemoveOp.Mods(_entity.Id, nameof(TestEntity.Intelligence), ModifierType.BaseOverride);
 
             Assert.That(_entity.Intelligence, Is.EqualTo(13));
             Assert.That(_entity.IntelligenceBonus, Is.EqualTo(1));
@@ -132,7 +132,7 @@ namespace Rpg.Sys.Tests
             Assert.That(_entity.Intelligence, Is.EqualTo(13));
             Assert.That(_entity.IntelligenceBonus, Is.EqualTo(1));
 
-            _graph.Mods.Add(BaseOverrideModifier.Create(_entity, 18, x => x.Intelligence));
+            _graph.AddOp.Mods(BaseOverrideModifier.Create(_entity, 18, x => x.Intelligence));
 
             Assert.That(_entity.Intelligence, Is.EqualTo(18));
             Assert.That(_graph.Mods.BaseValue(_entity, x => x.Intelligence).Roll(), Is.EqualTo(13));

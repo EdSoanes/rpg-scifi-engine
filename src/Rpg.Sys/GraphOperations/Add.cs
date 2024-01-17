@@ -8,7 +8,7 @@ namespace Rpg.Sys.GraphOperations
         public Add(Graph graph) 
             : base(graph) { }
 
-        public override void Execute(params ModdableObject[] entities)
+        public void Entities(params ModdableObject[] entities)
         {
             var moddableObjects = new List<ModdableObject>();
             foreach (var entity in entities)
@@ -20,8 +20,8 @@ namespace Rpg.Sys.GraphOperations
             foreach (var moddableObject in moddableObjects)
             {
                 moddableObject.OnAdd(Graph);
-
-                if (!Graph.Entities.ContainsKey(moddableObject.Id))
+                var existing = Graph.GetOp.Entity<ModdableObject>(moddableObject.Id);
+                if (existing == null)
                 {
                     Graph.Entities.Add(moddableObject.Id, moddableObject);
                     CreateModProps(moddableObject);
@@ -32,20 +32,20 @@ namespace Rpg.Sys.GraphOperations
             {
                 var mods = moddableObjects.SelectMany(x => x.OnSetup());
                 mods.Reverse();
-                Execute(mods.ToArray());
+                Mods(mods.ToArray());
             }
         }
 
-        public override void Execute(params Condition[] conditions)
+        public void Conditions(params Condition[] conditions)
         {
             foreach (var condition in conditions)
             {
                 Graph.Conditions.Add(condition);
-                Execute(condition.GetModifiers());
+                Mods(condition.GetModifiers());
             }
         }
 
-        public override void Execute(params Modifier[] mods) 
+        public void Mods(params Modifier[] mods) 
         {
             foreach (var mod in mods)
             {
@@ -55,11 +55,11 @@ namespace Rpg.Sys.GraphOperations
                 if (modProp != null)
                 {
                     modProp.Add(mod);
-                    AddPropertyChanged(modProp);
+                    Graph.NotifyOp.Queue(modProp);
                 }
             }
 
-            NotifyPropertyChanged();
+            Graph.NotifyOp.Send();
         }
 
         private void CreateModProps(ModdableObject entity)

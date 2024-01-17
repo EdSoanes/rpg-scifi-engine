@@ -8,16 +8,16 @@ namespace Rpg.Sys.GraphOperations
         public Expire(Graph graph) 
             : base(graph) { }
 
-        public override void Execute(params Condition[] conditions)
+        public void Conditions(params Condition[] conditions)
         {
             foreach (var condition in conditions)
             {
                 condition.Duration.Expire(Graph.Turn);
-                Execute(condition.GetModifiers());
+                Mods(condition.GetModifiers());
             }
         }
 
-        public override void Execute(params Modifier[] mods) 
+        public void Mods(params Modifier[] mods) 
         {
             var updates = new List<ModProp>();
             foreach (var mod in mods)
@@ -28,10 +28,10 @@ namespace Rpg.Sys.GraphOperations
                     return modProp;
                 });
 
-                AddPropertyChanged(updated);
+                Graph.NotifyOp.Queue(updated);
             }
 
-            NotifyPropertyChanged();
+            Graph.NotifyOp.Send();
         }
     }
 }

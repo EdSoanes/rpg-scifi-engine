@@ -8,31 +8,39 @@ namespace Rpg.Sys.GraphOperations
         public Remove(Graph graph) 
             : base(graph) { }
 
-        public override void Execute(params ModdableObject[] entities)
+        public void Entities(params ModdableObject[] entities)
         {
-            var modProps = entities.SelectMany(x => Graph.Mods.Get(x.Id)).ToArray();
+            var moddableObjects = new List<ModdableObject>();
+            foreach (var entity in entities)
+            {
+                var modObjs = Descendants(entity);
+                moddableObjects.AddRange(modObjs);
+            }
+
+            var modProps = moddableObjects.SelectMany(x => Graph.Mods.Get(x.Id)).ToArray();
             Graph.Mods.Remove(modProps);
 
-            AddPropertyChanged(modProps);
-            NotifyPropertyChanged();
+            Graph.NotifyOp.Queue(modProps);
+            Graph.NotifyOp.Send();
 
             var entityIds = entities.Select(x => x.Id).ToList();
             var conditions = Graph.Conditions.Where(x => x.OwningEntityId != null && entityIds.Contains(x.OwningEntityId.Value));
-            Execute(conditions.ToArray());
+            Conditions(conditions.ToArray());
 
-            Graph.Entities.Remove(entities);
+            foreach (var entity in moddableObjects)
+                Graph.Entities.Remove(entity.Id);
         }
 
-        public override void Execute(params Condition[] conditions)
+        public void Conditions(params Condition[] conditions)
         {
             var mods = conditions.SelectMany(x => x.GetModifiers()).ToArray();
-            Execute(mods);
+            Mods(mods);
 
             foreach (var condition in conditions)
                 Graph.Conditions.Remove(condition);
         }
 
-        public override void Execute(params Modifier[] mods) 
+        public void Mods(params Modifier[] mods) 
         {
             foreach (var mod in mods)
             {
@@ -40,13 +48,13 @@ namespace Rpg.Sys.GraphOperations
                 {
                     var removed = modProp.Remove(mod);
                     if (removed != null)
-                        AddPropertyChanged(modProp);
+                        Graph.NotifyOp.Queue(modProp);
 
                     return removed != null;
                 });
             }
 
-            NotifyPropertyChanged();
+            Graph.NotifyOp.Send();
         }
     }
 }
