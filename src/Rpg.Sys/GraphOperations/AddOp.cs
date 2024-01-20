@@ -3,10 +3,10 @@ using Rpg.Sys.Modifiers;
 
 namespace Rpg.Sys.GraphOperations
 {
-    public class Add : Operation
+    public class AddOp : Operation
     {
-        public Add(Graph graph) 
-            : base(graph) { }
+        public AddOp(Graph graph, ModStore mods, EntityStore entityStore, List<Condition> conditionStore) 
+            : base(graph, mods, entityStore, conditionStore) { }
 
         public void Entities(params ModdableObject[] entities)
         {
@@ -20,18 +20,22 @@ namespace Rpg.Sys.GraphOperations
             foreach (var moddableObject in moddableObjects)
             {
                 moddableObject.OnAdd(Graph);
-                var existing = Graph.GetOp.Entity<ModdableObject>(moddableObject.Id);
+                var existing = Graph.Get.Entity<ModdableObject>(moddableObject.Id);
                 if (existing == null)
                 {
-                    Graph.Entities.Add(moddableObject.Id, moddableObject);
+                    EntityStore.Add(moddableObject.Id, moddableObject);
                     CreateModProps(moddableObject);
                 }
             }
 
             if (!Restoring)
             {
-                var mods = moddableObjects.SelectMany(x => x.OnSetup());
+                var mods = moddableObjects
+                    .SelectMany(x => x.OnSetup())
+                    .ToList();
+
                 mods.Reverse();
+
                 Mods(mods.ToArray());
             }
         }
@@ -40,7 +44,7 @@ namespace Rpg.Sys.GraphOperations
         {
             foreach (var condition in conditions)
             {
-                Graph.Conditions.Add(condition);
+                ConditionStore.Add(condition);
                 Mods(condition.GetModifiers());
             }
         }
@@ -51,26 +55,26 @@ namespace Rpg.Sys.GraphOperations
             {
                 mod.OnAdd(Graph.Turn);
 
-                var modProp = Graph.Mods.Get(mod.Target.Id, mod.Target.Prop);
+                var modProp = ModStore.Get(mod.Target.Id, mod.Target.Prop);
                 if (modProp != null)
                 {
                     modProp.Add(mod);
-                    Graph.NotifyOp.Queue(modProp);
+                    Graph.Notify.Queue(modProp);
                 }
             }
 
-            Graph.NotifyOp.Send();
+            Graph.Notify.Send();
         }
 
         private void CreateModProps(ModdableObject entity)
         {
             foreach (var propInfo in entity.ModdableProperties())
             {
-                var modProp = Graph.Mods.Get(entity.Id, propInfo.Name);
+                var modProp = ModStore.Get(entity.Id, propInfo.Name);
                 if (modProp == null)
                 {
-                    modProp = new ModProp(entity.Id, propInfo.Name, propInfo.PropertyType.Name);
-                    Graph.Mods.Add(modProp);
+                    modProp = new ModProp(Graph, entity.Id, propInfo.Name, propInfo.PropertyType.Name);
+                    ModStore.Add(modProp);
                 }
             }
         }

@@ -3,10 +3,10 @@ using Rpg.Sys.Modifiers;
 
 namespace Rpg.Sys.GraphOperations
 {
-    public class Expire : Operation
+    public class ExpireOp : Operation
     {
-        public Expire(Graph graph) 
-            : base(graph) { }
+        public ExpireOp(Graph graph, ModStore mods, EntityStore entityStore, List<Condition> conditionStore)
+            : base(graph, mods, entityStore, conditionStore) { }
 
         public void Conditions(params Condition[] conditions)
         {
@@ -22,16 +22,16 @@ namespace Rpg.Sys.GraphOperations
             var updates = new List<ModProp>();
             foreach (var mod in mods)
             {
-                var updated = Graph.Mods.Iterate(mod, (modProp) =>
+                var updated = ModStore.Iterate(mod, (modProp) =>
                 {
                     mod.Duration.Expire(Graph!.Turn);
                     return modProp;
                 });
 
-                Graph.NotifyOp.Queue(updated);
+                Graph.Notify.Queue(updated);
             }
 
-            Graph.NotifyOp.Send();
+            Graph.Notify.Send();
         }
     }
 }

@@ -3,17 +3,10 @@ using Rpg.Sys.Modifiers;
 
 namespace Rpg.Sys.GraphOperations
 {
-    public class Update : Operation
+    public class UpdateOp : Operation
     {
-        private readonly Expire _expire;
-        private readonly Remove _remove;
-
-        public Update(Graph graph, Expire expire, Remove remove) 
-            : base(graph) 
-        {
-            _expire = expire;
-            _remove = remove;
-        }
+        public UpdateOp(Graph graph, ModStore mods, EntityStore entityStore, List<Condition> conditionStore)
+            : base(graph, mods, entityStore, conditionStore) { }
 
         public void Conditions(params Condition[] conditions)
         {
@@ -21,7 +14,7 @@ namespace Rpg.Sys.GraphOperations
             var toExpire = new List<Condition>();
 
             if (!conditions.Any())
-                conditions = Graph.Conditions.ToArray();
+                conditions = ConditionStore.ToArray();
 
             foreach (var condition in conditions)
             {
@@ -32,8 +25,8 @@ namespace Rpg.Sys.GraphOperations
                     toExpire.Add(condition);
             }
 
-            _expire.Conditions(toExpire.ToArray());
-            _remove.Conditions(toRemove.ToArray());
+            Graph.Expire.Conditions(toExpire.ToArray());
+            Graph.Remove.Conditions(toRemove.ToArray());
         }
 
         public void Mods(params Modifier[] mods) 
@@ -59,15 +52,15 @@ namespace Rpg.Sys.GraphOperations
                     }
                     else if (expiry != mod.Duration.GetExpiry(Graph.Turn - 1))
                     {
-                        Graph.NotifyOp.Queue(modProp);
+                        Graph.Notify.Queue(modProp);
                     }
                 }
             }
 
-            _expire.Mods(toExpire.ToArray());
-            _remove.Mods(toRemove.ToArray());
+            Graph.Expire.Mods(toExpire.ToArray());
+            Graph.Remove.Mods(toRemove.ToArray());
 
-            Graph.NotifyOp.Send();
+            Graph.Notify.Send();
         }
 
         private List<ModProp> GetModProps(IEnumerable<Modifier> mods)
@@ -75,12 +68,12 @@ namespace Rpg.Sys.GraphOperations
             var modProps = new List<ModProp>();
             
             if (!mods.Any())
-                modProps = Graph.Mods.Values.ToList();
+                modProps = ModStore.Values.ToList();
             else
             {
                 foreach (var mod in mods)
                 {
-                    Graph.Mods.Iterate(mod, (modProp) =>
+                    ModStore.Iterate(mod, (modProp) =>
                     {
                         if (!modProps.Any(x => x.EntityId == modProp.EntityId && x.Prop == modProp.Prop))
                             modProps.Add(modProp);

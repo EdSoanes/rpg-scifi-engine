@@ -36,7 +36,7 @@ namespace Rpg.Sys.Actions
                 : Failure;
 
             if (modifiers != null)
-                graph.Mods.Add(modifiers.ToArray());
+                graph.Add.Mods(modifiers.ToArray());
         }
 
         protected override ActionBase? NextAction()
@@ -77,33 +77,33 @@ namespace Rpg.Sys.Actions
 
         public TurnAction OnDiceRoll(Graph graph, Dice dice)
         {
-            graph.Mods.Add(BaseModifier.Create(this, dice, x => x.DiceRoll));
+            graph.Add.Mods(BaseModifier.Create(this, dice, x => x.DiceRoll));
             return this;
         }
 
         public TurnAction OnDiceRoll(Graph graph, string name, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
         {
-            graph.Mods.Add(BaseModifier.Create(this, name, dice, x => x.DiceRoll, diceCalc));
+            graph.Add.Mods(BaseModifier.Create(this, name, dice, x => x.DiceRoll, diceCalc));
             return this;
         }
 
         public TurnAction OnDiceRoll<T, TR>(Graph graph, T source, Expression<Func<T, TR>> sExpr, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
             where T : ModdableObject
         {
-            graph.Mods.Add(BaseModifier.Create(source, sExpr, this, x => x.DiceRoll, diceCalc));
+            graph.Add.Mods(BaseModifier.Create(source, sExpr, this, x => x.DiceRoll, diceCalc));
             return this;
         }
 
         public TurnAction OnDiceRollTarget(Graph graph, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
         {
-            graph.Mods.Add(BaseModifier.Create(this, dice, x => x.DiceRollTarget, diceCalc));
+            graph.Add.Mods(BaseModifier.Create(this, dice, x => x.DiceRollTarget, diceCalc));
             return this;
         }
 
         public TurnAction OnDiceRollTarget<T, TR>(Graph graph, T source, Expression<Func<T, TR>> sExpr, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
             where T : ModdableObject
         {
-            graph.Mods.Add(BaseModifier.Create(source, sExpr, this, x => x.DiceRollTarget, diceCalc));
+            graph.Add.Mods(BaseModifier.Create(source, sExpr, this, x => x.DiceRollTarget, diceCalc));
             return this;
         }
     }

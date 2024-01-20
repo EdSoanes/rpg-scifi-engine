@@ -29,7 +29,7 @@ namespace Rpg.Sys.Tests
             });
 
             _graph.Initialize(_actor);
-            _graph.Entities.Add(_equipment);
+            _graph.Add.Entities(_equipment);
         }
 
         [Test]
@@ -92,21 +92,21 @@ namespace Rpg.Sys.Tests
         [Test]
         public void Equipment_DeactivateEnhanceActorState_EnhanceModRemoved()
         {
-            var enhanceMods = _graph.Mods.GetMods(_actor, x => x.Health.Physical.Current)!.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);
+            var enhanceMods = _graph.Get.Mods(_actor, x => x.Health.Physical.Current)!.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);
             Assert.NotNull(enhanceMods);
             Assert.That(enhanceMods.Count(), Is.EqualTo(0));
 
             var action = _actor.ActivateState(_equipment, "Enhance");
             action!.Resolve(_actor, _graph);
 
-            enhanceMods = _graph.Mods.GetMods(_actor, x => x.Health.Physical.Current)!.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);
+            enhanceMods = _graph.Get.Mods(_actor, x => x.Health.Physical.Current)!.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);
             Assert.NotNull(enhanceMods);
             Assert.That(enhanceMods.Count(), Is.EqualTo(1));
 
             action = _actor.DeactivateState(_equipment, "Enhance");
             action!.Resolve(_actor, _graph);
 
-            enhanceMods = _graph.Mods.GetMods(_actor, x => x.Health.Physical.Current)!.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);
+            enhanceMods = _graph.Get.Mods(_actor, x => x.Health.Physical.Current)!.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);
             Assert.NotNull(enhanceMods);
             Assert.That(enhanceMods.Count(), Is.EqualTo(0));
         }
@@ -132,7 +132,7 @@ namespace Rpg.Sys.Tests
         [Test]
         public void Equipment_OnTurn2_DeactivateEnhanceActorState_EnhanceModExpired()
         {
-            var enhanceMods = _graph.Mods.GetMods(_actor, x => x.Health.Physical.Current)!.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);
+            var enhanceMods = _graph.Get.Mods(_actor, x => x.Health.Physical.Current)!.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);
             Assert.NotNull(enhanceMods);
             Assert.That(enhanceMods.Count(), Is.EqualTo(0));
 
@@ -141,7 +141,7 @@ namespace Rpg.Sys.Tests
             var action = _actor.ActivateState(_equipment, "Enhance");
             action!.Resolve(_actor, _graph);
 
-            enhanceMods = _graph.Mods.GetMods(_actor, x => x.Health.Physical.Current)!.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);
+            enhanceMods = _graph.Get.Mods(_actor, x => x.Health.Physical.Current)!.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);
             Assert.NotNull(enhanceMods);
             Assert.That(enhanceMods.Count(), Is.EqualTo(1));
 
@@ -150,7 +150,7 @@ namespace Rpg.Sys.Tests
             action = _actor.DeactivateState(_equipment, "Enhance");
             action!.Resolve(_actor, _graph);
 
-            enhanceMods = _graph.Mods.GetMods(_actor, x => x.Health.Physical.Current)!.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);
+            enhanceMods = _graph.Get.Mods(_actor, x => x.Health.Physical.Current)!.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);
             Assert.NotNull(enhanceMods);
             Assert.That(enhanceMods.Count(), Is.EqualTo(1));
             Assert.That(enhanceMods.First().Duration.GetExpiry(_graph.Turn), Is.EqualTo(ModifierExpiry.Expired));
@@ -168,11 +168,11 @@ namespace Rpg.Sys.Tests
 
             Assert.That(_actor.Health.Physical.Current, Is.EqualTo(13));
 
-            _graph.Entities.Remove(_equipment.Id);
+            _graph.Remove.Entities(_equipment);
 
             Assert.That(_actor.Health.Physical.Current, Is.EqualTo(10));
 
-            var healthMods = _graph.Mods.GetMods(_actor, x => x.Health.Physical.Current);
+            var healthMods = _graph.Get.Mods(_actor, x => x.Health.Physical.Current);
 
             Assert.NotNull(healthMods);
             var enhanceMods = healthMods.Where(x => x.Name == "Enhance" && x.ModifierType == ModifierType.State);

@@ -28,6 +28,9 @@ namespace Rpg.Sys
 
         public bool IsReadOnly => false;
 
+        public ModProp? GetModProp(Guid id)
+            => AllValues().FirstOrDefault(x => x.Id == id);
+
         public Modifier[]? GetMods<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
             where TEntity : ModdableObject
                 => Get(PropRef.FromPath(entity, expression, true))?.AllModifiers;
@@ -124,15 +127,25 @@ namespace Rpg.Sys
                     yield return new KeyValuePair<string, ModProp>(MakeKey(id, prop), _store[id][prop]);
         }
 
-        private bool Remove(Guid? entityId, string? prop)
-        {
-            bool res = false;
+        public bool Remove(PropRef propRef, Func<Modifier, bool>? filter = null)
+            => Remove(propRef.Id, propRef.Prop, filter);
 
+        public bool Remove(ModdableObject entity, string prop)
+            => Remove(entity.Id, prop);
+
+        public bool Remove(Guid? entityId, string? prop, Func<Modifier, bool>? filter = null)
+        {
             var modProp = Get(entityId, prop);
             if (modProp != null)
-                res = modProp.Remove().Any();
+            {
+                var toRemove = modProp.AllModifiers
+                    .Where(x => filter == null || filter(x))
+                    .ToArray();
 
-            return res;
+                return modProp.Remove(toRemove).Any();
+            }
+
+            return false;
         }
 
         public bool Remove(params ModProp[] modProps)

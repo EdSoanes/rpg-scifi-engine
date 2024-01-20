@@ -47,7 +47,7 @@ namespace Rpg.Sys.Tests
             });
 
             _graph.Initialize(_actor);
-            _graph.Entities.Add(_equipment);
+            _graph.Add.Entities(_equipment);
         }
 
         [Test]
@@ -58,7 +58,7 @@ namespace Rpg.Sys.Tests
             Assert.That(_actor.Movement.Speed.Max, Is.EqualTo(10));
 
             var fatigued = new Fatigued(_actor);
-            _graph!.Conditions.Add(fatigued);
+            _graph!.Add.Conditions(fatigued);
 
             Assert.That(_actor.Stats.Strength.Bonus, Is.EqualTo(1));
             Assert.That(_actor.Actions.Exertion.Max, Is.EqualTo(11));

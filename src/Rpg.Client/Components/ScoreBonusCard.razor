@@ -50,7 +50,7 @@
 
     private int? Base
     {
-        get => ScoreBonus != null ? Game.Graph.Mods.BaseValue(ScoreBonus, x => x.Score).Roll() : 0;
+        get => ScoreBonus != null ? Game.Graph.Evaluate.Base(ScoreBonus, x => x.Score).Roll() : 0;
     }
 
     private int? Score
@@ -59,9 +59,9 @@
         set
         {
             if (value == Base)
-                Game.Graph.Mods.Remove(ScoreBonus!.Id, nameof(ScoreBonusValue.Score), ModifierType.BaseOverride);
+                Game.Graph.Remove.Mods(ModifierType.BaseOverride, ScoreBonus!, x => x.Score);
             else
-                Game.Graph.Mods.Add(BaseOverrideModifier.Create(ScoreBonus!, value ?? 0, x => x.Score));
+                Game.Graph.Add.Mods(BaseOverrideModifier.Create(ScoreBonus!, value ?? 0, x => x.Score));
         }
     }
 
@@ -83,7 +83,7 @@
     private int? Bonus
     {
         get => ScoreBonus?.Bonus;
-        set => Game.Graph.Mods.Add(BaseOverrideModifier.Create(ScoreBonus!, value ?? 0, x => x.Bonus));
+        set => Game.Graph.Add.Mods(BaseOverrideModifier.Create(ScoreBonus!, value ?? 0, x => x.Bonus));
     }
 
     private string? BonusIcon

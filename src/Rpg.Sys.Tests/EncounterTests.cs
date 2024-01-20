@@ -24,7 +24,7 @@ namespace Rpg.Sys.Tests
 
             graph.NewEncounter();
 
-            graph.Mods.Add(TurnModifier.Create(entity, 2, x => x.MeleeAttack));
+            graph.Add.Mods(TurnModifier.Create(entity, 2, x => x.MeleeAttack));
             Assert.That(entity.MeleeAttack, Is.EqualTo(12));
 
             graph.NewTurn();
@@ -45,7 +45,7 @@ namespace Rpg.Sys.Tests
             graph.NewEncounter();
 
             Assert.That(graph.Turn, Is.EqualTo(1));
-            graph.Mods.Add(TurnModifier.Create(entity, 2, x => x.MeleeAttack));
+            graph.Add.Mods(TurnModifier.Create(entity, 2, x => x.MeleeAttack));
             Assert.That(entity.MeleeAttack, Is.EqualTo(12));
 
             graph.SetTurn(1);
@@ -65,7 +65,7 @@ namespace Rpg.Sys.Tests
 
             graph.NewEncounter();
 
-            graph.Mods.Add(TurnModifier.Create(entity, 2, x => x.MeleeAttack));
+            graph.Add.Mods(TurnModifier.Create(entity, 2, x => x.MeleeAttack));
             Assert.That(entity.MeleeAttack, Is.EqualTo(12));
 
             graph.NewTurn();
@@ -84,7 +84,7 @@ namespace Rpg.Sys.Tests
             graph.Initialize(entity);
 
             Assert.That(entity.MeleeAttack, Is.EqualTo(10));
-            graph.Mods.Add(TurnModifier.Create(entity, 2, x => x.MeleeAttack));
+            graph.Add.Mods(TurnModifier.Create(entity, 2, x => x.MeleeAttack));
             Assert.That(entity.MeleeAttack, Is.EqualTo(12));
 
             graph.NewEncounter();
@@ -102,7 +102,7 @@ namespace Rpg.Sys.Tests
             graph.NewEncounter();
 
             Assert.That(entity.MeleeAttack, Is.EqualTo(10));
-            graph.Mods.Add(TurnModifier.Create(entity, 2, x => x.MeleeAttack));
+            graph.Add.Mods(TurnModifier.Create(entity, 2, x => x.MeleeAttack));
             Assert.That(entity.MeleeAttack, Is.EqualTo(12));
 
             graph.EndEncounter();
@@ -121,7 +121,7 @@ namespace Rpg.Sys.Tests
 
             Assert.That(graph.Turn, Is.EqualTo(1));
             Assert.That(entity.MeleeAttack, Is.EqualTo(10));
-            graph.Mods.Add(TimedModifier.Create(graph.Turn, 3, entity, 2, x => x.MeleeAttack));
+            graph.Add.Mods(TimedModifier.Create(graph.Turn, 3, entity, 2, x => x.MeleeAttack));
             Assert.That(entity.MeleeAttack, Is.EqualTo(12));
 
             graph.NewTurn();

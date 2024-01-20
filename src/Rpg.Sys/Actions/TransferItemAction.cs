@@ -23,10 +23,10 @@ namespace Rpg.Sys.Actions
 
         protected override void OnResolve(Actor actor, Graph graph)
         {
-            var source = graph.Entities?.Get(SourceContainerId) as Container;
-            var target = graph.Entities?.Get(TargetContainerId) as Container;
+            var source = graph.Get.Entity<Container>(SourceContainerId);
+            var target = graph.Get.Entity<Container>(TargetContainerId);
 
-            var artifact = source?.Remove(ArtifactId) ?? graph.Entities!.Get(ArtifactId) as Artifact;
+            var artifact = source?.Remove(ArtifactId) ?? graph.Get.Entity<Artifact>(ArtifactId);
             if (artifact != null)
                 target?.Add(artifact);
         }

@@ -1,19 +1,21 @@
 ﻿using Rpg.Sys.Components;
-using Rpg.Sys.Modifiers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.Sys.GraphOperations
 {
     public abstract class Operation
     {
         protected readonly Graph Graph;
+        protected readonly ModStore ModStore;
+        protected readonly EntityStore EntityStore;
+        protected readonly List<Condition> ConditionStore;
 
-        public Operation(Graph graph) 
-            => Graph = graph;
+        public Operation(Graph graph, ModStore modStore, EntityStore entityStore, List<Condition> conditionStore)
+        {
+            Graph = graph;
+            ModStore = modStore;
+            EntityStore = entityStore;
+            ConditionStore = conditionStore;
+        }
 
         public bool Restoring { get; set; }
 

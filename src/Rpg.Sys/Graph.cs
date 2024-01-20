@@ -6,13 +6,15 @@ namespace Rpg.Sys
 {
     public class Graph
     {
-        public readonly Get GetOp;
-        public readonly Add AddOp;
-        public readonly Update UpdateOp;
-        public readonly Remove RemoveOp;
-        public readonly Expire ExpireOp;
-        public readonly Restore RestoreOp;
-        public readonly Notify NotifyOp;
+        public readonly GetOp Get;
+        public readonly AddOp Add;
+        public readonly UpdateOp Update;
+        public readonly RemoveOp Remove;
+        public readonly ExpireOp Expire;
+        public readonly RestoreOp Restore;
+        public readonly NotifyOp Notify;
+        public readonly CountOp Count;
+        public readonly EvaluateOp Evaluate;
 
         private static JsonSerializerSettings JsonSettings = new JsonSerializerSettings
         {
@@ -22,26 +24,30 @@ namespace Rpg.Sys
         };
 
         [JsonProperty] public ModdableObject? Context { get; private set; }
-        [JsonProperty] internal EntityStore Entities { get; set; }
-        [JsonProperty] internal ModStore Mods { get; set; }
-        [JsonProperty] internal List<Condition> Conditions { get; set; }
+        [JsonProperty] protected EntityStore Entities { get; set; }
+        [JsonProperty] protected ModStore Mods { get; set; }
+        [JsonProperty] protected List<Condition> Conditions { get; set; }
 
         [JsonProperty] public int Turn { get; private set; }
         public bool EncounterActive => Turn > 1;
 
         public Graph()
         {
+            GraphExtensions.RegisterAssembly(GetType().Assembly);
+
             Mods = new ModStore();
             Entities = new EntityStore();
             Conditions = new List<Condition>();
 
-            GetOp = new Get(this);
-            AddOp = new Add(this);
-            RemoveOp = new Remove(this);
-            ExpireOp = new Expire(this);
-            UpdateOp = new Update(this, ExpireOp, RemoveOp);
-            RestoreOp = new Restore(this);
-            NotifyOp = new Notify(this);
+            Get = new GetOp(this, Mods, Entities, Conditions);
+            Add = new AddOp(this, Mods, Entities, Conditions);
+            Remove = new RemoveOp(this, Mods, Entities, Conditions);
+            Expire = new ExpireOp(this, Mods, Entities, Conditions);
+            Update = new UpdateOp(this, Mods, Entities, Conditions);
+            Restore = new RestoreOp(this, Mods, Entities, Conditions);
+            Notify = new NotifyOp(this);
+            Count = new CountOp(this, Mods, Entities, Conditions);
+            Evaluate = new EvaluateOp(this, Mods, Entities, Conditions);
         }
 
         public void Initialize(ModdableObject context)
@@ -50,7 +56,7 @@ namespace Rpg.Sys
             Entities.Clear();
             Conditions.Clear();
 
-            AddOp.Entities(context);
+            Add.Entities(context);
 
             Context = context;
         }
@@ -74,9 +80,10 @@ namespace Rpg.Sys
             var state = JsonConvert.DeserializeObject<GraphState<T>>(json, JsonSettings)!;
             var graph = new Graph();
 
-            graph.RestoreOp.Entities(state!.Context!);
-            graph.RestoreOp.Mods(state!.Mods!);
-            graph.RestoreOp.Conditions(state!.Conditions!);
+            graph.Restore.Entities(state!.Context!);
+            graph.Restore.Mods(state!.Mods!);
+            graph.Restore.Conditions(state!.Conditions!);
+            graph.Context = graph.Get.Entity<T>(state!.Context!.Id);
 
             return graph;
         }
@@ -84,36 +91,36 @@ namespace Rpg.Sys
         public void NewEncounter()
         {
             Turn = 1;
-            UpdateOp.Conditions();
-            UpdateOp.Mods();
+            Update.Conditions();
+            Update.Mods();
         }
 
         public void EndEncounter()
         {
             Turn = 0;
-            UpdateOp.Conditions();
-            UpdateOp.Mods();
+            Update.Conditions();
+            Update.Mods();
         }
 
         public void NewTurn()
         {
             Turn++;
-            UpdateOp.Conditions();
-            UpdateOp.Mods();
+            Update.Conditions();
+            Update.Mods();
         }
 
         public void PrevTurn()
         {
             Turn--;
-            UpdateOp.Conditions();
-            UpdateOp.Mods();
+            Update.Conditions();
+            Update.Mods();
         }
 
         public void SetTurn(int turn)
         {
             Turn = turn;
-            UpdateOp.Conditions();
-            UpdateOp.Mods();
+            Update.Conditions();
+            Update.Mods();
         }
     }
 }

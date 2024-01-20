@@ -69,6 +69,6 @@ namespace Rpg.Sys
         }
 
         protected void NotifyPropertyChanged(string prop)
-            => Graph?.NotifyOp.Send(Id, prop);
+            => Graph?.Notify.Send(Id, prop);
     }
 }

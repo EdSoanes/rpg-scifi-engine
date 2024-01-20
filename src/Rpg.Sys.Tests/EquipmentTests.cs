@@ -29,7 +29,7 @@ namespace Rpg.Sys.Tests
             });
 
             _graph.Initialize(_human);
-            _graph.Entities.Add(_equipment);
+            _graph.Add.Entities(_equipment);
         }
 
         [Test]

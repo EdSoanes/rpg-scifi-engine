@@ -51,12 +51,12 @@
     private int? Size
     {
         get => Presence?.Size;
-        set => Game.Graph.Mods.Add(BaseOverrideModifier.Create(Presence!, value ?? 0, x => x.Size));
+        set => Game.Graph.Add.Mods(BaseOverrideModifier.Create(Presence!, value ?? 0, x => x.Size));
     }
 
     private int? Weight
     {
         get => Presence?.Weight;
-        set => Game.Graph.Mods.Add(BaseOverrideModifier.Create(Presence!, value ?? 0, x => x.Weight));
+        set => Game.Graph.Add.Mods(BaseOverrideModifier.Create(Presence!, value ?? 0, x => x.Weight));
     }
 }

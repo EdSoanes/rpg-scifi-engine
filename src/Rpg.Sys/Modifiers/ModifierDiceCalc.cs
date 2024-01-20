@@ -58,17 +58,5 @@ namespace Rpg.Sys.Modifiers
             FuncName = methodInfo.Name;
             return;
         }
-
-        public string? Describe(Graph graph)
-        {
-            if (!IsCalc)
-                return null;
-
-            var src = EntityId != null
-                ? graph.Entities.Get(EntityId.Value)?.Name
-                : ClassName;
-
-            return $"{src}.{FuncName}".Trim('.');
-        }
     }
 }

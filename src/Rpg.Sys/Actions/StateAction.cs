@@ -27,7 +27,7 @@ namespace Rpg.Sys.Actions
 
         protected override void OnResolve(Actor actor, Graph graph)
         {
-            var artifact = graph.Entities?.Get(ArtifactId) as Artifact;
+            var artifact = graph.Get.Entity<Artifact>(ArtifactId);
             if (artifact != null)
             {
                 if (Activate)

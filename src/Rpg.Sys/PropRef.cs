@@ -6,8 +6,6 @@ namespace Rpg.Sys
 {
     public struct PropRef
     {
-        private string? _description;
-
         [JsonProperty] public Guid? RootId { get; private set; }
         [JsonProperty] public Guid? Id { get; private set; }
         [JsonProperty] public string Prop { get; private set; }
@@ -46,33 +44,12 @@ namespace Rpg.Sys
             Prop = propPath;
         }
 
-        internal string Describe(Graph graph)
-        {
-            if (string.IsNullOrEmpty(_description))
-            {
-                if (PropType == PropType.Dice)
-                    _description = Prop;
-                else
-                {
-                    var parts = new []
-                    {
-                        graph.Entities.Get(RootId!.Value)?.Name,
-                        graph.Entities.Get(Id)?.Name,
-                        Prop
-                    };
-
-                    _description = string.Join('.', parts.Where(x => !string.IsNullOrEmpty(x)).Distinct());
-                }
-            }
-            
-            return _description;
-        }
-
         public static PropRef FromInt(Guid entityId, int val)
         {
             var locator = new PropRef(entityId, entityId, val);
             return locator;
         }
+
         public static PropRef FromInt(Guid rootId, Guid entityId, int val)
         {
             var locator = new PropRef(rootId, entityId, val);
@@ -160,6 +137,5 @@ namespace Rpg.Sys
         {
             return base.GetHashCode();
         }
-
     }
 }
