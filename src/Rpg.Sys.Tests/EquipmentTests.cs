@@ -1,52 +1,39 @@
 ﻿using Rpg.Sys.Archetypes;
 using Rpg.Sys.Components;
 using Rpg.Sys.Modifiers;
+using Rpg.Sys.Tests.Factories;
 
 namespace Rpg.Sys.Tests
 {
     public class EquipmentTests
     {
-        private TestEquipment _equipment;
-        private Graph _graph;
-        private Actor _human;
-
-        [SetUp]
-        public void Setup()
-        {
-            _graph = new Graph();
-            _equipment = new TestEquipment(new ArtifactTemplate
-            {
-                Name = "Thing",
-            });
-
-            _human = new Actor(new ActorTemplate
-            {
-                Name = "Ben",
-                Health = new HealthTemplate
-                {
-                    Physical = 10
-                }
-            });
-
-            _graph.Initialize(_human);
-            _graph.Add.Entities(_equipment);
-        }
+        private TestEquipment equipment;
+        private Graph graph;
+        private Actor human;
 
         [Test]
         public void CreateEquipment_IsA()
         {
-            Assert.That(_equipment.Is.Count(), Is.EqualTo(4));
-            Assert.That(_equipment.Is, Contains.Item("ModdableObject"));
-            Assert.That(_equipment.Is, Contains.Item("Artifact"));
-            Assert.That(_equipment.Is, Contains.Item("Equipment"));
-            Assert.That(_equipment.Is, Contains.Item("TestEquipment"));
+            var graph = HumanFactory.Create();
+            var human = graph.GetContext<Human>();
+            var equipment = human.RightHand.Get<TestEquipment>().Single();
+
+            Assert.That(equipment.Is.Count(), Is.EqualTo(4));
+            Assert.That(equipment.Is, Contains.Item("ModdableObject"));
+            Assert.That(equipment.Is, Contains.Item("Artifact"));
+            Assert.That(equipment.Is, Contains.Item("Equipment"));
+            Assert.That(equipment.Is, Contains.Item("TestEquipment"));
         }
 
         [Test]
         public void CreateEquipment_VerifyTemplateName()
         {
-            Assert.That(_equipment, Is.Not.Null);
-            Assert.That(_equipment.Name, Is.EqualTo("Thing"));
+            var graph = HumanFactory.Create();
+            var human = graph.GetContext<Human>();
+            var equipment = human.RightHand.Get<TestEquipment>().Single();
+
+            Assert.That(equipment, Is.Not.Null);
+            Assert.That(equipment.Name, Is.EqualTo("Thing"));
         }
 
         [Test]
@@ -74,7 +61,7 @@ namespace Rpg.Sys.Tests
 
             var graph = new Graph();
             var item = new TestEquipment(template);
-            graph.Initialize(item);
+            graph.SetContext(item);
 
             Assert.That(item, Is.Not.Null);
             Assert.That(item.Damage.Kinetic.Dice, Is.EqualTo(new Dice("1d6")));

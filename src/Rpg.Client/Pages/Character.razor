@@ -24,7 +24,7 @@
 
     protected override Task OnInitializedAsync()
     {
-        Human = Game.Context;
+        Human = Game.Graph.GetContext<Human>();
         return base.OnInitializedAsync();
     }
 }

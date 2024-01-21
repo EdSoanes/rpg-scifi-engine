@@ -9,13 +9,19 @@ namespace Rpg.Sys.GraphOperations
         public DescribeOp(Graph graph, ModStore mods, EntityStore entityStore, List<Condition> conditionStore)
             : base(graph, mods, entityStore, conditionStore) { }
 
-        public string[] Prop<TEntity>(TEntity entity, Expression<Func<TEntity, Dice>> expression)
+        public string[] Prop<TEntity, T>(TEntity entity, Expression<Func<TEntity, T>> expression)
             where TEntity : ModdableObject
         {
-            var modProp = Graph.Get.ModProp(entity, expression);
-            return modProp != null
-                ? _Describe(modProp)
-                : new string[0];
+            var desc = new List<string>();
+            var propRef = PropRef.FromPath(entity, expression);
+            var modProp = Graph.Get.ModProp(propRef);
+            if (modProp != null)
+            {
+                desc.Add($"{entity!.Name}.{propRef.Path}.{propRef.Prop} => {entity!.GetModdableProperty(modProp.Prop)}");
+                desc.AddRange(_Describe(modProp));
+            }
+
+            return desc.ToArray();
         }
 
         private string[] _Describe(ModProp modProp, Stack<Guid>? idStack = null)
@@ -30,7 +36,7 @@ namespace Rpg.Sys.GraphOperations
                 else
                     idStack.Push(mod.Id);
 
-                res.Add(_Describe(mod, idStack.Count - 1));
+                res.Add(_Describe(mod, idStack.Count));
                 var nextProp = Graph.Get.ModProp(mod.Source);
                 if (nextProp != null)
                     res.AddRange(_Describe(nextProp, idStack));

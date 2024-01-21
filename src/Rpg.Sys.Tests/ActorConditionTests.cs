@@ -12,7 +12,7 @@ namespace Rpg.Sys.Tests
     {
         private TestEquipment _equipment;
         private Graph _graph;
-        private Actor _actor;
+        private Human _human;
 
         [SetUp]
         public void Setup()
@@ -23,7 +23,7 @@ namespace Rpg.Sys.Tests
                 Name = "Thing",
             });
 
-            _actor = new Actor(new ActorTemplate
+            _human = new Human(new ActorTemplate
             {
                 Name = "Ben",
                 Health = new HealthTemplate
@@ -46,23 +46,23 @@ namespace Rpg.Sys.Tests
                 }
             });
 
-            _graph.Initialize(_actor);
+            _graph.SetContext(_human);
             _graph.Add.Entities(_equipment);
         }
 
         [Test]
         public void AddFatigued_VerifyValues()
         {
-            Assert.That(_actor.Stats.Strength.Bonus, Is.EqualTo(3));
-            Assert.That(_actor.Actions.Exertion.Max, Is.EqualTo(13));
-            Assert.That(_actor.Movement.Speed.Max, Is.EqualTo(10));
+            Assert.That(_human.Stats.Strength.Bonus, Is.EqualTo(3));
+            Assert.That(_human.Actions.Exertion.Max, Is.EqualTo(13));
+            Assert.That(_human.Movement.Speed.Max, Is.EqualTo(10));
 
-            var fatigued = new Fatigued(_actor);
+            var fatigued = new Fatigued(_human);
             _graph!.Add.Conditions(fatigued);
 
-            Assert.That(_actor.Stats.Strength.Bonus, Is.EqualTo(1));
-            Assert.That(_actor.Actions.Exertion.Max, Is.EqualTo(11));
-            Assert.That(_actor.Movement.Speed.Max, Is.EqualTo(8));
+            Assert.That(_human.Stats.Strength.Bonus, Is.EqualTo(1));
+            Assert.That(_human.Actions.Exertion.Max, Is.EqualTo(11));
+            Assert.That(_human.Movement.Speed.Max, Is.EqualTo(8));
         }
     }
 }

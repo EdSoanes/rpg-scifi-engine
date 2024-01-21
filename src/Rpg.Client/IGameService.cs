@@ -5,7 +5,6 @@ namespace Rpg.Client
 {
     public interface IGameService<T> where T : ModdableObject
     {
-        T? Context { get; }
         Graph Graph { get; }
         ActorTemplate[] Humans { get; }
 

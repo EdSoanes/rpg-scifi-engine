@@ -15,6 +15,7 @@ namespace Rpg.Sys
         public readonly NotifyOp Notify;
         public readonly CountOp Count;
         public readonly EvaluateOp Evaluate;
+        public readonly DescribeOp Describe;
 
         private static JsonSerializerSettings JsonSettings = new JsonSerializerSettings
         {
@@ -23,7 +24,7 @@ namespace Rpg.Sys
             Formatting = Formatting.Indented
         };
 
-        [JsonProperty] public ModdableObject? Context { get; private set; }
+        [JsonProperty] protected ModdableObject? Context { get; private set; }
         [JsonProperty] protected EntityStore Entities { get; set; }
         [JsonProperty] protected ModStore Mods { get; set; }
         [JsonProperty] protected List<Condition> Conditions { get; set; }
@@ -48,9 +49,14 @@ namespace Rpg.Sys
             Notify = new NotifyOp(this);
             Count = new CountOp(this, Mods, Entities, Conditions);
             Evaluate = new EvaluateOp(this, Mods, Entities, Conditions);
+            Describe = new DescribeOp(this, Mods, Entities, Conditions);
         }
 
-        public void Initialize(ModdableObject context)
+        public T GetContext<T>() 
+            where T : ModdableObject
+                => (T)Context!;
+
+        public void SetContext(ModdableObject context)
         {
             Mods.Clear();
             Entities.Clear();

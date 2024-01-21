@@ -15,8 +15,9 @@ namespace Rpg.Sys.Components.Values
 
         [JsonConstructor] private ScoreBonusValue() { }
 
-        public ScoreBonusValue(int score) 
+        public ScoreBonusValue(string name, int score) 
         {
+            Name = name;
             Score = score;
         }
 

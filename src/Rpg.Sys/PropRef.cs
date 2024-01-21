@@ -11,6 +11,7 @@ namespace Rpg.Sys
         [JsonProperty] public string Prop { get; private set; }
         [JsonProperty] public PropType PropType { get; private set; } = PropType.Path;
         [JsonProperty] public PropReturnType PropReturnType { get; private set; } = PropReturnType.Integer;
+        [JsonProperty] public string Path { get; private set; }
 
         public static bool operator ==(PropRef d1, PropRef d2) => d1.Equals(d2);
         public static bool operator !=(PropRef d1, PropRef d2) => !d1.Equals(d2);
@@ -35,13 +36,14 @@ namespace Rpg.Sys
             Prop = dice;
         }
 
-        public PropRef(Guid? rootId, Guid? id, string propPath, PropReturnType propReturnType)
+        public PropRef(Guid? rootId, Guid? id, string prop, string path, PropReturnType propReturnType)
         {
             RootId = rootId;
             Id = id;
             PropType = PropType.Path;
             PropReturnType = propReturnType;
-            Prop = propPath;
+            Prop = prop;
+            Path = path;
         }
 
         public static PropRef FromInt(Guid entityId, int val)
@@ -83,7 +85,7 @@ namespace Rpg.Sys
             var pathEntity = entity.PropertyValue<ModdableObject>(path) ?? throw new ArgumentException($"Invalid path. Property path {path} is not an Entity object");
 
             var propReturnType = ToReturnType(pathEntity.GetType().GetProperty(prop)?.PropertyType);
-            var locator = new PropRef(entity.Id, pathEntity.Id, prop, propReturnType);
+            var locator = new PropRef(entity.Id, pathEntity.Id, prop, path, propReturnType);
             return locator;
         }
 
@@ -113,7 +115,7 @@ namespace Rpg.Sys
             var path = string.Join(".", pathSegments);
             var pathEntity = entity.PropertyValue<ModdableObject>(path);
 
-            var locator = new PropRef(entity.Id, pathEntity!.Id, prop, ToReturnType(propReturnType));
+            var locator = new PropRef(entity.Id, pathEntity!.Id, prop, path, ToReturnType(propReturnType));
             return locator;
         }
 

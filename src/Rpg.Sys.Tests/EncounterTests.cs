@@ -18,7 +18,7 @@ namespace Rpg.Sys.Tests
             var entity = new TestEntity();
             var graph = new Graph();
 
-            graph.Initialize(entity);
+            graph.SetContext(entity);
 
             Assert.That(entity.MeleeAttack, Is.EqualTo(10));
 
@@ -38,7 +38,7 @@ namespace Rpg.Sys.Tests
             var entity = new TestEntity();
             var graph = new Graph();
 
-            graph.Initialize(entity);
+            graph.SetContext(entity);
 
             Assert.That(entity.MeleeAttack, Is.EqualTo(10));
 
@@ -59,7 +59,7 @@ namespace Rpg.Sys.Tests
             var entity = new TestEntity();
             var graph = new Graph();
 
-            graph.Initialize(entity);
+            graph.SetContext(entity);
 
             Assert.That(entity.MeleeAttack, Is.EqualTo(10));
 
@@ -81,7 +81,7 @@ namespace Rpg.Sys.Tests
             var entity = new TestEntity();
             var graph = new Graph();
 
-            graph.Initialize(entity);
+            graph.SetContext(entity);
 
             Assert.That(entity.MeleeAttack, Is.EqualTo(10));
             graph.Add.Mods(TurnModifier.Create(entity, 2, x => x.MeleeAttack));
@@ -98,7 +98,7 @@ namespace Rpg.Sys.Tests
             var entity = new TestEntity();
             var graph = new Graph();
 
-            graph.Initialize(entity);
+            graph.SetContext(entity);
             graph.NewEncounter();
 
             Assert.That(entity.MeleeAttack, Is.EqualTo(10));
@@ -116,7 +116,7 @@ namespace Rpg.Sys.Tests
             var entity = new TestEntity();
             var graph = new Graph();
 
-            graph.Initialize(entity);
+            graph.SetContext(entity);
             graph.NewEncounter();
 
             Assert.That(graph.Turn, Is.EqualTo(1));

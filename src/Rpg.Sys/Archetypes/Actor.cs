@@ -5,7 +5,7 @@ using Rpg.Sys.Modifiers;
 
 namespace Rpg.Sys.Archetypes
 {
-    public class Actor : Artifact
+    public abstract class Actor : Artifact
     {
         [JsonProperty] public Movement Movement { get; private set; }
         [JsonProperty] public ActionPoints Actions { get; private set; }
@@ -27,7 +27,11 @@ namespace Rpg.Sys.Archetypes
             {
                 BaseModifier.Create(this, x => x.Stats.Strength.Bonus, x => x.Actions.Exertion.Max),
                 BaseModifier.Create(this, x => x.Stats.Dexterity.Bonus, x => x.Actions.Action.Max),
-                BaseModifier.Create(this, x => x.Stats.Intelligence.Bonus, x => x.Actions.Focus.Max)
+                BaseModifier.Create(this, x => x.Stats.Intelligence.Bonus, x => x.Actions.Focus.Max),
+
+                BaseModifier.Create(this, x => x.Stats.Dexterity.Bonus, x => x.Movement.Speed.Max),
+                BaseModifier.Create(this, x => x.Presence.Weight, x => x.Movement.Speed.Max, () => DiceCalculations.WeightSpeedBonus),
+                BaseModifier.Create(this, x => x.Stats.Strength.Bonus, x => x.Movement.Speed.Max)
             };
 
             return mods.ToArray();

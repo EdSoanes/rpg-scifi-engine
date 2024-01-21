@@ -15,7 +15,7 @@ namespace Rpg.Sys.Tests
             _graph = new Graph();
             _entity = new TestEntity();
 
-            _graph.Initialize(_entity);
+            _graph.SetContext(_entity);
         }
 
         [Test]
@@ -67,7 +67,7 @@ namespace Rpg.Sys.Tests
 
             var json = _graph.Serialize<TestEntity>();
             var graph2 = Graph.Deserialize<TestEntity>(json);
-            var entity2 = graph2.Context as TestEntity;
+            var entity2 = graph2.GetContext<TestEntity>();
 
             Assert.That(entity2, Is.Not.Null);
 

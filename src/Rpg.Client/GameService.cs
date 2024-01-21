@@ -15,11 +15,9 @@ namespace Rpg.Client
             Humans = GetActors();
         }
 
-        public T? Context { get => Graph.Context as T; }
-
         public void SetContext(T context)
         {
-            Graph.Initialize(context);
+            Graph.SetContext(context);
         }
 
         private ActorTemplate[] GetActors()

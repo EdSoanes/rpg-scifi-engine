@@ -21,12 +21,12 @@ namespace Rpg.Sys.Components
 
         public StatPoints(StatPointsTemplate template)
         {
-            Strength = new ScoreBonusValue(template.Strength);
-            Intelligence = new ScoreBonusValue(template.Intelligence);
-            Wisdom = new ScoreBonusValue(template.Wisdom);
-            Dexterity = new ScoreBonusValue(template.Dexterity);
-            Constitution = new ScoreBonusValue(template.Constitution);
-            Charisma = new ScoreBonusValue(template.Charisma);
+            Strength = new ScoreBonusValue(nameof(Strength), template.Strength);
+            Intelligence = new ScoreBonusValue(nameof(Intelligence), template.Intelligence);
+            Wisdom = new ScoreBonusValue(nameof(Wisdom), template.Wisdom);
+            Dexterity = new ScoreBonusValue(nameof(Dexterity), template.Dexterity);
+            Constitution = new ScoreBonusValue(nameof(Constitution), template.Constitution);
+            Charisma = new ScoreBonusValue(nameof(Charisma), template.Charisma);
         }
     }
 }

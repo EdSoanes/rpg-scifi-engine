@@ -14,7 +14,7 @@ namespace Rpg.Sys.GraphOperations
             var moddableObjects = new List<ModdableObject>();
             foreach (var entity in entities)
             {
-                var modObjs = Descendants(entity);
+                var modObjs = entity.Descendants();
                 moddableObjects.AddRange(modObjs);
             }
 
