@@ -33,7 +33,6 @@ namespace Rpg.Sys.Components
         public Condition Add(params Modifier[] mods)
         {
             Modifiers.AddRange(mods);
-            Modifiers.ForEach(x => x.ModifierSet = Name);
             return this;
         }
 

@@ -11,10 +11,7 @@ namespace Rpg.Sys.Components.Values
         public int Radius { get; protected set; }
 
         public PresenceValue(string name, int max, int current, int radius)
-            : base(max, current) 
-        {
-            Name = name;
-            Radius = radius;
-        }
+            : base(name, max, current) 
+                => Radius = radius;
     }
 }

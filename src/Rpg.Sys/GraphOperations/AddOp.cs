@@ -55,7 +55,7 @@ namespace Rpg.Sys.GraphOperations
             {
                 mod.OnAdd(Graph.Turn);
 
-                var modProp = ModStore.Get(mod.Target.Id, mod.Target.Prop);
+                var modProp = ModStore.Get(mod.Target.EntityId, mod.Target.Prop);
                 if (modProp != null)
                 {
                     modProp.Add(mod);
@@ -73,7 +73,7 @@ namespace Rpg.Sys.GraphOperations
                 var modProp = ModStore.Get(entity.Id, propInfo.Name);
                 if (modProp == null)
                 {
-                    modProp = new ModProp(Graph, entity.Id, propInfo.Name, propInfo.PropertyType.Name);
+                    modProp = new ModProp(Graph, entity.Id, propInfo.Name);
                     ModStore.Add(modProp);
                 }
             }

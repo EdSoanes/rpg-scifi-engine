@@ -18,9 +18,9 @@ namespace Rpg.Sys.Components
 
         public Health(HealthTemplate template)
         {
-            Physical = new MaxCurrentValue(template.Physical, template.Physical);
-            Mental = new MaxCurrentValue(template.Mental, template.Mental);
-            Cyber = new MaxCurrentValue(template.Cyber, template.Cyber);
+            Physical = new MaxCurrentValue(nameof(Physical), template.Physical, template.Physical);
+            Mental = new MaxCurrentValue(nameof(Mental), template.Mental, template.Mental);
+            Cyber = new MaxCurrentValue(nameof(Cyber), template.Cyber, template.Cyber);
         }
     }
 }

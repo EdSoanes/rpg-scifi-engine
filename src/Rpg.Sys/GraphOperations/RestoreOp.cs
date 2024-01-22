@@ -29,7 +29,7 @@ namespace Rpg.Sys.GraphOperations
 
         public void Mods(params Modifier[] mods) 
         {
-            foreach (var group in mods.GroupBy(x => x.Target.Id))
+            foreach (var group in mods.GroupBy(x => x.Target.EntityId))
             {
                 var entity = EntityStore.Get(group.Key);
                 if (entity != null)
@@ -39,7 +39,7 @@ namespace Rpg.Sys.GraphOperations
                         var modProp = ModStore.Get(entity.Id, propInfo.Name);
                         if (modProp == null)
                         {
-                            modProp = new ModProp(Graph, entity.Id, propInfo.Name, propInfo.PropertyType.Name);
+                            modProp = new ModProp(Graph, entity.Id, propInfo.Name);
                             ModStore.Add(modProp);
                         }
                         else

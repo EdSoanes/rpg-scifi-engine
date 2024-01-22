@@ -14,8 +14,9 @@ namespace Rpg.Sys.Components.Values
 
         [JsonConstructor] private MaxCurrentValue() { }
 
-        public MaxCurrentValue(int max, int current) 
+        public MaxCurrentValue(string name, int max, int current) 
         {
+            Name = name;
             Max = max;
             Current = current;
         }

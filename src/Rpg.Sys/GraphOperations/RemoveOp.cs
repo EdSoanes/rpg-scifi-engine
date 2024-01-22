@@ -61,7 +61,7 @@ namespace Rpg.Sys.GraphOperations
         public void Mods<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
             where TEntity : ModdableObject
         {
-            var propRef = PropRef.FromPath(entity, expression, true);
+            var propRef = PropRef.Create(entity, expression);
             if (ModStore.Remove(propRef))
                 Graph.Notify.Send(propRef);
         }
@@ -69,7 +69,7 @@ namespace Rpg.Sys.GraphOperations
         public void Mods<TEntity, TResult>(ModifierType modifierType, TEntity entity, Expression<Func<TEntity, TResult>> expression)
             where TEntity : ModdableObject
         {
-            var propRef = PropRef.FromPath(entity, expression, true);
+            var propRef = PropRef.Create(entity, expression);
             if (ModStore.Remove(propRef, (mod) => mod.ModifierType == modifierType))
                 Graph.Notify.Send(propRef);
         }

@@ -11,8 +11,8 @@ namespace Rpg.Sys.Modifiers
 
         [JsonProperty] public Guid Id { get; protected set; } = Guid.NewGuid();
         [JsonProperty] public string Name { get; protected set; }
-        [JsonProperty] public string? ModifierSet { get; set; }
-        [JsonProperty] public PropRef Source { get; protected set; }
+        [JsonProperty] public PropRef? Source { get; protected set; }
+        [JsonProperty] public Dice? SourceDice { get; protected set; }
         [JsonProperty] public PropRef Target { get; protected set; }
         [JsonProperty] public ModifierDiceCalc DiceCalc { get; protected set; } = new ModifierDiceCalc();
         [JsonProperty] public ModifierType ModifierType { get; protected set; }
@@ -39,13 +39,14 @@ namespace Rpg.Sys.Modifiers
             where TEntity2 : ModdableObject
         {
             var mod = Activator.CreateInstance<TMod>();
-            mod.Source = entity != null && sourceExpr != null
-                ? PropRef.FromPath(entity, sourceExpr, true)
-                : PropRef.FromDice(dice);
+            if (entity != null && sourceExpr != null)
+                mod.Source = PropRef.Create(entity, sourceExpr);
+            else
+                mod.SourceDice = dice;
 
-            mod.Target = PropRef.FromPath(target, targetExpr);
+            mod.Target = PropRef.Create(target, targetExpr);
             mod.DiceCalc.SetDiceCalc(diceCalcExpr);
-            mod.Name = name ?? (mod.Source.PropType == Sys.PropType.Path ? mod.Source.Prop : null) ?? mod.Target.Prop ?? entity?.GetType().Name ?? target.Name;
+            mod.Name = name ?? mod.Source?.Prop ?? mod.Target.Prop ?? entity?.GetType().Name ?? target.Name;
 
             return mod;
         }
@@ -55,8 +56,8 @@ namespace Rpg.Sys.Modifiers
         {
             var mod = Activator.CreateInstance<TMod>();
 
-            mod.Source = PropRef.FromDice(dice);
-            mod.Target = PropRef.FromPath(entity, targetPropPath);
+            mod.SourceDice = dice;
+            mod.Target = PropRef.Create(entity, targetPropPath);
             mod.DiceCalc.SetDiceCalc(diceCalcExpr);
             mod.Name = name ?? mod.Target.Prop ?? entity.GetType().Name;
 
@@ -65,7 +66,7 @@ namespace Rpg.Sys.Modifiers
 
         public void SetDice(Dice dice)
         {
-            Source = PropRef.FromDice(Source.RootId, Source.Id, dice);
+            SourceDice = dice;
             DiceCalc.Clear();
         }
 

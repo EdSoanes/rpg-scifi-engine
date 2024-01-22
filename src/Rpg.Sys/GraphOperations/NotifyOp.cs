@@ -63,7 +63,7 @@ namespace Rpg.Sys.GraphOperations
         }
 
         public void Send(PropRef propRef)
-            => Send(propRef.Id!.Value, propRef.Prop);
+            => Send(propRef.EntityId, propRef.Prop);
 
         public void Send(Guid entityId, string prop)
         {

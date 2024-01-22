@@ -57,7 +57,7 @@ namespace Rpg.Sys
 
         public ModdableObject? Get(PropRef? moddableProperty)
         {
-            var id = moddableProperty?.Id;
+            var id = moddableProperty?.EntityId;
             return id != null && TryGetValue(id.Value, out var entity)
                 ? entity
                 : null;

@@ -3,19 +3,11 @@ using Rpg.Sys.Modifiers;
 
 namespace Rpg.Sys
 {
-    public class ModProp
+    public class ModProp : PropRef
     {
         private Graph Graph;
 
         [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
-        [JsonProperty] public Guid EntityId { get; private set; }
-        [JsonProperty] public string Prop { get; private set; }
-        [JsonProperty] public string ReturnType {  get; private set; }
-
-        [JsonProperty] public Dice Value {  get; private set; }
-        [JsonProperty] public Dice BaseValue { get; private set; }
-        [JsonProperty] public string[] Description { get; private set; }
-
         [JsonProperty] private List<Modifier> Modifiers { get; set; } = new List<Modifier>();
 
         [JsonIgnore]
@@ -64,13 +56,10 @@ namespace Rpg.Sys
                 .Where(x => x.Name == name && x.ModifierType == modifierType)
                 .ToArray();
 
-        public ModProp(Graph graph, Guid id, string prop, string returnType)
+        public ModProp(Graph graph, Guid entityId, string prop)
+            : base(entityId, prop)
         {
             Graph = graph;
-
-            EntityId = id;
-            Prop = prop;
-            ReturnType = returnType;
         }
 
         public bool Add(IEnumerable<Modifier> mods)
@@ -187,7 +176,7 @@ namespace Rpg.Sys
         }
 
         public bool AffectedBy(Guid id, string prop)
-            => Modifiers.Any(x => x.Source.Id == id &&  x.Source.Prop == prop);
+            => Modifiers.Any(x => x.Source != null && x.Source.EntityId == id &&  x.Source.Prop == prop);
 
         public bool Contains(Modifier mod)
             => Modifiers.Any(x => x.Id == mod.Id);

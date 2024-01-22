@@ -31,6 +31,7 @@
 
     public static class ModNames
     {
+        public const string BaseValue = "BaseValue";
         public const string Base = "Base";
         public const string Damage = "Damage";
         public const string State = "State";

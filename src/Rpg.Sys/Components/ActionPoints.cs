@@ -18,16 +18,16 @@ namespace Rpg.Sys.Components
 
         public ActionPoints(ActionPointsTemplate template)
         {
-            Action = new MaxCurrentValue(template.Action, template.Action);
-            Exertion = new MaxCurrentValue(template.Exertion, template.Exertion);
-            Focus = new MaxCurrentValue(template.Focus, template.Focus);
+            Action = new MaxCurrentValue(nameof(Action), template.Action, template.Action);
+            Exertion = new MaxCurrentValue(nameof(Exertion), template.Exertion, template.Exertion);
+            Focus = new MaxCurrentValue(nameof(Focus), template.Focus, template.Focus);
         }
 
         public ActionPoints(int action, int exertion, int focus)
         {
-            Action = new MaxCurrentValue(action, action);
-            Exertion = new MaxCurrentValue(exertion, exertion);
-            Focus = new MaxCurrentValue(focus, focus);
+            Action = new MaxCurrentValue(nameof(Action), action, action);
+            Exertion = new MaxCurrentValue(nameof(Exertion), exertion, exertion);
+            Focus = new MaxCurrentValue(nameof(Focus), focus, focus);
         }
     }
 }

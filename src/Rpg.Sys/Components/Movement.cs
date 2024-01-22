@@ -18,14 +18,14 @@ namespace Rpg.Sys.Components
 
         public Movement(MovementTemplate template)
         {
-            Speed = new MaxCurrentValue(template.MaxSpeed, 0);
+            Speed = new MaxCurrentValue(nameof(Speed), template.MaxSpeed, 0);
             Acceleration = template.Acceleration;
             Deceleration = template.Deceleration;
         }
 
         public Movement(int maxSpeed, int acceleration, int deceleration)
         {
-            Speed = new MaxCurrentValue(maxSpeed, 0);
+            Speed = new MaxCurrentValue(nameof(Speed), maxSpeed, 0);
             Acceleration = acceleration;
             Deceleration = deceleration;
         }

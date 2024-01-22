@@ -43,9 +43,9 @@ namespace Rpg.Sys.GraphOperations
 
             foreach (var mod in mods)
             {
-                Dice modDice = mod.Source.PropType == PropType.Dice
-                    ? mod.Source.Prop
-                    : Graph.Get.Entity<ModdableObject>(mod.Source.Id)?.GetModdableProperty(mod.Source.Prop) ?? Dice.Zero;
+                Dice modDice = mod.SourceDice
+                    ?? Graph.Get.Entity<ModdableObject>(mod.Source!.EntityId)?.GetModdableProperty(mod.Source.Prop) 
+                    ?? Dice.Zero;
 
                 dice += _ApplyDiceCalc(modDice, mod.DiceCalc);
             }

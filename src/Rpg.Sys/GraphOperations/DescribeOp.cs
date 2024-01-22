@@ -13,25 +13,26 @@ namespace Rpg.Sys.GraphOperations
             where TEntity : ModdableObject
         {
             var desc = new List<string>();
-            var propRef = PropRef.FromPath(entity, expression);
-            var modProp = Graph.Get.ModProp(propRef);
-            if (modProp != null)
+            var propRef = PropRef.Create(entity, expression);
+            var propRefDesc = DescribePropRef(propRef);
+            if (!string.IsNullOrWhiteSpace(propRefDesc))
             {
-                var propRefEntity = Graph.Get.Entity<ModdableObject>(propRef.Id);
-                desc.Add($"{entity!.Name}.{propRef.Path}.{propRef.Prop} => {propRefEntity!.GetModdableProperty(modProp.Prop)}");
-                desc.AddRange(_Describe(modProp));
+                desc.Add(propRefDesc);
+
+                var modProp = Graph.Get.ModProp(propRef);
+                desc.AddRange(DescribeModProp(modProp!));
             }
 
             return desc.ToArray();
         }
 
-        private string[] _Describe(ModProp modProp, Stack<Guid>? idStack = null)
+        private string[] DescribeModProp(ModProp modProp, Stack<Guid>? idStack = null)
         {
             idStack ??= new Stack<Guid>();
 
             var res = new List<string>();
             var mods = modProp.FilteredModifiers;
-            if (mods.All(x => x.ModifierType == ModifierType.Base && x.Name == "Base"))
+            if (mods.All(x => x.ModifierType == ModifierType.Base && x.Name == ModNames.BaseValue))
                 return new string[0];
 
             foreach (var mod in modProp.FilteredModifiers)
@@ -41,10 +42,10 @@ namespace Rpg.Sys.GraphOperations
                 else
                     idStack.Push(mod.Id);
 
-                res.Add(_Describe(mod, idStack.Count));
+                res.Add(DescribeModifier(mod, idStack.Count));
                 var nextProp = Graph.Get.ModProp(mod.Source);
                 if (nextProp != null)
-                    res.AddRange(_Describe(nextProp, idStack));
+                    res.AddRange(DescribeModProp(nextProp, idStack));
 
                 idStack.Pop();
             }
@@ -52,42 +53,44 @@ namespace Rpg.Sys.GraphOperations
             return res.ToArray();
         }
 
-        private string _Describe(Modifier mod, int depth)
+        private string DescribeModifier(Modifier mod, int depth)
         {
-            var src = _Describe(mod.Source);
-            if (mod.Source.PropType == PropType.Path)
-            {
-                var entity = Graph.Get.Entity<ModdableObject>(mod.Source.Id);
-                src += $" => {entity!.GetModdableProperty(mod.Source.Prop) ?? Dice.Zero}";
-            }
-            else
-                src = $"{mod.Name} => {mod.Source.Prop}";
+            var src = mod.SourceDice != null
+                ? $"{mod.Name} => {mod.SourceDice}"
+                : DescribePropRef(mod.Source);
 
-            var calcDesc = _Describe(mod.DiceCalc);
+            var calcDesc = DescribeDiceCalc(mod.DiceCalc);
             if (calcDesc != null)
                 src += $" => {calcDesc}() => {Graph.Evaluate.Mod(mod)}";
 
-            return src.PadLeft((depth * 2) + src.Length);
+            return src!.PadLeft((depth * 2) + src.Length);
         }
 
-        private string? _Describe(PropRef propRef)
+        private string? DescribePropRef(PropRef? propRef)
         {
-            if (propRef.PropType == PropType.Path)
+            if (propRef != null)
             {
-                var parts = new[]
+                var entity = Graph.Get.Entity<ModdableObject>(propRef.EntityId);
+                if (entity != null)
                 {
-                    Graph.Get.Entity<ModdableObject>(propRef.RootId)?.Name,
-                    Graph.Get.Entity<ModdableObject>(propRef.Id)?.Name,
-                    propRef.Prop
-                };
+                    var parts = new[]
+                    {
+                        Graph.Get.Entity<ModdableObject>(propRef.RootEntityId)?.Name ?? entity.Name,
+                        propRef.Path,
+                        propRef.Prop
+                    };
 
-                return string.Join('.', parts.Where(x => !string.IsNullOrEmpty(x)).Distinct());
+                    var desc = string.Join('.', parts.Where(x => !string.IsNullOrEmpty(x)).Distinct());
+                    desc += $" => {entity!.GetModdableProperty(propRef.Prop) ?? Dice.Zero}";
+
+                    return desc;
+                }
             }
 
             return null;
         }
 
-        private string? _Describe(ModifierDiceCalc diceCalc)
+        private string? DescribeDiceCalc(ModifierDiceCalc diceCalc)
         {
             if (!diceCalc.IsCalc)
                 return null;

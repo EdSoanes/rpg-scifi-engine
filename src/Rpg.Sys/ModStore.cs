@@ -33,27 +33,16 @@ namespace Rpg.Sys
 
         public Modifier[]? GetMods<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
             where TEntity : ModdableObject
-                => Get(PropRef.FromPath(entity, expression, true))?.AllModifiers;
+                => Get(PropRef.Create(entity, expression))?.AllModifiers;
 
         public ModProp? Get<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
             where TEntity : ModdableObject
-                => Get(PropRef.FromPath(entity, expression, true));
-
-        public Dice BaseValue<TEntity, T1>(TEntity entity, Expression<Func<TEntity, T1>> propExpr)
-            where TEntity : ModdableObject
-        {
-            var propRef = PropRef.FromPath(entity, propExpr, true);
-            return Get(propRef)?.BaseValue ?? Dice.Zero;
-        }
+                => Get(PropRef.Create(entity, expression));
 
         public ModProp? Get(string key) => this[key];
 
-        public ModProp? Get(PropRef propRef)
-        {
-            return propRef.Id != null
-                ? Get(propRef.Id!.Value, propRef.Prop!)
-                : null;
-        }
+        public ModProp? Get(PropRef? propRef)
+            => Get(propRef?.EntityId, propRef?.Prop);
 
         public ModProp[] Get(Guid entityId)
         {
@@ -76,7 +65,7 @@ namespace Rpg.Sys
         {
             foreach (var mod in mods)
             {
-                var modProp = Get(mod.Target.Id, mod.Target.Prop);
+                var modProp = Get(mod.Target.EntityId, mod.Target.Prop);
                 if (modProp != null)
                     modProp.Add(mod);
             }
@@ -128,7 +117,7 @@ namespace Rpg.Sys
         }
 
         public bool Remove(PropRef propRef, Func<Modifier, bool>? filter = null)
-            => Remove(propRef.Id, propRef.Prop, filter);
+            => Remove(propRef.EntityId, propRef.Prop, filter);
 
         public bool Remove(ModdableObject entity, string prop)
             => Remove(entity.Id, prop);
@@ -256,9 +245,9 @@ namespace Rpg.Sys
 
         public T? Iterate<T>(Modifier mod, Func<ModProp, T> op)
         {
-            if (_store.ContainsKey(mod.Target.Id!.Value))
+            if (_store.ContainsKey(mod.Target.EntityId))
             {
-                var entityMods = _store[mod.Target.Id!.Value];
+                var entityMods = _store[mod.Target.EntityId];
                 if (entityMods.ContainsKey(mod.Target.Prop))
                 {
                     var modProp = entityMods[mod.Target.Prop];

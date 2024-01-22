@@ -64,7 +64,7 @@ namespace Rpg.Sys.Tests
 
             Assert.That(_human.Stats.Strength.Bonus, Is.EqualTo(1));
             Assert.That(_human.Actions.Exertion.Max, Is.EqualTo(11));
-            Assert.That(_human.Movement.Speed.Max, Is.EqualTo(8));
+            Assert.That(_human.Movement.Speed.Max, Is.EqualTo(3));
         }
     }
 }

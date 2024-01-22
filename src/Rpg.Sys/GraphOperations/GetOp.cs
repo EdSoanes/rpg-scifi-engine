@@ -28,13 +28,13 @@ namespace Rpg.Sys.GraphOperations
 
         public Modifier[] Mods<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
             where TEntity : ModdableObject
-                => ModStore.Get(PropRef.FromPath(entity, expression, true))?.AllModifiers ?? new Modifier[0];
+                => ModStore.Get(PropRef.Create(entity, expression))?.AllModifiers ?? new Modifier[0];
 
         public ModProp? ModProp<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
             where TEntity : ModdableObject
-                => ModProp(PropRef.FromPath(entity, expression, true));
+                => ModProp(PropRef.Create(entity, expression));
 
-        public ModProp? ModProp(PropRef propRef)
+        public ModProp? ModProp(PropRef? propRef)
             => ModStore.Get(propRef);
 
         public ModProp? ModProp(Guid entityId, string prop)

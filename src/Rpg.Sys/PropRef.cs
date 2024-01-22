@@ -1,95 +1,44 @@
 ﻿using Newtonsoft.Json;
 using System.Linq.Expressions;
-using System.Reflection;
 
 namespace Rpg.Sys
 {
-    public struct PropRef
+    public class PropRef
     {
-        [JsonProperty] public Guid? RootId { get; private set; }
-        [JsonProperty] public Guid? Id { get; private set; }
-        [JsonProperty] public string Prop { get; private set; }
-        [JsonProperty] public PropType PropType { get; private set; } = PropType.Path;
-        [JsonProperty] public PropReturnType PropReturnType { get; private set; } = PropReturnType.Integer;
-        [JsonProperty] public string Path { get; private set; }
-
-        public static bool operator ==(PropRef d1, PropRef d2) => d1.Equals(d2);
-        public static bool operator !=(PropRef d1, PropRef d2) => !d1.Equals(d2);
+        [JsonProperty] public Guid EntityId { get; protected set; }
+        [JsonProperty] public string? Path { get; protected set; }
+        [JsonProperty] public string Prop { get; protected set; }
+        [JsonProperty] public Guid? RootEntityId { get; protected set; }
 
         [JsonConstructor] public PropRef() { }
 
-        public PropRef(Guid? rootId, Guid? id, int val)
+        public PropRef(Guid entityId, string prop)
         {
-            RootId = rootId;
-            Id = id;
-            PropType = PropType.Dice;
-            PropReturnType = PropReturnType.Integer;
-            Prop = val.ToString();
-        }
-
-        public PropRef(Guid? rootId, Guid? id, Dice dice)
-        {
-            RootId = rootId;
-            Id = id;
-            PropType = PropType.Dice;
-            PropReturnType = PropReturnType.Dice;
-            Prop = dice;
-        }
-
-        public PropRef(Guid? rootId, Guid? id, string prop, string path, PropReturnType propReturnType)
-        {
-            RootId = rootId;
-            Id = id;
-            PropType = PropType.Path;
-            PropReturnType = propReturnType;
+            EntityId = entityId;
             Prop = prop;
-            Path = path;
         }
 
-        public static PropRef FromInt(Guid entityId, int val)
-        {
-            var locator = new PropRef(entityId, entityId, val);
-            return locator;
-        }
+        public PropRef(Guid entityId, string path, string prop)
+            : this(entityId, prop)
+                => Path = path;
 
-        public static PropRef FromInt(Guid rootId, Guid entityId, int val)
-        {
-            var locator = new PropRef(rootId, entityId, val);
-            return locator;
-        }
+        public PropRef(Guid entityId, string path, string prop, Guid rootEntityId)
+            : this(entityId, path, prop)
+                => RootEntityId = rootEntityId;
 
-        public static PropRef FromDice(Dice? dice)
-        {
-            var locator = new PropRef(null, null, dice ?? "0");
-            return locator;
-        }
-
-        public static PropRef FromDice(Guid? entityId, Dice? dice)
-        {
-            var locator = new PropRef(entityId, entityId, dice ?? "0");
-            return locator;
-        }
-
-        public static PropRef FromDice(Guid? rootId, Guid? entityId, Dice? dice)
-        {
-            var locator = new PropRef(rootId, entityId, dice ?? "0");
-            return locator;
-        }
-
-        public static PropRef FromPath(ModdableObject entity, string propPath, bool source = false)
+        public static PropRef Create(ModdableObject rootEntity, string propPath)
         {
             var parts = propPath.Split('.');
             var path = string.Join(".", parts.Take(parts.Length - 1));
             var prop = parts.Last();
 
-            var pathEntity = entity.PropertyValue<ModdableObject>(path) ?? throw new ArgumentException($"Invalid path. Property path {path} is not an Entity object");
+            var entity = rootEntity.PropertyValue<ModdableObject>(path) ?? throw new ArgumentException($"Invalid path. Property path {path} is not an Entity object");
 
-            var propReturnType = ToReturnType(pathEntity.GetType().GetProperty(prop)?.PropertyType);
-            var locator = new PropRef(entity.Id, pathEntity.Id, prop, path, propReturnType);
+            var locator = new PropRef(entity.Id, path, prop, rootEntity.Id);
             return locator;
         }
 
-        public static PropRef FromPath<T, TResult>(T entity, Expression<Func<T, TResult>> expression, bool source = false)
+        public static PropRef Create<T, TResult>(T rootEntity, Expression<Func<T, TResult>> expression)
             where T : ModdableObject
         {
             var memberExpression = expression.Body as MemberExpression;
@@ -100,9 +49,6 @@ namespace Rpg.Sys
 
             //Get the prop name
             var prop = memberExpression.Member.Name;
-            var propReturnType = memberExpression.Member.MemberType == MemberTypes.Property
-                ? ((PropertyInfo)memberExpression.Member).PropertyType
-                : null;
 
             while (memberExpression != null)
             {
@@ -113,31 +59,15 @@ namespace Rpg.Sys
 
             pathSegments.Reverse();
             var path = string.Join(".", pathSegments);
-            var pathEntity = entity.PropertyValue<ModdableObject>(path);
+            var entity = rootEntity.PropertyValue<ModdableObject>(path);
 
-            var locator = new PropRef(entity.Id, pathEntity!.Id, prop, path, ToReturnType(propReturnType));
+            var locator = new PropRef(entity!.Id, path, prop, rootEntity.Id);
             return locator;
         }
 
-        private static PropReturnType ToReturnType(Type? type) => type?.Name switch
-        {
-            "Dice" => PropReturnType.Dice,
-            _ => PropReturnType.Integer
-        };
-
         public override string ToString()
         {
-            return $"{Id?.ToString() ?? "Dice"}.{Prop}";
-        }
-
-        public override bool Equals(object? obj)
-        {
-            return obj?.ToString() == ToString();
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
+            return $"{EntityId}.{Prop}";
         }
     }
 }
