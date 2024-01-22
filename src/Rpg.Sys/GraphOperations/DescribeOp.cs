@@ -17,7 +17,8 @@ namespace Rpg.Sys.GraphOperations
             var modProp = Graph.Get.ModProp(propRef);
             if (modProp != null)
             {
-                desc.Add($"{entity!.Name}.{propRef.Path}.{propRef.Prop} => {entity!.GetModdableProperty(modProp.Prop)}");
+                var propRefEntity = Graph.Get.Entity<ModdableObject>(propRef.Id);
+                desc.Add($"{entity!.Name}.{propRef.Path}.{propRef.Prop} => {propRefEntity!.GetModdableProperty(modProp.Prop)}");
                 desc.AddRange(_Describe(modProp));
             }
 
@@ -29,6 +30,10 @@ namespace Rpg.Sys.GraphOperations
             idStack ??= new Stack<Guid>();
 
             var res = new List<string>();
+            var mods = modProp.FilteredModifiers;
+            if (mods.All(x => x.ModifierType == ModifierType.Base && x.Name == "Base"))
+                return new string[0];
+
             foreach (var mod in modProp.FilteredModifiers)
             {
                 if (idStack.Contains(mod.Id))

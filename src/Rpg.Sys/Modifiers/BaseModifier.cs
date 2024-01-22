@@ -32,8 +32,8 @@ namespace Rpg.Sys.Modifiers
             where TEntity2 : ModdableObject
                 => _Create<BaseModifier, TEntity, T1, TEntity2, T2>(entity, name, dice, sourceExpr, target, targetExpr, diceCalcExpr);
 
-        public static Modifier CreateByPath(ModdableObject entity, Dice dice, string targetPropPath, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            => _CreateByPath<BaseModifier>(entity, null, dice, targetPropPath, diceCalcExpr);
+        public static Modifier CreateFromBaseProp(ModdableObject entity, Dice dice, string targetPropPath, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            => _CreateByPath<BaseModifier>(entity, "Base", dice, targetPropPath, diceCalcExpr);
 
         public static Modifier CreateByPath<T1>(ModdableObject entity, string name, Dice dice, string targetPropPath, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             => _CreateByPath<BaseModifier>(entity, name, dice, targetPropPath, diceCalcExpr);

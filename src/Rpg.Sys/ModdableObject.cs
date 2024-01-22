@@ -36,9 +36,9 @@ namespace Rpg.Sys
                 if (val != null)
                 {
                     if (val is Dice && ((Dice)val) != Dice.Zero)
-                        mods.Add(BaseModifier.CreateByPath(this, (Dice)val, propInfo.Name));
+                        mods.Add(BaseModifier.CreateFromBaseProp(this, (Dice)val, propInfo.Name));
                     else if (val is int && ((int)val) != 0)
-                        mods.Add(BaseModifier.CreateByPath(this, (int)val, propInfo.Name));
+                        mods.Add(BaseModifier.CreateFromBaseProp(this, (int)val, propInfo.Name));
                 }
             }
 

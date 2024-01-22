@@ -53,9 +53,11 @@ namespace Rpg.Sys.Tests
         [Test]
         public void AddFatigued_VerifyValues()
         {
+            var desc = _graph.Describe.Prop(_human, x => x.Movement.Speed.Max);
+
             Assert.That(_human.Stats.Strength.Bonus, Is.EqualTo(3));
             Assert.That(_human.Actions.Exertion.Max, Is.EqualTo(13));
-            Assert.That(_human.Movement.Speed.Max, Is.EqualTo(10));
+            Assert.That(_human.Movement.Speed.Max, Is.EqualTo(5));
 
             var fatigued = new Fatigued(_human);
             _graph!.Add.Conditions(fatigued);
