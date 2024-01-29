@@ -1,31 +1,34 @@
-export default function PolarChart(chartName) {
-  const polarCtx = document.getElementById(chartName);
+import React from "react";
+import {
+  Chart as ChartJS,
+  RadialLinearScale,
+  ArcElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { PolarArea } from "react-chartjs-2";
 
-  const polarData = {
-    labels: ["Red", "Green", "Yellow", "Grey", "Blue"],
-    datasets: [
-      {
-        label: "My First Dataset",
-        data: [12, 34, 16, 44, 3],
-        backgroundColor: [
-          "rgb(255, 99, 132)",
-          "rgb(75, 192, 192)",
-          "rgb(255, 205, 86)",
-          "rgb(201, 203, 207)",
-          "rgb(54, 162, 235)",
-        ],
-        borderWidth: 0,
-      },
-    ],
-  };
+ChartJS.register(RadialLinearScale, ArcElement, Tooltip, Legend);
 
-  const polarConfig = {
-    type: "polarArea",
-    data: polarData,
-    options: {},
-  };
+export const data = {
+  labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+  datasets: [
+    {
+      label: "# of Votes",
+      data: [12, 19, 3, 5, 2, 3],
+      backgroundColor: [
+        "rgba(255, 99, 132, 0.5)",
+        "rgba(54, 162, 235, 0.5)",
+        "rgba(255, 206, 86, 0.5)",
+        "rgba(75, 192, 192, 0.5)",
+        "rgba(153, 102, 255, 0.5)",
+        "rgba(255, 159, 64, 0.5)",
+      ],
+      borderWidth: 1,
+    },
+  ],
+};
 
-  new Chart(polarCtx, polarConfig);
-
-  return <canvas id="{chartName}"></canvas>;
+export default function PolarChart() {
+  return <PolarArea data={data} />;
 }
