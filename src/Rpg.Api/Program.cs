@@ -1,13 +1,23 @@
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Sigill.Common;
+using Sigill.Common.OpenApi;
 
 var host = new HostBuilder()
-    .ConfigureFunctionsWorkerDefaults()
-    .ConfigureServices(services =>
+    .ConfigureFunctionsWebApplication(worker => worker.UseAzFunc())
+    .ConfigureOpenApi()
+    .ConfigureServices((hostContext, services) =>
     {
-        services.AddApplicationInsightsTelemetryWorkerService();
-        services.ConfigureFunctionsApplicationInsights();
+        var _configuration = hostContext.Configuration;
+        services
+            .AddOpenApiDocument(config =>
+            {
+                config.DocumentProcessors.Add(new SigillDocumentProcessor("Rpg Api", "Rpg OpenApi Schema for Api"));
+                config.DocumentName = "v3";
+            })
+            .AddAzFunc();
     })
     .Build();
 

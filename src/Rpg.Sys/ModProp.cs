@@ -168,7 +168,7 @@ namespace Rpg.Sys
         public void Clear()
         {
             var toRemove = Modifiers
-                .Where(x => x.Duration.CanClear(Graph.Turn))
+                .Where(x => x.Duration.CanRemove(Graph.Turn))
                 .ToArray();
 
             foreach (var remove in toRemove)

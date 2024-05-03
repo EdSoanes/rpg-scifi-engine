@@ -37,6 +37,24 @@ namespace Rpg.Sys.GraphOperations
         public Dice Mod(params Modifier[] mods)
             => _Calculate(mods);
 
+        public static Dice Mod(ModdableObject rootEntity, string prop)
+        {
+            Dice dice = "0";
+
+            foreach (var mod in rootEntity.GetMods(prop))
+            {
+                Dice modDice = rootEntity.GetPropValue(mod) ?? Dice.Zero;
+
+                object diceCalcEntity = mod.DiceCalc?.EntityId != null
+                    ? ((object?)rootEntity.FindModdableObject(mod.DiceCalc.EntityId.Value)) ?? rootEntity
+                    : rootEntity;
+
+                dice += _ApplyDiceCalc(diceCalcEntity, modDice, mod.DiceCalc);
+            }
+
+            return dice;
+        }
+
         private Dice _Calculate(IEnumerable<Modifier> mods)
         {
             Dice dice = "0";
@@ -47,26 +65,26 @@ namespace Rpg.Sys.GraphOperations
                     ?? Graph.Get.Entity<ModdableObject>(mod.Source!.EntityId)?.GetModdableProperty(mod.Source.Prop) 
                     ?? Dice.Zero;
 
-                dice += _ApplyDiceCalc(modDice, mod.DiceCalc);
+                object diceCalcEntity = mod.DiceCalc?.EntityId != null
+                    ? ((object?)Graph.Get.Entity<ModdableObject>(mod.DiceCalc.EntityId!.Value)) ?? this
+                    : this;
+
+                dice += _ApplyDiceCalc(diceCalcEntity, modDice, mod.DiceCalc);
             }
 
             return dice;
         }
 
-        private Dice _ApplyDiceCalc(Dice dice, ModifierDiceCalc diceCalc)
+        private static Dice _ApplyDiceCalc(object? diceCalcEntity, Dice dice, ModifierDiceCalc? diceCalc)
         {
-            if (!diceCalc.IsCalc)
+            if (diceCalc == null || !diceCalc.IsCalc)
                 return dice;
 
-            if (diceCalc.IsStatic)
-                return this.ExecuteFunction<Dice, Dice>($"{diceCalc.ClassName}.{diceCalc.FuncName}", dice);
+            var funcName = diceCalc.IsStatic
+                ? $"{diceCalc.ClassName}.{diceCalc.FuncName}"
+                : diceCalc.FuncName!;
 
-            var entity = Graph.Get.Entity<ModdableObject>(diceCalc.EntityId!.Value);
-            if (entity != null)
-                return entity.ExecuteFunction<Dice, Dice>(diceCalc.FuncName!, dice);
-
-            return dice;
+            return diceCalcEntity.ExecuteFunction<Dice, Dice>(funcName, dice);
         }
-
     }
 }

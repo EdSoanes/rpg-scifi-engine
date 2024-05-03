@@ -32,6 +32,7 @@ namespace Rpg.Sys.GraphOperations
 
         public void Queue(params ModProp?[] modProps)
             => Queue(modProps.Select(x => x.Id).ToArray());
+
         public void Send()
         {
             if (!Restoring)

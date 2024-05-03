@@ -40,6 +40,33 @@ namespace Rpg.Sys
             return res.ToArray();
         }
 
+        public static ModdableObject? FindModdableObject(this object obj, Guid id)
+        {
+            var entity = obj as ModdableObject;
+            if (entity != null && entity.Id == id)
+                return entity;
+
+            if (!obj.GetType().IsPrimitive)
+            {
+                foreach (var propertyInfo in obj.GetType().GetProperties())
+                {
+                    var items = obj.PropertyObjects(propertyInfo, out var isEnumerable)?.ToArray() ?? new object[0];
+                    foreach (var item in items)
+                    {
+                        entity = item as ModdableObject;
+                        if (entity != null && entity.Id == id)
+                            return entity;
+
+                        entity = item.FindModdableObject(id);
+                        if (entity != null)
+                            return entity;
+                    }
+                }
+            }
+
+            return null;
+        }
+
         public static List<ModdableObject> Descendants(this object obj)
         {
             var res = new List<ModdableObject>();

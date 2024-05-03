@@ -13,7 +13,11 @@ namespace Rpg.Sys.Modifiers
         [JsonProperty] public int StartTurn { get; private set; } = int.MinValue;
         [JsonProperty] public int EndTurn { get; private set; } = Permanent;
 
-        public bool CanClear(int turn) => GetExpiry(turn) != ModifierExpiry.Active;
+        public bool CanRemove(int turn)
+        {
+            var expiry = GetExpiry(turn);
+            return expiry != ModifierExpiry.Active && expiry != ModifierExpiry.Pending;
+        }
 
         public void Expire(int turn) => SetOnTurnPeriod(turn - 1, turn - 1);
 
