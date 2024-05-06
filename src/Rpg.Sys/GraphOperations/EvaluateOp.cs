@@ -38,15 +38,20 @@ namespace Rpg.Sys.GraphOperations
             => _Calculate(mods);
 
         public static Dice Mod(ModdableObject rootEntity, string prop)
+            => Mod(rootEntity, rootEntity.GetMods(prop));
+
+        public static Dice Mod(ModdableObject rootEntity, Modifier[] mods)
         {
             Dice dice = "0";
 
-            foreach (var mod in rootEntity.GetMods(prop))
+            foreach (var mod in mods)
             {
-                Dice modDice = rootEntity.GetPropValue(mod) ?? Dice.Zero;
+                Dice modDice = mod.Source != null
+                    ? rootEntity.PropertyValue<Dice>(mod.Source.Prop)// GetPropValue(mod) ?? Dice.Zero;
+                    : mod.SourceDice ?? Dice.Zero;
 
                 object diceCalcEntity = mod.DiceCalc?.EntityId != null
-                    ? ((object?)rootEntity.FindModdableObject(mod.DiceCalc.EntityId.Value)) ?? rootEntity
+                    ? ((object?)rootEntity.Traverse().FirstOrDefault(x => x.Id == mod.DiceCalc.EntityId.Value)) ?? rootEntity
                     : rootEntity;
 
                 dice += _ApplyDiceCalc(diceCalcEntity, modDice, mod.DiceCalc);

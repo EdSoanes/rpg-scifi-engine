@@ -62,7 +62,7 @@ namespace Rpg.Sys.Components
         {
             var mods = base.OnSetup();
              
-            var artifact = Graph.Get.Entity<T>(ArtifactId);
+            var artifact = Graph.Current.Get.Entity<T>(ArtifactId);
             if (artifact != null)
                 Artifact = artifact;
 

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Rpg.Sys.GraphOperations;
 using Rpg.Sys.Modifiers;
 using System.ComponentModel;
@@ -10,7 +11,6 @@ namespace Rpg.Sys
     {
         [JsonProperty] public Guid EntityId { get; private set; }
         [JsonProperty] public string Prop { get; private set; }
-        public Dice Value { get; private set; }
 
         [JsonProperty] private List<Modifier> Modifiers { get; set; } = new List<Modifier>();
 
@@ -23,16 +23,6 @@ namespace Rpg.Sys
                 .ToArray();
 
             return baseMods;
-        }
-
-        public void Evaluate(Graph graph)
-        {
-            var newVal = graph.Evaluate.Mod(Modifiers.ToArray());
-            if (Value != newVal)
-            {
-                Value = newVal;
-                graph.Notify.Send(EntityId, Prop);
-            }
         }
 
         public Modifier[] FilteredModifiers(Graph graph)
@@ -67,17 +57,17 @@ namespace Rpg.Sys
             Prop = prop;
         }
 
-        public bool Add(Graph graph, params Modifier[] mods)
+        public bool Add(ModdableObject entity, params Modifier[] mods)
         {
             var res = false;
             foreach (var mod in mods.Where(x => x.Target.EntityId == EntityId))
             {
-                if (mod.Target.EntityId != EntityId)
-                    return false;
-
                 var existing = Modifiers.FirstOrDefault(x => x.Id == mod.Id);
                 if (existing != null)
+                {
                     Modifiers.Remove(existing);
+                    res |= true;
+                }
 
                 if (mod.ModifierAction == ModifierAction.Accumulate)
                 {
@@ -85,34 +75,33 @@ namespace Rpg.Sys
                     res |= true;
                 }
 
-                if (mod.ModifierAction == ModifierAction.Sum)
+                else if (mod.ModifierAction == ModifierAction.Sum)
                 {
-                    res |= Sum(graph, mod);
+                    res |= Sum(entity, mod);
                 }
 
-                if (mod.ModifierAction == ModifierAction.Replace)
+                else if (mod.ModifierAction == ModifierAction.Replace)
                 {
                     res |= Replace(mod);
                 }
             }
 
-            if (res)
-                Evaluate(graph);
-
             return res;
         }
 
-        private bool Sum(Graph graph, Modifier mod)
-        {
-            var matchingMods = MatchingModifiers(mod.Name, mod.ModifierType);
-            var dice = graph.Evaluate.Mod(matchingMods) + graph.Evaluate.Mod(mod);
+        private bool Sum(ModdableObject entity, Modifier mod)
+        { 
+            var oldValue = entity.EvaluateProp(mod.Target.Prop, mod.Name, mod.ModifierType);
+            var oldMods = MatchingModifiers(mod.Name, mod.ModifierType);
 
-            Modifiers = Modifiers.Except(matchingMods).ToList();
-            if (dice != Dice.Zero || mod.Duration.EndTurn != RemoveTurn.WhenZero)
-            {
-                mod.SetDice(dice);
-                Modifiers.Add(mod);
-            }
+            Modifiers = Modifiers.Except(oldMods).ToList();
+            Modifiers.Add(mod);
+
+            var newValue = entity.EvaluateProp(mod.Target.Prop, mod.Name, mod.ModifierType) + oldValue;
+            if (newValue == null || (newValue == Dice.Zero && mod.Duration.EndTurn == RemoveTurn.WhenZero))
+                Modifiers.Remove(mod);
+            else
+                mod.SetDice(newValue.Value);
 
             return true;
         }
@@ -153,7 +142,7 @@ namespace Rpg.Sys
             return updated.ToArray();
         }
 
-        public Modifier[] Remove(Graph graph, params Modifier[] mods)
+        public Modifier[] Remove(params Modifier[] mods)
         {
             var toRemove = Modifiers
                 .Where(x => mods.Select(m => m.Id).Contains(x.Id))
@@ -163,8 +152,6 @@ namespace Rpg.Sys
             {
                 foreach (var mod in toRemove)
                     Modifiers.Remove(mod);
-
-                Evaluate(graph);
             }
 
             return toRemove;
@@ -176,14 +163,13 @@ namespace Rpg.Sys
             { 
                 var res = Modifiers.ToArray();
                 Modifiers.Clear();
-                Evaluate(graph);
                 return res;
             }
 
             return new Modifier[0];
         }
 
-        public void Clean(Graph graph)
+        public bool Clean(Graph graph)
         {
             var toRemove = Modifiers
                 .Where(x => x.Duration.CanRemove(graph.Turn))
@@ -194,8 +180,10 @@ namespace Rpg.Sys
                 foreach (var remove in toRemove)
                     Modifiers.Remove(remove);
 
-                Evaluate(graph);
+                return true;
             }
+
+            return false;
         }
 
         public bool AffectedBy(Guid id, string prop)
@@ -213,23 +201,23 @@ namespace Rpg.Sys
             public string? Prop { get; set; }
         }
 
-        public static Dice? GetPropValue<TEntity>(this TEntity rootEntity, Expression<Func<TEntity, Dice>> expression)
-            where TEntity : ModdableObject
-        {
-            var propertyRef = rootEntity.GetPropertyRef(expression);
-            return !string.IsNullOrWhiteSpace(propertyRef.Prop)
-                ? propertyRef.Entity?.GetPropValue(propertyRef.Prop)
-                : null;
-        }
+        //public static Dice? GetPropValue<TEntity>(this TEntity rootEntity, Expression<Func<TEntity, Dice>> expression)
+        //    where TEntity : ModdableObject
+        //{
+        //    var propertyRef = rootEntity.GetPropertyRef(expression);
+        //    return !string.IsNullOrWhiteSpace(propertyRef.Prop)
+        //        ? propertyRef.Entity?.GetPropValue(propertyRef.Prop)
+        //        : null;
+        //}
 
-        public static Dice? GetPropValue<TEntity>(this TEntity rootEntity, Modifier mod)
-            where TEntity : ModdableObject
-        {
-            var entity = rootEntity.FindModdableObject(mod.Source!.EntityId);
-            return entity != null && !string.IsNullOrWhiteSpace(mod.Source.Prop)
-                ? entity.GetPropValue(mod.Source.Prop)
-                : null;
-        }
+        //public static Dice? GetPropValue<TEntity>(this TEntity rootEntity, Modifier mod)
+        //    where TEntity : ModdableObject
+        //{
+        //    var entity = rootEntity.FindModdableObject(mod.Source!.EntityId);
+        //    return entity != null && !string.IsNullOrWhiteSpace(mod.Source.Prop)
+        //        ? entity.GetPropValue(mod.Source.Prop)
+        //        : null;
+        //}
 
         public static Modifier[]? GetMods<TEntity, TResult>(this TEntity rootEntity, Expression<Func<TEntity, TResult>> expression)
             where TEntity : ModdableObject
@@ -272,55 +260,82 @@ namespace Rpg.Sys
     public abstract class ModdableObject : INotifyPropertyChanged, IModSubscriber
     {
         #region Mod Store
+        [JsonProperty] protected bool IsInitialized { get; set; }
         [JsonProperty] protected Dictionary<string, PropertyModifiers> PropertyModifiers { get; set; } = new Dictionary<string, PropertyModifiers>();
 
-        private void ModsByEntityProp(Modifier[] mods, Action<ModdableObject, string, Modifier[]> onMatch)
+        private PropertyModifiers? GetPropertyModifiers(string? prop)
         {
-            var modsByEntity = mods.GroupBy(x => x.Target.EntityId);
-            foreach (var entityMods in modsByEntity)
-            {
-                var entity = this.FindModdableObject(entityMods.Key);
-                if (entity != null)
-                {
-                    foreach (var modsByProp in entityMods.GroupBy(x => x.Target.Prop))
-                        onMatch(entity, modsByProp.Key, modsByProp.ToArray());   
-                } 
-            }
+            return !string.IsNullOrWhiteSpace(prop) && PropertyModifiers.ContainsKey(prop)
+                ? PropertyModifiers[prop]
+                : null;
         }
 
         public void AddMods(params Modifier[] mods)
-            => ModsByEntityProp(mods, (entity, prop, propMods) =>
-            {
-                if (!string.IsNullOrWhiteSpace(prop) && !entity.PropertyModifiers.ContainsKey(prop))
-                    entity.PropertyModifiers.Add(prop, new PropertyModifiers(entity.Id, prop));
+            => AddMods(true, mods);
 
-                entity.PropertyModifiers[prop].Add(Graph, propMods);
+        protected ModdableObject Init(params Modifier[] mods)
+        {
+            AddMods(false, mods);
+            return this;
+        }
+
+        private void AddMods(bool evaluate, params Modifier[] mods)
+            => this.ForEach(mods, (entity, prop, propMods) =>
+            {
+                var propertyModifiers = entity.GetPropertyModifiers(prop);
+                if (propertyModifiers == null)
+                {
+                    propertyModifiers = new PropertyModifiers(entity.Id, prop);
+                    entity.PropertyModifiers.Add(prop, propertyModifiers);
+                }
+
+                if (propertyModifiers.Add(entity, propMods) && evaluate)
+                    entity.SetProp(prop);
             });
 
 
         public void RemoveMods(params Modifier[] mods)
-            => ModsByEntityProp(mods, (entity, prop, propMods) =>
+            => this.ForEach(mods, (entity, prop, propMods) =>
             {
-                if (entity.PropertyModifiers.ContainsKey(prop))
-                    entity.PropertyModifiers[prop].Remove(Graph, propMods);
+                var removed = entity.GetPropertyModifiers(prop)
+                    ?.Remove(propMods);
+
+                if (removed != null && removed.Any())
+                    entity.SetProp(prop);
             });
 
         public Modifier[] GetMods(string? prop)
-            => !string.IsNullOrWhiteSpace(prop) && PropertyModifiers.ContainsKey(prop) 
-                ? PropertyModifiers[prop].AllModifiers 
-                : new Modifier[0];
+            => GetPropertyModifiers(prop)?.AllModifiers ?? new Modifier[0];
 
-        public Dice CalcPropValue(string prop)
-            => EvaluateOp.Mod(this, prop);
+        public void SetProps()
+            => this.ForEachReversed((entity, prop) => entity.SetProp(prop));
 
-        public Dice? GetPropValue(string prop)
-            => PropertyModifiers.ContainsKey(prop)
-                ? PropertyModifiers[prop].Value
-                : null;
+        public void SetProp(string prop)
+        {
+            var oldValue = GetModdableProperty(prop);
+            var newValue = EvaluateProp(prop) ?? Dice.Zero;
+
+            if (oldValue == null || oldValue != newValue)
+                SetModdableProperty(prop, newValue);
+        }
+
+        public Dice? EvaluateProp(string prop, string? modifierName = null, ModifierType? modifierType = null)
+        {
+            var propertyModifiers = GetPropertyModifiers(prop);
+            if (propertyModifiers != null)
+            {
+                var mods = !string.IsNullOrEmpty(modifierName) && modifierType != null
+                    ? propertyModifiers.MatchingModifiers(modifierName, modifierType.Value)
+                    : propertyModifiers.AllModifiers;
+
+                var newValue = Graph.Current.Evaluate.Mod(mods);
+                return newValue;
+            }
+
+            return null;
+        }
 
         #endregion
-
-        protected Graph Graph { get; set; }
 
         [JsonProperty] public Guid Id { get; private set; }
         [JsonProperty] public string Name { get; set; }
@@ -337,7 +352,38 @@ namespace Rpg.Sys
 
         public bool IsA(string type) => Is.Contains(type);
 
-        public virtual void OnAdd(Graph graph) => Graph = graph;
+        public virtual void OnAdd(Graph graph) { }
+
+        public void Initialize()
+        {
+            Graph.Current.SetContext(this);
+
+            foreach (var entity in this.Traverse(true).Where(x => !x.IsInitialized))
+            {
+                entity.InitializeBaseValues();
+                entity.OnInitialize();
+                entity.IsInitialized = true;
+            }
+
+            SetProps();
+        }
+
+        protected virtual void OnInitialize() { }
+
+        private void InitializeBaseValues()
+        {
+            foreach (var propInfo in this.ModdableProperties())
+            {
+                var val = this.PropertyValue(propInfo.Name);
+                if (val != null)
+                {
+                    if (val is Dice && ((Dice)val) != Dice.Zero)
+                        Init(BaseValueModifier.Create(this, (Dice)val, propInfo.Name));
+                    else if (val is int && ((int)val) != 0)
+                        Init(BaseValueModifier.Create(this, (int)val, propInfo.Name));
+                }
+            }
+        }
 
         public virtual Modifier[] OnSetup()
         {
@@ -382,6 +428,6 @@ namespace Rpg.Sys
         }
 
         protected void NotifyPropertyChanged(string prop)
-            => Graph?.Notify.Send(Id, prop);
+            => Graph.Current?.Notify.Send(Id, prop);
     }
 }

@@ -43,34 +43,34 @@ namespace Rpg.Sys.Components
         public void Activate(Actor actor, string stateName)
         {
             var state = _states.SingleOrDefault(x => x.Name == stateName);
-            if (state != null && !state.IsActive && Graph != null)
+            if (state != null && !state.IsActive)
             {
-                var condition = Graph.Get.Condition(state.ConditionName());
+                var condition = Graph.Current.Get.Condition(state.ConditionName());
 
                 if (condition != null)
-                    Graph.Remove.Conditions(condition);
+                    Graph.Current.Remove.Conditions(condition);
 
                 state.IsActive = true;
-                Graph.Add.Conditions(state.OnActive(actor));
+                Graph.Current.Add.Conditions(state.OnActive(actor));
             }
         }
 
         public void Deactivate(Actor actor, string stateName)
         {
             var state = _states.SingleOrDefault(x => x.Name == stateName);
-            if (state != null && state.IsActive && Graph != null)
+            if (state != null && state.IsActive)
             {
-                var condition = Graph.Get.Condition(state.ConditionName());
+                var condition = Graph.Current.Get.Condition(state.ConditionName());
                 if (condition != null)
                 {
-                    if (Graph.Turn > 0)
-                        Graph.Expire.Conditions(condition);
+                    if (Graph.Current.Turn > 0)
+                        Graph.Current.Expire.Conditions(condition);
                     else
-                        Graph.Remove.Conditions(condition);
+                        Graph.Current.Remove.Conditions(condition);
                 }
 
                 state.IsActive = false;
-                Graph.Add.Conditions(state.OnInactive(actor));
+                Graph.Current.Add.Conditions(state.OnInactive(actor));
             }
         }
 

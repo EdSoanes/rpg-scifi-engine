@@ -10,35 +10,45 @@ namespace Rpg.Sys.GraphOperations
 
         public void Entities(params ModdableObject[] entities)
         {
-            var moddableObjects = new List<ModdableObject>();
-            foreach (var entity in entities)
+            foreach (var entity in entities.Traverse())
             {
-                var modObjs = entity.Descendants();
-                moddableObjects.AddRange(modObjs);
-            }
-
-            foreach (var moddableObject in moddableObjects)
-            {
-                moddableObject.OnAdd(Graph);
-                var existing = Graph.Get.Entity<ModdableObject>(moddableObject.Id);
+                var existing = Graph.Get.Entity<ModdableObject>(entity.Id);
                 if (existing == null)
-                {
-                    EntityStore.Add(moddableObject.Id, moddableObject);
-                    CreateModProps(moddableObject);
-                }
-            }
-
-            if (!Restoring)
-            {
-                var mods = moddableObjects
-                    .SelectMany(x => x.OnSetup())
-                    .ToList();
-
-                mods.Reverse();
-
-                Mods(mods.ToArray());
+                    EntityStore.Add(entity.Id, entity);
             }
         }
+
+        //public void Entities(params ModdableObject[] entities)
+        //{
+        //    var moddableObjects = new List<ModdableObject>();
+        //    foreach (var entity in entities)
+        //    {
+        //        var modObjs = entity.Descendants();
+        //        moddableObjects.AddRange(modObjs);
+        //    }
+
+        //    foreach (var moddableObject in moddableObjects)
+        //    {
+        //        moddableObject.OnAdd(Graph);
+        //        var existing = Graph.Get.Entity<ModdableObject>(moddableObject.Id);
+        //        if (existing == null)
+        //        {
+        //            EntityStore.Add(moddableObject.Id, moddableObject);
+        //            CreateModProps(moddableObject);
+        //        }
+        //    }
+
+        //    if (!Restoring)
+        //    {
+        //        var mods = moddableObjects
+        //            .SelectMany(x => x.OnSetup())
+        //            .ToList();
+
+        //        mods.Reverse();
+
+        //        Mods(mods.ToArray());
+        //    }
+        //}
 
         public void Conditions(params Condition[] conditions)
         {

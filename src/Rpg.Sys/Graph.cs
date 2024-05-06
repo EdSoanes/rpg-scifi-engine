@@ -24,6 +24,8 @@ namespace Rpg.Sys
             Formatting = Formatting.Indented
         };
 
+        public static Graph Current { get; } = new Graph();
+
         [JsonProperty] protected ModdableObject? Context { get; private set; }
         [JsonProperty] protected EntityStore Entities { get; set; }
         [JsonProperty] protected ModStore Mods { get; set; }
@@ -58,9 +60,9 @@ namespace Rpg.Sys
 
         public void SetContext(ModdableObject context)
         {
-            Mods.Clear();
+            //Mods.Clear();
             Entities.Clear();
-            Conditions.Clear();
+            //Conditions.Clear();
 
             Add.Entities(context);
 

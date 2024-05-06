@@ -10,7 +10,7 @@ namespace Rpg.Sys.Components.Values
 {
     public class ScoreBonusValue : ModdableObject
     {
-        [JsonProperty] public int Score {  get; protected set; }
+        [JsonProperty] public int Score { get; protected set; }
         [JsonProperty] public int Bonus { get; protected set; }
 
         [JsonConstructor] private ScoreBonusValue() { }
@@ -19,6 +19,11 @@ namespace Rpg.Sys.Components.Values
         {
             Name = name;
             Score = score;
+        }
+
+        protected override void OnInitialize()
+        {
+            Init(BaseModifier.Create(this, x => x.Score, x => x.Bonus, () => CalculateStatBonus));
         }
 
         public override Modifier[] OnSetup()

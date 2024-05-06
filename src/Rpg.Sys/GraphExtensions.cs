@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using Rpg.Sys.Modifiers;
+using System.Collections;
+using System.Linq;
 using System.Reflection;
 
 namespace Rpg.Sys
@@ -41,10 +43,43 @@ namespace Rpg.Sys
         }
 
         public static ModdableObject? FindModdableObject(this object obj, Guid id)
+            => obj.Traverse().FirstOrDefault(x => x.Id == id);
+
+        public static void ForEach(this object obj, Modifier[] mods, Action<ModdableObject, string, Modifier[]> onMatch)
+        {
+            var modsByEntity = mods.GroupBy(x => x.Target.EntityId);
+            var entityIds = modsByEntity.Select(x => x.Key);
+            foreach (var entity in obj.Traverse().Where(x => entityIds.Contains(x.Id)))
+            {
+                var modsByProp = modsByEntity
+                    .First(x => x.Key == entity.Id)
+                    .GroupBy(x => x.Target.Prop);
+
+                foreach (var propMods in modsByProp)
+                    onMatch(entity, propMods.Key, propMods.ToArray());
+            }
+        }
+
+        public static void ForEach(this object obj, Action<ModdableObject, string> onMatch)
+        {
+            foreach (var entity in obj.Traverse())
+                foreach (var prop in entity.ModdableProperties())
+                    onMatch(entity, prop.Name);
+        }
+
+        public static void ForEachReversed(this object obj, Action<ModdableObject, string> onMatch)
+        {
+            foreach (var entity in obj.Traverse(true))
+                foreach (var prop in entity.ModdableProperties())
+                    onMatch(entity, prop.Name);
+        }
+
+
+        public static IEnumerable<ModdableObject> Traverse(this object obj, bool bottomUp = false)
         {
             var entity = obj as ModdableObject;
-            if (entity != null && entity.Id == id)
-                return entity;
+            if (entity != null && !bottomUp)
+                yield return entity;
 
             if (!obj.GetType().IsPrimitive)
             {
@@ -53,18 +88,15 @@ namespace Rpg.Sys
                     var items = obj.PropertyObjects(propertyInfo, out var isEnumerable)?.ToArray() ?? new object[0];
                     foreach (var item in items)
                     {
-                        entity = item as ModdableObject;
-                        if (entity != null && entity.Id == id)
-                            return entity;
-
-                        entity = item.FindModdableObject(id);
-                        if (entity != null)
-                            return entity;
+                        var childEntities = item.Traverse(bottomUp);
+                        foreach (var childEntity in childEntities)
+                            yield return childEntity;
                     }
                 }
             }
 
-            return null;
+            if (entity != null && bottomUp)
+                yield return entity;
         }
 
         public static List<ModdableObject> Descendants(this object obj)

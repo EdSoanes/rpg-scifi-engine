@@ -61,14 +61,14 @@ namespace Sigill.Common
                 .AddLogging(configure => configure.AddSerilog(Log.Logger))
                 .AddSingleton<IClaimsPrincipalAccessor, ClaimsPrincipalAccessor>();
 
-            services.AddAzureClients(builder =>
-            {
-                builder.AddBlobServiceClient<BlobServiceClient, BlobClientOptions>((options, _, sp) =>
-                {
-                    options.MessageEncoding = QueueMessageEncoding.Base64;
-                    return new BlobServiceClient(AppSettings.StorageConnectionString, options);
-                });
-            });
+            //services.AddAzureClients(builder =>
+            //{
+            //    builder.AddBlobServiceClient<BlobServiceClient, BlobClientOptions>((options, _, sp) =>
+            //    {
+            //        options.MessageEncoding = QueueMessageEncoding.Base64;
+            //        return new BlobServiceClient(AppSettings.StorageConnectionString, options);
+            //    });
+            //});
 
             return services;
         }
