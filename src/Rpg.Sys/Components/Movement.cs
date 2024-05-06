@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Sys.Components.Values;
+using Rpg.Sys.Moddable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Rpg.Sys.Components
 {
-    public class Movement : ModdableObject
+    public class Movement : ModObject
     {
         [JsonProperty] public MaxCurrentValue Speed { get; private set; }
         [JsonProperty] public int Acceleration { get; protected set; }

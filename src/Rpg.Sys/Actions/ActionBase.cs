@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Sys.Archetypes;
+using Rpg.Sys.Moddable;
 using Rpg.Sys.Modifiers;
 
 namespace Rpg.Sys.Actions
 {
-    public abstract class ActionBase : ModdableObject
+    public abstract class ActionBase : ModObject
     {
         [JsonProperty] public ActionCost Cost { get; private set; }
         [JsonProperty] protected int? Resolution { get; set; }

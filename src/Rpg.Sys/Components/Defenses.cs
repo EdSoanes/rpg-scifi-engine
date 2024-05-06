@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Sys.Components.Values;
+using Rpg.Sys.Moddable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Rpg.Sys.Components
 {
-    public class Defenses : ModdableObject
+    public class Defenses : ModObject
     {
         [JsonProperty] public DefenseValue Kinetic { get; private set; }
         [JsonProperty] public DefenseValue Heat { get; private set; }

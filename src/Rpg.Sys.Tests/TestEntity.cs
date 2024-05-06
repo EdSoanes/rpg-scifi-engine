@@ -1,4 +1,5 @@
-﻿using Rpg.Sys.Modifiers;
+﻿using Rpg.Sys.Moddable;
+using Rpg.Sys.Modifiers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Rpg.Sys.Tests
 {
-    public class TestEntity : ModdableObject
+    public class TestEntity : ModObject
     {
         public int Strength { get; set; } = 16;
         public int StrengthBonus { get; set; }
@@ -18,19 +19,14 @@ namespace Rpg.Sys.Tests
 
         public TestHealth Health { get; set; } = new TestHealth();
 
-        public override Modifier[] OnSetup()
+        protected override void OnInitialize()
         {
-            var mods = new List<Modifier>(base.OnSetup())
-            {
-                BaseModifier.Create(this, x => x.StrengthBonus, x => x.Health.Physical),
-                BaseModifier.Create(this, x => x.Intelligence, x => x.IntelligenceBonus, () => DiceCalculations.CalculateStatBonus)
-            };
-
-            return mods.ToArray();
-        } 
+            PropStore.Init(this, BaseModifier.Create(this, x => x.StrengthBonus, x => x.Health.Physical));
+            PropStore.Init(this, BaseModifier.Create(this, x => x.Intelligence, x => x.IntelligenceBonus, () => DiceCalculations.CalculateStatBonus));
+        }
     }
 
-    public class TestHealth : ModdableObject
+    public class TestHealth : ModObject
     {
         public int Physical { get; set; } = 10;
         public int Mental { get; set; } = 10;

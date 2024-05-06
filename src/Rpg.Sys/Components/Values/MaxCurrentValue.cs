@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.Sys.Moddable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Rpg.Sys.Components.Values
 {
-    public class MaxCurrentValue : ModdableObject
+    public class MaxCurrentValue : ModObject
     {
         [JsonProperty] public int Max { get; protected set; }
         [JsonProperty] public int Current { get; protected set; }

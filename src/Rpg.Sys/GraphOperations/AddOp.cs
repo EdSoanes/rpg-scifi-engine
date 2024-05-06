@@ -1,4 +1,5 @@
 ﻿using Rpg.Sys.Components;
+using Rpg.Sys.Moddable;
 using Rpg.Sys.Modifiers;
 
 namespace Rpg.Sys.GraphOperations
@@ -8,11 +9,11 @@ namespace Rpg.Sys.GraphOperations
         public AddOp(Graph graph, ModStore mods, EntityStore entityStore, List<Condition> conditionStore) 
             : base(graph, mods, entityStore, conditionStore) { }
 
-        public void Entities(params ModdableObject[] entities)
+        public void Entities(params ModObject[] entities)
         {
             foreach (var entity in entities.Traverse())
             {
-                var existing = Graph.Get.Entity<ModdableObject>(entity.Id);
+                var existing = Graph.Get.Entity<ModObject>(entity.Id);
                 if (existing == null)
                     EntityStore.Add(entity.Id, entity);
             }
@@ -76,7 +77,7 @@ namespace Rpg.Sys.GraphOperations
             Graph.Notify.Send();
         }
 
-        private void CreateModProps(ModdableObject entity)
+        private void CreateModProps(ModObject entity)
         {
             foreach (var propInfo in entity.ModdableProperties())
             {

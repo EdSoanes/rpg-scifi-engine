@@ -1,4 +1,5 @@
 ﻿using Rpg.Sys.Components;
+using Rpg.Sys.Moddable;
 using Rpg.Sys.Modifiers;
 
 namespace Rpg.Sys.GraphOperations
@@ -14,7 +15,7 @@ namespace Rpg.Sys.GraphOperations
             _add.Restoring = true;
         }
 
-        public void Entities(params ModdableObject[] entities)
+        public void Entities(params ModObject[] entities)
         {
             EntityStore.Clear();
             _add.Entities(entities);

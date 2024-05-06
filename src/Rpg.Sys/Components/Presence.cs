@@ -1,9 +1,10 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Sys.Components.Values;
+using Rpg.Sys.Moddable;
 
 namespace Rpg.Sys.Components
 {
-    public class Presence : ModdableObject
+    public class Presence : ModObject
     {
         [JsonProperty] public int Size { get; protected set; }
         [JsonProperty] public int Weight { get; protected set; }

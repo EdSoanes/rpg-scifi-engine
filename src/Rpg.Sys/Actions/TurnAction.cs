@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Sys.Archetypes;
+using Rpg.Sys.Moddable;
 using Rpg.Sys.Modifiers;
 using System.Linq.Expressions;
 
@@ -88,7 +89,7 @@ namespace Rpg.Sys.Actions
         }
 
         public TurnAction OnDiceRoll<T, TR>(Graph graph, T source, Expression<Func<T, TR>> sExpr, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
-            where T : ModdableObject
+            where T : ModObject
         {
             graph.Add.Mods(BaseModifier.Create(source, sExpr, this, x => x.DiceRoll, diceCalc));
             return this;
@@ -101,7 +102,7 @@ namespace Rpg.Sys.Actions
         }
 
         public TurnAction OnDiceRollTarget<T, TR>(Graph graph, T source, Expression<Func<T, TR>> sExpr, Expression<Func<Func<Dice, Dice>>>? diceCalc = null)
-            where T : ModdableObject
+            where T : ModObject
         {
             graph.Add.Mods(BaseModifier.Create(source, sExpr, this, x => x.DiceRollTarget, diceCalc));
             return this;

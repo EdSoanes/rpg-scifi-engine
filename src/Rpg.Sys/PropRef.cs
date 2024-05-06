@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.Sys.Moddable;
 using System.Linq.Expressions;
 
 namespace Rpg.Sys
@@ -26,20 +27,20 @@ namespace Rpg.Sys
             : this(entityId, path, prop)
                 => RootEntityId = rootEntityId;
 
-        public static PropRef Create(ModdableObject rootEntity, string propPath)
+        public static PropRef Create(ModObject rootEntity, string propPath)
         {
             var parts = propPath.Split('.');
             var path = string.Join(".", parts.Take(parts.Length - 1));
             var prop = parts.Last();
 
-            var entity = rootEntity.PropertyValue<ModdableObject>(path) ?? throw new ArgumentException($"Invalid path. Property path {path} is not an Entity object");
+            var entity = rootEntity.PropertyValue<ModObject>(path) ?? throw new ArgumentException($"Invalid path. Property path {path} is not an Entity object");
 
             var locator = new PropRef(entity.Id, path, prop, rootEntity.Id);
             return locator;
         }
 
         public static PropRef Create<T, TResult>(T rootEntity, Expression<Func<T, TResult>> expression)
-            where T : ModdableObject
+            where T : ModObject
         {
             var memberExpression = expression.Body as MemberExpression;
             if (memberExpression == null)
@@ -59,7 +60,7 @@ namespace Rpg.Sys
 
             pathSegments.Reverse();
             var path = string.Join(".", pathSegments);
-            var entity = rootEntity.PropertyValue<ModdableObject>(path);
+            var entity = rootEntity.PropertyValue<ModObject>(path);
 
             var locator = new PropRef(entity!.Id, path, prop, rootEntity.Id);
             return locator;

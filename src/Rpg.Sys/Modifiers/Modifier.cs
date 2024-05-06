@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.Sys.Moddable;
 using System.Linq.Expressions;
 
 namespace Rpg.Sys.Modifiers
@@ -22,8 +23,8 @@ namespace Rpg.Sys.Modifiers
 
         protected static TMod _Create<TMod, TEntity, T1, TEntity2, T2>(int startTurn, int duration, TEntity? entity, string? name, Dice? dice, Expression<Func<TEntity, T1>>? sourceExpr, TEntity2 target, Expression<Func<TEntity2, T2>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TMod : Modifier
-            where TEntity : ModdableObject
-            where TEntity2 : ModdableObject
+            where TEntity : ModObject
+            where TEntity2 : ModObject
         {
             var mod = _Create<TMod, TEntity, T1, TEntity2, T2>(entity, name, dice, sourceExpr, target, targetExpr, diceCalcExpr);
             
@@ -35,8 +36,8 @@ namespace Rpg.Sys.Modifiers
 
         protected static TMod _Create<TMod, TEntity, T1, TEntity2, T2>(TEntity? entity, string? name, Dice? dice, Expression<Func<TEntity, T1>>? sourceExpr, TEntity2 target, Expression<Func<TEntity2, T2>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TMod: Modifier
-            where TEntity : ModdableObject
-            where TEntity2 : ModdableObject
+            where TEntity : ModObject
+            where TEntity2 : ModObject
         {
             var mod = Activator.CreateInstance<TMod>();
             if (entity != null && sourceExpr != null)
@@ -51,7 +52,7 @@ namespace Rpg.Sys.Modifiers
             return mod;
         }
 
-        protected static TMod _CreateByPath<TMod>(ModdableObject entity, string? name, Dice dice, string targetPropPath, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+        protected static TMod _CreateByPath<TMod>(ModObject entity, string? name, Dice dice, string targetPropPath, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TMod : Modifier
         {
             var mod = Activator.CreateInstance<TMod>();

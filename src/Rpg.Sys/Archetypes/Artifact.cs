@@ -1,9 +1,10 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Sys.Components;
+using Rpg.Sys.Moddable;
 
 namespace Rpg.Sys.Archetypes
 {
-    public abstract class Artifact : ModdableObject
+    public abstract class Artifact : ModObject
     {
         [JsonProperty] public Presence Presence { get; private set; }
         [JsonProperty] public Defenses Defenses { get; private set; }

@@ -1,13 +1,14 @@
 ﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using Rpg.Sys.Moddable;
 
 namespace Rpg.Sys
 {
-    public class EntityStore : IDictionary<Guid, ModdableObject>
+    public class EntityStore : IDictionary<Guid, ModObject>
     {
-        private readonly Dictionary<Guid, ModdableObject> _store = new Dictionary<Guid, ModdableObject>();
+        private readonly Dictionary<Guid, ModObject> _store = new Dictionary<Guid, ModObject>();
 
-        public ModdableObject this[Guid key]
+        public ModObject this[Guid key]
         {
             get
             {
@@ -27,35 +28,35 @@ namespace Rpg.Sys
 
         public ICollection<Guid> Keys => _store.Keys;
 
-        public ICollection<ModdableObject> Values => _store.Values;
+        public ICollection<ModObject> Values => _store.Values;
 
         public int Count => _store.Count;
 
         public bool IsReadOnly => false;
 
-        public void Add(KeyValuePair<Guid, ModdableObject> item) 
+        public void Add(KeyValuePair<Guid, ModObject> item) 
             => Add(item.Value);
 
-        public void Add(Guid key, ModdableObject value) 
+        public void Add(Guid key, ModObject value) 
             => Add(value);
 
-        public void Add(ModdableObject entity) 
+        public void Add(ModObject entity) 
             => Add(new[] { entity });
 
-        public void Add(params ModdableObject[] entities)
+        public void Add(params ModObject[] entities)
         {
             foreach (var entity in entities)
                 _store.Add(entity.Id, entity);
         }
 
-        public ModdableObject? Get(Guid? id)
+        public ModObject? Get(Guid? id)
         {
             return id != null && TryGetValue(id.Value, out var entity)
                 ? entity
                 : null;
         }
 
-        public ModdableObject? Get(PropRef? moddableProperty)
+        public ModObject? Get(PropRef? moddableProperty)
         {
             var id = moddableProperty?.EntityId;
             return id != null && TryGetValue(id.Value, out var entity)
@@ -65,25 +66,25 @@ namespace Rpg.Sys
 
         public void Clear() => _store.Clear();
 
-        public bool Contains(KeyValuePair<Guid, ModdableObject> item) => _store.Contains(item);
+        public bool Contains(KeyValuePair<Guid, ModObject> item) => _store.Contains(item);
 
         public bool ContainsKey(Guid key) => _store.ContainsKey(key);
 
-        public void CopyTo(KeyValuePair<Guid, ModdableObject>[] array, int arrayIndex)
+        public void CopyTo(KeyValuePair<Guid, ModObject>[] array, int arrayIndex)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerator<KeyValuePair<Guid, ModdableObject>> GetEnumerator() 
+        public IEnumerator<KeyValuePair<Guid, ModObject>> GetEnumerator() 
             => _store.GetEnumerator();
 
-        public bool Remove(KeyValuePair<Guid, ModdableObject> item) 
+        public bool Remove(KeyValuePair<Guid, ModObject> item) 
             => _store.Remove(item.Key);
 
         public bool Remove(Guid key)
             => _store.Remove(key);
 
-        public bool TryGetValue(Guid key, [MaybeNullWhen(false)] out ModdableObject value) 
+        public bool TryGetValue(Guid key, [MaybeNullWhen(false)] out ModObject value) 
             => _store.TryGetValue(key, out value);
 
         IEnumerator IEnumerable.GetEnumerator() 

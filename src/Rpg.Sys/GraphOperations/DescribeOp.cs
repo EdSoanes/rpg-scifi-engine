@@ -1,4 +1,5 @@
 ﻿using Rpg.Sys.Components;
+using Rpg.Sys.Moddable;
 using Rpg.Sys.Modifiers;
 using System.Linq.Expressions;
 
@@ -10,7 +11,7 @@ namespace Rpg.Sys.GraphOperations
             : base(graph, mods, entityStore, conditionStore) { }
 
         public string[] Prop<TEntity, T>(TEntity entity, Expression<Func<TEntity, T>> expression)
-            where TEntity : ModdableObject
+            where TEntity : ModObject
         {
             var desc = new List<string>();
             var propRef = PropRef.Create(entity, expression);
@@ -70,18 +71,18 @@ namespace Rpg.Sys.GraphOperations
         {
             if (propRef != null)
             {
-                var entity = Graph.Get.Entity<ModdableObject>(propRef.EntityId);
+                var entity = Graph.Get.Entity<ModObject>(propRef.EntityId);
                 if (entity != null)
                 {
                     var parts = new[]
                     {
-                        Graph.Get.Entity<ModdableObject>(propRef.RootEntityId)?.Name ?? entity.Name,
+                        Graph.Get.Entity<ModObject>(propRef.RootEntityId)?.Name ?? entity.Name,
                         propRef.Path,
                         propRef.Prop
                     };
 
                     var desc = string.Join('.', parts.Where(x => !string.IsNullOrEmpty(x)).Distinct());
-                    desc += $" => {entity!.GetModdableProperty(propRef.Prop) ?? Dice.Zero}";
+                    desc += $" => {entity!.GetModdableValue(propRef.Prop) ?? Dice.Zero}";
 
                     return desc;
                 }
@@ -96,7 +97,7 @@ namespace Rpg.Sys.GraphOperations
                 return null;
 
             var src = diceCalc.EntityId != null
-                ? Graph.Get.Entity<ModdableObject>(diceCalc.EntityId)?.Name
+                ? Graph.Get.Entity<ModObject>(diceCalc.EntityId)?.Name
                 : diceCalc.ClassName;
 
             return $"{src}.{diceCalc.FuncName}".Trim('.');

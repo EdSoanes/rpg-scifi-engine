@@ -9,6 +9,6 @@ namespace Rpg.Sys
     public interface IModSubscriber
     {
         public void SetModdableProperty(string prop, Dice dice);
-        public Dice? GetModdableProperty(string prop);
+        public Dice? GetModdableValue(string prop);
     }
 }

@@ -21,20 +21,15 @@ namespace Rpg.Sys.Archetypes
             Stats = new StatPoints(template.Stats);
         }
 
-        public override Modifier[] OnSetup()
+        protected override void OnInitialize()
         {
-            var mods = new List<Modifier>(base.OnSetup())
-            {
-                BaseModifier.Create(this, x => x.Stats.Strength.Bonus, x => x.Actions.Exertion.Max),
-                BaseModifier.Create(this, x => x.Stats.Dexterity.Bonus, x => x.Actions.Action.Max),
-                BaseModifier.Create(this, x => x.Stats.Intelligence.Bonus, x => x.Actions.Focus.Max),
+            PropStore.Init(this, BaseModifier.Create(this, x => x.Stats.Strength.Bonus, x => x.Actions.Exertion.Max));
+            PropStore.Init(this, BaseModifier.Create(this, x => x.Stats.Dexterity.Bonus, x => x.Actions.Action.Max));
+            PropStore.Init(this, BaseModifier.Create(this, x => x.Stats.Intelligence.Bonus, x => x.Actions.Focus.Max));
 
-                BaseModifier.Create(this, x => x.Stats.Dexterity.Bonus, x => x.Movement.Speed.Max),
-                BaseModifier.Create(this, x => x.Presence.Weight, x => x.Movement.Speed.Max, () => DiceCalculations.WeightSpeedBonus),
-                BaseModifier.Create(this, x => x.Stats.Strength.Bonus, x => x.Movement.Speed.Max)
-            };
-
-            return mods.ToArray();
+            PropStore.Init(this, BaseModifier.Create(this, x => x.Stats.Dexterity.Bonus, x => x.Movement.Speed.Max));
+            PropStore.Init(this, BaseModifier.Create(this, x => x.Presence.Weight, x => x.Movement.Speed.Max, () => DiceCalculations.WeightSpeedBonus));
+            PropStore.Init(this, BaseModifier.Create(this, x => x.Stats.Strength.Bonus, x => x.Movement.Speed.Max));
         }
 
         public virtual ActionBase? ActivateState(Artifact artifact, string stateName)

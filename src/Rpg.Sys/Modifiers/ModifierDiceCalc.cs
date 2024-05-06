@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.Sys.Moddable;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -40,18 +41,18 @@ namespace Rpg.Sys.Modifiers
                 return;
             }
 
-            ModdableObject? entity = null;
+            ModObject? entity = null;
             var memberExpression = methodCallExpression.Arguments?.Last() as MemberExpression;
             if (memberExpression != null)
             {
                 var constantExpression = memberExpression.Expression as ConstantExpression;
                 var fieldInfo = memberExpression?.Member as FieldInfo;
-                entity = fieldInfo?.GetValue(constantExpression?.Value) as ModdableObject;
+                entity = fieldInfo?.GetValue(constantExpression?.Value) as ModObject;
             }
             else
             {
                 var constantExpression = methodCallExpression.Arguments?.Last() as ConstantExpression;
-                entity = constantExpression?.Value as ModdableObject;
+                entity = constantExpression?.Value as ModObject;
             }
 
             EntityId = entity?.Id;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Rpg.Sys.Moddable;
 
 namespace Rpg.Sys.GraphOperations
 {
@@ -50,12 +51,9 @@ namespace Rpg.Sys.GraphOperations
                 {
                     foreach (var group in affected!.GroupBy(x => x!.EntityId))
                     {
-                        var entity = Graph.Get.Entity<ModdableObject>(group.Key);
+                        var entity = Graph.Get.Entity<ModObject>(group.Key);
                         foreach (var modProp in group)
-                        {
-                            var res = Graph.Evaluate.Prop(modProp);
-                            entity?.SetModdableProperty(modProp.Prop, res);
-                        }
+                            entity?.SetModdableValue(modProp.Prop);
                     }
                 }
 

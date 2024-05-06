@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Sys.Components;
 using Rpg.Sys.GraphOperations;
+using Rpg.Sys.Moddable;
 
 namespace Rpg.Sys
 {
@@ -26,7 +27,7 @@ namespace Rpg.Sys
 
         public static Graph Current { get; } = new Graph();
 
-        [JsonProperty] protected ModdableObject? Context { get; private set; }
+        [JsonProperty] protected ModObject? Context { get; private set; }
         [JsonProperty] protected EntityStore Entities { get; set; }
         [JsonProperty] protected ModStore Mods { get; set; }
         [JsonProperty] protected List<Condition> Conditions { get; set; }
@@ -55,10 +56,10 @@ namespace Rpg.Sys
         }
 
         public T GetContext<T>() 
-            where T : ModdableObject
+            where T : ModObject
                 => (T)Context!;
 
-        public void SetContext(ModdableObject context)
+        public void SetContext(ModObject context)
         {
             //Mods.Clear();
             Entities.Clear();
@@ -69,7 +70,7 @@ namespace Rpg.Sys
             Context = context;
         }
 
-        public string Serialize<T>() where T : ModdableObject
+        public string Serialize<T>() where T : ModObject
         {
             var state = new GraphState<T>
             {
@@ -83,7 +84,7 @@ namespace Rpg.Sys
             return json;
         }
 
-        public static Graph Deserialize<T>(string json) where T : ModdableObject
+        public static Graph Deserialize<T>(string json) where T : ModObject
         {
             var state = JsonConvert.DeserializeObject<GraphState<T>>(json, JsonSettings)!;
             var graph = new Graph();

@@ -1,4 +1,5 @@
-﻿using Rpg.Sys.Modifiers;
+﻿using Rpg.Sys.Moddable;
+using Rpg.Sys.Modifiers;
 using System.Collections;
 using System.Linq;
 using System.Reflection;
@@ -26,14 +27,14 @@ namespace Rpg.Sys
             ScannableNamespaces = ScannableNamespaces.Distinct().ToList();
         }
 
-        public static string[] GetBaseTypes(this ModdableObject entity)
+        public static string[] GetBaseTypes(this ModObject entity)
         {
             var res = new List<string>();
             var t = entity.GetType();
             while (t != null)
             {
                 res.Add(t.Name);
-                t = t == typeof(ModdableObject)
+                t = t == typeof(ModObject)
                     ? null
                     :t.BaseType;
             }
@@ -42,10 +43,10 @@ namespace Rpg.Sys
             return res.ToArray();
         }
 
-        public static ModdableObject? FindModdableObject(this object obj, Guid id)
+        public static ModObject? FindModdableObject(this object obj, Guid id)
             => obj.Traverse().FirstOrDefault(x => x.Id == id);
 
-        public static void ForEach(this object obj, Modifier[] mods, Action<ModdableObject, string, Modifier[]> onMatch)
+        public static void ForEach(this object obj, Modifier[] mods, Action<ModObject, string, Modifier[]> onMatch)
         {
             var modsByEntity = mods.GroupBy(x => x.Target.EntityId);
             var entityIds = modsByEntity.Select(x => x.Key);
@@ -60,14 +61,14 @@ namespace Rpg.Sys
             }
         }
 
-        public static void ForEach(this object obj, Action<ModdableObject, string> onMatch)
+        public static void ForEach(this object obj, Action<ModObject, string> onMatch)
         {
             foreach (var entity in obj.Traverse())
                 foreach (var prop in entity.ModdableProperties())
                     onMatch(entity, prop.Name);
         }
 
-        public static void ForEachReversed(this object obj, Action<ModdableObject, string> onMatch)
+        public static void ForEachReversed(this object obj, Action<ModObject, string> onMatch)
         {
             foreach (var entity in obj.Traverse(true))
                 foreach (var prop in entity.ModdableProperties())
@@ -75,9 +76,9 @@ namespace Rpg.Sys
         }
 
 
-        public static IEnumerable<ModdableObject> Traverse(this object obj, bool bottomUp = false)
+        public static IEnumerable<ModObject> Traverse(this object obj, bool bottomUp = false)
         {
-            var entity = obj as ModdableObject;
+            var entity = obj as ModObject;
             if (entity != null && !bottomUp)
                 yield return entity;
 
@@ -99,10 +100,10 @@ namespace Rpg.Sys
                 yield return entity;
         }
 
-        public static List<ModdableObject> Descendants(this object obj)
+        public static List<ModObject> Descendants(this object obj)
         {
-            var res = new List<ModdableObject>();
-            var entity = obj as ModdableObject;
+            var res = new List<ModObject>();
+            var entity = obj as ModObject;
             if (entity != null)
                 res.Add(entity);
 
@@ -140,7 +141,7 @@ namespace Rpg.Sys
             return res;
         }
 
-        public static T? PropertyValue<T>(this ModdableObject? entity, string path)
+        public static T? PropertyValue<T>(this ModObject? entity, string path)
         {
             if (entity == null)
                 return default;
@@ -329,7 +330,7 @@ namespace Rpg.Sys
                 if (obj is IEnumerable)
                 {
                     var res = new List<object>();
-                    if (obj is ModdableObject)
+                    if (obj is ModObject)
                         res.Add(obj);
 
                     isEnumerable = true;

@@ -1,4 +1,5 @@
 ﻿using Rpg.Sys.Components;
+using Rpg.Sys.Moddable;
 using Rpg.Sys.Modifiers;
 using System.Linq.Expressions;
 
@@ -9,9 +10,9 @@ namespace Rpg.Sys.GraphOperations
         public RemoveOp(Graph graph, ModStore mods, EntityStore entityStore, List<Condition> conditionStore)
             : base(graph, mods, entityStore, conditionStore) { }
 
-        public void Entities(params ModdableObject[] entities)
+        public void Entities(params ModObject[] entities)
         {
-            var moddableObjects = new List<ModdableObject>();
+            var moddableObjects = new List<ModObject>();
             foreach (var entity in entities)
             {
                 var modObjs = entity.Descendants();
@@ -59,7 +60,7 @@ namespace Rpg.Sys.GraphOperations
         }
 
         public void Mods<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
-            where TEntity : ModdableObject
+            where TEntity : ModObject
         {
             var propRef = PropRef.Create(entity, expression);
             if (ModStore.Remove(propRef))
@@ -67,7 +68,7 @@ namespace Rpg.Sys.GraphOperations
         }
 
         public void Mods<TEntity, TResult>(ModifierType modifierType, TEntity entity, Expression<Func<TEntity, TResult>> expression)
-            where TEntity : ModdableObject
+            where TEntity : ModObject
         {
             var propRef = PropRef.Create(entity, expression);
             if (ModStore.Remove(propRef, (mod) => mod.ModifierType == modifierType))

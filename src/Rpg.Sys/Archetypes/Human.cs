@@ -17,10 +17,5 @@ namespace Rpg.Sys.Archetypes
         public Container LeftHand { get; private set; } = new Container(nameof(LeftHand), new ActionCost(1, 0, 0), new ActionCost());
         public Container RightHand { get; private set; } = new Container(nameof(RightHand), new ActionCost(1, 0, 0), new ActionCost());
         public Container Equipment { get; private set; } = new Container(nameof(Equipment), new ActionCost(2, 1, 1), new ActionCost(2, 1, 1));
-
-        public override Modifier[] OnSetup()
-        {
-            return base.OnSetup();
-        }
     }
 }

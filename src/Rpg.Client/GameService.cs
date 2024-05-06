@@ -1,10 +1,11 @@
 ﻿using Rpg.Sys;
 using Rpg.Sys.Archetypes;
 using Rpg.Sys.Components;
+using Rpg.Sys.Moddable;
 
 namespace Rpg.Client
 {
-    public class GameService<T> : IGameService<T> where T : ModdableObject
+    public class GameService<T> : IGameService<T> where T : ModObject
     {
         public Graph Graph { get; private set; }
         public ActorTemplate[] Humans { get; private set; }

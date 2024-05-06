@@ -1,4 +1,5 @@
 ﻿using Rpg.Sys.Components;
+using Rpg.Sys.Moddable;
 using Rpg.Sys.Modifiers;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Rpg.Sys
 {
-    public class GraphState<T> where T : ModdableObject
+    public class GraphState<T> where T : ModObject
     {
         public T? Context { get; set; }
         public Modifier[]? Mods { get; set; }

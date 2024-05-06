@@ -1,4 +1,5 @@
 ﻿using Rpg.Sys.Components;
+using Rpg.Sys.Moddable;
 using Rpg.Sys.Modifiers;
 using System.Linq.Expressions;
 
@@ -10,7 +11,7 @@ namespace Rpg.Sys.GraphOperations
             : base(graph, mods, entityStore, conditionStore) { }
 
         public Dice Prop<TEntity>(TEntity entity, Expression<Func<TEntity, Dice>> expression)
-            where TEntity : ModdableObject
+            where TEntity : ModObject
         {
             var modProp = Graph.Get.ModProp(entity, expression);
             return modProp != null
@@ -19,7 +20,7 @@ namespace Rpg.Sys.GraphOperations
         }
 
         public Dice Base<TEntity, T>(TEntity entity, Expression<Func<TEntity, T>> expression)
-            where TEntity : ModdableObject
+            where TEntity : ModObject
         {
             var modProp = Graph.Get.ModProp(entity, expression);
             return modProp != null
@@ -37,29 +38,6 @@ namespace Rpg.Sys.GraphOperations
         public Dice Mod(params Modifier[] mods)
             => _Calculate(mods);
 
-        public static Dice Mod(ModdableObject rootEntity, string prop)
-            => Mod(rootEntity, rootEntity.GetMods(prop));
-
-        public static Dice Mod(ModdableObject rootEntity, Modifier[] mods)
-        {
-            Dice dice = "0";
-
-            foreach (var mod in mods)
-            {
-                Dice modDice = mod.Source != null
-                    ? rootEntity.PropertyValue<Dice>(mod.Source.Prop)// GetPropValue(mod) ?? Dice.Zero;
-                    : mod.SourceDice ?? Dice.Zero;
-
-                object diceCalcEntity = mod.DiceCalc?.EntityId != null
-                    ? ((object?)rootEntity.Traverse().FirstOrDefault(x => x.Id == mod.DiceCalc.EntityId.Value)) ?? rootEntity
-                    : rootEntity;
-
-                dice += _ApplyDiceCalc(diceCalcEntity, modDice, mod.DiceCalc);
-            }
-
-            return dice;
-        }
-
         private Dice _Calculate(IEnumerable<Modifier> mods)
         {
             Dice dice = "0";
@@ -67,11 +45,11 @@ namespace Rpg.Sys.GraphOperations
             foreach (var mod in mods)
             {
                 Dice modDice = mod.SourceDice
-                    ?? Graph.Get.Entity<ModdableObject>(mod.Source!.EntityId)?.GetModdableProperty(mod.Source.Prop) 
+                    ?? ModGraph.Current.GetEntity<ModObject>(mod.Source!.EntityId)?.GetModdableValue(mod.Source.Prop) 
                     ?? Dice.Zero;
 
                 object diceCalcEntity = mod.DiceCalc?.EntityId != null
-                    ? ((object?)Graph.Get.Entity<ModdableObject>(mod.DiceCalc.EntityId!.Value)) ?? this
+                    ? ((object?)ModGraph.Current.GetEntity<ModObject>(mod.DiceCalc.EntityId!.Value)) ?? this
                     : this;
 
                 dice += _ApplyDiceCalc(diceCalcEntity, modDice, mod.DiceCalc);
@@ -80,7 +58,7 @@ namespace Rpg.Sys.GraphOperations
             return dice;
         }
 
-        private static Dice _ApplyDiceCalc(object? diceCalcEntity, Dice dice, ModifierDiceCalc? diceCalc)
+        private Dice _ApplyDiceCalc(object? diceCalcEntity, Dice dice, ModifierDiceCalc? diceCalc)
         {
             if (diceCalc == null || !diceCalc.IsCalc)
                 return dice;

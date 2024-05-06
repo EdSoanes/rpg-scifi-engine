@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Sys.Actions;
 using Rpg.Sys.Archetypes;
+using Rpg.Sys.Moddable;
 using Rpg.Sys.Modifiers;
 
 namespace Rpg.Sys.Components
@@ -20,7 +21,7 @@ namespace Rpg.Sys.Components
         string ConditionName();
     }
 
-    public abstract class State<T> : ModdableObject, IState
+    public abstract class State<T> : ModObject, IState
         where T : Artifact
     {
         [JsonIgnore] private T? Artifact { get; set; }
@@ -58,15 +59,11 @@ namespace Rpg.Sys.Components
         protected virtual Condition OnInactive(Actor actor, T artifact) 
             => new Condition(artifact.Id, ConditionName(), Duration);
 
-        public override Modifier[] OnSetup()
+        protected override void OnInitialize()
         {
-            var mods = base.OnSetup();
-             
             var artifact = Graph.Current.Get.Entity<T>(ArtifactId);
             if (artifact != null)
                 Artifact = artifact;
-
-            return mods;
         }
 
         public string ConditionName()

@@ -1,11 +1,12 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Sys.Archetypes;
+using Rpg.Sys.Moddable;
 using Rpg.Sys.Modifiers;
 using System.Collections;
 
 namespace Rpg.Sys.Components
 {
-    public class States : ModdableObject, IList<IState>
+    public class States : ModObject, IList<IState>
     {
         [JsonProperty] private List<IState> _states { get; set; } = new List<IState>();
         [JsonProperty] private Guid ArtifactId { get; set; }
@@ -16,11 +17,6 @@ namespace Rpg.Sys.Components
         {
             ArtifactId = artifactId;
             Add(states);
-        }
-
-        public override Modifier[] OnSetup()
-        {
-            return base.OnSetup();
         }
 
         public void Add(params IState[] items)

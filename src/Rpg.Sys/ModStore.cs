@@ -1,4 +1,5 @@
-﻿using Rpg.Sys.Modifiers;
+﻿using Rpg.Sys.Moddable;
+using Rpg.Sys.Modifiers;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
@@ -32,11 +33,11 @@ namespace Rpg.Sys
             => AllValues().FirstOrDefault(x => x.Id == id);
 
         public Modifier[]? GetMods<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
-            where TEntity : ModdableObject
+            where TEntity : ModObject
                 => Get(PropRef.Create(entity, expression))?.AllModifiers;
 
         public ModProp? Get<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
-            where TEntity : ModdableObject
+            where TEntity : ModObject
                 => Get(PropRef.Create(entity, expression));
 
         public ModProp? Get(string key) => this[key];
@@ -119,7 +120,7 @@ namespace Rpg.Sys
         public bool Remove(PropRef propRef, Func<Modifier, bool>? filter = null)
             => Remove(propRef.EntityId, propRef.Prop, filter);
 
-        public bool Remove(ModdableObject entity, string prop)
+        public bool Remove(ModObject entity, string prop)
             => Remove(entity.Id, prop);
 
         public bool Remove(Guid? entityId, string? prop, Func<Modifier, bool>? filter = null)

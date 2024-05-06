@@ -1,4 +1,5 @@
 ﻿using Rpg.Sys.Components;
+using Rpg.Sys.Moddable;
 using Rpg.Sys.Modifiers;
 using System.Linq.Expressions;
 
@@ -10,7 +11,7 @@ namespace Rpg.Sys.GraphOperations
             : base(graph, mods, entityStore, conditionStore) { }
 
         public T? Entity<T>(Guid? entityId)
-            where T : ModdableObject
+            where T : ModObject
             => EntityStore.Get(entityId) as T;
 
         public Condition? Condition(string conditionName)
@@ -27,11 +28,11 @@ namespace Rpg.Sys.GraphOperations
                 ?.AllModifiers ?? new Modifier[0];
 
         public Modifier[] Mods<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
-            where TEntity : ModdableObject
+            where TEntity : ModObject
                 => ModStore.Get(PropRef.Create(entity, expression))?.AllModifiers ?? new Modifier[0];
 
         public ModProp? ModProp<TEntity, TResult>(TEntity entity, Expression<Func<TEntity, TResult>> expression)
-            where TEntity : ModdableObject
+            where TEntity : ModObject
                 => ModProp(PropRef.Create(entity, expression));
 
         public ModProp? ModProp(PropRef? propRef)

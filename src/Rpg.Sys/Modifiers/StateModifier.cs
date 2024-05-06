@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Sys.Archetypes;
+using Rpg.Sys.Moddable;
 using System.Linq.Expressions;
 
 namespace Rpg.Sys.Modifiers
@@ -35,7 +36,7 @@ namespace Rpg.Sys.Modifiers
         }
 
         public static Modifier Create<TEntity, T1>(string stateName, Guid artifactId, TEntity entity, Dice dice, Expression<Func<TEntity, T1>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TEntity : ModdableObject
+            where TEntity : ModObject
         {
             var mod = _Create<StateModifier, TEntity, T1, TEntity, T1>(null, stateName, dice, null, entity, targetExpr, diceCalcExpr);
             mod.ArtifactId = artifactId;
@@ -43,7 +44,7 @@ namespace Rpg.Sys.Modifiers
         }
 
         public static Modifier Create<TEntity, T1, T2>(string stateName, Guid artifactId, TEntity entity, Expression<Func<TEntity, T1>> sourceExpr, Expression<Func<TEntity, T2>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TEntity : ModdableObject
+            where TEntity : ModObject
         {
             var mod = _Create<StateModifier, TEntity, T1, TEntity, T2>(entity, stateName, null, sourceExpr, entity, targetExpr, diceCalcExpr);
             mod.ArtifactId = artifactId;
@@ -51,13 +52,13 @@ namespace Rpg.Sys.Modifiers
         }
 
         public static Modifier Create<TEntity, T1, TEntity2, T2>(string stateName, TEntity? entity, Expression<Func<TEntity, T1>>? sourceExpr, TEntity2 target, Expression<Func<TEntity2, T2>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TEntity : ModdableObject
-            where TEntity2 : ModdableObject
+            where TEntity : ModObject
+            where TEntity2 : ModObject
                 => _Create<StateModifier, TEntity, T1, TEntity2, T2>(entity, stateName, null, sourceExpr, target, targetExpr, diceCalcExpr);
 
         public static Modifier Create<TEntity, T1, TEntity2, T2>(string stateName, TEntity? entity, Dice? dice, Expression<Func<TEntity, T1>>? sourceExpr, TEntity2 target, Expression<Func<TEntity2, T2>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TEntity : ModdableObject
-            where TEntity2 : ModdableObject
+            where TEntity : ModObject
+            where TEntity2 : ModObject
                 => _Create<BaseModifier, TEntity, T1, TEntity2, T2>(entity, stateName, dice, sourceExpr, target, targetExpr, diceCalcExpr);
     }
 }

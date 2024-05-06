@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using Rpg.Sys.Moddable;
 
 namespace Rpg.Sys.Modifiers
 {
@@ -17,7 +18,7 @@ namespace Rpg.Sys.Modifiers
         }
 
         public static Modifier Create<TEntity, T1>(Dice dice, TEntity target, Expression<Func<TEntity, T1>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TEntity : ModdableObject
+            where TEntity : ModObject
                 => _Create<CostModifier, TEntity, T1, TEntity, T1>(null, ModNames.Cost, dice, null, target, targetExpr, diceCalcExpr);
     }
 }

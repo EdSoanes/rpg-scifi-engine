@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using Rpg.Sys.Moddable;
 
 namespace Rpg.Sys.Modifiers
 {
@@ -13,7 +14,7 @@ namespace Rpg.Sys.Modifiers
             ModifierAction = ModifierAction.Replace;
         }
 
-        public static Modifier Create(ModdableObject entity, Dice dice, string targetPropPath, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+        public static Modifier Create(ModObject entity, Dice dice, string targetPropPath, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             => _CreateByPath<BaseModifier>(entity, ModNames.BaseValue, dice, targetPropPath, diceCalcExpr);
     }
 }
