@@ -54,7 +54,7 @@ namespace Rpg.Sys.Moddable
 
             var propsAffectedBy = ModObjectStore.Values
                 .SelectMany(x => x.PropStore)
-                .Where(x => x.AffectedBy(entityId, prop))
+                .Where(x => x.IsAffectedBy(entityId, prop))
                 .Select(x => new ModObjectPropRef(x.EntityId, x.Prop));
 
             res.Merge(propsAffectedBy);

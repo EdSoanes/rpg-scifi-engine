@@ -45,10 +45,6 @@ namespace Rpg.Sys.Moddable
                 .Where(x => x.Name == name && x.ModifierType == modifierType)
                 .ToArray();
 
-        public bool AffectedBy(Guid id, string prop)
-            => Modifiers
-                .Any(x => x.Source != null && x.Source.EntityId == id && x.Source.Prop == prop);
-
         public bool Contains(Modifier mod)
             => Modifiers
                 .Any(x => x.Id == mod.Id);
@@ -204,6 +200,10 @@ namespace Rpg.Sys.Moddable
 
             return false;
         }
+
+        public bool IsAffectedBy(Guid id, string prop)
+            => Modifiers
+                .Any(x => x.Source != null && x.Source.EntityId == id && x.Source.Prop == prop);
 
         public IEnumerable<ModObjectPropRef> AffectedBy()
         {
