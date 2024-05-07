@@ -41,20 +41,61 @@ namespace Rpg.Sys.Moddable
                 entity.IsInitialized = true;
             }
 
-            SetModdableValues();
+            UpdateProps();
         }
 
         protected virtual void OnInitialize() { }
 
         public void UpdateGraph()
+            => UpdateEntityGraph(ModGraph.Current.GetContext());
+
+        public void UpdateSubgraph()
+            => UpdateEntityGraph(this);
+
+        public void UpdateProps()
         {
-            foreach (var entity in this.Traverse(true))
+            foreach (var modProp in PropStore)
+                UpdateProp(modProp.Prop);
+        }
+
+        public void DeepUpdateProps()
+        {
+            UpdateSubgraph();
+            UpdateProps();
+        }
+
+        public void UpdateProp(string prop)
+        {
+            var oldValue = GetModdableValue(prop);
+            var newValue = PropStore.Evaluate(prop) ?? Dice.Zero;
+
+            if (oldValue == null || oldValue != newValue)
             {
-
+                this.PropertyValue(prop, newValue);
+                CallPropertyChanged(prop);
             }
-                entity.PropStore.Update();
+        }
 
-            SetModdableValues();
+        public void DeepUpdateProp(string prop)
+        {
+            foreach (var propRef in ModGraph.Current.AffectedByProps(Id, prop))
+            {
+                var entity = ModGraph.Current.GetEntity<ModObject>(propRef.EntityId)!;
+                entity.UpdateProp(propRef.Prop);
+            }
+
+            UpdateProp(prop);
+        }
+
+        private void UpdateEntityGraph(ModObject rootEntity)
+        {
+            var affectedBy = new List<ModObjectPropRef>();
+
+            foreach (var entity in rootEntity.Traverse(true))
+                affectedBy.Merge(entity.PropStore.AffectedBy());
+
+            foreach (var propRef in affectedBy)
+                SetModdableValue(propRef.EntityId, propRef.Prop);
         }
 
         private void InitializeBaseValues()
@@ -72,25 +113,10 @@ namespace Rpg.Sys.Moddable
             }
         }
 
-        public void SetModdableValues()
-            => this.ForEachReversed((entity, prop) => entity.SetModdableValue(prop));
-
-        public void SetModdableValue(string prop)
-        {
-            var oldValue = GetModdableValue(prop);
-            var newValue = PropStore.Evaluate(prop) ?? Dice.Zero;
-
-            if (oldValue == null || oldValue != newValue)
-            {
-                this.PropertyValue(prop, newValue);
-                CallPropertyChanged(prop);
-            }
-        }
-
         private void SetModdableValue(Guid entityId, string prop)
         {
             var entity = ModGraph.Current.GetEntity<ModObject>(entityId);
-            entity?.SetModdableValue(prop);
+            entity?.UpdateProp(prop);
         }
 
         public Dice? GetModdableValue(string prop)

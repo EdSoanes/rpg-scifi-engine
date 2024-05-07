@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.Sys.GraphOperations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,9 @@ namespace Rpg.Sys.Moddable
         public bool EncounterActive => Turn > 1;
 
         public static ModGraph Current { get; } = new ModGraph();
+        public EvaluateOp Evaluate { get; } = new EvaluateOp();
+        public ModObject GetContext() 
+            => Context!;
 
         public T GetContext<T>()
             where T : ModObject
@@ -44,44 +48,83 @@ namespace Rpg.Sys.Moddable
                     ? ModObjectStore[entityId.Value] as T
                     : null;
 
-        public IEnumerable<T> GetAffectedEntities<T>(Guid sourceId, string prop) 
-            where T : ModObject
+        public List<ModObjectPropRef> PropsAffectedBy(Guid entityId, string prop)
         {
+            var res = new List<ModObjectPropRef>();
 
+            var propsAffectedBy = ModObjectStore.Values
+                .SelectMany(x => x.PropStore)
+                .Where(x => x.AffectedBy(entityId, prop))
+                .Select(x => new ModObjectPropRef(x.EntityId, x.Prop));
+
+            res.Merge(propsAffectedBy);
+
+            foreach (var affect in propsAffectedBy)
+            {
+                var parentAffects = PropsAffectedBy(affect.EntityId, affect.Prop);
+                res.Merge(parentAffects);
+            }
+
+            return res;
         }
+
+        public List<ModObjectPropRef> AffectedByProps(Guid entityId, string prop)
+        {
+            var res = new List<ModObjectPropRef>();
+
+            var affectedByProps = GetEntity<ModObject>(entityId)
+                !.PropStore[prop]
+                !.AffectedBy();
+
+            foreach (var affectedByProp in affectedByProps)
+            {
+                var childAffectedByProps = AffectedByProps(affectedByProp.EntityId, affectedByProp.Prop);
+                res.Merge(childAffectedByProps);
+            }
+
+            res.Merge(affectedByProps);
+
+            return res;
+        }
+
         public void NewEncounter()
         {
             Turn = 1;
-            Update.Conditions();
-            Update.Mods();
+            Context?.UpdateGraph();
+            //Update.Conditions();
+            //Update.Mods();
         }
 
         public void EndEncounter()
         {
             Turn = 0;
-            Update.Conditions();
-            Update.Mods();
+            Context?.UpdateGraph();
+            //Update.Conditions();
+            //Update.Mods();
         }
 
         public void NewTurn()
         {
             Turn++;
-            Update.Conditions();
-            Update.Mods();
+            Context?.UpdateGraph();
+            //Update.Conditions();
+            //Update.Mods();
         }
 
         public void PrevTurn()
         {
             Turn--;
-            Update.Conditions();
-            Update.Mods();
+            Context?.UpdateGraph();
+            //Update.Conditions();
+            //Update.Mods();
         }
 
         public void SetTurn(int turn)
         {
             Turn = turn;
-            Update.Conditions();
-            Update.Mods();
+            Context?.UpdateGraph();
+            //Update.Conditions();
+            //Update.Mods();
         }
     }
 }

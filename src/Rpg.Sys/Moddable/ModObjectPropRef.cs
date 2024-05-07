@@ -19,5 +19,12 @@ namespace Rpg.Sys.Moddable
             EntityId = entityId;
             Prop = prop;
         }
+
+        public static bool operator ==(ModObjectPropRef d1, ModObjectPropRef d2)
+            => d1.EntityId == d2.EntityId && d1.Prop == d2.Prop;
+        
+        public static bool operator !=(ModObjectPropRef d1, ModObjectPropRef d2) 
+            => d1.EntityId != d2.EntityId || d1.Prop != d2.Prop;
+
     }
 }

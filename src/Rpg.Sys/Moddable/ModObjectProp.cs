@@ -10,9 +10,8 @@ namespace Rpg.Sys.Moddable
         [JsonIgnore] public Modifier[] AllModifiers { get => Modifiers.ToArray(); }
 
         public ModObjectProp(Guid entityId, string prop)
+            : base(entityId, prop)
         {
-            EntityId = entityId;
-            Prop = prop;
         }
 
         public Modifier[] BaseModifiers()
@@ -54,14 +53,27 @@ namespace Rpg.Sys.Moddable
             => Modifiers
                 .Any(x => x.Id == mod.Id);
 
-        public Dice Evaluate(string? modifierName = null, ModifierType? modifierType = null)
+        public Dice Calculate(string? modifierName = null, ModifierType? modifierType = null)
         {
             var mods = !string.IsNullOrEmpty(modifierName) && modifierType != null
                 ? MatchingModifiers(modifierName, modifierType.Value)
                 : FilteredModifiers();
 
-            var newValue = ModGraph.Current.Evaluate.Mod(mods);
-            return newValue;
+            Dice dice = "0";
+            foreach (var mod in mods)
+            {
+                Dice modDice = mod.SourceDice
+                    ?? ModGraph.Current.GetEntity<ModObject>(mod.Source!.EntityId)?.GetModdableValue(mod.Source.Prop)
+                    ?? Dice.Zero;
+
+                object diceCalcEntity = mod.DiceCalc?.EntityId != null
+                    ? ((object?)ModGraph.Current.GetEntity<ModObject>(mod.DiceCalc.EntityId!.Value)) ?? this
+                    : this;
+
+                dice += CalculateDiceCalc(diceCalcEntity, modDice, mod.DiceCalc);
+            }
+
+            return dice;
         }
 
         public bool Add(ModObject entity, params Modifier[] mods)
@@ -201,7 +213,23 @@ namespace Rpg.Sys.Moddable
                 if (!res.Any(x => x.EntityId == mod.Source!.EntityId && x.Prop == mod.Source.Prop))
                     res.Add(new ModObjectPropRef(mod.Source!.EntityId, mod.Source.Prop));
 
+            var thisRef = new ModObjectPropRef(EntityId, Prop);
+            if (!res.Any(x => x == thisRef))
+                res.Add(thisRef);
+
             return res;
+        }
+
+        private Dice CalculateDiceCalc(object? diceCalcEntity, Dice dice, ModifierDiceCalc? diceCalc)
+        {
+            if (diceCalc == null || !diceCalc.IsCalc)
+                return dice;
+
+            var funcName = diceCalc.IsStatic
+                ? $"{diceCalc.ClassName}.{diceCalc.FuncName}"
+                : diceCalc.FuncName!;
+
+            return diceCalcEntity.ExecuteFunction<Dice, Dice>(funcName, dice);
         }
     }
 }

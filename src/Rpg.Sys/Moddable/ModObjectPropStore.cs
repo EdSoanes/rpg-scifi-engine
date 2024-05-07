@@ -1,9 +1,10 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Sys.Modifiers;
+using System.Collections;
 
 namespace Rpg.Sys.Moddable
 {
-    public class ModObjectPropStore
+    public class ModObjectPropStore : IEnumerable<ModObjectProp>
     {
         [JsonProperty] protected Guid EntityId { get; set; }
         [JsonProperty] protected Dictionary<string, ModObjectProp> ModObjProps { get; set; } = new Dictionary<string, ModObjectProp>();
@@ -29,6 +30,19 @@ namespace Rpg.Sys.Moddable
             }
         }
 
+        public static implicit operator Dictionary<string, ModObjectProp>(ModObjectPropStore d) 
+            => d.ModObjProps;
+
+        public static implicit operator ModObjectPropStore(Dictionary<string, ModObjectProp>? expr)
+        {
+            var entityId = expr.Values.First().EntityId;
+            return new ModObjectPropStore
+            {
+                EntityId = entityId,
+                ModObjProps = expr ?? new Dictionary<string, ModObjectProp>()
+            };
+        }
+
         public ModObjectPropStore(Guid entityId)
             => EntityId = entityId;
 
@@ -43,7 +57,7 @@ namespace Rpg.Sys.Moddable
 
         public Dice? Evaluate(string prop, string? modifierName = null, ModifierType? modifierType = null)
             => Create(prop)
-                ?.Evaluate(modifierName, modifierType);
+                ?.Calculate(modifierName, modifierType);
 
         public void Add(ModObject rootEntity, params Modifier[] mods)
             => Add(rootEntity, true, mods);
@@ -69,7 +83,7 @@ namespace Rpg.Sys.Moddable
                 propertyModifiers?.Add(entity, propMods);
 
                 if (evaluate)
-                    entity.SetModdableValue(prop);
+                    entity.UpdateProp(prop);
             });
 
         public string[] Update()
@@ -108,13 +122,33 @@ namespace Rpg.Sys.Moddable
             return updatedProps.Distinct().ToArray();
         }
 
+        public IEnumerable<ModObjectPropRef> AffectedBy(string prop)
+            => ModGraph.Current.AffectedByProps(EntityId, prop);
+
         public IEnumerable<ModObjectPropRef> AffectedBy()
         {
             var res = new List<ModObjectPropRef>();
-            foreach (var modObjRef in ModObjProps.Values)
-                if ()
+            var affectedByGroups = ModObjProps.Values
+                .SelectMany(x => x.AffectedBy())
+                .Distinct()
+                .GroupBy(x => x.EntityId);
+
+            foreach (var group in affectedByGroups)
+            {
+                var affectedBy = ModGraph.Current.GetEntity<ModObject>(group.Key)?.PropStore.AffectedBy();
+                if (affectedBy != null && affectedBy.Any())
+                    res.Merge(affectedBy);
+
+                res.Merge(group);
+            }
+
             return res;
         }
 
+        public IEnumerator<ModObjectProp> GetEnumerator()
+            => ModObjProps.Values.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator()
+            => ModObjProps.Values.GetEnumerator();
     }
 }

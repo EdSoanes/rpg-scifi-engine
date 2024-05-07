@@ -53,7 +53,7 @@ namespace Rpg.Sys.GraphOperations
                     {
                         var entity = Graph.Get.Entity<ModObject>(group.Key);
                         foreach (var modProp in group)
-                            entity?.SetModdableValue(modProp.Prop);
+                            entity?.UpdateProp(modProp.Prop);
                     }
                 }
 

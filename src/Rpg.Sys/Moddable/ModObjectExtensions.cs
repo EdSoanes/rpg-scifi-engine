@@ -11,6 +11,13 @@ namespace Rpg.Sys.Moddable
             public string? Prop { get; set; }
         }
 
+        public static void Merge(this List<ModObjectPropRef> target, IEnumerable<ModObjectPropRef> source)
+        {
+            foreach (var a in source)
+                if (!target.Any(x => x == a))
+                    target.Add(a);
+        }
+
         public static void AddBaseMod<TEntity, T1>(this TEntity entity, Dice dice, Expression<Func<TEntity, T1>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
