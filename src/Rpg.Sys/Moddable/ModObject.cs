@@ -1,11 +1,13 @@
 ﻿using Newtonsoft.Json;
-using Rpg.Sys.Modifiers;
+using Rpg.Sys.Moddable.Modifiers;
 using System.ComponentModel;
 
 namespace Rpg.Sys.Moddable
 {
     public abstract class ModObject : INotifyPropertyChanged
     {
+        protected ModGraph? Graph { get; private set; }
+
         [JsonProperty] public Guid Id { get; private set; }
         [JsonProperty] public string Name { get; set; }
         [JsonProperty] public string[] Is { get; private set; }
@@ -19,43 +21,57 @@ namespace Rpg.Sys.Moddable
             Id = Guid.NewGuid();
             Name = GetType().Name;
             Is = this.GetBaseTypes();
-            PropStore = new ModObjectPropStore(Id);
+            PropStore = new ModObjectPropStore();
         }
 
-        public void AddMod(Modifier mod)
+        public void AddMod(Mod mod)
         {
-            PropStore.Add(this, mod);
-            SetModdableValue(mod.Target.EntityId, mod.Target.Prop);
+            PropStore.Add(mod);
+            SetModdableValue(mod);
         }
 
         public bool IsA(string type) => Is.Contains(type);
 
-        public void BuildGraph()
+        public ModGraph BuildGraph()
         {
-            ModGraph.Current.SetContext(this);
-
-            foreach (var entity in this.Traverse(true).Where(x => !x.IsInitialized))
+            var graph = new ModGraph(this);
+            foreach (var entity in this.Traverse(true))
             {
-                entity.InitializeBaseValues();
-                entity.OnInitialize();
-                entity.IsInitialized = true;
+                entity.Initialize(graph);
+                if (!entity.IsInitialized)
+                {
+                    entity.OnBuildGraph();
+                    entity.IsInitialized = true;
+                }
             }
 
-            UpdateProps();
+            DeepUpdateProps();
+
+            return graph;
         }
 
-        protected virtual void OnInitialize() { }
+        protected virtual void OnBuildGraph() { }
 
         public void UpdateGraph()
-            => UpdateEntityGraph(ModGraph.Current.GetContext());
+            => UpdateEntityGraph(Graph!.Context!);
 
         public void UpdateSubgraph()
             => UpdateEntityGraph(this);
 
         public void UpdateProps()
         {
-            foreach (var modProp in PropStore)
-                UpdateProp(modProp.Prop);
+            foreach (var prop in PropStore.AllProps())
+                UpdateProp(prop);
+        }
+
+        public void OnPropUpdated(ModObjectPropRef propRef)
+        {
+            var propsAffected = PropStore.PropsAffectedBy(propRef);
+            foreach (var prop in propsAffected)
+            {
+                var entity = Graph!.GetEntity<ModObject>(prop.EntityId);
+                entity?.UpdateProp(prop.Prop);
+            }
         }
 
         public void DeepUpdateProps()
@@ -67,7 +83,7 @@ namespace Rpg.Sys.Moddable
         public void UpdateProp(string prop)
         {
             var oldValue = GetModdableValue(prop);
-            var newValue = PropStore.Evaluate(prop) ?? Dice.Zero;
+            var newValue = PropStore.Calculate(prop);
 
             if (oldValue == null || oldValue != newValue)
             {
@@ -78,9 +94,9 @@ namespace Rpg.Sys.Moddable
 
         public void DeepUpdateProp(string prop)
         {
-            foreach (var propRef in ModGraph.Current.AffectedByProps(Id, prop))
+            foreach (var propRef in PropStore.AffectedByProps(prop))
             {
-                var entity = ModGraph.Current.GetEntity<ModObject>(propRef.EntityId)!;
+                var entity = Graph!.GetEntity<ModObject>(propRef.EntityId)!;
                 entity.UpdateProp(propRef.Prop);
             }
 
@@ -92,35 +108,44 @@ namespace Rpg.Sys.Moddable
             var affectedBy = new List<ModObjectPropRef>();
 
             foreach (var entity in rootEntity.Traverse(true))
-                affectedBy.Merge(entity.PropStore.AffectedBy());
+                affectedBy.Merge(entity.PropStore.AffectedByProps());
 
             foreach (var propRef in affectedBy)
-                SetModdableValue(propRef.EntityId, propRef.Prop);
+                SetModdableValue(propRef);
         }
 
-        private void InitializeBaseValues()
+        private void Initialize(ModGraph graph)
         {
-            foreach (var propInfo in this.ModdableProperties())
+            Graph = graph;
+            PropStore.Initialize(Graph, this);
+
+            if (!IsInitialized)
             {
-                var val = this.PropertyValue(propInfo.Name);
-                if (val != null)
+                foreach (var propInfo in this.ModdableProperties())
                 {
-                    if (val is Dice && (Dice)val != Dice.Zero)
-                        PropStore.Init(this, BaseValueModifier.Create(this, (Dice)val, propInfo.Name));
-                    else if (val is int && (int)val != 0)
-                        PropStore.Init(this, BaseValueModifier.Create(this, (int)val, propInfo.Name));
+                    var val = this.PropertyValue(propInfo.Name);
+                    if (val != null)
+                    {
+                        if (val is Dice dice && dice != Dice.Zero)
+                            PropStore.Add(BaseValueMod.Create(this, propInfo.Name, dice));
+                        else if (val is int i && i != 0)
+                            PropStore.Add(BaseValueMod.Create(this, propInfo.Name, i));
+                    }
                 }
             }
         }
 
-        private void SetModdableValue(Guid entityId, string prop)
+        private void SetModdableValue(ModObjectPropRef propRef)
         {
-            var entity = ModGraph.Current.GetEntity<ModObject>(entityId);
-            entity?.UpdateProp(prop);
+            var entity = Graph!.GetEntity<ModObject>(propRef.EntityId);
+            entity?.UpdateProp(propRef.Prop);
         }
 
-        public Dice? GetModdableValue(string prop)
+        public Dice? GetModdableValue(string? prop)
         {
+            if (string.IsNullOrEmpty(prop))
+                return null;
+
             var val = this.PropertyValue(prop);
             if (val != null)
             {
@@ -137,6 +162,7 @@ namespace Rpg.Sys.Moddable
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
 
         protected void NotifyPropertyChanged(string prop)
-            => ModGraph.Current?.Notify.Send(Id, prop);
+        { }
+          //  => Graph?.Notify.Send(Id, prop);
     }
 }

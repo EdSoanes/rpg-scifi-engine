@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Sys.Archetypes;
 using Rpg.Sys.Moddable;
-using Rpg.Sys.Modifiers;
 using System.Collections;
 
 namespace Rpg.Sys.Components
@@ -38,36 +37,36 @@ namespace Rpg.Sys.Components
 
         public void Activate(Actor actor, string stateName)
         {
-            var state = _states.SingleOrDefault(x => x.Name == stateName);
-            if (state != null && !state.IsActive)
-            {
-                var condition = Graph.Current.Get.Condition(state.ConditionName());
+            //var state = _states.SingleOrDefault(x => x.Name == stateName);
+            //if (state != null && !state.IsActive)
+            //{
+            //    var condition = Graph.Current.Get.Condition(state.ConditionName());
 
-                if (condition != null)
-                    Graph.Current.Remove.Conditions(condition);
+            //    if (condition != null)
+            //        Graph.Current.Remove.Conditions(condition);
 
-                state.IsActive = true;
-                Graph.Current.Add.Conditions(state.OnActive(actor));
-            }
+            //    state.IsActive = true;
+            //    Graph.Current.Add.Conditions(state.OnActive(actor));
+            //}
         }
 
         public void Deactivate(Actor actor, string stateName)
         {
-            var state = _states.SingleOrDefault(x => x.Name == stateName);
-            if (state != null && state.IsActive)
-            {
-                var condition = Graph.Current.Get.Condition(state.ConditionName());
-                if (condition != null)
-                {
-                    if (Graph.Current.Turn > 0)
-                        Graph.Current.Expire.Conditions(condition);
-                    else
-                        Graph.Current.Remove.Conditions(condition);
-                }
+            //var state = _states.SingleOrDefault(x => x.Name == stateName);
+            //if (state != null && state.IsActive)
+            //{
+            //    var condition = Graph.Current.Get.Condition(state.ConditionName());
+            //    if (condition != null)
+            //    {
+            //        if (Graph!.Turn > 0)
+            //            Graph.Current.Expire.Conditions(condition);
+            //        else
+            //            Graph.Current.Remove.Conditions(condition);
+            //    }
 
-                state.IsActive = false;
-                Graph.Current.Add.Conditions(state.OnInactive(actor));
-            }
+            //    state.IsActive = false;
+            //    Graph.Current.Add.Conditions(state.OnInactive(actor));
+            //}
         }
 
         public IState? Remove(string stateName)

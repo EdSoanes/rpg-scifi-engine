@@ -1,14 +1,19 @@
-﻿using Rpg.Sys.Archetypes;
-using Rpg.Sys.Components;
+﻿using Newtonsoft.Json;
 using Rpg.Sys.Components.Values;
 using Rpg.Sys.Moddable;
-using Rpg.Sys.Modifiers;
-using Rpg.Sys.Tests.Factories;
+using Rpg.Sys.Moddable.Modifiers;
 
 namespace Rpg.Sys.Tests
 {
     public class ModdableObjectTests
     {
+        private static JsonSerializerSettings JsonSettings = new JsonSerializerSettings
+        {
+            TypeNameHandling = TypeNameHandling.Auto,
+            NullValueHandling = NullValueHandling.Include,
+            Formatting = Formatting.Indented
+        };
+
         public class ModdableEntity : ModObject
         {
             public ScoreBonusValue Strength { get; private set; } = new ScoreBonusValue(nameof(Strength), 14);
@@ -16,10 +21,10 @@ namespace Rpg.Sys.Tests
             public Dice Melee { get; protected set; } = 2;
             public Dice Missile { get; protected set; }
 
-            protected override void OnInitialize()
+            protected override void OnBuildGraph()
             {
-                PropStore.Init(this, BaseModifier.Create(this, x => x.Strength.Bonus, x => x.Melee));
-                PropStore.Init(this, BaseModifier.Create(this, x => x.Strength.Bonus, x => x.Damage.Dice));
+                this.AddMod(x => x.Melee, x => x.Strength.Bonus);
+                this.AddMod(x => x.Damage.Dice, x => x.Strength.Bonus);
             }
         }
 
@@ -34,9 +39,9 @@ namespace Rpg.Sys.Tests
                 Bonus = bonus;
             }
 
-            protected override void OnInitialize()
+            protected override void OnBuildGraph()
             {
-                PropStore.Init(this, BaseModifier.Create(this, x => x.Bonus, x => x.Score));
+                this.AddMod(x => x.Score, x => x.Bonus);
             }
         }
 
@@ -44,6 +49,16 @@ namespace Rpg.Sys.Tests
         public void Setup()
         {
             GraphExtensions.RegisterAssembly(this.GetType().Assembly);
+        }
+
+        [Test]
+        public void TestEntity_EnsureSetup()
+        {
+            var entity = new ModdableEntity();
+            var graph = entity.BuildGraph();
+
+            Assert.That(graph.GetEntities().Count(), Is.EqualTo(3));
+            Assert.That(graph.GetMods().Count(), Is.EqualTo(8));
         }
 
         [Test]
@@ -68,7 +83,7 @@ namespace Rpg.Sys.Tests
             entity.BuildGraph();
             Assert.That(entity.Score, Is.EqualTo(4));
 
-            entity.AddBaseMod(4, x => x.Score);
+            entity.AddMod(x => x.Score, 4);
 
             Assert.That(entity.Score, Is.EqualTo(8));
         }
@@ -83,6 +98,47 @@ namespace Rpg.Sys.Tests
             Assert.That(entity.Strength.Bonus, Is.EqualTo(2));
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Damage.Dice.ToString(), Is.EqualTo("1d6 + 2"));
+        }
+
+        [Test]
+        public void TestEntity_Serialize_EnsureValues()
+        {
+            var entity = new ModdableEntity();
+            entity.BuildGraph();
+
+            var json = JsonConvert.SerializeObject(entity, JsonSettings);
+
+            var entity2 = JsonConvert.DeserializeObject<ModdableEntity>(json, JsonSettings)!;
+            entity2.BuildGraph();
+
+            Assert.That(entity2, Is.Not.Null);
+
+            Assert.That(entity2.Strength.Score, Is.EqualTo(entity.Strength.Score));
+            Assert.That(entity2.Strength.Bonus, Is.EqualTo(entity.Strength.Bonus));
+
+            Assert.That(entity2.Damage.ArmorPenetration, Is.EqualTo(entity.Damage.ArmorPenetration));
+            Assert.That(entity2.Damage.Dice, Is.EqualTo(entity.Damage.Dice));
+            Assert.That(entity2.Damage.Radius, Is.EqualTo(entity.Damage.Radius));
+
+            Assert.That(entity2.Melee, Is.EqualTo(entity.Melee));
+            Assert.That(entity2.Missile, Is.EqualTo(entity.Missile));
+        }
+
+        [Test]
+        public void TestEntity_ReplaceStrengthScoreWithBaseOverrideMod_VerifyValues()
+        {
+            var entity = new ModdableEntity();
+            entity.BuildGraph();
+
+            Assert.That(entity.Strength.Score, Is.EqualTo(14));
+
+            entity.AddMod(BaseOverrideMod.Create(entity, x => x.Strength.Score, 10));
+            entity.TriggerUpdate(x => x.Strength.Score);
+
+            Assert.That(entity.Strength.Score, Is.EqualTo(10));
+            Assert.That(entity.Strength.Bonus, Is.EqualTo(0));
+            Assert.That(entity.Melee.Roll(), Is.EqualTo(2));
+            Assert.That(entity.Damage.Dice.ToString(), Is.EqualTo("1d6"));
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Sys.Actions;
 using Rpg.Sys.Components;
+using Rpg.Sys.Moddable;
 using Rpg.Sys.Modifiers;
 
 namespace Rpg.Sys.Archetypes
@@ -21,15 +22,15 @@ namespace Rpg.Sys.Archetypes
             Stats = new StatPoints(template.Stats);
         }
 
-        protected override void OnInitialize()
+        protected override void OnBuildGraph()
         {
-            PropStore.Init(this, BaseModifier.Create(this, x => x.Stats.Strength.Bonus, x => x.Actions.Exertion.Max));
-            PropStore.Init(this, BaseModifier.Create(this, x => x.Stats.Dexterity.Bonus, x => x.Actions.Action.Max));
-            PropStore.Init(this, BaseModifier.Create(this, x => x.Stats.Intelligence.Bonus, x => x.Actions.Focus.Max));
+            this.AddMod(x => x.Actions.Exertion.Max, x => x.Stats.Strength.Bonus);
+            this.AddMod(x => x.Actions.Action.Max, x => x.Stats.Dexterity.Bonus);
+            this.AddMod(x => x.Actions.Focus.Max, x => x.Stats.Intelligence.Bonus);
 
-            PropStore.Init(this, BaseModifier.Create(this, x => x.Stats.Dexterity.Bonus, x => x.Movement.Speed.Max));
-            PropStore.Init(this, BaseModifier.Create(this, x => x.Presence.Weight, x => x.Movement.Speed.Max, () => DiceCalculations.WeightSpeedBonus));
-            PropStore.Init(this, BaseModifier.Create(this, x => x.Stats.Strength.Bonus, x => x.Movement.Speed.Max));
+            this.AddMod(x => x.Movement.Speed.Max, x => x.Stats.Dexterity.Bonus);
+            this.AddMod(x => x.Movement.Speed.Max, x => x.Presence.Weight, () => DiceCalculations.WeightSpeedBonus);
+            this.AddMod(x => x.Movement.Speed.Max, x => x.Stats.Strength.Bonus);
         }
 
         public virtual ActionBase? ActivateState(Artifact artifact, string stateName)

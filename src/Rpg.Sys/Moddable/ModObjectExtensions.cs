@@ -1,4 +1,5 @@
-﻿using Rpg.Sys.Modifiers;
+﻿using Rpg.Sys.Moddable.Modifiers;
+using Rpg.Sys.Modifiers;
 using System.Linq.Expressions;
 
 namespace Rpg.Sys.Moddable
@@ -18,18 +19,25 @@ namespace Rpg.Sys.Moddable
                     target.Add(a);
         }
 
-        public static void AddBaseMod<TEntity, T1>(this TEntity entity, Dice dice, Expression<Func<TEntity, T1>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+        public static void AddMod<TEntity, T1>(this TEntity entity, Expression<Func<TEntity, T1>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
-            var mod = BaseModifier.Create(entity, dice, targetExpr, diceCalcExpr);
+            var mod = PermanentMod.Create(entity, targetExpr, dice, diceCalcExpr);
             entity.AddMod(mod);
         }
 
-        public static void AddBaseMod<TEntity, T1, T2>(this TEntity entity, Expression<Func<TEntity, T1>> sourceExpr, Expression<Func<TEntity, T2>> targetExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+        public static void AddMod<TEntity, TTarget, TSource>(this TEntity entity, Expression<Func<TEntity, TTarget>> targetExpr, Expression<Func<TEntity, TSource>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
-            var mod = BaseModifier.Create(entity, sourceExpr, targetExpr, diceCalcExpr);
+            var mod = PermanentMod.Create(entity, targetExpr, sourceExpr, diceCalcExpr);
             entity.AddMod(mod);
+        }
+
+        public static void TriggerUpdate<TTarget, TTargetValue>(this TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr)
+            where TTarget : ModObject
+        {
+            var propRef = ModObjectPropRef.CreatePropRef(entity, targetExpr);
+            entity.OnPropUpdated(propRef);
         }
 
         //public static Dice? GetPropValue<TEntity>(this TEntity rootEntity, Expression<Func<TEntity, Dice>> expression)

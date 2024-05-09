@@ -5,159 +5,73 @@ namespace Rpg.Sys.Moddable
 {
     public class ModObjectProp : ModObjectPropRef
     {
-        [JsonProperty] private List<Modifier> Modifiers { get; set; } = new List<Modifier>();
-
-        [JsonIgnore] public Modifier[] AllModifiers { get => Modifiers.ToArray(); }
+        [JsonProperty] public List<Mod> Modifiers { get; private set; } = new List<Mod>();
 
         public ModObjectProp(Guid entityId, string prop)
             : base(entityId, prop)
         {
         }
 
-        public Modifier[] BaseModifiers()
-            => Modifiers
-                .Where(x => x.Duration.GetExpiry(ModGraph.Current.Turn) == ModifierExpiry.Active && x.ModifierType == ModifierType.Base)
-                .ToArray();
-
-        public Modifier[] FilteredModifiers()
+        public Mod[] Get(ModGraph graph)
         {
-            var activeModifiers = Modifiers.Where(x => x.Duration.GetExpiry(ModGraph.Current.Turn) == ModifierExpiry.Active);
+            var activeModifiers = Modifiers
+                .Where(x => x.Duration.GetExpiry(graph.Turn) == ModExpiry.Active);
 
             var res = activeModifiers
-                .Where(x => x.ModifierType != ModifierType.Base && x.ModifierType != ModifierType.BaseOverride)
+                .Where(x => x.ModifierType != ModType.Base && x.ModifierType != ModType.BaseOverride)
                 .ToList();
 
             var baseMods = activeModifiers
-                .Where(x => x.ModifierType == ModifierType.BaseOverride)
-                .ToList();
+                .Where(x => x.ModifierType == ModType.BaseOverride);
 
             if (!baseMods.Any())
                 baseMods = activeModifiers
-                    .Where(x => x.ModifierType == ModifierType.Base)
-                    .ToList();
+                    .Where(x => x.ModifierType == ModType.Base);
 
             res.AddRange(baseMods);
             return res.ToArray();
         }
 
-        public Modifier[] MatchingModifiers(string name, ModifierType modifierType)
+        //public Mod[] Get(ModGraph graph, ModType modifierType)
+        //    => Modifiers
+        //        .Where(x => x.Duration.GetExpiry(graph.Turn) == ModExpiry.Active && x.ModifierType == modifierType)
+        //        .ToArray();
+
+        public Mod[] Get(ModType modifierType, string modName)
             => Modifiers
-                .Where(x => x.Name == name && x.ModifierType == modifierType)
+                .Where(x => x.ModifierType == modifierType && x.Name == modName)
                 .ToArray();
 
-        public bool Contains(Modifier mod)
+        public bool Contains(Mod mod)
             => Modifiers
                 .Any(x => x.Id == mod.Id);
 
-        public Dice Calculate(string? modifierName = null, ModifierType? modifierType = null)
+        public void Add(Mod mod)
         {
-            var mods = !string.IsNullOrEmpty(modifierName) && modifierType != null
-                ? MatchingModifiers(modifierName, modifierType.Value)
-                : FilteredModifiers();
-
-            Dice dice = "0";
-            foreach (var mod in mods)
-            {
-                Dice modDice = mod.SourceDice
-                    ?? ModGraph.Current.GetEntity<ModObject>(mod.Source!.EntityId)?.GetModdableValue(mod.Source.Prop)
-                    ?? Dice.Zero;
-
-                object diceCalcEntity = mod.DiceCalc?.EntityId != null
-                    ? ((object?)ModGraph.Current.GetEntity<ModObject>(mod.DiceCalc.EntityId!.Value)) ?? this
-                    : this;
-
-                dice += CalculateDiceCalc(diceCalcEntity, modDice, mod.DiceCalc);
-            }
-
-            return dice;
+            if (!Modifiers.Contains(mod))
+                Modifiers.Add(mod);
         }
 
-        public bool Add(ModObject entity, params Modifier[] mods)
+        public void Replace(Mod mod)
         {
-            var res = false;
-            foreach (var mod in mods.Where(x => x.Target.EntityId == EntityId))
-            {
-                var existing = Modifiers.FirstOrDefault(x => x.Id == mod.Id);
-                if (existing != null)
-                {
-                    Modifiers.Remove(existing);
-                    res |= true;
-                }
+            var oldMods = Get(mod.ModifierType, mod.Name);
+            Remove(oldMods);
 
-                if (mod.ModifierAction == ModifierAction.Accumulate)
-                {
-                    Modifiers.Add(mod);
-                    res |= true;
-                }
-
-                else if (mod.ModifierAction == ModifierAction.Sum)
-                {
-                    res |= Sum(entity, mod);
-                }
-
-                else if (mod.ModifierAction == ModifierAction.Replace)
-                {
-                    res |= Replace(mod);
-                }
-            }
-
-            return res;
+            //Don't add if the source is a Value without a ValueFunction and the Value = 0
+            if (mod.Source.Value == null || mod.Source.Value != Dice.Zero || mod.Source.ValueFunc.IsCalc)
+                Add(mod);
         }
 
-        private bool Sum(ModObject entity, Modifier mod)
+        public Mod? Remove(Guid id)
         {
-            var oldValue = entity.PropStore.Evaluate(mod.Target.Prop, mod.Name, mod.ModifierType);
-            var oldMods = MatchingModifiers(mod.Name, mod.ModifierType);
+            var toRemove = Modifiers.FirstOrDefault(x => x.Id == id);
 
-            Modifiers = Modifiers.Except(oldMods).ToList();
-            Modifiers.Add(mod);
-
-            var newValue = entity.PropStore.Evaluate(mod.Target.Prop, mod.Name, mod.ModifierType) + oldValue;
-            if (newValue == null || newValue == Dice.Zero && mod.Duration.EndTurn == RemoveTurn.WhenZero)
-                Modifiers.Remove(mod);
-            else
-                mod.SetDice(newValue.Value);
-
-            return true;
+            if (toRemove != null)
+                Modifiers.Remove(toRemove);
+            return toRemove;
         }
 
-        private bool Replace(Modifier mod)
-        {
-            var matchingMods = Modifiers
-                .Where(x => x.Name == mod.Name && x.ModifierType == mod.ModifierType)
-                .ToArray();
-
-            Modifiers = Modifiers.Except(matchingMods).ToList();
-            Modifiers.Add(mod);
-
-            return true;
-        }
-
-        public Modifier[] UpdateOnTurn(Graph graph, int newTurn)
-        {
-            var updated = new List<Modifier>();
-            foreach (var mod in Modifiers)
-            {
-                mod.OnUpdate(newTurn);
-
-                var expiry = mod.Duration.GetExpiry(graph.Turn);
-                if (expiry == ModifierExpiry.Remove)
-                    updated.Add(mod);
-                else
-                {
-                    var oldExpiry = mod.Duration.GetExpiry(graph.Turn - 1);
-                    if (expiry != oldExpiry)
-                        updated.Add(mod);
-                }
-            }
-
-            foreach (var mod in updated.Where(x => x.Duration.GetExpiry(graph.Turn) == ModifierExpiry.Remove))
-                Modifiers.Remove(mod);
-
-            return updated.ToArray();
-        }
-
-        public Modifier[] Remove(params Modifier[] mods)
+        public Mod[] Remove(params Mod[] mods)
         {
             var toRemove = Modifiers
                 .Where(x => mods.Select(m => m.Id).Contains(x.Id))
@@ -172,7 +86,7 @@ namespace Rpg.Sys.Moddable
             return toRemove;
         }
 
-        public Modifier[] Clear(Graph graph)
+        public Mod[] Clear(Graph graph)
         {
             if (Modifiers.Any())
             {
@@ -181,7 +95,7 @@ namespace Rpg.Sys.Moddable
                 return res;
             }
 
-            return new Modifier[0];
+            return new Mod[0];
         }
 
         public bool Clean(Graph graph)
@@ -201,35 +115,8 @@ namespace Rpg.Sys.Moddable
             return false;
         }
 
-        public bool IsAffectedBy(Guid id, string prop)
+        public bool IsAffectedBy(ModObjectPropRef propRef)
             => Modifiers
-                .Any(x => x.Source != null && x.Source.EntityId == id && x.Source.Prop == prop);
-
-        public IEnumerable<ModObjectPropRef> AffectedBy()
-        {
-            var res = new List<ModObjectPropRef>();
-
-            foreach (var mod in FilteredModifiers().Where(x => x.Source != null))
-                if (!res.Any(x => x.EntityId == mod.Source!.EntityId && x.Prop == mod.Source.Prop))
-                    res.Add(new ModObjectPropRef(mod.Source!.EntityId, mod.Source.Prop));
-
-            var thisRef = new ModObjectPropRef(EntityId, Prop);
-            if (!res.Any(x => x == thisRef))
-                res.Add(thisRef);
-
-            return res;
-        }
-
-        private Dice CalculateDiceCalc(object? diceCalcEntity, Dice dice, ModifierDiceCalc? diceCalc)
-        {
-            if (diceCalc == null || !diceCalc.IsCalc)
-                return dice;
-
-            var funcName = diceCalc.IsStatic
-                ? $"{diceCalc.ClassName}.{diceCalc.FuncName}"
-                : diceCalc.FuncName!;
-
-            return diceCalcEntity.ExecuteFunction<Dice, Dice>(funcName, dice);
-        }
+                .Any(x => x.Source.PropRef != null && x.Source.PropRef == propRef);
     }
 }

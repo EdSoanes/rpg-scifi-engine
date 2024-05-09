@@ -46,15 +46,15 @@ namespace Rpg.Sys
         public static ModObject? FindModdableObject(this object obj, Guid id)
             => obj.Traverse().FirstOrDefault(x => x.Id == id);
 
-        public static void ForEach(this object obj, Modifier[] mods, Action<ModObject, string, Modifier[]> onMatch)
+        public static void ForEach(this object obj, Mod[] mods, Action<ModObject, string, Mod[]> onMatch)
         {
-            var modsByEntity = mods.GroupBy(x => x.Target.EntityId);
+            var modsByEntity = mods.GroupBy(x => x.EntityId);
             var entityIds = modsByEntity.Select(x => x.Key);
             foreach (var entity in obj.Traverse().Where(x => entityIds.Contains(x.Id)))
             {
                 var modsByProp = modsByEntity
                     .First(x => x.Key == entity.Id)
-                    .GroupBy(x => x.Target.Prop);
+                    .GroupBy(x => x.Prop);
 
                 foreach (var propMods in modsByProp)
                     onMatch(entity, propMods.Key, propMods.ToArray());

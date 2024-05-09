@@ -45,11 +45,11 @@ namespace Rpg.Sys.GraphOperations
             foreach (var mod in mods)
             {
                 Dice modDice = mod.SourceDice
-                    ?? ModGraph.Current.GetEntity<ModObject>(mod.Source!.EntityId)?.GetModdableValue(mod.Source.Prop) 
+                    ?? Graph.Get.Entity<ModObject>(mod.Source!.EntityId)?.GetModdableValue(mod.Source.Prop) 
                     ?? Dice.Zero;
 
                 object diceCalcEntity = mod.DiceCalc?.EntityId != null
-                    ? ((object?)ModGraph.Current.GetEntity<ModObject>(mod.DiceCalc.EntityId!.Value)) ?? this
+                    ? ((object?)Graph.Get.Entity<ModObject>(mod.DiceCalc.EntityId!.Value)) ?? this
                     : this;
 
                 dice += _ApplyDiceCalc(diceCalcEntity, modDice, mod.DiceCalc);

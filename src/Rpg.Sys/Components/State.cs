@@ -59,9 +59,9 @@ namespace Rpg.Sys.Components
         protected virtual Condition OnInactive(Actor actor, T artifact) 
             => new Condition(artifact.Id, ConditionName(), Duration);
 
-        protected override void OnInitialize()
+        protected override void OnBuildGraph()
         {
-            var artifact = Graph.Current.Get.Entity<T>(ArtifactId);
+            var artifact = Graph!.GetEntity<T>(ArtifactId);
             if (artifact != null)
                 Artifact = artifact;
         }

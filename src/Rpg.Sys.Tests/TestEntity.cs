@@ -1,4 +1,5 @@
 ﻿using Rpg.Sys.Moddable;
+using Rpg.Sys.Moddable.Modifiers;
 using Rpg.Sys.Modifiers;
 using System;
 using System.Collections.Generic;
@@ -19,10 +20,10 @@ namespace Rpg.Sys.Tests
 
         public TestHealth Health { get; set; } = new TestHealth();
 
-        protected override void OnInitialize()
+        protected override void OnBuildGraph()
         {
-            PropStore.Init(this, BaseModifier.Create(this, x => x.StrengthBonus, x => x.Health.Physical));
-            PropStore.Init(this, BaseModifier.Create(this, x => x.Intelligence, x => x.IntelligenceBonus, () => DiceCalculations.CalculateStatBonus));
+            PropStore.Add(PermanentMod.Create(this, x => x.Health.Physical, x => x.StrengthBonus));
+            PropStore.Add(PermanentMod.Create(this, x => x.IntelligenceBonus, x => x.Intelligence, () => DiceCalculations.CalculateStatBonus));
         }
     }
 

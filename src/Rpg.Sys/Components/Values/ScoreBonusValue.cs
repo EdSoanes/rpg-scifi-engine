@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Sys.Moddable;
+using Rpg.Sys.Moddable.Modifiers;
 using Rpg.Sys.Modifiers;
 using System;
 using System.Collections.Generic;
@@ -22,9 +23,9 @@ namespace Rpg.Sys.Components.Values
             Score = score;
         }
 
-        protected override void OnInitialize()
+        protected override void OnBuildGraph()
         {
-            PropStore.Init(this, BaseModifier.Create(this, x => x.Score, x => x.Bonus, () => CalculateStatBonus));
+            this.AddMod(x => x.Bonus, x => x.Score, () => CalculateStatBonus);
         }
 
         public Dice CalculateStatBonus(Dice dice) => (int)Math.Floor((double)(dice.Roll() - 10) / 2);
