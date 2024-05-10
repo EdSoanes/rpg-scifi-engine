@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
-using Rpg.Sys.Modifiers;
+using Rpg.ModObjects.Values;
 
-namespace Rpg.Sys.Moddable
+namespace Rpg.ModObjects
 {
     public class ModObjectProp : ModObjectPropRef
     {
@@ -86,7 +86,7 @@ namespace Rpg.Sys.Moddable
             return toRemove;
         }
 
-        public Mod[] Clear(Graph graph)
+        public Mod[] Clear()
         {
             if (Mods.Any())
             {
@@ -98,7 +98,7 @@ namespace Rpg.Sys.Moddable
             return new Mod[0];
         }
 
-        public bool Clean(Graph graph)
+        public bool Clean(ModGraph graph)
         {
             var toRemove = Mods
                 .Where(x => x.Duration.CanRemove(graph.Turn))

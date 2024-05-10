@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Rpg.Sys.Moddable
+namespace Rpg.ModObjects
 {
     public class ModGraph
     {
@@ -18,7 +18,7 @@ namespace Rpg.Sys.Moddable
 
         public ModGraph(ModObject context)
         {
-            GraphExtensions.RegisterAssembly(GetType().Assembly);
+            ModGraphExtensions.RegisterAssembly(GetType().Assembly);
 
             Context = context;
             ModObjectStore.Clear();
@@ -56,42 +56,45 @@ namespace Rpg.Sys.Moddable
 
         public void NewEncounter()
         {
+            if (Turn > 0)
+            {
+                Turn = 0;
+                Context?.RemoveExpiredProps();
+            }
+
             Turn = 1;
-            Context?.UpdateGraph();
-            //Update.Conditions();
-            //Update.Mods();
+            Context?.OnPropsUpdated();
         }
 
         public void EndEncounter()
         {
             Turn = 0;
-            Context?.UpdateGraph();
-            //Update.Conditions();
-            //Update.Mods();
+            Context?.RemoveExpiredProps();
+            Context?.OnPropsUpdated();
         }
 
         public void NewTurn()
         {
             Turn++;
-            Context?.UpdateGraph();
-            //Update.Conditions();
-            //Update.Mods();
+            Context?.OnPropsUpdated();
         }
 
         public void PrevTurn()
         {
-            Turn--;
-            Context?.UpdateGraph();
-            //Update.Conditions();
-            //Update.Mods();
+            if (Turn > 1)
+            {
+                Turn--;
+                Context?.OnPropsUpdated();
+            }
         }
 
         public void SetTurn(int turn)
         {
-            Turn = turn;
-            Context?.UpdateGraph();
-            //Update.Conditions();
-            //Update.Mods();
+            if (turn > 0)
+            {
+                Turn = turn;
+                Context?.OnPropsUpdated();
+            }
         }
     }
 }

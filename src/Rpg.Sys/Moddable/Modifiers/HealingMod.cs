@@ -8,7 +8,7 @@ namespace Rpg.Sys.Moddable.Modifiers
         {
             ModifierType = ModType.Transient;
             ModifierAction = ModAction.Sum;
-            Duration.SetWhenPropertyZero();
+            Duration = ModDuration.OnValueZero();
         }
 
         public static Mod Create<TTarget, TTargetValue>(TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice value)

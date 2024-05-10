@@ -1,7 +1,8 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
 
-namespace Rpg.Sys.Moddable
+namespace Rpg.ModObjects
 {
     //TODO: Improved modifier lifecycle. Try to encode Start/End turns, Permanent, Conditional, etc into a more intuitive model.
 
@@ -10,7 +11,6 @@ namespace Rpg.Sys.Moddable
         [JsonConstructor] protected Mod() { }
 
         [JsonProperty] public Guid Id { get; protected set; } = Guid.NewGuid();
-        [JsonProperty] public Guid? ModSetId { get; set; }
         [JsonProperty] public string Name { get; protected set; }
         [JsonProperty] public ModSource Source { get; protected set; }
         [JsonProperty] public ModType ModifierType { get; protected set; }

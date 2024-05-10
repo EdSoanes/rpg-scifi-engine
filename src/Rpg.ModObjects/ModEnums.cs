@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rpg.Sys.Moddable
+namespace Rpg.ModObjects
 {
     public enum ModExpiry
     {

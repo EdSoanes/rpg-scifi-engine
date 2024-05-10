@@ -1,11 +1,10 @@
 ﻿using Newtonsoft.Json;
-using Rpg.Sys.Components.Values;
-using Rpg.Sys.Moddable;
-using Rpg.Sys.Moddable.Modifiers;
+using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Tests.Models;
 
-namespace Rpg.Sys.Tests
+namespace Rpg.ModObjects.Tests
 {
-    public class ModdableObjectTests
+    public class ModObjectTests
     {
         private static JsonSerializerSettings JsonSettings = new JsonSerializerSettings
         {
@@ -14,42 +13,10 @@ namespace Rpg.Sys.Tests
             Formatting = Formatting.Indented
         };
 
-        public class ModdableEntity : ModObject
-        {
-            public ScoreBonusValue Strength { get; private set; } = new ScoreBonusValue(nameof(Strength), 14);
-            public DamageValue Damage { get; private set; } = new DamageValue("d6", 10, 100);
-            public Dice Melee { get; protected set; } = 2;
-            public Dice Missile { get; protected set; }
-            public int Health { get; protected set; } = 10;
-
-            protected override void OnBuildGraph()
-            {
-                this.AddMod(x => x.Melee, x => x.Strength.Bonus);
-                this.AddMod(x => x.Damage.Dice, x => x.Strength.Bonus);
-            }
-        }
-
-        public class SimpleEntity : ModObject
-        {
-            public int Score { get; protected set; }
-            public int Bonus { get; protected set; }
-
-            public SimpleEntity(int score, int bonus) 
-            {
-                Score = score;
-                Bonus = bonus;
-            }
-
-            protected override void OnBuildGraph()
-            {
-                this.AddMod(x => x.Score, x => x.Bonus);
-            }
-        }
-
         [SetUp]
         public void Setup()
         {
-            GraphExtensions.RegisterAssembly(this.GetType().Assembly);
+            ModGraphExtensions.RegisterAssembly(this.GetType().Assembly);
         }
 
         [Test]
@@ -65,7 +32,7 @@ namespace Rpg.Sys.Tests
         [Test]
         public void CreateSimpleEntity_SetBonus_VerifyScore()
         {
-            var entity = new SimpleEntity(2, 2);
+            var entity = new SimpleModdableEntity(2, 2);
 
             Assert.That(entity.Score, Is.EqualTo(2));
             Assert.That(entity.Bonus, Is.EqualTo(2));
@@ -79,12 +46,13 @@ namespace Rpg.Sys.Tests
         [Test]
         public void CreateSimpleEntity_AddScoreMod_EnsureScoreUpdate()
         {
-            var entity = new SimpleEntity(2, 2);
+            var entity = new SimpleModdableEntity(2, 2);
 
             entity.BuildGraph();
             Assert.That(entity.Score, Is.EqualTo(4));
 
             entity.AddMod(x => x.Score, 4);
+            entity.TriggerUpdate(x => x.Score);
 
             Assert.That(entity.Score, Is.EqualTo(8));
         }
@@ -143,7 +111,7 @@ namespace Rpg.Sys.Tests
         }
 
         [Test]
-        public void TestEntity_CreateDamageMod_CreateHealingMod_IsHealed()
+        public void TestEntity_CreateDamageMod_CreateRepairMod_IsRepaired()
         {
             var entity = new ModdableEntity();
             var graph = entity.BuildGraph();
@@ -157,7 +125,7 @@ namespace Rpg.Sys.Tests
             Assert.That(entity.Health, Is.EqualTo(0));
             Assert.That(graph.GetMods().Count(), Is.EqualTo(10));
 
-            entity.AddMod(HealingMod.Create(entity, x => x.Health, 10));
+            entity.AddMod(RepairMod.Create(entity, x => x.Health, 10));
             entity.TriggerUpdate(x => x.Health);
 
             Assert.That(entity.Health, Is.EqualTo(10));

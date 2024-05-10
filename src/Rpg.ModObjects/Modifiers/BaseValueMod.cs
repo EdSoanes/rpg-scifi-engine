@@ -1,6 +1,7 @@
-﻿using System.Linq.Expressions;
+﻿using Rpg.ModObjects.Values;
+using System.Linq.Expressions;
 
-namespace Rpg.Sys.Moddable.Modifiers
+namespace Rpg.ModObjects.Modifiers
 {
     public class BaseValueMod : Mod
     {

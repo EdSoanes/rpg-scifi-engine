@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Rpg.ModObjects.Values;
 using System;
 using System.Collections;
 using System.Reflection;
 
-namespace Rpg.Sys.Moddable
+namespace Rpg.ModObjects
 {
     //public class ModObjectPropStoreConverter : JsonConverter<ModObjectPropStore>
     //{
@@ -131,6 +132,8 @@ namespace Rpg.Sys.Moddable
         {
             foreach (var mod in mods)
             {
+                mod.OnAdd(Graph!.Turn);
+
                 var entity = Graph!.GetEntity<ModObject>(mod.EntityId);
                 if (entity != null)
                 {
@@ -156,7 +159,7 @@ namespace Rpg.Sys.Moddable
             }
         }
 
-        public string[] UpdateExpiry()
+        public string[] RemoveExpiredProps()
         {
             var updatedProps = new List<string>();
             var turn = Graph!.Turn;
@@ -164,34 +167,29 @@ namespace Rpg.Sys.Moddable
             foreach (var modObjProp in ModObjProps.Values)
             {
                 var toRemove = new List<Mod>();
-
                 foreach (var mod in modObjProp.Mods)
                 {
                     mod.OnUpdate(turn);
 
                     var expiry = mod.Duration.GetExpiry(turn);
-                    if (expiry == ModExpiry.Expired)
-                    {
-                        if (mod.Duration.CanRemove(Graph!.Turn))
-                            toRemove.Add(mod);
-                            
-                        updatedProps.Add(modObjProp.Prop);
-                    }
-                    else if (expiry != mod.Duration.GetExpiry(turn - 1))
-                    {
-                        updatedProps.Add(modObjProp.Prop);
-                    }
+                    if (expiry == ModExpiry.Expired && mod.Duration.CanRemove(Graph!.Turn))
+                        toRemove.Add(mod);
                 }
 
-                Remove(toRemove);
+                if (toRemove.Any())
+                {
+                    Remove(toRemove);
+                    updatedProps.Add(modObjProp.Prop);
+                }
             }
 
-            return updatedProps.Distinct().ToArray();
+            return updatedProps.ToArray();
         }
 
         public List<ModObjectPropRef> PropsAffectedBy(ModObjectPropRef propRef)
         {
             var res = new List<ModObjectPropRef>();
+            res.Merge(propRef);
 
             var propsAffectedBy = new List<ModObjectPropRef>();
             foreach (var entity in Graph!.GetEntities())
@@ -250,6 +248,7 @@ namespace Rpg.Sys.Moddable
                 res.Merge(affectedByProp);
             }
 
+            res.Merge(new ModObjectPropRef(EntityId, prop));
             return res;
         }
     }

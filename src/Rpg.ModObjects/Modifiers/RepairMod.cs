@@ -1,10 +1,11 @@
-﻿using System.Linq.Expressions;
+﻿using Rpg.ModObjects.Values;
+using System.Linq.Expressions;
 
-namespace Rpg.Sys.Moddable.Modifiers
+namespace Rpg.ModObjects.Modifiers
 {
-    public class DamageMod : Mod
+    public class RepairMod : Mod
     {
-        public DamageMod()
+        public RepairMod()
         {
             ModifierType = ModType.Transient;
             ModifierAction = ModAction.Sum;
@@ -14,7 +15,7 @@ namespace Rpg.Sys.Moddable.Modifiers
         public static Mod Create<TTarget, TTargetValue>(TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice value)
             where TTarget : ModObject
         {
-            var mod = Create<DamageMod, TTarget, TTargetValue, TTargetValue>(entity, targetExpr, value, () => DiceCalculations.Minus);
+            var mod = Create<RepairMod, TTarget, TTargetValue, TTargetValue>(entity, targetExpr, value);
             mod.Name = nameof(DamageMod);
 
             return mod;
@@ -24,7 +25,7 @@ namespace Rpg.Sys.Moddable.Modifiers
             where TTarget : ModObject
             where TSource : ModObject
         {
-            var mod = Create<DamageMod, TTarget, TTargetValue, TSource, TSourceValue>(target, targetExpr, source, sourceExpr, () => DiceCalculations.Minus);
+            var mod = Create<RepairMod, TTarget, TTargetValue, TSource, TSourceValue>(target, targetExpr, source, sourceExpr);
             mod.Name = nameof(DamageMod);
 
             return mod;

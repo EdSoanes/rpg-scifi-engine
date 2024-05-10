@@ -15,6 +15,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rpg.Api", "Rpg.Api\Rpg.Api.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rpg.AzFunc.Common", "Rpg.AzFunc.Common\Rpg.AzFunc.Common.csproj", "{174E9210-FD33-43FD-B702-1D3EC8041AFF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rpg.ModObjects", "Rpg.ModObjects\Rpg.ModObjects.csproj", "{B9279E74-5595-4648-823F-A87645A8B3D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rpg.ModObjects.Tests", "Rpg.ModObjects.Test\Rpg.ModObjects.Tests.csproj", "{2697FE9B-FD0E-4241-90A9-C5ECF2CA9A50}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +45,14 @@ Global
 		{174E9210-FD33-43FD-B702-1D3EC8041AFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{174E9210-FD33-43FD-B702-1D3EC8041AFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{174E9210-FD33-43FD-B702-1D3EC8041AFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9279E74-5595-4648-823F-A87645A8B3D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9279E74-5595-4648-823F-A87645A8B3D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9279E74-5595-4648-823F-A87645A8B3D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9279E74-5595-4648-823F-A87645A8B3D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2697FE9B-FD0E-4241-90A9-C5ECF2CA9A50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2697FE9B-FD0E-4241-90A9-C5ECF2CA9A50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2697FE9B-FD0E-4241-90A9-C5ECF2CA9A50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2697FE9B-FD0E-4241-90A9-C5ECF2CA9A50}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

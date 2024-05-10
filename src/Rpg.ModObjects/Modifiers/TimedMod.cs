@@ -1,6 +1,7 @@
-﻿using System.Linq.Expressions;
+﻿using Rpg.ModObjects.Values;
+using System.Linq.Expressions;
 
-namespace Rpg.Sys.Moddable.Modifiers
+namespace Rpg.ModObjects.Modifiers
 {
     public class TimedMod : Mod
     {
@@ -15,17 +16,17 @@ namespace Rpg.Sys.Moddable.Modifiers
         {
             var mod = Create<TimedMod, TEntity, T1, TEntity, T2>(entity, targetExpr, entity, sourceExpr, diceCalcExpr);
             mod.Name = nameof(TimedMod);
-            mod.Duration = ModDuration.Timed(startTurn, startTurn + duration);
+            mod.Duration = ModDuration.Timed(startTurn, startTurn + duration - 1);
 
             return mod;
         }
 
-        public static Mod Create<TEntity, T1, T2>(int startTurn, int duration, TEntity entity, Expression<Func<TEntity, T1>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+        public static Mod Create<TEntity, T1>(int startTurn, int duration, TEntity entity, Expression<Func<TEntity, T1>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
-            var mod = Create<TimedMod, TEntity, T1, T2>(entity, targetExpr, value, diceCalcExpr);
+            var mod = Create<TimedMod, TEntity, T1, T1>(entity, targetExpr, value, diceCalcExpr);
             mod.Name = nameof(TimedMod);
-            mod.Duration = ModDuration.Timed(startTurn, startTurn + duration);
+            mod.Duration = ModDuration.Timed(startTurn, startTurn + duration - 1);
 
             return mod;
         }
@@ -35,7 +36,7 @@ namespace Rpg.Sys.Moddable.Modifiers
         {
             var mod = Create<TimedMod, TEntity, T1, TEntity, T2>(entity, targetExpr, entity, sourceExpr, diceCalcExpr);
             mod.Name = name;
-            mod.Duration = ModDuration.Timed(startTurn, startTurn + duration);
+            mod.Duration = ModDuration.Timed(startTurn, startTurn + duration - 1);
 
             return mod;
         }

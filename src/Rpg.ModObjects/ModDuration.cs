@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Rpg.Sys.Moddable
+namespace Rpg.ModObjects
 {
     public class ModDuration
     {
@@ -22,10 +22,13 @@ namespace Rpg.Sys.Moddable
 
         public ModExpiry GetExpiry(int turn)
         {
+            if ((Type == ModDurationType.OnNewTurn || Type == ModDurationType.EndOfEncounter || Type == ModDurationType.Timed) && turn == 0)
+                return ModExpiry.Expired;
+
             if (EndTurn < turn)
                 return ModExpiry.Expired;
 
-            if (StartTurn < turn)
+            if (StartTurn > turn)
                 return ModExpiry.Pending;
 
             return ModExpiry.Active;
