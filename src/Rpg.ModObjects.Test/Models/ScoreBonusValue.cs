@@ -16,7 +16,7 @@ namespace Rpg.ModObjects.Tests.Models
             Score = score;
         }
 
-        protected override void OnBuildGraph()
+        protected override void OnInitialize()
         {
             this.AddMod(x => x.Bonus, x => x.Score, () => CalculateStatBonus);
         }

@@ -14,10 +14,31 @@ namespace Rpg.ModObjects
             return expiry == ModExpiry.Expired && turn <= 0;
         }
 
-        public void Expire(int turn)
+        public void SetExpired(int turn)
         {
-            StartTurn = turn - 1;
-            EndTurn = turn - 1;
+            if (Type == ModDurationType.External)
+            {
+                StartTurn = turn - 1;
+                EndTurn = turn - 1;
+            }
+        }
+
+        public void SetActive()
+        {
+            if (Type == ModDurationType.External)
+            {
+                StartTurn = int.MinValue;
+                EndTurn = int.MaxValue;
+            }
+        }
+
+        public void SetPending(int turn)
+        {
+            if (Type == ModDurationType.External)
+            {
+                StartTurn = turn + 1;
+                EndTurn = int.MaxValue;
+            }
         }
 
         public ModExpiry GetExpiry(int turn)

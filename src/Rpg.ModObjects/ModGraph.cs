@@ -29,17 +29,6 @@ namespace Rpg.ModObjects
             }
         }
 
-        public void SetContext(ModObject context)
-        {
-            Context = context;
-            ModObjectStore.Clear();
-            foreach (var entity in context.Traverse())
-            {
-                if (!ModObjectStore.ContainsKey(entity.Id))
-                    ModObjectStore.Add(entity.Id, entity);
-            }
-        }
-
         public T? GetEntity<T>(Guid? entityId)
             where T : ModObject
                 => entityId != null && ModObjectStore.ContainsKey(entityId.Value)
@@ -59,24 +48,29 @@ namespace Rpg.ModObjects
             if (Turn > 0)
             {
                 Turn = 0;
-                Context?.RemoveExpiredProps();
+                OnEndEncounter();
             }
 
             Turn = 1;
-            Context?.OnPropsUpdated();
+            OnTurnChanged();
+        }
+
+        public void Initialize()
+        {
+            OnTurnChanged();
         }
 
         public void EndEncounter()
         {
             Turn = 0;
-            Context?.RemoveExpiredProps();
-            Context?.OnPropsUpdated();
+            OnEndEncounter();
+            OnTurnChanged();
         }
 
         public void NewTurn()
         {
             Turn++;
-            Context?.OnPropsUpdated();
+            OnTurnChanged();
         }
 
         public void PrevTurn()
@@ -84,16 +78,42 @@ namespace Rpg.ModObjects
             if (Turn > 1)
             {
                 Turn--;
-                Context?.OnPropsUpdated();
+                OnTurnChanged();
             }
         }
 
         public void SetTurn(int turn)
         {
-            if (turn > 0)
+            if (turn > 0 && turn != Turn)
             {
                 Turn = turn;
-                Context?.OnPropsUpdated();
+                OnTurnChanged();
+            }
+        }
+
+        private void OnTurnChanged()
+        {
+            var affectedBy = new List<ModPropRef>();
+
+            foreach (var entity in Context!.Traverse(true))
+            {
+                entity.ModSetStore.UpdatePropExpiry();
+                affectedBy.Merge(entity.PropStore.AffectedByProps());
+            }
+
+            foreach (var propRef in affectedBy)
+            {
+                var entity = GetEntity<ModObject>(propRef.EntityId);
+                entity?.SetPropValue(propRef.Prop);
+            }
+        }
+
+        private void OnEndEncounter()
+        {
+            foreach (var entity in Context!.Traverse(true))
+            {
+                entity.PropStore.RemoveExpiredMods();
+                entity.ModSetStore.RemoveExpiredMods();
             }
         }
     }

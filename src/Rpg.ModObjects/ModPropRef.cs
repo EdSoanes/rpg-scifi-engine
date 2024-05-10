@@ -3,26 +3,26 @@ using System.Linq.Expressions;
 
 namespace Rpg.ModObjects
 {
-    public class ModObjectPropRef
+    public class ModPropRef
     {
         [JsonProperty] public Guid EntityId { get; protected set; }
         [JsonProperty] public string Prop { get; protected set; }
 
-        [JsonConstructor] protected ModObjectPropRef() { }
+        [JsonConstructor] protected ModPropRef() { }
 
-        public ModObjectPropRef(Guid entityId, string prop)
+        public ModPropRef(Guid entityId, string prop)
         {
             EntityId = entityId;
             Prop = prop;
         }
 
-        public static bool operator ==(ModObjectPropRef? d1, ModObjectPropRef? d2)
+        public static bool operator ==(ModPropRef? d1, ModPropRef? d2)
             => d1?.EntityId == d2?.EntityId && d1?.Prop == d2?.Prop;
         
-        public static bool operator !=(ModObjectPropRef? d1, ModObjectPropRef? d2) 
+        public static bool operator !=(ModPropRef? d1, ModPropRef? d2) 
             => d1?.EntityId != d2?.EntityId || d1?.Prop != d2?.Prop;
 
-        public static ModObjectPropRef CreatePropRef<T, TResult>(T rootEntity, Expression<Func<T, TResult>> expression)
+        public static ModPropRef CreatePropRef<T, TResult>(T rootEntity, Expression<Func<T, TResult>> expression)
             where T : ModObject
         {
             var memberExpression = expression.Body as MemberExpression;
@@ -45,10 +45,10 @@ namespace Rpg.ModObjects
             var path = string.Join(".", pathSegments);
             var entity = rootEntity.PropertyValue<ModObject>(path);
 
-            return new ModObjectPropRef(entity!.Id, prop);
+            return new ModPropRef(entity!.Id, prop);
         }
 
-        public static ModObjectPropRef CreatePropRef(ModObject rootEntity, string propPath)
+        public static ModPropRef CreatePropRef(ModObject rootEntity, string propPath)
         {
             var parts = propPath.Split('.');
             var path = string.Join(".", parts.Take(parts.Length - 1));
@@ -56,7 +56,7 @@ namespace Rpg.ModObjects
 
             var entity = rootEntity.PropertyValue<ModObject>(path) ?? throw new ArgumentException($"Invalid path. Property path {path} is not an Entity object");
 
-            var locator = new ModObjectPropRef(entity.Id, prop);
+            var locator = new ModPropRef(entity.Id, prop);
             return locator;
         }
     }

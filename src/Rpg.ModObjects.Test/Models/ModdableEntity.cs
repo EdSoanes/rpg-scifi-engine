@@ -15,7 +15,7 @@ namespace Rpg.ModObjects.Tests.Models
         public Dice Missile { get; protected set; }
         public int Health { get; protected set; } = 10;
 
-        protected override void OnBuildGraph()
+        protected override void OnInitialize()
         {
             this.AddMod(x => x.Melee, x => x.Strength.Bonus);
             this.AddMod(x => x.Damage.Dice, x => x.Strength.Bonus);

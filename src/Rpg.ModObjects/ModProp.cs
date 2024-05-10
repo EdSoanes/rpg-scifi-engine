@@ -3,11 +3,11 @@ using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects
 {
-    public class ModObjectProp : ModObjectPropRef
+    public class ModProp : ModPropRef
     {
         [JsonProperty] public List<Mod> Mods { get; private set; } = new List<Mod>();
 
-        public ModObjectProp(Guid entityId, string prop)
+        public ModProp(Guid entityId, string prop)
             : base(entityId, prop)
         {
         }
@@ -115,7 +115,7 @@ namespace Rpg.ModObjects
             return false;
         }
 
-        public bool IsAffectedBy(ModObjectPropRef propRef)
+        public bool IsAffectedBy(ModPropRef propRef)
             => Mods
                 .Any(x => x.Source.PropRef != null && x.Source.PropRef == propRef);
     }

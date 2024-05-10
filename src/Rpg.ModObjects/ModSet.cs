@@ -9,10 +9,38 @@ namespace Rpg.ModObjects
         [JsonProperty] public List<Mod> Mods { get; private set; } = new List<Mod>();
         [JsonProperty] public ModDuration Duration { get; private set; } = new ModDuration();
 
-        public void Expire(int turn)
+        [JsonConstructor] private ModSet() { }
+
+        public ModSet(ModDuration duration, Mod[] mods)
         {
-            foreach (var mod in Mods.Where(x => x.Duration.Type == ModDurationType.External))
-                mod.Duration.Expire(turn);
+            Duration = duration;
+            Mods.AddRange(mods);
+        }
+
+        public void UpdatePropExpiry(int turn)
+        {
+            var expiry = Duration.GetExpiry(turn);
+            if (expiry == ModExpiry.Expired)
+                Mods.ForEach(mod => mod.Duration.SetExpired(turn));
+            if (expiry == ModExpiry.Pending)
+                Mods.ForEach(mod => mod.Duration.SetPending(turn));
+            else
+                Mods.ForEach(mod => mod.Duration.SetActive());
+        }
+
+        public void RemoveExpiredMods(int turn)
+        {
+            var toRemove = new List<Mod>();
+
+            foreach (var mod in Mods)
+            {
+                var expiry = mod.Duration.GetExpiry(turn);
+                if (expiry == ModExpiry.Expired && mod.Duration.CanRemove(turn))
+                    toRemove.Add(mod);
+            }
+
+            foreach (var mod in toRemove)
+                Mods.Remove(mod);
         }
     }
 }

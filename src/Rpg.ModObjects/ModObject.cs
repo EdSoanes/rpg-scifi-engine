@@ -12,7 +12,8 @@ namespace Rpg.ModObjects
         [JsonProperty] public Guid Id { get; private set; }
         [JsonProperty] public string Name { get; set; }
         [JsonProperty] public string[] Is { get; private set; }
-        [JsonProperty] public ModObjectPropStore PropStore { get; set; }
+        [JsonProperty] public ModPropStore PropStore { get; private set; } = new ModPropStore();
+        [JsonProperty] public ModSetStore ModSetStore { get; private set; } = new ModSetStore();
         [JsonProperty] protected bool IsInitialized { get; set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -22,80 +23,49 @@ namespace Rpg.ModObjects
             Id = Guid.NewGuid();
             Name = GetType().Name;
             Is = this.GetBaseTypes();
-            PropStore = new ModObjectPropStore();
         }
 
         public void AddMod(Mod mod)
-            => PropStore.Add(mod);
+            => Graph!.Context!.PropStore.Add(mod);
+
+        public ModSet AddModSet(ModDuration duration, params Mod[] mods)
+        {
+            var modSet = new ModSet(duration, mods);
+            ModSetStore.Add(modSet);
+
+            foreach (var mod in mods)
+                AddMod(mod);
+
+            return modSet;
+        }
 
         public bool IsA(string type) => Is.Contains(type);
 
         public ModGraph BuildGraph()
         {
             var graph = new ModGraph(this);
+            foreach (var entity in this.Traverse())
+                entity.Initialize(graph);
+
             foreach (var entity in this.Traverse(true))
             {
-                entity.Initialize(graph);
                 if (!entity.IsInitialized)
                 {
-                    entity.OnBuildGraph();
+                    entity.OnInitialize();
                     entity.IsInitialized = true;
                 }
             }
 
-            OnPropsUpdated();
+            graph.Initialize();
 
             return graph;
-        }
-
-        protected virtual void OnBuildGraph() { }
-
-        public void RemoveExpiredProps()
-        {
-            foreach (var entity in Graph!.Context!.Traverse(true))
-                entity.PropStore.RemoveExpiredProps();
-        }
-
-        public void OnPropsUpdated()
-        {
-            var affectedBy = new List<ModObjectPropRef>();
-
-            foreach (var entity in Graph!.Context!.Traverse(true))
-                affectedBy.Merge(entity.PropStore.AffectedByProps());
-
-            foreach (var propRef in affectedBy)
-            {
-                var entity = Graph!.GetEntity<ModObject>(propRef.EntityId);
-                entity?.SetPropValue(propRef.Prop);
-            }
-        }
-
-        public void OnPropUpdated(ModObjectPropRef propRef)
-        {
-            var propsAffected = PropStore.PropsAffectedBy(propRef);
-            foreach (var prop in propsAffected)
-            {
-                var entity = Graph!.GetEntity<ModObject>(prop.EntityId);
-                entity?.SetPropValue(prop.Prop);
-            }
-        }
-
-        private void SetPropValue(string prop)
-        {
-            var oldValue = GetModdableValue(prop);
-            var newValue = PropStore.Calculate(prop);
-
-            if (oldValue == null || oldValue != newValue)
-            {
-                this.PropertyValue(prop, newValue);
-                CallPropertyChanged(prop);
-            }
         }
 
         private void Initialize(ModGraph graph)
         {
             Graph = graph;
             PropStore.Initialize(Graph, this);
+            ModSetStore.Initialize(Graph, this);
 
             if (!IsInitialized)
             {
@@ -113,13 +83,31 @@ namespace Rpg.ModObjects
             }
         }
 
-        private void SetModdableValue(ModObjectPropRef propRef)
+        protected virtual void OnInitialize() { }
+
+        public void OnPropUpdated(ModPropRef propRef)
         {
-            var entity = Graph!.GetEntity<ModObject>(propRef.EntityId);
-            entity?.SetPropValue(propRef.Prop);
+            var propsAffected = PropStore.PropsAffectedBy(propRef);
+            foreach (var prop in propsAffected)
+            {
+                var entity = Graph!.GetEntity<ModObject>(prop.EntityId);
+                entity?.SetPropValue(prop.Prop);
+            }
         }
 
-        public Dice? GetModdableValue(string? prop)
+        public void SetPropValue(string prop)
+        {
+            var oldValue = GetPropValue(prop);
+            var newValue = PropStore.Calculate(prop);
+
+            if (oldValue == null || oldValue != newValue)
+            {
+                this.PropertyValue(prop, newValue);
+                CallPropertyChanged(prop);
+            }
+        }
+
+        public Dice? GetPropValue(string? prop)
         {
             if (string.IsNullOrEmpty(prop))
                 return null;

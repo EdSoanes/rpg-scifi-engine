@@ -6,7 +6,7 @@ namespace Rpg.ModObjects
 {
     //TODO: Improved modifier lifecycle. Try to encode Start/End turns, Permanent, Conditional, etc into a more intuitive model.
 
-    public abstract class Mod : ModObjectPropRef
+    public abstract class Mod : ModPropRef
     {
         [JsonConstructor] protected Mod() { }
 

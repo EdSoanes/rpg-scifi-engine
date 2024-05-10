@@ -12,17 +12,17 @@ namespace Rpg.ModObjects
         public ModSourceValueFunction ValueFunc { get; } = new ModSourceValueFunction();
 
         [JsonIgnore]
-        public ModObjectPropRef? PropRef 
+        public ModPropRef? PropRef 
         { 
             get => EntityId != null && !string.IsNullOrEmpty(Prop) 
-                ? new ModObjectPropRef(EntityId.Value, Prop) 
+                ? new ModPropRef(EntityId.Value, Prop) 
                 : null; 
         }
 
         public Dice Calculate(ModGraph graph)
         {
             Dice value = Value
-                ?? graph.GetEntity<ModObject>(EntityId)?.GetModdableValue(Prop)
+                ?? graph.GetEntity<ModObject>(EntityId)?.GetPropValue(Prop)
                 ?? Dice.Zero;
 
             if (ValueFunc.IsCalc)
@@ -54,7 +54,7 @@ namespace Rpg.ModObjects
 
         public ModSource(T rootEntity, Expression<Func<T, TResult>> expression, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr)
         {
-            var propRef = ModObjectPropRef.CreatePropRef(rootEntity, expression);
+            var propRef = ModPropRef.CreatePropRef(rootEntity, expression);
             EntityId = propRef.EntityId;
             Prop = propRef.Prop;
             ValueFunc.Set(diceCalcExpr);

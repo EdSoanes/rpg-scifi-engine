@@ -1,9 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Rpg.ModObjects.Values;
-using System;
-using System.Collections;
-using System.Reflection;
 
 namespace Rpg.ModObjects
 {
@@ -41,36 +37,36 @@ namespace Rpg.ModObjects
     //}
 
     //[JsonConverter(typeof(ModObjectPropStoreConverter))]
-    public class ModObjectPropStore
+    public class ModPropStore
     {
         [JsonIgnore] private ModGraph? Graph { get; set; }
         [JsonIgnore] public Guid EntityId { get; set; }
 
-        [JsonProperty] protected Dictionary<string, ModObjectProp> ModObjProps { get; set; } = new Dictionary<string, ModObjectProp>();
+        [JsonProperty] protected Dictionary<string, ModProp> ModProps { get; set; } = new Dictionary<string, ModProp>();
 
-        public ModObjectProp? this[string prop]
+        public ModProp? this[string prop]
         {
             get
             {
                 if (string.IsNullOrWhiteSpace(prop))
                     return null;
 
-                if (ModObjProps.ContainsKey(prop))
-                    return ModObjProps[prop];
+                if (ModProps.ContainsKey(prop))
+                    return ModProps[prop];
 
                 return null;
             }
             set
             {
-                if (!string.IsNullOrWhiteSpace(value?.Prop) && !ModObjProps.ContainsKey(prop))
-                    ModObjProps.Add(prop, value);
+                if (!string.IsNullOrWhiteSpace(value?.Prop) && !ModProps.ContainsKey(prop))
+                    ModProps.Add(prop, value);
             }
         }
 
-        private ModObjectPropStore(Dictionary<string, ModObjectProp> modObjProps)
-            => ModObjProps = modObjProps;
+        private ModPropStore(Dictionary<string, ModProp> modObjProps)
+            => ModProps = modObjProps;
 
-        public ModObjectPropStore() { }
+        public ModPropStore() { }
 
         public void Initialize(ModGraph graph, ModObject entity)
         {
@@ -79,24 +75,21 @@ namespace Rpg.ModObjects
         }
 
         public string[] AllProps()
-            => ModObjProps.Keys.ToArray();
+            => ModProps.Keys.ToArray();
 
         public Mod[] Get(string prop)
-            => ModObjProps[prop].Get(Graph!);
-
-        //public Mod[] Get(string prop, ModType modType)
-        //    => ModObjProps[prop].Get(Graph!, modType);
+            => ModProps[prop].Get(Graph!);
 
         public Mod[] Get(string prop, ModType modType, string modName)
-            => ModObjProps[prop].Get(modType, modName);
+            => ModProps[prop].Get(modType, modName);
 
         public bool Contains(string prop)
-            => ModObjProps.ContainsKey(prop);
+            => ModProps.ContainsKey(prop);
 
-        public ModObjectProp Create(string prop)
+        public ModProp Create(string prop)
         {
             if (!Contains(prop))
-                this[prop] = new ModObjectProp(EntityId, prop);
+                this[prop] = new ModProp(EntityId, prop);
 
             return this[prop]!;
         }
@@ -126,7 +119,6 @@ namespace Rpg.ModObjects
                     entity.PropStore[mod.Prop]!.Remove(mod);
             }
         }
-
 
         public void Add(params Mod[] mods)
         {
@@ -159,15 +151,15 @@ namespace Rpg.ModObjects
             }
         }
 
-        public string[] RemoveExpiredProps()
+        public string[] RemoveExpiredMods()
         {
             var updatedProps = new List<string>();
             var turn = Graph!.Turn;
 
-            foreach (var modObjProp in ModObjProps.Values)
+            foreach (var modProp in ModProps.Values)
             {
                 var toRemove = new List<Mod>();
-                foreach (var mod in modObjProp.Mods)
+                foreach (var mod in modProp.Mods)
                 {
                     mod.OnUpdate(turn);
 
@@ -179,24 +171,24 @@ namespace Rpg.ModObjects
                 if (toRemove.Any())
                 {
                     Remove(toRemove);
-                    updatedProps.Add(modObjProp.Prop);
+                    updatedProps.Add(modProp.Prop);
                 }
             }
 
             return updatedProps.ToArray();
         }
 
-        public List<ModObjectPropRef> PropsAffectedBy(ModObjectPropRef propRef)
+        public List<ModPropRef> PropsAffectedBy(ModPropRef propRef)
         {
-            var res = new List<ModObjectPropRef>();
+            var res = new List<ModPropRef>();
             res.Merge(propRef);
 
-            var propsAffectedBy = new List<ModObjectPropRef>();
+            var propsAffectedBy = new List<ModPropRef>();
             foreach (var entity in Graph!.GetEntities())
             {
                 var affectedBy = entity.PropStore.AllProps()
                     .Where(x => entity.PropStore[x]!.IsAffectedBy(propRef))
-                    .Select(x => new ModObjectPropRef(entity.Id, x))
+                    .Select(x => new ModPropRef(entity.Id, x))
                     .Distinct();
 
                 res.Merge(affectedBy);
@@ -213,9 +205,9 @@ namespace Rpg.ModObjects
             return res;
         }
 
-        public List<ModObjectPropRef> AffectedByProps()
+        public List<ModPropRef> AffectedByProps()
         {
-            var res = ModObjProps.Keys
+            var res = ModProps.Keys
                 .SelectMany(AffectedByProps)
                 .Distinct()
                 .ToList();
@@ -223,13 +215,13 @@ namespace Rpg.ModObjects
             return res;
         }
 
-        public List<ModObjectPropRef> AffectedByProps(string prop)
+        public List<ModPropRef> AffectedByProps(string prop)
         {
-            var res = new List<ModObjectPropRef>();
+            var res = new List<ModPropRef>();
 
             var affectedByGroup = Get(prop)
                 .Where(x => x.Source.EntityId != null && !string.IsNullOrEmpty(x.Source.Prop))
-                .Select(x => new ModObjectPropRef(x.Source.EntityId!.Value, x.Source.Prop!))
+                .Select(x => new ModPropRef(x.Source.EntityId!.Value, x.Source.Prop!))
                 .Distinct()
                 .GroupBy(x => x.EntityId);
 
@@ -248,7 +240,7 @@ namespace Rpg.ModObjects
                 res.Merge(affectedByProp);
             }
 
-            res.Merge(new ModObjectPropRef(EntityId, prop));
+            res.Merge(new ModPropRef(EntityId, prop));
             return res;
         }
     }

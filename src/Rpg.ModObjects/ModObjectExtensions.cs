@@ -12,13 +12,13 @@ namespace Rpg.ModObjects
             public string? Prop { get; set; }
         }
 
-        public static void Merge(this List<ModObjectPropRef> target,ModObjectPropRef propRef)
+        public static void Merge(this List<ModPropRef> target,ModPropRef propRef)
         {
             if (!target.Any(x => x == propRef))
                 target.Add(propRef);
         }
 
-        public static void Merge(this List<ModObjectPropRef> target, IEnumerable<ModObjectPropRef> source)
+        public static void Merge(this List<ModPropRef> target, IEnumerable<ModPropRef> source)
         {
             foreach (var a in source)
                 target.Merge(a);
@@ -41,7 +41,7 @@ namespace Rpg.ModObjects
         public static void TriggerUpdate<TTarget, TTargetValue>(this TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr)
             where TTarget : ModObject
         {
-            var propRef = ModObjectPropRef.CreatePropRef(entity, targetExpr);
+            var propRef = ModPropRef.CreatePropRef(entity, targetExpr);
             entity.OnPropUpdated(propRef);
         }
 
