@@ -6,30 +6,34 @@ using System.Threading.Tasks;
 
 namespace Rpg.ModObjects
 {
-    public abstract class ModState : ITemporal
+    public abstract class ModState<T> : ITemporal
+        where T : ModObject
     {
-        public string Name { get; protected set; } = nameof(ModState);
+        public string Name { get; protected set; } = nameof(ModState<T>);
 
         private ModGraph? _graph;
-        private ModObject? _entity;
+        private T? _entity;
 
         public bool IsApplied => _entity?.GetModSet(Name) != null;
 
-        protected abstract bool ShouldApply();
-        protected abstract ModSet CreateState();
+        protected abstract bool ShouldApply(T entity);
+        protected abstract ModSet CreateState(T entity);
 
         protected void Apply()
         {
-            if (ShouldApply())
+            if (_entity != null)
             {
-                var modSet = CreateState();
-                modSet.Name = Name;
+                if (ShouldApply(_entity))
+                {
+                    var modSet = CreateState(_entity);
+                    modSet.Name = Name;
 
-                _entity!.AddModSet(modSet);
-            }
-            else if (IsApplied)
-            {
-                _entity.RemoveModSet(Name);
+                    _entity.AddModSet(modSet);
+                }
+                else if (IsApplied)
+                {
+                    _entity.RemoveModSet(Name);
+                }
             }
         }
 
@@ -42,7 +46,7 @@ namespace Rpg.ModObjects
         public void OnGraphCreating(ModGraph graph, ModObject? entity = null)
         {
             _graph = graph;
-            _entity = entity;
+            _entity = entity as T;
         }
 
         public void OnTurnChanged(int turn)
