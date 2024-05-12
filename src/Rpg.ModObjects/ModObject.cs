@@ -33,16 +33,14 @@ namespace Rpg.ModObjects
         {
             var modSet = new ModSet(duration, mods);
             var added = ModSetStore.Add(modSet);
-            if (added)
-            {
-                foreach (var mod in mods)
-                    AddMod(mod);
 
-                return modSet;
-            }
-
-            return null;
+            return added
+                ? modSet
+                : null;
         }
+
+        public bool AddModSet(ModSet modSet)
+            => ModSetStore.Add(modSet);
 
         public ModSet? GetModSet(Guid id)
             => ModSetStore.ModSets.FirstOrDefault(x => x.Id == id);
@@ -50,14 +48,16 @@ namespace Rpg.ModObjects
         public ModSet? GetModSet(string name)
             => ModSetStore.ModSets.FirstOrDefault(x => x.Name == name);
 
-        public bool AddModSet(ModSet modSet)
-            => ModSetStore.Add(modSet);
 
         public void RemoveModSet(Guid modSetId)
             => ModSetStore.Remove(modSetId);
 
         public void RemoveModSet(string name)
             => ModSetStore.Remove(name);
+
+        protected void CreateState<T>(ModState<T> state)
+            where T : ModObject
+            => StateStore.Add<T>(state);
 
         public bool IsA(string type) => Is.Contains(type);
 
@@ -124,7 +124,6 @@ namespace Rpg.ModObjects
             Graph = graph;
             PropStore.OnGraphCreating(Graph, this);
             ModSetStore.OnGraphCreating(Graph, this);
-            StateStore.OnGraphCreating(Graph, this);
 
             if (!IsCreated)
             {
@@ -143,6 +142,8 @@ namespace Rpg.ModObjects
                 OnCreate();
                 IsCreated = true;
             }
+
+            StateStore.OnGraphCreating(Graph, this);
         }
 
         protected virtual void OnCreate() { }
@@ -153,7 +154,15 @@ namespace Rpg.ModObjects
             {
                 entity.ModSetStore.OnTurnChanged(turn);
                 entity.PropStore.OnTurnChanged(turn);
+            }
+
+            UpdateProps();
+
+            foreach (var entity in this.Traverse())
+            {
                 entity.StateStore.OnTurnChanged(turn);
+                entity.ModSetStore.OnTurnChanged(turn);
+                entity.PropStore.OnTurnChanged(turn);
             }
 
             UpdateProps();
@@ -165,7 +174,15 @@ namespace Rpg.ModObjects
             {
                 entity.ModSetStore.OnBeginEncounter();
                 entity.PropStore.OnBeginEncounter();
+            }
+
+            UpdateProps();
+
+            foreach (var entity in this.Traverse())
+            {
                 entity.StateStore.OnBeginEncounter();
+                entity.ModSetStore.OnBeginEncounter();
+                entity.PropStore.OnBeginEncounter();
             }
 
             UpdateProps();
@@ -177,7 +194,15 @@ namespace Rpg.ModObjects
             {
                 entity.ModSetStore.OnEndEncounter();
                 entity.PropStore.OnEndEncounter();
+            }
+
+            UpdateProps();
+
+            foreach (var entity in this.Traverse())
+            {
                 entity.StateStore.OnEndEncounter();
+                entity.ModSetStore.OnEndEncounter();
+                entity.PropStore.OnEndEncounter();
             }
 
             UpdateProps();

@@ -5,7 +5,7 @@ namespace Rpg.ModObjects
     public class ModSetStore : ITemporal
     {
         [JsonIgnore] private ModGraph? Graph { get; set; }
-        [JsonIgnore] public Guid EntityId { get; set; }
+        [JsonProperty] public Guid EntityId { get; set; }
         [JsonProperty] public List<ModSet> ModSets { get; private set; } = new List<ModSet>();
 
         public ModSetStore() { }
@@ -17,6 +17,9 @@ namespace Rpg.ModObjects
                 if (string.IsNullOrEmpty(modSet.Name) || !ModSets.Any(x => x.Name == modSet.Name))
                 {
                     ModSets.Add(modSet);
+                    foreach (var mod in modSet.Mods)
+                        Graph?.Context?.PropStore.Add(mod);
+
                     return true;
                 }
             }

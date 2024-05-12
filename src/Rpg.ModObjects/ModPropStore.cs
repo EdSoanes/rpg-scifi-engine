@@ -70,6 +70,8 @@ namespace Rpg.ModObjects
             return dice;
         }
 
+        public void Remove(Mod mod)
+            => Remove(new[] { mod });
         public void Remove(IEnumerable<Mod> mods)
         {
             foreach (var mod in mods)

@@ -358,6 +358,9 @@ namespace Rpg.ModObjects
             {
                 isEnumerable = false;
 
+                if (context is ModGraph)
+                    return Enumerable.Empty<object>().ToList();
+
                 if (PermittedModPropReturnTypes.Any(x => x == propertyInfo.PropertyType))
                     return Enumerable.Empty<object>().ToList();
 

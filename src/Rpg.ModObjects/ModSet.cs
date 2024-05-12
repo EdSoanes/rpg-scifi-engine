@@ -17,7 +17,7 @@ namespace Rpg.ModObjects
             Duration = duration;
         }
 
-        public ModSet(ModDuration duration, Mod[] mods)
+        public ModSet(ModDuration duration, params Mod[] mods)
             : this(duration)
         {
             Add(mods);
