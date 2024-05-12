@@ -29,11 +29,28 @@ namespace Rpg.ModObjects
             }
         }
 
+        public ModProp? GetModProp(ModPropRef? propRef)
+            => GetModProp(propRef?.EntityId, propRef?.Prop);
+
+        public ModProp? GetModProp(Guid? entityId, string? prop)
+        {
+            if (entityId == null || string.IsNullOrEmpty(prop))
+                return null;
+
+            var entity = GetEntity(entityId);
+            return entity?.PropStore[prop];
+        }
+
         public T? GetEntity<T>(Guid? entityId)
             where T : ModObject
                 => entityId != null && ModObjectStore.ContainsKey(entityId.Value)
                     ? ModObjectStore[entityId.Value] as T
                     : null;
+
+        public ModObject? GetEntity(Guid? entityId)
+            => entityId != null && ModObjectStore.ContainsKey(entityId.Value)
+                ? ModObjectStore[entityId.Value]
+                : null;
 
         public IEnumerable<ModObject> GetEntities()
             => ModObjectStore.Values;
@@ -43,34 +60,35 @@ namespace Rpg.ModObjects
                 .SelectMany(x => x.PropStore.AllProps().SelectMany(prop => x.PropStore[prop]!.Mods))
                 .ToArray();
 
+        public ModSet[] GetModSets()
+            => ModObjectStore.Values
+                .SelectMany(x => x.ModSetStore.All())
+                .ToArray();
+
         public void NewEncounter()
         {
-            if (Turn > 0)
-            {
-                Turn = 0;
-                OnEndEncounter();
-            }
+            if (Turn < ModDuration.EndEncounter)
+                EndEncounter();
 
-            Turn = 1;
-            OnTurnChanged();
+            Turn = ModDuration.BeginEncounter;
+            Context!.OnEncounterStarted();
+
+            NewTurn();
         }
 
         public void Initialize()
-        {
-            OnTurnChanged();
-        }
+            => Context!.TriggerUpdate();
 
         public void EndEncounter()
         {
-            Turn = 0;
-            OnEndEncounter();
-            OnTurnChanged();
+            Turn = ModDuration.EndEncounter;
+            Context!.OnEncounterEnded();
         }
 
         public void NewTurn()
         {
             Turn++;
-            OnTurnChanged();
+            Context!.OnTurnChanged(Turn);
         }
 
         public void PrevTurn()
@@ -78,7 +96,7 @@ namespace Rpg.ModObjects
             if (Turn > 1)
             {
                 Turn--;
-                OnTurnChanged();
+                Context!.OnTurnChanged(Turn);
             }
         }
 
@@ -87,33 +105,7 @@ namespace Rpg.ModObjects
             if (turn > 0 && turn != Turn)
             {
                 Turn = turn;
-                OnTurnChanged();
-            }
-        }
-
-        private void OnTurnChanged()
-        {
-            var affectedBy = new List<ModPropRef>();
-
-            foreach (var entity in Context!.Traverse(true))
-            {
-                entity.ModSetStore.UpdatePropExpiry();
-                affectedBy.Merge(entity.PropStore.AffectedByProps());
-            }
-
-            foreach (var propRef in affectedBy)
-            {
-                var entity = GetEntity<ModObject>(propRef.EntityId);
-                entity?.SetPropValue(propRef.Prop);
-            }
-        }
-
-        private void OnEndEncounter()
-        {
-            foreach (var entity in Context!.Traverse(true))
-            {
-                entity.PropStore.RemoveExpiredMods();
-                entity.ModSetStore.RemoveExpiredMods();
+                Context!.OnTurnChanged(Turn);
             }
         }
     }

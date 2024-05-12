@@ -31,4 +31,22 @@ namespace Rpg.ModObjects.Modifiers
             return mod;
         }
     }
+
+    public static class RepairModExtensions
+    {
+        public static void AddRepairMod<TEntity, T1>(this TEntity entity, Expression<Func<TEntity, T1>> targetExpr, Dice dice)
+            where TEntity : ModObject
+        {
+            var mod = RepairMod.Create(entity, targetExpr, dice);
+            entity.AddMod(mod);
+        }
+
+        public static void AddRepairMod<TTarget, TTargetValue, TSource, TSourceValue>(this TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr)
+            where TTarget : ModObject
+            where TSource : ModObject
+        {
+            var mod = RepairMod.Create(target, targetExpr, source, sourceExpr);
+            target.AddMod(mod);
+        }
+    }
 }

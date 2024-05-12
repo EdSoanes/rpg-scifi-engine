@@ -1,6 +1,7 @@
 ﻿using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
+using System.Reflection.Metadata;
 
 namespace Rpg.ModObjects
 {
@@ -24,17 +25,10 @@ namespace Rpg.ModObjects
                 target.Merge(a);
         }
 
-        public static void AddMod<TEntity, T1>(this TEntity entity, Expression<Func<TEntity, T1>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+        public static void AddBaseOverrideMod<TEntity, T1>(this TEntity entity, Expression<Func<TEntity, T1>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
-            var mod = PermanentMod.Create(entity, targetExpr, dice, diceCalcExpr);
-            entity.AddMod(mod);
-        }
-
-        public static void AddMod<TEntity, TTarget, TSource>(this TEntity entity, Expression<Func<TEntity, TTarget>> targetExpr, Expression<Func<TEntity, TSource>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TEntity : ModObject
-        {
-            var mod = PermanentMod.Create(entity, targetExpr, sourceExpr, diceCalcExpr);
+            var mod = BaseOverrideMod.Create(entity, targetExpr, dice, diceCalcExpr);
             entity.AddMod(mod);
         }
 
@@ -42,63 +36,14 @@ namespace Rpg.ModObjects
             where TTarget : ModObject
         {
             var propRef = ModPropRef.CreatePropRef(entity, targetExpr);
-            entity.OnPropUpdated(propRef);
+            entity.TriggerUpdate(propRef);
         }
 
-        //public static Dice? GetPropValue<TEntity>(this TEntity rootEntity, Expression<Func<TEntity, Dice>> expression)
-        //    where TEntity : ModdableObject
-        //{
-        //    var propertyRef = rootEntity.GetPropertyRef(expression);
-        //    return !string.IsNullOrWhiteSpace(propertyRef.Prop)
-        //        ? propertyRef.Entity?.GetPropValue(propertyRef.Prop)
-        //        : null;
-        //}
-
-        //public static Dice? GetPropValue<TEntity>(this TEntity rootEntity, Modifier mod)
-        //    where TEntity : ModdableObject
-        //{
-        //    var entity = rootEntity.FindModdableObject(mod.Source!.EntityId);
-        //    return entity != null && !string.IsNullOrWhiteSpace(mod.Source.Prop)
-        //        ? entity.GetPropValue(mod.Source.Prop)
-        //        : null;
-        //}
-
-        //public static Modifier[]? GetMods<TEntity, TResult>(this TEntity rootEntity, Expression<Func<TEntity, TResult>> expression)
-        //    where TEntity : ModObject
-        //{
-        //    var propertyRef = rootEntity.GetPropertyRef(expression);
-        //    return propertyRef.Entity?.PropStore[propertyRef.Prop!]?.AllModifiers;
-        //}
-
-        //private static PropertyRef GetPropertyRef<T, TResult>(this T rootEntity, Expression<Func<T, TResult>> expression)
-        //    where T : ModObject
-        //{
-        //    var memberExpression = expression.Body as MemberExpression;
-        //    if (memberExpression == null)
-        //        throw new ArgumentException($"Invalid path expression. {expression.Name} not a member expression");
-
-        //    var pathSegments = new List<string>();
-
-        //    //Get the prop name
-        //    var prop = memberExpression.Member.Name;
-
-        //    while (memberExpression != null)
-        //    {
-        //        memberExpression = memberExpression.Expression as MemberExpression;
-        //        if (memberExpression != null)
-        //            pathSegments.Add(memberExpression.Member.Name);
-        //    }
-
-        //    pathSegments.Reverse();
-        //    var path = string.Join(".", pathSegments);
-        //    var entity = rootEntity.PropertyValue<ModObject>(path);
-
-        //    return new PropertyRef
-        //    {
-        //        Entity = entity,
-        //        Prop = prop
-        //    };
-        //}
+        public static ModPropDescription Describe<TEntity, T1>(this TEntity entity, Expression<Func<TEntity, T1>> targetExpr)
+            where TEntity : ModObject
+        {
+            var propRef = ModPropRef.CreatePropRef(entity, targetExpr);
+            return entity.Describe(propRef);
+        }
     }
-
 }

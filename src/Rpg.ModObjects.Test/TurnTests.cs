@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Modifiers;
+﻿using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.Tests.Models;
 using System.Reflection;
 
@@ -23,7 +22,7 @@ namespace Rpg.ModObjects.Tests
 
             graph.NewEncounter();
 
-            entity.AddMod(TurnMod.Create(entity, x => x.Melee, 2));
+            entity.AddTurnMod(x => x.Melee, 2);
             entity.TriggerUpdate(x => x.Melee);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
@@ -43,7 +42,7 @@ namespace Rpg.ModObjects.Tests
 
             graph.NewEncounter();
 
-            entity.AddMod(TurnMod.Create(entity, x => x.Melee, 2));
+            entity.AddTurnMod(x => x.Melee, 2);
             entity.TriggerUpdate(x => x.Melee);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
@@ -63,7 +62,7 @@ namespace Rpg.ModObjects.Tests
 
             graph.NewEncounter();
 
-            entity.AddMod(TurnMod.Create(entity, x => x.Melee, 2));
+            entity.AddTurnMod(x => x.Melee, 2);
             entity.TriggerUpdate(x => x.Melee);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
@@ -88,7 +87,7 @@ namespace Rpg.ModObjects.Tests
 
             graph.NewEncounter();
 
-            entity.AddMod(TurnMod.Create(entity, x => x.Melee, 2));
+            entity.AddTurnMod(x => x.Melee, 2);
             entity.TriggerUpdate(x => x.Melee);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
@@ -110,7 +109,7 @@ namespace Rpg.ModObjects.Tests
 
             graph.NewEncounter();
 
-            entity.AddMod(TurnMod.Create(entity, x => x.Melee, 2));
+            entity.AddTurnMod(x => x.Melee, 2);
             entity.TriggerUpdate(x => x.Melee);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
@@ -131,7 +130,7 @@ namespace Rpg.ModObjects.Tests
 
             graph.NewEncounter();
 
-            entity.AddMod(TimedMod.Create(1, 3, entity, x => x.Melee, 2));
+            entity.AddTimedMod(1, 3, x => x.Melee, 2);
             entity.TriggerUpdate(x => x.Melee);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
@@ -159,7 +158,7 @@ namespace Rpg.ModObjects.Tests
 
             graph.NewEncounter();
 
-            entity.AddMod(TimedMod.Create(1, 3, entity, x => x.Melee, 2));
+            entity.AddTimedMod(1, 3, x => x.Melee, 2);
             entity.TriggerUpdate(x => x.Melee);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));

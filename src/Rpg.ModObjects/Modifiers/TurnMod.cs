@@ -34,4 +34,21 @@ namespace Rpg.ModObjects.Modifiers
             return mod;
         }
     }
+
+    public static class TurnModExtensions
+    {
+        public static void AddTurnMod<TEntity, T1>(this TEntity entity, Expression<Func<TEntity, T1>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TEntity : ModObject
+        {
+            var mod = TurnMod.Create(entity, targetExpr, value, diceCalcExpr);
+            entity.AddMod(mod);
+        }
+
+        public static void AddTurnMod<TEntity, T1>(this TEntity entity, string name, Expression<Func<TEntity, T1>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TEntity : ModObject
+        {
+            var mod = TurnMod.Create(name, entity, targetExpr, value, diceCalcExpr);
+            entity.AddMod(mod);
+        }
+    }
 }

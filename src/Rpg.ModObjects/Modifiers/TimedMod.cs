@@ -41,14 +41,45 @@ namespace Rpg.ModObjects.Modifiers
             return mod;
         }
 
-        public static Mod Create<TEntity, T1, T2>(string name, int startTurn, int duration, TEntity entity, Expression<Func<TEntity, T1>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+        public static Mod Create<TEntity, T1>(string name, int startTurn, int duration, TEntity entity, Expression<Func<TEntity, T1>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
-            var mod = Create<TimedMod, TEntity, T1, T2>(entity, targetExpr, value, diceCalcExpr);
+            var mod = Create<TimedMod, TEntity, T1, T1>(entity, targetExpr, value, diceCalcExpr);
             mod.Name = name;
             mod.Duration = ModDuration.Timed(startTurn, startTurn + duration);
 
             return mod;
+        }
+    }
+
+    public static class TimedModExtensions
+    {
+        public static void AddTimedMod<TEntity, T1, T2>(this TEntity entity, int startTurn, int duration, Expression<Func<TEntity, T1>> targetExpr, Expression<Func<TEntity, T2>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TEntity : ModObject
+        {
+            var mod = TimedMod.Create(startTurn, duration, entity, targetExpr, sourceExpr, diceCalcExpr);
+            entity.AddMod(mod);
+        }
+
+        public static void AddTimedMod<TEntity, T1>(this TEntity entity, int startTurn, int duration, Expression<Func<TEntity, T1>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TEntity : ModObject
+        {
+            var mod = TimedMod.Create(startTurn, duration, entity, targetExpr, value, diceCalcExpr);
+            entity.AddMod(mod);
+        }
+
+        public static void AddTimedMod<TEntity, T1, T2>(this TEntity entity, string name, int startTurn, int duration, Expression<Func<TEntity, T1>> targetExpr, Expression<Func<TEntity, T2>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TEntity : ModObject
+        {
+            var mod = TimedMod.Create(name, startTurn, duration, entity, targetExpr, sourceExpr, diceCalcExpr);
+            entity.AddMod(mod);
+        }
+
+        public static void AddTimedMod<TEntity, T1>(this TEntity entity, string name, int startTurn, int duration, Expression<Func<TEntity, T1>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TEntity : ModObject
+        {
+            var mod = TimedMod.Create(name, startTurn, duration, entity, targetExpr, value, diceCalcExpr);
+            entity.AddMod(mod);
         }
     }
 }

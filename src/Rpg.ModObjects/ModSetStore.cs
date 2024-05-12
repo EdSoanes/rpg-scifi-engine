@@ -1,43 +1,8 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects
 {
-    //public class ModObjectPropStoreConverter : JsonConverter<ModObjectPropStore>
-    //{
-    //    public override ModObjectPropStore? ReadJson(JsonReader reader, Type objectType, ModObjectPropStore? existingValue, bool hasExistingValue, JsonSerializer serializer)
-    //    {
-    //        var jObj = JObject.Load(reader);
-    //        var res = jObj.ToObject<Dictionary<string, ModObjectProp>>();
-
-    //        if (res != null)
-    //        {
-    //            var propStore = (ModObjectPropStore)Activator.CreateInstance(typeof(ModObjectPropStore), true, res)!;
-    //            return propStore;
-    //        }
-
-    //        return null;
-    //    }
-
-    //    public override void WriteJson(JsonWriter writer, ModObjectPropStore? value, JsonSerializer serializer)
-    //    {
-    //        if (value != null)
-    //        {
-    //            var modObjProps = value.GetType()
-    //                .GetProperty("ModObjProps", BindingFlags.NonPublic | BindingFlags.Instance)
-    //                !.GetValue(value) as Dictionary<string, ModObjectProp>;
-
-    //            if (modObjProps != null)
-    //            {
-    //                var o = JObject.FromObject(modObjProps, serializer);
-    //                o.WriteTo(writer);
-    //            }
-    //        }
-    //    }
-    //}
-
-    //[JsonConverter(typeof(ModObjectPropStoreConverter))]
-    public class ModSetStore
+    public class ModSetStore : ITemporal
     {
         [JsonIgnore] private ModGraph? Graph { get; set; }
         [JsonIgnore] public Guid EntityId { get; set; }
@@ -57,16 +22,43 @@ namespace Rpg.ModObjects
                 ModSets.Add(modSet);
         }
 
-        public void UpdatePropExpiry()
+        public ModSet[] All()
+            => ModSets.ToArray();
+
+        public void Remove(Guid modSetId)
         {
-            foreach (var modSet in ModSets)
-                modSet.UpdatePropExpiry(Graph!.Turn);
+            var existing = ModSets.FirstOrDefault(x => x.Id == modSetId);
+            if (existing != null)
+            {
+                Graph?.Context?.PropStore.Remove(existing.Mods);
+                ModSets.Remove(existing);
+            }
         }
 
-        public void RemoveExpiredMods()
+        public void OnTurnChanged(int turn)
         {
             foreach (var modSet in ModSets)
-                modSet.RemoveExpiredMods(Graph!.Turn);
+                modSet.OnTurnChanged(turn);
+        }
+
+        public void OnEncounterStarted()
+        {
+            foreach (var modSet in ModSets)
+                modSet.OnEncounterStarted();
+        }
+
+        public void OnEncounterEnded()
+        {
+            var toRemove = new List<ModSet>();
+            foreach (var modSet in ModSets)
+            {
+                modSet.OnEncounterEnded();
+                if (modSet.GetExpiry(ModDuration.EndEncounter) == ModExpiry.Expired)
+                    toRemove.Add(modSet);
+            }
+
+            if (toRemove.Any())
+                ModSets = ModSets.Except(toRemove).ToList();
         }
     }
 }

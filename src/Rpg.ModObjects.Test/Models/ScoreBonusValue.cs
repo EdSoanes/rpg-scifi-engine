@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Tests.Models
@@ -18,7 +19,7 @@ namespace Rpg.ModObjects.Tests.Models
 
         protected override void OnInitialize()
         {
-            this.AddMod(x => x.Bonus, x => x.Score, () => CalculateStatBonus);
+            this.AddPermanentMod(x => x.Bonus, x => x.Score, () => CalculateStatBonus);
         }
 
         public Dice CalculateStatBonus(Dice dice) => (int)Math.Floor((double)(dice.Roll() - 10) / 2);

@@ -2,12 +2,12 @@
 
 namespace Rpg.ModObjects
 {
-    public class ModSet
+    public class ModSet : ITemporal
     {
         [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
         [JsonProperty] public string Name { get; set; } = nameof(ModSet);
         [JsonProperty] public List<Mod> Mods { get; private set; } = new List<Mod>();
-        [JsonProperty] public ModDuration Duration { get; private set; } = new ModDuration();
+        [JsonProperty] private ModDuration Duration { get; set; } = new ModDuration();
 
         [JsonConstructor] private ModSet() { }
 
@@ -15,27 +15,52 @@ namespace Rpg.ModObjects
         {
             Duration = duration;
             Mods.AddRange(mods);
+            SetModDuration();
         }
 
-        public void UpdatePropExpiry(int turn)
+        private void SetModDuration()
         {
-            var expiry = Duration.GetExpiry(turn);
-            if (expiry == ModExpiry.Expired)
-                Mods.ForEach(mod => mod.Duration.SetExpired(turn));
-            if (expiry == ModExpiry.Pending)
-                Mods.ForEach(mod => mod.Duration.SetPending(turn));
-            else
-                Mods.ForEach(mod => mod.Duration.SetActive());
+            foreach (var mod in Mods.Where(x => x.Duration.Type == ModDurationType.External))
+                mod.Duration.SetDuration(Duration.StartTurn, Duration.EndTurn);
         }
 
-        public void RemoveExpiredMods(int turn)
+        public ModExpiry GetExpiry(int turn)
+            => Duration.GetExpiry(turn);
+
+        public void SetExpired()
+        {
+            Duration.SetExpired();
+            SetModDuration();
+        }
+
+        public void SetPending(int turn)
+        {
+            Duration.SetPending(turn);
+            SetModDuration();
+        }
+
+        public void SetActive()
+        {
+            Duration.SetActive();
+            SetModDuration();
+        }
+
+        public void OnTurnChanged(int turn)
+        {
+        }
+
+        public void OnEncounterStarted()
+        {
+        }
+
+        public void OnEncounterEnded()
         {
             var toRemove = new List<Mod>();
 
             foreach (var mod in Mods)
             {
-                var expiry = mod.Duration.GetExpiry(turn);
-                if (expiry == ModExpiry.Expired && mod.Duration.CanRemove(turn))
+                var expiry = mod.Duration.GetExpiry(0);
+                if (expiry == ModExpiry.Expired && mod.Duration.CanRemove(0))
                     toRemove.Add(mod);
             }
 

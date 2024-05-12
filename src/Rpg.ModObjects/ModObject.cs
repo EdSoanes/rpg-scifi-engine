@@ -5,7 +5,7 @@ using System.ComponentModel;
 
 namespace Rpg.ModObjects
 {
-    public abstract class ModObject : INotifyPropertyChanged
+    public abstract class ModObject : INotifyPropertyChanged, ITemporal
     {
         protected ModGraph? Graph { get; private set; }
 
@@ -25,7 +25,7 @@ namespace Rpg.ModObjects
             Is = this.GetBaseTypes();
         }
 
-        public void AddMod(Mod mod)
+        internal void AddMod(Mod mod)
             => Graph!.Context!.PropStore.Add(mod);
 
         public ModSet AddModSet(ModDuration duration, params Mod[] mods)
@@ -37,6 +37,11 @@ namespace Rpg.ModObjects
                 AddMod(mod);
 
             return modSet;
+        }
+
+        public void RemoveModSet(Guid modSetId)
+        {
+            ModSetStore.Remove(modSetId);
         }
 
         public bool IsA(string type) => Is.Contains(type);
@@ -85,13 +90,32 @@ namespace Rpg.ModObjects
 
         protected virtual void OnInitialize() { }
 
-        public void OnPropUpdated(ModPropRef propRef)
+        public void TriggerUpdate()
+            => OnTurnChanged(Graph!.Turn);
+
+        internal void TriggerUpdate(ModPropRef propRef)
         {
             var propsAffected = PropStore.PropsAffectedBy(propRef);
             foreach (var prop in propsAffected)
             {
                 var entity = Graph!.GetEntity<ModObject>(prop.EntityId);
                 entity?.SetPropValue(prop.Prop);
+            }
+        }
+
+        internal ModPropDescription Describe(ModPropRef propRef)
+            => new ModPropDescription(Graph!, this, propRef);
+
+        private void UpdateProps()
+        {
+            var affectedBy = new List<ModPropRef>();
+            foreach (var entity in this.Traverse(true))
+                affectedBy.Merge(entity.PropStore.AffectedByProps());
+
+            foreach (var propRef in affectedBy)
+            {
+                var entity = Graph!.GetEntity<ModObject>(propRef.EntityId);
+                entity?.SetPropValue(propRef.Prop);
             }
         }
 
@@ -129,6 +153,38 @@ namespace Rpg.ModObjects
 
         protected void NotifyPropertyChanged(string prop)
         { }
-          //  => Graph?.Notify.Send(Id, prop);
+
+        public void OnTurnChanged(int turn)
+        {
+            foreach (var entity in this.Traverse())
+            {
+                entity.ModSetStore.OnTurnChanged(turn);
+                entity.PropStore.OnTurnChanged(turn);
+            }
+
+            UpdateProps();
+        }
+
+        public void OnEncounterStarted()
+        {
+            foreach (var entity in this.Traverse())
+            {
+                entity.ModSetStore.OnEncounterStarted();
+                entity.PropStore.OnEncounterStarted();
+            }
+
+            UpdateProps();
+        }
+
+        public void OnEncounterEnded()
+        {
+            foreach (var entity in this.Traverse())
+            {
+                entity.ModSetStore.OnEncounterEnded();
+                entity.PropStore.OnEncounterEnded();
+            }
+
+            UpdateProps();
+        }
     }
 }

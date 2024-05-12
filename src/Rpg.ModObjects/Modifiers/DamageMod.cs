@@ -31,4 +31,22 @@ namespace Rpg.ModObjects.Modifiers
             return mod;
         }
     }
+
+    public static class DamageModExtensions
+    {
+        public static void AddDamageMod<TEntity, T1>(this TEntity entity, Expression<Func<TEntity, T1>> targetExpr, Dice dice)
+            where TEntity : ModObject
+        {
+            var mod = DamageMod.Create(entity, targetExpr, dice);
+            entity.AddMod(mod);
+        }
+
+        public static void AddDamageMod<TTarget, TTargetValue, TSource, TSourceValue>(this TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr)
+            where TTarget : ModObject
+            where TSource : ModObject
+        {
+            var mod = DamageMod.Create(target, targetExpr, source, sourceExpr);
+            target.AddMod(mod);
+        }
+    }
 }

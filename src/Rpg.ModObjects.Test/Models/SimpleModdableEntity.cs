@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Rpg.ModObjects.Modifiers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,7 +20,7 @@ namespace Rpg.ModObjects.Tests.Models
 
         protected override void OnInitialize()
         {
-            this.AddMod(x => x.Score, x => x.Bonus);
+            this.AddPermanentMod(x => x.Score, x => x.Bonus);
         }
     }
 }

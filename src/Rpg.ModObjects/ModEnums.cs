@@ -32,8 +32,6 @@ namespace Rpg.ModObjects
     {
         Permanent,
         Timed,
-        OnNewTurn,
-        EndOfEncounter,
         OnValueZero,
         External
     }

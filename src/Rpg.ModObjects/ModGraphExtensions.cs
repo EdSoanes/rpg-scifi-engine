@@ -1,6 +1,7 @@
 ﻿using Rpg.ModObjects.Values;
 using System.Collections;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Rpg.ModObjects
 {
@@ -96,6 +97,45 @@ namespace Rpg.ModObjects
 
             if (entity != null && bottomUp)
                 yield return entity;
+        }
+
+        public static string[]? PathTo(this object obj, object descendent)
+        {
+            var propStack = new Stack<string>();
+
+            var res = PathTo(propStack, obj, descendent);
+            return res
+                ? propStack.ToArray()
+                : null;
+        }
+
+        private static bool PathTo(Stack<string> propStack, object obj, object descendent)
+        {
+            if (obj == descendent)
+                return true;
+
+            foreach (var propertyInfo in obj.GetType().GetProperties())
+            {
+                propStack.Push(propertyInfo.Name);
+
+                var children = obj.PropertyObjects(propertyInfo, out var isEnumerable)?.ToArray() ?? new object[0];
+                for (int i = 0; i < children.Count(); i++)
+                {
+                    if (PathTo(propStack, children[i], descendent))
+                    {
+                        if (isEnumerable)
+                        {
+                            var prop = propStack.Pop();
+                            propStack.Push($"{prop}[{i}]");
+                            return true;
+                        }
+                    }
+                }
+
+                propStack.Pop();
+            }
+
+            return false;
         }
 
         public static List<ModObject> Descendants(this object obj)
@@ -312,18 +352,18 @@ namespace Rpg.ModObjects
                 : ScannableNamespaces.Any(x => type.Namespace == x);
         }
 
-        internal static IEnumerable<object> PropertyObjects(this object context, PropertyInfo propertyInfo, out bool isEnumerable)
+        internal static List<object> PropertyObjects(this object context, PropertyInfo propertyInfo, out bool isEnumerable)
         {
             try
             {
                 isEnumerable = false;
 
                 if (PermittedModPropReturnTypes.Any(x => x == propertyInfo.PropertyType))
-                    return Enumerable.Empty<object>();
+                    return Enumerable.Empty<object>().ToList();
 
                 var obj = propertyInfo.GetValue(context, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, null, null);
                 if (obj == null || obj is string || obj.GetType().IsPrimitive || obj is Guid)
-                    return Enumerable.Empty<object>();
+                    return Enumerable.Empty<object>().ToList();
 
                 if (obj is IEnumerable)
                 {
@@ -344,7 +384,7 @@ namespace Rpg.ModObjects
                 //What happened?
                 var x = ex;
                 isEnumerable = false;
-                return Enumerable.Empty<object>();
+                return Enumerable.Empty<object>().ToList();
             }
         }
     }

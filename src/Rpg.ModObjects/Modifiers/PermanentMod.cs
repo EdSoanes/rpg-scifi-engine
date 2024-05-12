@@ -1,5 +1,6 @@
 ﻿using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 
 namespace Rpg.ModObjects.Modifiers
 {
@@ -38,6 +39,23 @@ namespace Rpg.ModObjects.Modifiers
             mod.Name = nameof(PermanentMod);
 
             return mod;
+        }
+    }
+
+    public static class PermanentModExtensions
+    {
+        public static void AddPermanentMod<TEntity, T1>(this TEntity entity, Expression<Func<TEntity, T1>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TEntity : ModObject
+        {
+            var mod = PermanentMod.Create(entity, targetExpr, dice, diceCalcExpr);
+            entity.AddMod(mod);
+        }
+
+        public static void AddPermanentMod<TEntity, TTarget, TSource>(this TEntity entity, Expression<Func<TEntity, TTarget>> targetExpr, Expression<Func<TEntity, TSource>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TEntity : ModObject
+        {
+            var mod = PermanentMod.Create(entity, targetExpr, sourceExpr, diceCalcExpr);
+            entity.AddMod(mod);
         }
     }
 }

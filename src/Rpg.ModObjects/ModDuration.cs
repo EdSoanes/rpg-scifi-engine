@@ -4,48 +4,48 @@ namespace Rpg.ModObjects
 {
     public class ModDuration
     {
+        internal const int PermanentStart = int.MinValue;
+        internal const int PermanentEnd = int.MaxValue;
+        internal const int EndEncounter = int.MaxValue - 1;
+        internal const int BeginEncounter = 0;
+        internal const int Expired = -1;
+
         [JsonProperty] public ModDurationType Type { get; private set; } = ModDurationType.Permanent;
-        [JsonProperty] public int StartTurn { get; private set; } = int.MinValue;
-        [JsonProperty] public int EndTurn { get; private set; } = int.MaxValue;
+        [JsonProperty] public int StartTurn { get; private set; } = PermanentStart;
+        [JsonProperty] public int EndTurn { get; private set; } = PermanentEnd;
 
         public bool CanRemove(int turn)
         {
             var expiry = GetExpiry(turn);
-            return expiry == ModExpiry.Expired && turn <= 0;
+            return expiry == ModExpiry.Expired && (turn == EndEncounter || turn == BeginEncounter);
         }
 
-        public void SetExpired(int turn)
+        public void SetDuration(int startTurn, int endTurn)
         {
-            if (Type == ModDurationType.External)
-            {
-                StartTurn = turn - 1;
-                EndTurn = turn - 1;
-            }
+            StartTurn = startTurn;
+            EndTurn = endTurn;
+        }
+
+        public void SetExpired()
+        {
+            StartTurn = Expired;
+            EndTurn = Expired;
         }
 
         public void SetActive()
         {
-            if (Type == ModDurationType.External)
-            {
-                StartTurn = int.MinValue;
-                EndTurn = int.MaxValue;
-            }
+            StartTurn = PermanentStart;
+            EndTurn = PermanentEnd;
         }
 
         public void SetPending(int turn)
         {
-            if (Type == ModDurationType.External)
-            {
-                StartTurn = turn + 1;
-                EndTurn = int.MaxValue;
-            }
+            StartTurn = turn + 1;
+            EndTurn = PermanentEnd;
         }
 
         public ModExpiry GetExpiry(int turn)
         {
-            if ((Type == ModDurationType.OnNewTurn || Type == ModDurationType.EndOfEncounter || Type == ModDurationType.Timed) && turn == 0)
-                return ModExpiry.Expired;
-
             if (EndTurn < turn)
                 return ModExpiry.Expired;
 
@@ -87,6 +87,9 @@ namespace Rpg.ModObjects
             return duration;
         }
 
+        public static ModDuration OnNewTurn(int turn)
+            => Timed(turn, turn);
+
         public static ModDuration OnValueZero()
         {
             var duration = new ModDuration
@@ -97,23 +100,23 @@ namespace Rpg.ModObjects
             return duration;
         }
 
-        public static ModDuration OnEncounterEnd()
+        public static ModDuration OnEndEncounter()
         {
             var duration = new ModDuration
             {
-                Type = ModDurationType.EndOfEncounter
+                Type = ModDurationType.Timed,
+                EndTurn = EndEncounter - 1,
             };
 
             return duration;
         }
 
-        public static ModDuration OnNewTurn(int turn)
+        public static ModDuration OnBeginEncounter()
         {
             var duration = new ModDuration
             {
-                Type = ModDurationType.OnNewTurn,
-                StartTurn = turn,
-                EndTurn = turn
+                Type = ModDurationType.Timed,
+                StartTurn = BeginEncounter,
             };
 
             return duration;
