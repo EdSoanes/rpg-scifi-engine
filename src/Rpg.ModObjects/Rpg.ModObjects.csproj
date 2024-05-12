@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <Folder Include="Description\" />
+    <Folder Include="States\" />
   </ItemGroup>
 
 </Project>

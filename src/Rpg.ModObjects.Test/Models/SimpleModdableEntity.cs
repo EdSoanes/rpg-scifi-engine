@@ -18,7 +18,7 @@ namespace Rpg.ModObjects.Tests.Models
             Bonus = bonus;
         }
 
-        protected override void OnInitialize()
+        protected override void OnCreate()
         {
             this.AddPermanentMod(x => x.Score, x => x.Bonus);
         }

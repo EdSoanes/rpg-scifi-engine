@@ -16,7 +16,7 @@ namespace Rpg.ModObjects.Tests
         public void AddModSet_VerifyValues()
         {
             var entity = new ModdableEntity();
-            var graph = entity.BuildGraph();
+            var graph = new ModGraph(entity);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));
@@ -40,7 +40,7 @@ namespace Rpg.ModObjects.Tests
         public void AddModSet_ExpireModSet_VerifyValues()
         {
             var entity = new ModdableEntity();
-            var graph = entity.BuildGraph();
+            var graph = new ModGraph(entity);
 
             var modSet = entity.AddModSet(ModDuration.Permanent(),
                 ExternalMod.Create(entity, x => x.Melee, 1),
@@ -67,7 +67,7 @@ namespace Rpg.ModObjects.Tests
         public void AddModSetWithPermanentMod_ExpireModSet_VerifyValues()
         {
             var entity = new ModdableEntity();
-            var graph = entity.BuildGraph();
+            var graph = new ModGraph(entity);
 
             var modSet = entity.AddModSet(ModDuration.Permanent(),
                 PermanentMod.Create(entity, x => x.Melee, 1),
@@ -94,7 +94,7 @@ namespace Rpg.ModObjects.Tests
         public void AddModSet_RemoveModSet_VerifyValues()
         {
             var entity = new ModdableEntity();
-            var graph = entity.BuildGraph();
+            var graph = new ModGraph(entity);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));
@@ -126,7 +126,7 @@ namespace Rpg.ModObjects.Tests
         public void AddEncounterModSet_EndEncounter_VerifyValues()
         {
             var entity = new ModdableEntity();
-            var graph = entity.BuildGraph();
+            var graph = new ModGraph(entity);
 
             graph.NewEncounter();
 

@@ -16,7 +16,7 @@ namespace Rpg.ModObjects.Tests
         public void AddTurnMod_IncrementTurn_TurnModRemoved()
         {
             var entity = new ModdableEntity();
-            var graph = entity.BuildGraph();
+            var graph = new ModGraph(entity);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
 
@@ -36,7 +36,7 @@ namespace Rpg.ModObjects.Tests
         public void AddTurnMod_RepeatSameTurn_TurnModNotRemoved()
         {
             var entity = new ModdableEntity();
-            var graph = entity.BuildGraph();
+            var graph = new ModGraph(entity);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
 
@@ -56,7 +56,7 @@ namespace Rpg.ModObjects.Tests
         public void AddTurnMod_RevertTurn_TurnModReapplied()
         {
             var entity = new ModdableEntity();
-            var graph = entity.BuildGraph();
+            var graph = new ModGraph(entity);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
 
@@ -80,7 +80,8 @@ namespace Rpg.ModObjects.Tests
         public void AddTurnMod_NewEncounter_TurnModRemoved()
         {
             var entity = new ModdableEntity();
-            var graph = entity.BuildGraph();
+            var graph = new ModGraph(entity);
+
             var modCount = graph.GetMods().Count();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
@@ -102,7 +103,8 @@ namespace Rpg.ModObjects.Tests
         public void AddTurnMod_EndEncounter_TurnModRemoved()
         {
             var entity = new ModdableEntity();
-            var graph = entity.BuildGraph();
+            var graph = new ModGraph(entity);
+
             var modCount = graph.GetMods().Count();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
@@ -124,7 +126,7 @@ namespace Rpg.ModObjects.Tests
         public void AddTimedMod_NextTurn_TimedModRemovedAfter3Turns()
         {
             var entity = new ModdableEntity();
-            var graph = entity.BuildGraph();
+            var graph = new ModGraph(entity);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
 
@@ -152,7 +154,7 @@ namespace Rpg.ModObjects.Tests
         public void AddTimedMod_RewindTurn_TimedModValid()
         {
             var entity = new ModdableEntity();
-            var graph = entity.BuildGraph();
+            var graph = new ModGraph(entity);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
 

@@ -23,7 +23,7 @@ namespace Rpg.ModObjects.Tests
         public void TestEntity_EnsureSetup()
         {
             var entity = new ModdableEntity();
-            var graph = entity.BuildGraph();
+            var graph = new ModGraph(entity);
 
             Assert.That(graph.GetEntities().Count(), Is.EqualTo(3));
             Assert.That(graph.GetMods().Count(), Is.EqualTo(9));
@@ -37,7 +37,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Score, Is.EqualTo(2));
             Assert.That(entity.Bonus, Is.EqualTo(2));
 
-            entity.BuildGraph();
+            var graph = new ModGraph(entity);
 
             Assert.That(entity.Score, Is.EqualTo(4));
             Assert.That(entity.Bonus, Is.EqualTo(2));
@@ -47,8 +47,8 @@ namespace Rpg.ModObjects.Tests
         public void CreateSimpleEntity_AddScoreMod_EnsureScoreUpdate()
         {
             var entity = new SimpleModdableEntity(2, 2);
+            var graph = new ModGraph(entity);
 
-            entity.BuildGraph();
             Assert.That(entity.Score, Is.EqualTo(4));
 
             entity.AddPermanentMod(x => x.Score, 4);
@@ -61,7 +61,7 @@ namespace Rpg.ModObjects.Tests
         public void CreateModdableEntity_VerifyValues()
         {
             var entity = new ModdableEntity();
-            entity.BuildGraph();
+            var graph = new ModGraph(entity);
 
             Assert.That(entity.Strength.Score, Is.EqualTo(14));
             Assert.That(entity.Strength.Bonus, Is.EqualTo(2));
@@ -73,12 +73,12 @@ namespace Rpg.ModObjects.Tests
         public void TestEntity_Serialize_EnsureValues()
         {
             var entity = new ModdableEntity();
-            entity.BuildGraph();
+            var graph = new ModGraph(entity);
 
             var json = JsonConvert.SerializeObject(entity, JsonSettings);
 
             var entity2 = JsonConvert.DeserializeObject<ModdableEntity>(json, JsonSettings)!;
-            entity2.BuildGraph();
+            var graph2 = new ModGraph(entity2);
 
             Assert.That(entity2, Is.Not.Null);
 
@@ -97,7 +97,7 @@ namespace Rpg.ModObjects.Tests
         public void TestEntity_ReplaceStrengthScoreWithBaseOverrideMod_VerifyValues()
         {
             var entity = new ModdableEntity();
-            entity.BuildGraph();
+            var graph = new ModGraph(entity);
 
             Assert.That(entity.Strength.Score, Is.EqualTo(14));
 
@@ -114,7 +114,7 @@ namespace Rpg.ModObjects.Tests
         public void TestEntity_CreateDamageMod_CreateRepairMod_IsRepaired()
         {
             var entity = new ModdableEntity();
-            var graph = entity.BuildGraph();
+            var graph = new ModGraph(entity);
 
             Assert.That(entity.Health, Is.EqualTo(10));
             Assert.That(graph.GetMods().Count(), Is.EqualTo(9));

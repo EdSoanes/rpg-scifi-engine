@@ -10,16 +10,18 @@ namespace Rpg.ModObjects
 
         public ModSetStore() { }
 
-        public void Initialize(ModGraph graph, ModObject entity)
-        {
-            Graph = graph;
-            EntityId = entity.Id;
-        }
-
-        public void Add(ModSet modSet)
+        public bool Add(ModSet modSet)
         {
             if (!ModSets.Contains(modSet))
-                ModSets.Add(modSet);
+            {
+                if (string.IsNullOrEmpty(modSet.Name) || !ModSets.Any(x => x.Name == modSet.Name))
+                {
+                    ModSets.Add(modSet);
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public ModSet[] All()
@@ -35,24 +37,40 @@ namespace Rpg.ModObjects
             }
         }
 
+        public void Remove(string name)
+        {
+            var existing = ModSets.FirstOrDefault(x => x.Name == name);
+            if (existing != null)
+            {
+                Graph?.Context?.PropStore.Remove(existing.Mods);
+                ModSets.Remove(existing);
+            }
+        }
+
+        public void OnGraphCreating(ModGraph graph, ModObject? entity = null)
+        {
+            Graph = graph;
+            EntityId = entity!.Id;
+        }
+
         public void OnTurnChanged(int turn)
         {
             foreach (var modSet in ModSets)
                 modSet.OnTurnChanged(turn);
         }
 
-        public void OnEncounterStarted()
+        public void OnBeginEncounter()
         {
             foreach (var modSet in ModSets)
-                modSet.OnEncounterStarted();
+                modSet.OnBeginEncounter();
         }
 
-        public void OnEncounterEnded()
+        public void OnEndEncounter()
         {
             var toRemove = new List<ModSet>();
             foreach (var modSet in ModSets)
             {
-                modSet.OnEncounterEnded();
+                modSet.OnEndEncounter();
                 if (modSet.GetExpiry(ModDuration.EndEncounter) == ModExpiry.Expired)
                     toRemove.Add(modSet);
             }

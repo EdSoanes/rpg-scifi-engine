@@ -34,12 +34,6 @@ namespace Rpg.ModObjects
 
         public ModPropStore() { }
 
-        public void Initialize(ModGraph graph, ModObject entity)
-        {
-            Graph = graph;
-            EntityId = entity.Id;
-        }
-
         public string[] AllProps()
             => ModProps.Keys.ToArray();
 
@@ -183,15 +177,16 @@ namespace Rpg.ModObjects
             return res;
         }
 
-        public void OnTurnChanged(int turn)
+        public void OnGraphCreating(ModGraph graph, ModObject? entity = null)
         {
+            Graph = graph;
+            EntityId = entity.Id;
         }
 
-        public void OnEncounterStarted()
-        {
-        }
+        public void OnTurnChanged(int turn) { }
+        public void OnBeginEncounter() { }
 
-        public void OnEncounterEnded()
+        public void OnEndEncounter()
         {
             var turn = Graph!.Turn;
 

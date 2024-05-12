@@ -5,16 +5,29 @@ namespace Rpg.ModObjects
     public class ModSet : ITemporal
     {
         [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
-        [JsonProperty] public string Name { get; set; } = nameof(ModSet);
-        [JsonProperty] public List<Mod> Mods { get; private set; } = new List<Mod>();
+        [JsonProperty] public string? Name { get; set; }
+        [JsonIgnore] public List<Mod> Mods { get; private set; } = new List<Mod>();
         [JsonProperty] private ModDuration Duration { get; set; } = new ModDuration();
+        [JsonProperty] private Guid[] ModIds { get; set; } = new Guid[0];
 
         [JsonConstructor] private ModSet() { }
 
-        public ModSet(ModDuration duration, Mod[] mods)
+        public ModSet(ModDuration duration)
         {
             Duration = duration;
+        }
+
+        public ModSet(ModDuration duration, Mod[] mods)
+            : this(duration)
+        {
+            Add(mods);
+        }
+
+        public void Add(params Mod[] mods)
+        {
             Mods.AddRange(mods);
+            ModIds = Mods.Select(x => x.Id).ToArray();
+
             SetModDuration();
         }
 
@@ -45,15 +58,17 @@ namespace Rpg.ModObjects
             SetModDuration();
         }
 
-        public void OnTurnChanged(int turn)
+        public void OnGraphCreating(ModGraph graph, ModObject? entity = null) { }
+        public void OnGraphCreated(ModGraph graph)
         {
+            if (!Mods.Any())
+                Mods = graph.GetMods().Where(x => ModIds.Contains(x.Id)).ToList();
         }
 
-        public void OnEncounterStarted()
-        {
-        }
+        public void OnTurnChanged(int turn) { }
+        public void OnBeginEncounter() { }
 
-        public void OnEncounterEnded()
+        public void OnEndEncounter()
         {
             var toRemove = new List<Mod>();
 
@@ -65,7 +80,10 @@ namespace Rpg.ModObjects
             }
 
             foreach (var mod in toRemove)
+            {
                 Mods.Remove(mod);
+                ModIds = Mods.Select(x => x.Id).ToArray();
+            }
         }
     }
 }

@@ -14,7 +14,8 @@ namespace Rpg.ModObjects
         [JsonProperty] public string[] Is { get; private set; }
         [JsonProperty] public ModPropStore PropStore { get; private set; } = new ModPropStore();
         [JsonProperty] public ModSetStore ModSetStore { get; private set; } = new ModSetStore();
-        [JsonProperty] protected bool IsInitialized { get; set; }
+        [JsonProperty] public ModStateStore StateStore { get; private set; } = new ModStateStore();
+        [JsonProperty] protected bool IsCreated { get; set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -28,67 +29,37 @@ namespace Rpg.ModObjects
         internal void AddMod(Mod mod)
             => Graph!.Context!.PropStore.Add(mod);
 
-        public ModSet AddModSet(ModDuration duration, params Mod[] mods)
+        public ModSet? AddModSet(ModDuration duration, params Mod[] mods)
         {
             var modSet = new ModSet(duration, mods);
-            ModSetStore.Add(modSet);
+            var added = ModSetStore.Add(modSet);
+            if (added)
+            {
+                foreach (var mod in mods)
+                    AddMod(mod);
 
-            foreach (var mod in mods)
-                AddMod(mod);
+                return modSet;
+            }
 
-            return modSet;
+            return null;
         }
+
+        public ModSet? GetModSet(Guid id)
+            => ModSetStore.ModSets.FirstOrDefault(x => x.Id == id);
+
+        public ModSet? GetModSet(string name)
+            => ModSetStore.ModSets.FirstOrDefault(x => x.Name == name);
+
+        public bool AddModSet(ModSet modSet)
+            => ModSetStore.Add(modSet);
 
         public void RemoveModSet(Guid modSetId)
-        {
-            ModSetStore.Remove(modSetId);
-        }
+            => ModSetStore.Remove(modSetId);
+
+        public void RemoveModSet(string name)
+            => ModSetStore.Remove(name);
 
         public bool IsA(string type) => Is.Contains(type);
-
-        public ModGraph BuildGraph()
-        {
-            var graph = new ModGraph(this);
-            foreach (var entity in this.Traverse())
-                entity.Initialize(graph);
-
-            foreach (var entity in this.Traverse(true))
-            {
-                if (!entity.IsInitialized)
-                {
-                    entity.OnInitialize();
-                    entity.IsInitialized = true;
-                }
-            }
-
-            graph.Initialize();
-
-            return graph;
-        }
-
-        private void Initialize(ModGraph graph)
-        {
-            Graph = graph;
-            PropStore.Initialize(Graph, this);
-            ModSetStore.Initialize(Graph, this);
-
-            if (!IsInitialized)
-            {
-                foreach (var propInfo in this.ModdableProperties())
-                {
-                    var val = this.PropertyValue(propInfo.Name);
-                    if (val != null)
-                    {
-                        if (val is Dice dice && dice != Dice.Zero)
-                            PropStore.Add(BaseValueMod.Create(this, propInfo.Name, dice));
-                        else if (val is int i && i != 0)
-                            PropStore.Add(BaseValueMod.Create(this, propInfo.Name, i));
-                    }
-                }
-            }
-        }
-
-        protected virtual void OnInitialize() { }
 
         public void TriggerUpdate()
             => OnTurnChanged(Graph!.Turn);
@@ -106,7 +77,7 @@ namespace Rpg.ModObjects
         internal ModPropDescription Describe(ModPropRef propRef)
             => new ModPropDescription(Graph!, this, propRef);
 
-        private void UpdateProps()
+        internal void UpdateProps()
         {
             var affectedBy = new List<ModPropRef>();
             foreach (var entity in this.Traverse(true))
@@ -127,7 +98,7 @@ namespace Rpg.ModObjects
             if (oldValue == null || oldValue != newValue)
             {
                 this.PropertyValue(prop, newValue);
-                CallPropertyChanged(prop);
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
             }
         }
 
@@ -148,11 +119,33 @@ namespace Rpg.ModObjects
             return null;
         }
 
-        public void CallPropertyChanged(string prop)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
+        public void OnGraphCreating(ModGraph graph, ModObject? entity = null)
+        {
+            Graph = graph;
+            PropStore.OnGraphCreating(Graph, this);
+            ModSetStore.OnGraphCreating(Graph, this);
+            StateStore.OnGraphCreating(Graph, this);
 
-        protected void NotifyPropertyChanged(string prop)
-        { }
+            if (!IsCreated)
+            {
+                foreach (var propInfo in this.ModdableProperties())
+                {
+                    var val = this.PropertyValue(propInfo.Name);
+                    if (val != null)
+                    {
+                        if (val is Dice dice && dice != Dice.Zero)
+                            PropStore.Add(BaseValueMod.Create(this, propInfo.Name, dice));
+                        else if (val is int i && i != 0)
+                            PropStore.Add(BaseValueMod.Create(this, propInfo.Name, i));
+                    }
+                }
+
+                OnCreate();
+                IsCreated = true;
+            }
+        }
+
+        protected virtual void OnCreate() { }
 
         public void OnTurnChanged(int turn)
         {
@@ -160,28 +153,31 @@ namespace Rpg.ModObjects
             {
                 entity.ModSetStore.OnTurnChanged(turn);
                 entity.PropStore.OnTurnChanged(turn);
+                entity.StateStore.OnTurnChanged(turn);
             }
 
             UpdateProps();
         }
 
-        public void OnEncounterStarted()
+        public void OnBeginEncounter()
         {
             foreach (var entity in this.Traverse())
             {
-                entity.ModSetStore.OnEncounterStarted();
-                entity.PropStore.OnEncounterStarted();
+                entity.ModSetStore.OnBeginEncounter();
+                entity.PropStore.OnBeginEncounter();
+                entity.StateStore.OnBeginEncounter();
             }
 
             UpdateProps();
         }
 
-        public void OnEncounterEnded()
+        public void OnEndEncounter()
         {
             foreach (var entity in this.Traverse())
             {
-                entity.ModSetStore.OnEncounterEnded();
-                entity.PropStore.OnEncounterEnded();
+                entity.ModSetStore.OnEndEncounter();
+                entity.PropStore.OnEndEncounter();
+                entity.StateStore.OnEndEncounter();
             }
 
             UpdateProps();

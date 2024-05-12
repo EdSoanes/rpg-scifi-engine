@@ -17,7 +17,7 @@ namespace Rpg.ModObjects.Tests.Models
             Score = score;
         }
 
-        protected override void OnInitialize()
+        protected override void OnCreate()
         {
             this.AddPermanentMod(x => x.Bonus, x => x.Score, () => CalculateStatBonus);
         }

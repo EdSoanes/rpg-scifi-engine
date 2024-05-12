@@ -16,7 +16,7 @@ namespace Rpg.ModObjects.Tests.Models
         public Dice Missile { get; protected set; }
         public int Health { get; protected set; } = 10;
 
-        protected override void OnInitialize()
+        protected override void OnCreate()
         {
             this.AddPermanentMod(x => x.Melee, x => x.Strength.Bonus);
             this.AddPermanentMod(x => x.Damage.Dice, x => x.Strength.Bonus);

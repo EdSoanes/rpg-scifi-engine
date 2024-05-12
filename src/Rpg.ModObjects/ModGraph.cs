@@ -11,7 +11,7 @@ namespace Rpg.ModObjects
             Formatting = Formatting.Indented
         };
 
-        [JsonProperty] public ModObject? Context { get; private set; }
+        [JsonProperty] public ModObject Context { get; private set; }
         [JsonProperty] protected Dictionary<Guid, ModObject> ModObjectStore { get; set; } = new Dictionary<Guid, ModObject>();
         [JsonProperty] public int Turn { get; private set; }
         public bool EncounterActive => Turn > 1;
@@ -21,12 +21,23 @@ namespace Rpg.ModObjects
             ModGraphExtensions.RegisterAssembly(GetType().Assembly);
 
             Context = context;
+            Build();
+        }
+
+        private void Build()
+        {
             ModObjectStore.Clear();
-            foreach (var entity in context.Traverse())
+
+            foreach (var entity in Context.Traverse())
             {
                 if (!ModObjectStore.ContainsKey(entity.Id))
                     ModObjectStore.Add(entity.Id, entity);
             }
+
+            foreach (var entity in Context.Traverse())
+                entity.OnGraphCreating(this, entity);
+
+            Context.UpdateProps();
         }
 
         public ModProp? GetModProp(ModPropRef? propRef)
@@ -71,7 +82,7 @@ namespace Rpg.ModObjects
                 EndEncounter();
 
             Turn = ModDuration.BeginEncounter;
-            Context!.OnEncounterStarted();
+            Context!.OnBeginEncounter();
 
             NewTurn();
         }
@@ -82,7 +93,7 @@ namespace Rpg.ModObjects
         public void EndEncounter()
         {
             Turn = ModDuration.EndEncounter;
-            Context!.OnEncounterEnded();
+            Context!.OnEndEncounter();
         }
 
         public void NewTurn()
