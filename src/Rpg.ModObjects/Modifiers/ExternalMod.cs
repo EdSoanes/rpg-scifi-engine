@@ -21,4 +21,16 @@ namespace Rpg.ModObjects.Modifiers
             return mod;
         }
     }
+
+    public static class ExternalModExtensions
+    {
+        public static ModSet<T> Add<T, T1>(this ModSet<T> modSet, T entity, Expression<Func<T, T1>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where T : ModObject
+        {
+            var mod = ExternalMod.Create(entity, targetExpr, dice, diceCalcExpr);
+            modSet.Add(mod);
+
+            return modSet;
+        }
+    }
 }

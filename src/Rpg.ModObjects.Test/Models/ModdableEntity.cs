@@ -22,8 +22,8 @@ namespace Rpg.ModObjects.Tests.Models
             this.AddPermanentMod(x => x.Damage.Dice, x => x.Strength.Bonus);
 
             this
-                .AddState(new TestBuffState())
-                .AddState(new TestNerfState());
+                .Add(new TestBuffState())
+                .Add(new TestNerfState());
         }
     }
 }

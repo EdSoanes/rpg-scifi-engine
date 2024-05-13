@@ -26,22 +26,22 @@ namespace Rpg.ModObjects
             Is = this.GetBaseTypes();
         }
 
-        public string[] GetPropNames()
+        internal string[] GetPropNames()
             => PropStore.GetPropNames();
 
-        public IEnumerable<ModPropRef> GetPropsThatAffect(string prop)
+        internal IEnumerable<ModPropRef> GetPropsThatAffect(string prop)
             => PropStore.GetPropsThatAffect(prop);
 
-        public IEnumerable<ModPropRef> GetPropsAffectedBy(string prop)
+        internal IEnumerable<ModPropRef> GetPropsAffectedBy(string prop)
             => PropStore.GetPropsAffectedBy(new ModPropRef(Id, prop));
 
-        public Mod[] GetMods(bool filtered = true)
+        internal Mod[] GetMods(bool filtered = true)
             => PropStore.Get(filtered);
 
-        public Mod[] GetMods(string prop, bool filtered = true)
+        internal Mod[] GetMods(string prop, bool filtered = true)
             => PropStore.Get(prop, filtered);
 
-        public ModProp? GetModProp(string? prop, bool create = false)
+        internal ModProp? GetModProp(string? prop, bool create = false)
         {
             if (string.IsNullOrEmpty(prop))
                 return null;
@@ -53,7 +53,7 @@ namespace Rpg.ModObjects
             return modProp;
         }
 
-        public ModProp[] GetModProps()
+        internal ModProp[] GetModProps()
             => PropStore.GetModProps();
 
         internal void AddMod(Mod mod)
@@ -62,10 +62,10 @@ namespace Rpg.ModObjects
         public void RemoveMods(params Mod[] mods)
             => Graph?.Context?.PropStore?.Remove(mods);
 
-        public ModSet[] GetModSets()
+        internal ModSet[] GetModSets()
             => ModSetStore.All();
 
-        public ModSet? AddModSet(ModDuration duration, params Mod[] mods)
+        internal ModSet? AddModSet(ModDuration duration, params Mod[] mods)
         {
             var modSet = new ModSet(duration, mods);
             return ModSetStore.Add(modSet)
@@ -73,7 +73,7 @@ namespace Rpg.ModObjects
                 : null;
         }
 
-        public bool AddModSet(ModSet modSet)
+        internal bool AddModSet(ModSet modSet)
             => ModSetStore.Add(modSet);
 
         public ModSet? GetModSet(Guid id)
@@ -88,7 +88,7 @@ namespace Rpg.ModObjects
         public void RemoveModSet(string name)
             => ModSetStore.Remove(name);
 
-        public ModObject AddState<T>(ModState<T> state)
+        internal ModObject AddState<T>(ModState<T> state)
             where T : ModObject
         {
             StateStore.Add<T>(state);

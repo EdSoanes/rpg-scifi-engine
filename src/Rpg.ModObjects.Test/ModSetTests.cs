@@ -23,10 +23,13 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(10));
             Assert.That(graph.GetAllMods().Count(), Is.EqualTo(9));
 
-            entity.AddModSet(ModDuration.Permanent(),
-                ExternalMod.Create(entity, x => x.Melee, 1),
-                ExternalMod.Create(entity, x => x.Health, 1),
-                ExternalMod.Create(entity, x => x.Damage.ArmorPenetration, 1));
+            entity.AddModSet(modSet =>
+            {
+                modSet
+                    .Add(entity, x => x.Melee, 1)
+                    .Add(entity, x => x.Health, 1)
+                    .Add(entity, x => x.Damage.ArmorPenetration, 1);
+            });
 
             entity.TriggerUpdate();
 
@@ -42,10 +45,13 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new ModGraph(entity);
 
-            var modSet = entity.AddModSet(ModDuration.Permanent(),
-                ExternalMod.Create(entity, x => x.Melee, 1),
-                ExternalMod.Create(entity, x => x.Health, 1),
-                ExternalMod.Create(entity, x => x.Damage.ArmorPenetration, 1))!;
+            entity.AddModSet("test", modSet =>
+            {
+                modSet
+                    .Add(entity, x => x.Melee, 1)
+                    .Add(entity, x => x.Health, 1)
+                    .Add(entity, x => x.Damage.ArmorPenetration, 1);
+            });
 
             entity.TriggerUpdate();
 
@@ -54,6 +60,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(11));
             Assert.That(graph.GetAllMods().Count(), Is.EqualTo(12));
 
+            var modSet = entity.GetModSet("test")!;
             modSet.SetExpired();
             entity.TriggerUpdate();
 
@@ -69,10 +76,13 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new ModGraph(entity);
 
-            var modSet = entity.AddModSet(ModDuration.Permanent(),
-                PermanentMod.Create(entity, x => x.Melee, 1),
-                ExternalMod.Create(entity, x => x.Health, 1),
-                ExternalMod.Create(entity, x => x.Damage.ArmorPenetration, 1))!;
+            entity.AddModSet("test", modSet =>
+            {
+                modSet
+                    .Add(entity, x => x.Health, 1)
+                    .Add(entity, x => x.Damage.ArmorPenetration, 1)
+                    .Add(PermanentMod.Create(entity, x => x.Melee, 1));
+            });
 
             entity.TriggerUpdate();
 
@@ -81,6 +91,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(11));
             Assert.That(graph.GetAllMods().Count(), Is.EqualTo(12));
 
+            var modSet = entity.GetModSet("test")!;
             modSet.SetExpired();
             entity.TriggerUpdate();
 
@@ -101,10 +112,13 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(10));
             Assert.That(graph.GetAllMods().Count(), Is.EqualTo(9));
 
-            var modSet = entity.AddModSet(ModDuration.Permanent(),
-                ExternalMod.Create(entity, x => x.Melee, 1),
-                ExternalMod.Create(entity, x => x.Health, 1),
-                ExternalMod.Create(entity, x => x.Damage.ArmorPenetration, 1))!;
+            entity.AddModSet("test", modSet =>
+            {
+                modSet
+                    .Add(entity, x => x.Melee, 1)
+                    .Add(entity, x => x.Health, 1)
+                    .Add(entity, x => x.Damage.ArmorPenetration, 1);
+            });
 
             entity.TriggerUpdate();
 
@@ -113,6 +127,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(11));
             Assert.That(graph.GetAllMods().Count(), Is.EqualTo(12));
 
+            var modSet = entity.GetModSet("test")!;
             entity.RemoveModSet(modSet.Id);
             entity.TriggerUpdate();
 
@@ -130,10 +145,13 @@ namespace Rpg.ModObjects.Tests
 
             graph.NewEncounter();
 
-            var modSet = entity.AddModSet(ModDuration.OnEndEncounter(),
-                ExternalMod.Create(entity, x => x.Melee, 1),
-                ExternalMod.Create(entity, x => x.Health, 1),
-                ExternalMod.Create(entity, x => x.Damage.ArmorPenetration, 1));
+            entity.AddModSet(ModDuration.OnEndEncounter(), modSet =>
+            {
+                modSet
+                    .Add(entity, x => x.Melee, 1)
+                    .Add(entity, x => x.Health, 1)
+                    .Add(entity, x => x.Damage.ArmorPenetration, 1);
+            });
 
             entity.TriggerUpdate();
 

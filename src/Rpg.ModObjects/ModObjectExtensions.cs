@@ -25,6 +25,40 @@ namespace Rpg.ModObjects
                 target.Merge(a);
         }
 
+        public static T Add<T>(this T entity, ModState<T> modState)
+            where T : ModObject
+        {
+            entity.AddState(modState);
+            return entity;
+        }
+
+        public static T AddModSet<T>(this T entity, Action<ModSet<T>> addAction)
+            where T : ModObject
+        {
+            var modSet = new ModSet<T>();
+            addAction.Invoke(modSet);
+            entity.AddModSet(modSet);
+            return entity;
+        }
+
+        public static T AddModSet<T>(this T entity, string? name, Action<ModSet<T>> addAction)
+            where T : ModObject
+        {
+            var modSet = new ModSet<T>(name);
+            addAction.Invoke(modSet);
+            entity.AddModSet(modSet);
+            return entity;
+        }
+
+        public static T AddModSet<T>(this T entity, ModDuration duration, Action<ModSet<T>> addAction)
+            where T : ModObject
+        {
+            var modSet = new ModSet<T>(duration);
+            addAction.Invoke(modSet);
+            entity.AddModSet(modSet);
+            return entity;
+        }
+
         public static void AddBaseOverrideMod<TEntity, T1>(this TEntity entity, Expression<Func<TEntity, T1>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {

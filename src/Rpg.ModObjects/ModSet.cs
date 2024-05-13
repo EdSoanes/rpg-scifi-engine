@@ -9,16 +9,19 @@ namespace Rpg.ModObjects
         where T : ModObject
     {
         public ModSet()
-            : base(ModDuration.External())
+            : base(ModDuration.Permanent())
         {
         }
 
-        public ModSet<T> Add<T1>(T entity, Expression<Func<T, T1>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+        public ModSet(string? name)
+            : this()
         {
-            var mod = ExternalMod.Create(entity, targetExpr, dice, diceCalcExpr);
-            Add(mod);
+            Name = name;
+        }
 
-            return this;
+        public ModSet(ModDuration duration)
+            : base(duration)
+        {
         }
     }
 
@@ -43,12 +46,14 @@ namespace Rpg.ModObjects
             Add(mods);
         }
 
-        public void Add(params Mod[] mods)
+        public ModSet Add(params Mod[] mods)
         {
             Mods.AddRange(mods);
             ModIds = Mods.Select(x => x.Id).ToArray();
 
             SetModDuration();
+
+            return this;
         }
 
         private void SetModDuration()
