@@ -26,9 +26,6 @@ namespace Rpg.ModObjects
             Is = this.GetBaseTypes();
         }
 
-        internal string[] GetPropNames()
-            => PropStore.GetPropNames();
-
         internal IEnumerable<ModPropRef> GetPropsThatAffect(string prop)
             => PropStore.GetPropsThatAffect(prop);
 
@@ -155,7 +152,7 @@ namespace Rpg.ModObjects
             return null;
         }
 
-        public Dice? CalculatePropValue(string? prop, ModType? modType = null, string? modName = null)
+        internal Dice? CalculatePropValue(string? prop, ModType? modType = null, string? modName = null)
         {
             if (!string.IsNullOrEmpty(prop))
                 return PropStore.Calculate(prop, modType, modName);
