@@ -21,7 +21,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));
             Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(10));
-            Assert.That(graph.GetMods().Count(), Is.EqualTo(9));
+            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(9));
 
             entity.AddModSet(ModDuration.Permanent(),
                 ExternalMod.Create(entity, x => x.Melee, 1),
@@ -33,7 +33,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Melee.Roll(), Is.EqualTo(5));
             Assert.That(entity.Health, Is.EqualTo(11));
             Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(11));
-            Assert.That(graph.GetMods().Count(), Is.EqualTo(12));
+            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(12));
         }
 
         [Test]
@@ -45,14 +45,14 @@ namespace Rpg.ModObjects.Tests
             var modSet = entity.AddModSet(ModDuration.Permanent(),
                 ExternalMod.Create(entity, x => x.Melee, 1),
                 ExternalMod.Create(entity, x => x.Health, 1),
-                ExternalMod.Create(entity, x => x.Damage.ArmorPenetration, 1));
+                ExternalMod.Create(entity, x => x.Damage.ArmorPenetration, 1))!;
 
             entity.TriggerUpdate();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(5));
             Assert.That(entity.Health, Is.EqualTo(11));
             Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(11));
-            Assert.That(graph.GetMods().Count(), Is.EqualTo(12));
+            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(12));
 
             modSet.SetExpired();
             entity.TriggerUpdate();
@@ -60,7 +60,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));
             Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(10));
-            Assert.That(graph.GetMods().Count(), Is.EqualTo(12));
+            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(12));
         }
 
         [Test]
@@ -72,14 +72,14 @@ namespace Rpg.ModObjects.Tests
             var modSet = entity.AddModSet(ModDuration.Permanent(),
                 PermanentMod.Create(entity, x => x.Melee, 1),
                 ExternalMod.Create(entity, x => x.Health, 1),
-                ExternalMod.Create(entity, x => x.Damage.ArmorPenetration, 1));
+                ExternalMod.Create(entity, x => x.Damage.ArmorPenetration, 1))!;
 
             entity.TriggerUpdate();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(5));
             Assert.That(entity.Health, Is.EqualTo(11));
             Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(11));
-            Assert.That(graph.GetMods().Count(), Is.EqualTo(12));
+            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(12));
 
             modSet.SetExpired();
             entity.TriggerUpdate();
@@ -87,7 +87,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Melee.Roll(), Is.EqualTo(5));
             Assert.That(entity.Health, Is.EqualTo(10));
             Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(10));
-            Assert.That(graph.GetMods().Count(), Is.EqualTo(12));
+            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(12));
         }
 
         [Test]
@@ -99,19 +99,19 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));
             Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(10));
-            Assert.That(graph.GetMods().Count(), Is.EqualTo(9));
+            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(9));
 
             var modSet = entity.AddModSet(ModDuration.Permanent(),
                 ExternalMod.Create(entity, x => x.Melee, 1),
                 ExternalMod.Create(entity, x => x.Health, 1),
-                ExternalMod.Create(entity, x => x.Damage.ArmorPenetration, 1));
+                ExternalMod.Create(entity, x => x.Damage.ArmorPenetration, 1))!;
 
             entity.TriggerUpdate();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(5));
             Assert.That(entity.Health, Is.EqualTo(11));
             Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(11));
-            Assert.That(graph.GetMods().Count(), Is.EqualTo(12));
+            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(12));
 
             entity.RemoveModSet(modSet.Id);
             entity.TriggerUpdate();
@@ -119,7 +119,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));
             Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(10));
-            Assert.That(graph.GetMods().Count(), Is.EqualTo(9));
+            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(9));
         }
 
         [Test]
@@ -138,7 +138,7 @@ namespace Rpg.ModObjects.Tests
             entity.TriggerUpdate();
 
             Assert.That(graph.GetModSets().Count(), Is.EqualTo(1));
-            Assert.That(graph.GetMods().Count(), Is.EqualTo(12));
+            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(12));
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(5));
             Assert.That(entity.Health, Is.EqualTo(11));
@@ -147,7 +147,7 @@ namespace Rpg.ModObjects.Tests
             graph.EndEncounter();
 
             Assert.That(graph.GetModSets().Count(), Is.EqualTo(0));
-            Assert.That(graph.GetMods().Count(), Is.EqualTo(9));
+            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(9));
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));

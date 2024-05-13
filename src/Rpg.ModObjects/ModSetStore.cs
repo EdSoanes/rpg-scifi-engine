@@ -18,7 +18,7 @@ namespace Rpg.ModObjects
                 {
                     ModSets.Add(modSet);
                     foreach (var mod in modSet.Mods)
-                        Graph?.Context?.PropStore.Add(mod);
+                        Graph?.Context?.AddMod(mod);
 
                     return true;
                 }
@@ -35,7 +35,7 @@ namespace Rpg.ModObjects
             var existing = ModSets.FirstOrDefault(x => x.Id == modSetId);
             if (existing != null)
             {
-                Graph?.Context?.PropStore.Remove(existing.Mods);
+                Graph?.Context?.RemoveMods(existing.Mods.ToArray());
                 ModSets.Remove(existing);
             }
         }
@@ -45,7 +45,7 @@ namespace Rpg.ModObjects
             var existing = ModSets.FirstOrDefault(x => x.Name == name);
             if (existing != null)
             {
-                Graph?.Context?.PropStore.Remove(existing.Mods);
+                Graph?.Context?.RemoveMods(existing.Mods.ToArray());
                 ModSets.Remove(existing);
             }
         }

@@ -32,11 +32,6 @@ namespace Rpg.ModObjects
             return res.ToArray();
         }
 
-        //public Mod[] Get(ModGraph graph, ModType modifierType)
-        //    => Modifiers
-        //        .Where(x => x.Duration.GetExpiry(graph.Turn) == ModExpiry.Active && x.ModifierType == modifierType)
-        //        .ToArray();
-
         public Mod[] Get(ModType modifierType, string modName)
             => Mods
                 .Where(x => x.ModifierType == modifierType && x.Name == modName)

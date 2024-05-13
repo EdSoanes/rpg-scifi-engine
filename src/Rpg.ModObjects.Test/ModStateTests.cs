@@ -40,7 +40,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Melee.Roll(), Is.EqualTo(10));
             Assert.That(entity.Health, Is.EqualTo(20));
 
-            entity.PropStore.Remove(mod);
+            entity.RemoveMods(mod);
             entity.TriggerUpdate();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));

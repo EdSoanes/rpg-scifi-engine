@@ -18,7 +18,7 @@ namespace Rpg.ModObjects
         public ModPropDescription(ModGraph graph, ModObject rootEntity, string prop)
             : this(graph, rootEntity, rootEntity.Id, prop)
         {
-            Mods = _entity.PropStore.Get(prop)
+            Mods = _entity.GetMods(prop)
                 .Select(x => new ModPropDescription(_graph, _rootEntity, x))
                 .ToList();
         }
@@ -26,7 +26,7 @@ namespace Rpg.ModObjects
         public ModPropDescription(ModGraph graph, ModObject rootEntity, ModPropRef propRef)
             : this(graph, rootEntity, propRef.EntityId, propRef.Prop)
         {
-            Mods = _entity.PropStore.Get(propRef.Prop)
+            Mods = _entity.GetMods(propRef.Prop)
                 .Select(x => new ModPropDescription(_graph, _rootEntity, x))
                 .ToList();
         }
@@ -37,7 +37,7 @@ namespace Rpg.ModObjects
             ValueFunction = mod.Source.ValueFunc.FuncName;
             if (mod.Source.PropRef != null)
             {
-                var affectedByPropRefs = _entity.PropStore.AffectedByProps(mod.Prop);
+                var affectedByPropRefs = _entity.GetPropsThatAffect(mod.Prop);
                 Mods = affectedByPropRefs
                     .Select(x => new ModPropDescription(_graph, _rootEntity, x))
                     .ToList();

@@ -1,7 +1,10 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Values;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,8 +12,9 @@ namespace Rpg.ModObjects
 {
     public abstract class ModState : ITemporal
     {
-        public string Name { get; protected set; } = nameof(ModState);
-
+        [JsonProperty] public string Name { get; protected set; } = nameof(ModState);
+        [JsonProperty] protected bool IsSetActive { get; set; }
+        
         protected ModGraph? _graph;
         protected Guid? _entityId;
 
@@ -28,7 +32,14 @@ namespace Rpg.ModObjects
             }
         }
 
-        protected abstract bool ShouldApply();
+        public void SetActive()
+            => IsSetActive = true;
+
+        public void SetInactive()
+            => IsSetActive = false;
+
+        protected virtual bool ShouldApply()
+            => false;
 
         protected abstract ModSet CreateState();
 
@@ -37,7 +48,7 @@ namespace Rpg.ModObjects
             if (_graph != null && _entityId != null)
             {
                 var entity = _graph.GetEntity(_entityId);
-                if (ShouldApply())
+                if (IsSetActive || ShouldApply())
                 {
                     var modSet = CreateState();
                     modSet.Name = Name;
@@ -85,5 +96,14 @@ namespace Rpg.ModObjects
                 return null;
             }
         }
+
+        protected override ModSet<T> CreateState()
+        {
+            var modSet = new ModSet<T>();
+            OnCreateState(modSet);
+            return modSet;
+        }
+
+        protected abstract void OnCreateState(ModSet<T> modSet);
     }
 }

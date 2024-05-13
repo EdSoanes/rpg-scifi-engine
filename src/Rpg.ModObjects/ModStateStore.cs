@@ -6,9 +6,36 @@ namespace Rpg.ModObjects
     {
         [JsonIgnore] private ModGraph? Graph { get; set; }
         [JsonIgnore] public Guid? EntityId { get; set; }
-        [JsonProperty] public List<ModState> States { get; private set; } = new List<ModState>();
+        [JsonProperty] protected List<ModState> States { get; private set; } = new List<ModState>();
 
         public ModStateStore() { }
+
+        public string[] AllStates { get => States.Select(x => x.Name).ToArray(); }
+        public string[] ActiveStates { get => States.Where(x => x.IsApplied).Select(x => x.Name).ToArray(); }
+
+        public bool SetActive(string state)
+        {
+            var modState = States.FirstOrDefault(x => x.Name == state);
+            if (modState != null)
+            {
+                modState.SetActive();
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool SetInactive(string state)
+        {
+            var modState = States.FirstOrDefault(x => x.Name == state);
+            if (modState != null)
+            {
+                modState.SetInactive();
+                return true;
+            }
+
+            return false;
+        }
 
         public void Add<T>(ModState<T> modState)
             where T : ModObject

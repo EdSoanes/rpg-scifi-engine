@@ -13,7 +13,7 @@ namespace Rpg.ModObjects
             public string? Prop { get; set; }
         }
 
-        public static void Merge(this List<ModPropRef> target,ModPropRef propRef)
+        public static void Merge(this List<ModPropRef> target, ModPropRef propRef)
         {
             if (!target.Any(x => x == propRef))
                 target.Add(propRef);

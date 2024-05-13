@@ -10,13 +10,12 @@ namespace Rpg.ModObjects.Tests.Models
 
         protected override bool ShouldApply()
         {
-            return (Entity?.Melee.Roll() ?? 0) >= 10;
+            return Entity!.Melee.Roll() >= 10;
         }
 
-        protected override ModSet CreateState()
+        protected override void OnCreateState(ModSet<ModdableEntity> modSet)
         {
-            return new ModSet(ModDuration.Permanent(),
-                PermanentMod.Create(Entity!, x => x.Health, 10));
+            modSet.Add(Entity!, x => x.Health, 10);
         }
     }
 }

@@ -1,7 +1,27 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Values;
+using System.Linq.Expressions;
 
 namespace Rpg.ModObjects
 {
+    public class ModSet<T> : ModSet
+        where T : ModObject
+    {
+        public ModSet()
+            : base(ModDuration.External())
+        {
+        }
+
+        public ModSet<T> Add<T1>(T entity, Expression<Func<T, T1>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+        {
+            var mod = ExternalMod.Create(entity, targetExpr, dice, diceCalcExpr);
+            Add(mod);
+
+            return this;
+        }
+    }
+
     public class ModSet : ITemporal
     {
         [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
@@ -62,7 +82,7 @@ namespace Rpg.ModObjects
         public void OnGraphCreated(ModGraph graph)
         {
             if (!Mods.Any())
-                Mods = graph.GetMods().Where(x => ModIds.Contains(x.Id)).ToList();
+                Mods = graph.GetAllMods().Where(x => ModIds.Contains(x.Id)).ToList();
         }
 
         public void OnTurnChanged(int turn) { }

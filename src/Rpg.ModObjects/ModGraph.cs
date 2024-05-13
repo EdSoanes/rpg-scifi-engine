@@ -45,11 +45,8 @@ namespace Rpg.ModObjects
 
         public ModProp? GetModProp(Guid? entityId, string? prop)
         {
-            if (entityId == null || string.IsNullOrEmpty(prop))
-                return null;
-
             var entity = GetEntity(entityId);
-            return entity?.PropStore[prop];
+            return entity?.GetModProp(prop);
         }
 
         public T? GetEntity<T>(Guid? entityId)
@@ -66,14 +63,14 @@ namespace Rpg.ModObjects
         public IEnumerable<ModObject> GetEntities()
             => ModObjectStore.Values;
 
-        public Mod[] GetMods()
+        public Mod[] GetAllMods()
             => ModObjectStore.Values
-                .SelectMany(x => x.PropStore.AllProps().SelectMany(prop => x.PropStore[prop]!.Mods))
+                .SelectMany(x => x.GetMods(filtered: false))
                 .ToArray();
 
         public ModSet[] GetModSets()
             => ModObjectStore.Values
-                .SelectMany(x => x.ModSetStore.All())
+                .SelectMany(x => x.GetModSets())
                 .ToArray();
 
         public void NewEncounter()

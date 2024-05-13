@@ -19,7 +19,7 @@ namespace Rpg.ModObjects
                 : null; 
         }
 
-        public Dice Calculate(ModGraph graph)
+        public Dice CalculatePropValue(ModGraph graph)
         {
             Dice value = Value
                 ?? graph.GetEntity<ModObject>(EntityId)?.GetPropValue(Prop)

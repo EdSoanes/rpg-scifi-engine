@@ -26,7 +26,7 @@ namespace Rpg.ModObjects.Tests
             var graph = new ModGraph(entity);
 
             Assert.That(graph.GetEntities().Count(), Is.EqualTo(3));
-            Assert.That(graph.GetMods().Count(), Is.EqualTo(9));
+            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(9));
         }
 
         [Test]
@@ -117,19 +117,19 @@ namespace Rpg.ModObjects.Tests
             var graph = new ModGraph(entity);
 
             Assert.That(entity.Health, Is.EqualTo(10));
-            Assert.That(graph.GetMods().Count(), Is.EqualTo(9));
+            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(9));
 
             entity.AddDamageMod(x => x.Health, 10);
             entity.TriggerUpdate(x => x.Health);
 
             Assert.That(entity.Health, Is.EqualTo(0));
-            Assert.That(graph.GetMods().Count(), Is.EqualTo(10));
+            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(10));
 
             entity.AddRepairMod(x => x.Health, 10);
             entity.TriggerUpdate(x => x.Health);
 
             Assert.That(entity.Health, Is.EqualTo(10));
-            Assert.That(graph.GetMods().Count(), Is.EqualTo(9));
+            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(9));
         }
     }
 }

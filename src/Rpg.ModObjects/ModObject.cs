@@ -12,9 +12,9 @@ namespace Rpg.ModObjects
         [JsonProperty] public Guid Id { get; private set; }
         [JsonProperty] public string Name { get; set; }
         [JsonProperty] public string[] Is { get; private set; }
-        [JsonProperty] public ModPropStore PropStore { get; private set; } = new ModPropStore();
-        [JsonProperty] public ModSetStore ModSetStore { get; private set; } = new ModSetStore();
-        [JsonProperty] public ModStateStore StateStore { get; private set; } = new ModStateStore();
+        [JsonProperty] protected ModPropStore PropStore { get; private set; } = new ModPropStore();
+        [JsonProperty] protected ModSetStore ModSetStore { get; private set; } = new ModSetStore();
+        [JsonProperty] protected ModStateStore StateStore { get; private set; } = new ModStateStore();
         [JsonProperty] protected bool IsCreated { get; set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -26,15 +26,49 @@ namespace Rpg.ModObjects
             Is = this.GetBaseTypes();
         }
 
+        public string[] GetPropNames()
+            => PropStore.GetPropNames();
+
+        public IEnumerable<ModPropRef> GetPropsThatAffect(string prop)
+            => PropStore.GetPropsThatAffect(prop);
+
+        public IEnumerable<ModPropRef> GetPropsAffectedBy(string prop)
+            => PropStore.GetPropsAffectedBy(new ModPropRef(Id, prop));
+
+        public Mod[] GetMods(bool filtered = true)
+            => PropStore.Get(filtered);
+
+        public Mod[] GetMods(string prop, bool filtered = true)
+            => PropStore.Get(prop, filtered);
+
+        public ModProp? GetModProp(string? prop, bool create = false)
+        {
+            if (string.IsNullOrEmpty(prop))
+                return null;
+
+            var modProp = PropStore[prop];
+            if (modProp == null && create)
+                return PropStore.Create(prop);
+
+            return modProp;
+        }
+
+        public ModProp[] GetModProps()
+            => PropStore.GetModProps();
+
         internal void AddMod(Mod mod)
-            => Graph!.Context!.PropStore.Add(mod);
+            => Graph?.Context?.PropStore?.Add(mod);
+
+        public void RemoveMods(params Mod[] mods)
+            => Graph?.Context?.PropStore?.Remove(mods);
+
+        public ModSet[] GetModSets()
+            => ModSetStore.All();
 
         public ModSet? AddModSet(ModDuration duration, params Mod[] mods)
         {
             var modSet = new ModSet(duration, mods);
-            var added = ModSetStore.Add(modSet);
-
-            return added
+            return ModSetStore.Add(modSet)
                 ? modSet
                 : null;
         }
@@ -48,16 +82,18 @@ namespace Rpg.ModObjects
         public ModSet? GetModSet(string name)
             => ModSetStore.ModSets.FirstOrDefault(x => x.Name == name);
 
-
         public void RemoveModSet(Guid modSetId)
             => ModSetStore.Remove(modSetId);
 
         public void RemoveModSet(string name)
             => ModSetStore.Remove(name);
 
-        protected void CreateState<T>(ModState<T> state)
+        public ModObject AddState<T>(ModState<T> state)
             where T : ModObject
-            => StateStore.Add<T>(state);
+        {
+            StateStore.Add<T>(state);
+            return this;
+        }
 
         public bool IsA(string type) => Is.Contains(type);
 
@@ -66,7 +102,7 @@ namespace Rpg.ModObjects
 
         internal void TriggerUpdate(ModPropRef propRef)
         {
-            var propsAffected = PropStore.PropsAffectedBy(propRef);
+            var propsAffected = PropStore.GetPropsAffectedBy(propRef);
             foreach (var prop in propsAffected)
             {
                 var entity = Graph!.GetEntity<ModObject>(prop.EntityId);
@@ -115,6 +151,14 @@ namespace Rpg.ModObjects
                 else if (val is int)
                     return (int)val;
             }
+
+            return null;
+        }
+
+        public Dice? CalculatePropValue(string? prop, ModType? modType = null, string? modName = null)
+        {
+            if (!string.IsNullOrEmpty(prop))
+                return PropStore.Calculate(prop, modType, modName);
 
             return null;
         }
