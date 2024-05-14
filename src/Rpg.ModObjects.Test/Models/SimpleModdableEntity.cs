@@ -20,7 +20,7 @@ namespace Rpg.ModObjects.Tests.Models
 
         protected override void OnCreate()
         {
-            this.AddPermanentMod(x => x.Score, x => x.Bonus);
+            this.AddBaseMod(x => x.Score, x => x.Bonus);
         }
     }
 }

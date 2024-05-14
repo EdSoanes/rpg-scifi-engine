@@ -107,8 +107,8 @@ namespace Rpg.ModObjects
             }
         }
 
-        internal ModPropDescription Describe(ModPropRef propRef)
-            => new ModPropDescription(Graph!, this, propRef);
+        internal ModObjectPropDescription Describe(string prop)
+            => new ModObjectPropDescription(Graph!, this, prop);
 
         internal void UpdateProps()
         {
@@ -152,6 +152,12 @@ namespace Rpg.ModObjects
             return null;
         }
 
+        public Dice? CalculateInitialValue(string prop)
+            => PropStore.CalculateInitialValue(prop);
+
+        public Dice? CalculateBaseValue(string prop)
+            => PropStore.CalculateBaseValue(prop);
+
         internal Dice? CalculatePropValue(string? prop, ModType? modType = null, string? modName = null)
         {
             if (!string.IsNullOrEmpty(prop))
@@ -174,9 +180,9 @@ namespace Rpg.ModObjects
                     if (val != null)
                     {
                         if (val is Dice dice && dice != Dice.Zero)
-                            PropStore.Add(BaseValueMod.Create(this, propInfo.Name, dice));
+                            PropStore.Add(BaseInitMod.Create(this, propInfo.Name, dice));
                         else if (val is int i && i != 0)
-                            PropStore.Add(BaseValueMod.Create(this, propInfo.Name, i));
+                            PropStore.Add(BaseInitMod.Create(this, propInfo.Name, i));
                     }
                 }
 

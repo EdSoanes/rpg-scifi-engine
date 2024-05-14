@@ -17,6 +17,10 @@ namespace Rpg.ModObjects
         [JsonProperty] public ModAction ModifierAction { get; protected set; } = ModAction.Accumulate;
         [JsonProperty] public ModDuration Duration { get; protected set; } = new ModDuration();
 
+        [JsonProperty] public bool IsBaseInitMod { get => ModifierType == ModType.BaseInit; }
+        [JsonProperty] public bool IsBaseOverrideMod { get => ModifierType == ModType.BaseOverride; }
+        [JsonProperty] public bool IsBaseMod { get => IsBaseInitMod || IsBaseOverrideMod || ModifierType == ModType.Base; }
+
         public void SetSource(Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             => Source = new ModSource<ModObject, Dice>(value, diceCalcExpr);
         

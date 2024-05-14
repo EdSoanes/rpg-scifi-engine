@@ -74,6 +74,27 @@ namespace Rpg.ModObjects
                 ? Get(prop, modifierType.Value, modifierName)
                 : Get(prop);
 
+            return Calculate(mods);
+        }
+
+        public Dice CalculateInitialValue(string prop)
+        {
+            var mods = Get(prop)
+            .Where(x => x.IsBaseInitMod);
+
+            return Calculate(mods);
+        }
+
+        public Dice CalculateBaseValue(string prop)
+        {
+            var mods = Get(prop)
+                .Where(x => x.IsBaseMod);
+
+            return Calculate(mods);
+        }
+
+        private Dice Calculate(IEnumerable<Mod> mods)
+        {
             Dice dice = "0";
             foreach (var mod in mods)
             {

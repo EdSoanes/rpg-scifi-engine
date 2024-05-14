@@ -9,6 +9,7 @@ namespace Rpg.ModObjects
         [JsonProperty] public Guid? EntityId { get; private set; }
         [JsonProperty] public string? ClassName { get; private set; }
         [JsonProperty] public string? FuncName { get; private set; }
+        [JsonProperty] public string? FullName { get; private set; }
 
         public bool IsStatic => !string.IsNullOrWhiteSpace(ClassName)
             && !string.IsNullOrWhiteSpace(FuncName);
@@ -37,6 +38,7 @@ namespace Rpg.ModObjects
             {
                 ClassName = methodInfo.DeclaringType!.Name;
                 FuncName = methodInfo.Name;
+                FullName = $"{ClassName}.{FuncName}";
                 return;
             }
 
@@ -56,6 +58,8 @@ namespace Rpg.ModObjects
 
             EntityId = entity?.Id;
             FuncName = methodInfo.Name;
+            FullName = FuncName;
+
             return;
         }
     }

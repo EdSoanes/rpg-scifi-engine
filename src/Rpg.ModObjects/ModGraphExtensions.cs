@@ -1,7 +1,6 @@
 ﻿using Rpg.ModObjects.Values;
 using System.Collections;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace Rpg.ModObjects
 {
@@ -26,7 +25,7 @@ namespace Rpg.ModObjects
             ScannableNamespaces = ScannableNamespaces.Distinct().ToList();
         }
 
-        public static string[] GetBaseTypes(this ModObject entity)
+        internal static string[] GetBaseTypes(this ModObject entity)
         {
             var res = new List<string>();
             var t = entity.GetType();
@@ -42,40 +41,7 @@ namespace Rpg.ModObjects
             return res.ToArray();
         }
 
-        public static ModObject? FindModdableObject(this object obj, Guid id)
-            => obj.Traverse().FirstOrDefault(x => x.Id == id);
-
-        public static void ForEach(this object obj, Mod[] mods, Action<ModObject, string, Mod[]> onMatch)
-        {
-            var modsByEntity = mods.GroupBy(x => x.EntityId);
-            var entityIds = modsByEntity.Select(x => x.Key);
-            foreach (var entity in obj.Traverse().Where(x => entityIds.Contains(x.Id)))
-            {
-                var modsByProp = modsByEntity
-                    .First(x => x.Key == entity.Id)
-                    .GroupBy(x => x.Prop);
-
-                foreach (var propMods in modsByProp)
-                    onMatch(entity, propMods.Key, propMods.ToArray());
-            }
-        }
-
-        public static void ForEach(this object obj, Action<ModObject, string> onMatch)
-        {
-            foreach (var entity in obj.Traverse())
-                foreach (var prop in entity.ModdableProperties())
-                    onMatch(entity, prop.Name);
-        }
-
-        public static void ForEachReversed(this object obj, Action<ModObject, string> onMatch)
-        {
-            foreach (var entity in obj.Traverse(true))
-                foreach (var prop in entity.ModdableProperties())
-                    onMatch(entity, prop.Name);
-        }
-
-
-        public static IEnumerable<ModObject> Traverse(this object obj, bool bottomUp = false)
+        internal static IEnumerable<ModObject> Traverse(this object obj, bool bottomUp = false)
         {
             var entity = obj as ModObject;
             if (entity != null && !bottomUp)
@@ -99,14 +65,18 @@ namespace Rpg.ModObjects
                 yield return entity;
         }
 
-        public static string[]? PathTo(this object obj, object descendent)
+        internal static string[] PathTo(this object obj, object? descendent)
         {
             var propStack = new Stack<string>();
 
-            var res = PathTo(propStack, obj, descendent);
-            return res
-                ? propStack.ToArray()
-                : null;
+            if (descendent != null)
+            {
+                var res = PathTo(propStack, obj, descendent);
+                if (!res)
+                    return new string[0];
+            }
+
+            return propStack.ToArray();
         }
 
         private static bool PathTo(Stack<string> propStack, object obj, object descendent)
@@ -119,18 +89,11 @@ namespace Rpg.ModObjects
                 propStack.Push(propertyInfo.Name);
 
                 var children = obj.PropertyObjects(propertyInfo, out var isEnumerable)?.ToArray() ?? new object[0];
-                for (int i = 0; i < children.Count(); i++)
-                {
-                    if (PathTo(propStack, children[i], descendent))
-                    {
-                        if (isEnumerable)
-                        {
-                            var prop = propStack.Pop();
-                            propStack.Push($"{prop}[{i}]");
-                            return true;
-                        }
-                    }
-                }
+                if (isEnumerable)
+                    return false;
+
+                if (children.Count() == 1 && PathTo(propStack, children.First(), descendent))
+                    return true;
 
                 propStack.Pop();
             }
@@ -138,7 +101,7 @@ namespace Rpg.ModObjects
             return false;
         }
 
-        public static List<ModObject> Descendants(this object obj)
+        internal static List<ModObject> Descendants(this object obj)
         {
             var res = new List<ModObject>();
             var entity = obj as ModObject;
@@ -161,7 +124,7 @@ namespace Rpg.ModObjects
             return res;
         }
 
-        public static object? PropertyValue(this object? entity, string path)
+        internal static object? PropertyValue(this object? entity, string path)
         {
             if (entity == null || string.IsNullOrEmpty(path))
                 return null;
@@ -179,7 +142,7 @@ namespace Rpg.ModObjects
             return res;
         }
 
-        public static T? PropertyValue<T>(this ModObject? entity, string path)
+        internal static T? PropertyValue<T>(this ModObject? entity, string path)
         {
             if (entity == null)
                 return default;
@@ -208,7 +171,7 @@ namespace Rpg.ModObjects
             return default;
         }
 
-        public static void PropertyValue(this object? entity, string path, object? value)
+        internal static void PropertyValue(this object? entity, string path, object? value)
         {
             if (value == null || !PermittedModPropReturnTypes.Any(x => x == value.GetType()))
                 return;
@@ -245,12 +208,12 @@ namespace Rpg.ModObjects
             }
         }
 
-        public static TR? ExecuteFunction<TR>(this object? obj, string method) => obj._ExecuteFunction<TR>(method);
-        public static TR? ExecuteFunction<T1, TR>(this object? obj, string method, T1? arg1) => obj._ExecuteFunction<TR>(method, new object?[] { arg1 });
-        public static TR? ExecuteFunction<T1, T2, TR>(this object? obj, string method, T1? arg1, T2? arg2) => obj._ExecuteFunction<TR>(method, new object?[] { arg1, arg2 });
-        public static TR? ExecuteFunction<T1, T2, T3, TR>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3) => obj._ExecuteFunction<TR>(method, new object?[] { arg1, arg2, arg3 });
-        public static TR? ExecuteFunction<T1, T2, T3, T4, TR>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3, T4? arg4) => obj._ExecuteFunction<TR>(method, new object?[] { arg1, arg2, arg3, arg4 });
-        public static TR? ExecuteFunction<T1, T2, T3, T4, T5, TR>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3, T4? arg4, T5? arg5) => obj._ExecuteFunction<TR>(method, new object?[] { arg1, arg2, arg3, arg4, arg5 });
+        internal static TR? ExecuteFunction<TR>(this object? obj, string method) => obj._ExecuteFunction<TR>(method);
+        internal static TR? ExecuteFunction<T1, TR>(this object? obj, string method, T1? arg1) => obj._ExecuteFunction<TR>(method, new object?[] { arg1 });
+        internal static TR? ExecuteFunction<T1, T2, TR>(this object? obj, string method, T1? arg1, T2? arg2) => obj._ExecuteFunction<TR>(method, new object?[] { arg1, arg2 });
+        internal static TR? ExecuteFunction<T1, T2, T3, TR>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3) => obj._ExecuteFunction<TR>(method, new object?[] { arg1, arg2, arg3 });
+        internal static TR? ExecuteFunction<T1, T2, T3, T4, TR>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3, T4? arg4) => obj._ExecuteFunction<TR>(method, new object?[] { arg1, arg2, arg3, arg4 });
+        internal static TR? ExecuteFunction<T1, T2, T3, T4, T5, TR>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3, T4? arg4, T5? arg5) => obj._ExecuteFunction<TR>(method, new object?[] { arg1, arg2, arg3, arg4, arg5 });
 
         private static TR? _ExecuteFunction<TR>(this object? obj, string method, object?[]? args = null)
         {
@@ -263,12 +226,12 @@ namespace Rpg.ModObjects
             return res;
         }
 
-        public static void ExecuteAction(this object? obj, string method) => obj._ExecuteAction(method);
-        public static void ExecuteAction<T1>(this object? obj, string method, T1? arg1) => obj._ExecuteAction(method, new object?[] { arg1 });
-        public static void ExecuteAction<T1, T2>(this object? obj, string method, T1? arg1, T2? arg2) => obj._ExecuteAction(method, new object?[] { arg1, arg2 });
-        public static void ExecuteAction<T1, T2, T3>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3) => obj._ExecuteAction(method, new object?[] { arg1, arg2, arg3 });
-        public static void ExecuteAction<T1, T2, T3, T4>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3, T4? arg4) => obj._ExecuteAction(method, new object?[] { arg1, arg2, arg3, arg4 });
-        public static void ExecuteAction<T1, T2, T3, T4, T5>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3, T4? arg4, T5? arg5) => obj._ExecuteAction(method, new object?[] { arg1, arg2, arg3, arg4, arg5 });
+        internal static void ExecuteAction(this object? obj, string method) => obj._ExecuteAction(method);
+        internal static void ExecuteAction<T1>(this object? obj, string method, T1? arg1) => obj._ExecuteAction(method, new object?[] { arg1 });
+        internal static void ExecuteAction<T1, T2>(this object? obj, string method, T1? arg1, T2? arg2) => obj._ExecuteAction(method, new object?[] { arg1, arg2 });
+        internal static void ExecuteAction<T1, T2, T3>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3) => obj._ExecuteAction(method, new object?[] { arg1, arg2, arg3 });
+        internal static void ExecuteAction<T1, T2, T3, T4>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3, T4? arg4) => obj._ExecuteAction(method, new object?[] { arg1, arg2, arg3, arg4 });
+        internal static void ExecuteAction<T1, T2, T3, T4, T5>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3, T4? arg4, T5? arg5) => obj._ExecuteAction(method, new object?[] { arg1, arg2, arg3, arg4, arg5 });
 
         private static void _ExecuteAction(this object? obj, string method, object?[]? args = null)
         {

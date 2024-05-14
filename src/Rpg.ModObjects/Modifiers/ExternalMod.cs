@@ -7,7 +7,7 @@ namespace Rpg.ModObjects.Modifiers
     {
         public ExternalMod()
         {
-            ModifierType = ModType.Transient;
+            ModifierType = ModType.Permanent;
             ModifierAction = ModAction.Sum;
             Duration = ModDuration.External();
         }

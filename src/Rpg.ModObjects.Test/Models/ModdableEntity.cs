@@ -18,8 +18,8 @@ namespace Rpg.ModObjects.Tests.Models
 
         protected override void OnCreate()
         {
-            this.AddPermanentMod(x => x.Melee, x => x.Strength.Bonus);
-            this.AddPermanentMod(x => x.Damage.Dice, x => x.Strength.Bonus);
+            this.AddBaseMod(x => x.Melee, x => x.Strength.Bonus);
+            this.AddBaseMod(x => x.Damage.Dice, x => x.Strength.Bonus);
 
             this
                 .Add(new TestBuffState())

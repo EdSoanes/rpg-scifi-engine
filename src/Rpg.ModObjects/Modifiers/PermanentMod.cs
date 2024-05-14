@@ -8,7 +8,7 @@ namespace Rpg.ModObjects.Modifiers
     {
         public PermanentMod() 
         {
-            ModifierType = ModType.Base;
+            ModifierType = ModType.Permanent;
             ModifierAction = ModAction.Accumulate;
             Duration = ModDuration.Permanent();
         }

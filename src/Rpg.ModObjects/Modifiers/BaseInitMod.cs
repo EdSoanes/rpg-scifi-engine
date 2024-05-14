@@ -3,11 +3,11 @@ using System.Linq.Expressions;
 
 namespace Rpg.ModObjects.Modifiers
 {
-    public class BaseValueMod : Mod
+    internal class BaseInitMod : Mod
     {
-        public BaseValueMod()
+        public BaseInitMod()
         {
-            ModifierType = ModType.Base;
+            ModifierType = ModType.BaseInit;
             ModifierAction = ModAction.Replace;
             Duration = ModDuration.Permanent();
         }
@@ -15,8 +15,8 @@ namespace Rpg.ModObjects.Modifiers
         public static Mod Create<TTarget>(TTarget entity, string prop, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TTarget : ModObject
         {
-            var mod = Create<BaseValueMod, TTarget>(entity, prop, value, diceCalcExpr);
-            mod.Name = nameof(BaseValueMod);
+            var mod = Create<BaseInitMod, TTarget>(entity, prop, value, diceCalcExpr);
+            mod.Name = prop;
 
             return mod;
         }

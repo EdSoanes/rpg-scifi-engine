@@ -15,8 +15,10 @@ namespace Rpg.ModObjects
 
     public enum ModType
     {
+        BaseInit,
         Base,
         BaseOverride,
+        Permanent,
         Transient,
         State
     }

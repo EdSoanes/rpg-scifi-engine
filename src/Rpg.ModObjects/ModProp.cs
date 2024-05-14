@@ -18,15 +18,15 @@ namespace Rpg.ModObjects
                 .Where(x => x.Duration.GetExpiry(graph.Turn) == ModExpiry.Active);
 
             var res = activeModifiers
-                .Where(x => x.ModifierType != ModType.Base && x.ModifierType != ModType.BaseOverride)
+                .Where(x => !x.IsBaseMod)
                 .ToList();
 
             var baseMods = activeModifiers
-                .Where(x => x.ModifierType == ModType.BaseOverride);
+                .Where(x => x.IsBaseOverrideMod);
 
             if (!baseMods.Any())
                 baseMods = activeModifiers
-                    .Where(x => x.ModifierType == ModType.Base);
+                    .Where(x => x.IsBaseMod);
 
             res.AddRange(baseMods);
             return res.ToArray();

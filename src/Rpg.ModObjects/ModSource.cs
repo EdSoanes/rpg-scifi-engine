@@ -27,14 +27,10 @@ namespace Rpg.ModObjects
 
             if (ValueFunc.IsCalc)
             {
-                var funcName = ValueFunc.IsStatic
-                    ? $"{ValueFunc.ClassName}.{ValueFunc.FuncName}"
-                    : ValueFunc.FuncName!;
-
                 var funcEntity = (object?)graph.GetEntity<ModObject>(ValueFunc.EntityId)
                     ?? this;
 
-                value = funcEntity.ExecuteFunction<Dice, Dice>(funcName, value);
+                value = funcEntity.ExecuteFunction<Dice, Dice>(ValueFunc.FullName!, value);
             }
 
             return value;

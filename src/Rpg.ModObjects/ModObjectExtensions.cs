@@ -73,11 +73,11 @@ namespace Rpg.ModObjects
             entity.TriggerUpdate(propRef);
         }
 
-        public static ModPropDescription Describe<TEntity, T1>(this TEntity entity, Expression<Func<TEntity, T1>> targetExpr)
+        public static ModObjectPropDescription Describe<TEntity, T1>(this TEntity entity, Expression<Func<TEntity, T1>> targetExpr)
             where TEntity : ModObject
         {
             var propRef = ModPropRef.CreatePropRef(entity, targetExpr);
-            return entity.Describe(propRef);
+            return entity.Describe(propRef.Prop);
         }
     }
 }
