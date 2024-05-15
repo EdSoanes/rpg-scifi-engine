@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Stores;
 using Rpg.ModObjects.Values;
 using System.ComponentModel;
 
@@ -16,6 +18,7 @@ namespace Rpg.ModObjects
         [JsonProperty] protected ModSetStore ModSetStore { get; private set; } = new ModSetStore();
         [JsonProperty] protected ModStateStore StateStore { get; private set; } = new ModStateStore();
         [JsonProperty] protected bool IsCreated { get; set; }
+        [JsonProperty] public ModObjectActionDescriptor[] Actions { get; private set; } = new ModObjectActionDescriptor[0];
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -33,10 +36,10 @@ namespace Rpg.ModObjects
             => PropStore.GetPropsAffectedBy(new ModPropRef(Id, prop));
 
         internal Mod[] GetMods(bool filtered = true)
-            => PropStore.Get(filtered);
+            => PropStore.GetMods(filtered);
 
         internal Mod[] GetMods(string prop, bool filtered = true)
-            => PropStore.Get(prop, filtered);
+            => PropStore.GetMods(prop, filtered);
 
         internal ModProp? GetModProp(string? prop, bool create = false)
         {
@@ -51,7 +54,7 @@ namespace Rpg.ModObjects
         }
 
         internal ModProp[] GetModProps()
-            => PropStore.GetModProps();
+            => PropStore.Get();
 
         internal void AddMod(Mod mod)
             => Graph?.Context?.PropStore?.Add(mod);
@@ -60,7 +63,7 @@ namespace Rpg.ModObjects
             => Graph?.Context?.PropStore?.Remove(mods);
 
         internal ModSet[] GetModSets()
-            => ModSetStore.All();
+            => ModSetStore.Get();
 
         internal ModSet? AddModSet(ModDuration duration, params Mod[] mods)
         {
@@ -74,10 +77,10 @@ namespace Rpg.ModObjects
             => ModSetStore.Add(modSet);
 
         public ModSet? GetModSet(Guid id)
-            => ModSetStore.ModSets.FirstOrDefault(x => x.Id == id);
+            => ModSetStore.Get().FirstOrDefault(x => x.Id == id);
 
         public ModSet? GetModSet(string name)
-            => ModSetStore.ModSets.FirstOrDefault(x => x.Name == name);
+            => ModSetStore.Get().FirstOrDefault(x => x.Name == name);
 
         public void RemoveModSet(Guid modSetId)
             => ModSetStore.Remove(modSetId);
@@ -171,9 +174,10 @@ namespace Rpg.ModObjects
             Graph = graph;
             PropStore.OnGraphCreating(Graph, this);
             ModSetStore.OnGraphCreating(Graph, this);
-
             if (!IsCreated)
             {
+                Actions = this.ModActionDescriptors();
+
                 foreach (var propInfo in this.ModdableProperties())
                 {
                     var val = this.PropertyValue(propInfo.Name);
@@ -195,7 +199,7 @@ namespace Rpg.ModObjects
 
         protected virtual void OnCreate() { }
 
-        public void OnTurnChanged(int turn)
+        public virtual void OnTurnChanged(int turn)
         {
             foreach (var entity in this.Traverse())
             {
@@ -215,7 +219,7 @@ namespace Rpg.ModObjects
             UpdateProps();
         }
 
-        public void OnBeginEncounter()
+        public virtual void OnBeginEncounter()
         {
             foreach (var entity in this.Traverse())
             {
@@ -235,7 +239,7 @@ namespace Rpg.ModObjects
             UpdateProps();
         }
 
-        public void OnEndEncounter()
+        public virtual void OnEndEncounter()
         {
             foreach (var entity in this.Traverse())
             {

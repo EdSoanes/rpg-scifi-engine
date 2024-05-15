@@ -29,12 +29,9 @@ namespace Rpg.ModObjects
             ModObjectStore.Clear();
 
             foreach (var entity in Context.Traverse())
-            {
-                if (!ModObjectStore.ContainsKey(entity.Id))
-                    ModObjectStore.Add(entity.Id, entity);
-            }
+                AddEntity(entity);
 
-            foreach (var entity in Context.Traverse())
+            foreach (var entity in ModObjectStore.Values)
                 entity.OnGraphCreating(this, entity);
 
             Context.UpdateProps();
@@ -47,6 +44,28 @@ namespace Rpg.ModObjects
         {
             var entity = GetEntity(entityId);
             return entity?.GetModProp(prop);
+        }
+
+        public bool AddEntity(ModObject entity)
+        {
+            if (!ModObjectStore.ContainsKey(entity.Id))
+            {
+                ModObjectStore.Add(entity.Id, entity);
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool RemoveEntity(ModObject entity)
+        {
+            if (ModObjectStore.ContainsKey(entity.Id))
+            {
+                ModObjectStore.Remove(entity.Id);
+                return true;
+            }
+
+            return false;
         }
 
         public T? GetEntity<T>(Guid? entityId)

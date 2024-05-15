@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Modifiers;
+﻿using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.Values;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,12 @@ namespace Rpg.ModObjects.Tests.Models
             this
                 .Add(new TestBuffState())
                 .Add(new TestNerfState());
+        }
+
+        [ModObjectAction]
+        public ModObjectAction TestAction()
+        {
+            return new ModObjectAction("TestActionObject");
         }
     }
 }

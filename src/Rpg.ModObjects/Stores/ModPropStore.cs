@@ -1,64 +1,29 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Values;
 
-namespace Rpg.ModObjects
+namespace Rpg.ModObjects.Stores
 {
-    public class ModPropStore : ITemporal
+    public class ModPropStore : ModBaseStore<string, ModProp>
     {
-        [JsonIgnore] private ModGraph? Graph { get; set; }
-        [JsonIgnore] public Guid EntityId { get; set; }
-
-        [JsonProperty] protected Dictionary<string, ModProp> ModProps { get; set; } = new Dictionary<string, ModProp>();
-
-        public ModProp? this[string prop]
-        {
-            get
-            {
-                if (string.IsNullOrWhiteSpace(prop))
-                    return null;
-
-                if (ModProps.ContainsKey(prop))
-                    return ModProps[prop];
-
-                return null;
-            }
-            set
-            {
-                if (!string.IsNullOrWhiteSpace(value?.Prop) && !ModProps.ContainsKey(prop))
-                    ModProps.Add(prop, value);
-            }
-        }
-
-        private ModPropStore(Dictionary<string, ModProp> modObjProps)
-            => ModProps = modObjProps;
-
-        public ModPropStore() { }
-
         public string[] GetPropNames()
-            => ModProps.Keys.ToArray();
+            => Items.Keys.ToArray();
 
-        public Mod[] Get(bool filtered = true)
+        public Mod[] GetMods(bool filtered = true)
         {
             return filtered
-                ? ModProps.Values.SelectMany(x => x.Get(Graph!)).ToArray()
-                : ModProps.Values.SelectMany(x => x.Mods).ToArray();
+                ? Items.Values.SelectMany(x => x.Get(Graph!)).ToArray()
+                : Items.Values.SelectMany(x => x.Mods).ToArray();
         }
 
-        public Mod[] Get(string prop, bool filtered = true)
+        public Mod[] GetMods(string prop, bool filtered = true)
         {
             return filtered
-                ? ModProps[prop].Get(Graph!)
-                : ModProps.Values.SelectMany(x => x.Mods).ToArray();
+                ? Items[prop].Get(Graph!)
+                : Items.Values.SelectMany(x => x.Mods).ToArray();
         }
 
-        public Mod[] Get(string prop, ModType modType, string modName)
-            => ModProps[prop].Get(modType, modName);
-
-        public ModProp[] GetModProps()
-            => ModProps.Values.ToArray();
-
-        public bool Contains(string prop)
-            => ModProps.ContainsKey(prop);
+        public Mod[] GetMods(string prop, ModType modType, string modName)
+            => Items[prop].Get(modType, modName);
 
         public ModProp Create(string prop)
         {
@@ -71,15 +36,15 @@ namespace Rpg.ModObjects
         public Dice Calculate(string prop, ModType? modifierType = null, string? modifierName = null)
         {
             var mods = !string.IsNullOrEmpty(modifierName) && modifierType != null
-                ? Get(prop, modifierType.Value, modifierName)
-                : Get(prop);
+                ? GetMods(prop, modifierType.Value, modifierName)
+                : GetMods(prop);
 
             return Calculate(mods);
         }
 
         public Dice CalculateInitialValue(string prop)
         {
-            var mods = Get(prop)
+            var mods = GetMods(prop)
             .Where(x => x.IsBaseInitMod);
 
             return Calculate(mods);
@@ -87,7 +52,7 @@ namespace Rpg.ModObjects
 
         public Dice CalculateBaseValue(string prop)
         {
-            var mods = Get(prop)
+            var mods = GetMods(prop)
                 .Where(x => x.IsBaseMod);
 
             return Calculate(mods);
@@ -107,6 +72,7 @@ namespace Rpg.ModObjects
 
         public void Remove(Mod mod)
             => Remove(new[] { mod });
+
         public void Remove(IEnumerable<Mod> mods)
         {
             foreach (var mod in mods)
@@ -177,7 +143,7 @@ namespace Rpg.ModObjects
 
         public List<ModPropRef> AffectedByProps()
         {
-            var res = ModProps.Keys
+            var res = Items.Keys
                 .SelectMany(GetPropsThatAffect)
                 .Distinct()
                 .ToList();
@@ -189,7 +155,7 @@ namespace Rpg.ModObjects
         {
             var res = new List<ModPropRef>();
 
-            var affectedByGroup = Get(prop)
+            var affectedByGroup = GetMods(prop)
                 .Where(x => x.Source.EntityId != null && !string.IsNullOrEmpty(x.Source.Prop))
                 .Select(x => new ModPropRef(x.Source.EntityId!.Value, x.Source.Prop!))
                 .Distinct()
@@ -214,20 +180,14 @@ namespace Rpg.ModObjects
             return res;
         }
 
-        public void OnGraphCreating(ModGraph graph, ModObject? entity = null)
-        {
-            Graph = graph;
-            EntityId = entity.Id;
-        }
+        public override void OnTurnChanged(int turn) { }
+        public override void OnBeginEncounter() { }
 
-        public void OnTurnChanged(int turn) { }
-        public void OnBeginEncounter() { }
-
-        public void OnEndEncounter()
+        public override void OnEndEncounter()
         {
             var turn = Graph!.Turn;
 
-            foreach (var modProp in ModProps.Values)
+            foreach (var modProp in Items.Values)
             {
                 var toRemove = new List<Mod>();
                 foreach (var mod in modProp.Mods)

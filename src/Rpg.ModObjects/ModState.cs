@@ -12,19 +12,19 @@ namespace Rpg.ModObjects
 {
     public abstract class ModState : ITemporal
     {
+        protected ModGraph? Graph { get; set; }
+        protected Guid? EntityId { get; set; }
+
         [JsonProperty] public string Name { get; protected set; } = nameof(ModState);
-        [JsonProperty] protected bool IsSetActive { get; set; }
-        
-        protected ModGraph? _graph;
-        protected Guid? _entityId;
+        [JsonProperty] protected bool IsForcedActive { get; set; }
 
         public bool IsApplied
         {
             get
             {
-                if (_graph != null && _entityId != null)
+                if (Graph != null && EntityId != null)
                 {
-                    return _graph.GetEntity(_entityId)
+                    return Graph.GetEntity(EntityId)
                         ?.GetModSet(Name) != null;
                 }
 
@@ -33,10 +33,10 @@ namespace Rpg.ModObjects
         }
 
         public void SetActive()
-            => IsSetActive = true;
+            => IsForcedActive = true;
 
         public void SetInactive()
-            => IsSetActive = false;
+            => IsForcedActive = false;
 
         protected virtual bool ShouldApply()
             => false;
@@ -45,10 +45,10 @@ namespace Rpg.ModObjects
 
         protected void Apply()
         {
-            if (_graph != null && _entityId != null)
+            if (Graph != null && EntityId != null)
             {
-                var entity = _graph.GetEntity(_entityId);
-                if (IsSetActive || ShouldApply())
+                var entity = Graph.GetEntity(EntityId);
+                if ((IsForcedActive || ShouldApply()) && !IsApplied)
                 {
                     var modSet = CreateState();
                     modSet.Name = Name;
@@ -68,10 +68,10 @@ namespace Rpg.ModObjects
         public void OnEndEncounter()
             => Apply();
 
-        public void OnGraphCreating(ModGraph graph, ModObject? entity = null)
+        public void OnGraphCreating(ModGraph graph, ModObject entity)
         {
-            _graph = graph;
-            _entityId = entity?.Id;
+            Graph = graph;
+            EntityId = entity.Id;
         }
 
         public void OnTurnChanged(int turn)
@@ -90,8 +90,8 @@ namespace Rpg.ModObjects
         {
             get
             {
-                if (_graph != null && _entityId != null)
-                    return _graph.GetEntity(_entityId) as T;
+                if (Graph != null && EntityId != null)
+                    return Graph.GetEntity(EntityId) as T;
 
                 return null;
             }
