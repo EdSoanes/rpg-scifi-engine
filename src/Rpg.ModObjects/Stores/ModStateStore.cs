@@ -7,7 +7,7 @@ namespace Rpg.ModObjects.Stores
         public string[] AllStates { get => Items.Values.Select(x => x.Name).ToArray(); }
         public string[] ActiveStates { get => Items.Values.Where(x => x.IsApplied).Select(x => x.Name).ToArray(); }
 
-        public bool ManuallySetActive(string state)
+        public bool ManuallyActivateState(string state)
         {
             var modState = Items[state];
             if (modState != null)
@@ -25,7 +25,7 @@ namespace Rpg.ModObjects.Stores
                 modState.SetInactive();
         }
 
-        public bool ManuallySetInactive(string state)
+        public bool ManuallyDeactivateState(string state)
         {
             var modState = Items[state];
             if (modState != null)

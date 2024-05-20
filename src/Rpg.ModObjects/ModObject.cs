@@ -18,7 +18,7 @@ namespace Rpg.ModObjects
         [JsonProperty] protected ModSetStore ModSetStore { get; private set; } = new ModSetStore();
         [JsonProperty] protected ModStateStore StateStore { get; private set; } = new ModStateStore();
         [JsonProperty] protected bool IsCreated { get; set; }
-        [JsonProperty] public ModObjectActionDescriptor[] Actions { get; private set; } = new ModObjectActionDescriptor[0];
+        [JsonProperty] public ModCmdDescriptor[] Actions { get; private set; } = new ModCmdDescriptor[0];
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -75,7 +75,6 @@ namespace Rpg.ModObjects
 
         internal bool AddModSet(ModSet modSet)
             => ModSetStore.Add(modSet);
-
         public ModSet? GetModSet(Guid id)
             => ModSetStore.Get().FirstOrDefault(x => x.Id == id);
 
@@ -94,6 +93,15 @@ namespace Rpg.ModObjects
             StateStore.Add<T>(state);
             return this;
         }
+
+        public string[] States { get => StateStore.AllStates; }
+        public string[] ActiveStates { get => StateStore.ActiveStates; }
+
+        public bool ManuallyActivateState(string state)
+            => StateStore.ManuallyActivateState(state);
+
+        public bool ManuallyDeactivateState(string state)
+            => StateStore.ManuallyDeactivateState(state);
 
         public bool IsA(string type) => Is.Contains(type);
 

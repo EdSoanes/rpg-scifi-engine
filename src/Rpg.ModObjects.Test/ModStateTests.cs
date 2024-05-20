@@ -62,5 +62,29 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Melee.Roll(), Is.EqualTo(0));
             Assert.That(entity.Health, Is.EqualTo(0));
         }
+
+        [Test]
+        public void ManuallyActivateBuffState_VerifyValues()
+        {
+            var entity = new ModdableEntity();
+            var graph = new ModGraph(entity);
+
+            Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
+            Assert.That(entity.Health, Is.EqualTo(10));
+
+            entity.ManuallyActivateState("Buff");
+            entity.TriggerUpdate();
+
+            Assert.That(entity.ActiveStates, Does.Contain("Buff"));
+            Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
+            Assert.That(entity.Health, Is.EqualTo(20));
+
+            entity.ManuallyDeactivateState("Buff");
+            entity.TriggerUpdate();
+
+            Assert.That(entity.ActiveStates, Does.Not.Contain("Buff"));
+            Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
+            Assert.That(entity.Health, Is.EqualTo(10));
+        }
     }
 }

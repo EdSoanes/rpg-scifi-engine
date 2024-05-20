@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Actions
 {
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public sealed class ModObjectActionAttribute : Attribute
+    public class ModCmdArg
     {
+        public string Name { get; set; }
+        public string DataType { get; set; }
+        public ModCmdArgType ArgType { get; set; }
     }
 }

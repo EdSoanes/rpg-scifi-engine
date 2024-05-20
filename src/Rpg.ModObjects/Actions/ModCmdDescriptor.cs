@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Actions
 {
-    public class ModObjectActionDescriptor
+    public class ModCmdDescriptor
     {
         public Guid EntityId { get; set; }
         public string ActionName { get; set; }
+        public ModCmdArg[] Args { get; set; } = new ModCmdArg[0];
 
-        public ModObjectActionDescriptor(Guid entityId, string actionName)
+        public ModCmdDescriptor(Guid entityId, string actionName)
         {
             EntityId = entityId;
             ActionName = actionName;

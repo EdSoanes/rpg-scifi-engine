@@ -7,12 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <Compile Remove="Description\**" />
+    <Compile Remove="States\**" />
+    <EmbeddedResource Remove="Description\**" />
+    <EmbeddedResource Remove="States\**" />
+    <None Remove="Description\**" />
+    <None Remove="States\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Description\" />
-    <Folder Include="States\" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
 </Project>

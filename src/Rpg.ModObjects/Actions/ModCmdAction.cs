@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Actions
 {
-    public class ModObjectAction
+    public class ModCmdAction
     {
         [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
-        [JsonProperty] public string Name { get; private set; } = nameof(ModObjectAction);
+        [JsonProperty] public string Name { get; private set; } = nameof(ModCmdAction);
 
-        public ModObjectAction(string name)
+        public ModCmdAction(string name)
             => Name = name;
     }
 }

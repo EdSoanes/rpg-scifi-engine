@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Modifiers;
+﻿using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.Tests.Models;
 using System.Reflection;
 
@@ -23,6 +24,16 @@ namespace Rpg.ModObjects.Tests
             var testAction = entity.Actions.Single();
             Assert.That(testAction.ActionName, Is.EqualTo("TestAction"));
             Assert.That(testAction.EntityId, Is.EqualTo(entity.Id));
+
+            Assert.That(testAction.Args.Count(), Is.EqualTo(2));
+            Assert.That(testAction.Args[0].Name, Is.EqualTo("actor"));
+            Assert.That(testAction.Args[0].ArgType, Is.EqualTo(ModCmdArgType.Actor));
+            Assert.That(testAction.Args[0].DataType, Is.EqualTo("ModObject"));
+
+            Assert.That(testAction.Args[1].Name, Is.EqualTo("target"));
+            Assert.That(testAction.Args[1].ArgType, Is.EqualTo(ModCmdArgType.TargetNumber));
+            Assert.That(testAction.Args[1].DataType, Is.EqualTo("Int32"));
+
         }
     }
 }

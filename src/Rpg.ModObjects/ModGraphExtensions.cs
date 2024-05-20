@@ -290,17 +290,6 @@ namespace Rpg.ModObjects
                 .FirstOrDefault(x => x.Name == prop && x.IsModdableProperty());
         }
 
-        internal static ModObjectActionDescriptor[] ModActionDescriptors<T>(this T entity)
-            where T : ModObject
-        {
-            var methods = entity.GetType().GetMethods()
-                .Where(x => x.ReturnType == typeof(ModObjectAction));
-
-            return methods
-                .Select(x => new ModObjectActionDescriptor(entity.Id, x.Name))
-                .ToArray();
-        }
-
         internal static PropertyInfo[] ModdableProperties(this object context)
         {
             return context.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
