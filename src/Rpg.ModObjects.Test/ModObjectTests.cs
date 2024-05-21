@@ -123,13 +123,13 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Health, Is.EqualTo(10));
             Assert.That(graph.GetAllMods().Count(), Is.EqualTo(9));
 
-            entity.AddDamageMod(x => x.Health, 10);
+            entity.AddSumMod(x => x.Health, -10);
             entity.TriggerUpdate(x => x.Health);
 
             Assert.That(entity.Health, Is.EqualTo(0));
             Assert.That(graph.GetAllMods().Count(), Is.EqualTo(10));
 
-            entity.AddRepairMod(x => x.Health, 10);
+            entity.AddSumMod(x => x.Health, 10);
             entity.TriggerUpdate(x => x.Health);
 
             Assert.That(entity.Health, Is.EqualTo(10));

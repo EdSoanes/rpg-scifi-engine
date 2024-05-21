@@ -99,7 +99,7 @@ namespace Rpg.ModObjects
 
         protected override ModSet<T> CreateState()
         {
-            var modSet = new ModSet<T>();
+            var modSet = new ModSet<T>(Name);
             OnCreateState(modSet);
             return modSet;
         }

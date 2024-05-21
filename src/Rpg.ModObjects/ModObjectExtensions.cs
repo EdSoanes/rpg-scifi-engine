@@ -32,16 +32,7 @@ namespace Rpg.ModObjects
             return entity;
         }
 
-        public static T AddModSet<T>(this T entity, Action<ModSet<T>> addAction)
-            where T : ModObject
-        {
-            var modSet = new ModSet<T>();
-            addAction.Invoke(modSet);
-            entity.AddModSet(modSet);
-            return entity;
-        }
-
-        public static T AddModSet<T>(this T entity, string? name, Action<ModSet<T>> addAction)
+        public static T AddModSet<T>(this T entity, string name, Action<ModSet<T>> addAction)
             where T : ModObject
         {
             var modSet = new ModSet<T>(name);
@@ -50,10 +41,10 @@ namespace Rpg.ModObjects
             return entity;
         }
 
-        public static T AddModSet<T>(this T entity, ModDuration duration, Action<ModSet<T>> addAction)
+        public static T AddModSet<T>(this T entity, string name, ModDuration duration, Action<ModSet<T>> addAction)
             where T : ModObject
         {
-            var modSet = new ModSet<T>(duration);
+            var modSet = new ModSet<T>(name, duration);
             addAction.Invoke(modSet);
             entity.AddModSet(modSet);
             return entity;

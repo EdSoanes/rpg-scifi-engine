@@ -16,7 +16,7 @@ namespace Rpg.ModObjects.Tests.Models
 
         protected override void OnCreateState(ModSet<ModdableEntity> modSet)
         {
-            modSet.Add(Entity!, x => x.Health, 10, () => DiceCalculations.Minus);
+            modSet.AddMod(Entity!, x => x.Health, 10, () => DiceCalculations.Minus);
         }
     }
 }

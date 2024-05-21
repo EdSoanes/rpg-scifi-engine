@@ -22,7 +22,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Actions.Count(), Is.EqualTo(1));
 
             var testAction = entity.Actions.Single();
-            Assert.That(testAction.ActionName, Is.EqualTo("TestAction"));
+            Assert.That(testAction.CmdName, Is.EqualTo("TestAction"));
             Assert.That(testAction.EntityId, Is.EqualTo(entity.Id));
 
             Assert.That(testAction.Args.Count(), Is.EqualTo(2));
@@ -31,7 +31,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(testAction.Args[0].DataType, Is.EqualTo("ModObject"));
 
             Assert.That(testAction.Args[1].Name, Is.EqualTo("target"));
-            Assert.That(testAction.Args[1].ArgType, Is.EqualTo(ModCmdArgType.TargetNumber));
+            Assert.That(testAction.Args[1].ArgType, Is.EqualTo(ModCmdArgType.Roll));
             Assert.That(testAction.Args[1].DataType, Is.EqualTo("Int32"));
 
         }

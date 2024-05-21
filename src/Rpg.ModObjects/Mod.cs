@@ -59,6 +59,23 @@ namespace Rpg.ModObjects
             return mod;
         }
 
+        protected static TMod Create<TMod, TTarget, TSource, TSourceVal>(TTarget target, string targetProp, TSource source, Expression<Func<TSource, TSourceVal>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TMod : Mod
+            where TSource : ModObject
+            where TTarget : ModObject
+        {
+            var mod = Activator.CreateInstance<TMod>();
+
+            //Set target
+            mod.EntityId = target.Id;
+            mod.Prop = targetProp;
+
+            //Set source
+            mod.Source = new ModSource<TSource, TSourceVal>(source, sourceExpr, diceCalcExpr);
+
+            return mod;
+        }
+
         protected static TMod Create<TMod, TTarget>(TTarget target, string targetPropPath, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TMod : Mod
             where TTarget : ModObject

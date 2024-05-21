@@ -65,9 +65,9 @@ namespace Rpg.ModObjects
         internal ModSet[] GetModSets()
             => ModSetStore.Get();
 
-        internal ModSet? AddModSet(ModDuration duration, params Mod[] mods)
+        internal ModSet? AddModSet(string name, ModDuration duration, params Mod[] mods)
         {
-            var modSet = new ModSet(duration, mods);
+            var modSet = new ModSet(name, duration, mods);
             return ModSetStore.Add(modSet)
                 ? modSet
                 : null;

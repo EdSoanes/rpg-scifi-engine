@@ -26,14 +26,5 @@ namespace Rpg.ModObjects.Tests.Models
                 .Add(new TestBuffState())
                 .Add(new TestNerfState());
         }
-
-        [ModCmd]
-        [ModCmdArg("actor", ModCmdArgType.Actor)]
-        [ModCmdArg("target", ModCmdArgType.TargetNumber)]
-        [ModCmdCost(1, 1)]
-        public ModCmdAction TestAction(ModObject actor, int target)
-        {
-            return new ModCmdAction("TestActionObject");
-        }
     }
 }

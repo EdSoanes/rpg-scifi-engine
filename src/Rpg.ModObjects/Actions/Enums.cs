@@ -10,7 +10,7 @@ namespace Rpg.ModObjects.Actions
 
     {
         Actor,
-        TargetNumber,
+        Roll,
         Range,
         Cover
     }

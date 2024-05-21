@@ -43,22 +43,22 @@ namespace Rpg.ModObjects.Modifiers
 
     public static class BaseModExtensions
     {
-        public static Mod AddBaseMod<TEntity, T1>(this TEntity entity, Expression<Func<TEntity, T1>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+        public static TEntity AddBaseMod<TEntity, T1>(this TEntity entity, Expression<Func<TEntity, T1>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
             var mod = BaseMod.Create(entity, targetExpr, dice, diceCalcExpr);
             entity.AddMod(mod);
 
-            return mod;
+            return entity;
         }
 
-        public static Mod AddBaseMod<TEntity, TTarget, TSource>(this TEntity entity, Expression<Func<TEntity, TTarget>> targetExpr, Expression<Func<TEntity, TSource>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+        public static TEntity AddBaseMod<TEntity, TTarget, TSource>(this TEntity entity, Expression<Func<TEntity, TTarget>> targetExpr, Expression<Func<TEntity, TSource>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
             var mod = BaseMod.Create(entity, targetExpr, sourceExpr, diceCalcExpr);
             entity.AddMod(mod);
 
-            return mod;
+            return entity;
         }
     }
 }
