@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 namespace Rpg.ModObjects.Actions
 {
     public enum ModCmdArgType
-
     {
+        Any,
         Actor,
         Roll,
         Range,

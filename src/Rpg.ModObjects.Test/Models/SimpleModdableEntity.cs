@@ -1,12 +1,4 @@
-﻿using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Extensions;
-using Rpg.ModObjects.Actions;
-using Rpg.ModObjects.Modifiers;
-using Rpg.ModObjects.Values;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Rpg.ModObjects.Modifiers;
 
 namespace Rpg.ModObjects.Tests.Models
 {
@@ -25,7 +17,5 @@ namespace Rpg.ModObjects.Tests.Models
         {
             this.AddBaseMod(x => x.Score, x => x.Bonus);
         }
-
-
     }
 }

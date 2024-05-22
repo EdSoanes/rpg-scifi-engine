@@ -18,7 +18,7 @@ namespace Rpg.ModObjects
         [JsonProperty] protected ModSetStore ModSetStore { get; private set; } = new ModSetStore();
         [JsonProperty] protected ModStateStore StateStore { get; private set; } = new ModStateStore();
         [JsonProperty] protected bool IsCreated { get; set; }
-        [JsonProperty] public ModCmdDescriptor[] Actions { get; private set; } = new ModCmdDescriptor[0];
+        [JsonProperty] public ModCmdDescriptor[] Commands { get; private set; } = new ModCmdDescriptor[0];
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -186,7 +186,7 @@ namespace Rpg.ModObjects
             ModSetStore.OnGraphCreating(Graph, this);
             if (!IsCreated)
             {
-                Actions = this.ModActionDescriptors();
+                Commands = this.ModActionDescriptors();
 
                 foreach (var propInfo in this.ModdableProperties())
                 {

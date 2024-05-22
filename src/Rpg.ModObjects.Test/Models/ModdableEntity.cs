@@ -1,11 +1,6 @@
 ﻿using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.Values;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Tests.Models
 {
@@ -25,6 +20,13 @@ namespace Rpg.ModObjects.Tests.Models
             this
                 .AddState(new TestBuffState())
                 .AddState(new TestNerfState());
+        }
+
+        [ModCmd()]
+        [ModCmdArg("initiator", ModCmdArgType.Actor)]
+        public ModSet TestCommand(ModObject initiator, int target)
+        {
+            return new ModSet(nameof(TestCommand));
         }
     }
 }

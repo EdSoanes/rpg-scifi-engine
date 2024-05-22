@@ -112,7 +112,7 @@ namespace Rpg.ModObjects
             where TTarget : ModObject
         {
             var mod = ExternalMod.Create(entity, targetExpr, value, diceCalcExpr);
-            Mods.Add(mod);
+            Add(mod);
 
             return this;
         }
@@ -122,7 +122,7 @@ namespace Rpg.ModObjects
             where TSource : ModObject
         {
             var mod = ExternalMod.Create(target, targetExpr, source, sourceExpr, diceCalcExpr);
-            Mods.Add(mod);
+            Add(mod);
 
             return this;
         }
@@ -132,7 +132,7 @@ namespace Rpg.ModObjects
             where TSource : ModObject
         {
             var mod = ExternalMod.Create(target, targetProp, source, sourceExpr, diceCalcExpr);
-            Mods.Add(mod);
+            Add(mod);
 
             return this;
         }
@@ -141,7 +141,7 @@ namespace Rpg.ModObjects
             where TTarget : ModObject
         {
             var mod = TurnMod.Create(entity, targetExpr, value, diceCalcExpr);
-            Mods.Add(mod);
+            Add(mod);
 
             return this;
         }
@@ -151,7 +151,7 @@ namespace Rpg.ModObjects
             where TSource : ModObject
         {
             var mod = TurnMod.Create(target, targetExpr, source, sourceExpr, diceCalcExpr);
-            Mods.Add(mod);
+            Add(mod);
 
             return this;
         }
@@ -160,7 +160,7 @@ namespace Rpg.ModObjects
             where TTarget : ModObject
         {
             var mod = SumMod.Create(target, targetExpr, value, diceCalcExpr);
-            Mods.Add(mod);
+            Add(mod);
 
             return this;
         }
@@ -170,7 +170,7 @@ namespace Rpg.ModObjects
             where TSource : ModObject
         {
             var mod = SumMod.Create(target, targetExpr, source, sourceExpr, diceCalcExpr);
-            Mods.Add(mod);
+            Add(mod);
 
             return this;
         }
