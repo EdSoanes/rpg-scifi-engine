@@ -1,43 +1,35 @@
 ﻿using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
+using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects.Modifiers
 {
     public class CmdMod : Mod
     {
-        public CmdMod()
+        [JsonConstructor] private CmdMod() { }
+
+        public CmdMod(ModPropRef targetPropRef)
+            : this(nameof(CmdMod), targetPropRef)
         {
+        }
+
+        public CmdMod(string name, ModPropRef targetPropRef)
+        {
+            Name = name;
             ModifierType = ModType.Permanent;
             ModifierAction = ModAction.Replace;
             Duration = ModDuration.External();
-        }
-
-        public static Mod Create<TTarget, TTargetValue>(string name, TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TTarget : ModObject
-        {
-            var mod = Create<CmdMod, TTarget, TTargetValue, TTargetValue>(entity, targetExpr, value, diceCalcExpr);
-            mod.Name = $"{name}.{entity.Id}";
-
-            return mod;
-        }
-
-        public static Mod Create<TTarget, TSource, TSourceValue>(string name, TTarget target, string targetProp, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TTarget : ModObject
-            where TSource : ModObject
-        {
-            var mod = Create<CmdMod, TTarget, TSource, TSourceValue>(target, targetProp, source, sourceExpr, diceCalcExpr);
-            mod.Name = $"{name}.{target.Id}";
-
-            return mod;
+            EntityId = targetPropRef.EntityId;
+            Prop = targetPropRef.Prop;
         }
     }
 
     public static class CmdModExtensions
     {
-        public static ModSet<T> Add<T, T1>(this ModSet<T> modSet, string name, T entity, Expression<Func<T, T1>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where T : ModObject
+        public static ModSet<TTarget> Add<TTarget, TTargetValue>(this ModSet<TTarget> modSet, string name, TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TTarget : ModObject
         {
-            var mod = CmdMod.Create(name, entity, targetExpr, dice, diceCalcExpr);
+            var mod = Mod.Create<CmdMod, TTarget, TTargetValue>(name, entity, targetExpr, dice, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;
@@ -47,7 +39,7 @@ namespace Rpg.ModObjects.Modifiers
             where TTarget : ModObject
             where TSource : ModObject
         {
-            var mod = CmdMod.Create(name, target, targetProp, source, sourceExpr, diceCalcExpr);
+            var mod = Mod.Create<CmdMod, TTarget, TSource, TSourceValue>(name, target, targetProp, source, sourceExpr, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;

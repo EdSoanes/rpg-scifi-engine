@@ -14,7 +14,7 @@ namespace Rpg.ModObjects.Tests.Models
         protected override void OnActivate(ModSet modSet)
         {
             var entity = Graph!.GetEntity<ModdableEntity>(EntityId)!;
-            modSet.AddMod(entity, x => x.Health, 10);
+            modSet.AddExternalMod(entity, x => x.Health, 10);
         }
     }
 }

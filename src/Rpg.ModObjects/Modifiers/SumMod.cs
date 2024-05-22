@@ -1,52 +1,67 @@
-﻿using Rpg.ModObjects.Values;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
 
 namespace Rpg.ModObjects.Modifiers
 {
     public class SumMod : Mod
     {
-        public SumMod()
+        [JsonConstructor] private SumMod() { }
+
+        public SumMod(ModPropRef targetPropRef)
+            : this(nameof(SumMod), targetPropRef)
         {
+        }
+
+        public SumMod(string name, ModPropRef targetPropRef)
+        {
+            Name = name;
             ModifierType = ModType.Transient;
             ModifierAction = ModAction.Sum;
             Duration = ModDuration.OnValueZero();
-        }
-
-        public static Mod Create<TTarget, TTargetValue>(TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TTarget : ModObject
-        {
-            var mod = Create<SumMod, TTarget, TTargetValue, TTargetValue>(entity, targetExpr, value, diceCalcExpr);
-            mod.Name = nameof(SumMod);
-
-            return mod;
-        }
-
-        public static Mod Create<TTarget, TTargetValue, TSource, TSourceValue>(TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TTarget : ModObject
-            where TSource : ModObject
-        {
-            var mod = Create<SumMod, TTarget, TTargetValue, TSource, TSourceValue>(target, targetExpr, source, sourceExpr, diceCalcExpr);
-            mod.Name = nameof(SumMod);
-
-            return mod;
+            EntityId = targetPropRef.EntityId;
+            Prop = targetPropRef.Prop;
         }
     }
 
     public static class SumModExtensions
     {
-        public static void AddSumMod<TEntity, T1>(this TEntity entity, Expression<Func<TEntity, T1>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+        public static Mod AddSumMod<TEntity, TTargetValue>(this TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
-            var mod = SumMod.Create(entity, targetExpr, dice, diceCalcExpr);
+            var mod = Mod.Create<SumMod, TEntity, TTargetValue>(entity, targetExpr, dice, diceCalcExpr);
             entity.AddMod(mod);
+
+            return mod;
         }
 
-        public static void AddSumMod<TTarget, TTargetValue, TSource, TSourceValue>(this TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+        public static Mod AddSumMod<TTarget, TTargetValue, TSource, TSourceValue>(this TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TTarget : ModObject
             where TSource : ModObject
         {
-            var mod = SumMod.Create(target, targetExpr, source, sourceExpr, diceCalcExpr);
+            var mod = Mod.Create<SumMod, TTarget, TTargetValue, TSource, TSourceValue>(target, targetExpr, source, sourceExpr, diceCalcExpr);
             target.AddMod(mod);
+
+            return mod;
+        }
+
+        public static ModSet AddSumMod<TTarget, TTargetValue>(this ModSet modSet, TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TTarget : ModObject
+        {
+            var mod = Mod.Create<SumMod, TTarget, TTargetValue>(target, targetExpr, value, diceCalcExpr);
+            modSet.Add(mod);
+
+            return modSet;
+        }
+
+        public static ModSet AddSumMod<TTarget, TTargetValue, TSource, TSourceValue>(this ModSet modSet, TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TTarget : ModObject
+            where TSource : ModObject
+        {
+            var mod = Mod.Create<SumMod, TTarget, TTargetValue, TSource, TSourceValue>(target, targetExpr, source, sourceExpr, diceCalcExpr);
+            modSet.Add(mod);
+
+            return modSet;
         }
     }
 }

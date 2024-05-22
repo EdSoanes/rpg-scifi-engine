@@ -1,63 +1,81 @@
-﻿using Rpg.ModObjects.Values;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
 
 namespace Rpg.ModObjects.Modifiers
 {
     public class ExternalMod : Mod
     {
-        public ExternalMod()
+        [JsonConstructor] private ExternalMod() { }
+
+        public ExternalMod(ModPropRef targetPropRef)
+            : this(nameof(ExternalMod), targetPropRef)
         {
+        }
+
+        public ExternalMod(string name, ModPropRef targetPropRef)
+        {
+            Name = name;
             ModifierType = ModType.Permanent;
             ModifierAction = ModAction.Sum;
             Duration = ModDuration.External();
-        }
-
-        public static Mod Create<TTarget, TTargetValue>(TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TTarget : ModObject
-        {
-            var mod = Create<ExternalMod, TTarget, TTargetValue, TTargetValue>(entity, targetExpr, value, diceCalcExpr);
-            mod.Name = nameof(ExternalMod);
-
-            return mod;
-        }
-
-        public static Mod Create<TTarget, TSource, TSourceValue>(TTarget target, string targetProp, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TTarget : ModObject
-            where TSource : ModObject
-        {
-            var mod = Create<ExternalMod, TTarget, TSource, TSourceValue>(target, targetProp, source, sourceExpr, diceCalcExpr);
-            mod.Name = nameof(ExternalMod);
-
-            return mod;
-        }
-
-        public static Mod Create<TTarget, TTargetValue, TSource, TSourceValue>(TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TTarget : ModObject
-            where TSource : ModObject
-        {
-            var mod = Create<ExternalMod, TTarget, TTargetValue, TSource, TSourceValue>(target, targetExpr, source, sourceExpr, diceCalcExpr);
-            mod.Name = nameof(ExternalMod);
-
-            return mod;
+            EntityId = targetPropRef.EntityId;
+            Prop = targetPropRef.Prop;
         }
     }
 
     public static class ExternalModExtensions
     {
-        public static ModSet<T> Add<T, T1>(this ModSet<T> modSet, T entity, Expression<Func<T, T1>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where T : ModObject
+        public static ModSet AddExternalMod<TEntity>(this ModSet modSet, TEntity entity, string targetProp, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TEntity : ModObject
         {
-            var mod = ExternalMod.Create(entity, targetExpr, dice, diceCalcExpr);
+            var mod = Mod.Create<ExternalMod, TEntity>(entity, targetProp, dice, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;
         }
 
-        public static ModSet<TTarget> Add<TTarget, TSource, TSourceValue>(this ModSet<TTarget> modSet, TTarget target, string targetProp, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+        public static ModSet AddExternalMod<TEntity, TTargetValue, TSourceValue>(this ModSet modSet, TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TEntity : ModObject
+        {
+            var mod = Mod.Create<ExternalMod, TEntity, TTargetValue, TEntity, TSourceValue>(entity, targetExpr, entity, sourceExpr, diceCalcExpr);
+            modSet.Add(mod);
+
+            return modSet;
+        }
+
+        public static ModSet AddExternalMod<TEntity, TSourceValue>(this ModSet modSet, TEntity entity, string targetProp, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TEntity : ModObject
+        {
+            var mod = Mod.Create<ExternalMod, TEntity, TEntity, TSourceValue>(entity, targetProp, entity, sourceExpr, diceCalcExpr);
+            modSet.Add(mod);
+
+            return modSet;
+        }
+
+        public static ModSet AddExternalMod<TTarget, TSource, TSourceValue>(this ModSet modSet, TTarget target, string targetProp, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TTarget : ModObject
             where TSource : ModObject
         {
-            var mod = ExternalMod.Create(target, targetProp, source, sourceExpr, diceCalcExpr);
+            var mod = Mod.Create<ExternalMod, TTarget, TSource, TSourceValue>(target, targetProp, source, sourceExpr, diceCalcExpr);
+            modSet.Add(mod);
+
+            return modSet;
+        }
+
+        public static ModSet AddExternalMod<TEntity, TTargetValue>(this ModSet modSet, TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TEntity : ModObject
+        {
+            var mod = Mod.Create<ExternalMod, TEntity, TTargetValue>(entity, targetExpr, dice, diceCalcExpr);
+            modSet.Add(mod);
+
+            return modSet;
+        }
+
+        public static ModSet AddExternalMod<TEntity, TTarget, TTargetValue, TSourceValue>(this ModSet modSet, TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TEntity : ModObject
+        {
+            var mod = Mod.Create<ExternalMod, TEntity, TTargetValue, TEntity, TSourceValue>(entity, targetExpr, entity, sourceExpr, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;

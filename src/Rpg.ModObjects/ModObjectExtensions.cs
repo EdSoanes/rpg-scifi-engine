@@ -43,13 +43,6 @@ namespace Rpg.ModObjects
             return entity;
         }
 
-        public static void AddBaseOverrideMod<TEntity, T1>(this TEntity entity, Expression<Func<TEntity, T1>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TEntity : ModObject
-        {
-            var mod = BaseOverrideMod.Create(entity, targetExpr, dice, diceCalcExpr);
-            entity.AddMod(mod);
-        }
-
         public static void TriggerUpdate<TTarget, TTargetValue>(this TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr)
             where TTarget : ModObject
         {

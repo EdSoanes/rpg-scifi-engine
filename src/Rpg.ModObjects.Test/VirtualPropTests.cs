@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Tests.Models;
+﻿using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Tests.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,11 @@ namespace Rpg.ModObjects.Tests
         {
             var entity = new ModdableEntity();
             var graph = new ModGraph(entity);
-            
+
+            entity.AddPermanentMod("VirtualProp", 1);
+            entity.TriggerUpdate();
+
+            Assert.That(entity.GetPropValue("VirtualProp")?.Roll() ?? 0, Is.EqualTo(1));
         }
     }
 }

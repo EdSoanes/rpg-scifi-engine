@@ -28,7 +28,7 @@ namespace Rpg.ModObjects
         public void SetActive()
         {
             var entity = Graph!.GetEntity(EntityId)!;
-            entity.AddMod(TurnMod.Create(entity, Name, 1));
+            entity.AddTurnMod(Name, 1);
             IsForcedActive = true;
         }
 

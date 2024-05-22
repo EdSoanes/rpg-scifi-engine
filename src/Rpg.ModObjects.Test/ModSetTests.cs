@@ -26,9 +26,9 @@ namespace Rpg.ModObjects.Tests
             entity.AddModSet("name", modSet =>
             {
                 modSet
-                    .AddMod(entity, x => x.Melee, 1)
-                    .AddMod(entity, x => x.Health, 1)
-                    .AddMod(entity, x => x.Damage.ArmorPenetration, 1);
+                    .AddExternalMod(entity, x => x.Melee, 1)
+                    .AddExternalMod(entity, x => x.Health, 1)
+                    .AddExternalMod(entity, x => x.Damage.ArmorPenetration, 1);
             });
 
             entity.TriggerUpdate();
@@ -48,9 +48,9 @@ namespace Rpg.ModObjects.Tests
             entity.AddModSet("test", modSet =>
             {
                 modSet
-                    .AddMod(entity, x => x.Melee, 1)
-                    .AddMod(entity, x => x.Health, 1)
-                    .AddMod(entity, x => x.Damage.ArmorPenetration, 1);
+                    .AddExternalMod(entity, x => x.Melee, 1)
+                    .AddExternalMod(entity, x => x.Health, 1)
+                    .AddExternalMod(entity, x => x.Damage.ArmorPenetration, 1);
             });
 
             entity.TriggerUpdate();
@@ -79,9 +79,9 @@ namespace Rpg.ModObjects.Tests
             entity.AddModSet("test", modSet =>
             {
                 modSet
-                    .AddMod(entity, x => x.Health, 1)
-                    .AddMod(entity, x => x.Damage.ArmorPenetration, 1)
-                    .Add(PermanentMod.Create(entity, x => x.Melee, 1));
+                    .AddExternalMod(entity, x => x.Health, 1)
+                    .AddExternalMod(entity, x => x.Damage.ArmorPenetration, 1)
+                    .AddPermanentMod(entity, x => x.Melee, 1);
             });
 
             entity.TriggerUpdate();
@@ -115,9 +115,9 @@ namespace Rpg.ModObjects.Tests
             entity.AddModSet("test", modSet =>
             {
                 modSet
-                    .AddMod(entity, x => x.Melee, 1)
-                    .AddMod(entity, x => x.Health, 1)
-                    .AddMod(entity, x => x.Damage.ArmorPenetration, 1);
+                    .AddExternalMod(entity, x => x.Melee, 1)
+                    .AddExternalMod(entity, x => x.Health, 1)
+                    .AddExternalMod(entity, x => x.Damage.ArmorPenetration, 1);
             });
 
             entity.TriggerUpdate();
@@ -148,9 +148,9 @@ namespace Rpg.ModObjects.Tests
             entity.AddModSet("name", ModDuration.OnEndEncounter(), modSet =>
             {
                 modSet
-                    .AddMod(entity, x => x.Melee, 1)
-                    .AddMod(entity, x => x.Health, 1)
-                    .AddMod(entity, x => x.Damage.ArmorPenetration, 1);
+                    .AddExternalMod(entity, x => x.Melee, 1)
+                    .AddExternalMod(entity, x => x.Health, 1)
+                    .AddExternalMod(entity, x => x.Damage.ArmorPenetration, 1);
             });
 
             entity.TriggerUpdate();

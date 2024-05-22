@@ -1,65 +1,100 @@
-﻿using Rpg.ModObjects.Values;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
 
 namespace Rpg.ModObjects.Modifiers
 {
     public class PermanentMod : Mod
     {
-        public PermanentMod() 
+        [JsonConstructor] private PermanentMod() { }
+
+        public PermanentMod(ModPropRef targetPropRef)
+            : this(nameof(PermanentMod), targetPropRef)
         {
+        }
+
+        public PermanentMod(string name, ModPropRef targetPropRef)
+        {
+            Name = name;
             ModifierType = ModType.Permanent;
             ModifierAction = ModAction.Accumulate;
             Duration = ModDuration.Permanent();
-        }
-
-        public static Mod Create<TTarget, TTargetValue>(TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null) 
-            where TTarget : ModObject
-        {
-            var mod = Create<PermanentMod, TTarget, TTargetValue, TTargetValue>(entity, targetExpr, value, diceCalcExpr);
-            mod.Name = nameof(PermanentMod);
-
-            return mod;
-        }
-
-        public static Mod Create<TTarget, TTargetValue, TSourceValue>(TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, Expression<Func<TTarget, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TTarget : ModObject
-        {
-            var mod = Create<PermanentMod, TTarget, TTargetValue, TTarget, TSourceValue>(target, targetExpr, target, sourceExpr, diceCalcExpr);
-            mod.Name = nameof(PermanentMod);
-
-            return mod;
-        }
-
-        public static Mod Create<TTarget, TTargetValue, TSource, TSourceValue>(TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TTarget : ModObject
-            where TSource : ModObject
-        {
-            var mod = Create<PermanentMod, TTarget, TTargetValue, TSource, TSourceValue>(target, targetExpr, source, sourceExpr, diceCalcExpr);
-            mod.Name = nameof(PermanentMod);
-
-            return mod;
+            EntityId = targetPropRef.EntityId;
+            Prop = targetPropRef.Prop;
         }
     }
 
     public static class PermanentModExtensions
     {
-        public static Mod AddPermanentMod<TEntity, T1>(this TEntity entity, Expression<Func<TEntity, T1>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+        public static Mod AddPermanentMod<TEntity>(this TEntity entity, string targetProp, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
-            var mod = PermanentMod.Create(entity, targetExpr, dice, diceCalcExpr);
+            var mod = Mod.Create<PermanentMod, TEntity>(entity, targetProp, dice, diceCalcExpr);
             entity.AddMod(mod);
 
             return mod;
         }
 
-        public static Mod AddPermanentMod<TEntity, TTarget, TSource>(this TEntity entity, Expression<Func<TEntity, TTarget>> targetExpr, Expression<Func<TEntity, TSource>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+        public static Mod AddPermanentMod<TEntity, TTargetValue, TSourceValue>(this TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
-            var mod = PermanentMod.Create(entity, targetExpr, sourceExpr, diceCalcExpr);
+            var mod = Mod.Create<PermanentMod, TEntity, TTargetValue, TEntity, TSourceValue>(entity, targetExpr, entity, sourceExpr, diceCalcExpr);
             entity.AddMod(mod);
 
             return mod;
+        }
+        public static Mod AddPermanentMod<TEntity, TTargetValue>(this TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TEntity : ModObject
+        {
+            var mod = Mod.Create<PermanentMod, TEntity, TTargetValue>(entity, targetExpr, dice, diceCalcExpr);
+            entity.AddMod(mod);
+
+            return mod;
+        }
+
+        public static Mod AddPermanentMod<TEntity, TTarget, TTargetValue, TSourceValue>(this TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TEntity : ModObject
+        {
+            var mod = Mod.Create<PermanentMod, TEntity, TTargetValue, TEntity, TSourceValue>(entity, targetExpr, entity, sourceExpr, diceCalcExpr);
+            entity.AddMod(mod);
+
+            return mod;
+        }
+
+        public static ModSet AddPermanentMod<TEntity>(this ModSet modSet, TEntity entity, string targetProp, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TEntity : ModObject
+        {
+            var mod = Mod.Create<PermanentMod, TEntity>(entity, targetProp, dice, diceCalcExpr);
+            modSet.Add(mod);
+
+            return modSet;
+        }
+
+        public static ModSet AddPermanentMod<TEntity, TTargetValue, TSourceValue>(this ModSet modSet, TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TEntity : ModObject
+        {
+            var mod = Mod.Create<PermanentMod, TEntity, TTargetValue, TEntity, TSourceValue>(entity, targetExpr, entity, sourceExpr, diceCalcExpr);
+            modSet.Add(mod);
+
+            return modSet;
+        }
+
+        public static ModSet AddPermanentMod<TEntity, TTargetValue>(this ModSet modSet, TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TEntity : ModObject
+        {
+            var mod = Mod.Create<PermanentMod, TEntity, TTargetValue>(entity, targetExpr, dice, diceCalcExpr);
+            modSet.Add(mod);
+
+            return modSet;
+        }
+
+        public static ModSet AddPermanentMod<TEntity, TTarget, TTargetValue, TSourceValue>(this ModSet modSet, TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TEntity : ModObject
+        {
+            var mod = Mod.Create<PermanentMod, TEntity, TTargetValue, TEntity, TSourceValue>(entity, targetExpr, entity, sourceExpr, diceCalcExpr);
+            modSet.Add(mod);
+
+            return modSet;
         }
     }
 }

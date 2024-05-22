@@ -1,4 +1,5 @@
 ﻿using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.Values;
 using System;
 using System.Collections.Generic;
@@ -24,9 +25,9 @@ namespace Rpg.ModObjects.Tests.Models
         public ModSet FiresAt(TestHuman initiator, TestHuman target)
         {
             return new ModSet(nameof(FiresAt))
-                .AddMod(initiator, nameof(FiresAt), initiator, x => x.Missile)
-                .AddMod(initiator, nameof(FiresAt), target, x => x.Defense, () => DiceCalculations.Minus)
-                .AddMod(initiator, nameof(FiresAt), this, x => x.HitBonus)
+                .AddExternalMod(initiator, nameof(FiresAt), x => x.Missile)
+                .AddExternalMod(initiator, nameof(FiresAt), target, x => x.Defense, () => DiceCalculations.Minus)
+                .AddExternalMod(initiator, nameof(FiresAt), this, x => x.HitBonus)
                 .AddTurnMod(initiator, x => x.PhysicalActionPoints.Current, -1)
                 .AddTurnMod(initiator, x => x.MentalActionPoints.Current, -1)
                 .AddSumMod(this, x => x.Ammo.Current, -1);

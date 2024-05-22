@@ -154,6 +154,8 @@ namespace Rpg.ModObjects
                 return null;
 
             var val = this.PropertyValue(prop);
+            if (val == null)
+                val = CalculatePropValue(prop);
             if (val != null)
             {
                 if (val is Dice)
@@ -194,9 +196,9 @@ namespace Rpg.ModObjects
                     if (val != null)
                     {
                         if (val is Dice dice && dice != Dice.Zero)
-                            PropStore.Add(BaseInitMod.Create(this, propInfo.Name, dice));
+                            this.AddBaseInitMod(propInfo.Name, dice);
                         else if (val is int i && i != 0)
-                            PropStore.Add(BaseInitMod.Create(this, propInfo.Name, i));
+                            this.AddBaseInitMod(propInfo.Name, i);
                     }
                 }
 

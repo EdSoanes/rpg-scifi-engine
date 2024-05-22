@@ -1,6 +1,5 @@
 ﻿using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.Values;
-using System.ComponentModel.DataAnnotations;
 
 namespace Rpg.ModObjects.Tests.Models
 {
@@ -17,7 +16,7 @@ namespace Rpg.ModObjects.Tests.Models
         protected override void OnActivate(ModSet modSet)
         {
             var entity = Graph!.GetEntity<ModdableEntity>(EntityId)!;
-            modSet.AddMod(entity, x => x.Health, 10, () => DiceCalculations.Minus);
+            modSet.AddExternalMod(entity, x => x.Health, 10, () => DiceCalculations.Minus);
         }
     }
 }

@@ -1,23 +1,36 @@
-﻿using Rpg.ModObjects.Values;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
 
 namespace Rpg.ModObjects.Modifiers
 {
     internal class BaseInitMod : Mod
     {
-        public BaseInitMod()
+        [JsonConstructor] private BaseInitMod() { }
+
+        public BaseInitMod(ModPropRef targetPropRef)
+            : this(nameof(BaseInitMod), targetPropRef)
         {
+        }
+
+        public BaseInitMod(string name, ModPropRef targetPropRef)
+        {
+            Name = name;
             ModifierType = ModType.BaseInit;
             ModifierAction = ModAction.Replace;
             Duration = ModDuration.Permanent();
+            EntityId = targetPropRef.EntityId;
+            Prop = targetPropRef.Prop;
         }
+    }
 
-        public static Mod Create<TTarget>(TTarget entity, string prop, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+    public static class BaseInitModExtensions
+    {
+        public static Mod AddBaseInitMod<TTarget>(this TTarget entity, string prop, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TTarget : ModObject
         {
-            var mod = Create<BaseInitMod, TTarget>(entity, prop, value, diceCalcExpr);
-            mod.Name = prop;
-
+            var mod = Mod.Create<BaseInitMod, TTarget>(prop, entity, prop, value, diceCalcExpr);
+            entity.AddMod(mod);
             return mod;
         }
     }

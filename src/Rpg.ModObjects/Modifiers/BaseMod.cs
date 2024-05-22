@@ -1,61 +1,44 @@
-﻿using Rpg.ModObjects.Values;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
 
 namespace Rpg.ModObjects.Modifiers
 {
     public class BaseMod : Mod
     {
-        public BaseMod()
+        [JsonConstructor] private BaseMod() { }
+
+        public BaseMod(ModPropRef targetPropRef)
+            : this(nameof(BaseMod), targetPropRef)
         {
+        }
+
+        public BaseMod(string name, ModPropRef targetPropRef)
+        {
+            Name = name;
             ModifierType = ModType.Base;
             ModifierAction = ModAction.Replace;
             Duration = ModDuration.Permanent();
-        }
-
-        public static Mod Create<TTarget, TTargetValue>(TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TTarget : ModObject
-        {
-            var mod = Create<BaseMod, TTarget, TTargetValue, TTargetValue>(entity, targetExpr, value, diceCalcExpr);
-            mod.Name = nameof(BaseMod);
-
-            return mod;
-        }
-
-        public static Mod Create<TTarget, TTargetValue, TSourceValue>(TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, Expression<Func<TTarget, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TTarget : ModObject
-        {
-            var mod = Create<BaseMod, TTarget, TTargetValue, TTarget, TSourceValue>(target, targetExpr, target, sourceExpr, diceCalcExpr);
-            mod.Name = nameof(BaseMod);
-
-            return mod;
-        }
-
-        public static Mod Create<TTarget, TTargetValue, TSource, TSourceValue>(TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TTarget : ModObject
-            where TSource : ModObject
-        {
-            var mod = Create<BaseMod, TTarget, TTargetValue, TSource, TSourceValue>(target, targetExpr, source, sourceExpr, diceCalcExpr);
-            mod.Name = nameof(BaseMod);
-
-            return mod;
+            EntityId = targetPropRef.EntityId;
+            Prop = targetPropRef.Prop;
         }
     }
 
     public static class BaseModExtensions
     {
-        public static TEntity AddBaseMod<TEntity, T1>(this TEntity entity, Expression<Func<TEntity, T1>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TEntity : ModObject
+        public static TTarget AddBaseMod<TTarget, TTargetValue>(this TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TTarget : ModObject
         {
-            var mod = BaseMod.Create(entity, targetExpr, dice, diceCalcExpr);
+            var mod = Mod.Create<BaseMod, TTarget, TTargetValue>(entity, targetExpr, dice, diceCalcExpr);
             entity.AddMod(mod);
 
             return entity;
         }
 
-        public static TEntity AddBaseMod<TEntity, TTarget, TSource>(this TEntity entity, Expression<Func<TEntity, TTarget>> targetExpr, Expression<Func<TEntity, TSource>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TEntity : ModObject
+        public static TTarget AddBaseMod<TTarget, TTargetValue, TSourceValue>(this TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr, Expression<Func<TTarget, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TTarget : ModObject
         {
-            var mod = BaseMod.Create(entity, targetExpr, sourceExpr, diceCalcExpr);
+            var mod = Mod.Create<BaseMod, TTarget, TTargetValue, TTarget, TSourceValue>(entity, targetExpr, entity, sourceExpr, diceCalcExpr);
             entity.AddMod(mod);
 
             return entity;

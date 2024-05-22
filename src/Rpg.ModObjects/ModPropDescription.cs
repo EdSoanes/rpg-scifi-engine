@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Values;
+﻿using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects
 {
