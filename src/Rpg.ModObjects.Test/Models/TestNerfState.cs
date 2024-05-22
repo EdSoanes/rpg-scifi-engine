@@ -1,22 +1,23 @@
 ﻿using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.Values;
+using System.ComponentModel.DataAnnotations;
 
 namespace Rpg.ModObjects.Tests.Models
 {
-    public class TestNerfState : ModState<ModdableEntity>
+    public class TestNerfState : ModState
     {
         public TestNerfState()
-            : base("Nerf")
-        { }
+            => Name = "Nerf";
 
-        protected override bool ShouldApply()
+        protected override bool ShouldActivate()
         {
-            return Entity!.Melee.Roll() < 1;
+            return Graph!.GetEntity<ModdableEntity>(EntityId)!.Melee.Roll() < 1;
         }
 
-        protected override void OnCreateState(ModSet<ModdableEntity> modSet)
+        protected override void OnActivate(ModSet modSet)
         {
-            modSet.AddMod(Entity!, x => x.Health, 10, () => DiceCalculations.Minus);
+            var entity = Graph!.GetEntity<ModdableEntity>(EntityId)!;
+            modSet.AddMod(entity, x => x.Health, 10, () => DiceCalculations.Minus);
         }
     }
 }

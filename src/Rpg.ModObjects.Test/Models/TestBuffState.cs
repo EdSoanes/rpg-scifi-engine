@@ -2,20 +2,19 @@
 
 namespace Rpg.ModObjects.Tests.Models
 {
-    public class TestBuffState : ModState<ModdableEntity>
+    public class TestBuffState : ModState
     {
         public TestBuffState()
-            : base("Buff")
-        { }
+            => Name = "Buff";
+        
+        protected override bool ShouldActivate()
+            => Graph!.GetEntity<ModdableEntity>(EntityId)!.Melee.Roll() >= 10;
+        
 
-        protected override bool ShouldApply()
+        protected override void OnActivate(ModSet modSet)
         {
-            return Entity!.Melee.Roll() >= 10;
-        }
-
-        protected override void OnCreateState(ModSet<ModdableEntity> modSet)
-        {
-            modSet.AddMod(Entity!, x => x.Health, 10);
+            var entity = Graph!.GetEntity<ModdableEntity>(EntityId)!;
+            modSet.AddMod(entity, x => x.Health, 10);
         }
     }
 }

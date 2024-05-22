@@ -1,12 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Modifiers;
-using Rpg.ModObjects.Values;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.ModObjects
 {
@@ -33,25 +26,31 @@ namespace Rpg.ModObjects
         }
 
         public void SetActive()
-            => IsForcedActive = true;
+        {
+            var entity = Graph!.GetEntity(EntityId)!;
+            entity.AddMod(TurnMod.Create(entity, Name, 1));
+            IsForcedActive = true;
+        }
 
         public void SetInactive()
-            => IsForcedActive = false;
+        {
+            var entity = Graph!.GetEntity(EntityId)!;
+            entity.RemoveModProp(Name);
+            IsForcedActive = false;
+        }
 
-        protected virtual bool ShouldApply()
+        protected virtual bool ShouldActivate()
             => false;
 
-        protected abstract ModSet CreateState();
-
-        protected void Apply()
+        protected void Activate()
         {
             if (Graph != null && EntityId != null)
             {
                 var entity = Graph.GetEntity(EntityId);
-                if ((IsForcedActive || ShouldApply()) && !IsApplied)
+                if ((IsForcedActive || ShouldActivate()) && !IsApplied)
                 {
-                    var modSet = CreateState();
-                    modSet.Name = Name;
+                    var modSet = new ModSet(Name);
+                    OnActivate(modSet);
 
                     entity?.AddModSet(modSet);
                 }
@@ -62,11 +61,13 @@ namespace Rpg.ModObjects
             }
         }
 
+        protected abstract void OnActivate(ModSet modSet);
+
         public void OnBeginEncounter()
-            => Apply();
+            => Activate();
 
         public void OnEndEncounter()
-            => Apply();
+            => Activate();
 
         public void OnGraphCreating(ModGraph graph, ModObject entity)
         {
@@ -75,35 +76,6 @@ namespace Rpg.ModObjects
         }
 
         public void OnTurnChanged(int turn)
-            => Apply();
-    }
-
-    public abstract class ModState<T> : ModState
-        where T : ModObject
-    {
-        [JsonConstructor] private ModState() { }
-
-        protected ModState(string name)
-            => Name = name;
-
-        protected T? Entity
-        {
-            get
-            {
-                if (Graph != null && EntityId != null)
-                    return Graph.GetEntity(EntityId) as T;
-
-                return null;
-            }
-        }
-
-        protected override ModSet<T> CreateState()
-        {
-            var modSet = new ModSet<T>(Name);
-            OnCreateState(modSet);
-            return modSet;
-        }
-
-        protected abstract void OnCreateState(ModSet<T> modSet);
+            => Activate();
     }
 }

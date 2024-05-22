@@ -56,6 +56,9 @@ namespace Rpg.ModObjects
         internal ModProp[] GetModProps()
             => PropStore.Get();
 
+        public bool RemoveModProp(string prop)
+            => PropStore.Remove(prop);
+
         internal void AddMod(Mod mod)
             => Graph?.Context?.PropStore?.Add(mod);
 
@@ -87,10 +90,9 @@ namespace Rpg.ModObjects
         public void RemoveModSet(string name)
             => ModSetStore.Remove(name);
 
-        internal ModObject AddState<T>(ModState<T> state)
-            where T : ModObject
+        public ModObject AddState(ModState state)
         {
-            StateStore.Add<T>(state);
+            StateStore.Add(state);
             return this;
         }
 

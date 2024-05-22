@@ -16,6 +16,15 @@ namespace Rpg.ModObjects.Modifiers
             Duration = ModDuration.OnNewTurn(turn);
         }
 
+        public static Mod Create<TTarget>(TTarget entity, string targetProp, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TTarget : ModObject
+        {
+            var mod = Create<TurnMod, TTarget>(entity, targetProp, value, diceCalcExpr);
+            mod.Name = nameof(TurnMod);
+
+            return mod;
+        }
+
         public static Mod Create<TTarget, TTargetValue>(TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TTarget : ModObject
         {

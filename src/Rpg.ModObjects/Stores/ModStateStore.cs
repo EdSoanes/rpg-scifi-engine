@@ -37,8 +37,7 @@ namespace Rpg.ModObjects.Stores
             return false;
         }
 
-        public void Add<T>(ModState<T> modState)
-            where T : ModObject
+        public void Add(ModState modState)
         {
             if (!Contains(modState))
             {
@@ -46,7 +45,7 @@ namespace Rpg.ModObjects.Stores
                 if (Graph != null)
                 {
                     var entity = Graph.GetEntity(EntityId!);
-                    modState.OnGraphCreating(Graph!, entity);
+                    modState.OnGraphCreating(Graph!, entity!);
                 }
             }
         }

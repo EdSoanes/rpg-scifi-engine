@@ -14,6 +14,12 @@ namespace Rpg.ModObjects.Tests.Models
         public MaxCurrentValue Ammo { get; private set; } = new MaxCurrentValue(nameof(Ammo), 10, 10);
         public int HitBonus { get; private set; } = 2;
 
+        
+        protected override void OnCreate()
+        {
+            this.AddState(new FiringState<TestGun>("Firing"));
+        }
+
         [ModCmd(OutcomeMethod = nameof(Damages))]
         public ModSet FiresAt(TestHuman initiator, TestHuman target)
         {

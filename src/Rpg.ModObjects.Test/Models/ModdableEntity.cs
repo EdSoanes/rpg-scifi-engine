@@ -23,8 +23,8 @@ namespace Rpg.ModObjects.Tests.Models
             this.AddBaseMod(x => x.Damage.Dice, x => x.Strength.Bonus);
 
             this
-                .Add(new TestBuffState())
-                .Add(new TestNerfState());
+                .AddState(new TestBuffState())
+                .AddState(new TestNerfState());
         }
     }
 }

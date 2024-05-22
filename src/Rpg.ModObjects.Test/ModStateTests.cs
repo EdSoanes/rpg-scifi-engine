@@ -18,12 +18,14 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new ModGraph(entity);
 
+            Assert.That(entity.ActiveStates, Does.Not.Contain("Buff"));
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));
 
             var mod = entity.AddPermanentMod(x => x.Melee, 6);
             entity.TriggerUpdate();
 
+            Assert.That(entity.ActiveStates, Does.Contain("Buff"));
             Assert.That(entity.Melee.Roll(), Is.EqualTo(10));
             Assert.That(entity.Health, Is.EqualTo(20));
         }

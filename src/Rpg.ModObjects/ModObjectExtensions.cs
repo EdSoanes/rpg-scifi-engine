@@ -25,13 +25,6 @@ namespace Rpg.ModObjects
                 target.Merge(a);
         }
 
-        public static T Add<T>(this T entity, ModState<T> modState)
-            where T : ModObject
-        {
-            entity.AddState(modState);
-            return entity;
-        }
-
         public static T AddModSet<T>(this T entity, string name, Action<ModSet<T>> addAction)
             where T : ModObject
         {
