@@ -26,7 +26,7 @@ namespace Rpg.ModObjects
             {
                 ObjectStore.Add(obj.Id, obj);
 
-                if (Graph!.AddEntity(obj))
+                if (Graph?.AddEntity(obj) ?? false)
                     obj.OnGraphCreating(Graph);
 
                 CallCollectionChanged(NotifyCollectionChangedAction.Add);

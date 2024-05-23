@@ -33,7 +33,6 @@ namespace Rpg.ModObjects.Tests
             Assert.That(testCmd.Args[1].Name, Is.EqualTo("target"));
             Assert.That(testCmd.Args[1].ArgType, Is.EqualTo(ModCmdArgType.Any));
             Assert.That(testCmd.Args[1].DataType, Is.EqualTo("System.Int32"));
-
         }
     }
 }

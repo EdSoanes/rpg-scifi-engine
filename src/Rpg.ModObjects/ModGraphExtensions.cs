@@ -50,7 +50,8 @@ namespace Rpg.ModObjects
 
             if (!obj.GetType().IsPrimitive)
             {
-                foreach (var propertyInfo in obj.GetType().GetProperties())
+                var propertyInfos = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                foreach (var propertyInfo in propertyInfos)
                 {
                     var items = obj.PropertyObjects(propertyInfo, out var isEnumerable)?.ToArray() ?? new object[0];
                     foreach (var item in items)
