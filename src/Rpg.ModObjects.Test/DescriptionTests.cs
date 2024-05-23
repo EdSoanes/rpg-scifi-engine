@@ -37,9 +37,9 @@ namespace Rpg.ModObjects.Tests
             var baseMod = baseMods.First();
             Assert.That(baseMod.SourceProp!.Prop, Is.EqualTo("Bonus"));
             Assert.That(baseMod.SourceProp!.Value.Roll(), Is.EqualTo(2));
-            Assert.That(baseMod.Mods.Count(), Is.EqualTo(1));
+            Assert.That(baseMod.Mods.Count(), Is.EqualTo(2));
 
-            var scoreMod = baseMod.Mods.First();
+            var scoreMod = baseMod.Mods.FirstOrDefault(x => x.SourceProp?.Prop == "Score");
             Assert.That(scoreMod.SourceProp!.Prop, Is.EqualTo("Score"));
             Assert.That(scoreMod.Value.Roll(), Is.EqualTo(2));
             Assert.That(scoreMod.SourceValue.Roll(), Is.EqualTo(14));

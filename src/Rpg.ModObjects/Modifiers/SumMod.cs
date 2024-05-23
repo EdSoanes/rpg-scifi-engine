@@ -26,6 +26,15 @@ namespace Rpg.ModObjects.Modifiers
 
     public static class SumModExtensions
     {
+        public static Mod AddSumMod<TEntity>(this TEntity entity, string targetProp, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
+            where TEntity : ModObject
+        {
+            var mod = Mod.Create<SumMod, TEntity>(entity, targetProp, dice, diceCalcExpr);
+            entity.AddMod(mod);
+
+            return mod;
+        }
+
         public static Mod AddSumMod<TEntity, TTargetValue>(this TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {

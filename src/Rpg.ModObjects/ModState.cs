@@ -1,73 +1,87 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects
 {
     public abstract class ModState : ITemporal
     {
         protected ModGraph? Graph { get; set; }
-        protected Guid? EntityId { get; set; }
+
+        [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
+        [JsonProperty] public Guid? EntityId { get; protected set; }
 
         [JsonProperty] public string Name { get; protected set; } = nameof(ModState);
-        [JsonProperty] protected bool IsForcedActive { get; set; }
-
-        public bool IsApplied
-        {
-            get
-            {
-                if (Graph != null && EntityId != null)
-                {
-                    return Graph.GetEntity(EntityId)
-                        ?.GetModSet(Name) != null;
-                }
-
-                return false;
-            }
-        }
+        
+        public string InstanceName { get => $"{Id}.{Name}"; }
 
         public void SetActive()
         {
-            var entity = Graph!.GetEntity(EntityId)!;
-            entity.AddTurnMod(Name, 1);
-            IsForcedActive = true;
+            var entity = Graph?.GetEntity(EntityId);
+            if (entity != null && !entity.IsStateForcedActive(Name))
+                entity?.AddPermanentMod(InstanceName, 1);
+
+            UpdateStateMods(entity);
         }
 
         public void SetInactive()
         {
-            var entity = Graph!.GetEntity(EntityId)!;
-            entity.RemoveModProp(Name);
-            IsForcedActive = false;
+            var entity = Graph?.GetEntity(EntityId);
+            entity?.RemoveMods(InstanceName, ModType.Permanent);
+            UpdateStateMods(entity);
         }
 
         protected virtual bool ShouldActivate()
             => false;
 
-        protected void Activate()
+        protected void UpdateActivation()
         {
-            if (Graph != null && EntityId != null)
+            var entity = Graph?.GetEntity(EntityId);
+            if (entity != null)
             {
-                var entity = Graph.GetEntity(EntityId);
-                if ((IsForcedActive || ShouldActivate()) && !IsApplied)
-                {
-                    var modSet = new ModSet(Name);
-                    OnActivate(modSet);
+                var isConditionallyActive = entity.IsStateConditionallyActive(Name);
+                var shouldActivate = ShouldActivate();
 
-                    entity?.AddModSet(modSet);
-                }
-                else if (IsApplied)
+                if (!isConditionallyActive && shouldActivate)
+                    entity!.AddSumMod(InstanceName, 1);
+                else if (isConditionallyActive && !shouldActivate)
+                    entity!.AddSumMod(InstanceName, -1);
+            }
+
+            UpdateStateMods();
+        }
+
+        private bool ShouldAddStateModSet(ModObject entity)
+            => entity.IsStateActive(Name) && (entity.IsStateForcedActive(Name) || ShouldActivate()) && entity.GetModSet(InstanceName) == null;
+
+        private bool ShouldRemoveStateModSet(ModObject entity)
+            => !entity.IsStateActive(Name) && !ShouldActivate() && entity.GetModSet(InstanceName) != null;
+
+        protected void UpdateStateMods(ModObject? entity = null)
+        {
+            entity ??= Graph?.GetEntity(EntityId);
+            if (entity != null)
+            {
+                if (ShouldAddStateModSet(entity))
                 {
-                    entity?.RemoveModSet(Name);
+                    var modSet = new ModSet(InstanceName);
+                    OnActivate(modSet);
+                    if (modSet.Mods.Any())
+                        entity?.AddModSet(modSet);
                 }
+                else if (ShouldRemoveStateModSet(entity))
+                    entity?.RemoveModSet(InstanceName);
             }
         }
 
-        protected abstract void OnActivate(ModSet modSet);
+
+        protected virtual void OnActivate(ModSet modSet) { }
 
         public void OnBeginEncounter()
-            => Activate();
+            => UpdateActivation();
 
         public void OnEndEncounter()
-            => Activate();
+            => UpdateActivation();
 
         public void OnGraphCreating(ModGraph graph, ModObject entity)
         {
@@ -76,6 +90,6 @@ namespace Rpg.ModObjects
         }
 
         public void OnTurnChanged(int turn)
-            => Activate();
+            => UpdateActivation();
     }
 }

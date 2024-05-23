@@ -18,13 +18,18 @@ namespace Rpg.ModObjects.Stores
 
         public Mod[] GetMods(string prop, bool filtered = true)
         {
-            return filtered
-                ? Items[prop].Get(Graph!)
-                : Items.Values.SelectMany(x => x.Mods).ToArray();
+            var res = filtered
+                ? this[prop]?.Get(Graph!)
+                : this[prop]?.Mods?.ToArray();
+
+            return res ?? new Mod[0];
         }
 
+        public Mod[] GetMods(string prop, ModType modType)
+            => this[prop]?.Get(modType) ?? new Mod[0];
+
         public Mod[] GetMods(string prop, ModType modType, string modName)
-            => Items[prop].Get(modType, modName);
+            => this[prop]?.Get(modType, modName) ?? new Mod[0];
 
         public ModProp Create(string prop)
         {
@@ -34,11 +39,10 @@ namespace Rpg.ModObjects.Stores
             return this[prop]!;
         }
 
-        public Dice Calculate(string prop, ModType? modifierType = null, string? modifierName = null)
+        public Dice Calculate(string prop, Func<Mod, bool>? filterFunc = null)
         {
-            var mods = !string.IsNullOrEmpty(modifierName) && modifierType != null
-                ? GetMods(prop, modifierType.Value, modifierName)
-                : GetMods(prop);
+            var mods = GetMods(prop)
+                .Where(x => filterFunc?.Invoke(x) ?? true);
 
             return Calculate(mods);
         }
@@ -76,11 +80,22 @@ namespace Rpg.ModObjects.Stores
 
         public void Remove(IEnumerable<Mod> mods)
         {
+            var toRemove = new List<ModProp>();
             foreach (var mod in mods)
             {
-                var entity = Graph!.GetEntity<ModObject>(mod.EntityId);
-                if (entity != null)
-                    entity.GetModProp(mod.Prop)!.Remove(mod);
+                var modProp = Graph?.GetEntity<ModObject>(mod.EntityId)?.GetModProp(mod.Prop);
+                if (modProp != null)
+                {
+                    modProp.Remove(mod);
+                    if (!modProp.Mods.Any() && !toRemove.Contains(modProp))
+                        toRemove.Add(modProp);
+                }
+            }
+
+            foreach (var modProp in toRemove)
+            {
+                var entity = Graph?.GetEntity<ModObject>(modProp.EntityId);
+                entity?.RemoveModProp(modProp.Prop);
             }
         }
 
@@ -104,13 +119,7 @@ namespace Rpg.ModObjects.Stores
                         modProp.Replace(mod);
 
                     else if (mod.ModifierAction == ModAction.Sum)
-                    {
-                        var oldValue = entity.CalculatePropValue(mod.Prop, mod.ModifierType, mod.Name);
-                        var newValue = (oldValue ?? Dice.Zero) + mod.Source.CalculatePropValue(Graph!);
-
-                        mod.SetSource(newValue);
-                        modProp.Replace(mod);
-                    }
+                        modProp.Sum(Graph, entity, mod);
                 }
             }
         }

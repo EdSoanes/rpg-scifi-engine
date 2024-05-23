@@ -54,9 +54,11 @@ namespace Rpg.ModObjects
             var path = string.Join(".", parts.Take(parts.Length - 1));
             var prop = parts.Last();
 
-            var entity = rootEntity.PropertyValue<ModObject>(path) ?? throw new ArgumentException($"Invalid path. Property path {path} is not an Entity object");
+            var entity = rootEntity.PropertyValue<ModObject>(path);
+            var locator = entity != null
+                ? new ModPropRef(entity.Id, prop)
+                : new ModPropRef(rootEntity.Id, propPath);
 
-            var locator = new ModPropRef(entity.Id, prop);
             return locator;
         }
     }

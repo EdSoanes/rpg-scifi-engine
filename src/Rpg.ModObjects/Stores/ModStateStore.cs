@@ -4,12 +4,15 @@ namespace Rpg.ModObjects.Stores
 {
     public class ModStateStore : ModBaseStore<string, ModState>
     {
-        public string[] AllStates { get => Items.Values.Select(x => x.Name).ToArray(); }
-        public string[] ActiveStates { get => Items.Values.Where(x => x.IsApplied).Select(x => x.Name).ToArray(); }
+        public string[] StateNames { get => Items.Values.Select(x => x.Name).ToArray(); }
+        public string[] ActiveStateNames { get => StateNames.Where(IsActive).ToArray();  }
 
-        public bool ManuallyActivateState(string state)
+        public bool IsActive(string state)
+            => Graph?.GetEntity(EntityId!)?.IsStateActive(state) ?? false;
+
+        public bool SetActive(string state)
         {
-            var modState = Items[state];
+            var modState = this[state];
             if (modState != null)
             {
                 modState.SetActive();
@@ -19,13 +22,7 @@ namespace Rpg.ModObjects.Stores
             return false;
         }
 
-        public void ManuallySetInactive()
-        {
-            foreach (var modState in Get())
-                modState.SetInactive();
-        }
-
-        public bool ManuallyDeactivateState(string state)
+        public bool SetInactive(string state)
         {
             var modState = Items[state];
             if (modState != null)

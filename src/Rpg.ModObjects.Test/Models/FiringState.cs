@@ -13,10 +13,6 @@ namespace Rpg.ModObjects.Tests.Models
             => Name = name;
 
         protected override bool ShouldActivate()
-            => Graph!.GetEntity<T>(EntityId)?.GetPropValue(Name) != null;
-
-        protected override void OnActivate(ModSet modSet)
-        {
-        }
+            => Graph!.GetEntity<T>(EntityId)?.GetPropValue(InstanceName) != null;
     }
 }

@@ -33,6 +33,11 @@ namespace Rpg.ModObjects
             return res.ToArray();
         }
 
+        public Mod[] Get(ModType modifierType)
+            => Mods
+                .Where(x => x.ModifierType == modifierType)
+                .ToArray();
+
         public Mod[] Get(ModType modifierType, string modName)
             => Mods
                 .Where(x => x.ModifierType == modifierType && x.Name == modName)
@@ -48,13 +53,26 @@ namespace Rpg.ModObjects
                 Mods.Add(mod);
         }
 
-        public void Replace(Mod mod)
+        internal void Sum(ModGraph graph, ModObject entity, Mod mod)
+        {
+            var oldValue = entity.CalculatePropValue(mod.Prop, x => x.ModifierType == mod.ModifierType && x.Name == mod.Name);
+            var newValue = (oldValue ?? Dice.Zero) + mod.Source.CalculatePropValue(graph!);
+
+            mod.SetSource(newValue);
+            var oldMods = Get(mod.ModifierType, mod.Name);
+            Remove(oldMods);
+
+            if (mod.Source.Value != null && mod.Source.Value != Dice.Zero)
+                Add(mod);
+        }
+
+        internal void Replace(Mod mod)
         {
             var oldMods = Get(mod.ModifierType, mod.Name);
             Remove(oldMods);
 
-            //Don't add if the source is a Value without a ValueFunction and the Value = 0
-            if (mod.Source.Value == null || mod.Source.Value != Dice.Zero || mod.Source.ValueFunc.IsCalc)
+            //Don't add if the source is a Value without a ValueFunction and the Value = null
+            if (mod.Source.PropRef != null || mod.Source.Value != null || mod.Source.ValueFunc.IsCalc)
                 Add(mod);
         }
 

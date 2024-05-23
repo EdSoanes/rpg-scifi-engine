@@ -26,11 +26,12 @@ namespace Rpg.ModObjects.Tests
             var graph = new ModGraph(entity);
 
             Assert.That(graph.GetEntities().Count(), Is.EqualTo(3));
-            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(9));
-            Assert.That(entity.States.Count(), Is.EqualTo(2));
-            Assert.That(entity.States, Does.Contain("Buff"));
-            Assert.That(entity.States, Does.Contain("Nerf"));
-            Assert.That(entity.ActiveStates.Count(), Is.EqualTo(0));
+            var mods = graph.GetAllMods();
+            Assert.That(mods.Count(), Is.EqualTo(11));
+            Assert.That(entity.StateNames.Count(), Is.EqualTo(2));
+            Assert.That(entity.StateNames, Does.Contain("Buff"));
+            Assert.That(entity.StateNames, Does.Contain("Nerf"));
+            Assert.That(entity.ActiveStateNames.Count(), Is.EqualTo(0));
         }
 
         [Test]
@@ -121,19 +122,19 @@ namespace Rpg.ModObjects.Tests
             var graph = new ModGraph(entity);
 
             Assert.That(entity.Health, Is.EqualTo(10));
-            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(9));
+            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(11));
 
             entity.AddSumMod(x => x.Health, -10);
             entity.TriggerUpdate(x => x.Health);
 
             Assert.That(entity.Health, Is.EqualTo(0));
-            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(10));
+            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(12));
 
             entity.AddSumMod(x => x.Health, 10);
             entity.TriggerUpdate(x => x.Health);
 
             Assert.That(entity.Health, Is.EqualTo(10));
-            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(9));
+            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(11));
         }
     }
 }

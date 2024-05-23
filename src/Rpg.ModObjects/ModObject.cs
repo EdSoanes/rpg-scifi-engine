@@ -65,6 +65,12 @@ namespace Rpg.ModObjects
         public void RemoveMods(params Mod[] mods)
             => Graph?.Context?.PropStore?.Remove(mods);
 
+        public void RemoveMods(string prop, ModType modType)
+        {
+            var mods = PropStore.GetMods(prop, modType);
+            RemoveMods(mods);
+        }
+            
         internal ModSet[] GetModSets()
             => ModSetStore.Get();
 
@@ -96,14 +102,32 @@ namespace Rpg.ModObjects
             return this;
         }
 
-        public string[] States { get => StateStore.AllStates; }
-        public string[] ActiveStates { get => StateStore.ActiveStates; }
+        public string[] StateNames { get => StateStore.StateNames; }
+        public string[] ActiveStateNames { get => StateStore.ActiveStateNames; }
+
+        public bool IsStateActive(string state)
+        {
+            var modState = StateStore[state];
+            return CalculatePropValue(modState?.InstanceName) != Dice.Zero;
+        }
+
+        public bool IsStateForcedActive(string state)
+        {
+            var modState = StateStore[state];
+            return CalculatePropValue(modState?.InstanceName, mod => mod.ModifierAction == ModAction.Accumulate) != Dice.Zero;
+        }
+
+        public bool IsStateConditionallyActive(string state)
+        {
+            var modState = StateStore[state];
+            return CalculatePropValue(modState?.InstanceName, mod => mod.ModifierAction == ModAction.Sum) != Dice.Zero;
+        }
 
         public bool ManuallyActivateState(string state)
-            => StateStore.ManuallyActivateState(state);
+            => StateStore.SetActive(state);
 
         public bool ManuallyDeactivateState(string state)
-            => StateStore.ManuallyDeactivateState(state);
+            => StateStore.SetInactive(state);
 
         public bool IsA(string type) => Is.Contains(type);
 
@@ -173,10 +197,10 @@ namespace Rpg.ModObjects
         public Dice? CalculateBaseValue(string prop)
             => PropStore.CalculateBaseValue(prop);
 
-        internal Dice? CalculatePropValue(string? prop, ModType? modType = null, string? modName = null)
+        internal Dice? CalculatePropValue(string? prop, Func<Mod, bool>? filterFunc = null)
         {
             if (!string.IsNullOrEmpty(prop))
-                return PropStore.Calculate(prop, modType, modName);
+                return PropStore.Calculate(prop, filterFunc);
 
             return null;
         }
@@ -195,9 +219,9 @@ namespace Rpg.ModObjects
                     var val = this.PropertyValue(propInfo.Name);
                     if (val != null)
                     {
-                        if (val is Dice dice && dice != Dice.Zero)
+                        if (val is Dice dice)
                             this.AddBaseInitMod(propInfo.Name, dice);
-                        else if (val is int i && i != 0)
+                        else if (val is int i)
                             this.AddBaseInitMod(propInfo.Name, i);
                     }
                 }
