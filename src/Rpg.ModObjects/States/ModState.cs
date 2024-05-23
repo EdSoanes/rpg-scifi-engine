@@ -1,23 +1,35 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Modifiers;
-using Rpg.ModObjects.Values;
+using System.Reflection;
 
-namespace Rpg.ModObjects
+namespace Rpg.ModObjects.States
 {
-    public abstract class ModState : ITemporal
+    public class ModState<T> : IModState
+        where T : ModObject
     {
         protected ModGraph? Graph { get; set; }
 
-        [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
-        [JsonProperty] public Guid? EntityId { get; protected set; }
+        [JsonProperty] public Guid EntityId { get; protected set; }
+        [JsonProperty] public string Name { get; protected set; }
+        [JsonProperty] public string? ShouldActivateMethod { get; protected set; }
+        [JsonProperty] public string OnActivateMethod { get; protected set; }
 
-        [JsonProperty] public string Name { get; protected set; } = nameof(ModState);
-        
-        public string InstanceName { get => $"{Id}.{Name}"; }
+        public string InstanceName { get => $"{EntityId}.{Name}"; }
+
+        [JsonConstructor] private ModState() { }
+
+        public ModState(Guid entityId, string name, string? shouldActivateMethod, string onActivateMethod)
+        {
+            EntityId = entityId;
+            Name = name;
+            ShouldActivateMethod = shouldActivateMethod;
+            OnActivateMethod = onActivateMethod;
+        }
 
         public void SetActive()
         {
-            var entity = Graph?.GetEntity(EntityId);
+            var entity = Graph?.GetEntity<T>(EntityId);
             if (entity != null && !entity.IsStateForcedActive(Name))
                 entity?.AddPermanentMod(InstanceName, 1);
 
@@ -26,17 +38,25 @@ namespace Rpg.ModObjects
 
         public void SetInactive()
         {
-            var entity = Graph?.GetEntity(EntityId);
+            var entity = Graph?.GetEntity<T>(EntityId);
             entity?.RemoveMods(InstanceName, ModType.Permanent);
             UpdateStateMods(entity);
         }
 
         protected virtual bool ShouldActivate()
-            => false;
+        {
+            if (!string.IsNullOrEmpty(ShouldActivateMethod))
+            {
+                var entity = Graph?.GetEntity<T>(EntityId);
+                return entity?.ExecuteFunction<bool>(ShouldActivateMethod) ?? false;
+            }
+
+            return false;
+        }
 
         protected void UpdateActivation()
         {
-            var entity = Graph?.GetEntity(EntityId);
+            var entity = Graph?.GetEntity<T>(EntityId);
             if (entity != null)
             {
                 var isConditionallyActive = entity.IsStateConditionallyActive(Name);
@@ -57,15 +77,15 @@ namespace Rpg.ModObjects
         private bool ShouldRemoveStateModSet(ModObject entity)
             => !entity.IsStateActive(Name) && !ShouldActivate() && entity.GetModSet(InstanceName) != null;
 
-        protected void UpdateStateMods(ModObject? entity = null)
+        protected void UpdateStateMods(T? entity = null)
         {
-            entity ??= Graph?.GetEntity(EntityId);
+            entity ??= Graph?.GetEntity<T>(EntityId);
             if (entity != null)
             {
                 if (ShouldAddStateModSet(entity))
                 {
                     var modSet = new ModSet(InstanceName);
-                    OnActivate(modSet);
+                    entity.ExecuteAction(OnActivateMethod, modSet);
                     if (modSet.Mods.Any())
                         entity?.AddModSet(modSet);
                 }
@@ -74,20 +94,17 @@ namespace Rpg.ModObjects
             }
         }
 
-
-        protected virtual void OnActivate(ModSet modSet) { }
+        public void OnGraphCreating(ModGraph graph, ModObject entity)
+        {
+            Graph = graph;
+            EntityId = entity.Id;
+        }
 
         public void OnBeginEncounter()
             => UpdateActivation();
 
         public void OnEndEncounter()
             => UpdateActivation();
-
-        public void OnGraphCreating(ModGraph graph, ModObject entity)
-        {
-            Graph = graph;
-            EntityId = entity.Id;
-        }
 
         public void OnTurnChanged(int turn)
             => UpdateActivation();

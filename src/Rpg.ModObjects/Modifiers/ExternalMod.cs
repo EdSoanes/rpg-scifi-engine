@@ -17,7 +17,7 @@ namespace Rpg.ModObjects.Modifiers
         {
             Name = name;
             ModifierType = ModType.Permanent;
-            ModifierAction = ModAction.Sum;
+            ModifierAction = ModAction.Accumulate;
             Duration = ModDuration.External();
             EntityId = targetPropRef.EntityId;
             Prop = targetPropRef.Prop;

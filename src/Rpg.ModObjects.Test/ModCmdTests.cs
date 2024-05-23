@@ -21,18 +21,18 @@ namespace Rpg.ModObjects.Tests
 
             Assert.That(entity.Commands.Count(), Is.EqualTo(1));
 
-            var testAction = entity.Commands.Single();
-            Assert.That(testAction.CmdName, Is.EqualTo("TestCommand"));
-            Assert.That(testAction.EntityId, Is.EqualTo(entity.Id));
+            var testCmd = entity.Commands.Single();
+            Assert.That(testCmd.CommandName, Is.EqualTo("TestCommand"));
+            Assert.That(testCmd.EntityId, Is.EqualTo(entity.Id));
 
-            Assert.That(testAction.Args.Count(), Is.EqualTo(2));
-            Assert.That(testAction.Args[0].Name, Is.EqualTo("initiator"));
-            Assert.That(testAction.Args[0].ArgType, Is.EqualTo(ModCmdArgType.Actor));
-            Assert.That(testAction.Args[0].DataType, Is.EqualTo("ModObject"));
+            Assert.That(testCmd.Args.Count(), Is.EqualTo(2));
+            Assert.That(testCmd.Args[0].Name, Is.EqualTo("initiator"));
+            Assert.That(testCmd.Args[0].ArgType, Is.EqualTo(ModCmdArgType.Actor));
+            Assert.That(testCmd.Args[0].DataType, Is.EqualTo("Rpg.ModObjects.ModObject"));
 
-            Assert.That(testAction.Args[1].Name, Is.EqualTo("target"));
-            Assert.That(testAction.Args[1].ArgType, Is.EqualTo(ModCmdArgType.Any));
-            Assert.That(testAction.Args[1].DataType, Is.EqualTo("Int32"));
+            Assert.That(testCmd.Args[1].Name, Is.EqualTo("target"));
+            Assert.That(testCmd.Args[1].ArgType, Is.EqualTo(ModCmdArgType.Any));
+            Assert.That(testCmd.Args[1].DataType, Is.EqualTo("System.Int32"));
 
         }
     }

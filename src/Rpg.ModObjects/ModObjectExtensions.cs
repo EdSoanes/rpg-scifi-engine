@@ -25,24 +25,6 @@ namespace Rpg.ModObjects
                 target.Merge(a);
         }
 
-        public static T AddModSet<T>(this T entity, string name, Action<ModSet<T>> addAction)
-            where T : ModObject
-        {
-            var modSet = new ModSet<T>(name);
-            addAction.Invoke(modSet);
-            entity.AddModSet(modSet);
-            return entity;
-        }
-
-        public static T AddModSet<T>(this T entity, string name, ModDuration duration, Action<ModSet<T>> addAction)
-            where T : ModObject
-        {
-            var modSet = new ModSet<T>(name, duration);
-            addAction.Invoke(modSet);
-            entity.AddModSet(modSet);
-            return entity;
-        }
-
         public static void TriggerUpdate<TTarget, TTargetValue>(this TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr)
             where TTarget : ModObject
         {

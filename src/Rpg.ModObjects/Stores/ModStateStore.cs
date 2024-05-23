@@ -1,8 +1,9 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.States;
 
 namespace Rpg.ModObjects.Stores
 {
-    public class ModStateStore : ModBaseStore<string, ModState>
+    public class ModStateStore : ModBaseStore<string, IModState>
     {
         public string[] StateNames { get => Items.Values.Select(x => x.Name).ToArray(); }
         public string[] ActiveStateNames { get => StateNames.Where(IsActive).ToArray();  }
@@ -34,15 +35,18 @@ namespace Rpg.ModObjects.Stores
             return false;
         }
 
-        public void Add(ModState modState)
+        public void Add(params IModState[] modStates)
         {
-            if (!Contains(modState))
+            foreach (var modState in modStates)
             {
-                Items.Add(modState.Name, modState);
-                if (Graph != null)
+                if (!Contains(modState))
                 {
-                    var entity = Graph.GetEntity(EntityId!);
-                    modState.OnGraphCreating(Graph!, entity!);
+                    Items.Add(modState.Name, modState);
+                    if (Graph != null)
+                    {
+                        var entity = Graph.GetEntity(EntityId!);
+                        modState.OnGraphCreating(Graph!, entity!);
+                    }
                 }
             }
         }

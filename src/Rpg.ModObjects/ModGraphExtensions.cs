@@ -209,14 +209,14 @@ namespace Rpg.ModObjects
             }
         }
 
-        internal static TR? ExecuteFunction<TR>(this object? obj, string method) => obj._ExecuteFunction<TR>(method);
-        internal static TR? ExecuteFunction<T1, TR>(this object? obj, string method, T1? arg1) => obj._ExecuteFunction<TR>(method, new object?[] { arg1 });
-        internal static TR? ExecuteFunction<T1, T2, TR>(this object? obj, string method, T1? arg1, T2? arg2) => obj._ExecuteFunction<TR>(method, new object?[] { arg1, arg2 });
-        internal static TR? ExecuteFunction<T1, T2, T3, TR>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3) => obj._ExecuteFunction<TR>(method, new object?[] { arg1, arg2, arg3 });
-        internal static TR? ExecuteFunction<T1, T2, T3, T4, TR>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3, T4? arg4) => obj._ExecuteFunction<TR>(method, new object?[] { arg1, arg2, arg3, arg4 });
-        internal static TR? ExecuteFunction<T1, T2, T3, T4, T5, TR>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3, T4? arg4, T5? arg5) => obj._ExecuteFunction<TR>(method, new object?[] { arg1, arg2, arg3, arg4, arg5 });
+        internal static TR? ExecuteFunction<TR>(this object? obj, string method) => obj.ExecuteFunction<TR>(method, null);
+        internal static TR? ExecuteFunction<T1, TR>(this object? obj, string method, T1? arg1) => obj.ExecuteFunction<TR>(method, new object?[] { arg1 });
+        internal static TR? ExecuteFunction<T1, T2, TR>(this object? obj, string method, T1? arg1, T2? arg2) => obj.ExecuteFunction<TR>(method, new object?[] { arg1, arg2 });
+        internal static TR? ExecuteFunction<T1, T2, T3, TR>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3) => obj.ExecuteFunction<TR>(method, new object?[] { arg1, arg2, arg3 });
+        internal static TR? ExecuteFunction<T1, T2, T3, T4, TR>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3, T4? arg4) => obj.ExecuteFunction<TR>(method, new object?[] { arg1, arg2, arg3, arg4 });
+        internal static TR? ExecuteFunction<T1, T2, T3, T4, T5, TR>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3, T4? arg4, T5? arg5) => obj.ExecuteFunction<TR>(method, new object?[] { arg1, arg2, arg3, arg4, arg5 });
 
-        private static TR? _ExecuteFunction<TR>(this object? obj, string method, object?[]? args = null)
+        internal static TR? ExecuteFunction<TR>(this object? obj, string method, object?[]? args = null)
         {
             var methodInfo = obj.GetMethodInfo(method);
 
@@ -227,14 +227,14 @@ namespace Rpg.ModObjects
             return res;
         }
 
-        internal static void ExecuteAction(this object? obj, string method) => obj._ExecuteAction(method);
-        internal static void ExecuteAction<T1>(this object? obj, string method, T1? arg1) => obj._ExecuteAction(method, new object?[] { arg1 });
-        internal static void ExecuteAction<T1, T2>(this object? obj, string method, T1? arg1, T2? arg2) => obj._ExecuteAction(method, new object?[] { arg1, arg2 });
-        internal static void ExecuteAction<T1, T2, T3>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3) => obj._ExecuteAction(method, new object?[] { arg1, arg2, arg3 });
-        internal static void ExecuteAction<T1, T2, T3, T4>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3, T4? arg4) => obj._ExecuteAction(method, new object?[] { arg1, arg2, arg3, arg4 });
-        internal static void ExecuteAction<T1, T2, T3, T4, T5>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3, T4? arg4, T5? arg5) => obj._ExecuteAction(method, new object?[] { arg1, arg2, arg3, arg4, arg5 });
+        internal static void ExecuteAction(this object? obj, string method) => obj.ExecuteAction(method);
+        internal static void ExecuteAction<T1>(this object? obj, string method, T1? arg1) => obj.ExecuteAction(method, new object?[] { arg1 });
+        internal static void ExecuteAction<T1, T2>(this object? obj, string method, T1? arg1, T2? arg2) => obj.ExecuteAction(method, new object?[] { arg1, arg2 });
+        internal static void ExecuteAction<T1, T2, T3>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3) => obj.ExecuteAction(method, new object?[] { arg1, arg2, arg3 });
+        internal static void ExecuteAction<T1, T2, T3, T4>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3, T4? arg4) => obj.ExecuteAction(method, new object?[] { arg1, arg2, arg3, arg4 });
+        internal static void ExecuteAction<T1, T2, T3, T4, T5>(this object? obj, string method, T1? arg1, T2? arg2, T3? arg3, T4? arg4, T5? arg5) => obj.ExecuteAction(method, new object?[] { arg1, arg2, arg3, arg4, arg5 });
 
-        private static void _ExecuteAction(this object? obj, string method, object?[]? args = null)
+        internal static void ExecuteAction(this object? obj, string method, object?[]? args = null)
         {
             var methodInfo = obj.GetMethodInfo(method);
 

@@ -1,31 +1,29 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Modifiers;
-using Rpg.ModObjects.Values;
-using System.Linq.Expressions;
 
 namespace Rpg.ModObjects
 {
-    public class ModSet<T> : ModSet
-        where T : ModObject
-    {
-        public ModSet(string name)
-            : base(name)
-        { }
+    //public class ModSet<T> : ModSet
+    //    where T : ModObject
+    //{
+    //    public ModSet(string name)
+    //        : base(name)
+    //    { }
 
-        public ModSet(string name, ModDuration duration)
-            : base(name, duration)
-        { }
-    }
+    //    public ModSet(string name, ModDuration duration)
+    //        : base(name, duration)
+    //    { }
+    //}
 
     public class ModSet : ITemporal
     {
         [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
-        [JsonProperty] public string? Name { get; set; }
+        [JsonProperty] public string Name { get; set; }
         [JsonIgnore] public List<Mod> Mods { get; private set; } = new List<Mod>();
         [JsonProperty] private ModDuration Duration { get; set; } = new ModDuration();
         [JsonProperty] private Guid[] ModIds { get; set; } = new Guid[0];
 
-        [JsonConstructor] private ModSet() { }
+        [JsonConstructor] protected ModSet() { }
 
         public ModSet(string name, ModDuration duration)
         {

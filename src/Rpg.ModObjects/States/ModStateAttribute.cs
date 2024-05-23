@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 namespace Rpg.ModObjects.Actions
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public sealed class ModCmdAttribute : Attribute
+    public sealed class ModStateAttribute : Attribute
     {
-        public string OutcomeMethod { get; set; }
+        public string? Name { get; set; }
+        public string? ShouldActivateMethod { get; set; }
     }
 }

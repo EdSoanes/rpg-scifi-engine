@@ -1,11 +1,6 @@
 ﻿using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.Values;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Tests.Models
 {
@@ -15,32 +10,36 @@ namespace Rpg.ModObjects.Tests.Models
         public MaxCurrentValue Ammo { get; private set; } = new MaxCurrentValue(nameof(Ammo), 10, 10);
         public int HitBonus { get; private set; } = 2;
 
-        
-        protected override void OnCreate()
+        [ModCmd(OutcomeMethod = nameof(InflictDamage))]
+        public ModSet Shoot(ModSet modSet, TestHuman initiator, int targetDefense, int targetRange)
         {
-            this.AddState(new FiringState<TestGun>("Firing"));
-        }
+            modSet
+                .Target(initiator, targetDefense)
+                .Target(initiator, targetRange, () => DiceCalculations.Range);
 
-        [ModCmd(OutcomeMethod = nameof(Damages))]
-        public ModSet FiresAt(TestHuman initiator, TestHuman target)
-        {
-            return new ModSet(nameof(FiresAt))
-                .AddExternalMod(initiator, nameof(FiresAt), x => x.Missile)
-                .AddExternalMod(initiator, nameof(FiresAt), target, x => x.Defense, () => DiceCalculations.Minus)
-                .AddExternalMod(initiator, nameof(FiresAt), this, x => x.HitBonus)
+            modSet
+                .Roll(initiator, "d20")
+                .Roll(initiator, x => x.Missile)
+                .Roll(initiator, this, x => x.HitBonus);
+
+            modSet
                 .AddTurnMod(initiator, x => x.PhysicalActionPoints.Current, -1)
                 .AddTurnMod(initiator, x => x.MentalActionPoints.Current, -1)
                 .AddSumMod(this, x => x.Ammo.Current, -1);
+
+            return modSet;
         }
 
         [ModCmd()]
-        public ModSet Damages(int roll, TestHuman initiator, TestHuman target)
+        public ModSet InflictDamage(ModSet modSet, TestHuman initiator, int target, int roll)
         {
-            var res = new ModSet(nameof(Damages));
-            if (roll > 10)
-                res.AddSumMod(target, x => x.Health, -1);
+            if (roll - target > 0)
+                modSet.Roll(initiator, this, x => x.Damage.Dice);
 
-            return res;
+            if (roll - target > 10)
+                modSet.Roll(initiator, this, x => x.Damage.Dice);
+
+            return modSet;
         }
     }
 }

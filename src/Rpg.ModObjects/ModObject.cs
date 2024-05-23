@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.States;
 using Rpg.ModObjects.Stores;
 using Rpg.ModObjects.Values;
 using System.ComponentModel;
@@ -18,7 +19,7 @@ namespace Rpg.ModObjects
         [JsonProperty] protected ModSetStore ModSetStore { get; private set; } = new ModSetStore();
         [JsonProperty] protected ModStateStore StateStore { get; private set; } = new ModStateStore();
         [JsonProperty] protected bool IsCreated { get; set; }
-        [JsonProperty] public ModCmdDescriptor[] Commands { get; private set; } = new ModCmdDescriptor[0];
+        [JsonProperty] public ModCmd[] Commands { get; private set; } = new ModCmd[0];
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -81,6 +82,23 @@ namespace Rpg.ModObjects
                 ? modSet
                 : null;
         }
+        public ModObject AddModSet(string name, Action<ModSet> addAction)
+        {
+            var modSet = new ModSet(name);
+            addAction.Invoke(modSet);
+            AddModSet(modSet);
+
+            return this;
+        }
+
+        public ModObject AddModSet(string name, ModDuration duration, Action<ModSet> addAction)
+        {
+            var modSet = new ModSet(name, duration);
+            addAction.Invoke(modSet);
+            AddModSet(modSet);
+
+            return this;
+        }
 
         internal bool AddModSet(ModSet modSet)
             => ModSetStore.Add(modSet);
@@ -96,7 +114,7 @@ namespace Rpg.ModObjects
         public void RemoveModSet(string name)
             => ModSetStore.Remove(name);
 
-        public ModObject AddState(ModState state)
+        public ModObject AddState(IModState state)
         {
             StateStore.Add(state);
             return this;
@@ -213,6 +231,8 @@ namespace Rpg.ModObjects
             if (!IsCreated)
             {
                 Commands = this.ModActionDescriptors();
+                var states = this.CreateModStates();
+                StateStore.Add(states);
 
                 foreach (var propInfo in this.ModdableProperties())
                 {
