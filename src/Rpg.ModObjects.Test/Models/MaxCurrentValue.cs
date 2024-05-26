@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Modifiers;
+using System.Diagnostics;
 
 namespace Rpg.ModObjects.Tests.Models
 {
@@ -9,11 +11,15 @@ namespace Rpg.ModObjects.Tests.Models
 
         [JsonConstructor] private MaxCurrentValue() { }
 
-        public MaxCurrentValue(string name, int max, int current) 
+        public MaxCurrentValue(string name, int max) 
         {
             Name = name;
             Max = max;
-            Current = current;
+        }
+
+        protected override void OnCreate()
+        {
+            this.AddBaseMod(x => x.Current, x => x.Max);
         }
     }
 }

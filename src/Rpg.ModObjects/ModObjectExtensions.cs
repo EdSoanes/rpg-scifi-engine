@@ -1,4 +1,5 @@
 ﻿using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Stores;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
 using System.Reflection.Metadata;
@@ -38,5 +39,36 @@ namespace Rpg.ModObjects
             var propRef = ModPropRef.CreatePropRef(entity, targetExpr);
             return entity.Describe(propRef.Prop);
         }
+
+        public static ModSet? AddModSet<T>(this T entity, string name, ModDuration duration, params Mod[] mods)
+            where T : ModObject
+        {
+            var modSet = new ModSet(entity.Id, name, duration, mods);
+            return entity.AddModSet(modSet)
+                ? modSet
+                : null;
+        }
+
+
+        public static T AddModSet<T>(this T entity, string name, Action<ModSet> addAction)
+            where T : ModObject
+        {
+            var modSet = new ModSet(entity.Id, name);
+            addAction.Invoke(modSet);
+            entity.AddModSet(modSet);
+
+            return entity;
+        }
+
+        public static T AddModSet<T>(this T entity, string name, ModDuration duration, Action<ModSet> addAction)
+            where T : ModObject
+        {
+            var modSet = new ModSet(entity.Id, name, duration);
+            addAction.Invoke(modSet);
+            entity.AddModSet(modSet);
+
+            return entity;
+        }
+
     }
 }

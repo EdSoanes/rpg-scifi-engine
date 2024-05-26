@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rpg.ModObjects.Actions
+namespace Rpg.ModObjects.Cmds
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public sealed class ModCmdArgAttribute : Attribute

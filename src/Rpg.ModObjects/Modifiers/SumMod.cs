@@ -53,24 +53,5 @@ namespace Rpg.ModObjects.Modifiers
 
             return mod;
         }
-
-        public static ModSet AddSumMod<TTarget, TTargetValue>(this ModSet modSet, TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TTarget : ModObject
-        {
-            var mod = Mod.Create<SumMod, TTarget, TTargetValue>(target, targetExpr, value, diceCalcExpr);
-            modSet.Add(mod);
-
-            return modSet;
-        }
-
-        public static ModSet AddSumMod<TTarget, TTargetValue, TSource, TSourceValue>(this ModSet modSet, TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TTarget : ModObject
-            where TSource : ModObject
-        {
-            var mod = Mod.Create<SumMod, TTarget, TTargetValue, TSource, TSourceValue>(target, targetExpr, source, sourceExpr, diceCalcExpr);
-            modSet.Add(mod);
-
-            return modSet;
-        }
     }
 }

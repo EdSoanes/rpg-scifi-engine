@@ -104,7 +104,7 @@ namespace Rpg.ModObjects
             NewTurn();
         }
 
-        public void Initialize()
+        public void TriggerUpdate()
             => Context!.TriggerUpdate();
 
         public void EndEncounter()

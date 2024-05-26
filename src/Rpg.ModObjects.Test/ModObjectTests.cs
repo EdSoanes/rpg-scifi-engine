@@ -28,9 +28,10 @@ namespace Rpg.ModObjects.Tests
             Assert.That(graph.GetEntities().Count(), Is.EqualTo(3));
             var mods = graph.GetAllMods();
             Assert.That(mods.Count(), Is.EqualTo(11));
-            Assert.That(entity.StateNames.Count(), Is.EqualTo(2));
+            Assert.That(entity.StateNames.Count(), Is.EqualTo(3));
             Assert.That(entity.StateNames, Does.Contain("Buff"));
             Assert.That(entity.StateNames, Does.Contain("Nerf"));
+            Assert.That(entity.StateNames, Does.Contain("TestCommand"));
             Assert.That(entity.ActiveStateNames.Count(), Is.EqualTo(0));
         }
 

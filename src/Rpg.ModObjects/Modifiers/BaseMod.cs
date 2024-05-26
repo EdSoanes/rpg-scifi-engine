@@ -17,7 +17,7 @@ namespace Rpg.ModObjects.Modifiers
         {
             Name = name;
             ModifierType = ModType.Base;
-            ModifierAction = ModAction.Replace;
+            ModifierAction = ModAction.Accumulate;
             Duration = ModDuration.Permanent();
             EntityId = targetPropRef.EntityId;
             Prop = targetPropRef.Prop;

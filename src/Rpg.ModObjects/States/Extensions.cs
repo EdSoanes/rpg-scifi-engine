@@ -5,18 +5,18 @@ namespace Rpg.ModObjects.States
 {
     public static class ModStateExtensions
     {
-        internal static ModState<T>[] CreateModStates<T>(this T entity)
-            where T : ModObject
+        internal static ModState[] CreateModStates(this ModObject entity)
         {
             var methods = entity.GetType().GetMethods()
                 .Where(x => x.IsModStateMethod());
 
-            var res = new List<ModState<T>>();
+            var res = new List<ModState>();
             foreach (var method in methods)
             {
-                var modState = CreateModState(entity, method);
-                if (modState != null)
-                    res.Add(modState);
+                var stateAttr = method.GetCustomAttributes<ModStateAttribute>(true).First();
+                var modState = new ModState(entity.Id, stateAttr.Name ?? method.Name, stateAttr.ShouldActivateMethod, method.Name);
+
+                res.Add(modState);
             }
 
             return res.ToArray();
@@ -27,20 +27,11 @@ namespace Rpg.ModObjects.States
             if (method.GetCustomAttributes<ModStateAttribute>().Any())
             {
                 var args = method.GetParameters();
-                if (args.Count() == 1 && args.First().ParameterType == typeof(ModSet))
+                if (args.Count() == 1 && args.First().ParameterType.IsAssignableTo(typeof(ModSet)))
                     return true;
             }
 
             return false;
-        }
-
-        private static ModState<T> CreateModState<T>(T entity, MethodInfo method)
-            where T : ModObject
-        {
-            var stateAttr = method.GetCustomAttributes<ModStateAttribute>(true).First();
-            var state = new ModState<T>(entity.Id, stateAttr.Name ?? method.Name, stateAttr.ShouldActivateMethod, method.Name);
-
-            return state;
         }
     }
 }

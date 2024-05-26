@@ -1,29 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Newtonsoft.Json;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Rpg.ModObjects.Actions
+namespace Rpg.ModObjects.Cmds
 {
     public class ModCmdArg
     {
-        public string Name { get; set; }
-        public string DataType { get; set; }
-        public bool IsNullable { get; set; }
-        public ModCmdArgType ArgType { get; set; }
+        public const string InitiatorArg = "initiator";
+        public const string TargetArg = "target";
+        public const string DiceRollArg = "diceRoll";
+        public const string ModSetArg = "modSet";
+        public const string OutcomeArg = "outcome";
 
-        internal static ModCmdArg Create(ParameterInfo parameterInfo)
+        public static string[] ReservedArgs = new[]
         {
-            var arg = new ModCmdArg
-            {
-                Name = parameterInfo.Name!,
-                DataType = parameterInfo.ParameterType.FullName!,
-                IsNullable = Nullable.GetUnderlyingType(parameterInfo.ParameterType) != null
-            };
+            InitiatorArg,
+            TargetArg,
+            DiceRollArg,
+            ModSetArg, 
+            OutcomeArg
+        };
 
-            return arg;
+        [JsonProperty] public string Name { get; private set; }
+        [JsonProperty] public string DataType { get; private set; }
+        [JsonProperty] public bool IsNullable { get; private set; }
+        [JsonProperty] public bool IsReserved { get; private set; }
+        [JsonProperty] public ModCmdArgType ArgType { get; private set; }
+
+        internal static ModCmdArg? Create(ParameterInfo parameterInfo, ModCmdArgAttribute? attr)
+        {
+            if (string.IsNullOrEmpty(parameterInfo.Name))
+                return null;
+
+            return new ModCmdArg
+            {
+                Name = parameterInfo.Name,
+                DataType = parameterInfo.ParameterType.FullName!,
+                IsNullable = Nullable.GetUnderlyingType(parameterInfo.ParameterType) != null,
+                IsReserved = ReservedArgs.Contains(parameterInfo.Name),
+                ArgType = attr?.ArgType ?? ModCmdArgType.Any
+            };
         }
 
         public bool IsOfType(object? obj)

@@ -1,16 +1,26 @@
 ﻿using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Cmds;
 using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Tests.Models
 {
+    /// <summary>
+    /// HitBonus +2
+    /// Damage.Dice d6
+    /// Ammo 10
+    /// </summary>
+
     public class TestGun : ModObject
     {
-        public DamageValue Damage { get; private set; } = new DamageValue("d6", 10, 100);
-        public MaxCurrentValue Ammo { get; private set; } = new MaxCurrentValue(nameof(Ammo), 10, 10);
         public int HitBonus { get; private set; } = 2;
+        public DamageValue Damage { get; private set; } = new DamageValue("d6", 0, 0);
+        public MaxCurrentValue Ammo { get; private set; } = new MaxCurrentValue(nameof(Ammo), 10);
 
-        [ModCmd(OutcomeMethod = nameof(InflictDamage))]
+        [ModCmd(
+            DisabledOnState = nameof(AmmoEmpty), 
+            OutcomeMethod = nameof(InflictDamage)
+        )]
         public ModSet Shoot(ModSet modSet, TestHuman initiator, int targetDefense, int targetRange)
         {
             modSet
@@ -19,7 +29,7 @@ namespace Rpg.ModObjects.Tests.Models
 
             modSet
                 .Roll(initiator, "d20")
-                .Roll(initiator, x => x.Missile)
+                .Roll(initiator, x => x.MissileAttack)
                 .Roll(initiator, this, x => x.HitBonus);
 
             modSet
@@ -30,16 +40,24 @@ namespace Rpg.ModObjects.Tests.Models
             return modSet;
         }
 
-        [ModCmd()]
-        public ModSet InflictDamage(ModSet modSet, TestHuman initiator, int target, int roll)
+        [ModCmd(DisabledOnState = nameof(AmmoEmpty))]
+        public ModSet InflictDamage(ModSet modSet, TestHuman initiator, int targetRoll, int outcome)
         {
-            if (roll - target > 0)
+            var success = outcome - targetRoll;
+            if (success >= 0)
                 modSet.Roll(initiator, this, x => x.Damage.Dice);
 
-            if (roll - target > 10)
+            if (success >= 10)
                 modSet.Roll(initiator, this, x => x.Damage.Dice);
 
             return modSet;
         }
+
+        public bool IsAmmoEmpty()
+            => Ammo.Current <= 0;
+
+        [ModState(ShouldActivateMethod = nameof(IsAmmoEmpty))]
+        public void AmmoEmpty(ModSet modSet)
+        { }
     }
 }

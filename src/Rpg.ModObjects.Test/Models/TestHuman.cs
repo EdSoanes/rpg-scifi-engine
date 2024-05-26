@@ -8,23 +8,35 @@ using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Tests.Models
 {
+    /// <summary>
+    /// Str 14 + 2, Int 10 + 0, Dex 17 + 3
+    /// MeleeAttack +4
+    /// MeleeDamage d6 + 2
+    /// MissileAttack +2
+    /// Defense 5
+    /// Health 10
+    /// PhysicalActionsPoints.Max 5
+    /// MentalActionPoints.Max 3
+    /// </summary>
     public class TestHuman : ModObject
     {
         public ScoreBonusValue Strength { get; private set; } = new ScoreBonusValue(nameof(Strength), 14);
         public ScoreBonusValue Intelligence { get; private set; } = new ScoreBonusValue(nameof(Intelligence), 10);
-        public DamageValue Damage { get; private set; } = new DamageValue("d6", 10, 100);
-        public Dice Melee { get; protected set; } = 2;
-        public Dice Missile { get; protected set; }
-        public Dice Defense { get; protected set; } = 5;
+        public ScoreBonusValue Dexterity { get; private set; } = new ScoreBonusValue(nameof(Dexterity), 17);
+        public int MeleeAttack { get; protected set; } = 2;
+        public int MissileAttack { get; protected set; } = 2;
+        public DamageValue MeleeDamage { get; private set; } = new DamageValue("d6", 0, 0);
+        public int Defense { get; protected set; } = 5;
         public int Health { get; protected set; } = 10;
-        public MaxCurrentValue PhysicalActionPoints { get; protected set; } = new MaxCurrentValue(nameof(PhysicalActionPoints), 3, 3);
-        public MaxCurrentValue MentalActionPoints { get; protected set; } = new MaxCurrentValue(nameof(MentalActionPoints), 3, 3);
+        public MaxCurrentValue PhysicalActionPoints { get; protected set; } = new MaxCurrentValue(nameof(PhysicalActionPoints), 3);
+        public MaxCurrentValue MentalActionPoints { get; protected set; } = new MaxCurrentValue(nameof(MentalActionPoints), 3);
 
         protected override void OnCreate()
         {
             this
-                .AddBaseMod(x => x.Melee, x => x.Strength.Bonus)
-                .AddBaseMod(x => x.Damage.Dice, x => x.Strength.Bonus)
+                .AddBaseMod(x => x.MeleeAttack, x => x.Strength.Bonus)
+                .AddBaseMod(x => x.MeleeDamage.Dice, x => x.Strength.Bonus)
+                .AddBaseMod(x => x.MissileAttack, x => x.Intelligence.Bonus)
                 .AddBaseMod(x => x.PhysicalActionPoints.Max, x => x.Strength.Bonus)
                 .AddBaseMod(x => x.MentalActionPoints.Max, x => x.Intelligence.Bonus);
         }

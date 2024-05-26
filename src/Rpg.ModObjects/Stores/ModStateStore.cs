@@ -3,7 +3,7 @@ using Rpg.ModObjects.States;
 
 namespace Rpg.ModObjects.Stores
 {
-    public class ModStateStore : ModBaseStore<string, IModState>
+    public class ModStateStore : ModBaseStore<string, ModState>
     {
         public string[] StateNames { get => Items.Values.Select(x => x.Name).ToArray(); }
         public string[] ActiveStateNames { get => StateNames.Where(IsActive).ToArray();  }
@@ -35,7 +35,7 @@ namespace Rpg.ModObjects.Stores
             return false;
         }
 
-        public void Add(params IModState[] modStates)
+        public void Add(params ModState[] modStates)
         {
             foreach (var modState in modStates)
             {

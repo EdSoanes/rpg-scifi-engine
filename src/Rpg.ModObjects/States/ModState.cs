@@ -1,25 +1,21 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Modifiers;
-using System.Reflection;
 
 namespace Rpg.ModObjects.States
 {
-    public class ModState<T> : IModState
-        where T : ModObject
+    public class ModState : ITemporal
     {
         protected ModGraph? Graph { get; set; }
 
         [JsonProperty] public Guid EntityId { get; protected set; }
         [JsonProperty] public string Name { get; protected set; }
         [JsonProperty] public string? ShouldActivateMethod { get; protected set; }
-        [JsonProperty] public string OnActivateMethod { get; protected set; }
+        [JsonProperty] public string? OnActivateMethod { get; protected set; }
 
         public string InstanceName { get => $"{EntityId}.{Name}"; }
 
         [JsonConstructor] private ModState() { }
-
-        public ModState(Guid entityId, string name, string? shouldActivateMethod, string onActivateMethod)
+        public ModState(Guid entityId, string name, string? shouldActivateMethod = null, string? onActivateMethod = null)
         {
             EntityId = entityId;
             Name = name;
@@ -29,7 +25,7 @@ namespace Rpg.ModObjects.States
 
         public void SetActive()
         {
-            var entity = Graph?.GetEntity<T>(EntityId);
+            var entity = Graph?.GetEntity(EntityId);
             if (entity != null && !entity.IsStateForcedActive(Name))
                 entity?.AddPermanentMod(InstanceName, 1);
 
@@ -38,7 +34,7 @@ namespace Rpg.ModObjects.States
 
         public void SetInactive()
         {
-            var entity = Graph?.GetEntity<T>(EntityId);
+            var entity = Graph?.GetEntity(EntityId);
             entity?.RemoveMods(InstanceName, ModType.Permanent);
             UpdateStateMods(entity);
         }
@@ -47,7 +43,7 @@ namespace Rpg.ModObjects.States
         {
             if (!string.IsNullOrEmpty(ShouldActivateMethod))
             {
-                var entity = Graph?.GetEntity<T>(EntityId);
+                var entity = Graph?.GetEntity(EntityId);
                 return entity?.ExecuteFunction<bool>(ShouldActivateMethod) ?? false;
             }
 
@@ -56,7 +52,7 @@ namespace Rpg.ModObjects.States
 
         protected void UpdateActivation()
         {
-            var entity = Graph?.GetEntity<T>(EntityId);
+            var entity = Graph?.GetEntity(EntityId);
             if (entity != null)
             {
                 var isConditionallyActive = entity.IsStateConditionallyActive(Name);
@@ -77,17 +73,20 @@ namespace Rpg.ModObjects.States
         private bool ShouldRemoveStateModSet(ModObject entity)
             => !entity.IsStateActive(Name) && !ShouldActivate() && entity.GetModSet(InstanceName) != null;
 
-        protected void UpdateStateMods(T? entity = null)
+        protected void UpdateStateMods(ModObject? entity = null)
         {
-            entity ??= Graph?.GetEntity<T>(EntityId);
+            entity ??= Graph?.GetEntity(EntityId);
             if (entity != null)
             {
                 if (ShouldAddStateModSet(entity))
                 {
-                    var modSet = new ModSet(InstanceName);
-                    entity.ExecuteAction(OnActivateMethod, modSet);
-                    if (modSet.Mods.Any())
-                        entity?.AddModSet(modSet);
+                    if (!string.IsNullOrEmpty(OnActivateMethod))
+                    {
+                        var modSet = new ModSet(EntityId, InstanceName);
+                        entity.ExecuteAction(OnActivateMethod, modSet);
+                        if (modSet.Mods.Any())
+                            entity?.AddModSet(modSet);
+                    }
                 }
                 else if (ShouldRemoveStateModSet(entity))
                     entity?.RemoveModSet(InstanceName);

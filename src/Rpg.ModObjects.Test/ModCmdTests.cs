@@ -1,5 +1,4 @@
-﻿using Rpg.ModObjects.Actions;
-using Rpg.ModObjects.Modifiers;
+﻿using Rpg.ModObjects.Cmds;
 using Rpg.ModObjects.Tests.Models;
 using System.Reflection;
 
@@ -19,9 +18,9 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new ModGraph(entity);
 
-            Assert.That(entity.Commands.Count(), Is.EqualTo(1));
+            Assert.That(entity.GetCommands().Count(), Is.EqualTo(1));
 
-            var testCmd = entity.Commands.Single();
+            var testCmd = entity.GetCommands().Single();
             Assert.That(testCmd.CommandName, Is.EqualTo("TestCommand"));
             Assert.That(testCmd.EntityId, Is.EqualTo(entity.Id));
 

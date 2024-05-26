@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Cmds;
 using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.States;
 using Rpg.ModObjects.Stores;
@@ -19,7 +19,7 @@ namespace Rpg.ModObjects
         [JsonProperty] protected ModSetStore ModSetStore { get; private set; } = new ModSetStore();
         [JsonProperty] protected ModStateStore StateStore { get; private set; } = new ModStateStore();
         [JsonProperty] protected bool IsCreated { get; set; }
-        [JsonProperty] public ModCmd[] Commands { get; private set; } = new ModCmd[0];
+        [JsonProperty] protected ModCmdStore CmdStore { get; private set; } = new ModCmdStore();
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -75,33 +75,9 @@ namespace Rpg.ModObjects
         internal ModSet[] GetModSets()
             => ModSetStore.Get();
 
-        internal ModSet? AddModSet(string name, ModDuration duration, params Mod[] mods)
-        {
-            var modSet = new ModSet(name, duration, mods);
-            return ModSetStore.Add(modSet)
-                ? modSet
-                : null;
-        }
-        public ModObject AddModSet(string name, Action<ModSet> addAction)
-        {
-            var modSet = new ModSet(name);
-            addAction.Invoke(modSet);
-            AddModSet(modSet);
-
-            return this;
-        }
-
-        public ModObject AddModSet(string name, ModDuration duration, Action<ModSet> addAction)
-        {
-            var modSet = new ModSet(name, duration);
-            addAction.Invoke(modSet);
-            AddModSet(modSet);
-
-            return this;
-        }
-
         internal bool AddModSet(ModSet modSet)
             => ModSetStore.Add(modSet);
+
         public ModSet? GetModSet(Guid id)
             => ModSetStore.Get().FirstOrDefault(x => x.Id == id);
 
@@ -114,11 +90,17 @@ namespace Rpg.ModObjects
         public void RemoveModSet(string name)
             => ModSetStore.Remove(name);
 
-        public ModObject AddState(IModState state)
+        public ModObject AddState(ModState state)
         {
             StateStore.Add(state);
             return this;
         }
+
+        public ModCmd? GetCommand(string commandName)
+            => CmdStore.Get().FirstOrDefault(x => x.CommandName == commandName);
+
+        public ModCmd[] GetCommands()
+            => CmdStore.Get();
 
         public string[] StateNames { get => StateStore.StateNames; }
         public string[] ActiveStateNames { get => StateStore.ActiveStateNames; }
@@ -228,11 +210,17 @@ namespace Rpg.ModObjects
             Graph = graph;
             PropStore.OnGraphCreating(Graph, this);
             ModSetStore.OnGraphCreating(Graph, this);
+            CmdStore.OnGraphCreating(Graph, this);
+
             if (!IsCreated)
             {
-                Commands = this.ModActionDescriptors();
                 var states = this.CreateModStates();
                 StateStore.Add(states);
+
+                var cmds = this.CreateModCommands();
+                var cmdStates = cmds.Select(x => x.State).ToArray();
+                CmdStore.Add(cmds);
+                StateStore.Add(cmdStates);
 
                 foreach (var propInfo in this.ModdableProperties())
                 {

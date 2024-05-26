@@ -1,4 +1,6 @@
-﻿using Rpg.ModObjects.Actions;
+﻿using Rpg.ModObjects.Cmds;
+using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.States;
 using Rpg.ModObjects.Values;
 using System.Collections;
 using System.Reflection;
@@ -12,6 +14,15 @@ namespace Rpg.ModObjects
         {
             typeof(int),
             typeof(Dice)
+        };
+
+        private static Type[] ExcludedPropertyObjectTypes = new Type[]
+        {
+            typeof(ModGraph),
+            typeof(ModCmd),
+            typeof(ModState),
+            typeof(ModSet),
+            typeof(Mod)
         };
 
         public static void RegisterAssembly(Assembly assembly)
@@ -323,7 +334,7 @@ namespace Rpg.ModObjects
             {
                 isEnumerable = false;
 
-                if (context is ModGraph)
+                if (ExcludedPropertyObjectTypes.Any(t => context.GetType().IsAssignableTo(t)))
                     return Enumerable.Empty<object>().ToList();
 
                 if (PermittedModPropReturnTypes.Any(x => x == propertyInfo.PropertyType))

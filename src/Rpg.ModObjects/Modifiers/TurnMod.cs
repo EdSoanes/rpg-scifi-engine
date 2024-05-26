@@ -57,23 +57,5 @@ namespace Rpg.ModObjects.Modifiers
 
             return mod;
         }
-
-        public static ModSet AddTurnMod<TEntity>(this ModSet modSet, TEntity entity, string targetProp, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TEntity : ModObject
-        {
-            var mod = Mod.Create<TurnMod, TEntity>(entity, targetProp, value, diceCalcExpr);
-            modSet.Add(mod);
-
-            return modSet;
-        }
-
-        public static ModSet AddTurnMod<TTarget, TTargetValue>(this ModSet modSet, TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            where TTarget : ModObject
-        {
-            var mod = Mod.Create<TurnMod, TTarget, TTargetValue>(entity, targetExpr, value, diceCalcExpr);
-            modSet.Add(mod);
-
-            return modSet;
-        }
     }
 }

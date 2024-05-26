@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Cmds;
+using Rpg.ModObjects.States;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Tests.Models
