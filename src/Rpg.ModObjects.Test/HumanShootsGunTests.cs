@@ -16,12 +16,12 @@ namespace Rpg.ModObjects.Tests
         public void HumanShootsGun_InLocation_EnsureValues()
         {
             var initiator = new TestHuman();
-            var target = new TestHuman();
+            var recipient = new TestHuman();
             var gun = new TestGun();
 
             var location = new ModObjectContainer("Room");
             location.Add(initiator);
-            location.Add(target);
+            location.Add(recipient);
             location.Add(gun);
 
             var graph = new ModGraph(location);
@@ -69,12 +69,12 @@ namespace Rpg.ModObjects.Tests
         public void HumanShootsGun_ShootGunCmd_EnsureCmdValues()
         {
             var initiator = new TestHuman();
-            var target = new TestHuman();
+            var recipient = new TestHuman();
             var gun = new TestGun();
 
             var location = new ModObjectContainer("Room");
             location.Add(initiator);
-            location.Add(target);
+            location.Add(recipient);
             location.Add(gun);
 
             var graph = new ModGraph(location);
@@ -83,30 +83,35 @@ namespace Rpg.ModObjects.Tests
             var shootCmd = gun.GetCommand(nameof(TestGun.Shoot));
             Assert.That(shootCmd, Is.Not.Null);
 
-            var args = shootCmd.ExecutionArgSet();
+            var args = shootCmd.ArgSet();
 
             Assert.That(shootCmd.DisabledOnStates.Count(), Is.EqualTo(1));
             Assert.That(shootCmd.DisabledOnStates, Does.Contain(nameof(TestGun.AmmoEmpty)));
 
-            Assert.That(args.Count(), Is.EqualTo(2));
-            Assert.That(args.Keys, Does.Contain("targetDefense"));
-            Assert.That(args.Keys, Does.Contain("targetRange"));
+            Assert.That(args.ArgNames().Count(), Is.EqualTo(4));
+            Assert.That(args.ArgNames(), Does.Contain("modSet"));
+            Assert.That(args.ArgNames(), Does.Contain("initiator"));
+            Assert.That(args.ArgNames(), Does.Contain("targetDefense"));
+            Assert.That(args.ArgNames(), Does.Contain("targetRange"));
 
-            args["targetDefense"] = target.Defense;
-            args["targetRange"] = 10;
+            args
+                .SetInitiator(initiator)
+                .Set("targetDefense", recipient.Defense)
+                .Set("targetRange", 10);
             
-            var modSet = shootCmd.Execute(initiator, args);
+            var modSet = shootCmd.Create(args);
+            shootCmd.Apply(modSet);
 
-            Assert.That(gun.ActiveStateNames, Does.Contain(nameof(TestGun.Shoot)));
+            Assert.That(gun.IsStateActive(nameof(TestGun.Shoot)), Is.True);
             Assert.That(gun.Ammo.Current, Is.EqualTo(9));
             Assert.That(initiator.PhysicalActionPoints.Current, Is.EqualTo(4));
             Assert.That(initiator.MentalActionPoints.Current, Is.EqualTo(2));
 
-            var targetRoll = initiator.GetPropValue(modSet!.TargetProp);
-            Assert.That(targetRoll, Is.Not.Null);
-            Assert.That(targetRoll!.Value.Roll(), Is.EqualTo((DiceCalculations.Range(10) + target.Defense).Roll()));
+            var target = shootCmd.GetTarget(initiator, modSet);
+            Assert.That(target, Is.Not.Null);
+            Assert.That(target, Is.EqualTo((DiceCalculations.Range(10) + recipient.Defense).Roll()));
 
-            var diceRoll = initiator.GetPropValue(modSet!.DiceRollProp);
+            var diceRoll = shootCmd.GetDiceRoll(initiator, modSet);
             Assert.That(diceRoll, Is.Not.Null);
             Assert.That(diceRoll!.Value.ToString(), Is.EqualTo("1d20 + 4"));
         }
@@ -115,30 +120,45 @@ namespace Rpg.ModObjects.Tests
         public void HumanShootsGun_ShootGunCmd_InflictDamageCmd_EnsureOutcomeValues()
         {
             var initiator = new TestHuman();
-            var target = new TestHuman();
+            var recipient = new TestHuman();
             var gun = new TestGun();
 
             var location = new ModObjectContainer("Room");
             location.Add(initiator);
-            location.Add(target);
+            location.Add(recipient);
             location.Add(gun);
 
             var graph = new ModGraph(location);
             graph.NewEncounter();
 
+            //Get the gun command and the args needed to execute it
             var shootCmd = gun.GetCommand(nameof(TestGun.Shoot))!;
-            var shootArgs = shootCmd.ExecutionArgSet();
-            shootArgs["targetDefense"] = target.Defense;
-            shootArgs["targetRange"] = 10;
-            var shootModSet = shootCmd.Execute(initiator, shootArgs);
+            var shootArgs = shootCmd
+                .ArgSet()
+                .SetInitiator(initiator)
+                .Set("targetDefense", recipient.Defense)
+                .Set("targetRange", 10);
+
+            var shootModSet = shootCmd.Create(shootArgs);
+            var shootUProps = shootCmd.Unresolved(shootModSet!);
+
+            shootCmd.Apply(shootModSet);
+
+            var target = shootCmd.GetTarget(initiator, shootModSet)!.Value;
+            var outcome = target + 1;
 
             var damageCmd = gun.GetCommand(shootCmd.OutcomeCommandName!);
-            var damageArgs = damageCmd!.ExecutionArgSet();
+            var damageArgs = damageCmd!
+                .ArgSet()
+                .SetInitiator(initiator)
+                .SetRecipient(recipient)
+                .SetTarget(target)
+                .SetOutcome(outcome);
 
-            var targetRoll = shootCmd.GetTargetRoll(initiator, shootModSet);
-            var outcome = targetRoll + 1;
+            var damageModSet = damageCmd.Create(damageArgs);
+            var unresolved = damageCmd.Unresolved(damageModSet!);
 
-            var damageModSet = damageCmd.Execute(initiator, targetRoll, null, outcome, damageArgs);
+            damageCmd.Apply(damageModSet);
 
             var damageRoll = damageCmd.GetDiceRoll(initiator, damageModSet);
             Assert.That(damageRoll, Is.Not.Null);

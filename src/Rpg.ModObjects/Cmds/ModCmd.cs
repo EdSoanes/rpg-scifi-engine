@@ -19,7 +19,7 @@ namespace Rpg.ModObjects.Cmds
 
         public ModState State { get => new ModState(EntityId, CommandName); }
 
-        public int? GetTargetRoll(ModObject initiator, ModSet? modSet)
+        public int? GetTarget(ModObject initiator, ModSet? modSet)
             => initiator.GetPropValue(modSet?.TargetProp)?.Roll();
 
         public Dice? GetDiceRoll(ModObject initiator, ModSet? modSet)
@@ -57,62 +57,49 @@ namespace Rpg.ModObjects.Cmds
             return res.Distinct().ToArray();
         }
 
-        public Dictionary<string, object?> ExecutionArgSet()
-        {
-            var parms = new Dictionary<string, object?>();
-            foreach (var arg in Args.Where(x => !ModCmdArg.ReservedArgs.Contains(x.Name)))
-                parms.Add(arg.Name, null);
+        public ModCmdArgSet ArgSet()
+            => new ModCmdArgSet(Args);
 
-            return parms;
-        }
-
-        public ModSet? Execute(ModObject? initiator, Dictionary<string, object?> parms)
-            => Execute(initiator, null, null, null, parms);
-
-        public ModSet? Execute(ModObject? initiator, int? targetRoll, Dice? diceRoll, int? outcome, Dictionary<string, object?> parms)
+        public ModSet? Create(ModCmdArgSet argSet)
         {
             var entity = Graph!.GetEntity(EntityId);
             if (entity == null)
                 return null;
 
-            var args = ToArgs(initiator, targetRoll, diceRoll, outcome, parms);
-            var modSet = entity.ExecuteFunction<ModSet>(CommandName, args);
+            var modSet = CreateModSet()
+                .AddState(entity);
 
-            entity.ManuallyActivateState(CommandName);
-            if (modSet != null)
-            {
-                entity.AddModSet(modSet);
-                Graph!.TriggerUpdate();
-            }
+            var args = argSet
+                .SetModSet(modSet)
+                .ToArgs();
 
+            modSet = entity.ExecuteFunction<ModSet>(CommandName, args);
             return modSet;
         }
 
-        private object?[] ToArgs(ModObject? initiator, int? targetRoll, Dice? diceRoll, int? outcome, Dictionary<string, object?> parms)
+        public void Apply(ModSet? modSet)
         {
-            var res = new List<object?>();
-            foreach (var cmdArg in Args)
+            if (modSet != null)
             {
-                object? obj = null;
-                if (cmdArg.IsReserved)
+                var entity = Graph!.GetEntity(EntityId);
+                if (entity != null)
                 {
-                    obj = cmdArg.Name switch
-                    {
-                        ModCmdArg.InitiatorArg => initiator,
-                        ModCmdArg.ModSetArg => CreateModSet(),
-                        ModCmdArg.TargetArg => targetRoll,
-                        ModCmdArg.DiceRollArg => diceRoll,
-                        ModCmdArg.OutcomeArg => outcome,
-                        _ => null
-                    };
+                    entity.AddModSet(modSet);
+                    Graph!.TriggerUpdate();
                 }
-                else if (parms.ContainsKey(cmdArg.Name) && cmdArg.IsOfType(parms[cmdArg.Name]))
-                    obj = parms[cmdArg.Name];
-
-                res.Add(obj);
             }
+        }
 
-            return res.ToArray();
+        public ModPropRef[] Unresolved(ModSet modSet)
+        {
+            var unresolved = new List<ModPropRef>();
+            foreach (var modGroup in modSet.Mods.GroupBy(x => new ModPropRef(x.EntityId, x.Prop)))
+            {
+                var dice = modGroup.Key.Calculate(Graph!, modGroup);
+                if (!dice.IsConstant)
+                    unresolved.Add(modGroup.Key);
+            }
+            return unresolved.ToArray();
         }
 
         private ModSet CreateModSet()

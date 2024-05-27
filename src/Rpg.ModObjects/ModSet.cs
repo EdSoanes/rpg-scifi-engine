@@ -106,6 +106,16 @@ namespace Rpg.ModObjects
 
     public static class ModSetExtensions
     {
+        public static ModSet AddState<TTarget>(this ModSet modSet, TTarget target)
+            where TTarget : ModObject
+        {
+            var state = target.GetStateInstanceName(modSet.Name)!;
+            var mod = Mod.Create<StateMod, TTarget>(state, target, state, 1);
+            modSet.Add(mod);
+
+            return modSet;
+        }
+
         public static ModSet Target<TEntity>(this ModSet modSet, TEntity entity, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {

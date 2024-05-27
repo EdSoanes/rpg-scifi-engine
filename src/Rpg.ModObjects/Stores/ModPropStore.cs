@@ -44,7 +44,7 @@ namespace Rpg.ModObjects.Stores
             var mods = GetMods(prop)
                 .Where(x => filterFunc?.Invoke(x) ?? true);
 
-            return Calculate(mods);
+            return this[prop]?.Calculate(Graph!, mods) ?? Dice.Zero;
         }
 
         public Dice CalculateInitialValue(string prop)
@@ -52,7 +52,7 @@ namespace Rpg.ModObjects.Stores
             var mods = GetMods(prop)
             .Where(x => x.IsBaseInitMod);
 
-            return Calculate(mods);
+            return this[prop]?.Calculate(Graph!, mods) ?? Dice.Zero;
         }
 
         public Dice CalculateBaseValue(string prop)
@@ -60,19 +60,7 @@ namespace Rpg.ModObjects.Stores
             var mods = GetMods(prop)
                 .Where(x => x.IsBaseMod);
 
-            return Calculate(mods);
-        }
-
-        private Dice Calculate(IEnumerable<Mod> mods)
-        {
-            Dice dice = "0";
-            foreach (var mod in mods)
-            {
-                Dice value = mod.Source.CalculatePropValue(Graph!);
-                dice += value;
-            }
-
-            return dice;
+            return this[prop]?.Calculate(Graph!, mods) ?? Dice.Zero;
         }
 
         public void Remove(Mod mod)

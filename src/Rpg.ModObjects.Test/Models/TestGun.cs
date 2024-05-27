@@ -26,6 +26,8 @@ namespace Rpg.ModObjects.Tests.Models
             modSet
                 .Target(initiator, targetDefense)
                 .Target(initiator, targetRange, () => DiceCalculations.Range);
+            modSet
+                .AddState(this);
 
             modSet
                 .Roll(initiator, "d20")
@@ -41,14 +43,14 @@ namespace Rpg.ModObjects.Tests.Models
         }
 
         [ModCmd(DisabledOnState = nameof(AmmoEmpty))]
-        public ModSet InflictDamage(ModSet modSet, TestHuman initiator, int targetRoll, int outcome)
+        public ModSet InflictDamage(ModSet modSet, TestHuman initiator, TestHuman recipient, int targetRoll, int outcome)
         {
             var success = outcome - targetRoll;
             if (success >= 0)
-                modSet.Roll(initiator, this, x => x.Damage.Dice);
+                modSet.AddSumMod(recipient, x => x.Health, this, x => x.Damage.Dice);
 
             if (success >= 10)
-                modSet.Roll(initiator, this, x => x.Damage.Dice);
+                modSet.AddSumMod(recipient, x => x.Health, this, x => x.Damage.Dice);
 
             return modSet;
         }

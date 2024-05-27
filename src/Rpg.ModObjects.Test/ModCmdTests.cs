@@ -27,11 +27,11 @@ namespace Rpg.ModObjects.Tests
             Assert.That(testCmd.Args.Count(), Is.EqualTo(2));
             Assert.That(testCmd.Args[0].Name, Is.EqualTo("initiator"));
             Assert.That(testCmd.Args[0].ArgType, Is.EqualTo(ModCmdArgType.Actor));
-            Assert.That(testCmd.Args[0].DataType, Is.EqualTo("Rpg.ModObjects.ModObject"));
+            Assert.That(testCmd.Args[0].TypeName, Is.EqualTo(typeof(ModObject).AssemblyQualifiedName));
 
             Assert.That(testCmd.Args[1].Name, Is.EqualTo("target"));
             Assert.That(testCmd.Args[1].ArgType, Is.EqualTo(ModCmdArgType.Any));
-            Assert.That(testCmd.Args[1].DataType, Is.EqualTo("System.Int32"));
+            Assert.That(testCmd.Args[1].TypeName, Is.EqualTo(typeof(int).AssemblyQualifiedName));
         }
     }
 }

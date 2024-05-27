@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Rpg.ModObjects.Modifiers
 {
@@ -121,19 +122,8 @@ namespace Rpg.ModObjects.Modifiers
 
         public override string ToString()
         {
-            var mod = new
-            {
-                Id,
-                Name,
-                EntityId,
-                Prop,
-                Type = ModifierType.ToString(),
-                Action = ModifierAction.ToString(),
-                Duration = Duration.ToString(),
-                Source = Source.ToString()
-            };
-
-            return JsonConvert.SerializeObject(mod);
+            var mod = $"{EntityId}.{Prop} <= {Source} ({ModifierType}, {Duration})";
+            return mod;
         }
     }
 }

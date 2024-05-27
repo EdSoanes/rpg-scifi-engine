@@ -24,20 +24,10 @@ namespace Rpg.ModObjects.States
         }
 
         public void SetActive()
-        {
-            var entity = Graph?.GetEntity(EntityId);
-            if (entity != null && !entity.IsStateForcedActive(Name))
-                entity?.AddPermanentMod(InstanceName, 1);
-
-            UpdateStateMods(entity);
-        }
+            => Graph?.GetEntity(EntityId)?.AddManualStateMod(InstanceName);
 
         public void SetInactive()
-        {
-            var entity = Graph?.GetEntity(EntityId);
-            entity?.RemoveMods(InstanceName, ModType.Permanent);
-            UpdateStateMods(entity);
-        }
+            => Graph?.GetEntity(EntityId)?.RemoveManualStateMod(InstanceName);
 
         protected virtual bool ShouldActivate()
         {

@@ -16,7 +16,7 @@ namespace Rpg.ModObjects.Cmds
                 var cmdAttr = method.GetCustomAttributes<ModCmdAttribute>(true).FirstOrDefault();
                 var attrs = method.GetCustomAttributes<ModCmdArgAttribute>(true);
                 var args = method.GetParameters()
-                    .Select(x => ModCmdArg.Create(x, attrs?.FirstOrDefault(a => a.Prop == x.Name)))
+                    .Select(x => new ModCmdArg(x, attrs?.FirstOrDefault(a => a.Prop == x.Name)))
                     .Where(x => x != null)
                     .Cast<ModCmdArg>()
                     .ToArray();

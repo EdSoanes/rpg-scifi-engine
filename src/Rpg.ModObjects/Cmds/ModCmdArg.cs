@@ -6,6 +6,7 @@ namespace Rpg.ModObjects.Cmds
     public class ModCmdArg
     {
         public const string InitiatorArg = "initiator";
+        public const string RecipientArg = "recipient";
         public const string TargetArg = "target";
         public const string DiceRollArg = "diceRoll";
         public const string ModSetArg = "modSet";
@@ -14,31 +15,41 @@ namespace Rpg.ModObjects.Cmds
         public static string[] ReservedArgs = new[]
         {
             InitiatorArg,
+            RecipientArg,
             TargetArg,
             DiceRollArg,
-            ModSetArg, 
+            ModSetArg,  
             OutcomeArg
         };
 
+        private Type? _type;
+        [JsonIgnore]
+        public Type? Type
+        {
+            get
+            {
+                if (_type == null || (!string.IsNullOrEmpty(TypeName) && _type.AssemblyQualifiedName != TypeName))
+                    _type = Type.GetType(TypeName);
+
+                return _type;
+            }
+        }
+
         [JsonProperty] public string Name { get; private set; }
-        [JsonProperty] public string DataType { get; private set; }
+        [JsonProperty] public string TypeName { get; private set; }
         [JsonProperty] public bool IsNullable { get; private set; }
         [JsonProperty] public bool IsReserved { get; private set; }
         [JsonProperty] public ModCmdArgType ArgType { get; private set; }
 
-        internal static ModCmdArg? Create(ParameterInfo parameterInfo, ModCmdArgAttribute? attr)
-        {
-            if (string.IsNullOrEmpty(parameterInfo.Name))
-                return null;
+        [JsonConstructor] private ModCmdArg() { }
 
-            return new ModCmdArg
-            {
-                Name = parameterInfo.Name,
-                DataType = parameterInfo.ParameterType.FullName!,
-                IsNullable = Nullable.GetUnderlyingType(parameterInfo.ParameterType) != null,
-                IsReserved = ReservedArgs.Contains(parameterInfo.Name),
-                ArgType = attr?.ArgType ?? ModCmdArgType.Any
-            };
+        internal ModCmdArg(ParameterInfo parameterInfo, ModCmdArgAttribute? attr)
+        {
+            Name = parameterInfo.Name!;
+            TypeName = parameterInfo.ParameterType.AssemblyQualifiedName!;
+            IsNullable = Nullable.GetUnderlyingType(parameterInfo.ParameterType) != null;
+            IsReserved = ReservedArgs.Contains(parameterInfo.Name);
+            ArgType = attr?.ArgType ?? ModCmdArgType.Any;
         }
 
         public bool IsOfType(object? obj)
@@ -46,7 +57,7 @@ namespace Rpg.ModObjects.Cmds
             if (IsNullable && obj == null)
                 return true;
 
-            if (obj != null && obj.GetType().FullName == DataType)
+            if (obj != null && obj.GetType().FullName == TypeName)
                 return true;
 
             return false;

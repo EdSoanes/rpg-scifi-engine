@@ -55,5 +55,13 @@ namespace Rpg.ModObjects
             Prop = propRef.Prop;
             ValueFunc.Set(diceCalcExpr);
         }
+
+        public override string ToString()
+        {
+            var res = $"{PropRef}{Value}";
+            return ValueFunc.IsCalc
+                ? $"{ValueFunc.FuncName} <= {res}"
+                : res;
+        }
     }
 }

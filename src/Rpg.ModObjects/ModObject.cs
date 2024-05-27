@@ -105,6 +105,9 @@ namespace Rpg.ModObjects
         public string[] StateNames { get => StateStore.StateNames; }
         public string[] ActiveStateNames { get => StateStore.ActiveStateNames; }
 
+        public string? GetStateInstanceName(string state)
+            => StateStore[state]?.InstanceName;
+
         public bool IsStateActive(string state)
         {
             var modState = StateStore[state];
