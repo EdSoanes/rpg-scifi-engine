@@ -15,8 +15,8 @@ namespace Rpg.ModObjects.Tests.Models
 
         protected override void OnCreate()
         {
-            this.AddBaseMod(x => x.Melee, x => x.Strength.Bonus);
-            this.AddBaseMod(x => x.Damage.Dice, x => x.Strength.Bonus);
+            this.AddMod<BaseBehavior, ModdableEntity, Dice, int>(x => x.Melee, x => x.Strength.Bonus);
+            this.AddMod<BaseBehavior, ModdableEntity, Dice, int>(x => x.Damage.Dice, x => x.Strength.Bonus);
         }
 
         public bool ShouldBuff()

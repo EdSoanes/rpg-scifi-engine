@@ -16,7 +16,7 @@ namespace Rpg.ModObjects
         public Mod[] Get(ModGraph graph)
         {
             var activeModifiers = Mods
-                .Where(x => x.Duration.GetExpiry(graph.Turn) == ModExpiry.Active);
+                .Where(x => x.Behavior.GetExpiry(graph, x) == ModExpiry.Active);
 
             var res = activeModifiers
                 .Where(x => !x.IsBaseMod)
@@ -33,14 +33,14 @@ namespace Rpg.ModObjects
             return res.ToArray();
         }
 
-        public Mod[] Get(ModType modifierType)
+        public Mod[] Get(ModType modType)
             => Mods
-                .Where(x => x.ModifierType == modifierType)
+                .Where(x => x.Behavior.Type == modType)
                 .ToArray();
 
-        public Mod[] Get(ModType modifierType, string modName)
+        public Mod[] Get(ModType modType, string modName)
             => Mods
-                .Where(x => x.ModifierType == modifierType && x.Name == modName)
+                .Where(x => x.Behavior.Type == modType && x.Name == modName)
                 .ToArray();
 
         public bool Contains(Mod mod)
@@ -55,11 +55,11 @@ namespace Rpg.ModObjects
 
         internal void Sum(ModGraph graph, ModObject entity, Mod mod)
         {
-            var oldValue = entity.CalculatePropValue(mod.Prop, x => x.ModifierType == mod.ModifierType && x.Name == mod.Name);
+            var oldValue = entity.CalculatePropValue(mod.Prop, x => x.Behavior.Type == mod.Behavior.Type && x.Name == mod.Name);
             var newValue = (oldValue ?? Dice.Zero) + mod.Source.CalculatePropValue(graph!);
 
             mod.SetSource(newValue);
-            var oldMods = Get(mod.ModifierType, mod.Name);
+            var oldMods = Get(mod.Behavior.Type, mod.Name);
             Remove(oldMods);
 
             if (mod.Source.Value != null && mod.Source.Value != Dice.Zero)
@@ -68,7 +68,7 @@ namespace Rpg.ModObjects
 
         internal void Replace(Mod mod)
         {
-            var oldMods = Get(mod.ModifierType, mod.Name);
+            var oldMods = Get(mod.Behavior.Type, mod.Name);
             Remove(oldMods);
 
             //Don't add if the source is a Value without a ValueFunction and the Value = null
@@ -115,7 +115,7 @@ namespace Rpg.ModObjects
         public bool Clean(ModGraph graph)
         {
             var toRemove = Mods
-                .Where(x => x.Duration.CanRemove(graph.Turn))
+                .Where(x => x.Behavior.CanRemove(graph, x))
                 .ToArray();
 
             if (toRemove.Any())

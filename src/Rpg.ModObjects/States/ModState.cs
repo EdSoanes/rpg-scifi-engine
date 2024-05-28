@@ -24,10 +24,22 @@ namespace Rpg.ModObjects.States
         }
 
         public void SetActive()
-            => Graph?.GetEntity(EntityId)?.AddManualStateMod(InstanceName);
+            => Graph?.GetEntity(EntityId)?.AddMod<ForceStateBehavior, ModObject>(InstanceName, 1);
 
         public void SetInactive()
-            => Graph?.GetEntity(EntityId)?.RemoveManualStateMod(InstanceName);
+        {
+            var entity = Graph?.GetEntity(EntityId);
+            if (entity != null)
+            {
+                var stateMods = Graph?.GetEntity(EntityId)?
+                    .GetMods(InstanceName, false)
+                    .Where(x => x.Name == InstanceName && x.Behavior.Type == ModType.ForceState)
+                    .ToArray();
+
+                if (stateMods != null)
+                    entity.RemoveMods(stateMods);
+            }
+        }
 
         protected virtual bool ShouldActivate()
         {
@@ -49,9 +61,9 @@ namespace Rpg.ModObjects.States
                 var shouldActivate = ShouldActivate();
 
                 if (!isConditionallyActive && shouldActivate)
-                    entity!.AddSumMod(InstanceName, 1);
+                    entity!.AddMod<ExpireOnZeroBehavior, ModObject>(InstanceName, 1);
                 else if (isConditionallyActive && !shouldActivate)
-                    entity!.AddSumMod(InstanceName, -1);
+                    entity!.AddMod<ExpireOnZeroBehavior, ModObject>(InstanceName, -1);
             }
 
             UpdateStateMods();

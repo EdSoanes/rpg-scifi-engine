@@ -57,7 +57,7 @@ namespace Rpg.ModObjects.Tests
 
             Assert.That(entity.Score, Is.EqualTo(4));
 
-            entity.AddPermanentMod(x => x.Score, 4);
+            entity.AddMod<PermanentBehavior, SimpleModdableEntity, int, int>(x => x.Score, 4);
             entity.TriggerUpdate(x => x.Score);
 
             Assert.That(entity.Score, Is.EqualTo(8));

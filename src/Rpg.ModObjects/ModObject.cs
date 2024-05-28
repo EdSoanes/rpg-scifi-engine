@@ -117,13 +117,13 @@ namespace Rpg.ModObjects
         public bool IsStateForcedActive(string state)
         {
             var modState = StateStore[state];
-            return CalculatePropValue(modState?.InstanceName, mod => mod.ModifierAction == ModAction.Accumulate) != Dice.Zero;
+            return CalculatePropValue(modState?.InstanceName, mod => mod.Behavior.Merging == ModMerging.Replace) != Dice.Zero;
         }
 
         public bool IsStateConditionallyActive(string state)
         {
             var modState = StateStore[state];
-            return CalculatePropValue(modState?.InstanceName, mod => mod.ModifierAction == ModAction.Sum) != Dice.Zero;
+            return CalculatePropValue(modState?.InstanceName, mod => mod.Behavior.Merging == ModMerging.Combine) != Dice.Zero;
         }
 
         public bool ManuallyActivateState(string state)
@@ -231,9 +231,9 @@ namespace Rpg.ModObjects
                     if (val != null)
                     {
                         if (val is Dice dice)
-                            this.AddBaseInitMod(propInfo.Name, dice);
+                            this.AddMod<InitialBehavior, ModObject>(propInfo.Name, dice);
                         else if (val is int i)
-                            this.AddBaseInitMod(propInfo.Name, i);
+                            this.AddMod<InitialBehavior, ModObject>(propInfo.Name, i);
                     }
                 }
 

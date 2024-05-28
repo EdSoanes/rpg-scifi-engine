@@ -13,15 +13,15 @@ namespace Rpg.ModObjects
         Expired
     }
 
-    public enum ModType
-    {
-        BaseInit,
-        Base,
-        BaseOverride,
-        Permanent,
-        Transient,
-        State
-    }
+    //public enum ModType
+    //{
+    //    BaseInit,
+    //    Base,
+    //    BaseOverride,
+    //    Permanent,
+    //    Transient,
+    //    State
+    //}
 
     public enum ModAction
     {

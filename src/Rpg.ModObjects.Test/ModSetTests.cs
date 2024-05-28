@@ -145,7 +145,7 @@ namespace Rpg.ModObjects.Tests
 
             graph.NewEncounter();
 
-            entity.AddModSet("name", ModDuration.OnEndEncounter(), modSet =>
+            entity.AddModSet("name", new EncounterBehavior(), modSet =>
             {
                 modSet
                     .AddExternalMod(entity, x => x.Melee, 1)

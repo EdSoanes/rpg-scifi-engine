@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.States;
 using Rpg.ModObjects.Values;
 
@@ -103,7 +104,7 @@ namespace Rpg.ModObjects.Cmds
         }
 
         private ModSet CreateModSet()
-            => new ModSet(EntityId, CommandName, ModDuration.OnNewTurn(Graph!.Turn));
+            => new ModSet(EntityId, CommandName, new TurnBehavior());
 
         public void OnGraphCreating(ModGraph graph, ModObject entity)
         {

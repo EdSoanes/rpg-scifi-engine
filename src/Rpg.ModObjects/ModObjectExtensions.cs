@@ -40,10 +40,10 @@ namespace Rpg.ModObjects
             return entity.Describe(propRef.Prop);
         }
 
-        public static ModSet? AddModSet<T>(this T entity, string name, ModDuration duration, params Mod[] mods)
+        public static ModSet? AddModSet<T>(this T entity, string name, ModBehavior behavior, params Mod[] mods)
             where T : ModObject
         {
-            var modSet = new ModSet(entity.Id, name, duration, mods);
+            var modSet = new ModSet(entity.Id, name, behavior, mods);
             return entity.AddModSet(modSet)
                 ? modSet
                 : null;
@@ -60,10 +60,10 @@ namespace Rpg.ModObjects
             return entity;
         }
 
-        public static T AddModSet<T>(this T entity, string name, ModDuration duration, Action<ModSet> addAction)
+        public static T AddModSet<T>(this T entity, string name, ModBehavior behavior, Action<ModSet> addAction)
             where T : ModObject
         {
-            var modSet = new ModSet(entity.Id, name, duration);
+            var modSet = new ModSet(entity.Id, name, behavior);
             addAction.Invoke(modSet);
             entity.AddModSet(modSet);
 

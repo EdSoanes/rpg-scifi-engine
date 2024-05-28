@@ -26,7 +26,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(desc.Value.Roll(), Is.EqualTo(4));
             Assert.That(desc.Mods.Count(), Is.EqualTo(2));
 
-            var initialMod = desc.Mods.FirstOrDefault(x => x.ModType == ModType.BaseInit);
+            var initialMod = desc.Mods.FirstOrDefault(x => x.ModType == ModType.Initial);
 
             Assert.That(initialMod, Is.Not.Null);
             Assert.That(initialMod.Value.Roll(), Is.EqualTo(2));

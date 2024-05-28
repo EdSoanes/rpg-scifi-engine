@@ -100,13 +100,13 @@ namespace Rpg.ModObjects.Stores
                     if (modProp.Contains(mod))
                         modProp.Remove(mod.Id);
 
-                    if (mod.ModifierAction == ModAction.Accumulate)
+                    if (mod.Behavior.Merging == ModMerging.Add)
                         modProp.Add(mod);
 
-                    else if (mod.ModifierAction == ModAction.Replace)
+                    else if (mod.Behavior.Merging == ModMerging.Replace)
                         modProp.Replace(mod);
 
-                    else if (mod.ModifierAction == ModAction.Sum)
+                    else if (mod.Behavior.Merging == ModMerging.Combine)
                         modProp.Sum(Graph, entity, mod);
                 }
             }
@@ -183,17 +183,13 @@ namespace Rpg.ModObjects.Stores
 
         public override void OnEndEncounter()
         {
-            var turn = Graph!.Turn;
-
             foreach (var modProp in Items.Values)
             {
                 var toRemove = new List<Mod>();
                 foreach (var mod in modProp.Mods)
                 {
-                    mod.OnUpdate(turn);
-
-                    var expiry = mod.Duration.GetExpiry(turn);
-                    if (expiry == ModExpiry.Expired && mod.Duration.CanRemove(Graph!.Turn))
+                    var expiry = mod.Behavior.GetExpiry(Graph, mod);
+                    if (expiry == ModExpiry.Expired && mod.Behavior.CanRemove(Graph, mod))
                         toRemove.Add(mod);
                 }
 

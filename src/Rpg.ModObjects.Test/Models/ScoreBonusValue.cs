@@ -19,7 +19,7 @@ namespace Rpg.ModObjects.Tests.Models
 
         protected override void OnCreate()
         {
-            this.AddBaseMod(x => x.Bonus, x => x.Score, () => CalculateStatBonus);
+            this.AddMod<BaseBehavior, ScoreBonusValue, int, int>(x => x.Bonus, x => x.Score, () => CalculateStatBonus);
         }
 
         public Dice CalculateStatBonus(Dice dice) => (int)Math.Floor((double)(dice.Roll() - 10) / 2);

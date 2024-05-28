@@ -12,92 +12,64 @@ namespace Rpg.ModObjects
         [JsonProperty] public Guid InitiatorId { get; private set; }
         [JsonProperty] public string Name { get; set; }
         [JsonIgnore] public List<Mod> Mods { get; private set; } = new List<Mod>();
-        [JsonProperty] private ModDuration Duration { get; set; } = new ModDuration();
-        [JsonProperty] private Guid[] ModIds { get; set; } = new Guid[0];
-
+        [JsonProperty] public ModBehavior Behavior { get; private set; }
         [JsonConstructor] protected ModSet() { }
 
-        public ModSet(Guid initiatorId, string name, ModDuration duration)
+        public ModSet(Guid initiatorId, string name, ModBehavior behavior)
         {
             InitiatorId = initiatorId;
             Name = name;
-            Duration = duration;
+            Behavior = behavior;
         }
 
         public ModSet(Guid initiatorId, string name)
-            : this(initiatorId, name, ModDuration.External())
+            : this(initiatorId, name, new SyncedBehavior())
         {
         }
 
-        public ModSet(Guid initiatorId, string name, ModDuration duration, params Mod[] mods)
-            : this(initiatorId, name, duration)
+        public ModSet(Guid initiatorId, string name, ModBehavior behavior, params Mod[] mods)
+            : this(initiatorId, name, behavior)
         {
             Add(mods);
         }
 
         public ModSet Add(params Mod[] mods)
         {
-            Mods.AddRange(mods);
-            ModIds = Mods.Select(x => x.Id).ToArray();
-
-            SetModDuration();
+            foreach (var mod in mods)
+            {
+                mod.ModSetId = Id;
+                if (mod.Behavior.Type == ModType.Synced)
+                    mod.Behavior.SyncWith(Behavior);
+                Mods.Add(mod);
+            }
 
             return this;
         }
 
-        private void SetModDuration()
+        private void SyncBehavior()
         {
-            foreach (var mod in Mods.Where(x => x.Duration.Type == ModDurationType.External))
-                mod.Duration.SetDuration(Duration.StartTurn, Duration.EndTurn);
+            foreach (var mod in Mods.Where(x => x.Behavior.Type == ModType.Synced))
+                mod.Behavior.SyncWith(Behavior);
         }
 
-        public ModExpiry GetExpiry(int turn)
-            => Duration.GetExpiry(turn);
+        public ModExpiry GetExpiry(ModGraph graph)
+            => Behavior.GetExpiry(graph);
 
         public void SetExpired()
         {
-            Duration.SetExpired();
-            SetModDuration();
-        }
-
-        public void SetPending(int turn)
-        {
-            Duration.SetPending(turn);
-            SetModDuration();
-        }
-
-        public void SetActive()
-        {
-            Duration.SetActive();
-            SetModDuration();
+            Behavior.SetExpired();
+            SyncBehavior();
         }
 
         public void OnGraphCreating(ModGraph graph, ModObject? entity = null)
         {
             if (!Mods.Any())
-                Mods = graph.GetAllMods().Where(x => ModIds.Contains(x.Id)).ToList();
+                Mods = graph.GetAllMods().Where(x => x.ModSetId == Id).ToList();
         }
 
         public void OnTurnChanged(int turn) { }
         public void OnBeginEncounter() { }
-
-        public void OnEndEncounter()
-        {
-            var toRemove = new List<Mod>();
-
-            foreach (var mod in Mods)
-            {
-                var expiry = mod.Duration.GetExpiry(0);
-                if (expiry == ModExpiry.Expired && mod.Duration.CanRemove(0))
-                    toRemove.Add(mod);
-            }
-
-            foreach (var mod in toRemove)
-            {
-                Mods.Remove(mod);
-                ModIds = Mods.Select(x => x.Id).ToArray();
-            }
-        }
+        public void OnEndEncounter() { }
 
         public string TargetProp => $"{InitiatorId}.{Name}.{ModCmdArg.TargetArg}";
         public string DiceRollProp => $"{InitiatorId}.{Name}.{ModCmdArg.DiceRollArg}";
@@ -110,7 +82,7 @@ namespace Rpg.ModObjects
             where TTarget : ModObject
         {
             var state = target.GetStateInstanceName(modSet.Name)!;
-            var mod = Mod.Create<StateMod, TTarget>(state, target, state, 1);
+            var mod = Mod.Create<StateBehavior, TTarget>(state, target, state, 1);
             modSet.Add(mod);
 
             return modSet;
@@ -119,7 +91,7 @@ namespace Rpg.ModObjects
         public static ModSet Target<TEntity>(this ModSet modSet, TEntity entity, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
-            var mod = Mod.Create<ExternalMod, TEntity>(modSet.TargetProp, entity, modSet.TargetProp, dice, diceCalcExpr);
+            var mod = Mod.Create<SyncedBehavior, TEntity>(modSet.TargetProp, entity, modSet.TargetProp, dice, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;
@@ -128,7 +100,7 @@ namespace Rpg.ModObjects
         public static ModSet Target<TEntity, TSourceValue>(this ModSet modSet, TEntity entity, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
-            var mod = Mod.Create<ExternalMod, TEntity, TEntity, TSourceValue>(modSet.TargetProp, entity, modSet.TargetProp, entity, sourceExpr, diceCalcExpr);
+            var mod = Mod.Create<SyncedBehavior, TEntity, TEntity, TSourceValue>(modSet.TargetProp, entity, modSet.TargetProp, entity, sourceExpr, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;
@@ -138,7 +110,7 @@ namespace Rpg.ModObjects
             where TTarget : ModObject
             where TSource : ModObject
         {
-            var mod = Mod.Create<ExternalMod, TTarget, TSource, TSourceValue>(modSet.TargetProp, target, modSet.TargetProp, source, sourceExpr, diceCalcExpr);
+            var mod = Mod.Create<SyncedBehavior, TTarget, TSource, TSourceValue>(modSet.TargetProp, target, modSet.TargetProp, source, sourceExpr, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;
@@ -147,7 +119,7 @@ namespace Rpg.ModObjects
         public static ModSet Roll<TEntity>(this ModSet modSet, TEntity entity, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
-            var mod = Mod.Create<ExternalMod, TEntity>(modSet.DiceRollProp, entity, modSet.DiceRollProp, dice, diceCalcExpr);
+            var mod = Mod.Create<SyncedBehavior, TEntity>(modSet.DiceRollProp, entity, modSet.DiceRollProp, dice, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;
@@ -156,7 +128,7 @@ namespace Rpg.ModObjects
         public static ModSet Roll<TEntity, TSourceValue>(this ModSet modSet, TEntity entity, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
-            var mod = Mod.Create<ExternalMod, TEntity, TEntity, TSourceValue>(modSet.DiceRollProp, entity, modSet.DiceRollProp, entity, sourceExpr, diceCalcExpr);
+            var mod = Mod.Create<SyncedBehavior, TEntity, TEntity, TSourceValue>(modSet.DiceRollProp, entity, modSet.DiceRollProp, entity, sourceExpr, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;
@@ -166,7 +138,7 @@ namespace Rpg.ModObjects
             where TTarget : ModObject
             where TSource : ModObject
         {
-            var mod = Mod.Create<ExternalMod, TTarget, TSource, TSourceValue>(modSet.DiceRollProp, target, modSet.DiceRollProp, source, sourceExpr, diceCalcExpr);
+            var mod = Mod.Create<SyncedBehavior, TTarget, TSource, TSourceValue>(modSet.DiceRollProp, target, modSet.DiceRollProp, source, sourceExpr, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;
@@ -175,7 +147,7 @@ namespace Rpg.ModObjects
         public static ModSet Outcome<TTarget>(this ModSet modSet, TTarget target, int outcome, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TTarget : ModObject
         {
-            var mod = Mod.Create<ExternalMod, TTarget>(modSet.OutcomeProp, target, modSet.OutcomeProp, outcome, diceCalcExpr);
+            var mod = Mod.Create<SyncedBehavior, TTarget>(modSet.OutcomeProp, target, modSet.OutcomeProp, outcome, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;
@@ -184,7 +156,7 @@ namespace Rpg.ModObjects
         public static ModSet AddExternalMod<TEntity>(this ModSet modSet, TEntity entity, string targetProp, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
-            var mod = Mod.Create<ExternalMod, TEntity>(entity, targetProp, dice, diceCalcExpr);
+            var mod = Mod.Create<SyncedBehavior, TEntity>(entity, targetProp, dice, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;
@@ -193,7 +165,7 @@ namespace Rpg.ModObjects
         public static ModSet AddExternalMod<TEntity, TTargetValue, TSourceValue>(this ModSet modSet, TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
-            var mod = Mod.Create<ExternalMod, TEntity, TTargetValue, TEntity, TSourceValue>(entity, targetExpr, entity, sourceExpr, diceCalcExpr);
+            var mod = Mod.Create<SyncedBehavior, TEntity, TTargetValue, TEntity, TSourceValue>(entity, targetExpr, entity, sourceExpr, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;
@@ -202,7 +174,7 @@ namespace Rpg.ModObjects
         public static ModSet AddExternalMod<TEntity, TSourceValue>(this ModSet modSet, TEntity entity, string targetProp, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
-            var mod = Mod.Create<ExternalMod, TEntity, TEntity, TSourceValue>(entity, targetProp, entity, sourceExpr, diceCalcExpr);
+            var mod = Mod.Create<SyncedBehavior, TEntity, TEntity, TSourceValue>(entity, targetProp, entity, sourceExpr, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;
@@ -212,7 +184,7 @@ namespace Rpg.ModObjects
             where TTarget : ModObject
             where TSource : ModObject
         {
-            var mod = Mod.Create<ExternalMod, TTarget, TSource, TSourceValue>(target, targetProp, source, sourceExpr, diceCalcExpr);
+            var mod = Mod.Create<SyncedBehavior, TTarget, TSource, TSourceValue>(target, targetProp, source, sourceExpr, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;
@@ -221,7 +193,7 @@ namespace Rpg.ModObjects
         public static ModSet AddExternalMod<TEntity, TTargetValue>(this ModSet modSet, TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
-            var mod = Mod.Create<ExternalMod, TEntity, TTargetValue>(entity, targetExpr, dice, diceCalcExpr);
+            var mod = Mod.Create<SyncedBehavior, TEntity, TTargetValue>(entity, targetExpr, dice, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;
@@ -230,7 +202,7 @@ namespace Rpg.ModObjects
         public static ModSet AddExternalMod<TEntity, TTarget, TTargetValue, TSourceValue>(this ModSet modSet, TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
-            var mod = Mod.Create<ExternalMod, TEntity, TTargetValue, TEntity, TSourceValue>(entity, targetExpr, entity, sourceExpr, diceCalcExpr);
+            var mod = Mod.Create<SyncedBehavior, TEntity, TTargetValue, TEntity, TSourceValue>(entity, targetExpr, entity, sourceExpr, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;
@@ -239,7 +211,7 @@ namespace Rpg.ModObjects
         public static ModSet AddTurnMod<TEntity>(this ModSet modSet, TEntity entity, string targetProp, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
-            var mod = Mod.Create<TurnMod, TEntity>(entity, targetProp, value, diceCalcExpr);
+            var mod = Mod.Create<TurnBehavior, TEntity>(entity, targetProp, value, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;
@@ -248,7 +220,7 @@ namespace Rpg.ModObjects
         public static ModSet AddTurnMod<TTarget, TTargetValue>(this ModSet modSet, TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TTarget : ModObject
         {
-            var mod = Mod.Create<TurnMod, TTarget, TTargetValue>(entity, targetExpr, value, diceCalcExpr);
+            var mod = Mod.Create<TurnBehavior, TTarget, TTargetValue>(entity, targetExpr, value, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;
@@ -257,7 +229,7 @@ namespace Rpg.ModObjects
         public static ModSet AddSumMod<TTarget, TTargetValue>(this ModSet modSet, TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TTarget : ModObject
         {
-            var mod = Mod.Create<SumMod, TTarget, TTargetValue>(target, targetExpr, value, diceCalcExpr);
+            var mod = Mod.Create<ExpireOnZeroBehavior, TTarget, TTargetValue>(target, targetExpr, value, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;
@@ -267,7 +239,7 @@ namespace Rpg.ModObjects
             where TTarget : ModObject
             where TSource : ModObject
         {
-            var mod = Mod.Create<SumMod, TTarget, TTargetValue, TSource, TSourceValue>(target, targetExpr, source, sourceExpr, diceCalcExpr);
+            var mod = Mod.Create<ExpireOnZeroBehavior, TTarget, TTargetValue, TSource, TSourceValue>(target, targetExpr, source, sourceExpr, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;
@@ -276,7 +248,7 @@ namespace Rpg.ModObjects
         public static ModSet AddPermanentMod<TEntity>(this ModSet modSet, TEntity entity, string targetProp, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
-            var mod = Mod.Create<PermanentMod, TEntity>(entity, targetProp, dice, diceCalcExpr);
+            var mod = Mod.Create<PermanentBehavior, TEntity>(entity, targetProp, dice, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;
@@ -285,7 +257,7 @@ namespace Rpg.ModObjects
         public static ModSet AddPermanentMod<TEntity, TTargetValue, TSourceValue>(this ModSet modSet, TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
-            var mod = Mod.Create<PermanentMod, TEntity, TTargetValue, TEntity, TSourceValue>(entity, targetExpr, entity, sourceExpr, diceCalcExpr);
+            var mod = Mod.Create<PermanentBehavior, TEntity, TTargetValue, TEntity, TSourceValue>(entity, targetExpr, entity, sourceExpr, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;
@@ -294,7 +266,7 @@ namespace Rpg.ModObjects
         public static ModSet AddPermanentMod<TEntity, TTargetValue>(this ModSet modSet, TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
-            var mod = Mod.Create<PermanentMod, TEntity, TTargetValue>(entity, targetExpr, dice, diceCalcExpr);
+            var mod = Mod.Create<PermanentBehavior, TEntity, TTargetValue>(entity, targetExpr, dice, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;
@@ -303,7 +275,7 @@ namespace Rpg.ModObjects
         public static ModSet AddPermanentMod<TEntity, TTarget, TTargetValue, TSourceValue>(this ModSet modSet, TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
             where TEntity : ModObject
         {
-            var mod = Mod.Create<PermanentMod, TEntity, TTargetValue, TEntity, TSourceValue>(entity, targetExpr, entity, sourceExpr, diceCalcExpr);
+            var mod = Mod.Create<PermanentBehavior, TEntity, TTargetValue, TEntity, TSourceValue>(entity, targetExpr, entity, sourceExpr, diceCalcExpr);
             modSet.Add(mod);
 
             return modSet;

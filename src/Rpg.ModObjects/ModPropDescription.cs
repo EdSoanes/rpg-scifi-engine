@@ -70,7 +70,7 @@ namespace Rpg.ModObjects
         public ModDescription(ModGraph graph, ModObject rootEntity, ModPropDescription targetProp, Mod[] baseMods)
         {
             TargetProp = targetProp;
-            ModType = ModType.BaseOverride;
+            ModType = ModType.Override;
             Value = TargetProp.Entity.CalculateBaseValue(targetProp.Prop) ?? Dice.Zero;
 
             Mods = baseMods
@@ -82,7 +82,7 @@ namespace Rpg.ModObjects
         public ModDescription(ModGraph graph, ModObject rootEntity, Mod mod)
         {
             TargetProp = new ModPropDescription(graph, rootEntity, mod);
-            ModType = mod.ModifierType;
+            ModType = mod.Behavior.Type;
             Value = mod.Source.CalculatePropValue(graph);
             ValueFunction = mod.Source.ValueFunc.FullName;
 
@@ -115,7 +115,7 @@ namespace Rpg.ModObjects
 
         public override string ToString()
         {
-            var res = $"[{ModType}] {(ModType == ModType.BaseInit ? TargetProp.InitialValue : Value)}";
+            var res = $"[{ModType}] {(ModType == ModType.Initial ? TargetProp.InitialValue : Value)}";
             if (!string.IsNullOrEmpty(ValueFunction))
                 res += $" ({ValueFunction} {SourceValue})";
 

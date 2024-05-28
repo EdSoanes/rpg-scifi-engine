@@ -19,7 +19,7 @@ namespace Rpg.ModObjects.Tests.Models
 
         protected override void OnCreate()
         {
-            this.AddBaseMod(x => x.Current, x => x.Max);
+            this.AddMod<BaseBehavior, MaxCurrentValue, int, int> (x => x.Current, x => x.Max);
         }
     }
 }

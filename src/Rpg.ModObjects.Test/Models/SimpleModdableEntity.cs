@@ -15,7 +15,7 @@ namespace Rpg.ModObjects.Tests.Models
 
         protected override void OnCreate()
         {
-            this.AddBaseMod(x => x.Score, x => x.Bonus);
+            this.AddMod<BaseBehavior, SimpleModdableEntity, int, int>(x => x.Score, x => x.Bonus);
         }
     }
 }

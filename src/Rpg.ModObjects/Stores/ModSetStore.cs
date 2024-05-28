@@ -59,7 +59,7 @@ namespace Rpg.ModObjects.Stores
             foreach (var modSet in Get())
             {
                 modSet.OnEndEncounter();
-                if (modSet.GetExpiry(ModDuration.EndEncounter) == ModExpiry.Expired)
+                if (modSet.GetExpiry(Graph) == ModExpiry.Expired)
                     toRemove.Add(modSet);
             }
 
