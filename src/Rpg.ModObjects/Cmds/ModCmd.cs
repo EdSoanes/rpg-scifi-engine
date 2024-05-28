@@ -21,13 +21,13 @@ namespace Rpg.ModObjects.Cmds
         public ModState State { get => new ModState(EntityId, CommandName); }
 
         public int? GetTarget(ModObject initiator, ModSet? modSet)
-            => initiator.GetPropValue(modSet?.TargetProp)?.Roll();
+            => Graph!.GetPropValue(initiator, modSet?.TargetProp).Roll();
 
         public Dice? GetDiceRoll(ModObject initiator, ModSet? modSet)
-            => initiator.GetPropValue(modSet?.DiceRollProp);
+            => Graph!.GetPropValue(initiator, modSet?.DiceRollProp);
 
         public int? GetOutcome(ModObject initiator, ModSet? modSet)
-            => initiator.GetPropValue(modSet?.OutcomeProp)?.Roll();
+            => Graph!.GetPropValue(initiator, modSet?.OutcomeProp).Roll();
 
         public static ModCmd Create(Guid entityId, string commandName, ModCmdAttribute cmdAttr, ModCmdArg[]? cmdArgs)
         {
@@ -61,6 +61,17 @@ namespace Rpg.ModObjects.Cmds
         public ModCmdArgSet ArgSet()
             => new ModCmdArgSet(Args);
 
+        public ModCmdArgSet ArgSet<T>(T initiator)
+            where T : ModObject
+                => new ModCmdArgSet(Args).SetInitiator(initiator);
+
+        public ModCmdArgSet ArgSet<TI, TR>(TI initiator, TR recipient)
+            where TI : ModObject
+            where TR : ModObject
+                => new ModCmdArgSet(Args)
+                    .SetInitiator(initiator)
+                    .SetRecipient(recipient);
+
         public ModSet? Create(ModCmdArgSet argSet)
         {
             var entity = Graph!.GetEntity(EntityId);
@@ -91,20 +102,8 @@ namespace Rpg.ModObjects.Cmds
             }
         }
 
-        public ModPropRef[] Unresolved(ModSet modSet)
-        {
-            var unresolved = new List<ModPropRef>();
-            foreach (var modGroup in modSet.Mods.GroupBy(x => new ModPropRef(x.EntityId, x.Prop)))
-            {
-                var dice = modGroup.Key.Calculate(Graph!, modGroup);
-                if (!dice.IsConstant)
-                    unresolved.Add(modGroup.Key);
-            }
-            return unresolved.ToArray();
-        }
-
         private ModSet CreateModSet()
-            => new ModSet(EntityId, CommandName, new TurnBehavior());
+            => new ModSet(EntityId, CommandName, new Turn());
 
         public void OnGraphCreating(ModGraph graph, ModObject entity)
         {

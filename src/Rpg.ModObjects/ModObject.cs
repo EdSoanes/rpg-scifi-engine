@@ -42,6 +42,9 @@ namespace Rpg.ModObjects
         internal Mod[] GetMods(string prop, bool filtered = true)
             => PropStore.GetMods(prop, filtered);
 
+        internal Mod[] GetMods(string prop, Func<Mod, bool> filterFunc)
+            => PropStore.GetMods(prop, filterFunc);
+
         internal ModProp? GetModProp(string? prop, bool create = false)
         {
             if (string.IsNullOrEmpty(prop))
@@ -60,7 +63,7 @@ namespace Rpg.ModObjects
         public bool RemoveModProp(string prop)
             => PropStore.Remove(prop);
 
-        internal void AddMod(Mod mod)
+        public void AddMod(Mod mod)
             => Graph?.Context?.PropStore?.Add(mod);
 
         public void RemoveMods(params Mod[] mods)
@@ -68,10 +71,16 @@ namespace Rpg.ModObjects
 
         public void RemoveMods(string prop, ModType modType)
         {
-            var mods = PropStore.GetMods(prop, modType);
+            var mods = PropStore.GetMods(prop, mod => mod.Behavior.Type == modType);
             RemoveMods(mods);
         }
-            
+
+        public void RemoveMods(string prop, string modName)
+        {
+            var mods = PropStore.GetMods(prop, mod => mod.Name == modName);
+            RemoveMods(mods);
+        }
+
         internal ModSet[] GetModSets()
             => ModSetStore.Get();
 
@@ -111,19 +120,19 @@ namespace Rpg.ModObjects
         public bool IsStateActive(string state)
         {
             var modState = StateStore[state];
-            return CalculatePropValue(modState?.InstanceName) != Dice.Zero;
+            return Graph!.GetPropValue(this, modState?.InstanceName) != Dice.Zero;
         }
 
         public bool IsStateForcedActive(string state)
         {
             var modState = StateStore[state];
-            return CalculatePropValue(modState?.InstanceName, mod => mod.Behavior.Merging == ModMerging.Replace) != Dice.Zero;
+            return Graph!.CalculatePropValue(this, modState?.InstanceName, mod => mod.Behavior.Merging == ModMerging.Replace) != Dice.Zero;
         }
 
         public bool IsStateConditionallyActive(string state)
         {
             var modState = StateStore[state];
-            return CalculatePropValue(modState?.InstanceName, mod => mod.Behavior.Merging == ModMerging.Combine) != Dice.Zero;
+            return Graph!.CalculatePropValue(this, modState?.InstanceName, mod => mod.Behavior.Merging == ModMerging.Combine) != Dice.Zero;
         }
 
         public bool ManuallyActivateState(string state)
@@ -140,11 +149,8 @@ namespace Rpg.ModObjects
         internal void TriggerUpdate(ModPropRef propRef)
         {
             var propsAffected = PropStore.GetPropsAffectedBy(propRef);
-            foreach (var prop in propsAffected)
-            {
-                var entity = Graph!.GetEntity<ModObject>(prop.EntityId);
-                entity?.SetPropValue(prop.Prop);
-            }
+            foreach (var targetPropRef in propsAffected)
+                Graph!.SetPropValue(targetPropRef);
         }
 
         internal ModObjectPropDescription Describe(string prop)
@@ -157,55 +163,7 @@ namespace Rpg.ModObjects
                 affectedBy.Merge(entity.PropStore.AffectedByProps());
 
             foreach (var propRef in affectedBy)
-            {
-                var entity = Graph!.GetEntity<ModObject>(propRef.EntityId);
-                entity?.SetPropValue(propRef.Prop);
-            }
-        }
-
-        public void SetPropValue(string prop)
-        {
-            var oldValue = GetPropValue(prop);
-            var newValue = PropStore.Calculate(prop);
-
-            if (oldValue == null || oldValue != newValue)
-            {
-                this.PropertyValue(prop, newValue);
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
-            }
-        }
-
-        public Dice? GetPropValue(string? prop)
-        {
-            if (string.IsNullOrEmpty(prop))
-                return null;
-
-            var val = this.PropertyValue(prop);
-            if (val == null)
-                val = CalculatePropValue(prop);
-            if (val != null)
-            {
-                if (val is Dice)
-                    return (Dice)val;
-                else if (val is int)
-                    return (int)val;
-            }
-
-            return null;
-        }
-
-        public Dice? CalculateInitialValue(string prop)
-            => PropStore.CalculateInitialValue(prop);
-
-        public Dice? CalculateBaseValue(string prop)
-            => PropStore.CalculateBaseValue(prop);
-
-        internal Dice? CalculatePropValue(string? prop, Func<Mod, bool>? filterFunc = null)
-        {
-            if (!string.IsNullOrEmpty(prop))
-                return PropStore.Calculate(prop, filterFunc);
-
-            return null;
+                Graph!.SetPropValue(propRef);
         }
 
         public void OnGraphCreating(ModGraph graph, ModObject? entity = null)
@@ -225,15 +183,15 @@ namespace Rpg.ModObjects
                 CmdStore.Add(cmds);
                 StateStore.Add(cmdStates);
 
-                foreach (var propInfo in this.ModdableProperties())
+                foreach (var propInfo in this.GetModdableProperties())
                 {
-                    var val = this.PropertyValue(propInfo.Name);
+                    var val = this.PropertyValue(propInfo.Name, out var propExists);
                     if (val != null)
                     {
                         if (val is Dice dice)
-                            this.AddMod<InitialBehavior, ModObject>(propInfo.Name, dice);
+                            this.AddMod(new Initial(), propInfo.Name, dice);
                         else if (val is int i)
-                            this.AddMod<InitialBehavior, ModObject>(propInfo.Name, i);
+                            this.AddMod(new Initial(), propInfo.Name, i);
                     }
                 }
 

@@ -1,6 +1,7 @@
 ﻿using Rpg.ModObjects.Cmds;
 using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.States;
+using Rpg.ModObjects.Stores;
 using Rpg.ModObjects.Values;
 using System.Collections;
 using System.Reflection;
@@ -10,19 +11,26 @@ namespace Rpg.ModObjects
     public static class ModGraphExtensions
     {
         private static List<string> ScannableNamespaces = new List<string>();
-        private static Type[] PermittedModPropReturnTypes = new Type[]
+        private static Type[] ModdablePropertyTypes = new Type[]
         {
             typeof(int),
             typeof(Dice)
         };
 
-        private static Type[] ExcludedPropertyObjectTypes = new Type[]
+        private static Type[] ExcludedPropertyTypes = new Type[]
         {
+            typeof(ModCmdStore),
+            typeof(ModSetStore),
+            typeof(ModStateStore),
+            typeof(ModPropStore),
             typeof(ModGraph),
             typeof(ModCmd),
             typeof(ModState),
             typeof(ModSet),
-            typeof(Mod)
+            typeof(Mod),
+            typeof(string),
+            typeof(DateTime),
+            typeof(Guid)
         };
 
         public static void RegisterAssembly(Assembly assembly)
@@ -59,12 +67,12 @@ namespace Rpg.ModObjects
             if (entity != null && !bottomUp)
                 yield return entity;
 
-            if (!obj.GetType().IsPrimitive)
+            if (!IsExcludedType(obj.GetType()))
             {
                 var propertyInfos = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 foreach (var propertyInfo in propertyInfos)
                 {
-                    var items = obj.PropertyObjects(propertyInfo, out var isEnumerable)?.ToArray() ?? new object[0];
+                    var items = obj.GetPropertyObjects(propertyInfo, out var isEnumerable);
                     foreach (var item in items)
                     {
                         var childEntities = item.Traverse(bottomUp);
@@ -101,7 +109,7 @@ namespace Rpg.ModObjects
             {
                 propStack.Push(propertyInfo.Name);
 
-                var children = obj.PropertyObjects(propertyInfo, out var isEnumerable)?.ToArray() ?? new object[0];
+                var children = obj.GetPropertyObjects(propertyInfo, out var isEnumerable)?.ToArray() ?? new object[0];
                 if (isEnumerable)
                     return false;
 
@@ -114,31 +122,9 @@ namespace Rpg.ModObjects
             return false;
         }
 
-        internal static List<ModObject> Descendants(this object obj)
+        internal static object? PropertyValue(this object? entity, string path, out bool propExists)
         {
-            var res = new List<ModObject>();
-            var entity = obj as ModObject;
-            if (entity != null)
-                res.Add(entity);
-
-            if (!obj.GetType().IsPrimitive)
-            {
-                foreach (var propertyInfo in obj.GetType().GetProperties())
-                {
-                    var items = obj.PropertyObjects(propertyInfo, out var isEnumerable)?.ToArray() ?? new object[0];
-                    foreach (var item in items)
-                    {
-                        var childEntities = Descendants(item);
-                        res.AddRange(childEntities);
-                    }
-                }
-            }
-
-            return res;
-        }
-
-        internal static object? PropertyValue(this object? entity, string path)
-        {
+            propExists = false;
             if (entity == null || string.IsNullOrEmpty(path))
                 return null;
 
@@ -147,11 +133,18 @@ namespace Rpg.ModObjects
             foreach (var part in parts)
             {
                 var propInfo = res.GetType().GetProperty(part);
-                res = propInfo?.GetValue(res, null);
+                if (propInfo == null)
+                    return null;
+
+                res = propInfo.GetValue(res, null);
                 if (res == null)
-                    break;
+                {
+                    propExists = true;
+                    return null;
+                }
             }
 
+            propExists = true;
             return res;
         }
 
@@ -186,7 +179,7 @@ namespace Rpg.ModObjects
 
         internal static void PropertyValue(this object? entity, string path, object? value)
         {
-            if (value == null || !PermittedModPropReturnTypes.Any(x => x == value.GetType()))
+            if (value == null || !ModdablePropertyTypes.Any(x => x == value.GetType()))
                 return;
 
             if (entity == null || string.IsNullOrEmpty(path))
@@ -219,6 +212,13 @@ namespace Rpg.ModObjects
                         propertyInfo?.SetValue(res, (Dice)value);
                 } 
             }
+        }
+
+        internal static PropertyInfo[] GetModdableProperties(this ModObject context)
+        {
+            return context.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(IsModdableProperty)
+                .ToArray();
         }
 
         internal static TR? ExecuteFunction<TR>(this object? obj, string method) => obj.ExecuteFunction<TR>(method, null);
@@ -296,17 +296,10 @@ namespace Rpg.ModObjects
 
 
 
-        internal static PropertyInfo? ModdableProperty(this object context, string prop)
+        private static PropertyInfo? ModdableProperty(this object context, string prop)
         {
             return context.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                 .FirstOrDefault(x => x.Name == prop && x.IsModdableProperty());
-        }
-
-        internal static PropertyInfo[] ModdableProperties(this object context)
-        {
-            return context.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(IsModdableProperty)
-                .ToArray();
         }
 
         private static bool IsModdableProperty(this PropertyInfo propertyInfo)
@@ -314,7 +307,7 @@ namespace Rpg.ModObjects
             if (!InScannableNamespace(propertyInfo.DeclaringType))
                 return false;
 
-            if (!PermittedModPropReturnTypes.Any(x => x == propertyInfo.PropertyType))
+            if (!ModdablePropertyTypes.Any(x => x == propertyInfo.PropertyType))
                 return false;
 
             return propertyInfo.GetMethod != null
@@ -328,43 +321,31 @@ namespace Rpg.ModObjects
                 : ScannableNamespaces.Any(x => type.Namespace == x);
         }
 
-        internal static List<object> PropertyObjects(this object context, PropertyInfo propertyInfo, out bool isEnumerable)
+        private static IEnumerable<object> GetPropertyObjects(this object context, PropertyInfo propertyInfo, out bool isEnumerable)
         {
-            try
+            isEnumerable = false;
+
+            if (propertyInfo.GetMethod?.Name == "get_Item" || IsExcludedType(propertyInfo.PropertyType))
+                return Enumerable.Empty<object>();
+
+            var obj = propertyInfo.GetValue(context, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, null, null);
+
+            if (obj == null)
+                return Enumerable.Empty<object>();
+
+            var res = new List<object?>();
+            if (obj is IEnumerable)
             {
-                isEnumerable = false;
-
-                if (ExcludedPropertyObjectTypes.Any(t => context.GetType().IsAssignableTo(t)))
-                    return Enumerable.Empty<object>().ToList();
-
-                if (PermittedModPropReturnTypes.Any(x => x == propertyInfo.PropertyType))
-                    return Enumerable.Empty<object>().ToList();
-
-                var obj = propertyInfo.GetValue(context, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, null, null);
-                if (obj == null || obj is string || obj.GetType().IsPrimitive || obj is Guid)
-                    return Enumerable.Empty<object>().ToList();
-
-                if (obj is IEnumerable)
-                {
-                    var res = new List<object>();
-                    if (obj is ModObject)
-                        res.Add(obj);
-
-                    isEnumerable = true;
-                    res.AddRange((obj as IEnumerable)!.Cast<object>());
-
-                    return res;
-                }
-
-                return new List<object> { obj };
+                res.AddRange((obj as IEnumerable)!.Cast<object?>());
+                isEnumerable = true;
             }
-            catch (Exception ex)
-            {
-                //What happened?
-                var x = ex;
-                isEnumerable = false;
-                return Enumerable.Empty<object>().ToList();
-            }
+            else
+                res.Add(obj);
+
+            return res.Where(x => x != null).Cast<object>().ToList();
         }
+
+        private static bool IsExcludedType(Type type)
+            => !type.IsPrimitive && ExcludedPropertyTypes.Any(type.IsAssignableTo);
     }
 }

@@ -64,18 +64,6 @@ namespace Rpg.ModObjects
             return locator;
         }
 
-        internal Dice Calculate(ModGraph graph, IEnumerable<Mod> mods)
-        {
-            Dice dice = "0";
-            foreach (var mod in mods)
-            {
-                Dice value = mod.Source.CalculatePropValue(graph);
-                dice += value;
-            }
-
-            return dice;
-        }
-
         public override string ToString()
         {
             return $"{EntityId}.{Prop}";

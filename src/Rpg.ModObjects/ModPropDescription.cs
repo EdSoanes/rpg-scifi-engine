@@ -21,9 +21,9 @@ namespace Rpg.ModObjects
             Path = string.Join('.', rootEntity.PathTo(Entity));
             Prop = propRef.Prop;
 
-            InitialValue = Entity.CalculateInitialValue(propRef.Prop) ?? Dice.Zero;
-            BaseValue = Entity.CalculateBaseValue(propRef.Prop) ?? Dice.Zero;
-            Value = Entity.GetPropValue(propRef.Prop) ?? Dice.Zero;
+            InitialValue = graph.GetInitialPropValue(Entity, propRef.Prop) ?? Dice.Zero;
+            BaseValue = graph.GetBasePropValue(Entity, propRef.Prop) ?? Dice.Zero;
+            Value = graph.GetPropValue(Entity, propRef.Prop);
         }
 
         public string PropertyString()
@@ -71,7 +71,7 @@ namespace Rpg.ModObjects
         {
             TargetProp = targetProp;
             ModType = ModType.Override;
-            Value = TargetProp.Entity.CalculateBaseValue(targetProp.Prop) ?? Dice.Zero;
+            Value = graph.GetBasePropValue(TargetProp.Entity, TargetProp.Prop) ?? Dice.Zero;
 
             Mods = baseMods
                 .Where(x => !x.IsBaseMod)
@@ -83,7 +83,7 @@ namespace Rpg.ModObjects
         {
             TargetProp = new ModPropDescription(graph, rootEntity, mod);
             ModType = mod.Behavior.Type;
-            Value = mod.Source.CalculatePropValue(graph);
+            Value = graph?.CalculateModValue(mod) ?? Dice.Zero;
             ValueFunction = mod.Source.ValueFunc.FullName;
 
             var sourcePropRef = mod.Source.PropRef;

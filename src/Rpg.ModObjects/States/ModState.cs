@@ -24,7 +24,7 @@ namespace Rpg.ModObjects.States
         }
 
         public void SetActive()
-            => Graph?.GetEntity(EntityId)?.AddMod<ForceStateBehavior, ModObject>(InstanceName, 1);
+            => Graph?.GetEntity(EntityId)?.AddMod(new ForceState(), InstanceName, 1);
 
         public void SetInactive()
         {
@@ -61,9 +61,9 @@ namespace Rpg.ModObjects.States
                 var shouldActivate = ShouldActivate();
 
                 if (!isConditionallyActive && shouldActivate)
-                    entity!.AddMod<ExpireOnZeroBehavior, ModObject>(InstanceName, 1);
+                    entity!.AddMod(new State(), InstanceName, 1);
                 else if (isConditionallyActive && !shouldActivate)
-                    entity!.AddMod<ExpireOnZeroBehavior, ModObject>(InstanceName, -1);
+                    entity!.AddMod(new State(), InstanceName, -1);
             }
 
             UpdateStateMods();

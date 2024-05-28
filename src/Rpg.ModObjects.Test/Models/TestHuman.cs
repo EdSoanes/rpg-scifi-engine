@@ -34,11 +34,11 @@ namespace Rpg.ModObjects.Tests.Models
         protected override void OnCreate()
         {
             this
-                .AddMod<BaseBehavior, TestHuman, int, int>(x => x.MeleeAttack, x => x.Strength.Bonus)
-                .AddMod<BaseBehavior, TestHuman, Dice, int>(x => x.MeleeDamage.Dice, x => x.Strength.Bonus)
-                .AddMod<BaseBehavior, TestHuman, int, int>(x => x.MissileAttack, x => x.Intelligence.Bonus)
-                .AddMod<BaseBehavior, TestHuman, int, int>(x => x.PhysicalActionPoints.Max, x => x.Strength.Bonus)
-                .AddMod<BaseBehavior, TestHuman, int, int>(x => x.MentalActionPoints.Max, x => x.Intelligence.Bonus);
+                .AddMod(new Base(), x => x.MeleeAttack, x => x.Strength.Bonus)
+                .AddMod(new Base(), x => x.MeleeDamage.Dice, x => x.Strength.Bonus)
+                .AddMod(new Base(), x => x.MissileAttack, x => x.Intelligence.Bonus)
+                .AddMod(new Base(), x => x.PhysicalActionPoints.Max, x => x.Strength.Bonus)
+                .AddMod(new Base(), x => x.MentalActionPoints.Max, x => x.Intelligence.Bonus);
         }
     }
 }

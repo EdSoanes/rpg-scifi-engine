@@ -71,36 +71,36 @@ namespace Rpg.ModObjects.Modifiers
         }
     }
 
-    public class InitialBehavior : ModBehavior
+    public class Initial : ModBehavior
     {
-        public InitialBehavior() 
+        public Initial() 
         {
             Merging = ModMerging.Replace;
             Type = ModType.Initial;
         }
     }
 
-    public class BaseBehavior : ModBehavior
+    public class Base : ModBehavior
     {
-        public BaseBehavior()
+        public Base()
         {
             Merging = ModMerging.Replace;
             Type = ModType.Base;
         }
     }
 
-    public class OverrideBehavior : ModBehavior
+    public class Override : ModBehavior
     {
-        public OverrideBehavior()
+        public Override()
         {
             Merging = ModMerging.Replace;
             Type = ModType.Override;
         }
     }
 
-    public class StateBehavior : ModBehavior
+    public class State : ModBehavior
     {
-        public StateBehavior(int delay, int duration)
+        public State(int delay, int duration)
         {
             Merging = ModMerging.Combine;
             Type = ModType.State;
@@ -108,80 +108,87 @@ namespace Rpg.ModObjects.Modifiers
             Duration = duration;
         }
 
-        public StateBehavior()
+        public State()
         {
             Merging = ModMerging.Combine;
             Type = ModType.State;
         }
 
-        public StateBehavior(int duration)
+        public State(int duration)
             : this(0, duration) { }
+
+        public override ModExpiry GetExpiry(ModGraph graph, Mod? mod = null)
+        {
+            var res = graph.CalculateModValue(mod);
+            return res == Dice.Zero
+                ? ModExpiry.Expired
+                : ModExpiry.Active;
+        }
     }
 
-    public class ForceStateBehavior : ModBehavior
+    public class ForceState : ModBehavior
     {
-        public ForceStateBehavior()
+        public ForceState()
         {
             Merging = ModMerging.Replace;
             Type = ModType.ForceState;
         }
     }
 
-    public class PermanentBehavior : ModBehavior
+    public class Permanent : ModBehavior
     { }
 
-    public class SyncedBehavior : ModBehavior
+    public class Synced : ModBehavior
     {
-        public SyncedBehavior()
+        public Synced()
         {
             Type = ModType.Synced;
         }
     }
 
-
-    public class EncounterBehavior : ModBehavior
+    public class Encounter : ModBehavior
     {
-        public EncounterBehavior(ModMerging merging)
+        public Encounter(ModMerging merging)
         {
             Delay = int.MinValue + 1;
             Duration = int.MaxValue - 2;
             Merging = merging;
         }
 
-        public EncounterBehavior()
+        public Encounter()
             : this(ModMerging.Add) { }
     }
 
-    public class TurnBehavior : ModBehavior
+    public class Turn : ModBehavior
     {
-        public TurnBehavior(int delay, int duration, ModMerging merging)
+        public Turn(int delay, int duration, ModMerging merging)
         {
             Delay = delay;
             Duration = duration;
             Merging = merging;
         }
 
-        public TurnBehavior()
+        public Turn()
             : this(0, 1, ModMerging.Add) { }
 
-        public TurnBehavior(ModMerging merging)
+        public Turn(ModMerging merging)
             : this(0, 1, merging) { }
 
 
-        public TurnBehavior(int duration)
+        public Turn(int duration)
             : this(0, duration, ModMerging.Add) { }
     }
 
-    public class ExpireOnZeroBehavior : ModBehavior
+    public class ExpireOnZero : ModBehavior
     {
-        public ExpireOnZeroBehavior()
+        public ExpireOnZero()
         {
             Merging = ModMerging.Combine;
         }
 
         public override ModExpiry GetExpiry(ModGraph graph, Mod? mod = null)
         {
-            var res = graph.GetEntity(mod!.EntityId)?.CalculatePropValue(mod.Prop) ?? Dice.Zero;
+            var res = graph.CalculatePropValue(mod!, x => x.Behavior is ExpireOnZero);
             return res == Dice.Zero
                 ? ModExpiry.Expired
                 : ModExpiry.Active;

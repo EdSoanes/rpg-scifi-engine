@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Values;
+using System.ComponentModel;
 
 namespace Rpg.ModObjects
 {
@@ -92,6 +94,108 @@ namespace Rpg.ModObjects
             => ModObjectStore.Values
                 .SelectMany(x => x.GetModSets())
                 .ToArray();
+
+        /// <summary>
+        /// Shallow recalculation of a property value
+        /// </summary>
+        /// <param name="propRef"></param>
+        /// <returns></returns>
+        public Dice? CalculatePropValue(ModPropRef propRef, Func<Mod, bool>? filterFunc = null)
+        {
+            var entity = GetEntity(propRef.EntityId);
+            return CalculatePropValue(entity, propRef.Prop, filterFunc);
+        }
+
+        /// <summary>
+        /// Shallow recalculation of a property value
+        /// </summary>
+        /// <param name="propRef"></param>
+        /// <returns></returns>
+        public Dice? CalculatePropValue(ModObject? entity, string? prop, Func<Mod, bool>? filterFunc = null)
+        {
+            if (entity == null || string.IsNullOrEmpty(prop))
+                return null;
+
+            var mods = filterFunc != null
+                ? entity.GetMods(prop, filterFunc)
+                : entity.GetMods(prop);
+
+            var dice = CalculateModsValue(mods);
+            return dice;
+        }
+
+        public Dice CalculateModsValue(Mod[] mods)
+        {
+            var dice = Dice.Zero;
+            foreach (var mod in mods)
+                dice += CalculateModValue(mod);
+
+            return dice;
+        }
+
+        public Dice CalculateModValue(Mod? mod)
+        {
+            if (mod == null)
+                return Dice.Zero;
+
+            Dice value = mod.Source.Value ?? GetPropValue(GetEntity(mod.Source.EntityId), mod.Source.Prop);
+
+            if (mod.Source.ValueFunc.IsCalc)
+            {
+                var funcEntity = (object?)GetEntity(mod.Source.ValueFunc.EntityId)
+                    ?? this;
+
+                value = funcEntity.ExecuteFunction<Dice, Dice>(mod.Source.ValueFunc.FullName!, value);
+            }
+
+            return value;
+        }
+
+        public Dice GetPropValue(ModObject? entity, string? prop)
+        {
+            if (entity == null || string.IsNullOrEmpty(prop))
+                return Dice.Zero;
+
+            var val = entity.PropertyValue(prop, out var propExists);
+            if (propExists && val != null)
+            {
+                if (val is Dice)
+                    return (Dice)val;
+                else if (val is int)
+                    return (int)val;
+            }
+
+            if (!propExists)
+            {
+                var mods = entity.GetMods(prop);
+                var dice = CalculateModsValue(mods);
+
+                return dice;
+            }
+
+            return Dice.Zero;
+        }
+
+        public void SetPropValue(ModPropRef propRef)
+        {
+            var entity = GetEntity(propRef.EntityId);
+            SetPropValue(entity, propRef.Prop);
+        }
+
+        public void SetPropValue(ModObject? entity, string prop)
+        {
+            var oldValue = GetPropValue(entity, prop);
+            var newValue = CalculatePropValue(entity, prop);
+
+            if (oldValue == null || oldValue != newValue)
+                entity.PropertyValue(prop, newValue);
+        }
+
+        public Dice? GetInitialPropValue(ModObject? entity, string prop)
+            => CalculatePropValue(entity, prop, mod => mod.IsBaseInitMod);
+
+        public Dice? GetBasePropValue(ModObject? entity, string prop)
+            => CalculatePropValue(entity, prop, mod => mod.IsBaseMod);
 
         public void NewEncounter()
         {

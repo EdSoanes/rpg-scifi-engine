@@ -25,11 +25,8 @@ namespace Rpg.ModObjects.Stores
             return res ?? new Mod[0];
         }
 
-        public Mod[] GetMods(string prop, ModType modType)
-            => this[prop]?.Get(modType) ?? new Mod[0];
-
-        public Mod[] GetMods(string prop, ModType modType, string modName)
-            => this[prop]?.Get(modType, modName) ?? new Mod[0];
+        public Mod[] GetMods(string prop, Func<Mod, bool> filterFunc)
+            => this[prop]?.Mods.Where(x => filterFunc(x)).ToArray() ?? Array.Empty<Mod>();
 
         public ModProp Create(string prop)
         {
@@ -37,30 +34,6 @@ namespace Rpg.ModObjects.Stores
                 this[prop] = new ModProp(EntityId, prop);
 
             return this[prop]!;
-        }
-
-        public Dice Calculate(string prop, Func<Mod, bool>? filterFunc = null)
-        {
-            var mods = GetMods(prop)
-                .Where(x => filterFunc?.Invoke(x) ?? true);
-
-            return this[prop]?.Calculate(Graph!, mods) ?? Dice.Zero;
-        }
-
-        public Dice CalculateInitialValue(string prop)
-        {
-            var mods = GetMods(prop)
-            .Where(x => x.IsBaseInitMod);
-
-            return this[prop]?.Calculate(Graph!, mods) ?? Dice.Zero;
-        }
-
-        public Dice CalculateBaseValue(string prop)
-        {
-            var mods = GetMods(prop)
-                .Where(x => x.IsBaseMod);
-
-            return this[prop]?.Calculate(Graph!, mods) ?? Dice.Zero;
         }
 
         public void Remove(Mod mod)
@@ -107,7 +80,7 @@ namespace Rpg.ModObjects.Stores
                         modProp.Replace(mod);
 
                     else if (mod.Behavior.Merging == ModMerging.Combine)
-                        modProp.Sum(Graph, entity, mod);
+                        modProp.Combine(Graph, entity, mod);
                 }
             }
         }

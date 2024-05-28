@@ -23,10 +23,10 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new ModGraph(entity);
 
-            entity.AddPermanentMod("VirtualProp", 1);
+            entity.AddMod(new Permanent(), "VirtualProp", 1);
             entity.TriggerUpdate();
 
-            Assert.That(entity.GetPropValue("VirtualProp")?.Roll() ?? 0, Is.EqualTo(1));
+            Assert.That(graph.GetPropValue(entity, "VirtualProp").Roll(), Is.EqualTo(1));
         }
     }
 }

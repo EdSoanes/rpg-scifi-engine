@@ -53,10 +53,10 @@ namespace Rpg.ModObjects
                 Mods.Add(mod);
         }
 
-        internal void Sum(ModGraph graph, ModObject entity, Mod mod)
+        internal void Combine(ModGraph graph, ModObject entity, Mod mod)
         {
-            var oldValue = entity.CalculatePropValue(mod.Prop, x => x.Behavior.Type == mod.Behavior.Type && x.Name == mod.Name);
-            var newValue = (oldValue ?? Dice.Zero) + mod.Source.CalculatePropValue(graph!);
+            var oldValue = graph.CalculatePropValue(entity, mod.Prop, x => x.Behavior.Type == mod.Behavior.Type && x.Name == mod.Name);
+            var newValue = (oldValue ?? Dice.Zero) + graph?.CalculateModValue(mod) ?? Dice.Zero;
 
             mod.SetSource(newValue);
             var oldMods = Get(mod.Behavior.Type, mod.Name);
