@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Cmds;
 using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Props;
 using Rpg.ModObjects.States;
 using Rpg.ModObjects.Stores;
 using Rpg.ModObjects.Values;
@@ -8,14 +9,14 @@ using System.ComponentModel;
 
 namespace Rpg.ModObjects
 {
-    public abstract class ModObject : INotifyPropertyChanged, ITemporal
+    public abstract class RpgObject : INotifyPropertyChanged, ITemporal
     {
-        protected ModGraph? Graph { get; private set; }
+        protected RpgGraph? Graph { get; private set; }
 
         [JsonProperty] public Guid Id { get; private set; }
         [JsonProperty] public string Name { get; set; }
         [JsonProperty] public string[] Is { get; private set; }
-        [JsonProperty] protected ModPropStore PropStore { get; private set; } = new ModPropStore();
+        [JsonProperty] protected PropStore PropStore { get; private set; } = new PropStore();
         [JsonProperty] protected ModSetStore ModSetStore { get; private set; } = new ModSetStore();
         [JsonProperty] protected ModStateStore StateStore { get; private set; } = new ModStateStore();
         [JsonProperty] protected bool IsCreated { get; set; }
@@ -23,18 +24,18 @@ namespace Rpg.ModObjects
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public ModObject()
+        public RpgObject()
         {
             Id = Guid.NewGuid();
             Name = GetType().Name;
             Is = this.GetBaseTypes();
         }
 
-        internal IEnumerable<ModPropRef> GetPropsThatAffect(string prop)
+        internal IEnumerable<PropRef> GetPropsThatAffect(string prop)
             => PropStore.GetPropsThatAffect(prop);
 
-        internal IEnumerable<ModPropRef> GetPropsAffectedBy(string prop)
-            => PropStore.GetPropsAffectedBy(new ModPropRef(Id, prop));
+        internal IEnumerable<PropRef> GetPropsAffectedBy(string prop)
+            => PropStore.GetPropsAffectedBy(new PropRef(Id, prop));
 
         internal Mod[] GetMods(bool filtered = true)
             => PropStore.GetMods(filtered);
@@ -45,7 +46,7 @@ namespace Rpg.ModObjects
         internal Mod[] GetMods(string prop, Func<Mod, bool> filterFunc)
             => PropStore.GetMods(prop, filterFunc);
 
-        internal ModProp? GetModProp(string? prop, bool create = false)
+        internal Prop? GetModProp(string? prop, bool create = false)
         {
             if (string.IsNullOrEmpty(prop))
                 return null;
@@ -57,7 +58,7 @@ namespace Rpg.ModObjects
             return modProp;
         }
 
-        internal ModProp[] GetModProps()
+        internal Prop[] GetModProps()
             => PropStore.Get();
 
         public bool RemoveModProp(string prop)
@@ -99,7 +100,7 @@ namespace Rpg.ModObjects
         public void RemoveModSet(string name)
             => ModSetStore.Remove(name);
 
-        public ModObject AddState(ModState state)
+        public RpgObject AddState(ModState state)
         {
             StateStore.Add(state);
             return this;
@@ -146,7 +147,7 @@ namespace Rpg.ModObjects
         public void TriggerUpdate()
             => OnTurnChanged(Graph!.Turn);
 
-        internal void TriggerUpdate(ModPropRef propRef)
+        internal void TriggerUpdate(PropRef propRef)
         {
             var propsAffected = PropStore.GetPropsAffectedBy(propRef);
             foreach (var targetPropRef in propsAffected)
@@ -158,7 +159,7 @@ namespace Rpg.ModObjects
 
         internal void UpdateProps()
         {
-            var affectedBy = new List<ModPropRef>();
+            var affectedBy = new List<PropRef>();
             foreach (var entity in this.Traverse(true))
                 affectedBy.Merge(entity.PropStore.AffectedByProps());
 
@@ -166,7 +167,7 @@ namespace Rpg.ModObjects
                 Graph!.SetPropValue(propRef);
         }
 
-        public void OnGraphCreating(ModGraph graph, ModObject? entity = null)
+        public void OnGraphCreating(RpgGraph graph, RpgObject? entity = null)
         {
             Graph = graph;
             PropStore.OnGraphCreating(Graph, this);

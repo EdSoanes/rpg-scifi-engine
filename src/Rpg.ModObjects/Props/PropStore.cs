@@ -1,10 +1,9 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Modifiers;
-using Rpg.ModObjects.Values;
+﻿using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Stores;
 
-namespace Rpg.ModObjects.Stores
+namespace Rpg.ModObjects.Props
 {
-    public class ModPropStore : ModBaseStore<string, ModProp>
+    public class PropStore : ModBaseStore<string, Prop>
     {
         public string[] GetPropNames()
             => Items.Keys.ToArray();
@@ -28,10 +27,10 @@ namespace Rpg.ModObjects.Stores
         public Mod[] GetMods(string prop, Func<Mod, bool> filterFunc)
             => this[prop]?.Mods.Where(x => filterFunc(x)).ToArray() ?? Array.Empty<Mod>();
 
-        public ModProp Create(string prop)
+        public Prop Create(string prop)
         {
             if (!Contains(prop))
-                this[prop] = new ModProp(EntityId, prop);
+                this[prop] = new Prop(EntityId, prop);
 
             return this[prop]!;
         }
@@ -41,10 +40,10 @@ namespace Rpg.ModObjects.Stores
 
         public void Remove(IEnumerable<Mod> mods)
         {
-            var toRemove = new List<ModProp>();
+            var toRemove = new List<Prop>();
             foreach (var mod in mods)
             {
-                var modProp = Graph?.GetEntity<ModObject>(mod.EntityId)?.GetModProp(mod.Prop);
+                var modProp = Graph?.GetEntity<RpgObject>(mod.EntityId)?.GetModProp(mod.Prop);
                 if (modProp != null)
                 {
                     modProp.Remove(mod);
@@ -55,7 +54,7 @@ namespace Rpg.ModObjects.Stores
 
             foreach (var modProp in toRemove)
             {
-                var entity = Graph?.GetEntity<ModObject>(modProp.EntityId);
+                var entity = Graph?.GetEntity<RpgObject>(modProp.EntityId);
                 entity?.RemoveModProp(modProp.Prop);
             }
         }
@@ -66,7 +65,7 @@ namespace Rpg.ModObjects.Stores
             {
                 mod.OnAdd(Graph!.Turn);
 
-                var entity = Graph!.GetEntity<ModObject>(mod.EntityId);
+                var entity = Graph!.GetEntity<RpgObject>(mod.EntityId);
                 if (entity != null)
                 {
                     var modProp = entity.GetModProp(mod.Prop, create: true)!;
@@ -85,24 +84,24 @@ namespace Rpg.ModObjects.Stores
             }
         }
 
-        public List<ModPropRef> GetPropsAffectedBy(ModPropRef propRef)
+        public List<PropRef> GetPropsAffectedBy(PropRef propRef)
         {
-            var res = new List<ModPropRef>();
+            var res = new List<PropRef>();
             res.Merge(propRef);
 
-            var propsAffectedBy = new List<ModPropRef>();
+            var propsAffectedBy = new List<PropRef>();
             foreach (var entity in Graph!.GetEntities())
             {
                 var affectedBy = entity.GetModProps()
                     .Where(x => x.IsAffectedBy(propRef))
-                    .Select(x => new ModPropRef(entity.Id, x.Prop))
+                    .Select(x => new PropRef(entity.Id, x.Prop))
                     .Distinct();
 
                 res.Merge(affectedBy);
 
                 foreach (var propAffectedBy in affectedBy)
                 {
-                    var parentEntity = Graph!.GetEntity<ModObject>(propAffectedBy.EntityId);
+                    var parentEntity = Graph!.GetEntity<RpgObject>(propAffectedBy.EntityId);
                     var parentAffects = parentEntity!.GetPropsAffectedBy(propAffectedBy.Prop);
 
                     res.Merge(parentAffects);
@@ -112,7 +111,7 @@ namespace Rpg.ModObjects.Stores
             return res;
         }
 
-        public List<ModPropRef> AffectedByProps()
+        public List<PropRef> AffectedByProps()
         {
             var res = Items.Keys
                 .SelectMany(GetPropsThatAffect)
@@ -122,19 +121,19 @@ namespace Rpg.ModObjects.Stores
             return res;
         }
 
-        public List<ModPropRef> GetPropsThatAffect(string prop)
+        public List<PropRef> GetPropsThatAffect(string prop)
         {
-            var res = new List<ModPropRef>();
+            var res = new List<PropRef>();
 
             var affectedByGroup = GetMods(prop)
-                .Where(x => x.Source.EntityId != null && !string.IsNullOrEmpty(x.Source.Prop))
-                .Select(x => new ModPropRef(x.Source.EntityId!.Value, x.Source.Prop!))
+                .Where(x => x.SourcePropRef != null)
+                .Select(x => x.SourcePropRef!)
                 .Distinct()
                 .GroupBy(x => x.EntityId);
 
             foreach (var affectedByProp in affectedByGroup)
             {
-                var entity = Graph!.GetEntity<ModObject>(affectedByProp.Key);
+                var entity = Graph!.GetEntity<RpgObject>(affectedByProp.Key);
                 if (entity != null)
                 {
                     var childProps = affectedByProp
@@ -147,7 +146,7 @@ namespace Rpg.ModObjects.Stores
                 res.Merge(affectedByProp);
             }
 
-            res.Merge(new ModPropRef(EntityId, prop));
+            res.Merge(new PropRef(EntityId, prop));
             return res;
         }
 

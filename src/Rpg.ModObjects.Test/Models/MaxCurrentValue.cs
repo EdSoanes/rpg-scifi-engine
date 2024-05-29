@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace Rpg.ModObjects.Tests.Models
 {
-    public class MaxCurrentValue : ModObject
+    public class MaxCurrentValue : RpgObject
     {
         [JsonProperty] public int Max { get; protected set; }
         [JsonProperty] public int Current { get; protected set; }

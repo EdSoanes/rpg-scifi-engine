@@ -5,7 +5,7 @@ namespace Rpg.ModObjects.States
 {
     public class ModState : ITemporal
     {
-        protected ModGraph? Graph { get; set; }
+        protected RpgGraph? Graph { get; set; }
 
         [JsonProperty] public Guid EntityId { get; protected set; }
         [JsonProperty] public string Name { get; protected set; }
@@ -69,13 +69,13 @@ namespace Rpg.ModObjects.States
             UpdateStateMods();
         }
 
-        private bool ShouldAddStateModSet(ModObject entity)
+        private bool ShouldAddStateModSet(RpgObject entity)
             => entity.IsStateActive(Name) && (entity.IsStateForcedActive(Name) || ShouldActivate()) && entity.GetModSet(InstanceName) == null;
 
-        private bool ShouldRemoveStateModSet(ModObject entity)
+        private bool ShouldRemoveStateModSet(RpgObject entity)
             => !entity.IsStateActive(Name) && !ShouldActivate() && entity.GetModSet(InstanceName) != null;
 
-        protected void UpdateStateMods(ModObject? entity = null)
+        protected void UpdateStateMods(RpgObject? entity = null)
         {
             entity ??= Graph?.GetEntity(EntityId);
             if (entity != null)
@@ -95,7 +95,7 @@ namespace Rpg.ModObjects.States
             }
         }
 
-        public void OnGraphCreating(ModGraph graph, ModObject entity)
+        public void OnGraphCreating(RpgGraph graph, RpgObject entity)
         {
             Graph = graph;
             EntityId = entity.Id;

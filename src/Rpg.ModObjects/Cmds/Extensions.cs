@@ -1,11 +1,12 @@
 ﻿using System.Reflection;
+using Rpg.ModObjects.Modifiers;
 
 namespace Rpg.ModObjects.Cmds
 {
     internal static class ReflectionExtensions
     { 
         internal static ModCmd[] CreateModCommands<T>(this T entity)
-            where T : ModObject
+            where T : RpgObject
         {
             var methods = entity.GetType().GetMethods()
                 .Where(x => x.IsModCmdMethod());

@@ -1,4 +1,5 @@
 ﻿using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Stores;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
@@ -6,42 +7,42 @@ using System.Reflection.Metadata;
 
 namespace Rpg.ModObjects
 {
-    public static class ModObjectExtensions
+    public static class RpgObjectExtensions
     {
         private class PropertyRef
         {
-            public ModObject? Entity { get; set; }
+            public RpgObject? Entity { get; set; }
             public string? Prop { get; set; }
         }
 
-        public static void Merge(this List<ModPropRef> target, ModPropRef propRef)
+        public static void Merge(this List<PropRef> target, PropRef propRef)
         {
             if (!target.Any(x => x == propRef))
                 target.Add(propRef);
         }
 
-        public static void Merge(this List<ModPropRef> target, IEnumerable<ModPropRef> source)
+        public static void Merge(this List<PropRef> target, IEnumerable<PropRef> source)
         {
             foreach (var a in source)
                 target.Merge(a);
         }
 
         public static void TriggerUpdate<TTarget, TTargetValue>(this TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr)
-            where TTarget : ModObject
+            where TTarget : RpgObject
         {
-            var propRef = ModPropRef.CreatePropRef(entity, targetExpr);
+            var propRef = PropRef.CreatePropRef(entity, targetExpr);
             entity.TriggerUpdate(propRef);
         }
 
         public static ModObjectPropDescription Describe<TEntity, T1>(this TEntity entity, Expression<Func<TEntity, T1>> targetExpr)
-            where TEntity : ModObject
+            where TEntity : RpgObject
         {
-            var propRef = ModPropRef.CreatePropRef(entity, targetExpr);
+            var propRef = PropRef.CreatePropRef(entity, targetExpr);
             return entity.Describe(propRef.Prop);
         }
 
         public static ModSet? AddModSet<T>(this T entity, string name, ModBehavior behavior, params Mod[] mods)
-            where T : ModObject
+            where T : RpgObject
         {
             var modSet = new ModSet(entity.Id, name, behavior, mods);
             return entity.AddModSet(modSet)
@@ -51,7 +52,7 @@ namespace Rpg.ModObjects
 
 
         public static T AddModSet<T>(this T entity, string name, Action<ModSet> addAction)
-            where T : ModObject
+            where T : RpgObject
         {
             var modSet = new ModSet(entity.Id, name);
             addAction.Invoke(modSet);
@@ -61,7 +62,7 @@ namespace Rpg.ModObjects
         }
 
         public static T AddModSet<T>(this T entity, string name, ModBehavior behavior, Action<ModSet> addAction)
-            where T : ModObject
+            where T : RpgObject
         {
             var modSet = new ModSet(entity.Id, name, behavior);
             addAction.Invoke(modSet);

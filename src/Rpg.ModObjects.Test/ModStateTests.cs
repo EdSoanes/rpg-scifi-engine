@@ -9,14 +9,14 @@ namespace Rpg.ModObjects.Tests
         [SetUp]
         public void Setup()
         {
-            ModGraphExtensions.RegisterAssembly(Assembly.GetExecutingAssembly());
+            RpgGraphExtensions.RegisterAssembly(Assembly.GetExecutingAssembly());
         }
 
         [Test]
         public void IncreaseMeleeTo10_ActivateBuffState_VerifyValues()
         {
             var entity = new ModdableEntity();
-            var graph = new ModGraph(entity);
+            var graph = new RpgGraph(entity);
 
             Assert.That(entity.ActiveStateNames, Does.Not.Contain("Buff"));
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
@@ -34,7 +34,7 @@ namespace Rpg.ModObjects.Tests
         public void ActivateBuffState_DecreaseMeleeTo4_VerifyValues()
         {
             var entity = new ModdableEntity();
-            var graph = new ModGraph(entity);
+            var graph = new RpgGraph(entity);
 
             entity.AddMod(new Permanent(), "mymod", x => x.Melee, 6);
             entity.TriggerUpdate();
@@ -53,7 +53,7 @@ namespace Rpg.ModObjects.Tests
         public void DecreaseMeleeTo0_ActivateNerfState_VerifyValues()
         {
             var entity = new ModdableEntity();
-            var graph = new ModGraph(entity);
+            var graph = new RpgGraph(entity);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));
@@ -69,7 +69,7 @@ namespace Rpg.ModObjects.Tests
         public void ManuallyActivateBuffState_VerifyValues()
         {
             var entity = new ModdableEntity();
-            var graph = new ModGraph(entity);
+            var graph = new RpgGraph(entity);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));

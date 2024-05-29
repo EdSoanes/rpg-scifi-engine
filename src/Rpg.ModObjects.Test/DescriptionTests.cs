@@ -9,14 +9,14 @@ namespace Rpg.ModObjects.Tests
         [SetUp]
         public void Setup()
         {
-            ModGraphExtensions.RegisterAssembly(Assembly.GetExecutingAssembly());
+            RpgGraphExtensions.RegisterAssembly(Assembly.GetExecutingAssembly());
         }
 
         [Test]
         public void DescribeMelee()
         {
             var entity = new ModdableEntity();
-            var graph = new ModGraph(entity);
+            var graph = new RpgGraph(entity);
 
             var desc = entity.Describe(x => x.Melee);
             Assert.IsNotNull(desc);

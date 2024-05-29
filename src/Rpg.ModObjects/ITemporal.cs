@@ -8,7 +8,7 @@ namespace Rpg.ModObjects
 {
     public interface ITemporal
     {
-        void OnGraphCreating(ModGraph graph, ModObject entity);
+        void OnGraphCreating(RpgGraph graph, RpgObject entity);
         void OnTurnChanged(int turn);
         void OnBeginEncounter();
         void OnEndEncounter();

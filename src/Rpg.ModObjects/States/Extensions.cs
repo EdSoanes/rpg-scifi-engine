@@ -1,11 +1,12 @@
 ﻿using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Modifiers;
 using System.Reflection;
 
 namespace Rpg.ModObjects.States
 {
     public static class ModStateExtensions
     {
-        internal static ModState[] CreateModStates(this ModObject entity)
+        internal static ModState[] CreateModStates(this RpgObject entity)
         {
             var methods = entity.GetType().GetMethods()
                 .Where(x => x.IsModStateMethod());

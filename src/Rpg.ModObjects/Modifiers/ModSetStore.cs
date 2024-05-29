@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using Rpg.ModObjects.Stores;
 
-namespace Rpg.ModObjects.Stores
+namespace Rpg.ModObjects.Modifiers
 {
     public class ModSetStore : ModBaseStore<Guid, ModSet>
     {

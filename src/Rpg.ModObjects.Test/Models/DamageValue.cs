@@ -3,7 +3,7 @@ using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Tests.Models
 {
-    public class DamageValue : ModObject
+    public class DamageValue : RpgObject
     {
         [JsonProperty] public Dice Dice { get; protected set; }
         [JsonProperty] public int ArmorPenetration { get; protected set; }

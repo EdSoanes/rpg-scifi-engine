@@ -10,7 +10,7 @@ namespace Rpg.ModObjects.Tests
         [SetUp]
         public void Setup()
         {
-            ModGraphExtensions.RegisterAssembly(Assembly.GetExecutingAssembly());
+            RpgGraphExtensions.RegisterAssembly(Assembly.GetExecutingAssembly());
         }
 
         [Test]
@@ -25,7 +25,7 @@ namespace Rpg.ModObjects.Tests
             location.Add(recipient);
             location.Add(gun);
 
-            var graph = new ModGraph(location);
+            var graph = new RpgGraph(location);
 
             //Initiator
             Assert.That(initiator.Strength.Score, Is.EqualTo(14));
@@ -86,7 +86,7 @@ namespace Rpg.ModObjects.Tests
             location.Add(recipient);
             location.Add(gun);
 
-            var graph = new ModGraph(location);
+            var graph = new RpgGraph(location);
             graph.NewEncounter();
 
             var shootCmd = gun.GetCommand(nameof(TestGun.Shoot))!;
@@ -102,21 +102,27 @@ namespace Rpg.ModObjects.Tests
                 .Set("targetDefense", recipient.Defense)
                 .Set("targetRange", 10);
             
-            var modSet = shootCmd.Create(args);
-            shootCmd.Apply(modSet);
+            //Assert the modSets
+            var modSet = shootCmd.Create(args)!;
+            var shootSubsets = modSet.SubSets(graph);
 
+            var target = shootSubsets.FirstOrDefault(x => x.Name == modSet.TargetProp);
+            Assert.That(target, Is.Not.Null);
+            Assert.That(target.IsResolved, Is.True);
+            Assert.That(target.Dice.Roll(), Is.EqualTo(11));
+
+            var diceRoll = shootSubsets.FirstOrDefault(x => x.Name == modSet.DiceRollProp);
+            Assert.That(diceRoll, Is.Not.Null);
+            Assert.That(diceRoll.IsResolved, Is.False);
+            Assert.That(diceRoll.Dice.ToString(), Is.EqualTo("1d20 + 4"));
+
+            //Assert the gun
             Assert.That(gun.IsStateActive(nameof(TestGun.Shoot)), Is.True);
             Assert.That(gun.Ammo.Current, Is.EqualTo(9));
+
+            //Assert the initiator
             Assert.That(initiator.PhysicalActionPoints.Current, Is.EqualTo(4));
             Assert.That(initiator.MentalActionPoints.Current, Is.EqualTo(2));
-
-            var target = shootCmd.GetTarget(initiator, modSet);
-            Assert.That(target, Is.Not.Null);
-            Assert.That(target, Is.EqualTo((DiceCalculations.Range(10) + recipient.Defense).Roll()));
-
-            var diceRoll = shootCmd.GetDiceRoll(initiator, modSet);
-            Assert.That(diceRoll, Is.Not.Null);
-            Assert.That(diceRoll!.Value.ToString(), Is.EqualTo("1d20 + 4"));
         }
 
         [Test]
@@ -131,7 +137,7 @@ namespace Rpg.ModObjects.Tests
             location.Add(recipient);
             location.Add(gun);
 
-            var graph = new ModGraph(location);
+            var graph = new RpgGraph(location);
             graph.NewEncounter();
 
             //Get the gun command and the args needed to execute it
@@ -174,7 +180,7 @@ namespace Rpg.ModObjects.Tests
             location.Add(recipient);
             location.Add(gun);
 
-            var graph = new ModGraph(location);
+            var graph = new RpgGraph(location);
             graph.NewEncounter();
 
             //Get the gun command and the args needed to execute it
@@ -185,23 +191,27 @@ namespace Rpg.ModObjects.Tests
                 .Set("targetRange", 10);
 
             var shootModSet = shootCmd.Create(shootArgs);
-            shootCmd.Apply(shootModSet);
+            //shootCmd.Apply(shootModSet);
 
+            //Simulate outcome of shooting the test gun
             var target = shootCmd.GetTarget(initiator, shootModSet)!.Value;
             var outcome = target + 1;
 
+            //Get the inflict damage command and set the args needed to execute it
             var damageCmd = gun.GetCommand(shootCmd.OutcomeCommandName!);
             var damageArgs = damageCmd!
                 .ArgSet(initiator, recipient)
                 .SetTarget(target)
                 .SetOutcome(outcome);
 
+            //Find which mod subsets need resolving (dice rolls)
             var damageModSet = damageCmd.Create(damageArgs)!;
             var damageSet = damageModSet.SubSets(graph).Single(x => !x.IsResolved);
             var damageRoll = damageSet.Resolve(new ExpireOnZero(), -5);
 
-            Assert.That(damageSet.InitiatorId, Is.EqualTo(recipient.Id));
+            Assert.That(damageSet.TargetId, Is.EqualTo(recipient.Id));
 
+            //Apply the resolved dice rolls to the recipient(s)
             Assert.That(recipient.Health, Is.EqualTo(10));
             recipient.AddMod(damageRoll);
             recipient.TriggerUpdate();

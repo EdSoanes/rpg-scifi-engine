@@ -1,12 +1,12 @@
 ﻿using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.Values;
 
-namespace Rpg.ModObjects
+namespace Rpg.ModObjects.Props
 {
-    public class ModPropDescription
+    public class PropDescription
     {
-        public ModObject RootEntity { get; set; }
-        public ModObject Entity { get; private set; }
+        public RpgObject RootEntity { get; set; }
+        public RpgObject Entity { get; private set; }
         public string Prop { get; private set; }
         public string Path { get; private set; }
 
@@ -14,7 +14,7 @@ namespace Rpg.ModObjects
         public Dice BaseValue { get; private set; }
         public Dice Value { get; private set; }
 
-        public ModPropDescription(ModGraph graph, ModObject rootEntity, ModPropRef propRef)
+        public PropDescription(RpgGraph graph, RpgObject rootEntity, PropRef propRef)
         {
             RootEntity = rootEntity;
             Entity = graph.GetEntity(propRef.EntityId)!;
@@ -43,12 +43,12 @@ namespace Rpg.ModObjects
             => $"{PropertyString()} = {Value}";
     }
 
-    public class ModObjectPropDescription : ModPropDescription
+    public class ModObjectPropDescription : PropDescription
     {
         public ModDescription[] Mods { get; private set; } = new ModDescription[0];
 
-        public ModObjectPropDescription(ModGraph graph, ModObject rootEntity, string prop)
-            : base(graph, rootEntity, new ModPropRef(rootEntity.Id, prop))
+        public ModObjectPropDescription(RpgGraph graph, RpgObject rootEntity, string prop)
+            : base(graph, rootEntity, new PropRef(rootEntity.Id, prop))
         {
             Mods = Entity.GetMods(prop)
                 .Select(x => new ModDescription(graph, rootEntity, x))
@@ -59,15 +59,15 @@ namespace Rpg.ModObjects
 
     public class ModDescription
     {
-        public ModPropDescription TargetProp { get; private set; }
-        public ModPropDescription? SourceProp { get; private set; }
+        public PropDescription TargetProp { get; private set; }
+        public PropDescription? SourceProp { get; private set; }
         public ModType ModType { get; private set; }
         public Dice SourceValue { get; private set; }
         public Dice Value { get; private set; }
         public string? ValueFunction { get; private set; }
         public ModDescription[] Mods { get; private set; } = new ModDescription[0];
 
-        public ModDescription(ModGraph graph, ModObject rootEntity, ModPropDescription targetProp, Mod[] baseMods)
+        public ModDescription(RpgGraph graph, RpgObject rootEntity, PropDescription targetProp, Mod[] baseMods)
         {
             TargetProp = targetProp;
             ModType = ModType.Override;
@@ -79,17 +79,17 @@ namespace Rpg.ModObjects
                 .ToArray();
         }
 
-        public ModDescription(ModGraph graph, ModObject rootEntity, Mod mod)
+        public ModDescription(RpgGraph graph, RpgObject rootEntity, Mod mod)
         {
-            TargetProp = new ModPropDescription(graph, rootEntity, mod);
+            TargetProp = new PropDescription(graph, rootEntity, mod);
             ModType = mod.Behavior.Type;
             Value = graph?.CalculateModValue(mod) ?? Dice.Zero;
-            ValueFunction = mod.Source.ValueFunc.FullName;
+            ValueFunction = mod.SourceValueFunc.FullName;
 
-            var sourcePropRef = mod.Source.PropRef;
+            var sourcePropRef = mod.SourcePropRef;
             if (sourcePropRef != null)
             {
-                SourceProp = new ModPropDescription(graph, rootEntity, sourcePropRef);
+                SourceProp = new PropDescription(graph, rootEntity, sourcePropRef);
                 SourceValue = SourceProp.Value;
 
                 var mods = new List<ModDescription>();
@@ -110,7 +110,7 @@ namespace Rpg.ModObjects
                 Mods = mods.ToArray();
             }
             else
-                SourceValue = mod.Source.Value ?? Dice.Zero;
+                SourceValue = mod.SourceValue ?? Dice.Zero;
         }
 
         public override string ToString()

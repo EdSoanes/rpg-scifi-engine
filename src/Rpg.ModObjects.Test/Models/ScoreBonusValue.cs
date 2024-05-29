@@ -4,7 +4,7 @@ using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Tests.Models
 {
-    public class ScoreBonusValue : ModObject
+    public class ScoreBonusValue : RpgObject
     {
         [JsonProperty] public int Score { get; protected set; }
         [JsonProperty] public int Bonus { get; protected set; }

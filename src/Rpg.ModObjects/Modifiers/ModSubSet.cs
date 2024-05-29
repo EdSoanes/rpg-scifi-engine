@@ -1,16 +1,11 @@
-﻿using Rpg.ModObjects.Modifiers;
+﻿using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Values;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Rpg.ModObjects
+namespace Rpg.ModObjects.Modifiers
 {
     public class ModSubSet : ModSet
     {
-        public Guid RecipientId { get; set; }
+        public Guid TargetId { get; set; }
         public Dice Dice { get; private set; }
         public bool IsResolved { get => Dice.IsConstant; }
 
@@ -19,12 +14,13 @@ namespace Rpg.ModObjects
             if (IsResolved || resolution == null)
                 resolution = Dice.Roll();
 
-            return Mod.Create(behavior, InitiatorId, Name, resolution.Value);
+            return Mod.Create(behavior, TargetId, Name, resolution.Value);
         }
 
-        public ModSubSet(ModPropRef recipientPropRef, Mod[] mods, Dice dice)
+        public ModSubSet(PropRef recipientPropRef, Mod[] mods, Dice dice)
             : base(recipientPropRef.EntityId, recipientPropRef.Prop, new Turn())
         {
+            TargetId = recipientPropRef.EntityId;
             Dice = dice;
             Mods.AddRange(mods);
         }

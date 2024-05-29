@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Rpg.ModObjects
+namespace Rpg.ModObjects.Modifiers
 {
     public class ModSourceValueFunction
     {
@@ -42,18 +42,18 @@ namespace Rpg.ModObjects
                 return;
             }
 
-            ModObject? entity;
+            RpgObject? entity;
             var memberExpression = methodCallExpression.Arguments?.Last() as MemberExpression;
             if (memberExpression != null)
             {
                 var constantExpression = memberExpression.Expression as ConstantExpression;
                 var fieldInfo = memberExpression?.Member as FieldInfo;
-                entity = fieldInfo?.GetValue(constantExpression?.Value) as ModObject;
+                entity = fieldInfo?.GetValue(constantExpression?.Value) as RpgObject;
             }
             else
             {
                 var constantExpression = methodCallExpression.Arguments?.Last() as ConstantExpression;
-                entity = constantExpression?.Value as ModObject;
+                entity = constantExpression?.Value as RpgObject;
             }
 
             EntityId = entity?.Id;

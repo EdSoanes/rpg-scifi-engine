@@ -4,7 +4,7 @@ using System.Collections.Specialized;
 
 namespace Rpg.ModObjects
 {
-    public class ModObjectContainer : ModObject, INotifyCollectionChanged
+    public class ModObjectContainer : RpgObject, INotifyCollectionChanged
     {
         [JsonProperty] protected ModObjectStore ObjectStore { get; private set; } = new ModObjectStore();
 
@@ -17,10 +17,10 @@ namespace Rpg.ModObjects
             : base()
                 => Name = name;
 
-        public bool Contains(ModObject obj)
+        public bool Contains(RpgObject obj)
             => ObjectStore.Contains(obj.Id);
 
-        public bool Add(ModObject obj)
+        public bool Add(RpgObject obj)
         {
             if (!ObjectStore.Contains(obj.Id))
             {
@@ -36,7 +36,7 @@ namespace Rpg.ModObjects
             return false;
         }
 
-        public bool Remove(ModObject obj)
+        public bool Remove(RpgObject obj)
         {
             if (ObjectStore.Contains(obj.Id))
             {
@@ -48,7 +48,7 @@ namespace Rpg.ModObjects
             return false;
         }
 
-        public bool TransferTo(ModObject obj, ModObjectContainer target)
+        public bool TransferTo(RpgObject obj, ModObjectContainer target)
         {
             return Contains(obj) 
                 && !target.Contains(obj)

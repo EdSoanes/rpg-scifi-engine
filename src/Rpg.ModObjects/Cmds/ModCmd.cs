@@ -7,8 +7,8 @@ namespace Rpg.ModObjects.Cmds
 {
     public class ModCmd : ITemporal
     {
-        protected ModGraph? Graph { get; set; }
-        protected ModObject? Entity { get; set; }
+        protected RpgGraph? Graph { get; set; }
+        protected RpgObject? Entity { get; set; }
 
         [JsonProperty] public Guid EntityId { get; private set; }
         [JsonProperty] public string CommandName { get; private set; }
@@ -20,13 +20,13 @@ namespace Rpg.ModObjects.Cmds
 
         public ModState State { get => new ModState(EntityId, CommandName); }
 
-        public int? GetTarget(ModObject initiator, ModSet? modSet)
+        public int? GetTarget(RpgObject initiator, ModSet? modSet)
             => Graph!.GetPropValue(initiator, modSet?.TargetProp).Roll();
 
-        public Dice? GetDiceRoll(ModObject initiator, ModSet? modSet)
+        public Dice? GetDiceRoll(RpgObject initiator, ModSet? modSet)
             => Graph!.GetPropValue(initiator, modSet?.DiceRollProp);
 
-        public int? GetOutcome(ModObject initiator, ModSet? modSet)
+        public int? GetOutcome(RpgObject initiator, ModSet? modSet)
             => Graph!.GetPropValue(initiator, modSet?.OutcomeProp).Roll();
 
         public static ModCmd Create(Guid entityId, string commandName, ModCmdAttribute cmdAttr, ModCmdArg[]? cmdArgs)
@@ -62,12 +62,12 @@ namespace Rpg.ModObjects.Cmds
             => new ModCmdArgSet(Args);
 
         public ModCmdArgSet ArgSet<T>(T initiator)
-            where T : ModObject
+            where T : RpgObject
                 => new ModCmdArgSet(Args).SetInitiator(initiator);
 
         public ModCmdArgSet ArgSet<TI, TR>(TI initiator, TR recipient)
-            where TI : ModObject
-            where TR : ModObject
+            where TI : RpgObject
+            where TR : RpgObject
                 => new ModCmdArgSet(Args)
                     .SetInitiator(initiator)
                     .SetRecipient(recipient);
@@ -105,7 +105,7 @@ namespace Rpg.ModObjects.Cmds
         private ModSet CreateModSet()
             => new ModSet(EntityId, CommandName, new Turn());
 
-        public void OnGraphCreating(ModGraph graph, ModObject entity)
+        public void OnGraphCreating(RpgGraph graph, RpgObject entity)
         {
             Graph = graph;
             Entity = entity;

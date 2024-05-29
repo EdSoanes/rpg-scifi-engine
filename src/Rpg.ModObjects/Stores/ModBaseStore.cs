@@ -7,7 +7,7 @@ namespace Rpg.ModObjects.Stores
         where TKey : notnull
         where TVal : class
     {
-        protected ModGraph Graph { get; set; }
+        protected RpgGraph Graph { get; set; }
         protected Guid EntityId { get; set; }
 
         [JsonProperty] protected Dictionary<TKey, TVal> Items { get; set; } = new Dictionary<TKey, TVal>();
@@ -56,7 +56,7 @@ namespace Rpg.ModObjects.Stores
             return false;
         }
 
-        public virtual void OnGraphCreating(ModGraph graph, ModObject entity)
+        public virtual void OnGraphCreating(RpgGraph graph, RpgObject entity)
         {
             Graph = graph;
             EntityId = entity!.Id;

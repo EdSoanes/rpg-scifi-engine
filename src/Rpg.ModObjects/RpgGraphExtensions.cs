@@ -1,5 +1,6 @@
 ﻿using Rpg.ModObjects.Cmds;
 using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Props;
 using Rpg.ModObjects.States;
 using Rpg.ModObjects.Stores;
 using Rpg.ModObjects.Values;
@@ -8,7 +9,7 @@ using System.Reflection;
 
 namespace Rpg.ModObjects
 {
-    public static class ModGraphExtensions
+    public static class RpgGraphExtensions
     {
         private static List<string> ScannableNamespaces = new List<string>();
         private static Type[] ModdablePropertyTypes = new Type[]
@@ -22,8 +23,8 @@ namespace Rpg.ModObjects
             typeof(ModCmdStore),
             typeof(ModSetStore),
             typeof(ModStateStore),
-            typeof(ModPropStore),
-            typeof(ModGraph),
+            typeof(PropStore),
+            typeof(RpgGraph),
             typeof(ModCmd),
             typeof(ModState),
             typeof(ModSet),
@@ -45,14 +46,14 @@ namespace Rpg.ModObjects
             ScannableNamespaces = ScannableNamespaces.Distinct().ToList();
         }
 
-        internal static string[] GetBaseTypes(this ModObject entity)
+        internal static string[] GetBaseTypes(this RpgObject entity)
         {
             var res = new List<string>();
             var t = entity.GetType();
             while (t != null)
             {
                 res.Add(t.Name);
-                t = t == typeof(ModObject)
+                t = t == typeof(RpgObject)
                     ? null
                     :t.BaseType;
             }
@@ -61,9 +62,9 @@ namespace Rpg.ModObjects
             return res.ToArray();
         }
 
-        internal static IEnumerable<ModObject> Traverse(this object obj, bool bottomUp = false)
+        internal static IEnumerable<RpgObject> Traverse(this object obj, bool bottomUp = false)
         {
-            var entity = obj as ModObject;
+            var entity = obj as RpgObject;
             if (entity != null && !bottomUp)
                 yield return entity;
 
@@ -148,7 +149,7 @@ namespace Rpg.ModObjects
             return res;
         }
 
-        internal static T? PropertyValue<T>(this ModObject? entity, string path)
+        internal static T? PropertyValue<T>(this RpgObject? entity, string path)
         {
             if (entity == null)
                 return default;
@@ -214,7 +215,7 @@ namespace Rpg.ModObjects
             }
         }
 
-        internal static PropertyInfo[] GetModdableProperties(this ModObject context)
+        internal static PropertyInfo[] GetModdableProperties(this RpgObject context)
         {
             return context.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                 .Where(IsModdableProperty)

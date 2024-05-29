@@ -1,31 +1,29 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Modifiers;
-using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
 
-namespace Rpg.ModObjects
+namespace Rpg.ModObjects.Props
 {
-    public class ModPropRef
+    public class PropRef
     {
         [JsonProperty] public Guid EntityId { get; protected set; }
         [JsonProperty] public string Prop { get; protected set; }
 
-        [JsonConstructor] protected ModPropRef() { }
+        [JsonConstructor] protected PropRef() { }
 
-        public ModPropRef(Guid entityId, string prop)
+        public PropRef(Guid entityId, string prop)
         {
             EntityId = entityId;
             Prop = prop;
         }
 
-        public static bool operator ==(ModPropRef? d1, ModPropRef? d2)
+        public static bool operator ==(PropRef? d1, PropRef? d2)
             => d1?.EntityId == d2?.EntityId && d1?.Prop == d2?.Prop;
         
-        public static bool operator !=(ModPropRef? d1, ModPropRef? d2) 
+        public static bool operator !=(PropRef? d1, PropRef? d2) 
             => d1?.EntityId != d2?.EntityId || d1?.Prop != d2?.Prop;
 
-        public static ModPropRef CreatePropRef<T, TResult>(T rootEntity, Expression<Func<T, TResult>> expression)
-            where T : ModObject
+        public static PropRef CreatePropRef<T, TResult>(T rootEntity, Expression<Func<T, TResult>> expression)
+            where T : RpgObject
         {
             var memberExpression = expression.Body as MemberExpression;
             if (memberExpression == null)
@@ -45,21 +43,21 @@ namespace Rpg.ModObjects
 
             pathSegments.Reverse();
             var path = string.Join(".", pathSegments);
-            var entity = rootEntity.PropertyValue<ModObject>(path);
+            var entity = rootEntity.PropertyValue<RpgObject>(path);
 
-            return new ModPropRef(entity!.Id, prop);
+            return new PropRef(entity!.Id, prop);
         }
 
-        public static ModPropRef CreatePropRef(ModObject rootEntity, string propPath)
+        public static PropRef CreatePropRef(RpgObject rootEntity, string propPath)
         {
             var parts = propPath.Split('.');
             var path = string.Join(".", parts.Take(parts.Length - 1));
             var prop = parts.Last();
 
-            var entity = rootEntity.PropertyValue<ModObject>(path);
+            var entity = rootEntity.PropertyValue<RpgObject>(path);
             var locator = entity != null
-                ? new ModPropRef(entity.Id, prop)
-                : new ModPropRef(rootEntity.Id, propPath);
+                ? new PropRef(entity.Id, prop)
+                : new PropRef(rootEntity.Id, propPath);
 
             return locator;
         }

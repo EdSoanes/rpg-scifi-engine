@@ -18,7 +18,7 @@ namespace Rpg.ModObjects.Tests.Models
     /// PhysicalActionsPoints.Max 5
     /// MentalActionPoints.Max 3
     /// </summary>
-    public class TestHuman : ModObject
+    public class TestHuman : RpgObject
     {
         public ScoreBonusValue Strength { get; private set; } = new ScoreBonusValue(nameof(Strength), 14);
         public ScoreBonusValue Intelligence { get; private set; } = new ScoreBonusValue(nameof(Intelligence), 10);

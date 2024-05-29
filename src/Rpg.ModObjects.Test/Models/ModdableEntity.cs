@@ -5,7 +5,7 @@ using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Tests.Models
 {
-    public class ModdableEntity : ModObject
+    public class ModdableEntity : RpgObject
     {
         public ScoreBonusValue Strength { get; private set; } = new ScoreBonusValue(nameof(Strength), 14);
         public DamageValue Damage { get; private set; } = new DamageValue("d6", 10, 100);
@@ -35,7 +35,7 @@ namespace Rpg.ModObjects.Tests.Models
 
         [ModCmd()]
         [ModCmdArg("initiator", ModCmdArgType.Actor)]
-        public ModSet TestCommand(ModObject initiator, int target)
+        public ModSet TestCommand(RpgObject initiator, int target)
         {
             return new ModSet(Id, nameof(TestCommand));
         }

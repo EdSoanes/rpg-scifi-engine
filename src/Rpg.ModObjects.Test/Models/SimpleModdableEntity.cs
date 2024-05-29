@@ -2,7 +2,7 @@
 
 namespace Rpg.ModObjects.Tests.Models
 {
-    public class SimpleModdableEntity : ModObject
+    public class SimpleModdableEntity : RpgObject
     {
         public int Score { get; protected set; }
         public int Bonus { get; protected set; }

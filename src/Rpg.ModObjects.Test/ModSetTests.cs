@@ -9,14 +9,14 @@ namespace Rpg.ModObjects.Tests
         [SetUp]
         public void Setup()
         {
-            ModGraphExtensions.RegisterAssembly(Assembly.GetExecutingAssembly());
+            RpgGraphExtensions.RegisterAssembly(Assembly.GetExecutingAssembly());
         }
 
         [Test]
         public void AddModSet_VerifyValues()
         {
             var entity = new ModdableEntity();
-            var graph = new ModGraph(entity);
+            var graph = new RpgGraph(entity);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));
@@ -43,7 +43,7 @@ namespace Rpg.ModObjects.Tests
         public void AddModSet_ExpireModSet_VerifyValues()
         {
             var entity = new ModdableEntity();
-            var graph = new ModGraph(entity);
+            var graph = new RpgGraph(entity);
 
             entity.AddModSet("test", modSet =>
             {
@@ -74,7 +74,7 @@ namespace Rpg.ModObjects.Tests
         public void AddModSetWithPermanentMod_ExpireModSet_VerifyValues()
         {
             var entity = new ModdableEntity();
-            var graph = new ModGraph(entity);
+            var graph = new RpgGraph(entity);
 
             entity.AddModSet("test", modSet =>
             {
@@ -105,7 +105,7 @@ namespace Rpg.ModObjects.Tests
         public void AddModSet_RemoveModSet_VerifyValues()
         {
             var entity = new ModdableEntity();
-            var graph = new ModGraph(entity);
+            var graph = new RpgGraph(entity);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));
@@ -141,7 +141,7 @@ namespace Rpg.ModObjects.Tests
         public void AddEncounterModSet_EndEncounter_VerifyValues()
         {
             var entity = new ModdableEntity();
-            var graph = new ModGraph(entity);
+            var graph = new RpgGraph(entity);
 
             graph.NewEncounter();
 

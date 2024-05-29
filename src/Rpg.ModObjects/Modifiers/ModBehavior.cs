@@ -8,24 +8,6 @@ using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Modifiers
 {
-    public enum ModMerging
-    {
-        Add,
-        Combine,
-        Replace
-    }
-
-    public enum ModType
-    {
-        Initial,
-        Base,
-        Override,
-        Standard,
-        State,
-        ForceState,
-        Synced
-    }
-
     public abstract class ModBehavior
     {
         [JsonProperty] public ModType Type { get; protected set; } = ModType.Standard;
@@ -53,13 +35,13 @@ namespace Rpg.ModObjects.Modifiers
             Duration = int.MinValue;
         }
 
-        public bool CanRemove(ModGraph graph, Mod mod)
+        public bool CanRemove(RpgGraph graph, Mod mod)
         {
             var expiry = GetExpiry(graph, mod);
             return expiry == ModExpiry.Expired && (graph.Turn == 0 || graph.Turn == int.MaxValue - 1);
         }
 
-        public virtual ModExpiry GetExpiry(ModGraph graph, Mod? mod = null)
+        public virtual ModExpiry GetExpiry(RpgGraph graph, Mod? mod = null)
         {
             if (EndTurn < graph.Turn)
                 return ModExpiry.Expired;
@@ -117,7 +99,7 @@ namespace Rpg.ModObjects.Modifiers
         public State(int duration)
             : this(0, duration) { }
 
-        public override ModExpiry GetExpiry(ModGraph graph, Mod? mod = null)
+        public override ModExpiry GetExpiry(RpgGraph graph, Mod? mod = null)
         {
             var res = graph.CalculateModValue(mod);
             return res == Dice.Zero
@@ -186,7 +168,7 @@ namespace Rpg.ModObjects.Modifiers
             Merging = ModMerging.Combine;
         }
 
-        public override ModExpiry GetExpiry(ModGraph graph, Mod? mod = null)
+        public override ModExpiry GetExpiry(RpgGraph graph, Mod? mod = null)
         {
             var res = graph.CalculatePropValue(mod!, x => x.Behavior is ExpireOnZero);
             return res == Dice.Zero

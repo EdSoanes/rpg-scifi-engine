@@ -1,21 +1,20 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
-using System.Reflection;
 
 namespace Rpg.ModObjects.Modifiers
 {
-    //TODO: Improved modifier lifecycle. Try to encode Start/End turns, Permanent, Conditional, etc into a more intuitive model.
-
-    public class Mod : ModPropRef
+    public class Mod : PropRef
     {
         [JsonProperty] public Guid Id { get; protected set; } = Guid.NewGuid();
         [JsonProperty] public Guid? ModSetId { get; internal set; }
         [JsonProperty] public string Name { get; protected set; }
-        [JsonProperty] public ModSource Source { get; protected set; }
-        //[JsonProperty] public ModType ModifierType { get; protected set; }
-        //[JsonProperty] public ModAction ModifierAction { get; protected set; } = ModAction.Accumulate;
-        //[JsonProperty] public ModDuration Duration { get; protected set; } = new ModDuration();
+        //[JsonProperty] public ModSource Source { get; protected set; }
+        [JsonProperty] public PropRef? SourcePropRef { get; protected set; }
+        [JsonProperty] public Dice? SourceValue { get; protected set; }
+        [JsonProperty] public ModSourceValueFunction SourceValueFunc { get; protected set; }
 
         [JsonProperty] public ModBehavior Behavior { get; protected set; }
         [JsonProperty] public bool IsBaseInitMod { get => Behavior.Type == ModType.Initial; }
@@ -24,15 +23,23 @@ namespace Rpg.ModObjects.Modifiers
 
         [JsonConstructor] protected Mod() { }
 
-        private Mod(ModPropRef targetPropRef, string name, ModBehavior behavior, ModSource source)
+        private Mod(PropRef targetPropRef, string name, ModBehavior behavior, PropRef sourcePropRef)
         {
             EntityId = targetPropRef.EntityId;
             Prop = targetPropRef.Prop;
             Name = name;
             Behavior = behavior;
-            Source = source;
+            SourcePropRef = sourcePropRef;
         }
 
+        private Mod(PropRef targetPropRef, string name, ModBehavior behavior, Dice value)
+        {
+            EntityId = targetPropRef.EntityId;
+            Prop = targetPropRef.Prop;
+            Name = name;
+            Behavior = behavior;
+            SourceValue = value;
+        }
 
         public virtual void OnAdd(int turn) 
             => Behavior.OnAdd(turn);
@@ -41,103 +48,115 @@ namespace Rpg.ModObjects.Modifiers
 
         public override string ToString()
         {
-            var mod = $"{EntityId}.{Prop} <= {Source} ({Behavior.Type})";
+            var src = $"{SourcePropRef}{SourceValue}";
+            src = SourceValueFunc.IsCalc
+                ? $"{SourceValueFunc.FuncName} <= {src}"
+                : src;
+
+            var mod = $"{EntityId}.{Prop} <= {src} ({Behavior.Type})";
             return mod;
         }
 
-        public void SetSource(Dice value, Expression<Func<Func<Dice, Dice>>>? diceCalcExpr = null)
-            => Source = new ModSource<ModObject, Dice>(value, diceCalcExpr);
+        public void SetSource(Dice value, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+        {
+            SourceValue = value;
+            SourcePropRef = null;
+            SourceValueFunc.Set(valueFunc);
+        }
 
         internal static Mod Create(ModBehavior behavior, Guid targetId, string prop, Dice value)
         {
-            var targetPropRef = new ModPropRef(targetId, prop);
-            var modSource = new ModSource(value);
-
-            var mod = new Mod(targetPropRef, targetPropRef.Prop, behavior, modSource);
+            var targetPropRef = new PropRef(targetId, prop);
+            var mod = new Mod(targetPropRef, targetPropRef.Prop, behavior, value);
             return mod;
         }
 
         internal static Mod Create<TTarget, TTargetVal>(ModBehavior behavior, TTarget target, Expression<Func<TTarget, TTargetVal>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-            where TTarget : ModObject
+            where TTarget : RpgObject
         {
             var targetPropRef = CreatePropRef(target, targetExpr);
-            var modSource = new ModSource<TTarget, Dice>(value, valueFunc);
 
-            var mod = new Mod(targetPropRef, targetPropRef.Prop, behavior, modSource);
+            var mod = new Mod(targetPropRef, targetPropRef.Prop, behavior, value);
+            mod.SourceValueFunc.Set(valueFunc);
+
             return mod;
         }
 
         internal static Mod Create<TTarget, TTargetVal, TSource, TSourceVal>(ModBehavior behavior, TTarget target, Expression<Func<TTarget, TTargetVal>> targetExpr, TSource source, Expression<Func<TSource, TSourceVal>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-            where TSource : ModObject
-            where TTarget : ModObject
+            where TSource : RpgObject
+            where TTarget : RpgObject
         {
             var targetPropRef = CreatePropRef(target, targetExpr);
-            var modSource = new ModSource<TSource, TSourceVal>(source, sourceExpr, valueFunc);
+            var sourcePropRef = CreatePropRef(source, sourceExpr);
 
-            var mod = new Mod(targetPropRef, targetPropRef.Prop, behavior, modSource);
+            var mod = new Mod(targetPropRef, targetPropRef.Prop, behavior, sourcePropRef);
+            mod.SourceValueFunc.Set(valueFunc);
             return mod;
         }
 
         internal static Mod Create<TTarget, TSource, TSourceVal>(ModBehavior behavior, TTarget target, string targetProp, TSource source, Expression<Func<TSource, TSourceVal>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-            where TSource : ModObject
-            where TTarget : ModObject
+            where TSource : RpgObject
+            where TTarget : RpgObject
         {
             var targetPropRef = CreatePropRef(target, targetProp);
-            var modSource = new ModSource<TSource, TSourceVal>(source, sourceExpr, valueFunc);
+            var sourcePropRef = CreatePropRef(source, sourceExpr);
 
-            var mod = new Mod(targetPropRef, targetPropRef.Prop, behavior, modSource);
+            var mod = new Mod(targetPropRef, targetPropRef.Prop, behavior, sourcePropRef);
+            mod.SourceValueFunc.Set(valueFunc);
             return mod;
         }
 
         internal static Mod Create<TTarget>(ModBehavior behavior, TTarget target, string targetProp, Dice value, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-            where TTarget : ModObject
+            where TTarget : RpgObject
         {
             var targetPropRef = CreatePropRef(target, targetProp);
-            var modSource = new ModSource<TTarget, Dice>(value, valueFunc);
 
-            var mod = new Mod(targetPropRef, targetPropRef.Prop, behavior, modSource);
+            var mod = new Mod(targetPropRef, targetPropRef.Prop, behavior, value);
+            mod.SourceValueFunc.Set(valueFunc);
             return mod;
         }
 
         internal static Mod Create<TTarget, TTargetVal>(ModBehavior behavior, string name, TTarget target, Expression<Func<TTarget, TTargetVal>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-            where TTarget : ModObject
+            where TTarget : RpgObject
         {
             var targetPropRef = CreatePropRef(target, targetExpr);
-            var modSource = new ModSource<TTarget, Dice>(value, valueFunc);
 
-            var mod = new Mod(targetPropRef, name, behavior, modSource);
+            var mod = new Mod(targetPropRef, name, behavior, value);
+            mod.SourceValueFunc.Set(valueFunc);
             return mod;
         }
 
         internal static Mod Create<TTarget, TTargetVal, TSource, TSourceVal>(ModBehavior behavior, string name, TTarget target, Expression<Func<TTarget, TTargetVal>> targetExpr, TSource source, Expression<Func<TSource, TSourceVal>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-            where TSource : ModObject
-            where TTarget : ModObject
+            where TSource : RpgObject
+            where TTarget : RpgObject
         {
             var targetPropRef = CreatePropRef(target, targetExpr);
-            var modSource = new ModSource<TSource, TSourceVal>(source, sourceExpr, valueFunc);
+            var sourcePropRef = CreatePropRef(source, sourceExpr);
 
-            var mod = new Mod(targetPropRef, name, behavior, modSource);
+            var mod = new Mod(targetPropRef, name, behavior, sourcePropRef);
+            mod.SourceValueFunc.Set(valueFunc);
             return mod;
         }
 
         internal static Mod Create<TTarget, TSource, TSourceVal>(ModBehavior behavior, string name, TTarget target, string targetProp, TSource source, Expression<Func<TSource, TSourceVal>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-            where TSource : ModObject
-            where TTarget : ModObject
+            where TSource : RpgObject
+            where TTarget : RpgObject
         {
             var targetPropRef = CreatePropRef(target, targetProp);
-            var modSource = new ModSource<TSource, TSourceVal>(source, sourceExpr, valueFunc);
+            var sourcePropRef = CreatePropRef(source, sourceExpr);
 
-            var mod = new Mod(targetPropRef, name, behavior, modSource);
+            var mod = new Mod(targetPropRef, name, behavior, sourcePropRef);
+            mod.SourceValueFunc.Set(valueFunc);
             return mod;
         }
 
         internal static Mod Create<TTarget>(ModBehavior behavior, string name, TTarget target, string targetProp, Dice value, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-            where TTarget : ModObject
+            where TTarget : RpgObject
         {
             var targetPropRef = CreatePropRef(target, targetProp);
-            var modSource = new ModSource<TTarget, Dice>(value, valueFunc);
 
-            var mod = new Mod(targetPropRef, name, behavior, modSource);
+            var mod = new Mod(targetPropRef, name, behavior, value);
+            mod.SourceValueFunc.Set(valueFunc);
             return mod;
         }
     }
@@ -145,7 +164,7 @@ namespace Rpg.ModObjects.Modifiers
     public static class ModExtensions
     {
         public static TTarget AddMod<TTarget>(this TTarget entity, ModBehavior behavior, string prop, Dice value, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-            where TTarget : ModObject
+            where TTarget : RpgObject
         {
             var mod = Mod.Create(behavior, prop, entity, prop, value, valueFunc);
             entity.AddMod(mod);
@@ -153,7 +172,7 @@ namespace Rpg.ModObjects.Modifiers
         }
 
         public static TTarget AddMod<TTarget>(this TTarget entity, ModBehavior behavior, string name, string prop, Dice value, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-            where TTarget : ModObject
+            where TTarget : RpgObject
         {
             var mod = Mod.Create(behavior, name, entity, prop, value, valueFunc);
             entity.AddMod(mod);
@@ -162,7 +181,7 @@ namespace Rpg.ModObjects.Modifiers
 
 
         public static TTarget AddMod<TTarget, TTargetValue>(this TTarget entity, ModBehavior behavior, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-            where TTarget : ModObject
+            where TTarget : RpgObject
         {
             var mod = Mod.Create(behavior, entity, targetExpr, dice, valueFunc);
             entity.AddMod(mod);
@@ -170,7 +189,7 @@ namespace Rpg.ModObjects.Modifiers
         }
 
         public static TTarget AddMod<TTarget, TTargetValue>(this TTarget entity, ModBehavior behavior, string name, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-            where TTarget : ModObject
+            where TTarget : RpgObject
         {
             var mod = Mod.Create<TTarget, TTargetValue>(behavior, name, entity, targetExpr, dice, valueFunc);
             entity.AddMod(mod);
@@ -179,7 +198,7 @@ namespace Rpg.ModObjects.Modifiers
 
 
         public static TTarget AddMod<TTarget, TTargetValue, TSourceValue>(this TTarget entity, ModBehavior behavior, Expression<Func<TTarget, TTargetValue>> targetExpr, Expression<Func<TTarget, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-            where TTarget : ModObject
+            where TTarget : RpgObject
         {
             var mod = Mod.Create(behavior, entity, targetExpr, entity, sourceExpr, valueFunc);
             entity.AddMod(mod);
@@ -187,7 +206,7 @@ namespace Rpg.ModObjects.Modifiers
         }
 
         public static TTarget AddMod<TTarget, TTargetValue, TSourceValue>(this TTarget entity, ModBehavior behavior, string name, Expression<Func<TTarget, TTargetValue>> targetExpr, Expression<Func<TTarget, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-            where TTarget : ModObject
+            where TTarget : RpgObject
         {
             var mod = Mod.Create(behavior, name, entity, targetExpr, entity, sourceExpr, valueFunc);
             entity.AddMod(mod);

@@ -14,14 +14,14 @@ namespace Rpg.ModObjects.Tests
         [SetUp]
         public void Setup()
         {
-            ModGraphExtensions.RegisterAssembly(Assembly.GetExecutingAssembly());
+            RpgGraphExtensions.RegisterAssembly(Assembly.GetExecutingAssembly());
         }
 
         [Test] 
         public void AddVirtualProp_EnsureValues()
         {
             var entity = new ModdableEntity();
-            var graph = new ModGraph(entity);
+            var graph = new RpgGraph(entity);
 
             entity.AddMod(new Permanent(), "VirtualProp", 1);
             entity.TriggerUpdate();

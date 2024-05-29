@@ -9,14 +9,14 @@ namespace Rpg.ModObjects.Tests
         [SetUp]
         public void Setup()
         {
-            ModGraphExtensions.RegisterAssembly(Assembly.GetExecutingAssembly());
+            RpgGraphExtensions.RegisterAssembly(Assembly.GetExecutingAssembly());
         }
 
         [Test]
         public void ModdableEntity_EnsureSetup()
         {
             var entity = new ModdableEntity();
-            var graph = new ModGraph(entity);
+            var graph = new RpgGraph(entity);
 
             Assert.That(entity.GetCommands().Count(), Is.EqualTo(1));
 
@@ -27,7 +27,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(testCmd.Args.Count(), Is.EqualTo(2));
             Assert.That(testCmd.Args[0].Name, Is.EqualTo("initiator"));
             Assert.That(testCmd.Args[0].ArgType, Is.EqualTo(ModCmdArgType.Actor));
-            Assert.That(testCmd.Args[0].TypeName, Is.EqualTo(typeof(ModObject).AssemblyQualifiedName));
+            Assert.That(testCmd.Args[0].TypeName, Is.EqualTo(typeof(RpgObject).AssemblyQualifiedName));
 
             Assert.That(testCmd.Args[1].Name, Is.EqualTo("target"));
             Assert.That(testCmd.Args[1].ArgType, Is.EqualTo(ModCmdArgType.Any));

@@ -1,11 +1,12 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Values;
 using System.ComponentModel;
 
 namespace Rpg.ModObjects
 {
-    public class ModGraph
+    public class RpgGraph
     {
         private static JsonSerializerSettings JsonSettings = new JsonSerializerSettings
         {
@@ -14,14 +15,14 @@ namespace Rpg.ModObjects
             Formatting = Formatting.Indented
         };
 
-        [JsonProperty] public ModObject Context { get; private set; }
-        [JsonProperty] protected Dictionary<Guid, ModObject> ModObjectStore { get; set; } = new Dictionary<Guid, ModObject>();
+        [JsonProperty] public RpgObject Context { get; private set; }
+        [JsonProperty] protected Dictionary<Guid, RpgObject> ModObjectStore { get; set; } = new Dictionary<Guid, RpgObject>();
         [JsonProperty] public int Turn { get; private set; }
         public bool EncounterActive => Turn > 1;
 
-        public ModGraph(ModObject context)
+        public RpgGraph(RpgObject context)
         {
-            ModGraphExtensions.RegisterAssembly(GetType().Assembly);
+            RpgGraphExtensions.RegisterAssembly(GetType().Assembly);
 
             Context = context;
             Build();
@@ -40,16 +41,16 @@ namespace Rpg.ModObjects
             Context.UpdateProps();
         }
 
-        public ModProp? GetModProp(ModPropRef? propRef)
+        public Prop? GetModProp(PropRef? propRef)
             => GetModProp(propRef?.EntityId, propRef?.Prop);
 
-        public ModProp? GetModProp(Guid? entityId, string? prop)
+        public Prop? GetModProp(Guid? entityId, string? prop)
         {
             var entity = GetEntity(entityId);
             return entity?.GetModProp(prop);
         }
 
-        public bool AddEntity(ModObject entity)
+        public bool AddEntity(RpgObject entity)
         {
             if (!ModObjectStore.ContainsKey(entity.Id))
             {
@@ -60,7 +61,7 @@ namespace Rpg.ModObjects
             return false;
         }
 
-        public bool RemoveEntity(ModObject entity)
+        public bool RemoveEntity(RpgObject entity)
         {
             if (ModObjectStore.ContainsKey(entity.Id))
             {
@@ -72,17 +73,17 @@ namespace Rpg.ModObjects
         }
 
         public T? GetEntity<T>(Guid? entityId)
-            where T : ModObject
+            where T : RpgObject
                 => entityId != null && ModObjectStore.ContainsKey(entityId.Value)
                     ? ModObjectStore[entityId.Value] as T
                     : null;
 
-        public ModObject? GetEntity(Guid? entityId)
+        public RpgObject? GetEntity(Guid? entityId)
             => entityId != null && ModObjectStore.ContainsKey(entityId.Value)
                 ? ModObjectStore[entityId.Value]
                 : null;
 
-        public IEnumerable<ModObject> GetEntities()
+        public IEnumerable<RpgObject> GetEntities()
             => ModObjectStore.Values;
 
         public Mod[] GetAllMods()
@@ -100,7 +101,7 @@ namespace Rpg.ModObjects
         /// </summary>
         /// <param name="propRef"></param>
         /// <returns></returns>
-        public Dice? CalculatePropValue(ModPropRef propRef, Func<Mod, bool>? filterFunc = null)
+        public Dice? CalculatePropValue(PropRef propRef, Func<Mod, bool>? filterFunc = null)
         {
             var entity = GetEntity(propRef.EntityId);
             return CalculatePropValue(entity, propRef.Prop, filterFunc);
@@ -111,7 +112,7 @@ namespace Rpg.ModObjects
         /// </summary>
         /// <param name="propRef"></param>
         /// <returns></returns>
-        public Dice? CalculatePropValue(ModObject? entity, string? prop, Func<Mod, bool>? filterFunc = null)
+        public Dice? CalculatePropValue(RpgObject? entity, string? prop, Func<Mod, bool>? filterFunc = null)
         {
             if (entity == null || string.IsNullOrEmpty(prop))
                 return null;
@@ -138,20 +139,20 @@ namespace Rpg.ModObjects
             if (mod == null)
                 return Dice.Zero;
 
-            Dice value = mod.Source.Value ?? GetPropValue(GetEntity(mod.Source.EntityId), mod.Source.Prop);
+            Dice value = mod.SourceValue ?? GetPropValue(GetEntity(mod.SourcePropRef!.EntityId), mod.SourcePropRef.Prop);
 
-            if (mod.Source.ValueFunc.IsCalc)
+            if (mod.SourceValueFunc.IsCalc)
             {
-                var funcEntity = (object?)GetEntity(mod.Source.ValueFunc.EntityId)
+                var funcEntity = (object?)GetEntity(mod.SourceValueFunc.EntityId)
                     ?? this;
 
-                value = funcEntity.ExecuteFunction<Dice, Dice>(mod.Source.ValueFunc.FullName!, value);
+                value = funcEntity.ExecuteFunction<Dice, Dice>(mod.SourceValueFunc.FullName!, value);
             }
 
             return value;
         }
 
-        public Dice GetPropValue(ModObject? entity, string? prop)
+        public Dice GetPropValue(RpgObject? entity, string? prop)
         {
             if (entity == null || string.IsNullOrEmpty(prop))
                 return Dice.Zero;
@@ -176,13 +177,13 @@ namespace Rpg.ModObjects
             return Dice.Zero;
         }
 
-        public void SetPropValue(ModPropRef propRef)
+        public void SetPropValue(PropRef propRef)
         {
             var entity = GetEntity(propRef.EntityId);
             SetPropValue(entity, propRef.Prop);
         }
 
-        public void SetPropValue(ModObject? entity, string prop)
+        public void SetPropValue(RpgObject? entity, string prop)
         {
             var oldValue = GetPropValue(entity, prop);
             var newValue = CalculatePropValue(entity, prop);
@@ -191,18 +192,18 @@ namespace Rpg.ModObjects
                 entity.PropertyValue(prop, newValue);
         }
 
-        public Dice? GetInitialPropValue(ModObject? entity, string prop)
+        public Dice? GetInitialPropValue(RpgObject? entity, string prop)
             => CalculatePropValue(entity, prop, mod => mod.IsBaseInitMod);
 
-        public Dice? GetBasePropValue(ModObject? entity, string prop)
+        public Dice? GetBasePropValue(RpgObject? entity, string prop)
             => CalculatePropValue(entity, prop, mod => mod.IsBaseMod);
 
         public void NewEncounter()
         {
-            if (Turn < ModDuration.EndEncounter)
+            if (Turn < int.MaxValue - 1)
                 EndEncounter();
 
-            Turn = ModDuration.BeginEncounter;
+            Turn = 0;
             Context!.OnBeginEncounter();
 
             NewTurn();
@@ -213,7 +214,7 @@ namespace Rpg.ModObjects
 
         public void EndEncounter()
         {
-            Turn = ModDuration.EndEncounter;
+            Turn = int.MaxValue - 1;
             Context!.OnEndEncounter();
         }
 

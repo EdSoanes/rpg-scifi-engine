@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Stores
 {
-    public class ModObjectStore : ModBaseStore<Guid, ModObject>
+    public class ModObjectStore : ModBaseStore<Guid, RpgObject>
     {
         public override void OnBeginEncounter() { }
         public override void OnEndEncounter() { }

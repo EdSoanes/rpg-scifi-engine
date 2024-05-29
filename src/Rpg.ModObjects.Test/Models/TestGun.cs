@@ -11,7 +11,7 @@ namespace Rpg.ModObjects.Tests.Models
     /// Ammo 10
     /// </summary>
 
-    public class TestGun : ModObject
+    public class TestGun : RpgObject
     {
         public int HitBonus { get; private set; } = 2;
         public DamageValue Damage { get; private set; } = new DamageValue("d6", 0, 0);

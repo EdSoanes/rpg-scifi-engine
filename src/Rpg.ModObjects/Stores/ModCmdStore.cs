@@ -21,7 +21,7 @@ namespace Rpg.ModObjects.Stores
             }
         }
 
-        public override void OnGraphCreating(ModGraph graph, ModObject entity)
+        public override void OnGraphCreating(RpgGraph graph, RpgObject entity)
         {
             base.OnGraphCreating(graph, entity);
             foreach (var cmd in Get())

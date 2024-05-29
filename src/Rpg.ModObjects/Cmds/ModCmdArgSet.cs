@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Cmds
@@ -53,11 +54,11 @@ namespace Rpg.ModObjects.Cmds
             => Set(ModCmdArg.ModSetArg, modSet);
 
         public ModCmdArgSet SetInitiator<T>(T initiator)
-            where T : ModObject
+            where T : RpgObject
                 => Set(ModCmdArg.InitiatorArg, initiator);
 
         public ModCmdArgSet SetRecipient<T>(T recipient) 
-            where T : ModObject
+            where T : RpgObject
                 => Set(ModCmdArg.RecipientArg, recipient);
 
         public ModCmdArgSet SetTarget(int target)
