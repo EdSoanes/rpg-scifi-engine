@@ -2,7 +2,7 @@
 
 namespace Rpg.ModObjects.Tests.Models
 {
-    public class SimpleModdableEntity : RpgObject
+    public class SimpleModdableEntity : RpgEntity
     {
         public int Score { get; protected set; }
         public int Bonus { get; protected set; }
@@ -13,7 +13,7 @@ namespace Rpg.ModObjects.Tests.Models
             Bonus = bonus;
         }
 
-        protected override void OnCreate()
+        protected override void OnCreating()
         {
             this.AddMod(new Base(), x => x.Score, x => x.Bonus);
         }

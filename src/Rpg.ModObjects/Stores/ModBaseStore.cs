@@ -27,10 +27,16 @@ namespace Rpg.ModObjects.Stores
             }
         }
 
+        public TKey[] Keys { get => Items.Keys.ToArray(); }
+
+        public ModBaseStore(Guid entityId)
+            => EntityId = entityId;
+
         public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
         protected void CallCollectionChanged(NotifyCollectionChangedAction action)
             => CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(action));
+
 
         public bool Add(TKey key, TVal? val)
         {
@@ -56,12 +62,6 @@ namespace Rpg.ModObjects.Stores
             return false;
         }
 
-        public virtual void OnGraphCreating(RpgGraph graph, RpgObject entity)
-        {
-            Graph = graph;
-            EntityId = entity!.Id;
-        }
-
         public TVal[] Get()
             => Items.Values.ToArray();
 
@@ -71,8 +71,14 @@ namespace Rpg.ModObjects.Stores
         public bool Contains(TVal val)
             => Items.Values.Contains(val);
 
-        public abstract void OnBeginEncounter();
-        public abstract void OnEndEncounter();
-        public abstract void OnTurnChanged(int turn);
+        public virtual void OnGraphCreating(RpgGraph graph, RpgObject entity)
+        {
+            Graph = graph;
+            EntityId = entity!.Id;
+        }
+
+        public virtual void OnObjectsCreating() { }
+        public virtual void OnBeforeUpdate(RpgGraph graph) { }
+        public virtual void OnAfterUpdate(RpgGraph graph) { }
     }
 }

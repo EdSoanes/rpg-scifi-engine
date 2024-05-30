@@ -2,10 +2,10 @@
 using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.States;
-using Rpg.ModObjects.Stores;
 using Rpg.ModObjects.Values;
 using System.Collections;
 using System.Reflection;
+using System.Security.AccessControl;
 
 namespace Rpg.ModObjects
 {
@@ -334,16 +334,33 @@ namespace Rpg.ModObjects
             if (obj == null)
                 return Enumerable.Empty<object>();
 
-            var res = new List<object?>();
-            if (obj is IEnumerable)
+            var items = GetPropObjects(obj!, out isEnumerable);
+            return items;
+        }
+
+        private static List<object> GetPropObjects(object? obj, out bool isEnumerable)
+        {
+            isEnumerable = false;
+
+            var res = new List<object>();
+            var items = new List<object?>();
+            if (obj is IDictionary)
             {
-                res.AddRange((obj as IEnumerable)!.Cast<object?>());
+                items = (obj as IDictionary)!.Values.Cast<object?>().ToList();
                 isEnumerable = true;
             }
-            else
+            else if (obj is IEnumerable)
+            {
+                items = (obj as IEnumerable)!.Cast<object?>().ToList();
+                isEnumerable = true;
+            }
+            else if (obj != null)
                 res.Add(obj);
 
-            return res.Where(x => x != null).Cast<object>().ToList();
+            foreach (var item in items.Where(x => x != null))
+                res.AddRange(GetPropObjects(item, out var _));
+
+            return res;
         }
 
         private static bool IsExcludedType(Type type)

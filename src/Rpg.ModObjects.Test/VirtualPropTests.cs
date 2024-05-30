@@ -24,7 +24,7 @@ namespace Rpg.ModObjects.Tests
             var graph = new RpgGraph(entity);
 
             entity.AddMod(new Permanent(), "VirtualProp", 1);
-            entity.TriggerUpdate();
+            graph.TriggerUpdate();
 
             Assert.That(graph.GetPropValue(entity, "VirtualProp").Roll(), Is.EqualTo(1));
         }

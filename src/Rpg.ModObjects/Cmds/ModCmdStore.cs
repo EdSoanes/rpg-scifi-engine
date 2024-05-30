@@ -1,10 +1,12 @@
-﻿using Rpg.ModObjects.Cmds;
-using Rpg.ModObjects.States;
+﻿using Rpg.ModObjects.Stores;
 
-namespace Rpg.ModObjects.Stores
+namespace Rpg.ModObjects.Cmds
 {
     public class ModCmdStore : ModBaseStore<string, ModCmd>
     {
+        public ModCmdStore(Guid entityId)
+            : base(entityId) { }
+
         public void Add(params ModCmd[] modCmds)
         {
             foreach (var modCmd in modCmds)
@@ -28,19 +30,9 @@ namespace Rpg.ModObjects.Stores
                 cmd.OnGraphCreating(graph, entity);
         }
 
-        public override void OnBeginEncounter()
+        public override void OnBeforeUpdate(RpgGraph graph)
         {
-
-        }
-
-        public override void OnEndEncounter()
-        {
-
-        }
-
-        public override void OnTurnChanged(int turn)
-        {
-
+            base.OnBeforeUpdate(graph);
         }
     }
 }

@@ -4,6 +4,12 @@ namespace Rpg.ModObjects.Modifiers
 {
     public class ModSetStore : ModBaseStore<Guid, ModSet>
     {
+        public ModSetStore(Guid entityId)
+            : base(entityId) { }
+
+        public ModSet? Get(string name)
+            => Get().FirstOrDefault(x => x.Name == name);
+
         public bool Add(ModSet modSet)
         {
             if (!Contains(modSet))
@@ -11,8 +17,7 @@ namespace Rpg.ModObjects.Modifiers
                 if (string.IsNullOrEmpty(modSet.Name) || !Get().Any(x => x.Name == modSet.Name))
                 {
                     Items.Add(modSet.Id, modSet);
-                    foreach (var mod in modSet.Mods)
-                        Graph?.Context?.AddMod(mod);
+                    Graph!.AddMods(modSet.Mods.ToArray());
 
                     return true;
                 }
@@ -26,7 +31,8 @@ namespace Rpg.ModObjects.Modifiers
             var existing = Get().FirstOrDefault(x => x.Id == modSetId);
             if (existing != null)
             {
-                Graph?.Context?.RemoveMods(existing.Mods.ToArray());
+                existing.SetExpired();
+                Graph?.RemoveMods(existing.Mods.ToArray());
                 Items.Remove(existing.Id);
             }
         }
@@ -36,30 +42,20 @@ namespace Rpg.ModObjects.Modifiers
             var existing = Get().FirstOrDefault(x => x.Name == name);
             if (existing != null)
             {
-                Graph?.Context?.RemoveMods(existing.Mods.ToArray());
+                Graph!.RemoveMods(existing.Mods.ToArray());
                 Items.Remove(existing.Id);
             }
         }
 
-        public override void OnTurnChanged(int turn)
+        public override void OnBeforeUpdate(RpgGraph graph)
         {
-            foreach (var modSet in Get())
-                modSet.OnTurnChanged(turn);
-        }
+            base.OnBeforeUpdate(graph);
 
-        public override void OnBeginEncounter()
-        {
-            foreach (var modSet in Get())
-                modSet.OnBeginEncounter();
-        }
-
-        public override void OnEndEncounter()
-        {
             var toRemove = new List<ModSet>();
             foreach (var modSet in Get())
             {
-                modSet.OnEndEncounter();
-                if (modSet.GetExpiry(Graph) == ModExpiry.Expired)
+                modSet.OnBeforeUpdate(graph);
+                if (modSet.Behavior.Expiry == ModExpiry.Remove)
                     toRemove.Add(modSet);
             }
 

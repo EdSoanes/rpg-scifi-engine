@@ -27,12 +27,12 @@ namespace Rpg.ModObjects
                 target.Merge(a);
         }
 
-        public static void TriggerUpdate<TTarget, TTargetValue>(this TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr)
-            where TTarget : RpgObject
-        {
-            var propRef = PropRef.CreatePropRef(entity, targetExpr);
-            entity.TriggerUpdate(propRef);
-        }
+        //public static void TriggerUpdate<TTarget, TTargetValue>(this TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr)
+        //    where TTarget : RpgObject
+        //{
+        //    var propRef = PropRef.CreatePropRef(entity, targetExpr);
+        //    entity.TriggerUpdate(propRef);
+        //}
 
         public static ModObjectPropDescription Describe<TEntity, T1>(this TEntity entity, Expression<Func<TEntity, T1>> targetExpr)
             where TEntity : RpgObject

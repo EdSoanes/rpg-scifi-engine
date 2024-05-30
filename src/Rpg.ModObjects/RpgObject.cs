@@ -3,7 +3,6 @@ using Rpg.ModObjects.Cmds;
 using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.States;
-using Rpg.ModObjects.Stores;
 using Rpg.ModObjects.Values;
 using System.ComponentModel;
 
@@ -16,11 +15,11 @@ namespace Rpg.ModObjects
         [JsonProperty] public Guid Id { get; private set; }
         [JsonProperty] public string Name { get; set; }
         [JsonProperty] public string[] Is { get; private set; }
-        [JsonProperty] protected PropStore PropStore { get; private set; } = new PropStore();
-        [JsonProperty] protected ModSetStore ModSetStore { get; private set; } = new ModSetStore();
-        [JsonProperty] protected ModStateStore StateStore { get; private set; } = new ModStateStore();
-        [JsonProperty] protected bool IsCreated { get; set; }
-        [JsonProperty] protected ModCmdStore CmdStore { get; private set; } = new ModCmdStore();
+        [JsonProperty] internal PropStore PropStore { get; private set; }
+        [JsonProperty] internal ModSetStore ModSetStore { get; private set; }
+        [JsonProperty] internal ModStateStore StateStore { get; private set; }
+        [JsonProperty] internal bool IsCreated { get; set; }
+        [JsonProperty] internal ModCmdStore CmdStore { get; private set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -29,82 +28,18 @@ namespace Rpg.ModObjects
             Id = Guid.NewGuid();
             Name = GetType().Name;
             Is = this.GetBaseTypes();
+
+            PropStore = new PropStore(Id);
+            ModSetStore = new ModSetStore(Id);
+            StateStore = new ModStateStore(Id);
+            CmdStore = new ModCmdStore(Id);
         }
 
-        internal IEnumerable<PropRef> GetPropsThatAffect(string prop)
-            => PropStore.GetPropsThatAffect(prop);
-
-        internal IEnumerable<PropRef> GetPropsAffectedBy(string prop)
-            => PropStore.GetPropsAffectedBy(new PropRef(Id, prop));
-
-        internal Mod[] GetMods(bool filtered = true)
-            => PropStore.GetMods(filtered);
-
-        internal Mod[] GetMods(string prop, bool filtered = true)
-            => PropStore.GetMods(prop, filtered);
-
-        internal Mod[] GetMods(string prop, Func<Mod, bool> filterFunc)
-            => PropStore.GetMods(prop, filterFunc);
-
-        internal Prop? GetModProp(string? prop, bool create = false)
-        {
-            if (string.IsNullOrEmpty(prop))
-                return null;
-
-            var modProp = PropStore[prop];
-            if (modProp == null && create)
-                return PropStore.Create(prop);
-
-            return modProp;
-        }
-
-        internal Prop[] GetModProps()
-            => PropStore.Get();
-
-        public bool RemoveModProp(string prop)
-            => PropStore.Remove(prop);
-
-        public void AddMod(Mod mod)
-            => Graph?.Context?.PropStore?.Add(mod);
-
-        public void RemoveMods(params Mod[] mods)
-            => Graph?.Context?.PropStore?.Remove(mods);
-
-        public void RemoveMods(string prop, ModType modType)
-        {
-            var mods = PropStore.GetMods(prop, mod => mod.Behavior.Type == modType);
-            RemoveMods(mods);
-        }
-
-        public void RemoveMods(string prop, string modName)
-        {
-            var mods = PropStore.GetMods(prop, mod => mod.Name == modName);
-            RemoveMods(mods);
-        }
-
-        internal ModSet[] GetModSets()
-            => ModSetStore.Get();
+        public void AddMods(params Mod[] mods)
+            => Graph!.AddMods(mods);
 
         internal bool AddModSet(ModSet modSet)
             => ModSetStore.Add(modSet);
-
-        public ModSet? GetModSet(Guid id)
-            => ModSetStore.Get().FirstOrDefault(x => x.Id == id);
-
-        public ModSet? GetModSet(string name)
-            => ModSetStore.Get().FirstOrDefault(x => x.Name == name);
-
-        public void RemoveModSet(Guid modSetId)
-            => ModSetStore.Remove(modSetId);
-
-        public void RemoveModSet(string name)
-            => ModSetStore.Remove(name);
-
-        public RpgObject AddState(ModState state)
-        {
-            StateStore.Add(state);
-            return this;
-        }
 
         public ModCmd? GetCommand(string commandName)
             => CmdStore.Get().FirstOrDefault(x => x.CommandName == commandName);
@@ -119,53 +54,21 @@ namespace Rpg.ModObjects
             => StateStore[state]?.InstanceName;
 
         public bool IsStateActive(string state)
-        {
-            var modState = StateStore[state];
-            return Graph!.GetPropValue(this, modState?.InstanceName) != Dice.Zero;
-        }
+            => StateStore[state]?.IsActive() ?? false;
 
-        public bool IsStateForcedActive(string state)
-        {
-            var modState = StateStore[state];
-            return Graph!.CalculatePropValue(this, modState?.InstanceName, mod => mod.Behavior.Merging == ModMerging.Replace) != Dice.Zero;
-        }
-
-        public bool IsStateConditionallyActive(string state)
-        {
-            var modState = StateStore[state];
-            return Graph!.CalculatePropValue(this, modState?.InstanceName, mod => mod.Behavior.Merging == ModMerging.Combine) != Dice.Zero;
-        }
-
-        public bool ManuallyActivateState(string state)
+        public bool ActivateState(string state)
             => StateStore.SetActive(state);
 
-        public bool ManuallyDeactivateState(string state)
+        public bool DeactivateState(string state)
             => StateStore.SetInactive(state);
 
         public bool IsA(string type) => Is.Contains(type);
 
-        public void TriggerUpdate()
-            => OnTurnChanged(Graph!.Turn);
-
         internal void TriggerUpdate(PropRef propRef)
-        {
-            var propsAffected = PropStore.GetPropsAffectedBy(propRef);
-            foreach (var targetPropRef in propsAffected)
-                Graph!.SetPropValue(targetPropRef);
-        }
+            => Graph!.TriggerUpdate(propRef);
 
         internal ModObjectPropDescription Describe(string prop)
             => new ModObjectPropDescription(Graph!, this, prop);
-
-        internal void UpdateProps()
-        {
-            var affectedBy = new List<PropRef>();
-            foreach (var entity in this.Traverse(true))
-                affectedBy.Merge(entity.PropStore.AffectedByProps());
-
-            foreach (var propRef in affectedBy)
-                Graph!.SetPropValue(propRef);
-        }
 
         public void OnGraphCreating(RpgGraph graph, RpgObject? entity = null)
         {
@@ -173,7 +76,11 @@ namespace Rpg.ModObjects
             PropStore.OnGraphCreating(Graph, this);
             ModSetStore.OnGraphCreating(Graph, this);
             CmdStore.OnGraphCreating(Graph, this);
+            StateStore.OnGraphCreating(Graph, this);
+        }
 
+        public void OnObjectsCreating()
+        {
             if (!IsCreated)
             {
                 var states = this.CreateModStates();
@@ -196,73 +103,27 @@ namespace Rpg.ModObjects
                     }
                 }
 
-                OnCreate();
+                OnCreating();
                 IsCreated = true;
             }
-
-            StateStore.OnGraphCreating(Graph, this);
         }
 
-        protected virtual void OnCreate() { }
+        protected virtual void OnCreating() { }
 
-        public virtual void OnTurnChanged(int turn)
+        public virtual void OnBeforeUpdate(RpgGraph graph)
         {
-            foreach (var entity in this.Traverse())
-            {
-                entity.ModSetStore.OnTurnChanged(turn);
-                entity.PropStore.OnTurnChanged(turn);
-            }
-
-            UpdateProps();
-
-            foreach (var entity in this.Traverse())
-            {
-                entity.StateStore.OnTurnChanged(turn);
-                entity.ModSetStore.OnTurnChanged(turn);
-                entity.PropStore.OnTurnChanged(turn);
-            }
-
-            UpdateProps();
+            ModSetStore.OnBeforeUpdate(graph);
+            PropStore.OnBeforeUpdate(graph);
+            CmdStore.OnBeforeUpdate(graph);
+            StateStore.OnBeforeUpdate(graph);
         }
 
-        public virtual void OnBeginEncounter()
+        public virtual void OnAfterUpdate(RpgGraph graph) 
         {
-            foreach (var entity in this.Traverse())
-            {
-                entity.ModSetStore.OnBeginEncounter();
-                entity.PropStore.OnBeginEncounter();
-            }
-
-            UpdateProps();
-
-            foreach (var entity in this.Traverse())
-            {
-                entity.StateStore.OnBeginEncounter();
-                entity.ModSetStore.OnBeginEncounter();
-                entity.PropStore.OnBeginEncounter();
-            }
-
-            UpdateProps();
-        }
-
-        public virtual void OnEndEncounter()
-        {
-            foreach (var entity in this.Traverse())
-            {
-                entity.ModSetStore.OnEndEncounter();
-                entity.PropStore.OnEndEncounter();
-            }
-
-            UpdateProps();
-
-            foreach (var entity in this.Traverse())
-            {
-                entity.StateStore.OnEndEncounter();
-                entity.ModSetStore.OnEndEncounter();
-                entity.PropStore.OnEndEncounter();
-            }
-
-            UpdateProps();
+            ModSetStore.OnAfterUpdate(graph);
+            PropStore.OnAfterUpdate(graph);
+            CmdStore.OnAfterUpdate(graph);
+            StateStore.OnAfterUpdate(graph);
         }
     }
 }

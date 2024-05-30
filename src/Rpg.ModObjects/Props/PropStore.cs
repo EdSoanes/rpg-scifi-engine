@@ -5,8 +5,18 @@ namespace Rpg.ModObjects.Props
 {
     public class PropStore : ModBaseStore<string, Prop>
     {
-        public string[] GetPropNames()
-            => Items.Keys.ToArray();
+        public PropStore(Guid entityId)
+            : base(entityId) { }
+
+        public Prop? Get(string prop, bool create = false)
+        {
+            var modProp = this[prop];
+
+            if (modProp == null && create)
+                modProp = Create(prop);
+
+            return modProp;
+        }
 
         public Mod[] GetMods(bool filtered = true)
         {
@@ -35,140 +45,68 @@ namespace Rpg.ModObjects.Props
             return this[prop]!;
         }
 
-        public void Remove(Mod mod)
-            => Remove(new[] { mod });
-
-        public void Remove(IEnumerable<Mod> mods)
+        public void Remove(params Mod[] mods)
         {
             var toRemove = new List<Prop>();
-            foreach (var mod in mods)
+            foreach (var mod in mods.Where(x => x.EntityId == EntityId))
             {
-                var modProp = Graph?.GetEntity<RpgObject>(mod.EntityId)?.GetModProp(mod.Prop);
+                var modProp = this[mod.Prop];
                 if (modProp != null)
                 {
                     modProp.Remove(mod);
+
                     if (!modProp.Mods.Any() && !toRemove.Contains(modProp))
                         toRemove.Add(modProp);
+
+                    Graph.OnPropUpdated(modProp);
                 }
             }
 
             foreach (var modProp in toRemove)
-            {
-                var entity = Graph?.GetEntity<RpgObject>(modProp.EntityId);
-                entity?.RemoveModProp(modProp.Prop);
-            }
+                this.Remove(modProp.Prop);
         }
 
         public void Add(params Mod[] mods)
         {
-            foreach (var mod in mods)
+            foreach (var mod in mods.Where(x => x.EntityId == EntityId))
             {
                 mod.OnAdd(Graph!.Turn);
 
-                var entity = Graph!.GetEntity<RpgObject>(mod.EntityId);
-                if (entity != null)
-                {
-                    var modProp = entity.GetModProp(mod.Prop, create: true)!;
-                    if (modProp.Contains(mod))
-                        modProp.Remove(mod.Id);
+                var modProp = Get(mod.Prop, create: true)!;
+                modProp.Remove(mod);
 
-                    if (mod.Behavior.Merging == ModMerging.Add)
-                        modProp.Add(mod);
+                if (mod.Behavior.Merging == ModMerging.Add)
+                    modProp.Add(mod);
 
-                    else if (mod.Behavior.Merging == ModMerging.Replace)
-                        modProp.Replace(mod);
+                else if (mod.Behavior.Merging == ModMerging.Replace)
+                    modProp.Replace(mod);
 
-                    else if (mod.Behavior.Merging == ModMerging.Combine)
-                        modProp.Combine(Graph, entity, mod);
-                }
+                else if (mod.Behavior.Merging == ModMerging.Combine)
+                    modProp.Combine(Graph, mod);
+
+                Graph.OnPropUpdated(modProp);
             }
         }
 
-        public List<PropRef> GetPropsAffectedBy(PropRef propRef)
+        public override void OnBeforeUpdate(RpgGraph graph)
         {
-            var res = new List<PropRef>();
-            res.Merge(propRef);
-
-            var propsAffectedBy = new List<PropRef>();
-            foreach (var entity in Graph!.GetEntities())
-            {
-                var affectedBy = entity.GetModProps()
-                    .Where(x => x.IsAffectedBy(propRef))
-                    .Select(x => new PropRef(entity.Id, x.Prop))
-                    .Distinct();
-
-                res.Merge(affectedBy);
-
-                foreach (var propAffectedBy in affectedBy)
-                {
-                    var parentEntity = Graph!.GetEntity<RpgObject>(propAffectedBy.EntityId);
-                    var parentAffects = parentEntity!.GetPropsAffectedBy(propAffectedBy.Prop);
-
-                    res.Merge(parentAffects);
-                }
-            }
-
-            return res;
-        }
-
-        public List<PropRef> AffectedByProps()
-        {
-            var res = Items.Keys
-                .SelectMany(GetPropsThatAffect)
-                .Distinct()
-                .ToList();
-
-            return res;
-        }
-
-        public List<PropRef> GetPropsThatAffect(string prop)
-        {
-            var res = new List<PropRef>();
-
-            var affectedByGroup = GetMods(prop)
-                .Where(x => x.SourcePropRef != null)
-                .Select(x => x.SourcePropRef!)
-                .Distinct()
-                .GroupBy(x => x.EntityId);
-
-            foreach (var affectedByProp in affectedByGroup)
-            {
-                var entity = Graph!.GetEntity<RpgObject>(affectedByProp.Key);
-                if (entity != null)
-                {
-                    var childProps = affectedByProp
-                        .SelectMany(x => entity.GetPropsThatAffect(x.Prop))
-                        .Distinct();
-
-                    res.Merge(childProps);
-                }
-
-                res.Merge(affectedByProp);
-            }
-
-            res.Merge(new PropRef(EntityId, prop));
-            return res;
-        }
-
-        public override void OnTurnChanged(int turn) { }
-        public override void OnBeginEncounter() { }
-
-        public override void OnEndEncounter()
-        {
+            base.OnBeforeUpdate(graph);
             foreach (var modProp in Items.Values)
             {
                 var toRemove = new List<Mod>();
                 foreach (var mod in modProp.Mods)
                 {
-                    var expiry = mod.Behavior.GetExpiry(Graph, mod);
-                    if (expiry == ModExpiry.Expired && mod.Behavior.CanRemove(Graph, mod))
+                    var oldExpiry = mod.Behavior.Expiry;
+                    mod.Behavior.SetExpiry(Graph, mod);
+
+                    if (oldExpiry != mod.Behavior.Expiry)
+                        Graph.OnPropUpdated(mod);
+
+                    if (mod.Behavior.Expiry == ModExpiry.Remove)
                         toRemove.Add(mod);
                 }
 
-                if (toRemove.Any())
-                {
-                    Remove(toRemove);
-                }
+                Remove(toRemove.ToArray());
             }
         }
     }

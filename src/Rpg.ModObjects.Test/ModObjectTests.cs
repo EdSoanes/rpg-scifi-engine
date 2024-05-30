@@ -26,7 +26,7 @@ namespace Rpg.ModObjects.Tests
             var graph = new RpgGraph(entity);
 
             Assert.That(graph.GetEntities().Count(), Is.EqualTo(3));
-            var mods = graph.GetAllMods();
+            var mods = graph.GetMods();
             Assert.That(mods.Count(), Is.EqualTo(11));
             Assert.That(entity.StateNames.Count(), Is.EqualTo(3));
             Assert.That(entity.StateNames, Does.Contain("Buff"));
@@ -58,7 +58,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Score, Is.EqualTo(4));
 
             entity.AddMod(new Permanent(), x => x.Score, 4);
-            entity.TriggerUpdate(x => x.Score);
+            graph.TriggerUpdate();
 
             Assert.That(entity.Score, Is.EqualTo(8));
         }
@@ -108,7 +108,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Strength.Score, Is.EqualTo(14));
 
             entity.AddMod(new Override(), x => x.Strength.Score, 10);
-            entity.TriggerUpdate(x => x.Strength.Score);
+            graph.TriggerUpdate();
 
             Assert.That(entity.Strength.Score, Is.EqualTo(10));
             Assert.That(entity.Strength.Bonus, Is.EqualTo(0));
@@ -123,19 +123,19 @@ namespace Rpg.ModObjects.Tests
             var graph = new RpgGraph(entity);
 
             Assert.That(entity.Health, Is.EqualTo(10));
-            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(11));
+            Assert.That(graph.GetMods().Count(), Is.EqualTo(11));
 
             entity.AddMod(new ExpireOnZero(), x => x.Health, -10);
-            entity.TriggerUpdate(x => x.Health);
+            graph.TriggerUpdate();
 
             Assert.That(entity.Health, Is.EqualTo(0));
-            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(12));
+            Assert.That(graph.GetMods().Count(), Is.EqualTo(12));
 
             entity.AddMod(new ExpireOnZero(), x => x.Health, 10);
-            entity.TriggerUpdate(x => x.Health);
+            graph.TriggerUpdate();
 
             Assert.That(entity.Health, Is.EqualTo(10));
-            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(11));
+            Assert.That(graph.GetMods().Count(), Is.EqualTo(11));
         }
     }
 }

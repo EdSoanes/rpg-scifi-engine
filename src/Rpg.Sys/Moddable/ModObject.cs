@@ -92,17 +92,6 @@ namespace Rpg.Sys.Moddable
             }
         }
 
-        public void DeepUpdateProp(string prop)
-        {
-            foreach (var propRef in PropStore.AffectedByProps(prop))
-            {
-                var entity = Graph!.GetEntity<ModObject>(propRef.EntityId)!;
-                entity.UpdateProp(propRef.Prop);
-            }
-
-            UpdateProp(prop);
-        }
-
         private void UpdateEntityGraph(ModObject rootEntity)
         {
             var affectedBy = new List<ModObjectPropRef>();

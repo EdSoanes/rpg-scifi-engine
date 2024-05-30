@@ -1,12 +1,16 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.States;
+using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Stores;
 
-namespace Rpg.ModObjects.Stores
+namespace Rpg.ModObjects.States
 {
     public class ModStateStore : ModBaseStore<string, ModState>
     {
+        public ModStateStore(Guid entityId)
+            : base(entityId) { }
+
         public string[] StateNames { get => Items.Values.Select(x => x.Name).ToArray(); }
-        public string[] ActiveStateNames { get => StateNames.Where(IsActive).ToArray();  }
+        public string[] ActiveStateNames { get => StateNames.Where(IsActive).ToArray(); }
 
         public bool IsActive(string state)
             => Graph?.GetEntity(EntityId!)?.IsStateActive(state) ?? false;
@@ -58,22 +62,18 @@ namespace Rpg.ModObjects.Stores
                 state.OnGraphCreating(graph, entity);
         }
 
-        public override void OnTurnChanged(int turn)
+        public override void OnBeforeUpdate(RpgGraph graph)
         {
+            base.OnBeforeUpdate(graph);
             foreach (var modState in Get())
-                modState.OnTurnChanged(turn);
+                modState.OnBeforeUpdate(graph);
         }
 
-        public override void OnBeginEncounter()
+        public override void OnAfterUpdate(RpgGraph graph)
         {
+            base.OnAfterUpdate(graph);
             foreach (var modState in Get())
-                modState.OnBeginEncounter();
-        }
-
-        public override void OnEndEncounter()
-        {
-            foreach (var state in Get())
-                state.OnEndEncounter();
+                modState.OnAfterUpdate(graph);
         }
     }
 }

@@ -1,23 +1,22 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Modifiers;
-using System.Diagnostics;
 
 namespace Rpg.ModObjects.Tests.Models
 {
-    public class MaxCurrentValue : RpgObject
+    public class MaxCurrentValue : RpgEntityComponent
     {
         [JsonProperty] public int Max { get; protected set; }
         [JsonProperty] public int Current { get; protected set; }
 
         [JsonConstructor] private MaxCurrentValue() { }
 
-        public MaxCurrentValue(string name, int max) 
+        public MaxCurrentValue(Guid entityId, string name, int max)
+            : base(entityId, name)
         {
-            Name = name;
             Max = max;
         }
 
-        protected override void OnCreate()
+        protected override void OnCreating()
         {
             this.AddMod(new Base(), x => x.Current, x => x.Max);
         }

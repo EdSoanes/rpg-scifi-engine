@@ -21,13 +21,13 @@ namespace Rpg.ModObjects.Cmds
         public ModState State { get => new ModState(EntityId, CommandName); }
 
         public int? GetTarget(RpgObject initiator, ModSet? modSet)
-            => Graph!.GetPropValue(initiator, modSet?.TargetProp).Roll();
+            => Graph!.GetPropValue(initiator, modSet?.TargetPropName).Roll();
 
         public Dice? GetDiceRoll(RpgObject initiator, ModSet? modSet)
-            => Graph!.GetPropValue(initiator, modSet?.DiceRollProp);
+            => Graph!.GetPropValue(initiator, modSet?.DiceRollPropName);
 
         public int? GetOutcome(RpgObject initiator, ModSet? modSet)
-            => Graph!.GetPropValue(initiator, modSet?.OutcomeProp).Roll();
+            => Graph!.GetPropValue(initiator, modSet?.OutcomePropName).Roll();
 
         public static ModCmd Create(Guid entityId, string commandName, ModCmdAttribute cmdAttr, ModCmdArg[]? cmdArgs)
         {
@@ -111,19 +111,8 @@ namespace Rpg.ModObjects.Cmds
             Entity = entity;
         }
 
-        public void OnTurnChanged(int turn)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnBeginEncounter()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnEndEncounter()
-        {
-            throw new NotImplementedException();
-        }
+        public void OnObjectsCreating() { }
+        public void OnBeforeUpdate(RpgGraph graph) { }
+        public virtual void OnAfterUpdate(RpgGraph graph) { }
     }
 }

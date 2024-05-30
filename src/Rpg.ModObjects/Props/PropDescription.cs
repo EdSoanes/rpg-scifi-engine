@@ -50,7 +50,7 @@ namespace Rpg.ModObjects.Props
         public ModObjectPropDescription(RpgGraph graph, RpgObject rootEntity, string prop)
             : base(graph, rootEntity, new PropRef(rootEntity.Id, prop))
         {
-            Mods = Entity.GetMods(prop)
+            Mods = graph.GetMods(Entity, prop)
                 .Select(x => new ModDescription(graph, rootEntity, x))
                 .ToArray();
         }
@@ -83,7 +83,7 @@ namespace Rpg.ModObjects.Props
         {
             TargetProp = new PropDescription(graph, rootEntity, mod);
             ModType = mod.Behavior.Type;
-            Value = graph?.CalculateModValue(mod) ?? Dice.Zero;
+            Value = graph.CalculateModValue(mod);
             ValueFunction = mod.SourceValueFunc.FullName;
 
             var sourcePropRef = mod.SourcePropRef;
@@ -93,7 +93,7 @@ namespace Rpg.ModObjects.Props
                 SourceValue = SourceProp.Value;
 
                 var mods = new List<ModDescription>();
-                var sourceMods = SourceProp.Entity.GetMods(sourcePropRef.Prop);
+                var sourceMods = graph.GetMods(sourcePropRef);
                 if (sourceMods.Any(x => x.IsBaseOverrideMod))
                 {
                     mods.Add(new ModDescription(graph, rootEntity, TargetProp, sourceMods.Where(x => x.IsBaseMod && !x.IsBaseOverrideMod).ToArray()));

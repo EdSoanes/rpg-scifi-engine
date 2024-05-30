@@ -11,16 +11,19 @@ namespace Rpg.ModObjects.Tests.Models
     /// Ammo 10
     /// </summary>
 
-    public class TestGun : RpgObject
+    public class TestGun : RpgEntity
     {
         public int HitBonus { get; private set; } = 2;
-        public DamageValue Damage { get; private set; } = new DamageValue("d6", 0, 0);
-        public MaxCurrentValue Ammo { get; private set; } = new MaxCurrentValue(nameof(Ammo), 10);
+        public DamageValue Damage { get; private set; }
+        public MaxCurrentValue Ammo { get; private set; }
 
-        [ModCmd(
-            DisabledOnState = nameof(AmmoEmpty), 
-            OutcomeMethod = nameof(InflictDamage)
-        )]
+        public TestGun() 
+        { 
+            Damage = new DamageValue(Id, nameof(Damage), "d6", 0, 0);
+            Ammo = new MaxCurrentValue(Id, nameof(Ammo), 10);
+        }
+
+        [ModCmd(DisabledOnState = nameof(AmmoEmpty), OutcomeMethod = nameof(InflictDamage))]
         public ModSet Shoot(ModSet modSet, TestHuman initiator, int targetDefense, int targetRange)
         {
             modSet
@@ -33,9 +36,9 @@ namespace Rpg.ModObjects.Tests.Models
                 .Roll(initiator, this, x => x.HitBonus);
 
             modSet
-                .AddTurnMod(initiator, x => x.PhysicalActionPoints.Current, -1)
-                .AddTurnMod(initiator, x => x.MentalActionPoints.Current, -1)
-                .AddSumMod(this, x => x.Ammo.Current, -1);
+                .AddMod(new Turn(), initiator, x => x.PhysicalActionPoints.Current, -1)
+                .AddMod(new Turn(), initiator, x => x.MentalActionPoints.Current, -1)
+                .AddMod(new Permanent(), this, x => x.Ammo.Current, -1);
 
             return modSet;
         }
@@ -45,10 +48,10 @@ namespace Rpg.ModObjects.Tests.Models
         {
             var success = outcome - targetRoll;
             if (success >= 0)
-                modSet.AddSumMod(recipient, x => x.Health, this, x => x.Damage.Dice);
+                modSet.AddMod(new ExpireOnZero(), recipient, x => x.Health, this, x => x.Damage.Dice);
 
             if (success >= 10)
-                modSet.AddSumMod(recipient, x => x.Health, this, x => x.Damage.Dice);
+                modSet.AddMod(new ExpireOnZero(), recipient, x => x.Health, this, x => x.Damage.Dice);
 
             return modSet;
         }

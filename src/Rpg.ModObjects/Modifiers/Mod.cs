@@ -14,7 +14,7 @@ namespace Rpg.ModObjects.Modifiers
         //[JsonProperty] public ModSource Source { get; protected set; }
         [JsonProperty] public PropRef? SourcePropRef { get; protected set; }
         [JsonProperty] public Dice? SourceValue { get; protected set; }
-        [JsonProperty] public ModSourceValueFunction SourceValueFunc { get; protected set; }
+        [JsonProperty] public ModSourceValueFunction SourceValueFunc { get; protected set; } = new ModSourceValueFunction();
 
         [JsonProperty] public ModBehavior Behavior { get; protected set; }
         [JsonProperty] public bool IsBaseInitMod { get => Behavior.Type == ModType.Initial; }
@@ -50,10 +50,10 @@ namespace Rpg.ModObjects.Modifiers
         {
             var src = $"{SourcePropRef}{SourceValue}";
             src = SourceValueFunc.IsCalc
-                ? $"{SourceValueFunc.FuncName} <= {src}"
+                ? $"{SourceValueFunc.FuncName}({src})"
                 : src;
 
-            var mod = $"{EntityId}.{Prop} <= {src} ({Behavior.Type})";
+            var mod = $"({Behavior.Type}) {EntityId}.{Prop} <= {src}";
             return mod;
         }
 
@@ -167,7 +167,7 @@ namespace Rpg.ModObjects.Modifiers
             where TTarget : RpgObject
         {
             var mod = Mod.Create(behavior, prop, entity, prop, value, valueFunc);
-            entity.AddMod(mod);
+            entity.AddMods(mod);
             return entity;
         }
 
@@ -175,7 +175,7 @@ namespace Rpg.ModObjects.Modifiers
             where TTarget : RpgObject
         {
             var mod = Mod.Create(behavior, name, entity, prop, value, valueFunc);
-            entity.AddMod(mod);
+            entity.AddMods(mod);
             return entity;
         }
 
@@ -184,7 +184,7 @@ namespace Rpg.ModObjects.Modifiers
             where TTarget : RpgObject
         {
             var mod = Mod.Create(behavior, entity, targetExpr, dice, valueFunc);
-            entity.AddMod(mod);
+            entity.AddMods(mod);
             return entity;
         }
 
@@ -192,7 +192,7 @@ namespace Rpg.ModObjects.Modifiers
             where TTarget : RpgObject
         {
             var mod = Mod.Create<TTarget, TTargetValue>(behavior, name, entity, targetExpr, dice, valueFunc);
-            entity.AddMod(mod);
+            entity.AddMods(mod);
             return entity;
         }
 
@@ -201,7 +201,7 @@ namespace Rpg.ModObjects.Modifiers
             where TTarget : RpgObject
         {
             var mod = Mod.Create(behavior, entity, targetExpr, entity, sourceExpr, valueFunc);
-            entity.AddMod(mod);
+            entity.AddMods(mod);
             return entity;
         }
 
@@ -209,7 +209,7 @@ namespace Rpg.ModObjects.Modifiers
             where TTarget : RpgObject
         {
             var mod = Mod.Create(behavior, name, entity, targetExpr, entity, sourceExpr, valueFunc);
-            entity.AddMod(mod);
+            entity.AddMods(mod);
             return entity;
         }
     }

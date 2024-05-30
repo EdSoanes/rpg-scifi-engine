@@ -10,7 +10,8 @@ namespace Rpg.ModObjects.Modifiers
     {
         Active,
         Pending,
-        Expired
+        Expired,
+        Remove
     }
 
     public enum ModMerging

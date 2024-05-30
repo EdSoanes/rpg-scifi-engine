@@ -2,7 +2,6 @@
 using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Values;
-using System.ComponentModel;
 
 namespace Rpg.ModObjects
 {
@@ -15,10 +14,11 @@ namespace Rpg.ModObjects
             Formatting = Formatting.Indented
         };
 
+        private List<PropRef> UpdatedProps = new List<PropRef>();
+
         [JsonProperty] public RpgObject Context { get; private set; }
-        [JsonProperty] protected Dictionary<Guid, RpgObject> ModObjectStore { get; set; } = new Dictionary<Guid, RpgObject>();
-        [JsonProperty] public int Turn { get; private set; }
-        public bool EncounterActive => Turn > 1;
+        [JsonProperty] protected Dictionary<Guid, RpgObject> ObjectStore { get; set; } = new Dictionary<Guid, RpgObject>();
+        [JsonProperty] public int Turn { get; private set; } = ModBehavior.BeforeEncounter;
 
         public RpgGraph(RpgObject context)
         {
@@ -30,31 +30,133 @@ namespace Rpg.ModObjects
 
         private void Build()
         {
-            ModObjectStore.Clear();
+            ObjectStore.Clear();
 
             foreach (var entity in Context.Traverse())
+            {
                 AddEntity(entity);
-
-            foreach (var entity in ModObjectStore.Values)
                 entity.OnGraphCreating(this, entity);
+            }
 
-            Context.UpdateProps();
+            foreach (var entity in ObjectStore.Values)
+            {
+                entity.OnObjectsCreating();
+                var props = GetModProps(entity);
+                foreach (var prop in props)
+                {
+                    var propsAffectedBy = GetPropsAffectedBy(prop);
+                    UpdatedProps.Merge(propsAffectedBy);
+                }
+            }
+
+            TriggerUpdate();
         }
 
-        public Prop? GetModProp(PropRef? propRef)
-            => GetModProp(propRef?.EntityId, propRef?.Prop);
+        public Mod[] GetMods(PropRef? propRef, bool filtered = true)
+            => GetEntity(propRef?.EntityId)?.PropStore.GetMods(propRef!.Prop, filtered) ?? Array.Empty<Mod>();
 
-        public Prop? GetModProp(Guid? entityId, string? prop)
+        public Mod[] GetMods(PropRef? propRef, Func<Mod, bool> filterFunc)
+            => GetEntity(propRef?.EntityId)?.PropStore.GetMods(propRef!.Prop, filterFunc) ?? Array.Empty<Mod>();
+
+        public Mod[] GetMods(RpgObject? rpgObj, string prop, Func<Mod, bool> filterFunc)
+            => rpgObj?.PropStore.GetMods(prop, filterFunc) ?? Array.Empty<Mod>();
+
+        public Mod[] GetMods(RpgObject? rpgObj, string prop, bool filtered = true)
+            => rpgObj?.PropStore.GetMods(prop, filtered) ?? Array.Empty<Mod>();
+
+        public Mod[] GetMods(RpgObject? rpgObj, bool filtered = true)
+            => rpgObj?.PropStore.GetMods(filtered).ToArray() 
+                ?? Array.Empty<Mod>();
+
+        public Mod[] GetMods(bool filtered = true)
+            => ObjectStore.Values
+                .SelectMany(x => GetMods(x, filtered)).ToArray() 
+                ?? Array.Empty<Mod>();
+
+        public void AddMods(params Mod[] mods)
         {
-            var entity = GetEntity(entityId);
-            return entity?.GetModProp(prop);
+            foreach (var modGroup in mods.GroupBy(x => x.EntityId))
+                GetEntity(modGroup.Key)?.PropStore.Add(modGroup.ToArray());
         }
+
+        public void RemoveMods(params Mod[] mods)
+        {
+            foreach (var modGroup in mods.GroupBy(x => x.EntityId))
+                GetEntity(modGroup.Key)?.PropStore.Remove(modGroup.ToArray());
+        }
+
+        public Prop? GetModProp(PropRef? propRef, bool create = false)
+        {
+            var entity = GetEntity(propRef?.EntityId);
+            return entity?.PropStore.Get(propRef!.Prop, create);
+        }
+
+        public Prop[] GetModProps(RpgObject? rpgObj)
+            => rpgObj?.PropStore.Get() ?? Array.Empty<Prop>();
+
+        public List<PropRef> GetPropsAffectedBy(PropRef propRef)
+        {
+            var res = new List<PropRef>();
+            res.Merge(propRef);
+
+            var propsAffectedBy = new List<PropRef>();
+            foreach (var entity in GetEntities())
+            {
+                var affectedBy = GetModProps(entity)
+                    .Where(x => x.IsAffectedBy(propRef))
+                    .Select(x => new PropRef(entity.Id, x.Prop))
+                    .Distinct();
+
+                res.Merge(affectedBy);
+
+                foreach (var propAffectedBy in affectedBy)
+                {
+                    var parentAffectedBy = GetPropsAffectedBy(propAffectedBy);
+                    res.Merge(parentAffectedBy);
+                }
+            }
+
+            return res;
+        }
+
+        //public List<PropRef> GetPropsThatAffect(RpgObject? rpgObj)
+        //{
+        //    var res = rpgObj?.PropStore.Get()
+        //        .SelectMany(GetPropsThatAffect)
+        //        .Distinct()
+        //        .ToList() ?? new List<PropRef>();
+
+        //    return res;
+        //}
+
+        //public List<PropRef> GetPropsThatAffect(PropRef propRef)
+        //{
+        //    var res = new List<PropRef>();
+
+        //    var propsThatAffect = GetMods(propRef)
+        //        .Where(x => x.SourcePropRef != null)
+        //        .Select(x => x.SourcePropRef!)
+        //        .GroupBy(x => $"{x.EntityId}.{x.Prop}")
+        //        .Select(x => x.First());
+
+        //    foreach (var propThatAffects in propsThatAffect)
+        //    {
+        //        var childPropsThatAffect = GetPropsThatAffect(propThatAffects);
+        //        res.Merge(childPropsThatAffect);
+        //        res.Merge(propThatAffects);
+        //    }
+
+        //    res.Merge(propRef);
+
+        //    return res;
+        //}
+
 
         public bool AddEntity(RpgObject entity)
         {
-            if (!ModObjectStore.ContainsKey(entity.Id))
+            if (!ObjectStore.ContainsKey(entity.Id))
             {
-                ModObjectStore.Add(entity.Id, entity);
+                ObjectStore.Add(entity.Id, entity);
                 return true;
             }
 
@@ -63,9 +165,9 @@ namespace Rpg.ModObjects
 
         public bool RemoveEntity(RpgObject entity)
         {
-            if (ModObjectStore.ContainsKey(entity.Id))
+            if (ObjectStore.ContainsKey(entity.Id))
             {
-                ModObjectStore.Remove(entity.Id);
+                ObjectStore.Remove(entity.Id);
                 return true;
             }
 
@@ -74,27 +176,70 @@ namespace Rpg.ModObjects
 
         public T? GetEntity<T>(Guid? entityId)
             where T : RpgObject
-                => entityId != null && ModObjectStore.ContainsKey(entityId.Value)
-                    ? ModObjectStore[entityId.Value] as T
+                => entityId != null && ObjectStore.ContainsKey(entityId.Value)
+                    ? ObjectStore[entityId.Value] as T
                     : null;
 
         public RpgObject? GetEntity(Guid? entityId)
-            => entityId != null && ModObjectStore.ContainsKey(entityId.Value)
-                ? ModObjectStore[entityId.Value]
+            => entityId != null && ObjectStore.ContainsKey(entityId.Value)
+                ? ObjectStore[entityId.Value]
                 : null;
 
         public IEnumerable<RpgObject> GetEntities()
-            => ModObjectStore.Values;
-
-        public Mod[] GetAllMods()
-            => ModObjectStore.Values
-                .SelectMany(x => x.GetMods(filtered: false))
-                .ToArray();
+            => ObjectStore.Values;
 
         public ModSet[] GetModSets()
-            => ModObjectStore.Values
-                .SelectMany(x => x.GetModSets())
+            => ObjectStore.Values
+                .SelectMany(x => x.ModSetStore.Get())
                 .ToArray();
+
+        public ModSet? GetModSet(RpgObject rpgObj, string name)
+        {
+            var modSet = rpgObj.ModSetStore.Get(name);
+            if (modSet != null)
+                return modSet;
+
+            return null;
+        }
+
+        public ModSet? GetModSet(Guid modSetId)
+        {
+            foreach (var rpgObj in ObjectStore.Values)
+            {
+                var modSet = rpgObj.ModSetStore[modSetId];
+                if (modSet != null)
+                    return modSet;
+            }
+
+            return null;
+        }
+
+        public void RemoveModSet(Guid modSetId)
+        {
+            foreach (var rpgObj in ObjectStore.Values)
+            {
+                var modSet = rpgObj.ModSetStore[modSetId];
+                if (modSet != null)
+                {
+                    rpgObj.ModSetStore.Remove(modSetId);
+                    return;
+                }
+            }
+        }
+
+        public void RemoveModSet(RpgObject rpgObj, Guid id)
+        {
+            var modSet = rpgObj.ModSetStore[id];
+            if (modSet != null)
+                rpgObj.ModSetStore.Remove(modSet.Id);
+        }
+
+        public void RemoveModSet(RpgObject rpgObj, string name)
+        {
+            var modSet = rpgObj.ModSetStore.Get(name);
+            if (modSet != null)
+                rpgObj.ModSetStore.Remove(modSet.Id);
+        }
 
         /// <summary>
         /// Shallow recalculation of a property value
@@ -118,8 +263,8 @@ namespace Rpg.ModObjects
                 return null;
 
             var mods = filterFunc != null
-                ? entity.GetMods(prop, filterFunc)
-                : entity.GetMods(prop);
+                ? GetMods(entity, prop, filterFunc)
+                : GetMods(entity, prop);
 
             var dice = CalculateModsValue(mods);
             return dice;
@@ -168,7 +313,7 @@ namespace Rpg.ModObjects
 
             if (!propExists)
             {
-                var mods = entity.GetMods(prop);
+                var mods = GetMods(entity, prop);
                 var dice = CalculateModsValue(mods);
 
                 return dice;
@@ -176,6 +321,9 @@ namespace Rpg.ModObjects
 
             return Dice.Zero;
         }
+
+        public void OnPropUpdated(PropRef propRef)
+            => UpdatedProps.Merge(propRef);
 
         public void SetPropValue(PropRef propRef)
         {
@@ -198,47 +346,95 @@ namespace Rpg.ModObjects
         public Dice? GetBasePropValue(RpgObject? entity, string prop)
             => CalculatePropValue(entity, prop, mod => mod.IsBaseMod);
 
+        public void TriggerUpdate()
+        {
+            //Call OnBeforeUpdate() all rpg objects to set expiry and expire/remove
+            // modsets as needed
+            foreach (var entity in ObjectStore.Values)
+                entity?.OnBeforeUpdate(this);
+
+            UpdateProps();
+
+            //Call OnAfterUpdate() on each rpg object to give states a chance to update
+            // after property values have been updated
+            foreach (var entity in ObjectStore.Values)
+                entity?.OnAfterUpdate(this);
+
+            //If OnAfterUpdate() has caused any props to change then update the relevant props
+            UpdateProps();
+        }
+
+        private void UpdateProps()
+        {
+            //It is IMPORTANT that Merge() adds the propRefs in the right order because
+            // after this step the assumption is that they can be updated from top to bottom
+            // so that all child props are updated before their parents
+            var propsToUpdate = new List<PropRef>();
+            foreach (var propRef in UpdatedProps)
+            {
+                var affectedBy = GetPropsAffectedBy(propRef);
+                propsToUpdate.Merge(affectedBy);
+            }
+
+            //Clear the UpdatedProps queue.
+            UpdatedProps.Clear();
+
+            foreach (var propRef in propsToUpdate)
+                SetPropValue(propRef);
+        }
+
+        public void TriggerUpdate(PropRef propRef)
+        {
+            var propsAffected = GetPropsAffectedBy(propRef);
+
+            foreach (var entityId in propsAffected.Select(x => x.EntityId).Distinct())
+                GetEntity(entityId)?.OnBeforeUpdate(this);
+
+            foreach (var targetPropRef in propsAffected)
+                SetPropValue(targetPropRef);
+        }
+
         public void NewEncounter()
         {
-            if (Turn < int.MaxValue - 1)
+            if (Turn > ModBehavior.EncounterStart)
                 EndEncounter();
 
-            Turn = 0;
-            Context!.OnBeginEncounter();
+            if (Turn != ModBehavior.EncounterStart)
+            {
+                Turn = ModBehavior.EncounterStart;
+                TriggerUpdate();
+            }
 
             NewTurn();
         }
 
-        public void TriggerUpdate()
-            => Context!.TriggerUpdate();
-
         public void EndEncounter()
         {
-            Turn = int.MaxValue - 1;
-            Context!.OnEndEncounter();
+            Turn = ModBehavior.EncounterEnd;
+            TriggerUpdate();
         }
 
         public void NewTurn()
         {
             Turn++;
-            Context!.OnTurnChanged(Turn);
+            TriggerUpdate();
         }
 
         public void PrevTurn()
         {
-            if (Turn > 1)
+            if (Turn > ModBehavior.EncounterStart + 1)
             {
                 Turn--;
-                Context!.OnTurnChanged(Turn);
+                TriggerUpdate();
             }
         }
 
         public void SetTurn(int turn)
         {
-            if (turn > 0 && turn != Turn)
+            if (turn > ModBehavior.EncounterStart && Turn < ModBehavior.EncounterEnd && turn != Turn)
             {
                 Turn = turn;
-                Context!.OnTurnChanged(Turn);
+                TriggerUpdate();
             }
         }
     }

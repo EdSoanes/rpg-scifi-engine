@@ -23,7 +23,7 @@ namespace Rpg.ModObjects.Tests
             graph.NewEncounter();
 
             entity.AddMod(new Turn(), x => x.Melee, 2);
-            entity.TriggerUpdate(x => x.Melee);
+            graph.TriggerUpdate();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
 
@@ -43,7 +43,7 @@ namespace Rpg.ModObjects.Tests
             graph.NewEncounter();
 
             entity.AddMod(new Turn(), x => x.Melee, 2);
-            entity.TriggerUpdate(x => x.Melee);
+            graph.TriggerUpdate();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
 
@@ -63,7 +63,7 @@ namespace Rpg.ModObjects.Tests
             graph.NewEncounter();
 
             entity.AddMod(new Turn(), x => x.Melee, 2);
-            entity.TriggerUpdate(x => x.Melee);
+            graph.TriggerUpdate();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
 
@@ -82,21 +82,21 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new RpgGraph(entity);
 
-            var modCount = graph.GetAllMods().Count();
+            var modCount = graph.GetMods().Count();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
 
             graph.NewEncounter();
 
             entity.AddMod(new Turn(), x => x.Melee, 2);
-            entity.TriggerUpdate(x => x.Melee);
+            graph.TriggerUpdate();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
 
             graph.NewEncounter();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
-            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(modCount));
+            Assert.That(graph.GetMods().Count(), Is.EqualTo(modCount));
         }
 
         [Test]
@@ -105,21 +105,21 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new RpgGraph(entity);
 
-            var modCount = graph.GetAllMods().Count();
+            var modCount = graph.GetMods().Count();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
 
             graph.NewEncounter();
 
             entity.AddMod(new Turn(), x => x.Melee, 2);
-            entity.TriggerUpdate(x => x.Melee);
+            graph.TriggerUpdate();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
 
             graph.EndEncounter();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
-            Assert.That(graph.GetAllMods().Count(), Is.EqualTo(modCount));
+            Assert.That(graph.GetMods().Count(), Is.EqualTo(modCount));
         }
 
         [Test]
@@ -133,7 +133,7 @@ namespace Rpg.ModObjects.Tests
             graph.NewEncounter();
 
             entity.AddMod(new Turn(3), x => x.Melee, 2);
-            entity.TriggerUpdate(x => x.Melee);
+            graph.TriggerUpdate();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
 
@@ -161,7 +161,7 @@ namespace Rpg.ModObjects.Tests
             graph.NewEncounter();
 
             entity.AddMod(new Turn(3), x => x.Melee, 2);
-            entity.TriggerUpdate(x => x.Melee);
+            graph.TriggerUpdate();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
 

@@ -1,6 +1,5 @@
 ﻿using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.Tests.Models;
-using Rpg.ModObjects.Values;
 using System.Reflection;
 
 namespace Rpg.ModObjects.Tests
@@ -20,10 +19,10 @@ namespace Rpg.ModObjects.Tests
             var recipient = new TestHuman();
             var gun = new TestGun();
 
-            var location = new ModObjectContainer("Room");
-            location.Add(initiator);
-            location.Add(recipient);
-            location.Add(gun);
+            var location = new RpgEntity("Room");
+            location.AddToStore("Room", initiator);
+            location.AddToStore("Room", recipient);
+            location.AddToStore("Room", gun);
 
             var graph = new RpgGraph(location);
 
@@ -81,10 +80,10 @@ namespace Rpg.ModObjects.Tests
             var recipient = new TestHuman();
             var gun = new TestGun();
 
-            var location = new ModObjectContainer("Room");
-            location.Add(initiator);
-            location.Add(recipient);
-            location.Add(gun);
+            var location = new RpgEntity("Room");
+            location.AddToStore("Room", initiator);
+            location.AddToStore("Room", recipient);
+            location.AddToStore("Room", gun);
 
             var graph = new RpgGraph(location);
             graph.NewEncounter();
@@ -106,15 +105,18 @@ namespace Rpg.ModObjects.Tests
             var modSet = shootCmd.Create(args)!;
             var shootSubsets = modSet.SubSets(graph);
 
-            var target = shootSubsets.FirstOrDefault(x => x.Name == modSet.TargetProp);
+            var target = shootSubsets.FirstOrDefault(x => x.TargetProp == modSet.TargetPropName);
             Assert.That(target, Is.Not.Null);
             Assert.That(target.IsResolved, Is.True);
-            Assert.That(target.Dice.Roll(), Is.EqualTo(11));
+            Assert.That(target.Dice.Roll(), Is.EqualTo(5));
 
-            var diceRoll = shootSubsets.FirstOrDefault(x => x.Name == modSet.DiceRollProp);
+            var diceRoll = shootSubsets.FirstOrDefault(x => x.TargetProp == modSet.DiceRollPropName);
             Assert.That(diceRoll, Is.Not.Null);
             Assert.That(diceRoll.IsResolved, Is.False);
             Assert.That(diceRoll.Dice.ToString(), Is.EqualTo("1d20 + 4"));
+
+            //Actually shoot the gun...
+            shootCmd.Apply(modSet);
 
             //Assert the gun
             Assert.That(gun.IsStateActive(nameof(TestGun.Shoot)), Is.True);
@@ -132,10 +134,10 @@ namespace Rpg.ModObjects.Tests
             var recipient = new TestHuman();
             var gun = new TestGun();
 
-            var location = new ModObjectContainer("Room");
-            location.Add(initiator);
-            location.Add(recipient);
-            location.Add(gun);
+            var location = new RpgEntity("Room");
+            location.AddToStore("Room", initiator);
+            location.AddToStore("Room", recipient);
+            location.AddToStore("Room", gun);
 
             var graph = new RpgGraph(location);
             graph.NewEncounter();
@@ -175,10 +177,10 @@ namespace Rpg.ModObjects.Tests
             var recipient = new TestHuman();
             var gun = new TestGun();
 
-            var location = new ModObjectContainer("Room");
-            location.Add(initiator);
-            location.Add(recipient);
-            location.Add(gun);
+            var location = new RpgEntity("Room");
+            location.AddToStore("Room", initiator);
+            location.AddToStore("Room", recipient);
+            location.AddToStore("Room", gun);
 
             var graph = new RpgGraph(location);
             graph.NewEncounter();
@@ -213,8 +215,8 @@ namespace Rpg.ModObjects.Tests
 
             //Apply the resolved dice rolls to the recipient(s)
             Assert.That(recipient.Health, Is.EqualTo(10));
-            recipient.AddMod(damageRoll);
-            recipient.TriggerUpdate();
+            recipient.AddMods(damageRoll);
+            graph.TriggerUpdate();
 
             Assert.That(recipient.Health, Is.EqualTo(5));
         }

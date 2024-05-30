@@ -18,20 +18,32 @@ namespace Rpg.ModObjects.Tests.Models
     /// PhysicalActionsPoints.Max 5
     /// MentalActionPoints.Max 3
     /// </summary>
-    public class TestHuman : RpgObject
+    public class TestHuman : RpgEntity
     {
-        public ScoreBonusValue Strength { get; private set; } = new ScoreBonusValue(nameof(Strength), 14);
-        public ScoreBonusValue Intelligence { get; private set; } = new ScoreBonusValue(nameof(Intelligence), 10);
-        public ScoreBonusValue Dexterity { get; private set; } = new ScoreBonusValue(nameof(Dexterity), 17);
+        public ScoreBonusValue Strength { get; private set; }
+        public ScoreBonusValue Intelligence { get; private set; }
+        public ScoreBonusValue Dexterity { get; private set; }
         public int MeleeAttack { get; protected set; } = 2;
         public int MissileAttack { get; protected set; } = 2;
-        public DamageValue MeleeDamage { get; private set; } = new DamageValue("d6", 0, 0);
+        public DamageValue MeleeDamage { get; private set; }
         public int Defense { get; protected set; } = 5;
         public int Health { get; protected set; } = 10;
-        public MaxCurrentValue PhysicalActionPoints { get; protected set; } = new MaxCurrentValue(nameof(PhysicalActionPoints), 3);
-        public MaxCurrentValue MentalActionPoints { get; protected set; } = new MaxCurrentValue(nameof(MentalActionPoints), 3);
+        public MaxCurrentValue PhysicalActionPoints { get; protected set; }
+        public MaxCurrentValue MentalActionPoints { get; protected set; }
 
-        protected override void OnCreate()
+        public TestHuman()
+        {
+            Strength = new ScoreBonusValue(Id,nameof(Strength), 14);
+            Intelligence = new ScoreBonusValue(Id,nameof(Intelligence), 10);
+            Dexterity = new ScoreBonusValue(Id,nameof(Dexterity), 17);
+
+            MeleeDamage = new DamageValue(Id, nameof(MeleeDamage), "d6", 0, 0);
+
+            PhysicalActionPoints = new MaxCurrentValue(Id, nameof(PhysicalActionPoints), 3);
+            MentalActionPoints = new MaxCurrentValue(Id, nameof(MentalActionPoints), 3);
+        }
+
+        protected override void OnCreating()
         {
             this
                 .AddMod(new Base(), x => x.MeleeAttack, x => x.Strength.Bonus)

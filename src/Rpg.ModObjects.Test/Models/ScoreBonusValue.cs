@@ -4,20 +4,20 @@ using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Tests.Models
 {
-    public class ScoreBonusValue : RpgObject
+    public class ScoreBonusValue : RpgEntityComponent
     {
         [JsonProperty] public int Score { get; protected set; }
         [JsonProperty] public int Bonus { get; protected set; }
 
         [JsonConstructor] private ScoreBonusValue() { }
 
-        public ScoreBonusValue(string name, int score) 
+        public ScoreBonusValue(Guid entityId, string name, int score) 
+            : base(entityId, name)
         {
-            Name = name;
             Score = score;
         }
 
-        protected override void OnCreate()
+        protected override void OnCreating()
         {
             this.AddMod(new Base(), x => x.Bonus, x => x.Score, () => CalculateStatBonus);
         }

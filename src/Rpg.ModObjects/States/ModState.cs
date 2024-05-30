@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.States
 {
@@ -15,6 +16,7 @@ namespace Rpg.ModObjects.States
         public string InstanceName { get => $"{EntityId}.{Name}"; }
 
         [JsonConstructor] private ModState() { }
+
         public ModState(Guid entityId, string name, string? shouldActivateMethod = null, string? onActivateMethod = null)
         {
             EntityId = entityId;
@@ -24,75 +26,48 @@ namespace Rpg.ModObjects.States
         }
 
         public void SetActive()
-            => Graph?.GetEntity(EntityId)?.AddMod(new ForceState(), InstanceName, 1);
+            => Graph!.GetEntity(EntityId)?.AddMod(new ForceState(), InstanceName, 1);
 
         public void SetInactive()
         {
-            var entity = Graph?.GetEntity(EntityId);
-            if (entity != null)
-            {
-                var stateMods = Graph?.GetEntity(EntityId)?
-                    .GetMods(InstanceName, false)
-                    .Where(x => x.Name == InstanceName && x.Behavior.Type == ModType.ForceState)
-                    .ToArray();
+            var entity = Graph!.GetEntity(EntityId);
+            var stateModSet = Graph!.GetModSet(entity!, InstanceName);
+            stateModSet?.SetExpired();
 
-                if (stateMods != null)
-                    entity.RemoveMods(stateMods);
-            }
+            var stateMods = Graph!
+                .GetMods(entity, InstanceName, mod => mod.Behavior.Type == ModType.ForceState)
+                .ToArray();
+
+            Graph!.RemoveMods(stateMods);
+        }
+
+        public bool IsActive()
+        {
+            var entity = Graph!.GetEntity(EntityId);
+            return Graph!.GetPropValue(entity, InstanceName) != Dice.Zero;
+        }
+
+        public bool IsForcedActive()
+        {
+            var entity = Graph!.GetEntity(EntityId);
+            return Graph!.CalculatePropValue(entity, InstanceName, mod => mod.Behavior.Merging == ModMerging.Replace) != Dice.Zero;
+        }
+
+        public bool IsConditionallyActive()
+        {
+            var entity = Graph!.GetEntity(EntityId);
+            return Graph!.CalculatePropValue(entity, InstanceName, mod => mod.Behavior.Merging == ModMerging.Combine) != Dice.Zero;
         }
 
         protected virtual bool ShouldActivate()
         {
             if (!string.IsNullOrEmpty(ShouldActivateMethod))
             {
-                var entity = Graph?.GetEntity(EntityId);
+                var entity = Graph!.GetEntity(EntityId);
                 return entity?.ExecuteFunction<bool>(ShouldActivateMethod) ?? false;
             }
 
             return false;
-        }
-
-        protected void UpdateActivation()
-        {
-            var entity = Graph?.GetEntity(EntityId);
-            if (entity != null)
-            {
-                var isConditionallyActive = entity.IsStateConditionallyActive(Name);
-                var shouldActivate = ShouldActivate();
-
-                if (!isConditionallyActive && shouldActivate)
-                    entity!.AddMod(new State(), InstanceName, 1);
-                else if (isConditionallyActive && !shouldActivate)
-                    entity!.AddMod(new State(), InstanceName, -1);
-            }
-
-            UpdateStateMods();
-        }
-
-        private bool ShouldAddStateModSet(RpgObject entity)
-            => entity.IsStateActive(Name) && (entity.IsStateForcedActive(Name) || ShouldActivate()) && entity.GetModSet(InstanceName) == null;
-
-        private bool ShouldRemoveStateModSet(RpgObject entity)
-            => !entity.IsStateActive(Name) && !ShouldActivate() && entity.GetModSet(InstanceName) != null;
-
-        protected void UpdateStateMods(RpgObject? entity = null)
-        {
-            entity ??= Graph?.GetEntity(EntityId);
-            if (entity != null)
-            {
-                if (ShouldAddStateModSet(entity))
-                {
-                    if (!string.IsNullOrEmpty(OnActivateMethod))
-                    {
-                        var modSet = new ModSet(EntityId, InstanceName);
-                        entity.ExecuteAction(OnActivateMethod, modSet);
-                        if (modSet.Mods.Any())
-                            entity?.AddModSet(modSet);
-                    }
-                }
-                else if (ShouldRemoveStateModSet(entity))
-                    entity?.RemoveModSet(InstanceName);
-            }
         }
 
         public void OnGraphCreating(RpgGraph graph, RpgObject entity)
@@ -101,13 +76,37 @@ namespace Rpg.ModObjects.States
             EntityId = entity.Id;
         }
 
-        public void OnBeginEncounter()
-            => UpdateActivation();
+        public void OnObjectsCreating() { }
 
-        public void OnEndEncounter()
-            => UpdateActivation();
+        public void OnBeforeUpdate(RpgGraph graph)
+        {
 
-        public void OnTurnChanged(int turn)
-            => UpdateActivation();
+        }
+
+        public void OnAfterUpdate(RpgGraph graph) 
+        {
+            var entity = graph.GetEntity(EntityId);
+
+            //Activate state if it fulfills the conditional
+            var isConditionallyActive = IsConditionallyActive();
+            var shouldActivate = ShouldActivate();
+            if (!isConditionallyActive && shouldActivate)
+                entity!.AddMod(new State(), InstanceName, 1);
+            else if (isConditionallyActive && !shouldActivate)
+                entity!.AddMod(new State(), InstanceName, -1);
+
+            //if the state is active in any way and there is no state modset then create it
+            var isActive = IsActive();
+            var stateModSet = Graph!.GetModSet(entity!, InstanceName);
+            if (isActive && stateModSet == null && !string.IsNullOrEmpty(OnActivateMethod))
+            {
+                var modSet = new ModSet(EntityId, InstanceName);
+                entity.ExecuteAction(OnActivateMethod, modSet);
+                if (modSet.Mods.Any())
+                    entity?.AddModSet(modSet);
+            }
+            else if (!isActive && stateModSet != null)
+                graph?.RemoveModSet(entity!, InstanceName);
+        }
     }
 }

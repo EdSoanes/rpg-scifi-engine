@@ -16,7 +16,7 @@ namespace Rpg.ModObjects.Props
         public Mod[] Get(RpgGraph graph)
         {
             var activeModifiers = Mods
-                .Where(x => x.Behavior.GetExpiry(graph, x) == ModExpiry.Active);
+                .Where(x => x.Behavior.Expiry == ModExpiry.Active);
 
             var res = activeModifiers
                 .Where(x => !x.IsBaseMod)
@@ -49,18 +49,20 @@ namespace Rpg.ModObjects.Props
 
         public void Add(Mod mod)
         {
-            if (!Mods.Contains(mod))
+            if (!Contains(mod))
                 Mods.Add(mod);
         }
 
-        internal void Combine(RpgGraph graph, RpgObject entity, Mod mod)
+        internal void Combine(RpgGraph graph, Mod mod)
         {
+            var entity = graph.GetEntity(mod.EntityId);
             var oldValue = graph.CalculatePropValue(entity, mod.Prop, x => x.Behavior.Type == mod.Behavior.Type && x.Name == mod.Name);
             var newValue = (oldValue ?? Dice.Zero) + graph?.CalculateModValue(mod) ?? Dice.Zero;
 
             mod.SetSource(newValue);
             var oldMods = Get(mod.Behavior.Type, mod.Name);
-            Remove(oldMods);
+            foreach (var oldMod in oldMods)
+                Remove(oldMod);
 
             if (mod.SourceValue != null && mod.SourceValue != Dice.Zero)
                 Add(mod);
@@ -69,7 +71,8 @@ namespace Rpg.ModObjects.Props
         internal void Replace(Mod mod)
         {
             var oldMods = Get(mod.Behavior.Type, mod.Name);
-            Remove(oldMods);
+            foreach (var oldMod in oldMods)
+                Remove(oldMod);
 
             //Don't add if the source is a Value without a ValueFunction and the Value = null
             if (mod.SourcePropRef != null || mod.SourceValue != null || mod.SourceValueFunc.IsCalc)
@@ -79,26 +82,13 @@ namespace Rpg.ModObjects.Props
         public Mod? Remove(Guid id)
         {
             var toRemove = Mods.FirstOrDefault(x => x.Id == id);
-
             if (toRemove != null)
                 Mods.Remove(toRemove);
             return toRemove;
         }
 
-        public Mod[] Remove(params Mod[] mods)
-        {
-            var toRemove = Mods
-                .Where(x => mods.Select(m => m.Id).Contains(x.Id))
-                .ToArray();
-
-            if (toRemove.Any())
-            {
-                foreach (var mod in toRemove)
-                    Mods.Remove(mod);
-            }
-
-            return toRemove;
-        }
+        public Mod? Remove(Mod mod)
+            => Remove(mod.Id);
 
         public Mod[] Clear()
         {
@@ -115,7 +105,7 @@ namespace Rpg.ModObjects.Props
         public bool Clean(RpgGraph graph)
         {
             var toRemove = Mods
-                .Where(x => x.Behavior.CanRemove(graph, x))
+                .Where(x => x.Behavior.Expiry == ModExpiry.Remove)
                 .ToArray();
 
             if (toRemove.Any())
@@ -131,6 +121,6 @@ namespace Rpg.ModObjects.Props
 
         public bool IsAffectedBy(PropRef propRef)
             => Mods
-                .Any(x => x.SourcePropRef != null && x.SourcePropRef == propRef);
+                .Any(x => x.SourcePropRef != null && x.SourcePropRef.EntityId == propRef.EntityId && x.SourcePropRef.Prop == propRef.Prop);
     }
 }

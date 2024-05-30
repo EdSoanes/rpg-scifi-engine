@@ -16,12 +16,6 @@ namespace Rpg.ModObjects.Props
             Prop = prop;
         }
 
-        public static bool operator ==(PropRef? d1, PropRef? d2)
-            => d1?.EntityId == d2?.EntityId && d1?.Prop == d2?.Prop;
-        
-        public static bool operator !=(PropRef? d1, PropRef? d2) 
-            => d1?.EntityId != d2?.EntityId || d1?.Prop != d2?.Prop;
-
         public static PropRef CreatePropRef<T, TResult>(T rootEntity, Expression<Func<T, TResult>> expression)
             where T : RpgObject
         {
