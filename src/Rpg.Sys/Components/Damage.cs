@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects;
 using Rpg.Sys.Components.Values;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Rpg.Sys.Components
 {
-    public class Damage
+    public class Damage : RpgEntityComponent
     {
         [JsonProperty] public DamageValue Kinetic { get; private set; }
         [JsonProperty] public DamageValue Heat { get; private set; }
@@ -20,15 +21,16 @@ namespace Rpg.Sys.Components
 
         [JsonConstructor] private Damage() { }
 
-        public Damage(DamageTemplate template)
+        public Damage(Guid entityId, string name, DamageTemplate template)
+            : base(entityId, name)
         {
-            Kinetic = new DamageValue(template.Kinetic, template.KineticArmorPenetration, template.KineticRadius);
-            Heat = new DamageValue(template.Heat, template.HeatArmorPenetration, template.HeatRadius);
-            Energy = new DamageValue(template.Energy, template.EnergyArmorPenetration, template.EnergyRadius);
-            Chemical = new DamageValue(template.Chemical, template.ChemicalArmorPenetration, template.ChemicalRadius);
-            Radiation = new DamageValue(template.Radiation, template.RadiationArmorPenetration, template.RadiationRadius);
-            Cyber = new DamageValue(template.Cyber, template.CyberArmorPenetration, template.CyberRadius);
-            Mental = new DamageValue(template.Mental, template.MentalArmorPenetration, template.MentalRadius);
+            Kinetic = new DamageValue(entityId, nameof(Kinetic), template.Kinetic, template.KineticArmorPenetration, template.KineticRadius);
+            Heat = new DamageValue(entityId, nameof(Heat), template.Heat, template.HeatArmorPenetration, template.HeatRadius);
+            Energy = new DamageValue(entityId, nameof(Energy), template.Energy, template.EnergyArmorPenetration, template.EnergyRadius);
+            Chemical = new DamageValue(entityId, nameof(Chemical), template.Chemical, template.ChemicalArmorPenetration, template.ChemicalRadius);
+            Radiation = new DamageValue(entityId, nameof(Radiation), template.Radiation, template.RadiationArmorPenetration, template.RadiationRadius);
+            Cyber = new DamageValue(entityId, nameof(Cyber), template.Cyber, template.CyberArmorPenetration, template.CyberRadius);
+            Mental = new DamageValue(entityId, nameof(Mental), template.Mental, template.MentalArmorPenetration, template.MentalRadius);
         }
     }
 }

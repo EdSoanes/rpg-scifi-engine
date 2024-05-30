@@ -1,14 +1,10 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects;
 using Rpg.Sys.Components.Values;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.Sys.Components
 {
-    public class StatPoints
+    public class StatPoints : RpgEntityComponent
     {
         [JsonProperty] public ScoreBonusValue Strength { get; private set; }
         [JsonProperty] public ScoreBonusValue Intelligence { get; private set; }
@@ -19,14 +15,15 @@ namespace Rpg.Sys.Components
 
         [JsonConstructor] private StatPoints() { }
 
-        public StatPoints(StatPointsTemplate template)
+        public StatPoints(Guid entityId, string name, StatPointsTemplate template)
+            : base(entityId, name)
         {
-            Strength = new ScoreBonusValue(nameof(Strength), template.Strength);
-            Intelligence = new ScoreBonusValue(nameof(Intelligence), template.Intelligence);
-            Wisdom = new ScoreBonusValue(nameof(Wisdom), template.Wisdom);
-            Dexterity = new ScoreBonusValue(nameof(Dexterity), template.Dexterity);
-            Constitution = new ScoreBonusValue(nameof(Constitution), template.Constitution);
-            Charisma = new ScoreBonusValue(nameof(Charisma), template.Charisma);
+            Strength = new ScoreBonusValue(entityId, nameof(Strength), template.Strength);
+            Intelligence = new ScoreBonusValue(entityId, nameof(Intelligence), template.Intelligence);
+            Wisdom = new ScoreBonusValue(entityId, nameof(Wisdom), template.Wisdom);
+            Dexterity = new ScoreBonusValue(entityId, nameof(Dexterity), template.Dexterity);
+            Constitution = new ScoreBonusValue(entityId, nameof(Constitution), template.Constitution);
+            Charisma = new ScoreBonusValue(entityId, nameof(Charisma), template.Charisma);
         }
     }
 }

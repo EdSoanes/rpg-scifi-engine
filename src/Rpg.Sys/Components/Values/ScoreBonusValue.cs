@@ -1,31 +1,26 @@
 ﻿using Newtonsoft.Json;
-using Rpg.Sys.Moddable;
-using Rpg.Sys.Moddable.Modifiers;
-using Rpg.Sys.Modifiers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Rpg.ModObjects;
+using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Values;
 
 namespace Rpg.Sys.Components.Values
 {
-    public class ScoreBonusValue : ModObject
+    public class ScoreBonusValue : RpgEntityComponent
     {
         [JsonProperty] public int Score { get; protected set; }
         [JsonProperty] public int Bonus { get; protected set; }
 
         [JsonConstructor] private ScoreBonusValue() { }
 
-        public ScoreBonusValue(string name, int score) 
+        public ScoreBonusValue(Guid entityId, string name, int score) 
+            : base(entityId, name)
         {
-            Name = name;
             Score = score;
         }
 
-        protected override void OnBuildGraph()
+        protected override void OnCreating()
         {
-            this.AddMod(x => x.Bonus, x => x.Score, () => CalculateStatBonus);
+            this.AddMod(new Base(), x => x.Bonus, x => x.Score, () => CalculateStatBonus);
         }
 
         public Dice CalculateStatBonus(Dice dice) => (int)Math.Floor((double)(dice.Roll() - 10) / 2);

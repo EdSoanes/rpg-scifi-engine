@@ -1,10 +1,10 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects;
 using Rpg.Sys.Components.Values;
-using Rpg.Sys.Moddable;
 
 namespace Rpg.Sys.Components
 {
-    public class Presence : ModObject
+    public class Presence : RpgEntityComponent
     {
         [JsonProperty] public int Size { get; protected set; }
         [JsonProperty] public int Weight { get; protected set; }
@@ -17,16 +17,17 @@ namespace Rpg.Sys.Components
 
         [JsonConstructor] private Presence() { }
 
-        public Presence(PresenceTemplate template)
+        public Presence(Guid entityId, string name, PresenceTemplate template)
+            : base(entityId, name)
         {
             Size = template.Size;
             Weight = template.Weight;
-            Sound = new PresenceValue(nameof(Sound), template.SoundMax, template.SoundCurrent, template.SoundRadius);
-            Light = new PresenceValue(nameof(Light), template.LightMax, template.LightCurrent, template.LightRadius);
-            Heat = new PresenceValue(nameof(Heat), template.HeatMax, template.HeatCurrent, template.HeatRadius);
-            Chemical = new PresenceValue(nameof(Chemical), template.ChemicalMax, template.ChemicalCurrent, template.ChemicalRadius);
-            Radiation = new PresenceValue(nameof(Radiation), template.RadiationMax, template.RadiationCurrent, template.RadiationRadius);
-            Electromagnetic = new PresenceValue(nameof(Electromagnetic), template.ElectromagneticMax, template.ElectromagneticCurrent, template.ElectromagneticRadius);
+            Sound = new PresenceValue(entityId, nameof(Sound), template.SoundMax, template.SoundCurrent, template.SoundRadius);
+            Light = new PresenceValue(entityId, nameof(Light), template.LightMax, template.LightCurrent, template.LightRadius);
+            Heat = new PresenceValue(entityId, nameof(Heat), template.HeatMax, template.HeatCurrent, template.HeatRadius);
+            Chemical = new PresenceValue(entityId, nameof(Chemical), template.ChemicalMax, template.ChemicalCurrent, template.ChemicalRadius);
+            Radiation = new PresenceValue(entityId, nameof(Radiation), template.RadiationMax, template.RadiationCurrent, template.RadiationRadius);
+            Electromagnetic = new PresenceValue(entityId, nameof(Electromagnetic), template.ElectromagneticMax, template.ElectromagneticCurrent, template.ElectromagneticRadius);
         }
     }
 }
