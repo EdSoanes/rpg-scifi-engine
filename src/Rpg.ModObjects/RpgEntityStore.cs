@@ -9,7 +9,7 @@ namespace Rpg.ModObjects
 {
     public class RpgEntityStore : ModBaseStore<string, List<RpgEntity>>
     {
-        public RpgEntityStore(Guid entityId)
+        public RpgEntityStore(string entityId)
             : base(entityId) { }
     }
 }

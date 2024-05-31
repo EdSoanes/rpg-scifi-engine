@@ -2,9 +2,9 @@
 
 namespace Rpg.ModObjects.Modifiers
 {
-    public class ModSetStore : ModBaseStore<Guid, ModSet>
+    public class ModSetStore : ModBaseStore<string, ModSet>
     {
-        public ModSetStore(Guid entityId)
+        public ModSetStore(string entityId)
             : base(entityId) { }
 
         public ModSet? Get(string name)
@@ -26,7 +26,7 @@ namespace Rpg.ModObjects.Modifiers
             return false;
         }
 
-        public void Remove(Guid modSetId)
+        public void Remove(string modSetId)
         {
             var existing = Get().FirstOrDefault(x => x.Id == modSetId);
             if (existing != null)
@@ -37,7 +37,7 @@ namespace Rpg.ModObjects.Modifiers
             }
         }
 
-        public void Remove(string name)
+        public void RemoveByName(string name)
         {
             var existing = Get().FirstOrDefault(x => x.Name == name);
             if (existing != null)

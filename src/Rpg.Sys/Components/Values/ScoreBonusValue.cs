@@ -12,7 +12,7 @@ namespace Rpg.Sys.Components.Values
 
         [JsonConstructor] private ScoreBonusValue() { }
 
-        public ScoreBonusValue(Guid entityId, string name, int score) 
+        public ScoreBonusValue(string entityId, string name, int score) 
             : base(entityId, name)
         {
             Score = score;

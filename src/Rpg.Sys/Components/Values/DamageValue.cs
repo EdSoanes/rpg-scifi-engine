@@ -12,7 +12,7 @@ namespace Rpg.Sys.Components.Values
 
         [JsonConstructor] private DamageValue() { }
 
-        public DamageValue (Guid entityId, string name, Dice dice, int armorPenetration, int radius)
+        public DamageValue (string entityId, string name, Dice dice, int armorPenetration, int radius)
             : base(entityId, name)
         {
             Dice = dice;

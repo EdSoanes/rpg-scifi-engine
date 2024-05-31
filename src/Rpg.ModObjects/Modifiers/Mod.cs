@@ -8,8 +8,8 @@ namespace Rpg.ModObjects.Modifiers
 {
     public class Mod : PropRef
     {
-        [JsonProperty] public Guid Id { get; protected set; } = Guid.NewGuid();
-        [JsonProperty] public Guid? ModSetId { get; internal set; }
+        [JsonProperty] public string Id { get; protected set; }
+        [JsonProperty] public string? ModSetId { get; internal set; }
         [JsonProperty] public string Name { get; protected set; }
         //[JsonProperty] public ModSource Source { get; protected set; }
         [JsonProperty] public PropRef? SourcePropRef { get; protected set; }
@@ -25,6 +25,7 @@ namespace Rpg.ModObjects.Modifiers
 
         private Mod(PropRef targetPropRef, string name, ModBehavior behavior, PropRef sourcePropRef)
         {
+            Id = this.NewId();
             EntityId = targetPropRef.EntityId;
             Prop = targetPropRef.Prop;
             Name = name;
@@ -34,6 +35,7 @@ namespace Rpg.ModObjects.Modifiers
 
         private Mod(PropRef targetPropRef, string name, ModBehavior behavior, Dice value)
         {
+            Id = this.NewId();
             EntityId = targetPropRef.EntityId;
             Prop = targetPropRef.Prop;
             Name = name;
@@ -64,7 +66,7 @@ namespace Rpg.ModObjects.Modifiers
             SourceValueFunc.Set(valueFunc);
         }
 
-        internal static Mod Create(ModBehavior behavior, Guid targetId, string prop, Dice value)
+        internal static Mod Create(ModBehavior behavior, string targetId, string prop, Dice value)
         {
             var targetPropRef = new PropRef(targetId, prop);
             var mod = new Mod(targetPropRef, targetPropRef.Prop, behavior, value);

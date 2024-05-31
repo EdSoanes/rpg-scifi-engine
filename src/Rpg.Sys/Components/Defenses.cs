@@ -19,7 +19,7 @@ namespace Rpg.Sys.Components
 
         [JsonConstructor] private Defenses() { }
 
-        public Defenses(Guid entityId, string name, DefensesTemplate template)
+        public Defenses(string entityId, string name, DefensesTemplate template)
             : base(entityId, name)
         {
             Kinetic = new DefenseValue(entityId, nameof(Kinetic), template.Kinetic, template.KineticShielding);

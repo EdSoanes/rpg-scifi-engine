@@ -21,7 +21,7 @@ namespace Rpg.Sys.Components
 
         [JsonConstructor] private Damage() { }
 
-        public Damage(Guid entityId, string name, DamageTemplate template)
+        public Damage(string entityId, string name, DamageTemplate template)
             : base(entityId, name)
         {
             Kinetic = new DamageValue(entityId, nameof(Kinetic), template.Kinetic, template.KineticArmorPenetration, template.KineticRadius);

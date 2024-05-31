@@ -10,7 +10,7 @@ namespace Rpg.Sys.Components.Values
     {
         public int Radius { get; protected set; }
 
-        public PresenceValue(Guid entityId, string name, int max, int current, int radius)
+        public PresenceValue(string entityId, string name, int max, int current, int radius)
             : base(entityId, name, max, current)
                 => Radius = radius;
     }

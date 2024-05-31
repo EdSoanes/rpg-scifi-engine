@@ -5,7 +5,7 @@ namespace Rpg.ModObjects.Props
 {
     public class PropStore : ModBaseStore<string, Prop>
     {
-        public PropStore(Guid entityId)
+        public PropStore(string entityId)
             : base(entityId) { }
 
         public Prop? Get(string prop, bool create = false)
@@ -84,6 +84,15 @@ namespace Rpg.ModObjects.Props
                 else if (mod.Behavior.Merging == ModMerging.Combine)
                     modProp.Combine(Graph, mod);
 
+                if (mod.Behavior is Conditional)
+                {
+                    var entities = Graph!.GetEntities(EntityId, mod.Behavior.Scope);
+                    foreach (var entity in entities)
+                    {
+                        entity.PropStore.Add(mod);
+                    }
+                }
+
                 Graph.OnPropUpdated(modProp);
             }
         }
@@ -98,6 +107,12 @@ namespace Rpg.ModObjects.Props
                 {
                     var oldExpiry = mod.Behavior.Expiry;
                     mod.Behavior.SetExpiry(Graph, mod);
+
+                    if (mod.Behavior is Conditional)
+                    {
+                        var newMod = mod.Clone()
+                    }
+                        Graph.AddMods(mod);
 
                     if (oldExpiry != mod.Behavior.Expiry)
                         Graph.OnPropUpdated(mod);

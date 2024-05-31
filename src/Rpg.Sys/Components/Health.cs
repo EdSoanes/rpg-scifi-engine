@@ -12,7 +12,7 @@ namespace Rpg.Sys.Components
 
         [JsonConstructor] private Health() { }
 
-        public Health(Guid entityId, string name, HealthTemplate template)
+        public Health(string entityId, string name, HealthTemplate template)
             : base(entityId, name)
         {
             Physical = new MaxCurrentValue(entityId, nameof(Physical), template.Physical);

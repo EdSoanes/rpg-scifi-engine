@@ -17,7 +17,7 @@ namespace Rpg.ModObjects
         private List<PropRef> UpdatedProps = new List<PropRef>();
 
         [JsonProperty] public RpgObject Context { get; private set; }
-        [JsonProperty] protected Dictionary<Guid, RpgObject> ObjectStore { get; set; } = new Dictionary<Guid, RpgObject>();
+        [JsonProperty] protected Dictionary<string, RpgObject> ObjectStore { get; set; } = new Dictionary<string, RpgObject>();
         [JsonProperty] public int Turn { get; private set; } = ModBehavior.BeforeEncounter;
 
         public RpgGraph(RpgObject context)
@@ -174,19 +174,40 @@ namespace Rpg.ModObjects
             return false;
         }
 
-        public T? GetEntity<T>(Guid? entityId)
+        public T? GetEntity<T>(string? entityId)
             where T : RpgObject
-                => entityId != null && ObjectStore.ContainsKey(entityId.Value)
-                    ? ObjectStore[entityId.Value] as T
+                => entityId != null && ObjectStore.ContainsKey(entityId)
+                    ? ObjectStore[entityId] as T
                     : null;
 
-        public RpgObject? GetEntity(Guid? entityId)
-            => entityId != null && ObjectStore.ContainsKey(entityId.Value)
-                ? ObjectStore[entityId.Value]
+        public RpgObject? GetEntity(string? entityId)
+            => entityId != null && ObjectStore.ContainsKey(entityId)
+                ? ObjectStore[entityId]
                 : null;
 
         public IEnumerable<RpgObject> GetEntities()
             => ObjectStore.Values;
+
+        public IEnumerable<RpgObject> GetEntities(string entityId, ModScope scope)
+        {
+            var all = ObjectStore.Values.Where(x => x.Id == entityId || (x as RpgEntityComponent)?.EntityId == entityId);
+            if (scope == ModScope.Objects)
+                return all;
+
+            if (scope == ModScope.Components)
+            {
+                var components = all
+                    .Where(x => x is RpgEntityComponent)
+                    .Select(x => x as RpgEntityComponent)
+                    .Where(x => x != null)
+                    .Cast<RpgObject>();
+
+                return components;
+            }
+
+            return all.Where(x => x.Id == entityId);
+        }
+            
 
         public ModSet[] GetModSets()
             => ObjectStore.Values
@@ -202,7 +223,7 @@ namespace Rpg.ModObjects
             return null;
         }
 
-        public ModSet? GetModSet(Guid modSetId)
+        public ModSet? GetModSet(string modSetId)
         {
             foreach (var rpgObj in ObjectStore.Values)
             {
@@ -214,7 +235,7 @@ namespace Rpg.ModObjects
             return null;
         }
 
-        public void RemoveModSet(Guid modSetId)
+        public void RemoveModSet(string modSetId)
         {
             foreach (var rpgObj in ObjectStore.Values)
             {
@@ -227,14 +248,14 @@ namespace Rpg.ModObjects
             }
         }
 
-        public void RemoveModSet(RpgObject rpgObj, Guid id)
+        public void RemoveModSet(RpgObject rpgObj, string modSetId)
         {
-            var modSet = rpgObj.ModSetStore[id];
+            var modSet = rpgObj.ModSetStore[modSetId];
             if (modSet != null)
                 rpgObj.ModSetStore.Remove(modSet.Id);
         }
 
-        public void RemoveModSet(RpgObject rpgObj, string name)
+        public void RemoveModSetByName(RpgObject rpgObj, string name)
         {
             var modSet = rpgObj.ModSetStore.Get(name);
             if (modSet != null)

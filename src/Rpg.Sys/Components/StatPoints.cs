@@ -15,7 +15,7 @@ namespace Rpg.Sys.Components
 
         [JsonConstructor] private StatPoints() { }
 
-        public StatPoints(Guid entityId, string name, StatPointsTemplate template)
+        public StatPoints(string entityId, string name, StatPointsTemplate template)
             : base(entityId, name)
         {
             Strength = new ScoreBonusValue(entityId, nameof(Strength), template.Strength);

@@ -13,10 +13,12 @@ namespace Rpg.ModObjects.Modifiers
 
         [JsonProperty] public ModType Type { get; protected set; } = ModType.Standard;
         [JsonProperty] public ModMerging Merging { get; protected set; } = ModMerging.Add;
+        [JsonProperty] public ModScope Scope { get; protected set; } = ModScope.Standard;
+        [JsonProperty] public ModExpiry Expiry { get; protected set; } = ModExpiry.Active;
+
         [JsonProperty] public int Delay { get; protected set; } = int.MinValue;
         [JsonProperty] public int Duration { get; protected set; } = int.MaxValue;
         [JsonProperty] public int TurnAdded { get; protected set; }
-        [JsonProperty] public ModExpiry Expiry { get; protected set; } = ModExpiry.Active;
 
         public int StartTurn
         {
@@ -202,6 +204,14 @@ namespace Rpg.ModObjects.Modifiers
             Expiry = res == Dice.Zero
                 ? ModExpiry.Expired
                 : ModExpiry.Active;
+        }
+    }
+
+    public class Conditional : ModBehavior
+    {
+        public Conditional(ModScope scope)
+        {
+            Scope = scope;
         }
     }
 }

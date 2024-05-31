@@ -1,7 +1,5 @@
-﻿using Rpg.Sys;
-using Rpg.Sys.Archetypes;
+﻿using Rpg.Sys.Archetypes;
 using Rpg.Sys.Components;
-using Rpg.Sys.Moddable;
 
 namespace Rpg.Client
 {

@@ -5,7 +5,7 @@ namespace Rpg.ModObjects
 {
     public class RpgEntity : RpgObject, INotifyCollectionChanged
     {
-        [JsonProperty] protected RpgEntityStore EntityStore { get; private set; } = new RpgEntityStore(Guid.NewGuid());
+        [JsonProperty] protected RpgEntityStore EntityStore { get; private set; }
 
         public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
@@ -14,12 +14,15 @@ namespace Rpg.ModObjects
 
         public RpgEntity(string name)
             : base()
-                => Name = name;
+        {
+            Name = name;
+            EntityStore = new RpgEntityStore(Id);
+        }
 
         public bool Contains(RpgEntity obj)
             => Contains(obj.Id);
 
-        public bool Contains(Guid entityId)
+        public bool Contains(string entityId)
         {
             foreach (var store in EntityStore.Get())
                 if (store.Any(x => x.Id == entityId))

@@ -10,7 +10,7 @@ namespace Rpg.ModObjects.Cmds
         protected RpgGraph? Graph { get; set; }
         protected RpgObject? Entity { get; set; }
 
-        [JsonProperty] public Guid EntityId { get; private set; }
+        [JsonProperty] public string EntityId { get; private set; }
         [JsonProperty] public string CommandName { get; private set; }
         [JsonProperty] public string InstanceName { get; private set; }
         [JsonProperty] public string? OutcomeCommandName { get; private set; }
@@ -29,7 +29,7 @@ namespace Rpg.ModObjects.Cmds
         public int? GetOutcome(RpgObject initiator, ModSet? modSet)
             => Graph!.GetPropValue(initiator, modSet?.OutcomePropName).Roll();
 
-        public static ModCmd Create(Guid entityId, string commandName, ModCmdAttribute cmdAttr, ModCmdArg[]? cmdArgs)
+        public static ModCmd Create(string entityId, string commandName, ModCmdAttribute cmdAttr, ModCmdArg[]? cmdArgs)
         {
             var cmd = new ModCmd
             {

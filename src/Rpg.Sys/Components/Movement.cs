@@ -13,7 +13,7 @@ namespace Rpg.Sys.Components
 
         [JsonConstructor] private Movement() { }
 
-        public Movement(Guid entityId, string name, MovementTemplate template)
+        public Movement(string entityId, string name, MovementTemplate template)
             : base(entityId, name)
         {
             Speed = new MaxCurrentValue(entityId, nameof(Speed), template.MaxSpeed, 0);
@@ -21,7 +21,7 @@ namespace Rpg.Sys.Components
             Deceleration = template.Deceleration;
         }
 
-        public Movement(Guid entityId, string name, int maxSpeed, int acceleration, int deceleration)
+        public Movement(string entityId, string name, int maxSpeed, int acceleration, int deceleration)
             : base(entityId, name)
         {
             Speed = new MaxCurrentValue(entityId, nameof(Speed), maxSpeed, 0);

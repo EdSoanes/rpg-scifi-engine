@@ -8,7 +8,7 @@ namespace Rpg.ModObjects.States
     {
         protected RpgGraph? Graph { get; set; }
 
-        [JsonProperty] public Guid EntityId { get; protected set; }
+        [JsonProperty] public string EntityId { get; protected set; }
         [JsonProperty] public string Name { get; protected set; }
         [JsonProperty] public string? ShouldActivateMethod { get; protected set; }
         [JsonProperty] public string? OnActivateMethod { get; protected set; }
@@ -17,7 +17,7 @@ namespace Rpg.ModObjects.States
 
         [JsonConstructor] private ModState() { }
 
-        public ModState(Guid entityId, string name, string? shouldActivateMethod = null, string? onActivateMethod = null)
+        public ModState(string entityId, string name, string? shouldActivateMethod = null, string? onActivateMethod = null)
         {
             EntityId = entityId;
             Name = name;
@@ -106,7 +106,7 @@ namespace Rpg.ModObjects.States
                     entity?.AddModSet(modSet);
             }
             else if (!isActive && stateModSet != null)
-                graph?.RemoveModSet(entity!, InstanceName);
+                graph?.RemoveModSetByName(entity!, InstanceName);
         }
     }
 }

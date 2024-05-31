@@ -6,6 +6,14 @@ using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Modifiers
 {
+    public enum ModScope
+    {
+        Standard,
+        Entity,
+        Components,
+        Objects
+    }
+
     public enum ModExpiry
     {
         Active,
@@ -31,5 +39,4 @@ namespace Rpg.ModObjects.Modifiers
         ForceState,
         Synced
     }
-
 }

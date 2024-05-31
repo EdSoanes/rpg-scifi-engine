@@ -6,7 +6,7 @@ namespace Rpg.ModObjects.Modifiers
 {
     public class ModSourceValueFunction
     {
-        [JsonProperty] public Guid? EntityId { get; private set; }
+        [JsonProperty] public string? EntityId { get; private set; }
         [JsonProperty] public string? ClassName { get; private set; }
         [JsonProperty] public string? FuncName { get; private set; }
         [JsonProperty] public string? FullName { get; private set; }

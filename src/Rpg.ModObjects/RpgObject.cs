@@ -12,7 +12,7 @@ namespace Rpg.ModObjects
     {
         protected RpgGraph? Graph { get; private set; }
 
-        [JsonProperty] public Guid Id { get; private set; }
+        [JsonProperty] public string Id { get; private set; }
         [JsonProperty] public string Name { get; set; }
         [JsonProperty] public string[] Is { get; private set; }
         [JsonProperty] internal PropStore PropStore { get; private set; }
@@ -25,7 +25,7 @@ namespace Rpg.ModObjects
 
         public RpgObject()
         {
-            Id = Guid.NewGuid();
+            Id = this.NewId();
             Name = GetType().Name;
             Is = this.GetBaseTypes();
 

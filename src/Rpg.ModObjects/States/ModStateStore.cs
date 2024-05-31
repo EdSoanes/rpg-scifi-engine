@@ -1,12 +1,10 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Modifiers;
-using Rpg.ModObjects.Stores;
+﻿using Rpg.ModObjects.Stores;
 
 namespace Rpg.ModObjects.States
 {
     public class ModStateStore : ModBaseStore<string, ModState>
     {
-        public ModStateStore(Guid entityId)
+        public ModStateStore(string entityId)
             : base(entityId) { }
 
         public string[] StateNames { get => Items.Values.Select(x => x.Name).ToArray(); }

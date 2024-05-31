@@ -5,12 +5,12 @@ namespace Rpg.ModObjects.Props
 {
     public class PropRef
     {
-        [JsonProperty] public Guid EntityId { get; protected set; }
+        [JsonProperty] public string EntityId { get; protected set; }
         [JsonProperty] public string Prop { get; protected set; }
 
         [JsonConstructor] protected PropRef() { }
 
-        public PropRef(Guid entityId, string prop)
+        public PropRef(string entityId, string prop)
         {
             EntityId = entityId;
             Prop = prop;

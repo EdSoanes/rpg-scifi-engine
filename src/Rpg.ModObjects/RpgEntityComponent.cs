@@ -9,11 +9,11 @@ namespace Rpg.ModObjects
 {
     public abstract class RpgEntityComponent : RpgObject
     {
-        [JsonProperty] public Guid EntityId { get; private set; }
+        [JsonProperty] public string EntityId { get; private set; }
 
         [JsonConstructor] protected RpgEntityComponent() { }
 
-        public RpgEntityComponent(Guid entityId, string name)
+        public RpgEntityComponent(string entityId, string name)
         {
             EntityId = entityId;
             Name = name;

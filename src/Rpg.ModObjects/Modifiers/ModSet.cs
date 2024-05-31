@@ -7,28 +7,27 @@ namespace Rpg.ModObjects.Modifiers
 {
     public class ModSet : ITemporal
     {
-        [JsonProperty] public Guid Id { get; private set; } = Guid.NewGuid();
-        [JsonProperty] public Guid InitiatorId { get; private set; }
+        [JsonProperty] public string Id { get; private set; }
+        [JsonProperty] public string InitiatorId { get; private set; }
         [JsonProperty] public string Name { get; set; }
         [JsonIgnore] public List<Mod> Mods { get; private set; } = new List<Mod>();
         [JsonProperty] public ModBehavior Behavior { get; private set; }
         [JsonConstructor] protected ModSet() { }
 
-        public ModSet(Guid initiatorId, string name, ModBehavior behavior)
+        public ModSet(string initiatorId, string name, ModBehavior behavior)
         {
+            Id = this.NewId();
             InitiatorId = initiatorId;
             Behavior = behavior;
             Name = name;
-            //Name = string.Join('.', name.Split('.', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            //    .Where(x => x != InitiatorId.ToString()));
         }
 
-        public ModSet(Guid initiatorId, string name)
+        public ModSet(string initiatorId, string name)
             : this(initiatorId, name, new Synced())
         {
         }
 
-        public ModSet(Guid initiatorId, string name, ModBehavior behavior, params Mod[] mods)
+        public ModSet(string initiatorId, string name, ModBehavior behavior, params Mod[] mods)
             : this(initiatorId, name, behavior)
         {
             Add(mods);

@@ -5,7 +5,7 @@ namespace Rpg.ModObjects.Modifiers
 {
     public class ModSubSet : ModSet
     {
-        public Guid TargetId { get; set; }
+        public string TargetId { get; set; }
         public string TargetProp { get; set; }
         public Dice Dice { get; private set; }
         public bool IsResolved { get => Dice.IsConstant; }
@@ -18,7 +18,7 @@ namespace Rpg.ModObjects.Modifiers
             return Mod.Create(behavior, TargetId, Name, resolution.Value);
         }
 
-        public ModSubSet(Guid initiatorId, PropRef recipientPropRef, Mod[] mods, Dice dice)
+        public ModSubSet(string initiatorId, PropRef recipientPropRef, Mod[] mods, Dice dice)
             : base(initiatorId, recipientPropRef.Prop, new Turn())
         {
             TargetId = recipientPropRef.EntityId;

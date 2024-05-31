@@ -25,19 +25,17 @@ namespace Rpg.ModObjects.Tests.Models
             this.AddMod(new Base(), x => x.Damage.Dice, x => x.Strength.Bonus);
         }
 
-        public bool ShouldBuff()
-            => Melee.Roll() >= 10;
-
         [ModState(ShouldActivateMethod = nameof(ShouldBuff))]
         public void Buff(ModSet modSet)
             => modSet.AddMod(new Synced(), this, x => x.Health, 10);
 
-        public bool ShouldNerf()
-            => Melee.Roll() < 1;
+        public bool ShouldBuff() => Melee.Roll() >= 10;
 
         [ModState(ShouldActivateMethod = nameof(ShouldNerf))]
         public void Nerf(ModSet modSet)
             => modSet.AddMod(new Synced(), this, x => x.Health, -10);
+
+        public bool ShouldNerf() => Melee.Roll() < 1;
 
         [ModCmd()]
         [ModCmdArg("initiator", ModCmdArgType.Actor)]

@@ -17,7 +17,7 @@ namespace Rpg.Sys.Components
 
         [JsonConstructor] private Presence() { }
 
-        public Presence(Guid entityId, string name, PresenceTemplate template)
+        public Presence(string entityId, string name, PresenceTemplate template)
             : base(entityId, name)
         {
             Size = template.Size;

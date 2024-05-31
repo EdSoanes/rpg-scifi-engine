@@ -8,7 +8,7 @@ namespace Rpg.ModObjects.Stores
         where TVal : class
     {
         protected RpgGraph Graph { get; set; }
-        protected Guid EntityId { get; set; }
+        protected string EntityId { get; set; }
 
         [JsonProperty] protected Dictionary<TKey, TVal> Items { get; set; } = new Dictionary<TKey, TVal>();
 
@@ -29,7 +29,7 @@ namespace Rpg.ModObjects.Stores
 
         public TKey[] Keys { get => Items.Keys.ToArray(); }
 
-        public ModBaseStore(Guid entityId)
+        public ModBaseStore(string entityId)
             => EntityId = entityId;
 
         public event NotifyCollectionChangedEventHandler? CollectionChanged;

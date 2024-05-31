@@ -11,13 +11,13 @@ namespace Rpg.Sys.Components.Values
 
         [JsonConstructor] private MaxCurrentValue() { }
 
-        public MaxCurrentValue(Guid entityId, string name, int max)
+        public MaxCurrentValue(string entityId, string name, int max)
             : base(entityId, name)
         {
             Max = max;
         }
 
-        public MaxCurrentValue(Guid entityId, string name, int max, int current)
+        public MaxCurrentValue(string entityId, string name, int max, int current)
             : base(entityId, name)
         {
             Max = max;

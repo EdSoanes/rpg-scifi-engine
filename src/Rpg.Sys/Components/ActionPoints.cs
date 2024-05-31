@@ -18,7 +18,7 @@ namespace Rpg.Sys.Components
 
         [JsonConstructor] private ActionPoints() { }
 
-        public ActionPoints(Guid entityId, string name, ActionPointsTemplate template)
+        public ActionPoints(string entityId, string name, ActionPointsTemplate template)
             : base(entityId, name)
         {
             Action = new MaxCurrentValue(entityId, nameof(Action), template.Action);
@@ -26,7 +26,7 @@ namespace Rpg.Sys.Components
             Focus = new MaxCurrentValue(entityId, nameof(Focus), template.Focus);
         }
 
-        public ActionPoints(Guid entityId, string name, int action, int exertion, int focus)
+        public ActionPoints(string entityId, string name, int action, int exertion, int focus)
             : base(entityId, name)
         {
             Action = new MaxCurrentValue(entityId, nameof(Action), action);

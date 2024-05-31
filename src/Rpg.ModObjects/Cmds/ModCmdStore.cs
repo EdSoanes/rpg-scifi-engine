@@ -4,7 +4,7 @@ namespace Rpg.ModObjects.Cmds
 {
     public class ModCmdStore : ModBaseStore<string, ModCmd>
     {
-        public ModCmdStore(Guid entityId)
+        public ModCmdStore(string entityId)
             : base(entityId) { }
 
         public void Add(params ModCmd[] modCmds)

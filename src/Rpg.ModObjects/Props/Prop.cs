@@ -8,7 +8,7 @@ namespace Rpg.ModObjects.Props
     {
         [JsonProperty] public List<Mod> Mods { get; private set; } = new List<Mod>();
 
-        public Prop(Guid entityId, string prop)
+        public Prop(string entityId, string prop)
             : base(entityId, prop)
         {
         }
@@ -79,7 +79,7 @@ namespace Rpg.ModObjects.Props
                 Add(mod);
         }
 
-        public Mod? Remove(Guid id)
+        public Mod? Remove(string id)
         {
             var toRemove = Mods.FirstOrDefault(x => x.Id == id);
             if (toRemove != null)
