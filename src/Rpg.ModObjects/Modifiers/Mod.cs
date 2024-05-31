@@ -48,6 +48,18 @@ namespace Rpg.ModObjects.Modifiers
 
         public virtual void OnUpdate(int turn) { }
 
+        public Mod Clone(string targetId)
+        {
+            var mod = SourcePropRef != null
+                ? new Mod(new PropRef(targetId, Prop), Name, Behavior, new PropRef(SourcePropRef.EntityId, SourcePropRef.Prop))
+                : new Mod(new PropRef(targetId, Prop), Name, Behavior, SourceValue!.Value);
+
+            //TODO: SourceValueFunc cloning.
+            //mod.SourceValueFunc
+
+           return mod;
+        }
+
         public override string ToString()
         {
             var src = $"{SourcePropRef}{SourceValue}";
