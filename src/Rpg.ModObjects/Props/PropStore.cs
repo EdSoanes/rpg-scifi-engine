@@ -45,32 +45,11 @@ namespace Rpg.ModObjects.Props
             return this[prop]!;
         }
 
-        public void Remove(params Mod[] mods)
-        {
-            var toRemove = new List<Prop>();
-            foreach (var mod in mods.Where(x => x.EntityId == EntityId))
-            {
-                var modProp = this[mod.Prop];
-                if (modProp != null)
-                {
-                    modProp.Remove(mod);
-
-                    if (!modProp.Mods.Any() && !toRemove.Contains(modProp))
-                        toRemove.Add(modProp);
-
-                    Graph.OnPropUpdated(modProp);
-                }
-            }
-
-            foreach (var modProp in toRemove)
-                this.Remove(modProp.Prop);
-        }
-
         public void Add(params Mod[] mods)
         {
             foreach (var mod in mods.Where(x => x.EntityId == EntityId))
             {
-                mod.OnAdd(Graph!.Turn);
+                mod.Behavior.OnAdding(Graph, mod);
 
                 var modProp = Get(mod.Prop, create: true)!;
                 modProp.Remove(mod);
@@ -84,40 +63,48 @@ namespace Rpg.ModObjects.Props
                 else if (mod.Behavior.Merging == ModMerging.Combine)
                     modProp.Combine(Graph, mod);
 
-                if (mod.Behavior is Conditional)
-                {
-                    var entities = Graph!.GetEntities(EntityId, mod.Behavior.Scope);
-                    foreach (var entity in entities)
-                    {
-                        entity.PropStore.Add(mod);
-                    }
-                }
-
                 Graph.OnPropUpdated(modProp);
             }
         }
 
-        public override void OnBeforeUpdate(RpgGraph graph)
+        public void Remove(params Mod[] mods)
         {
-            base.OnBeforeUpdate(graph);
+            var toRemove = new List<Prop>();
+            foreach (var mod in mods.Where(x => x.EntityId == EntityId))
+            {
+                mod.Behavior.OnRemoving(Graph!, mod);
+
+                var modProp = this[mod.Prop];
+                if (modProp != null)
+                {
+                    modProp.Remove(mod);
+                    if (mod.Behavior.Scope != ModScope.Standard)
+                    if (!modProp.Mods.Any() && !toRemove.Contains(modProp))
+                        toRemove.Add(modProp);
+
+                    Graph.OnPropUpdated(modProp);
+                }
+            }
+
+            foreach (var modProp in toRemove)
+                this.Remove(modProp.Prop);
+        }
+
+        public override void OnUpdating(RpgGraph graph)
+        {
+            base.OnUpdating(graph);
             foreach (var modProp in Items.Values)
             {
                 var toRemove = new List<Mod>();
                 foreach (var mod in modProp.Mods)
                 {
                     var oldExpiry = mod.Behavior.Expiry;
-                    mod.Behavior.SetExpiry(Graph, mod);
+                    var expiry = mod.Behavior.OnUpdating(Graph, mod);
 
-                    if (mod.Behavior is Conditional)
-                    {
-                        var newMod = mod.Clone()
-                    }
-                        Graph.AddMods(mod);
-
-                    if (oldExpiry != mod.Behavior.Expiry)
+                    if (expiry != oldExpiry)
                         Graph.OnPropUpdated(mod);
 
-                    if (mod.Behavior.Expiry == ModExpiry.Remove)
+                    if (expiry == ModExpiry.Remove)
                         toRemove.Add(mod);
                 }
 

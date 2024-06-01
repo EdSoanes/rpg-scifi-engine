@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace Rpg.ModObjects.Modifiers
 {
-    public class ModSet : ITemporal
+    public class ModSet : IGraphEvents
     {
         [JsonProperty] public string Id { get; private set; }
         [JsonProperty] public string InitiatorId { get; private set; }
@@ -84,10 +84,8 @@ namespace Rpg.ModObjects.Modifiers
 
         public void OnObjectsCreating() { }
 
-        public void OnBeforeUpdate(RpgGraph graph)
-            => Behavior.SetExpiry(graph);
-
-        public virtual void OnAfterUpdate(RpgGraph graph) { }
+        public void OnUpdating(RpgGraph graph)
+            => Behavior.OnUpdating(graph);
 
         public string TargetPropName => $"{InitiatorId}.{Name}.{ModCmdArg.TargetArg}";
         public string DiceRollPropName => $"{InitiatorId}.{Name}.{ModCmdArg.DiceRollArg}";

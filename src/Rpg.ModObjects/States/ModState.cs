@@ -4,7 +4,7 @@ using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.States
 {
-    public class ModState : ITemporal
+    public class ModState : IGraphEvents
     {
         protected RpgGraph? Graph { get; set; }
 
@@ -78,12 +78,7 @@ namespace Rpg.ModObjects.States
 
         public void OnObjectsCreating() { }
 
-        public void OnBeforeUpdate(RpgGraph graph)
-        {
-
-        }
-
-        public void OnAfterUpdate(RpgGraph graph) 
+        public void OnUpdating(RpgGraph graph) 
         {
             var entity = graph.GetEntity(EntityId);
 

@@ -8,7 +8,7 @@ using System.ComponentModel;
 
 namespace Rpg.ModObjects
 {
-    public abstract class RpgObject : INotifyPropertyChanged, ITemporal
+    public abstract class RpgObject : INotifyPropertyChanged, IGraphEvents
     {
         protected RpgGraph? Graph { get; private set; }
 
@@ -73,10 +73,6 @@ namespace Rpg.ModObjects
         public void OnGraphCreating(RpgGraph graph, RpgObject? entity = null)
         {
             Graph = graph;
-            PropStore.OnGraphCreating(Graph, this);
-            ModSetStore.OnGraphCreating(Graph, this);
-            CmdStore.OnGraphCreating(Graph, this);
-            StateStore.OnGraphCreating(Graph, this);
         }
 
         public void OnObjectsCreating()
@@ -109,21 +105,6 @@ namespace Rpg.ModObjects
         }
 
         protected virtual void OnCreating() { }
-
-        public virtual void OnBeforeUpdate(RpgGraph graph)
-        {
-            ModSetStore.OnBeforeUpdate(graph);
-            PropStore.OnBeforeUpdate(graph);
-            CmdStore.OnBeforeUpdate(graph);
-            StateStore.OnBeforeUpdate(graph);
-        }
-
-        public virtual void OnAfterUpdate(RpgGraph graph) 
-        {
-            ModSetStore.OnAfterUpdate(graph);
-            PropStore.OnAfterUpdate(graph);
-            CmdStore.OnAfterUpdate(graph);
-            StateStore.OnAfterUpdate(graph);
-        }
+        public virtual void OnUpdating(RpgGraph graph) { }
     }
 }

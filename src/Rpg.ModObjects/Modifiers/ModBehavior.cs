@@ -61,7 +61,12 @@ namespace Rpg.ModObjects.Modifiers
             Duration = PermanentMin;
         }
 
-        public virtual void SetExpiry(RpgGraph graph, Mod? mod = null)
+        public virtual void OnAdding(RpgGraph graph, Mod? mod = null)
+        {
+            TurnAdded = graph.Turn;
+        }
+
+        public virtual ModExpiry OnUpdating(RpgGraph graph, Mod? mod = null)
         {
             if (EndTurn < graph.Turn || (EndTurn == EncounterEnd && graph.Turn == EncounterEnd))
             {
@@ -69,17 +74,59 @@ namespace Rpg.ModObjects.Modifiers
                     Expiry = ModExpiry.Remove;
                 else
                     Expiry = ModExpiry.Expired;
-
-                return;
             }
-
-            if (StartTurn > graph.Turn)
+            else if (StartTurn > graph.Turn)
             {
                 Expiry = ModExpiry.Pending;
-                return;
+            }
+            else
+                Expiry = ModExpiry.Active;
+
+            if (mod != null && mod.Behavior.Scope != ModScope.Standard && Expiry == ModExpiry.Active)
+            {
+                var entities = graph.GetEntities(mod.EntityId, mod.Behavior.Scope);
+                foreach (var entity in entities)
+                {
+                    var existing = entity.PropStore.GetMods(mod.Prop, m => m.Prop == mod.Prop && m.Name == mod.Name);
+                    if (!existing.Any())
+                    {
+                        var newMod = mod.Clone<Permanent>(entity.Id);
+                        entity.AddMods(newMod);
+                        graph.OnPropUpdated(newMod);
+                    }
+                }
             }
 
-            Expiry = ModExpiry.Active;
+            return Expiry;
+        }
+
+        public virtual void OnRemoving(RpgGraph graph, Mod? mod = null)
+        {
+            if (mod != null && mod.Behavior.Scope != ModScope.Standard)
+            {
+                var entities = graph.GetEntities(mod.EntityId, mod.Behavior.Scope);
+                var mods = entities
+                    .SelectMany(x =>
+                        x.PropStore.GetMods(mod.Prop, m => m.Name == mod.Name))
+                    .ToArray();
+
+                graph.RemoveMods(mods);
+            }
+        }
+
+        public ModBehavior Clone<T>(ModScope scope = ModScope.Standard)
+            where T : ModBehavior
+        {
+            var behavior = Activator.CreateInstance<T>();
+            behavior.Delay = Delay;
+            behavior.Duration = Duration;
+            behavior.Expiry = Expiry;
+            behavior.Merging = Merging;
+            behavior.Scope = scope;
+            behavior.Type = Type;
+            behavior.TurnAdded = TurnAdded;
+
+            return behavior;
         }
     }
 
@@ -129,12 +176,14 @@ namespace Rpg.ModObjects.Modifiers
         public State(int duration)
             : this(0, duration) { }
 
-        public override void SetExpiry(RpgGraph graph, Mod? mod = null)
+        public override ModExpiry OnUpdating(RpgGraph graph, Mod? mod = null)
         {
             var res = graph.CalculateModValue(mod);
             Expiry = res == Dice.Zero
                 ? ModExpiry.Expired
                 : ModExpiry.Active;
+
+            return Expiry;
         }
     }
 
@@ -148,7 +197,12 @@ namespace Rpg.ModObjects.Modifiers
     }
 
     public class Permanent : ModBehavior
-    { }
+    {
+        public Permanent() { }
+
+        public Permanent(ModScope scope = ModScope.Standard)
+            => Scope = scope;
+    }
 
     public class Synced : ModBehavior
     {
@@ -198,20 +252,14 @@ namespace Rpg.ModObjects.Modifiers
             Merging = ModMerging.Combine;
         }
 
-        public override void SetExpiry(RpgGraph graph, Mod? mod = null)
+        public override ModExpiry OnUpdating(RpgGraph graph, Mod? mod = null)
         {
             var res = graph.CalculatePropValue(mod!, x => x.Behavior is ExpireOnZero);
             Expiry = res == Dice.Zero
                 ? ModExpiry.Expired
                 : ModExpiry.Active;
-        }
-    }
 
-    public class Conditional : ModBehavior
-    {
-        public Conditional(ModScope scope)
-        {
-            Scope = scope;
+            return Expiry;
         }
     }
 }

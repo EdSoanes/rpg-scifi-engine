@@ -36,6 +36,10 @@ namespace Rpg.ModObjects
             {
                 AddEntity(entity);
                 entity.OnGraphCreating(this, entity);
+                entity.PropStore.OnGraphCreating(this, entity);
+                entity.ModSetStore.OnGraphCreating(this, entity);
+                entity.CmdStore.OnGraphCreating(this, entity);
+                entity.StateStore.OnGraphCreating(this, entity);
             }
 
             foreach (var entity in ObjectStore.Values)
@@ -188,9 +192,13 @@ namespace Rpg.ModObjects
         public IEnumerable<RpgObject> GetEntities()
             => ObjectStore.Values;
 
-        public IEnumerable<RpgObject> GetEntities(string entityId, ModScope scope)
+        public IEnumerable<RpgObject> GetEntities(string rpgObjId, ModScope scope)
         {
-            var all = ObjectStore.Values.Where(x => x.Id == entityId || (x as RpgEntityComponent)?.EntityId == entityId);
+            var entity = GetEntity(rpgObjId);
+            if (entity is RpgEntityComponent)
+                entity = GetEntity((entity as RpgEntityComponent)!.EntityId);
+
+            var all = ObjectStore.Values.Where(x => x.Id == entity!.Id || (x as RpgEntityComponent)?.EntityId == entity!.Id);
             if (scope == ModScope.Objects)
                 return all;
 
@@ -205,7 +213,7 @@ namespace Rpg.ModObjects
                 return components;
             }
 
-            return all.Where(x => x.Id == entityId);
+            return all.Where(x => x.Id == rpgObjId);
         }
             
 
@@ -372,14 +380,20 @@ namespace Rpg.ModObjects
             //Call OnBeforeUpdate() all rpg objects to set expiry and expire/remove
             // modsets as needed
             foreach (var entity in ObjectStore.Values)
-                entity?.OnBeforeUpdate(this);
+            {
+                entity.OnUpdating(this);
+
+                entity.ModSetStore.OnUpdating(this);
+                entity.PropStore.OnUpdating(this);
+                entity.CmdStore.OnUpdating(this);
+            }
 
             UpdateProps();
 
             //Call OnAfterUpdate() on each rpg object to give states a chance to update
             // after property values have been updated
             foreach (var entity in ObjectStore.Values)
-                entity?.OnAfterUpdate(this);
+                entity.StateStore.OnUpdating(this);
 
             //If OnAfterUpdate() has caused any props to change then update the relevant props
             UpdateProps();
@@ -407,9 +421,20 @@ namespace Rpg.ModObjects
         public void TriggerUpdate(PropRef propRef)
         {
             var propsAffected = GetPropsAffectedBy(propRef);
+            var entityIds = propsAffected.Select(x => x.EntityId).Distinct();
+            foreach (var entity in entityIds.Select(x => GetEntity(x)!))
+            {
+                entity.OnUpdating(this);
+                entity.ModSetStore.OnUpdating(this);
+                entity.PropStore.OnUpdating(this);
+                entity.CmdStore.OnUpdating(this);
+            }
 
-            foreach (var entityId in propsAffected.Select(x => x.EntityId).Distinct())
-                GetEntity(entityId)?.OnBeforeUpdate(this);
+            foreach (var targetPropRef in propsAffected)
+                SetPropValue(targetPropRef);
+
+            foreach (var entity in entityIds.Select(x => GetEntity(x)!))
+                entity.StateStore.OnUpdating(this);
 
             foreach (var targetPropRef in propsAffected)
                 SetPropValue(targetPropRef);

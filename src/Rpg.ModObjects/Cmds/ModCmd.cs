@@ -5,7 +5,7 @@ using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Cmds
 {
-    public class ModCmd : ITemporal
+    public class ModCmd : IGraphEvents
     {
         protected RpgGraph? Graph { get; set; }
         protected RpgObject? Entity { get; set; }
@@ -112,7 +112,6 @@ namespace Rpg.ModObjects.Cmds
         }
 
         public void OnObjectsCreating() { }
-        public void OnBeforeUpdate(RpgGraph graph) { }
-        public virtual void OnAfterUpdate(RpgGraph graph) { }
+        public void OnUpdating(RpgGraph graph) { }
     }
 }

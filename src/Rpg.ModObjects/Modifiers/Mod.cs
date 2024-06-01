@@ -43,16 +43,13 @@ namespace Rpg.ModObjects.Modifiers
             SourceValue = value;
         }
 
-        public virtual void OnAdd(int turn) 
-            => Behavior.OnAdd(turn);
-
-        public virtual void OnUpdate(int turn) { }
-
-        public Mod Clone(string targetId)
+        public Mod Clone<T>(string targetId, ModScope scope = ModScope.Standard)
+            where T : ModBehavior
         {
+            var behavior = Behavior.Clone<T>(scope);
             var mod = SourcePropRef != null
-                ? new Mod(new PropRef(targetId, Prop), Name, Behavior, new PropRef(SourcePropRef.EntityId, SourcePropRef.Prop))
-                : new Mod(new PropRef(targetId, Prop), Name, Behavior, SourceValue!.Value);
+                ? new Mod(new PropRef(targetId, Prop), Name, behavior, new PropRef(SourcePropRef.EntityId, SourcePropRef.Prop))
+                : new Mod(new PropRef(targetId, Prop), Name, behavior, SourceValue!.Value);
 
             //TODO: SourceValueFunc cloning.
             //mod.SourceValueFunc

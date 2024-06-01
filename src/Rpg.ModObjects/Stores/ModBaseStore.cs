@@ -3,7 +3,7 @@ using System.Collections.Specialized;
 
 namespace Rpg.ModObjects.Stores
 {
-    public abstract class ModBaseStore<TKey, TVal> : ITemporal, INotifyCollectionChanged
+    public abstract class ModBaseStore<TKey, TVal> : IGraphEvents, INotifyCollectionChanged
         where TKey : notnull
         where TVal : class
     {
@@ -78,7 +78,6 @@ namespace Rpg.ModObjects.Stores
         }
 
         public virtual void OnObjectsCreating() { }
-        public virtual void OnBeforeUpdate(RpgGraph graph) { }
-        public virtual void OnAfterUpdate(RpgGraph graph) { }
+        public virtual void OnUpdating(RpgGraph graph) { }
     }
 }

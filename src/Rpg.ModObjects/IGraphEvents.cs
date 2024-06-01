@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace Rpg.ModObjects
 {
-    public interface ITemporal
+    public interface IGraphEvents
     {
         void OnGraphCreating(RpgGraph graph, RpgObject entity);
         void OnObjectsCreating();
-        void OnBeforeUpdate(RpgGraph graph);
-        void OnAfterUpdate(RpgGraph graph);
+        void OnUpdating(RpgGraph graph);
     }
 }

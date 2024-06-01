@@ -47,14 +47,14 @@ namespace Rpg.ModObjects.Modifiers
             }
         }
 
-        public override void OnBeforeUpdate(RpgGraph graph)
+        public override void OnUpdating(RpgGraph graph)
         {
-            base.OnBeforeUpdate(graph);
+            base.OnUpdating(graph);
 
             var toRemove = new List<ModSet>();
             foreach (var modSet in Get())
             {
-                modSet.OnBeforeUpdate(graph);
+                modSet.OnUpdating(graph);
                 if (modSet.Behavior.Expiry == ModExpiry.Remove)
                     toRemove.Add(modSet);
             }
