@@ -91,9 +91,9 @@ namespace Rpg.ModObjects
                     if (val != null)
                     {
                         if (val is Dice dice)
-                            this.AddMod(new Initial(), propInfo.Name, dice);
+                            this.InitMod(propInfo.Name, dice);
                         else if (val is int i)
-                            this.AddMod(new Initial(), propInfo.Name, i);
+                            this.InitMod(propInfo.Name, i);
                     }
                 }
 

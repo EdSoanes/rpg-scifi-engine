@@ -49,10 +49,11 @@ namespace Rpg.ModObjects.Props
         {
             foreach (var mod in mods.Where(x => x.EntityId == EntityId))
             {
-                mod.Behavior.OnAdding(Graph, mod);
-
                 var modProp = Get(mod.Prop, create: true)!;
                 modProp.Remove(mod);
+
+                mod.Behavior.OnAdding(Graph, this, mod);
+
 
                 if (mod.Behavior.Merging == ModMerging.Add)
                     modProp.Add(mod);
