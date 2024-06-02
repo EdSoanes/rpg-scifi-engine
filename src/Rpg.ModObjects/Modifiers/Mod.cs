@@ -1,12 +1,13 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Rpg.ModObjects.Props;
+using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
 
 namespace Rpg.ModObjects.Modifiers
 {
-    public class Mod : PropRef
+    public class Mod : PropRef, ITimeEvent
     {
         [JsonProperty] public string Id { get; protected set; }
         [JsonProperty] public string? ModSetId { get; internal set; }
@@ -41,6 +42,39 @@ namespace Rpg.ModObjects.Modifiers
             Name = name;
             Behavior = behavior;
             SourceValue = value;
+        }
+
+        public void OnUpdating(RpgGraph graph, Time.Time time)
+        {
+            Behavior.OnUpdating(graph, time, this);
+            if (Behavior.Scope != ModScope.Standard && Behavior.Expiry == ModExpiry.Active)
+            {
+                var entities = graph.GetEntities(EntityId, Behavior.Scope);
+                foreach (var entity in entities)
+                {
+                    var existing = entity.PropStore.GetMods(Prop, m => m.Prop == Prop && m.Name == Name);
+                    if (!existing.Any())
+                    {
+                        var newMod = Clone<Permanent>(entity.Id);
+                        entity.AddMods(newMod);
+                        graph.OnPropUpdated(newMod);
+                    }
+                }
+            }
+        }
+
+        public void OnRemoving(RpgGraph graph, Mod? mod = null)
+        {
+            if (mod != null && mod.Behavior.Scope != ModScope.Standard)
+            {
+                var entities = graph.GetEntities(mod.EntityId, mod.Behavior.Scope);
+                var mods = entities
+                    .SelectMany(x =>
+                        x.PropStore.GetMods(mod.Prop, m => m.Name == mod.Name))
+                    .ToArray();
+
+                graph.RemoveMods(mods);
+            }
         }
 
         public Mod Clone<T>(string targetId, ModScope scope = ModScope.Standard)

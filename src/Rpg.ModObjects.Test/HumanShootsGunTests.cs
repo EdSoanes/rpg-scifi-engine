@@ -1,5 +1,6 @@
 ﻿using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.Tests.Models;
+using Rpg.ModObjects.Time;
 using System.Reflection;
 
 namespace Rpg.ModObjects.Tests
@@ -86,7 +87,7 @@ namespace Rpg.ModObjects.Tests
             location.AddToStore("Room", gun);
 
             var graph = new RpgGraph(location);
-            graph.NewEncounter();
+            graph.Time.NewEncounter();
 
             var shootCmd = gun.GetCommand(nameof(TestGun.Shoot))!;
             var args = shootCmd.ArgSet(initiator);
@@ -140,7 +141,7 @@ namespace Rpg.ModObjects.Tests
             location.AddToStore("Room", gun);
 
             var graph = new RpgGraph(location);
-            graph.NewEncounter();
+            graph.Time.NewEncounter();
 
             //Get the gun command and the args needed to execute it
             var shootCmd = gun.GetCommand(nameof(TestGun.Shoot))!;
@@ -183,7 +184,7 @@ namespace Rpg.ModObjects.Tests
             location.AddToStore("Room", gun);
 
             var graph = new RpgGraph(location);
-            graph.NewEncounter();
+            graph.Time.NewEncounter();
 
             //Get the gun command and the args needed to execute it
             var shootCmd = gun.GetCommand(nameof(TestGun.Shoot))!;
@@ -216,7 +217,7 @@ namespace Rpg.ModObjects.Tests
             //Apply the resolved dice rolls to the recipient(s)
             Assert.That(recipient.Health, Is.EqualTo(10));
             recipient.AddMods(damageRoll);
-            graph.TriggerUpdate();
+            graph.Time.TriggerEvent();
 
             Assert.That(recipient.Health, Is.EqualTo(5));
         }

@@ -1,11 +1,12 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.States;
+using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Cmds
 {
-    public class ModCmd : IGraphEvents
+    public class ModCmd : IGraphEvents, ITimeEvent
     {
         protected RpgGraph? Graph { get; set; }
         protected RpgObject? Entity { get; set; }
@@ -97,7 +98,7 @@ namespace Rpg.ModObjects.Cmds
                 if (entity != null)
                 {
                     entity.AddModSet(modSet);
-                    Graph!.TriggerUpdate();
+                    Graph!.Time.TriggerEvent();
                 }
             }
         }
@@ -112,6 +113,7 @@ namespace Rpg.ModObjects.Cmds
         }
 
         public void OnObjectsCreating() { }
-        public void OnUpdating(RpgGraph graph) { }
+
+        public void OnUpdating(RpgGraph graph, Time.Time time) { }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.Tests.Models;
+using Rpg.ModObjects.Time;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +25,7 @@ namespace Rpg.ModObjects.Tests
             var graph = new RpgGraph(entity);
 
             entity.AddMod(new Permanent(), "VirtualProp", 1);
-            graph.TriggerUpdate();
+            graph.Time.TriggerEvent();
 
             Assert.That(graph.GetPropValue(entity, "VirtualProp").Roll(), Is.EqualTo(1));
         }

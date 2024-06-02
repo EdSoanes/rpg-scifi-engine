@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects.Tests.Models
 {

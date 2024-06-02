@@ -1,4 +1,5 @@
 ﻿using Rpg.ModObjects.Props;
+using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Modifiers

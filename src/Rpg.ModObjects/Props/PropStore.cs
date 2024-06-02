@@ -72,7 +72,7 @@ namespace Rpg.ModObjects.Props
             var toRemove = new List<Prop>();
             foreach (var mod in mods.Where(x => x.EntityId == EntityId))
             {
-                mod.Behavior.OnRemoving(Graph!, mod);
+                mod.OnRemoving(Graph!, mod);
 
                 var modProp = this[mod.Prop];
                 if (modProp != null)
@@ -90,16 +90,17 @@ namespace Rpg.ModObjects.Props
                 this.Remove(modProp.Prop);
         }
 
-        public override void OnUpdating(RpgGraph graph)
+        public override void OnUpdating(RpgGraph graph, Time.Time time)
         {
-            base.OnUpdating(graph);
+            base.OnUpdating(graph, time);
             foreach (var modProp in Items.Values)
             {
                 var toRemove = new List<Mod>();
                 foreach (var mod in modProp.Mods)
                 {
                     var oldExpiry = mod.Behavior.Expiry;
-                    var expiry = mod.Behavior.OnUpdating(Graph, mod);
+                    mod.OnUpdating(Graph, time);
+                    var expiry = mod.Behavior.Expiry;
 
                     if (expiry != oldExpiry)
                         Graph.OnPropUpdated(mod);

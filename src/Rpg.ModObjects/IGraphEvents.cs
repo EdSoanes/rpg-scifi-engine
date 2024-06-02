@@ -8,8 +8,7 @@ namespace Rpg.ModObjects
 {
     public interface IGraphEvents
     {
-        void OnGraphCreating(RpgGraph graph, RpgObject entity);
+        void OnGraphCreating(RpgGraph graph, RpgObject? entity = null);
         void OnObjectsCreating();
-        void OnUpdating(RpgGraph graph);
     }
 }

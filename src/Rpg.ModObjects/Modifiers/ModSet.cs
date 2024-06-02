@@ -1,11 +1,12 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Cmds;
+using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
 
 namespace Rpg.ModObjects.Modifiers
 {
-    public class ModSet : IGraphEvents
+    public class ModSet : IGraphEvents, ITimeEvent
     {
         [JsonProperty] public string Id { get; private set; }
         [JsonProperty] public string InitiatorId { get; private set; }
@@ -84,8 +85,8 @@ namespace Rpg.ModObjects.Modifiers
 
         public void OnObjectsCreating() { }
 
-        public void OnUpdating(RpgGraph graph)
-            => Behavior.OnUpdating(graph);
+        public void OnUpdating(RpgGraph graph, Time.Time time)
+            => Behavior.OnUpdating(graph, time);
 
         public string TargetPropName => $"{InitiatorId}.{Name}.{ModCmdArg.TargetArg}";
         public string DiceRollPropName => $"{InitiatorId}.{Name}.{ModCmdArg.DiceRollArg}";

@@ -30,9 +30,9 @@ namespace Rpg.ModObjects.Cmds
                 cmd.OnGraphCreating(graph, entity);
         }
 
-        public override void OnUpdating(RpgGraph graph)
+        public override void OnUpdating(RpgGraph graph, Time.Time time)
         {
-            base.OnUpdating(graph);
+            base.OnUpdating(graph, time);
         }
     }
 }

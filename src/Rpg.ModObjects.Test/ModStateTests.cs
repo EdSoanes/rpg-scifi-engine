@@ -1,5 +1,6 @@
 ﻿using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.Tests.Models;
+using Rpg.ModObjects.Time;
 using System.Reflection;
 
 namespace Rpg.ModObjects.Tests
@@ -23,7 +24,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Health, Is.EqualTo(10));
 
             var mod = entity.AddMod(new Permanent(), x => x.Melee, 6);
-            graph.TriggerUpdate();
+            graph.Time.TriggerEvent();
 
             Assert.That(entity.ActiveStateNames, Does.Contain("Buff"));
             Assert.That(entity.Melee.Roll(), Is.EqualTo(10));
@@ -37,14 +38,14 @@ namespace Rpg.ModObjects.Tests
             var graph = new RpgGraph(entity);
 
             entity.AddMod(new Permanent(), "mymod", x => x.Melee, 6);
-            graph.TriggerUpdate();
+            graph.Time.TriggerEvent();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(10));
             Assert.That(entity.Health, Is.EqualTo(20));
 
             var mods = graph.GetMods(entity, "Melee", mod => mod.Name == "mymod");
             graph.RemoveMods(mods);
-            graph.TriggerUpdate();
+            graph.Time.TriggerEvent();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));
@@ -60,7 +61,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Health, Is.EqualTo(10));
 
             entity.AddMod(new Permanent(), x => x.Melee, -4);
-            graph.TriggerUpdate();
+            graph.Time.TriggerEvent();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(0));
             Assert.That(entity.Health, Is.EqualTo(0));
@@ -76,14 +77,14 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Health, Is.EqualTo(10));
 
             entity.ActivateState("Buff");
-            graph.TriggerUpdate();
+            graph.Time.TriggerEvent();
 
             Assert.That(entity.ActiveStateNames, Does.Contain("Buff"));
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(20));
 
             entity.DeactivateState("Buff");
-            graph.TriggerUpdate();
+            graph.Time.TriggerEvent();
 
             Assert.That(entity.ActiveStateNames, Does.Not.Contain("Buff"));
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));

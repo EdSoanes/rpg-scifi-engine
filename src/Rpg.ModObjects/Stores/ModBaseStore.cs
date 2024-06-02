@@ -1,9 +1,10 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Time;
 using System.Collections.Specialized;
 
 namespace Rpg.ModObjects.Stores
 {
-    public abstract class ModBaseStore<TKey, TVal> : IGraphEvents, INotifyCollectionChanged
+    public abstract class ModBaseStore<TKey, TVal> : IGraphEvents, ITimeEvent, INotifyCollectionChanged
         where TKey : notnull
         where TVal : class
     {
@@ -78,6 +79,6 @@ namespace Rpg.ModObjects.Stores
         }
 
         public virtual void OnObjectsCreating() { }
-        public virtual void OnUpdating(RpgGraph graph) { }
+        public virtual void OnUpdating(RpgGraph graph, Time.Time time) { }
     }
 }

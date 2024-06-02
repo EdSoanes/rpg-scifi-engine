@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.Props;
+using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects
@@ -18,11 +19,14 @@ namespace Rpg.ModObjects
 
         [JsonProperty] public RpgObject Context { get; private set; }
         [JsonProperty] protected Dictionary<string, RpgObject> ObjectStore { get; set; } = new Dictionary<string, RpgObject>();
-        [JsonProperty] public int Turn { get; private set; } = ModBehavior.BeforeEncounter;
+        [JsonProperty] public TurnBasedTimeEngine Time { get; private set; }
 
         public RpgGraph(RpgObject context)
         {
             RpgGraphExtensions.RegisterAssembly(GetType().Assembly);
+
+            Time = new TurnBasedTimeEngine();
+            Time.OnTimeEvent += OnTimeEvent;
 
             Context = context;
             Build();
@@ -40,6 +44,8 @@ namespace Rpg.ModObjects
                 entity.ModSetStore.OnGraphCreating(this, entity);
                 entity.CmdStore.OnGraphCreating(this, entity);
                 entity.StateStore.OnGraphCreating(this, entity);
+
+
             }
 
             foreach (var entity in ObjectStore.Values)
@@ -53,7 +59,7 @@ namespace Rpg.ModObjects
                 }
             }
 
-            TriggerUpdate();
+            Time.TriggerEvent();
         }
 
         public Mod[] GetMods(PropRef? propRef, bool filtered = true)
@@ -375,17 +381,17 @@ namespace Rpg.ModObjects
         public Dice? GetBasePropValue(RpgObject? entity, string prop)
             => CalculatePropValue(entity, prop, mod => mod.IsBaseMod);
 
-        public void TriggerUpdate()
+        private void OnTimeEvent(object? obj, NotifyTimeEventEventArgs args)
         {
             //Call OnBeforeUpdate() all rpg objects to set expiry and expire/remove
             // modsets as needed
             foreach (var entity in ObjectStore.Values)
             {
-                entity.OnUpdating(this);
+                entity.OnUpdating(this, args.Time);
 
-                entity.ModSetStore.OnUpdating(this);
-                entity.PropStore.OnUpdating(this);
-                entity.CmdStore.OnUpdating(this);
+                entity.ModSetStore.OnUpdating(this, args.Time);
+                entity.PropStore.OnUpdating(this, args.Time);
+                entity.CmdStore.OnUpdating(this, args.Time);
             }
 
             UpdateProps();
@@ -393,7 +399,7 @@ namespace Rpg.ModObjects
             //Call OnAfterUpdate() on each rpg object to give states a chance to update
             // after property values have been updated
             foreach (var entity in ObjectStore.Values)
-                entity.StateStore.OnUpdating(this);
+                entity.StateStore.OnUpdating(this, args.Time);
 
             //If OnAfterUpdate() has caused any props to change then update the relevant props
             UpdateProps();
@@ -416,72 +422,6 @@ namespace Rpg.ModObjects
 
             foreach (var propRef in propsToUpdate)
                 SetPropValue(propRef);
-        }
-
-        public void TriggerUpdate(PropRef propRef)
-        {
-            var propsAffected = GetPropsAffectedBy(propRef);
-            var entityIds = propsAffected.Select(x => x.EntityId).Distinct();
-            foreach (var entity in entityIds.Select(x => GetEntity(x)!))
-            {
-                entity.OnUpdating(this);
-                entity.ModSetStore.OnUpdating(this);
-                entity.PropStore.OnUpdating(this);
-                entity.CmdStore.OnUpdating(this);
-            }
-
-            foreach (var targetPropRef in propsAffected)
-                SetPropValue(targetPropRef);
-
-            foreach (var entity in entityIds.Select(x => GetEntity(x)!))
-                entity.StateStore.OnUpdating(this);
-
-            foreach (var targetPropRef in propsAffected)
-                SetPropValue(targetPropRef);
-        }
-
-        public void NewEncounter()
-        {
-            if (Turn > ModBehavior.EncounterStart)
-                EndEncounter();
-
-            if (Turn != ModBehavior.EncounterStart)
-            {
-                Turn = ModBehavior.EncounterStart;
-                TriggerUpdate();
-            }
-
-            NewTurn();
-        }
-
-        public void EndEncounter()
-        {
-            Turn = ModBehavior.EncounterEnd;
-            TriggerUpdate();
-        }
-
-        public void NewTurn()
-        {
-            Turn++;
-            TriggerUpdate();
-        }
-
-        public void PrevTurn()
-        {
-            if (Turn > ModBehavior.EncounterStart + 1)
-            {
-                Turn--;
-                TriggerUpdate();
-            }
-        }
-
-        public void SetTurn(int turn)
-        {
-            if (turn > ModBehavior.EncounterStart && Turn < ModBehavior.EncounterEnd && turn != Turn)
-            {
-                Turn = turn;
-                TriggerUpdate();
-            }
         }
     }
 }

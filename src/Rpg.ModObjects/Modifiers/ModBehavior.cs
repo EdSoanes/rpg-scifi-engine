@@ -1,45 +1,51 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
+using System.ComponentModel.Design;
 
 namespace Rpg.ModObjects.Modifiers
 {
     public abstract class ModBehavior
     {
-        public const int PermanentMin = int.MinValue;
-        public const int PermanentMax = int.MaxValue;
-        public const int BeforeEncounter = -1;
-        public const int EncounterStart = 0;
-        public const int EncounterEnd = int.MaxValue - 1;
-
         [JsonProperty] public ModType Type { get; protected set; } = ModType.Standard;
         [JsonProperty] public ModMerging Merging { get; protected set; } = ModMerging.Add;
         [JsonProperty] public ModScope Scope { get; protected set; } = ModScope.Standard;
         [JsonProperty] public ModExpiry Expiry { get; protected set; } = ModExpiry.Active;
 
-        [JsonProperty] public int Delay { get; protected set; } = int.MinValue;
-        [JsonProperty] public int Duration { get; protected set; } = int.MaxValue;
-        [JsonProperty] public int TurnAdded { get; protected set; }
+        [JsonProperty] public int Delay { get; protected set; } = 0;
+        [JsonProperty] public int Duration { get; protected set; } = TimeTypes.PermanentDuration;
+        [JsonProperty] public int TurnAdded { get; protected set; } = 1;
 
         public int StartTurn
         {
             get
             {
-                if (Delay < 0 || TurnAdded < EncounterStart)
-                    return PermanentMin;
+                if (Duration == TimeTypes.ExpiredDuration)
+                    return TimeTypes.ExpiredDuration;
+
+                if (Duration == TimeTypes.PermanentDuration)
+                    return int.MinValue;
+
+                if (Duration == TimeTypes.EncounterDuration)
+                    return 1;
 
                 return TurnAdded + Delay;
             }
         }
-        
+
         public int EndTurn
         {
             get
             {
-                if (Duration < EncounterStart)
-                    return PermanentMin;
+                if (Duration == TimeTypes.ExpiredDuration)
+                    return TimeTypes.ExpiredDuration;
 
-                if (Duration >= EncounterEnd)
-                    return Duration;
+                if (Duration == TimeTypes.PermanentDuration)
+                    return TimeTypes.PermanentDuration;
+
+                if (Duration == TimeTypes.EncounterDuration)
+                    return TimeTypes.EncounterDuration;
 
                 return StartTurn + Duration - 1;
             }
@@ -57,61 +63,30 @@ namespace Rpg.ModObjects.Modifiers
 
         public void SetExpired()
         {
-            Delay = PermanentMin;
-            Duration = PermanentMin;
+            Delay = 0;
+            Duration = TimeTypes.ExpiredDuration;
         }
 
         public virtual void OnAdding(RpgGraph graph, Mod? mod = null)
         {
-            TurnAdded = graph.Turn;
+            TurnAdded = graph.Time.Current.Tick;
         }
 
-        public virtual ModExpiry OnUpdating(RpgGraph graph, Mod? mod = null)
+        public virtual ModExpiry OnUpdating(RpgGraph graph, Time.Time time, Mod? mod = null)
         {
-            if (EndTurn < graph.Turn || (EndTurn == EncounterEnd && graph.Turn == EncounterEnd))
+            if (Duration < TimeTypes.PermanentDuration)
             {
-                if (graph.Turn == EncounterEnd || graph.Turn == EncounterStart || graph.Turn == BeforeEncounter)
+                if (time.Type == TimeTypes.EncounterStart || time.Type == TimeTypes.EncounterEnd)
                     Expiry = ModExpiry.Remove;
-                else
+                else if (EndTurn < time.Tick)
                     Expiry = ModExpiry.Expired;
-            }
-            else if (StartTurn > graph.Turn)
-            {
-                Expiry = ModExpiry.Pending;
-            }
-            else
-                Expiry = ModExpiry.Active;
-
-            if (mod != null && mod.Behavior.Scope != ModScope.Standard && Expiry == ModExpiry.Active)
-            {
-                var entities = graph.GetEntities(mod.EntityId, mod.Behavior.Scope);
-                foreach (var entity in entities)
-                {
-                    var existing = entity.PropStore.GetMods(mod.Prop, m => m.Prop == mod.Prop && m.Name == mod.Name);
-                    if (!existing.Any())
-                    {
-                        var newMod = mod.Clone<Permanent>(entity.Id);
-                        entity.AddMods(newMod);
-                        graph.OnPropUpdated(newMod);
-                    }
-                }
+                else if (StartTurn > time.Tick)
+                    Expiry = ModExpiry.Pending;
+                else
+                    Expiry = ModExpiry.Active;
             }
 
             return Expiry;
-        }
-
-        public virtual void OnRemoving(RpgGraph graph, Mod? mod = null)
-        {
-            if (mod != null && mod.Behavior.Scope != ModScope.Standard)
-            {
-                var entities = graph.GetEntities(mod.EntityId, mod.Behavior.Scope);
-                var mods = entities
-                    .SelectMany(x =>
-                        x.PropStore.GetMods(mod.Prop, m => m.Name == mod.Name))
-                    .ToArray();
-
-                graph.RemoveMods(mods);
-            }
         }
 
         public ModBehavior Clone<T>(ModScope scope = ModScope.Standard)
@@ -132,7 +107,7 @@ namespace Rpg.ModObjects.Modifiers
 
     public class Initial : ModBehavior
     {
-        public Initial() 
+        public Initial()
         {
             Merging = ModMerging.Replace;
             Type = ModType.Initial;
@@ -176,7 +151,7 @@ namespace Rpg.ModObjects.Modifiers
         public State(int duration)
             : this(0, duration) { }
 
-        public override ModExpiry OnUpdating(RpgGraph graph, Mod? mod = null)
+        public override ModExpiry OnUpdating(RpgGraph graph, Time.Time time, Mod? mod = null)
         {
             var res = graph.CalculateModValue(mod);
             Expiry = res == Dice.Zero
@@ -204,62 +179,62 @@ namespace Rpg.ModObjects.Modifiers
             => Scope = scope;
     }
 
-    public class Synced : ModBehavior
-    {
-        public Synced()
-        {
-            Type = ModType.Synced;
-        }
-    }
+    //public class Synced : ModBehavior
+    //{
+    //    public Synced()
+    //    {
+    //        Type = ModType.Synced;
+    //    }
+    //}
 
-    public class Encounter : ModBehavior
-    {
-        public Encounter(ModMerging merging)
-        {
-            Delay = 0;
-            Duration = EncounterEnd;
-            Merging = merging;
-        }
+    //public class Encounter : ModBehavior
+    //{
+    //    public Encounter(ModMerging merging)
+    //    {
+    //        Delay = 0;
+    //        Duration = TimeTypes.AsTurn(TimeTypes.EncounterEnd);
+    //        Merging = merging;
+    //    }
 
-        public Encounter()
-            : this(ModMerging.Add) { }
-    }
+    //    public Encounter()
+    //        : this(ModMerging.Add) { }
+    //}
 
-    public class Turn : ModBehavior
-    {
-        public Turn(int delay, int duration, ModMerging merging)
-        {
-            Delay = delay;
-            Duration = duration;
-            Merging = merging;
-        }
+    //public class Turn : ModBehavior
+    //{
+    //    public Turn(int delay, int duration, ModMerging merging)
+    //    {
+    //        Delay = delay;
+    //        Duration = duration;
+    //        Merging = merging;
+    //    }
 
-        public Turn()
-            : this(0, 1, ModMerging.Add) { }
+    //    public Turn()
+    //        : this(0, 1, ModMerging.Add) { }
 
-        public Turn(ModMerging merging)
-            : this(0, 1, merging) { }
+    //    public Turn(ModMerging merging)
+    //        : this(0, 1, merging) { }
 
 
-        public Turn(int duration)
-            : this(0, duration, ModMerging.Add) { }
-    }
+    //    public Turn(int duration)
+    //        : this(0, duration, ModMerging.Add) { }
+    //}
 
-    public class ExpireOnZero : ModBehavior
-    {
-        public ExpireOnZero()
-        {
-            Merging = ModMerging.Combine;
-        }
+    //public class ExpireOnZero : ModBehavior
+    //{
+    //    public ExpireOnZero()
+    //    {
+    //        Merging = ModMerging.Combine;
+    //    }
 
-        public override ModExpiry OnUpdating(RpgGraph graph, Mod? mod = null)
-        {
-            var res = graph.CalculatePropValue(mod!, x => x.Behavior is ExpireOnZero);
-            Expiry = res == Dice.Zero
-                ? ModExpiry.Expired
-                : ModExpiry.Active;
+    //    public override ModExpiry OnUpdating(RpgGraph graph, Time.Time time, Mod? mod = null)
+    //    {
+    //        var res = graph.CalculatePropValue(mod!, x => x.Behavior is ExpireOnZero);
+    //        Expiry = res == Dice.Zero
+    //            ? ModExpiry.Expired
+    //            : ModExpiry.Active;
 
-            return Expiry;
-        }
-    }
+    //        return Expiry;
+    //    }
+    //}
 }

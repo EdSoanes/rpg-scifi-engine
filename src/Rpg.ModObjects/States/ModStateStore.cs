@@ -60,11 +60,11 @@ namespace Rpg.ModObjects.States
                 state.OnGraphCreating(graph, entity);
         }
 
-        public override void OnUpdating(RpgGraph graph)
+        public override void OnUpdating(RpgGraph graph, Time.Time time)
         {
-            base.OnUpdating(graph);
+            base.OnUpdating(graph, time);
             foreach (var modState in Get())
-                modState.OnUpdating(graph);
+                modState.OnUpdating(graph, time);
         }
     }
 }

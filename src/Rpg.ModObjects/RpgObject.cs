@@ -3,6 +3,7 @@ using Rpg.ModObjects.Cmds;
 using Rpg.ModObjects.Modifiers;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.States;
+using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.ComponentModel;
 
@@ -64,9 +65,6 @@ namespace Rpg.ModObjects
 
         public bool IsA(string type) => Is.Contains(type);
 
-        internal void TriggerUpdate(PropRef propRef)
-            => Graph!.TriggerUpdate(propRef);
-
         internal ModObjectPropDescription Describe(string prop)
             => new ModObjectPropDescription(Graph!, this, prop);
 
@@ -105,6 +103,6 @@ namespace Rpg.ModObjects
         }
 
         protected virtual void OnCreating() { }
-        public virtual void OnUpdating(RpgGraph graph) { }
+        public virtual void OnUpdating(RpgGraph graph, Time.Time time) { }
     }
 }
