@@ -174,6 +174,20 @@ namespace Rpg.ModObjects.Modifiers
         }
     }
 
+    public class State : Combine
+    {
+        public State()
+            : base(ModType.State) 
+        { }
+    }
+
+    public class ForceState : Combine
+    {
+        public ForceState()
+            : base(ModType.ForceState)
+        { }
+    }
+
     //public class Initial : ModBehavior
     //{
     //    public Initial()

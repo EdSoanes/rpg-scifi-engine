@@ -9,7 +9,8 @@ namespace Rpg.ModObjects.Modifiers
     public class Mod : PropRef, ITimeLifecycle
     {
         [JsonProperty] public string Id { get; protected set; }
-        [JsonProperty] public string? ModSetId { get; internal set; }
+        [JsonProperty] public string? SyncedToId { get; internal set; }
+        [JsonProperty] public string? SyncedToType { get; internal set; }
         [JsonProperty] public string Name { get; protected set; }
 
         [JsonProperty] public PropRef? SourcePropRef { get; protected set; }
@@ -50,15 +51,15 @@ namespace Rpg.ModObjects.Modifiers
             SourceValueFunc = template.SourceValueFunc;
         }
 
-        internal Mod(string modSetId, string name, ModTemplate template)
+        internal Mod(string syncedToId, string syncedToType, string name, ModTemplate template)
             : this(name, template)
-                => ModSetId = modSetId;
+        {
+            SyncedToId = syncedToId;
+            SyncedToType = syncedToType;
+        }
 
         public void SetExpired()
             => Lifecycle.SetExpired();
-
-        public ModExpiry SyncWith(ITimeLifecycle lifecycle)
-            => Lifecycle.SyncWith(lifecycle);
 
         public ModExpiry StartLifecycle<T>(RpgGraph graph, Time.Time time, T obj)
             where T : class

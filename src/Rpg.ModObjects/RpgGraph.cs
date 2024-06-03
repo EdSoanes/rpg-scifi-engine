@@ -237,8 +237,11 @@ namespace Rpg.ModObjects
             return null;
         }
 
-        public ModSet? GetModSet(string modSetId)
+        public ModSet? GetModSet(string? modSetId)
         {
+            if (modSetId == null) 
+                return null;
+
             foreach (var rpgObj in ObjectStore.Values)
             {
                 var modSet = rpgObj.ModSetStore[modSetId];

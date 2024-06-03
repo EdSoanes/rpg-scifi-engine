@@ -1,12 +1,7 @@
 ﻿using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Modifiers
 {
@@ -35,43 +30,65 @@ namespace Rpg.ModObjects.Modifiers
             return modFactory;
         }
 
-        public void SetProps(string targetId, string prop, Dice value)
+        public ModTemplate SetBehavior(ModBehavior behavior)
+        {
+            Behavior = behavior;
+            return this;
+        }
+
+        public ModTemplate SetLifecycle(ITimeLifecycle lifecycle)
+        {
+            Lifecycle = lifecycle;
+            return this;
+        }
+
+        public ModTemplate SetProps(string targetId, string prop, Dice value)
         {
             TargetPropRef = new PropRef(targetId, prop);
             SourceValue = value;
+
+            return this;
         }
 
-        public void SetProps<TTarget, TTargetVal>(TTarget target, Expression<Func<TTarget, TTargetVal>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+        public ModTemplate SetProps<TTarget>(TTarget target, string targetProp, Dice value, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+            where TTarget : RpgObject
+        {
+            TargetPropRef = Mod.CreatePropRef(target, targetProp);
+            SourceValue = value;
+            SourceValueFunc.Set(valueFunc);
+
+            return this;
+        }
+
+        public ModTemplate SetProps<TTarget, TTargetVal>(TTarget target, Expression<Func<TTarget, TTargetVal>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TTarget : RpgObject
         {
             TargetPropRef = Mod.CreatePropRef(target, targetExpr);
             SourceValue = value;
             SourceValueFunc.Set(valueFunc);
+
+            return this;
         }
 
-        public void SetProps<TTarget, TTargetVal, TSource, TSourceVal>(TTarget target, Expression<Func<TTarget, TTargetVal>> targetExpr, TSource source, Expression<Func<TSource, TSourceVal>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+        public ModTemplate SetProps<TTarget, TTargetVal, TSource, TSourceVal>(TTarget target, Expression<Func<TTarget, TTargetVal>> targetExpr, TSource source, Expression<Func<TSource, TSourceVal>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TSource : RpgObject
             where TTarget : RpgObject
         {
             TargetPropRef = Mod.CreatePropRef(target, targetExpr);
             SourcePropRef = Mod.CreatePropRef(source, sourceExpr);
             SourceValueFunc.Set(valueFunc);
+
+            return this;
         }
 
-        public void SetProps<TTarget, TSource, TSourceVal>(TTarget target, string targetProp, TSource source, Expression<Func<TSource, TSourceVal>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+        public ModTemplate SetProps<TTarget, TSource, TSourceVal>(TTarget target, string targetProp, TSource source, Expression<Func<TSource, TSourceVal>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TSource : RpgObject
             where TTarget : RpgObject
         {
             TargetPropRef = Mod.CreatePropRef(target, targetProp);
             SourcePropRef = Mod.CreatePropRef(source, sourceExpr);
-        }
 
-        public void SetProps<TTarget>(ModBehavior behavior, TTarget target, string targetProp, Dice value, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-            where TTarget : RpgObject
-        {
-            TargetPropRef = Mod.CreatePropRef(target, targetProp);
-            SourceValue = value;
-            SourceValueFunc.Set(valueFunc);
+            return this;
         }
     }
 
@@ -99,6 +116,20 @@ namespace Rpg.ModObjects.Modifiers
         {
             Behavior = new Replace(ModType.Override);
             Lifecycle = new PermanentLifecycle();
+        }
+    }
+
+    public class SyncedMod : ModTemplate
+    {
+        public string SyncedToId { get; private set; }
+        public string SyncedToType {  get; private set; }
+
+        public SyncedMod(string syncedToId, string syncedToType)
+        {
+            SyncedToId = syncedToId;
+            SyncedToType = syncedToType;
+            Behavior = new Add(ModType.Standard);
+            Lifecycle = new SyncedLifecycle();
         }
     }
 }

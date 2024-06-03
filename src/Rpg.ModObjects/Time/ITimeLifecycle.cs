@@ -11,7 +11,7 @@ namespace Rpg.ModObjects.Time
     {
         ModExpiry Expiry { get; }
         void SetExpired();
-        ModExpiry SyncWith(ITimeLifecycle lifecycle);
+
         ModExpiry StartLifecycle<T>(RpgGraph graph, Time time, T obj)
             where T : class;
         ModExpiry UpdateLifecycle<T>(RpgGraph graph, Time time, T obj)
