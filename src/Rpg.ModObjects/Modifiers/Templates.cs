@@ -31,6 +31,14 @@ namespace Rpg.ModObjects.Modifiers
             return this;
         }
 
+        public ModTemplate SetScope(ModScope scope)
+        {
+            if (Behavior != null)
+                Behavior.Scope = scope;
+
+            return this;
+        }
+
         public ModTemplate SetLifecycle(ITimeLifecycle lifecycle)
         {
             Lifecycle = lifecycle;
@@ -41,6 +49,19 @@ namespace Rpg.ModObjects.Modifiers
         {
             TargetPropRef = new PropRef(targetId, prop);
             SourceValue = value;
+
+            return this;
+        }
+
+        public ModTemplate SetProps(PropRef targetPropRef, PropRef? sourcePropRef, Dice? value, ModSourceValueFunction? valueFunc)
+        {
+            TargetPropRef = new PropRef(targetPropRef.EntityId, targetPropRef.Prop);
+            SourcePropRef = sourcePropRef != null
+                ? new PropRef(sourcePropRef.EntityId, sourcePropRef.Prop)
+                : null;
+
+            SourceValue = value;
+            SourceValueFunc.Set(valueFunc);
 
             return this;
         }
@@ -154,10 +175,10 @@ namespace Rpg.ModObjects.Modifiers
         }
     }
 
-    public class ForceStateMod : SyncedMod
+    public class ForceStateMod : PermanentMod
     {
         public ForceStateMod(ModState state)
-            : base(state.EntityId, nameof(ModState))
+            : base(state.InstanceName)
         {
             SetBehavior(new Replace(ModType.ForceState));
             SetProps(state.EntityId, state.InstanceName, 1);

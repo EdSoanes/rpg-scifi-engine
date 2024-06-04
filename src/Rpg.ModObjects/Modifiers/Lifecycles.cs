@@ -41,13 +41,21 @@ namespace Rpg.ModObjects.Modifiers
     {
         public override ModExpiry StartLifecycle(RpgGraph graph, Time.Time currentTime, Mod? mod = null)
         {
-            var modSet = graph.GetModSet(mod?.SyncedToId);
-            if (modSet != null)
+            if (!string.IsNullOrEmpty(mod?.SyncedToId))
             {
-                Expiry = modSet.Lifecycle.Expiry;
-                return Expiry;
+                if (mod.SyncedToType == nameof(ModSet))
+                {
+                    var syncedToModSet = graph.GetModSet(mod?.SyncedToId);
+                    Expiry = syncedToModSet?.Lifecycle.Expiry ?? ModExpiry.Remove;
+                }
+                else if (mod.SyncedToType == nameof(Mod))
+                {
+                    var syncedToMod = graph.GetMods().FirstOrDefault(x => x.Id == mod?.SyncedToId);
+                    Expiry = syncedToMod?.Lifecycle.Expiry ?? ModExpiry.Remove;
+                }
             }
 
+            
             return base.StartLifecycle(graph, currentTime, mod);
         }
 

@@ -22,6 +22,18 @@ namespace Rpg.ModObjects.Modifiers
             EntityId = null;
             ClassName = null;
             FuncName = null;
+            FullName = null;
+        }
+
+        public void Set(ModSourceValueFunction? valueFunc)
+        {
+            if (valueFunc != null)
+            {
+                EntityId = valueFunc.EntityId;
+                ClassName = valueFunc.ClassName;
+                FuncName = valueFunc.FuncName;
+                FullName = valueFunc.FullName;
+            }
         }
 
         public void Set<T>(Expression<Func<Func<T, T>>>? expression)

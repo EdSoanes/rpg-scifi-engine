@@ -5,7 +5,6 @@ namespace Rpg.ModObjects.Modifiers
     public interface IBehavior
     {
         ModExpiry Expiry { get; }
-        ModMerging Merging { get; }
         ModScope Scope { get; }
         ModType Type { get; }
 

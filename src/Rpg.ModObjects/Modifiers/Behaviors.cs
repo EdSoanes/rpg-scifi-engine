@@ -7,8 +7,7 @@ namespace Rpg.ModObjects.Modifiers
     public abstract class BaseBehavior : IBehavior
     {
         [JsonProperty] public ModType Type { get; protected set; } = ModType.Standard;
-        [JsonProperty] public ModMerging Merging { get; protected set; } = ModMerging.Add;
-        [JsonProperty] public ModScope Scope { get; protected set; } = ModScope.Standard;
+        [JsonProperty] public ModScope Scope { get; internal set; } = ModScope.Standard;
         [JsonProperty] public ModExpiry Expiry { get; private set; } = ModExpiry.Active;
 
         public virtual void OnAdding(RpgGraph graph, Prop modProp, Mod mod)
@@ -16,12 +15,28 @@ namespace Rpg.ModObjects.Modifiers
             if (!modProp.Contains(mod))
                 modProp.Add(mod);
 
-            //TODO: Handle scope here...
+            OnScoping(graph, modProp, mod);
+        }
+
+        public virtual void OnScoping(RpgGraph graph, Prop modProp, Mod mod)
+        {
+            if (Scope != ModScope.Standard)
+            {
+                var entities = graph.GetScopedEntities(mod.EntityId, Scope);
+                foreach (var entity in entities)
+                {
+                    var syncedMod = new SyncedMod(mod.Id, nameof(Mod))
+                        .SetProps(new PropRef(entity.Id, mod.Prop), mod.SourcePropRef, mod.SourceValue, mod.SourceValueFunc)
+                        .Create(mod.Name);
+
+                    graph.AddMods(syncedMod);
+                }
+            }
         }
 
         public virtual void OnUpdating(RpgGraph graph, Prop modProp, Mod mod)
         {
-            //TODO: Handle scope here...
+            OnScoping(graph, modProp, mod);
         }
 
         public virtual bool OnRemoving(RpgGraph graph, Prop modProp, Mod mod)
@@ -35,7 +50,6 @@ namespace Rpg.ModObjects.Modifiers
         {
             var behavior = Activator.CreateInstance<T>();
 
-            behavior.Merging = Merging;
             behavior.Scope = scope;
             behavior.Type = Type;
 
@@ -47,7 +61,6 @@ namespace Rpg.ModObjects.Modifiers
     {
         public Replace(ModType modType)
         {
-            Merging = ModMerging.Replace;
             Type = modType;
         }
 
@@ -61,7 +74,10 @@ namespace Rpg.ModObjects.Modifiers
 
             //Don't add if the source is a Value without a ValueFunction and the Value = null
             if (mod.SourcePropRef != null || mod.SourceValue != null || mod.SourceValueFunc.IsCalc)
+            {
                 modProp.Add(mod);
+                OnScoping(graph, modProp, mod);
+            }
         }
     }
 
@@ -69,7 +85,6 @@ namespace Rpg.ModObjects.Modifiers
     {
         public Combine(ModType modType)
         {
-            Merging = ModMerging.Combine;
             Type = modType;
         }
 
@@ -85,7 +100,10 @@ namespace Rpg.ModObjects.Modifiers
                 modProp.Remove(matchingMod);
 
             if (mod.SourceValue != null && mod.SourceValue != Dice.Zero)
+            {
                 modProp.Add(mod);
+                OnScoping(graph, modProp, mod);
+            }
         }
 
         protected Mod[] MatchingMods(RpgGraph graph, Mod mod)
@@ -112,7 +130,10 @@ namespace Rpg.ModObjects.Modifiers
                 modProp.Remove(matchingMod);
 
             if (mod.SourceValue != null && mod.SourceValue != Value)
+            {
                 modProp.Add(mod);
+                OnScoping(graph, modProp, mod);
+            }
         }
     }
 
@@ -120,7 +141,6 @@ namespace Rpg.ModObjects.Modifiers
     {
         public Add(ModType modType)
         {
-            Merging = ModMerging.Add;
             Type = modType;
         }
 

@@ -51,13 +51,13 @@ namespace Rpg.ModObjects.States
         public bool IsForcedActive()
         {
             var entity = Graph!.GetEntity(EntityId);
-            return Graph!.CalculatePropValue(entity, InstanceName, mod => mod.Behavior.Merging == ModMerging.Replace) != Dice.Zero;
+            return Graph!.CalculatePropValue(entity, InstanceName, mod => mod.Behavior is ForceState) != Dice.Zero;
         }
 
         public bool IsConditionallyActive()
         {
             var entity = Graph!.GetEntity(EntityId);
-            return Graph!.CalculatePropValue(entity, InstanceName, mod => mod.Behavior.Merging == ModMerging.Combine) != Dice.Zero;
+            return Graph!.CalculatePropValue(entity, InstanceName, mod => mod.Behavior is State) != Dice.Zero;
         }
 
         protected virtual bool ShouldActivate()

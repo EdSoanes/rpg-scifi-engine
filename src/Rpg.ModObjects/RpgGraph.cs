@@ -198,7 +198,7 @@ namespace Rpg.ModObjects
         public IEnumerable<RpgObject> GetEntities()
             => ObjectStore.Values;
 
-        public IEnumerable<RpgObject> GetEntities(string rpgObjId, ModScope scope)
+        public IEnumerable<RpgObject> GetScopedEntities(string rpgObjId, ModScope scope)
         {
             var entity = GetEntity(rpgObjId);
             if (entity is RpgEntityComponent)
@@ -206,12 +206,12 @@ namespace Rpg.ModObjects
 
             var all = ObjectStore.Values.Where(x => x.Id == entity!.Id || (x as RpgEntityComponent)?.EntityId == entity!.Id);
             if (scope == ModScope.Objects)
-                return all;
+                return all.Where(x => x.Id != rpgObjId);
 
             if (scope == ModScope.Components)
             {
                 var components = all
-                    .Where(x => x is RpgEntityComponent)
+                    .Where(x => x is RpgEntityComponent && x.Id != rpgObjId)
                     .Select(x => x as RpgEntityComponent)
                     .Where(x => x != null)
                     .Cast<RpgObject>();
