@@ -1,6 +1,7 @@
 ﻿using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Rpg.ModObjects.Modifiers
 {
@@ -11,16 +12,20 @@ namespace Rpg.ModObjects.Modifiers
         public Dice Dice { get; private set; }
         public bool IsResolved { get => Dice.IsConstant; }
 
-        public Mod Resolve(ModBehavior behavior, int? resolution = null)
+        public Mod Resolve(ModTemplate template, int? resolution = null)
         {
             if (IsResolved || resolution == null)
                 resolution = Dice.Roll();
 
-            return Mod.Create(behavior, TargetId, Name, resolution.Value);
+            var mod = template
+                .SetProps(TargetId, Name, resolution.Value)
+                .Create();
+
+            return mod;
         }
 
         public ModSubSet(string initiatorId, PropRef recipientPropRef, Mod[] mods, Dice dice)
-            : base(initiatorId, recipientPropRef.Prop, new Turn())
+            : base(initiatorId, recipientPropRef.Prop, Time.Lifecycle.Turn())
         {
             TargetId = recipientPropRef.EntityId;
             TargetProp = recipientPropRef.Prop;

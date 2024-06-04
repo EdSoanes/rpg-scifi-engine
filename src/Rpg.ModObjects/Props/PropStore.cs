@@ -52,43 +52,10 @@ namespace Rpg.ModObjects.Props
                 var modProp = Get(mod.Prop, create: true)!;
                 modProp.Remove(mod);
 
-                mod.Behavior.OnAdding(Graph, this, mod);
-
-
-                if (mod.Behavior.Merging == ModMerging.Add)
-                    modProp.Add(mod);
-
-                else if (mod.Behavior.Merging == ModMerging.Replace)
-                    modProp.Replace(mod);
-
-                else if (mod.Behavior.Merging == ModMerging.Combine)
-                    modProp.Combine(Graph, mod);
+                mod.OnAdding(Graph!, modProp, Graph!.Time.Current);
 
                 Graph.OnPropUpdated(modProp);
             }
-        }
-
-        public void Remove(params Mod[] mods)
-        {
-            var toRemove = new List<Prop>();
-            foreach (var mod in mods.Where(x => x.EntityId == EntityId))
-            {
-                mod.OnRemoving(Graph!, mod);
-
-                var modProp = this[mod.Prop];
-                if (modProp != null)
-                {
-                    modProp.Remove(mod);
-                    if (mod.Behavior.Scope != ModScope.Standard)
-                    if (!modProp.Mods.Any() && !toRemove.Contains(modProp))
-                        toRemove.Add(modProp);
-
-                    Graph.OnPropUpdated(modProp);
-                }
-            }
-
-            foreach (var modProp in toRemove)
-                this.Remove(modProp.Prop);
         }
 
         public override void OnUpdating(RpgGraph graph, Time.Time time)
@@ -99,19 +66,41 @@ namespace Rpg.ModObjects.Props
                 var toRemove = new List<Mod>();
                 foreach (var mod in modProp.Mods)
                 {
-                    var oldExpiry = mod.Behavior.Expiry;
-                    mod.OnUpdating(Graph, time);
-                    var expiry = mod.Behavior.Expiry;
-
-                    if (expiry != oldExpiry)
-                        Graph.OnPropUpdated(mod);
+                    var oldExpiry = mod.Expiry;
+                    mod.OnUpdating(Graph, modProp, time);
+                    var expiry = mod.Expiry;
 
                     if (expiry == ModExpiry.Remove)
                         toRemove.Add(mod);
+
+                    if (expiry != oldExpiry)
+                        Graph.OnPropUpdated(mod);
                 }
 
                 Remove(toRemove.ToArray());
             }
+        }
+
+        public void Remove(params Mod[] mods)
+        {
+            var toRemove = new List<Prop>();
+            foreach (var mod in mods.Where(x => x.EntityId == EntityId))
+            {
+                var modProp = this[mod.Prop];
+                if (modProp != null)
+                {
+                    mod.OnRemoving(Graph!, modProp, mod);
+                    modProp.Remove(mod);
+
+                    if (!modProp.Mods.Any() && !toRemove.Contains(modProp))
+                        toRemove.Add(modProp);
+
+                    Graph.OnPropUpdated(modProp);
+                }
+            }
+
+            foreach (var modProp in toRemove)
+                this.Remove(modProp.Prop);
         }
     }
 }

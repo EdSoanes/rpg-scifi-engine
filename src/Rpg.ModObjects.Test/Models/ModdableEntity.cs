@@ -22,19 +22,20 @@ namespace Rpg.ModObjects.Tests.Models
 
         protected override void OnCreating()
         {
-            this.AddMod(new Base(), x => x.Melee, x => x.Strength.Bonus);
-            this.AddMod(new Base(), x => x.Damage.Dice, x => x.Strength.Bonus);
+            this
+                .BaseMod(x => x.Melee, x => x.Strength.Bonus)
+                .BaseMod(x => x.Damage.Dice, x => x.Strength.Bonus);
         }
 
-        [ModState(ShouldActivateMethod = nameof(ShouldBuff))]
+        [ModState(ActiveWhen = nameof(ShouldBuff))]
         public void Buff(ModSet modSet)
-            => modSet.AddMod(new Synced(), this, x => x.Health, 10);
+            => modSet.SyncedMod(this, x => x.Health, 10);
 
         public bool ShouldBuff() => Melee.Roll() >= 10;
 
-        [ModState(ShouldActivateMethod = nameof(ShouldNerf))]
+        [ModState(ActiveWhen = nameof(ShouldNerf))]
         public void Nerf(ModSet modSet)
-            => modSet.AddMod(new Synced(), this, x => x.Health, -10);
+            => modSet.SyncedMod(this, x => x.Health, -10);
 
         public bool ShouldNerf() => Melee.Roll() < 1;
 

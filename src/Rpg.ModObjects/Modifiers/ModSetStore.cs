@@ -16,6 +16,7 @@ namespace Rpg.ModObjects.Modifiers
             {
                 if (string.IsNullOrEmpty(modSet.Name) || !Get().Any(x => x.Name == modSet.Name))
                 {
+                    modSet.OnAdding(Graph!, Graph!.Time.Current);
                     Items.Add(modSet.Id, modSet);
                     Graph!.AddMods(modSet.Mods.ToArray());
 
@@ -31,7 +32,7 @@ namespace Rpg.ModObjects.Modifiers
             var existing = Get().FirstOrDefault(x => x.Id == modSetId);
             if (existing != null)
             {
-                existing.SetExpired();
+                existing.Lifecycle.SetExpired(Graph!.Time.Current);
                 Graph?.RemoveMods(existing.Mods.ToArray());
                 Items.Remove(existing.Id);
             }
@@ -55,7 +56,7 @@ namespace Rpg.ModObjects.Modifiers
             foreach (var modSet in Get())
             {
                 modSet.OnUpdating(graph, time);
-                if (modSet.Behavior.Expiry == ModExpiry.Remove)
+                if (modSet.Lifecycle.Expiry == ModExpiry.Remove)
                     toRemove.Add(modSet);
             }
 

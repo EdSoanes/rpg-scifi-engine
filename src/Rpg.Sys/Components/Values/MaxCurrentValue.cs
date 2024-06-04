@@ -27,7 +27,7 @@ namespace Rpg.Sys.Components.Values
 
         protected override void OnCreating()
         {
-            this.AddMod(new Base(), x => x.Current, x => x.Max);
+            this.BaseMod(x => x.Current, x => x.Max);
         }
     }
 }

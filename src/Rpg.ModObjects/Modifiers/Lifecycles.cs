@@ -1,48 +1,93 @@
-﻿using Rpg.ModObjects.Time;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects.Modifiers
 {
-    public class PermanentLifecycle : ITimeLifecycle
-    { 
-        public ModExpiry Expiry { get => ModExpiry.Active;  }
-        public void SetExpired()
+    public abstract class BaseLifecycle : ITimeLifecycle
+    {
+        [JsonProperty] public Time.Time? ExpiredTime { get; protected set; }
+        [JsonProperty] public Time.Time StartTime { get; protected set; }
+        [JsonProperty] public Time.Time EndTime { get; protected set; }
+
+        public ModExpiry Expiry { get; protected set; }
+
+        public void SetExpired(Time.Time currentTime)
         {
+            if (Expiry == ModExpiry.Active)
+                ExpiredTime = new Time.Time(currentTime.Type, currentTime.Tick - 1);
         }
 
-        public ModExpiry StartLifecycle<T>(RpgGraph graph, Time.Time time, T obj)
-            where T : class
-                => ModExpiry.Active;
+        public virtual ModExpiry StartLifecycle(RpgGraph graph, Time.Time currentTime, Mod? mod = null)
+        {
+            StartTime = graph.Time.BeginningOfTime;
+            EndTime = graph.Time.EndOfTime;
 
-        public ModExpiry UpdateLifecycle<T>(RpgGraph graph, Time.Time time, T obj)
-            where T : class
-                => ModExpiry.Active;
+            Expiry = graph.Time.CalculateExpiry(StartTime, EndTime);
+            return Expiry;
+        }
+
+        public virtual ModExpiry UpdateLifecycle(RpgGraph graph, Time.Time currentTime, Mod? mod = null)
+        {
+            Expiry = graph.Time.CalculateExpiry(StartTime, ExpiredTime ?? EndTime);
+            return Expiry;
+        }
     }
 
-    public class SyncedLifecycle : ITimeLifecycle
+    public class PermanentLifecycle : BaseLifecycle
     {
-        public ModExpiry Expiry { get; private set; }
+    }
 
-        public void SetExpired()
+    public class SyncedLifecycle : BaseLifecycle
+    {
+        public override ModExpiry StartLifecycle(RpgGraph graph, Time.Time currentTime, Mod? mod = null)
         {
+            var modSet = graph.GetModSet(mod?.SyncedToId);
+            if (modSet != null)
+            {
+                Expiry = modSet.Lifecycle.Expiry;
+                return Expiry;
+            }
+
+            return base.StartLifecycle(graph, currentTime, mod);
         }
 
-        public ModExpiry StartLifecycle<T>(RpgGraph graph, Time.Time time, T obj)
-            where T : class
+        public override ModExpiry UpdateLifecycle(RpgGraph graph, Time.Time currentTime, Mod? mod = null)
         {
-            var mod = obj as Mod;
             var modSet = graph.GetModSet(mod?.SyncedToId);
 
             Expiry = modSet?.Lifecycle.Expiry ?? ModExpiry.Remove;
             return Expiry;
         }
+    }
 
-        public ModExpiry UpdateLifecycle<T>(RpgGraph graph, Time.Time time, T obj)
-            where T : class
+    public class TimeLifecycle : BaseLifecycle
+    {
+        [JsonProperty] public Time.Time? Delay { get; private set; }
+        [JsonProperty] public Time.Time? Duration { get; private set; }
+
+        public TimeLifecycle(Time.Time duration)
         {
-            var mod = obj as Mod;
-            var modSet = graph.GetModSet(mod?.SyncedToId);
+            Duration = duration;
+        }
 
-            Expiry = modSet?.Lifecycle.Expiry ?? ModExpiry.Remove;
+        public TimeLifecycle(Time.Time delay, Time.Time duration)
+        {
+            Delay = delay;
+            Duration = duration;
+        }
+
+        public override ModExpiry StartLifecycle(RpgGraph graph, Time.Time time, Mod? mod = null)
+        {
+            StartTime = Delay == null
+                ? graph.Time.BeginningOfTime
+                : graph.Time.CalculateStartTime(Delay);
+
+            EndTime = Duration == null
+                ? graph.Time.EndOfTime
+                : graph.Time.CalculateEndTime(StartTime, Duration);
+
+            Expiry = graph.Time.CalculateExpiry(StartTime, ExpiredTime ?? EndTime);
+
             return Expiry;
         }
     }

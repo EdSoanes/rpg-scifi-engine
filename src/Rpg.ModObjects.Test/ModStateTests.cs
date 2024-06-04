@@ -23,7 +23,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));
 
-            var mod = entity.AddMod(new Permanent(), x => x.Melee, 6);
+            var mod = entity.AddMod(new PermanentMod(), x => x.Melee, 6);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.ActiveStateNames, Does.Contain("Buff"));
@@ -37,7 +37,7 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new RpgGraph(entity);
 
-            entity.AddMod(new Permanent(), "mymod", x => x.Melee, 6);
+            entity.AddMod(new PermanentMod("mymod"), x => x.Melee, 6);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(10));
@@ -60,7 +60,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));
 
-            entity.AddMod(new Permanent(), x => x.Melee, -4);
+            entity.AddMod(new PermanentMod(), x => x.Melee, -4);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(0));

@@ -16,8 +16,8 @@ namespace Rpg.ModObjects.Modifiers
 
     public enum ModExpiry
     {
-        Active,
         Pending,
+        Active,
         Expired,
         Remove
     }

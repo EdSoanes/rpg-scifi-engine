@@ -1,4 +1,5 @@
 ﻿using Rpg.ModObjects.Props;
+using Rpg.ModObjects.States;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
@@ -7,30 +8,24 @@ namespace Rpg.ModObjects.Modifiers
 {
     public class ModTemplate
     {
-        public ModBehavior Behavior { get; protected set; }
+        public string? Name { get; protected set; }
+        public BaseBehavior Behavior { get; protected set; }
         public ITimeLifecycle Lifecycle { get; protected set; }
         public PropRef TargetPropRef { get; private set; }
         public PropRef? SourcePropRef { get; private set; }
         public Dice? SourceValue { get; private set; }
         public ModSourceValueFunction SourceValueFunc { get; private set; } = new ModSourceValueFunction();
 
-        public static ModTemplate Init<TBehavior, TLifecycle>()
-            where TBehavior : ModBehavior
-            where TLifecycle : ITimeLifecycle
+        public virtual Mod Create(string name)
         {
-            var behavior = Activator.CreateInstance<TBehavior>();
-            var lifecycle = Activator.CreateInstance<TLifecycle>();
-
-            var modFactory = new ModTemplate
-            {
-                Behavior = behavior,
-                Lifecycle = lifecycle
-            };
-
-            return modFactory;
+            var mod = new Mod(name, this);
+            return mod;
         }
 
-        public ModTemplate SetBehavior(ModBehavior behavior)
+        public virtual Mod Create()
+            => Create(Name ?? TargetPropRef.Prop);
+
+        public ModTemplate SetBehavior(BaseBehavior behavior)
         {
             Behavior = behavior;
             return this;
@@ -50,10 +45,20 @@ namespace Rpg.ModObjects.Modifiers
             return this;
         }
 
+        public ModTemplate SetProps<TTarget, TSourceValue>(TTarget target, string targetProp, Expression<Func<TTarget, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+            where TTarget : RpgObject
+        {
+            TargetPropRef = PropRef.CreatePropRef(target, targetProp);
+            SourcePropRef = PropRef.CreatePropRef(target, sourceExpr);
+            SourceValueFunc.Set(valueFunc);
+
+            return this;
+        }
+
         public ModTemplate SetProps<TTarget>(TTarget target, string targetProp, Dice value, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TTarget : RpgObject
         {
-            TargetPropRef = Mod.CreatePropRef(target, targetProp);
+            TargetPropRef = PropRef.CreatePropRef(target, targetProp);
             SourceValue = value;
             SourceValueFunc.Set(valueFunc);
 
@@ -63,7 +68,7 @@ namespace Rpg.ModObjects.Modifiers
         public ModTemplate SetProps<TTarget, TTargetVal>(TTarget target, Expression<Func<TTarget, TTargetVal>> targetExpr, Dice value, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TTarget : RpgObject
         {
-            TargetPropRef = Mod.CreatePropRef(target, targetExpr);
+            TargetPropRef = PropRef.CreatePropRef(target, targetExpr);
             SourceValue = value;
             SourceValueFunc.Set(valueFunc);
 
@@ -74,8 +79,8 @@ namespace Rpg.ModObjects.Modifiers
             where TSource : RpgObject
             where TTarget : RpgObject
         {
-            TargetPropRef = Mod.CreatePropRef(target, targetExpr);
-            SourcePropRef = Mod.CreatePropRef(source, sourceExpr);
+            TargetPropRef = PropRef.CreatePropRef(target, targetExpr);
+            SourcePropRef = PropRef.CreatePropRef(source, sourceExpr);
             SourceValueFunc.Set(valueFunc);
 
             return this;
@@ -85,8 +90,8 @@ namespace Rpg.ModObjects.Modifiers
             where TSource : RpgObject
             where TTarget : RpgObject
         {
-            TargetPropRef = Mod.CreatePropRef(target, targetProp);
-            SourcePropRef = Mod.CreatePropRef(source, sourceExpr);
+            TargetPropRef = PropRef.CreatePropRef(target, targetProp);
+            SourcePropRef = PropRef.CreatePropRef(source, sourceExpr);
 
             return this;
         }
@@ -131,5 +136,63 @@ namespace Rpg.ModObjects.Modifiers
             Behavior = new Add(ModType.Standard);
             Lifecycle = new SyncedLifecycle();
         }
+
+        public override Mod Create(string name)
+        {
+            var mod = new Mod(SyncedToId, SyncedToType, name, this);
+            return mod;
+        }
+    }
+
+    public class StateMod : SyncedMod
+    {
+        public StateMod(ModState state, int increment)
+            : base(state.EntityId, nameof(ModState))
+        {
+            SetBehavior(new Combine(ModType.State));
+            SetProps(state.EntityId, state.InstanceName, increment);
+        }
+    }
+
+    public class ForceStateMod : SyncedMod
+    {
+        public ForceStateMod(ModState state)
+            : base(state.EntityId, nameof(ModState))
+        {
+            SetBehavior(new Replace(ModType.ForceState));
+            SetProps(state.EntityId, state.InstanceName, 1);
+        }
+    }
+
+    public class PermanentMod : ModTemplate
+    {
+        public PermanentMod(string name)
+        {
+            Name = name;
+            SetLifecycle(new PermanentLifecycle());
+            SetBehavior(new Add(ModType.Standard));
+        }
+
+        public PermanentMod()
+        {
+            SetLifecycle(new PermanentLifecycle());
+            SetBehavior(new Add(ModType.Standard));
+        }
+    }
+
+    public class ExpiresOnMod : ModTemplate
+    {
+        public ExpiresOnMod(int value) 
+        {
+            SetLifecycle(new PermanentLifecycle());
+            SetBehavior(new ExpiresOn(value));
+        }
+    }
+
+    public class ExpireOnZeroMod : ExpiresOnMod
+    {
+        public ExpireOnZeroMod()
+            : base(0)
+        { }
     }
 }

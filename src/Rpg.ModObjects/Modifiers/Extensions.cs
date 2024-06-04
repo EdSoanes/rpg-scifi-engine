@@ -10,25 +10,23 @@ namespace Rpg.ModObjects.Modifiers
 {
     public static class Extensions
     {
-        public static TTarget InitMod<TTarget>(this TTarget entity, string targetProp, Dice dice)
+        internal static void InitMod<TTarget>(this TTarget entity, string targetProp, Dice dice)
             where TTarget : RpgObject
         {
-            var template = new InitialMod();
-            template.SetProps(entity.Id, targetProp, dice);
+            var mod = new InitialMod()
+                .SetProps(entity.Id, targetProp, dice)
+                .Create();
 
-            var mod = new Mod(targetProp, template);
             entity.AddMods(mod);
-
-            return entity;
         }
 
         public static TTarget BaseMod<TTarget, TTargetValue>(this TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TTarget : RpgObject
         {
-            var template = new BaseMod();
-            template.SetProps(entity, targetExpr, dice, valueFunc);
+            var mod = new BaseMod()
+                .SetProps(entity, targetExpr, dice, valueFunc)
+                .Create();
             
-            var mod = new Mod(template.TargetPropRef.Prop, template);
             entity.AddMods(mod);
 
             return entity;
@@ -37,14 +35,61 @@ namespace Rpg.ModObjects.Modifiers
         public static TTarget BaseMod<TTarget, TTargetValue, TSourceValue>(this TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr, Expression<Func<TTarget, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TTarget : RpgObject
         {
-            var template = new BaseMod();
-            template.SetProps<TTarget, TTargetValue, TTarget, TSourceValue>(entity, targetExpr, entity, sourceExpr, valueFunc);
+            var mod = new BaseMod()
+                .SetProps(entity, targetExpr, entity, sourceExpr, valueFunc)
+                .Create();
 
-            var mod = new Mod(template.TargetPropRef.Prop, template);
             entity.AddMods(mod);
 
             return entity;
         }
 
+        public static TTarget AddMod<TTarget>(this TTarget entity, ModTemplate template, string targetProp, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+            where TTarget : RpgObject
+        {
+            var mod = template
+                .SetProps(entity, targetProp, dice, valueFunc)
+                .Create();
+
+            entity.AddMods(mod);
+
+            return entity;
+        }
+
+        public static TTarget AddMod<TTarget, TSourceValue>(this TTarget entity, ModTemplate template, string targetProp, Expression<Func<TTarget, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+            where TTarget : RpgObject
+        {
+            var mod = template
+                .SetProps(entity, targetProp, sourceExpr, valueFunc)
+                .Create();
+
+            entity.AddMods(mod);
+
+            return entity;
+        }
+
+        public static TTarget AddMod<TTarget, TTargetValue>(this TTarget entity, ModTemplate template, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+            where TTarget : RpgObject
+        {
+            var mod =  template
+                .SetProps(entity, targetExpr, dice, valueFunc)
+                .Create();
+
+            entity.AddMods(mod);
+
+            return entity;
+        }
+
+        public static TTarget AddMod<TTarget, TTargetValue, TSourceValue>(this TTarget entity, ModTemplate template, Expression<Func<TTarget, TTargetValue>> targetExpr, Expression<Func<TTarget, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+            where TTarget : RpgObject
+        {
+            var mod = template
+                .SetProps(entity, targetExpr, entity, sourceExpr, valueFunc)
+                .Create();
+
+            entity.AddMods(mod);
+
+            return entity;
+        }
     }
 }

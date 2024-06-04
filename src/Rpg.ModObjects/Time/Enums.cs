@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Rpg.ModObjects.Modifiers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -7,6 +8,25 @@ using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Time
 {
+    public static class Lifecycle
+    {
+        public static TimeLifecycle Turn()
+            => Turn(0, 1);
+
+        public static TimeLifecycle Turn(int duration)
+            => Turn(0, duration);
+
+        public static TimeLifecycle Turn(int delay, int duration)
+            => new TimeLifecycle(
+                new Time(TimeTypes.Encounter, delay),
+                new Time(TimeTypes.Encounter, duration));
+
+        public static TimeLifecycle Encounter()
+            => new TimeLifecycle(
+                TurnBasedTimeEngine.EncounterStart,
+                TurnBasedTimeEngine.EncounterEnd);
+    }
+
     public class TimeTypes
     {
         public const int PermanentDuration = int.MaxValue;

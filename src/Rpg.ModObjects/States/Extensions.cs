@@ -15,7 +15,7 @@ namespace Rpg.ModObjects.States
             foreach (var method in methods)
             {
                 var stateAttr = method.GetCustomAttributes<ModStateAttribute>(true).First();
-                var modState = new ModState(entity.Id, stateAttr.Name ?? method.Name, stateAttr.ShouldActivateMethod, method.Name);
+                var modState = new ModState(entity.Id, stateAttr.Name ?? method.Name, stateAttr.ActiveWhen, method.Name);
 
                 res.Add(modState);
             }

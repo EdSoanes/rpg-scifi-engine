@@ -58,7 +58,7 @@ namespace Rpg.ModObjects.Tests
 
             Assert.That(entity.Score, Is.EqualTo(4));
 
-            entity.AddMod(new Permanent(), x => x.Score, 4);
+            entity.AddMod(new PermanentMod(), x => x.Score, 4);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Score, Is.EqualTo(8));
@@ -108,7 +108,7 @@ namespace Rpg.ModObjects.Tests
 
             Assert.That(entity.Strength.Score, Is.EqualTo(14));
 
-            entity.AddMod(new Override(), x => x.Strength.Score, 10);
+            entity.AddMod(new OverrideMod(), x => x.Strength.Score, 10);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Strength.Score, Is.EqualTo(10));
@@ -126,13 +126,13 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Health, Is.EqualTo(10));
             Assert.That(graph.GetMods().Count(), Is.EqualTo(11));
 
-            entity.AddMod(new ExpireOnZero(), x => x.Health, -10);
+            entity.AddMod(new ExpireOnZeroMod(), x => x.Health, -10);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Health, Is.EqualTo(0));
             Assert.That(graph.GetMods().Count(), Is.EqualTo(12));
 
-            entity.AddMod(new ExpireOnZero(), x => x.Health, 10);
+            entity.AddMod(new ExpireOnZeroMod(), x => x.Health, 10);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Health, Is.EqualTo(10));

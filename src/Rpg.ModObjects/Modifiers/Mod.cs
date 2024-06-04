@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace Rpg.ModObjects.Modifiers
 {
-    public class Mod : PropRef, ITimeLifecycle
+    public class Mod : PropRef
     {
         [JsonProperty] public string Id { get; protected set; }
         [JsonProperty] public string? SyncedToId { get; internal set; }
@@ -17,13 +17,13 @@ namespace Rpg.ModObjects.Modifiers
         [JsonProperty] public Dice? SourceValue { get; protected set; }
         [JsonProperty] public ModSourceValueFunction SourceValueFunc { get; protected set; } = new ModSourceValueFunction();
 
-        [JsonProperty] public ModBehavior Behavior { get; protected set; }
+        [JsonProperty] public BaseBehavior Behavior { get; protected set; }
         [JsonProperty] public ITimeLifecycle Lifecycle { get; protected set; }
         [JsonProperty] public bool IsBaseInitMod { get => Behavior.Type == ModType.Initial; }
         [JsonProperty] public bool IsBaseOverrideMod { get => Behavior.Type == ModType.Override; }
         [JsonProperty] public bool IsBaseMod { get => IsBaseInitMod || IsBaseOverrideMod || Behavior.Type == ModType.Base; }
 
-        public ModExpiry Expiry { get => Lifecycle.Expiry; }
+        public ModExpiry Expiry { get => (int)Lifecycle.Expiry > (int)Behavior.Expiry ? Lifecycle.Expiry : Behavior.Expiry; }
 
         [JsonConstructor] protected Mod() { }
 
@@ -33,22 +33,13 @@ namespace Rpg.ModObjects.Modifiers
             Name = name;
             EntityId = template.TargetPropRef.EntityId;
             Prop = template.TargetPropRef.Prop;
+
+            Behavior = template.Behavior;
+            Lifecycle = template.Lifecycle;
+
             SourcePropRef = template.SourcePropRef;
             SourceValue = template.SourceValue;
             SourceValueFunc = template.SourceValueFunc; 
-        }
-
-        internal Mod(string entityId, ModBehavior behavior, Mod template)
-        {
-            Id = this.NewId();
-            Name = template.Name;
-            EntityId = entityId;
-            Prop = template.Prop;
-            Behavior = behavior;
-            Lifecycle = template.Lifecycle;
-            SourcePropRef = template.SourcePropRef;
-            SourceValue = template.SourceValue;
-            SourceValueFunc = template.SourceValueFunc;
         }
 
         internal Mod(string syncedToId, string syncedToType, string name, ModTemplate template)
@@ -58,63 +49,21 @@ namespace Rpg.ModObjects.Modifiers
             SyncedToType = syncedToType;
         }
 
-        public void SetExpired()
-            => Lifecycle.SetExpired();
-
-        public ModExpiry StartLifecycle<T>(RpgGraph graph, Time.Time time, T obj)
-            where T : class
-                => Lifecycle.StartLifecycle<T>(graph, time, obj);
-
-        public ModExpiry UpdateLifecycle<T>(RpgGraph graph, Time.Time time, T obj)
-            where T : class
-                => Lifecycle.UpdateLifecycle<T>(graph, time, obj);
-
-        public void OnUpdating(RpgGraph graph, Time.Time time)
+        public void OnAdding(RpgGraph graph, Prop modProp, Time.Time time)
         {
-            var propStore = graph.GetEntity(EntityId)!.PropStore;
-            Behavior.OnUpdating(graph, propStore, this);
-            //if (Behavior.Scope != ModScope.Standard && Behavior.Expiry == ModExpiry.Active)
-            //{
-            //    var entities = graph.GetEntities(EntityId, Behavior.Scope);
-            //    foreach (var entity in entities)
-            //    {
-            //        var existing = entity.PropStore.GetMods(Prop, m => m.Prop == Prop && m.Name == Name);
-            //        if (!existing.Any())
-            //        {
-            //            var newMod = Clone<Permanent>(entity.Id);
-            //            entity.AddMods(newMod);
-            //            graph.OnPropUpdated(newMod);
-            //        }
-            //    }
-            //}
+            Lifecycle.StartLifecycle(graph, time, this);
+            Behavior.OnAdding(graph, modProp, this);
         }
 
-        public void OnRemoving(RpgGraph graph, Mod? mod = null)
+        public void OnUpdating(RpgGraph graph, Prop modProp, Time.Time time)
         {
-            var propStore = graph.GetEntity(EntityId)!.PropStore;
-            Behavior.OnRemoving(graph, this);
-            //if (mod != null && mod.Behavior.Scope != ModScope.Standard)
-            //{
-            //    var entities = graph.GetEntities(mod.EntityId, mod.Behavior.Scope);
-            //    var mods = entities
-            //        .SelectMany(x =>
-            //            x.PropStore.GetMods(mod.Prop, m => m.Name == mod.Name))
-            //        .ToArray();
-
-            //    graph.RemoveMods(mods);
-            //}
+            Lifecycle.UpdateLifecycle(graph, time, this);
+            Behavior.OnUpdating(graph, modProp, this);
         }
 
-        public Mod Clone<T>(string targetId, ModScope scope = ModScope.Standard)
-            where T : ModBehavior
+        public void OnRemoving(RpgGraph graph, Prop modProp, Mod? mod = null)
         {
-            var behavior = Behavior.Clone<T>(scope);
-            var mod = new Mod(targetId, behavior, this);
-
-            //TODO: SourceValueFunc cloning.
-            //mod.SourceValueFunc
-
-            return mod;
+            Behavior.OnRemoving(graph, modProp, this);
         }
 
         public override string ToString()

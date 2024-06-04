@@ -10,6 +10,6 @@ namespace Rpg.ModObjects.Actions
     public sealed class ModStateAttribute : Attribute
     {
         public string? Name { get; set; }
-        public string? ShouldActivateMethod { get; set; }
+        public string? ActiveWhen { get; set; }
     }
 }

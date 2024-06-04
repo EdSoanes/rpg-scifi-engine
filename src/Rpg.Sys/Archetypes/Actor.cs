@@ -24,13 +24,13 @@ namespace Rpg.Sys.Archetypes
 
         protected override void OnCreating()
         {
-            this.AddMod(new Base(), x => x.Actions.Exertion.Max, x => x.Stats.Strength.Bonus);
-            this.AddMod(new Base(), x => x.Actions.Action.Max, x => x.Stats.Dexterity.Bonus);
-            this.AddMod(new Base(), x => x.Actions.Focus.Max, x => x.Stats.Intelligence.Bonus);
+            this.BaseMod(x => x.Actions.Exertion.Max, x => x.Stats.Strength.Bonus);
+            this.BaseMod(x => x.Actions.Action.Max, x => x.Stats.Dexterity.Bonus);
+            this.BaseMod(x => x.Actions.Focus.Max, x => x.Stats.Intelligence.Bonus);
 
-            this.AddMod(new Base(), x => x.Movement.Speed.Max, x => x.Stats.Dexterity.Bonus);
-            this.AddMod(new Base(), x => x.Movement.Speed.Max, x => x.Presence.Weight, () => DiceCalculations.WeightSpeedBonus);
-            this.AddMod(new Base(), x => x.Movement.Speed.Max, x => x.Stats.Strength.Bonus);
+            this.BaseMod(x => x.Movement.Speed.Max, x => x.Stats.Dexterity.Bonus);
+            this.BaseMod(x => x.Movement.Speed.Max, x => x.Presence.Weight, () => DiceCalculations.WeightSpeedBonus);
+            this.BaseMod(x => x.Movement.Speed.Max, x => x.Stats.Strength.Bonus);
         }
 
         //public virtual ActionBase Move(int distance)

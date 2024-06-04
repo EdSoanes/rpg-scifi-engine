@@ -1,9 +1,18 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Modifiers;
 
 namespace Rpg.ModObjects.Time
 {
     public class TurnBasedTimeEngine : ITimeEngine
     {
+        public Time BeginningOfTime { get; private set; } = new(TimeTypes.BeforeEncounter, int.MinValue);
+        public Time EndOfTime { get; private set; } = new(TimeTypes.BeforeEncounter, int.MaxValue);
+
+        public static Time BeforeEncounter = new(TimeTypes.BeforeEncounter, -1);
+        public static Time EncounterStart = new(TimeTypes.EncounterStart, 0);
+        public static Time Encounter = new(TimeTypes.Encounter, 1);
+        public static Time EncounterEnd = new(TimeTypes.EncounterEnd, int.MaxValue - 1);
+
         [JsonProperty] public Time Current { get; private set; }
 
         public TurnBasedTimeEngine()
@@ -15,6 +24,46 @@ namespace Rpg.ModObjects.Time
 
         public void TriggerEvent()
             => OnTimeEvent?.Invoke(this, new NotifyTimeEventEventArgs(Current));
+
+        public Time CalculateStartTime(Time delay)
+        {
+            if (delay.Type == TimeTypes.EncounterStart)
+                return EncounterStart;
+
+            if (delay.Type == TimeTypes.EncounterEnd)
+                return EncounterEnd;
+
+            if (delay.Type == TimeTypes.Encounter)
+                return new Time(TimeTypes.Encounter, Current.Tick + delay.Tick);
+
+            return BeforeEncounter;
+        }
+
+        public Time CalculateEndTime(Time startTime, Time duration)
+        {
+            if (duration == EndOfTime)
+                return EndOfTime;
+
+            return new Time(TimeTypes.Encounter, startTime.Tick + duration.Tick - 1);
+        }
+
+        public ModExpiry CalculateExpiry(Time startTime, Time endTime)
+        {
+            if (startTime == BeginningOfTime && endTime == EndOfTime)
+                return ModExpiry.Active;
+
+            if (endTime.Tick < Current.Tick)
+            {
+                return Current.Type == TimeTypes.Encounter
+                    ? ModExpiry.Expired
+                    : ModExpiry.Remove;
+            }
+
+            if (startTime.Tick > Current.Tick)
+                return ModExpiry.Pending;
+
+            return ModExpiry.Active;
+        }
 
         public void NewEncounter()
         {

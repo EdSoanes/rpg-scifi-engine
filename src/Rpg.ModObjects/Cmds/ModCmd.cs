@@ -39,8 +39,8 @@ namespace Rpg.ModObjects.Cmds
                 OutcomeCommandName = cmdAttr.OutcomeMethod,
                 InstanceName = $"{entityId}.{commandName}",
                 Args = cmdArgs ?? new ModCmdArg[0],
-                EnabledOnStates = CreateStateList(cmdAttr.EnabledOnState, cmdAttr.EnabledOnStates),
-                DisabledOnStates = CreateStateList(cmdAttr.DisabledOnState, cmdAttr.DisabledOnStates)
+                EnabledOnStates = CreateStateList(cmdAttr.EnabledWhen, cmdAttr.EnabledWhenAll),
+                DisabledOnStates = CreateStateList(cmdAttr.DisabledWhen, cmdAttr.DisabledWhenAll)
             };
 
             return cmd;
@@ -104,7 +104,7 @@ namespace Rpg.ModObjects.Cmds
         }
 
         private ModSet CreateModSet()
-            => new ModSet(EntityId, CommandName, new Turn());
+            => new ModSet(EntityId, CommandName, Lifecycle.Turn());
 
         public void OnGraphCreating(RpgGraph graph, RpgObject entity)
         {

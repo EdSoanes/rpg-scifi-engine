@@ -16,7 +16,7 @@ namespace Rpg.ModObjects.Props
         public Mod[] Get(RpgGraph graph)
         {
             var activeModifiers = Mods
-                .Where(x => x.Behavior.Expiry == ModExpiry.Active);
+                .Where(x => x.Expiry == ModExpiry.Active);
 
             var res = activeModifiers
                 .Where(x => !x.IsBaseMod)
@@ -105,7 +105,7 @@ namespace Rpg.ModObjects.Props
         public bool Clean(RpgGraph graph)
         {
             var toRemove = Mods
-                .Where(x => x.Behavior.Expiry == ModExpiry.Remove)
+                .Where(x => x.Expiry == ModExpiry.Remove)
                 .ToArray();
 
             if (toRemove.Any())

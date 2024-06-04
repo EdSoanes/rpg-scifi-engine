@@ -27,13 +27,13 @@ namespace Rpg.ModObjects.States
         }
 
         public void SetActive()
-            => Graph!.GetEntity(EntityId)?.AddMod(new ForceState(), InstanceName, 1);
+            => Graph!.AddMods(new ForceStateMod(this).Create());
 
         public void SetInactive()
         {
             var entity = Graph!.GetEntity(EntityId);
             var stateModSet = Graph!.GetModSet(entity!, InstanceName);
-            stateModSet?.SetExpired();
+            stateModSet?.Lifecycle.SetExpired(Graph!.Time.Current);
 
             var stateMods = Graph!
                 .GetMods(entity, InstanceName, mod => mod.Behavior.Type == ModType.ForceState)
@@ -87,9 +87,9 @@ namespace Rpg.ModObjects.States
             var isConditionallyActive = IsConditionallyActive();
             var shouldActivate = ShouldActivate();
             if (!isConditionallyActive && shouldActivate)
-                entity!.AddMod(new State(), InstanceName, 1);
+                graph!.AddMods(new StateMod(this, 1).Create());
             else if (isConditionallyActive && !shouldActivate)
-                entity!.AddMod(new State(), InstanceName, -1);
+                graph!.AddMods(new StateMod(this, -1).Create());
 
             //if the state is active in any way and there is no state modset then create it
             var isActive = IsActive();

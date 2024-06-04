@@ -210,7 +210,9 @@ namespace Rpg.ModObjects.Tests
             //Find which mod subsets need resolving (dice rolls)
             var damageModSet = damageCmd.Create(damageArgs)!;
             var damageSet = damageModSet.SubSets(graph).Single(x => !x.IsResolved);
-            var damageRoll = damageSet.Resolve(new ExpireOnZero(), -5);
+
+            //TODO: How to we determine what the outcome mod lifecycle and behavior should be??
+            var damageRoll = damageSet.Resolve(new ExpireOnZeroMod(), -5);
 
             Assert.That(damageSet.TargetId, Is.EqualTo(recipient.Id));
 
