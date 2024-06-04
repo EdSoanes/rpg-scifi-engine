@@ -15,6 +15,5 @@ namespace Rpg.Sys.Archetypes
         public DefensesTemplate Defenses { get; set; } = new DefensesTemplate();
         public DamageTemplate Damage { get; set; } = new DamageTemplate();
         public HealthTemplate Health { get; set; } = new HealthTemplate();
-        public List<IState> States { get; set; } = new List<IState>();
     }
 }

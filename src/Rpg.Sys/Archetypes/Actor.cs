@@ -1,7 +1,8 @@
 ﻿using Newtonsoft.Json;
-using Rpg.Sys.Actions;
+using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Time;
+using Rpg.ModObjects.Values;
 using Rpg.Sys.Components;
-using Rpg.Sys.Modifiers;
 
 namespace Rpg.Sys.Archetypes
 {
@@ -16,66 +17,45 @@ namespace Rpg.Sys.Archetypes
         public Actor(ActorTemplate template)
             : base(template)
         {
-            Movement = new Movement(template.Movement);
-            Actions = new ActionPoints(template.Actions);
-            Stats = new StatPoints(template.Stats);
+            Movement = new Movement(Id, nameof(Movement), template.Movement);
+            Actions = new ActionPoints(Id, nameof(Actions), template.Actions);
+            Stats = new StatPoints(Id, nameof(Stats), template.Stats);
         }
 
-        public override Modifier[] OnSetup()
+        protected override void OnCreating()
         {
-            var mods = new List<Modifier>(base.OnSetup())
-            {
-                BaseModifier.Create(this, x => x.Stats.Strength.Bonus, x => x.Actions.Exertion.Max),
-                BaseModifier.Create(this, x => x.Stats.Dexterity.Bonus, x => x.Actions.Action.Max),
-                BaseModifier.Create(this, x => x.Stats.Intelligence.Bonus, x => x.Actions.Focus.Max),
+            this.BaseMod(x => x.Actions.Exertion.Max, x => x.Stats.Strength.Bonus);
+            this.BaseMod(x => x.Actions.Action.Max, x => x.Stats.Dexterity.Bonus);
+            this.BaseMod(x => x.Actions.Focus.Max, x => x.Stats.Intelligence.Bonus);
 
-                BaseModifier.Create(this, x => x.Stats.Dexterity.Bonus, x => x.Movement.Speed.Max),
-                BaseModifier.Create(this, x => x.Presence.Weight, x => x.Movement.Speed.Max, () => DiceCalculations.WeightSpeedBonus),
-                BaseModifier.Create(this, x => x.Stats.Strength.Bonus, x => x.Movement.Speed.Max)
-            };
-
-            return mods.ToArray();
+            this.BaseMod(x => x.Movement.Speed.Max, x => x.Stats.Dexterity.Bonus);
+            this.BaseMod(x => x.Movement.Speed.Max, x => x.Presence.Weight, () => DiceCalculations.WeightSpeedBonus);
+            this.BaseMod(x => x.Movement.Speed.Max, x => x.Stats.Strength.Bonus);
         }
 
-        public virtual ActionBase? ActivateState(Artifact artifact, string stateName)
-        {
-            var state = artifact.States.FirstOrDefault(x => x.Name == stateName);
-            return state != null
-                ? new StateAction(artifact, state, true)
-                : null;
-        }
+        //public virtual ActionBase Move(int distance)
+        //{
+        //    var actionCost = Convert.ToInt32(Math.Ceiling((double)distance / this.Movement.Acceleration));
 
-        public virtual ActionBase? DeactivateState(Artifact artifact, string stateName)
-        {
-            var state = artifact.States.FirstOrDefault(x => x.Name == stateName);
-            return state != null
-                ? new StateAction(artifact, state, false)
-                : null;
-        }
+        //    return new TurnAction(nameof(Move), actionCost, 1, 0)
+        //        .OnSuccess(TurnModifier.Create(this, distance, x => x.Movement.Speed));
+        //}
 
-        public virtual ActionBase Move(int distance)
-        {
-            var actionCost = Convert.ToInt32(Math.Ceiling((double)distance / this.Movement.Acceleration));
+        //public virtual ActionBase Evade(int cost)
+        //{
+        //    return new TurnAction(nameof(Evade), cost, cost, 1)
+        //        .OnSuccess(TurnModifier.Create(this, cost, x => x.Defenses.Evasion));
+        //}
 
-            return new TurnAction(nameof(Move), actionCost, 1, 0)
-                .OnSuccess(TurnModifier.Create(this, distance, x => x.Movement.Speed));
-        }
+        //public virtual ActionBase Conceal(int bonus)
+        //{
+        //    return new TurnAction(nameof(Conceal), 1, 1, 0)
+        //        .OnSuccess(TurnModifier.Create(this, bonus, x => x.Defenses.Concealment));
+        //}
 
-        public virtual ActionBase Evade(int cost)
-        {
-            return new TurnAction(nameof(Evade), cost, cost, 1)
-                .OnSuccess(TurnModifier.Create(this, cost, x => x.Defenses.Evasion));
-        }
-
-        public virtual ActionBase Conceal(int bonus)
-        {
-            return new TurnAction(nameof(Conceal), 1, 1, 0)
-                .OnSuccess(TurnModifier.Create(this, bonus, x => x.Defenses.Concealment));
-        }
-
-        public virtual ActionBase Transfer(Container? source, Container? target, Artifact artifact)
-        {
-            return new TransferItemAction(nameof(Transfer), source, target, artifact);
-        }
+        //public virtual ActionBase Transfer(Container? source, Container? target, Artifact artifact)
+        //{
+        //    return new TransferItemAction(nameof(Transfer), source, target, artifact);
+        //}
     }
 }

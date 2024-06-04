@@ -1,14 +1,10 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects;
 using Rpg.Sys.Components.Values;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.Sys.Components
 {
-    public class Defenses : ModdableObject
+    public class Defenses : RpgEntityComponent
     {
         [JsonProperty] public DefenseValue Kinetic { get; private set; }
         [JsonProperty] public DefenseValue Heat { get; private set; }
@@ -23,15 +19,16 @@ namespace Rpg.Sys.Components
 
         [JsonConstructor] private Defenses() { }
 
-        public Defenses(DefensesTemplate template)
+        public Defenses(string entityId, string name, DefensesTemplate template)
+            : base(entityId, name)
         {
-            Kinetic = new DefenseValue(template.Kinetic, template.KineticShielding);
-            Heat = new DefenseValue(template.Heat, template.HeatShielding);
-            Energy = new DefenseValue(template.Energy, template.EnergyShielding);
-            Chemical = new DefenseValue(template.Chemical, template.ChemicalShielding);
-            Radiation = new DefenseValue(template.Radiation, template.RadiationShielding);
-            Cyber = new DefenseValue(template.Cyber, template.CyberShielding);
-            Mental = new DefenseValue(template.Mental, template.MentalShielding);
+            Kinetic = new DefenseValue(entityId, nameof(Kinetic), template.Kinetic, template.KineticShielding);
+            Heat = new DefenseValue(entityId, nameof(Heat), template.Heat, template.HeatShielding);
+            Energy = new DefenseValue(entityId, nameof(Energy), template.Energy, template.EnergyShielding);
+            Chemical = new DefenseValue(entityId, nameof(Chemical), template.Chemical, template.ChemicalShielding);
+            Radiation = new DefenseValue(entityId, nameof(Radiation), template.Radiation, template.RadiationShielding);
+            Cyber = new DefenseValue(entityId, nameof(Cyber), template.Cyber, template.CyberShielding);
+            Mental = new DefenseValue(entityId, nameof(Mental), template.Mental, template.MentalShielding);
         }
     }
 }

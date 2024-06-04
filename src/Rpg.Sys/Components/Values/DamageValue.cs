@@ -1,13 +1,10 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Rpg.ModObjects;
+using Rpg.ModObjects.Values;
 
 namespace Rpg.Sys.Components.Values
 {
-    public class DamageValue : ModdableObject
+    public class DamageValue : RpgEntityComponent
     {
         [JsonProperty] public Dice Dice { get; protected set; }
         [JsonProperty] public int ArmorPenetration { get; protected set; }
@@ -15,7 +12,8 @@ namespace Rpg.Sys.Components.Values
 
         [JsonConstructor] private DamageValue() { }
 
-        public DamageValue (Dice dice, int armorPenetration, int radius)
+        public DamageValue (string entityId, string name, Dice dice, int armorPenetration, int radius)
+            : base(entityId, name)
         {
             Dice = dice;
             ArmorPenetration = armorPenetration;

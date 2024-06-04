@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Rpg.Sys.Components;
 
 namespace Rpg.Sys.Archetypes
 {
@@ -10,9 +9,6 @@ namespace Rpg.Sys.Archetypes
         public Equipment(ArtifactTemplate template)
             : base(template)
         {
-            States.Add(
-                new OnState(Id)
-            );
         }
     }
 }

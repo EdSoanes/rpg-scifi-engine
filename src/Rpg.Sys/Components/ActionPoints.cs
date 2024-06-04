@@ -1,14 +1,16 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects;
 using Rpg.Sys.Components.Values;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Rpg.Sys.Components
 {
-    public class ActionPoints
+    public class ActionPoints : RpgEntityComponent
     {
         [JsonProperty] public MaxCurrentValue Action { get; private set; }
         [JsonProperty] public MaxCurrentValue Exertion { get; private set; }
@@ -16,18 +18,20 @@ namespace Rpg.Sys.Components
 
         [JsonConstructor] private ActionPoints() { }
 
-        public ActionPoints(ActionPointsTemplate template)
+        public ActionPoints(string entityId, string name, ActionPointsTemplate template)
+            : base(entityId, name)
         {
-            Action = new MaxCurrentValue(template.Action, template.Action);
-            Exertion = new MaxCurrentValue(template.Exertion, template.Exertion);
-            Focus = new MaxCurrentValue(template.Focus, template.Focus);
+            Action = new MaxCurrentValue(entityId, nameof(Action), template.Action);
+            Exertion = new MaxCurrentValue(entityId, nameof(Exertion), template.Exertion);
+            Focus = new MaxCurrentValue(entityId, nameof(Focus), template.Focus);
         }
 
-        public ActionPoints(int action, int exertion, int focus)
+        public ActionPoints(string entityId, string name, int action, int exertion, int focus)
+            : base(entityId, name)
         {
-            Action = new MaxCurrentValue(action, action);
-            Exertion = new MaxCurrentValue(exertion, exertion);
-            Focus = new MaxCurrentValue(focus, focus);
+            Action = new MaxCurrentValue(entityId, nameof(Action), action);
+            Exertion = new MaxCurrentValue(entityId, nameof(Exertion), exertion);
+            Focus = new MaxCurrentValue(entityId, nameof(Focus), focus);
         }
     }
 }

@@ -1,14 +1,10 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects;
 using Rpg.Sys.Components.Values;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.Sys.Components
 {
-    public class Health
+    public class Health : RpgEntityComponent
     {
         [JsonProperty] public MaxCurrentValue Physical { get; private set; }
         [JsonProperty] public MaxCurrentValue Mental { get; private set; }
@@ -16,11 +12,12 @@ namespace Rpg.Sys.Components
 
         [JsonConstructor] private Health() { }
 
-        public Health(HealthTemplate template)
+        public Health(string entityId, string name, HealthTemplate template)
+            : base(entityId, name)
         {
-            Physical = new MaxCurrentValue(template.Physical, template.Physical);
-            Mental = new MaxCurrentValue(template.Mental, template.Mental);
-            Cyber = new MaxCurrentValue(template.Cyber, template.Cyber);
+            Physical = new MaxCurrentValue(entityId, nameof(Physical), template.Physical);
+            Mental = new MaxCurrentValue(entityId, nameof(Mental), template.Mental);
+            Cyber = new MaxCurrentValue(entityId, nameof(Cyber), template.Cyber);
         }
     }
 }
