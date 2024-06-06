@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Meta;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Tests.Models
@@ -6,8 +7,13 @@ namespace Rpg.ModObjects.Tests.Models
     public class DamageValue : RpgEntityComponent
     {
         [JsonProperty] public Dice Dice { get; protected set; }
+
+        [MetaPropUI(Unit = "%")]
         [JsonProperty] public int ArmorPenetration { get; protected set; }
-        [JsonProperty] public int Radius { get; protected set; }
+
+        [JsonProperty] 
+        [MetaPropUI(Unit = "m")]
+        public int Radius { get; protected set; }
 
         [JsonConstructor] private DamageValue() { }
 

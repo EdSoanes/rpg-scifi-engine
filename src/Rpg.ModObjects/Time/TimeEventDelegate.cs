@@ -9,9 +9,9 @@ namespace Rpg.ModObjects.Time
 {
     public class NotifyTimeEventEventArgs : EventArgs
     {
-        public Time Time { get; private set; }
+        public TimePoint Time { get; private set; }
 
-        public NotifyTimeEventEventArgs(Time time)
+        public NotifyTimeEventEventArgs(TimePoint time)
         {
             Time = time;
         }

@@ -1,4 +1,4 @@
-﻿using Rpg.ModObjects.Modifiers;
+﻿using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Tests.Models;
 using Rpg.ModObjects.Time;
 using System.Reflection;
@@ -147,7 +147,7 @@ namespace Rpg.ModObjects.Tests
 
             graph.Time.NewEncounter();
 
-            entity.AddModSet("name", Lifecycle.Encounter(), modSet =>
+            entity.AddModSet("name", graph.Time.Create("encounter").Lifecycle, modSet =>
             {
                 modSet
                     .SyncedMod(entity, x => x.Melee, 1)

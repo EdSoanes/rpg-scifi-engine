@@ -1,13 +1,14 @@
 ﻿using Rpg.ModObjects.Stores;
+using Rpg.ModObjects.Time;
 
-namespace Rpg.ModObjects.Cmds
+namespace Rpg.ModObjects.Actions
 {
-    public class ModCmdStore : ModBaseStore<string, ModCmd>
+    public class RpgActionStore : ModBaseStore<string, RpgAction>
     {
-        public ModCmdStore(string entityId)
+        public RpgActionStore(string entityId)
             : base(entityId) { }
 
-        public void Add(params ModCmd[] modCmds)
+        public void Add(params RpgAction[] modCmds)
         {
             foreach (var modCmd in modCmds)
             {
@@ -30,7 +31,7 @@ namespace Rpg.ModObjects.Cmds
                 cmd.OnGraphCreating(graph, entity);
         }
 
-        public override void OnUpdating(RpgGraph graph, Time.Time time)
+        public override void OnUpdating(RpgGraph graph, TimePoint time)
         {
             base.OnUpdating(graph, time);
         }

@@ -1,4 +1,4 @@
-﻿using Rpg.ModObjects.Modifiers;
+﻿using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Tests.Models;
 using Rpg.ModObjects.Time;
 using System.Reflection;
@@ -53,13 +53,13 @@ namespace Rpg.ModObjects.Tests
 
             var shoot = gun.GetCommand(nameof(TestGun.Shoot));
             Assert.That(shoot, Is.Not.Null);
-            Assert.That(shoot.DisabledOnStates.Count(), Is.EqualTo(1));
-            Assert.That(shoot.DisabledOnStates, Does.Contain(nameof(TestGun.AmmoEmpty)));
+            Assert.That(shoot.DisabledWhen.Count(), Is.EqualTo(1));
+            Assert.That(shoot.DisabledWhen, Does.Contain(nameof(TestGun.AmmoEmpty)));
 
             var damage = gun.GetCommand(nameof(TestGun.InflictDamage));
             Assert.That(damage, Is.Not.Null);
-            Assert.That(damage.EnabledOnStates.Count(), Is.EqualTo(1));
-            Assert.That(damage.EnabledOnStates, Does.Contain(nameof(TestGun.Shoot)));
+            Assert.That(damage.EnabledWhen.Count(), Is.EqualTo(1));
+            Assert.That(damage.EnabledWhen, Does.Contain(nameof(TestGun.Shoot)));
 
 
             Assert.That(gun.StateNames.Count(), Is.EqualTo(3));
@@ -158,7 +158,7 @@ namespace Rpg.ModObjects.Tests
             var target = shootCmd.GetTarget(initiator, shootModSet)!.Value;
             var outcome = target + 1;
 
-            var damageCmd = gun.GetCommand(shootCmd.OutcomeCommandName!);
+            var damageCmd = gun.GetCommand(shootCmd.OutcomeAction!);
             var damageArgs = damageCmd!
                 .ArgSet(initiator, recipient)
                 .SetTarget(target)
@@ -201,7 +201,7 @@ namespace Rpg.ModObjects.Tests
             var outcome = target + 1;
 
             //Get the inflict damage command and set the args needed to execute it
-            var damageCmd = gun.GetCommand(shootCmd.OutcomeCommandName!);
+            var damageCmd = gun.GetCommand(shootCmd.OutcomeAction!);
             var damageArgs = damageCmd!
                 .ArgSet(initiator, recipient)
                 .SetTarget(target)

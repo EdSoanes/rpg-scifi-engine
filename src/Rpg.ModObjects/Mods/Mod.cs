@@ -4,7 +4,7 @@ using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
 
-namespace Rpg.ModObjects.Modifiers
+namespace Rpg.ModObjects.Mods
 {
     public class Mod : PropRef
     {
@@ -18,7 +18,7 @@ namespace Rpg.ModObjects.Modifiers
         [JsonProperty] public ModSourceValueFunction SourceValueFunc { get; protected set; } = new ModSourceValueFunction();
 
         [JsonProperty] public BaseBehavior Behavior { get; protected set; }
-        [JsonProperty] public ITimeLifecycle Lifecycle { get; protected set; }
+        [JsonProperty] public ILifecycle Lifecycle { get; protected set; }
         [JsonProperty] public bool IsBaseInitMod { get => Behavior.Type == ModType.Initial; }
         [JsonProperty] public bool IsBaseOverrideMod { get => Behavior.Type == ModType.Override; }
         [JsonProperty] public bool IsBaseMod { get => IsBaseInitMod || IsBaseOverrideMod || Behavior.Type == ModType.Base; }
@@ -49,13 +49,13 @@ namespace Rpg.ModObjects.Modifiers
             SyncedToType = syncedToType;
         }
 
-        public void OnAdding(RpgGraph graph, Prop modProp, Time.Time time)
+        public void OnAdding(RpgGraph graph, Prop modProp, Time.TimePoint time)
         {
             Lifecycle.StartLifecycle(graph, time, this);
             Behavior.OnAdding(graph, modProp, this);
         }
 
-        public void OnUpdating(RpgGraph graph, Prop modProp, Time.Time time)
+        public void OnUpdating(RpgGraph graph, Prop modProp, Time.TimePoint time)
         {
             Lifecycle.UpdateLifecycle(graph, time, this);
             Behavior.OnUpdating(graph, modProp, this);

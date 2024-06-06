@@ -1,11 +1,14 @@
-﻿namespace Rpg.ModObjects.Time
+﻿using Rpg.ModObjects.Mods;
+
+namespace Rpg.ModObjects.Time
 {
     public interface ITimeEngine
     {
-        Time Current { get; }
+        TimePoint Current { get; }
 
-        Time CalculateStartTime(Time delay);
-        Time CalculateEndTime(Time startTime, Time duration);
+        ModTemplate Create(string? type = null);
+        TimePoint CalculateStartTime(TimePoint delay);
+        TimePoint CalculateEndTime(TimePoint startTime, TimePoint duration);
 
         event NotifyTimeEventHandler? OnTimeEvent;
 

@@ -1,5 +1,6 @@
-﻿using Rpg.ModObjects.Modifiers;
+﻿using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Stores;
+using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects.Props
 {
@@ -58,7 +59,7 @@ namespace Rpg.ModObjects.Props
             }
         }
 
-        public override void OnUpdating(RpgGraph graph, Time.Time time)
+        public override void OnUpdating(RpgGraph graph, TimePoint time)
         {
             base.OnUpdating(graph, time);
 

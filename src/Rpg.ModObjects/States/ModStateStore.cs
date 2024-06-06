@@ -1,4 +1,5 @@
 ﻿using Rpg.ModObjects.Stores;
+using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects.States
 {
@@ -60,7 +61,7 @@ namespace Rpg.ModObjects.States
                 state.OnGraphCreating(graph, entity);
         }
 
-        public override void OnUpdating(RpgGraph graph, Time.Time time)
+        public override void OnUpdating(RpgGraph graph, TimePoint time)
         {
             base.OnUpdating(graph, time);
             foreach (var modState in Get())

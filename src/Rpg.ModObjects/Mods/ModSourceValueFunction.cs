@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Rpg.ModObjects.Modifiers
+namespace Rpg.ModObjects.Mods
 {
     public class ModSourceValueFunction
     {

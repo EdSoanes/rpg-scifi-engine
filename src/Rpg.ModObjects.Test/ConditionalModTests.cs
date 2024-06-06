@@ -1,4 +1,4 @@
-﻿using Rpg.ModObjects.Modifiers;
+﻿using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time;
 using System;
 using System.Collections.Generic;

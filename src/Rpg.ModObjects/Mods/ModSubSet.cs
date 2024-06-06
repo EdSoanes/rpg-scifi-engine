@@ -3,7 +3,7 @@ using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.Reflection.Metadata.Ecma335;
 
-namespace Rpg.ModObjects.Modifiers
+namespace Rpg.ModObjects.Mods
 {
     public class ModSubSet : ModSet
     {
@@ -24,8 +24,8 @@ namespace Rpg.ModObjects.Modifiers
             return mod;
         }
 
-        public ModSubSet(string initiatorId, PropRef recipientPropRef, Mod[] mods, Dice dice)
-            : base(initiatorId, recipientPropRef.Prop, Time.Lifecycle.Turn())
+        public ModSubSet(ILifecycle lifecycle, string initiatorId, PropRef recipientPropRef, Mod[] mods, Dice dice)
+            : base(lifecycle, initiatorId, recipientPropRef.Prop)
         {
             TargetId = recipientPropRef.EntityId;
             TargetProp = recipientPropRef.Prop;

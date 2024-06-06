@@ -1,23 +1,23 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Time;
 
-namespace Rpg.ModObjects.Modifiers
+namespace Rpg.ModObjects.Mods
 {
-    public abstract class BaseLifecycle : ITimeLifecycle
+    public abstract class BaseLifecycle : ILifecycle
     {
-        [JsonProperty] public Time.Time? ExpiredTime { get; protected set; }
-        [JsonProperty] public Time.Time StartTime { get; protected set; }
-        [JsonProperty] public Time.Time EndTime { get; protected set; }
+        [JsonProperty] public TimePoint? ExpiredTime { get; protected set; }
+        [JsonProperty] public TimePoint StartTime { get; protected set; }
+        [JsonProperty] public TimePoint EndTime { get; protected set; }
 
         public ModExpiry Expiry { get; protected set; }
 
-        public void SetExpired(Time.Time currentTime)
+        public void SetExpired(TimePoint currentTime)
         {
             if (Expiry == ModExpiry.Active)
-                ExpiredTime = new Time.Time(currentTime.Type, currentTime.Tick - 1);
+                ExpiredTime = new TimePoint(currentTime.Type, currentTime.Tick - 1);
         }
 
-        public virtual ModExpiry StartLifecycle(RpgGraph graph, Time.Time currentTime, Mod? mod = null)
+        public virtual ModExpiry StartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
         {
             StartTime = graph.Time.BeginningOfTime;
             EndTime = graph.Time.EndOfTime;
@@ -26,7 +26,7 @@ namespace Rpg.ModObjects.Modifiers
             return Expiry;
         }
 
-        public virtual ModExpiry UpdateLifecycle(RpgGraph graph, Time.Time currentTime, Mod? mod = null)
+        public virtual ModExpiry UpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
         {
             Expiry = graph.Time.CalculateExpiry(StartTime, ExpiredTime ?? EndTime);
             return Expiry;
@@ -39,7 +39,7 @@ namespace Rpg.ModObjects.Modifiers
 
     public class SyncedLifecycle : BaseLifecycle
     {
-        public override ModExpiry StartLifecycle(RpgGraph graph, Time.Time currentTime, Mod? mod = null)
+        public override ModExpiry StartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
         {
             if (!string.IsNullOrEmpty(mod?.SyncedToId))
             {
@@ -59,7 +59,7 @@ namespace Rpg.ModObjects.Modifiers
             return base.StartLifecycle(graph, currentTime, mod);
         }
 
-        public override ModExpiry UpdateLifecycle(RpgGraph graph, Time.Time currentTime, Mod? mod = null)
+        public override ModExpiry UpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
         {
             var modSet = graph.GetModSet(mod?.SyncedToId);
 
@@ -70,21 +70,21 @@ namespace Rpg.ModObjects.Modifiers
 
     public class TimeLifecycle : BaseLifecycle
     {
-        [JsonProperty] public Time.Time? Delay { get; private set; }
-        [JsonProperty] public Time.Time? Duration { get; private set; }
+        [JsonProperty] public TimePoint? Delay { get; private set; }
+        [JsonProperty] public TimePoint? Duration { get; private set; }
 
-        public TimeLifecycle(Time.Time duration)
+        public TimeLifecycle(TimePoint duration)
         {
             Duration = duration;
         }
 
-        public TimeLifecycle(Time.Time delay, Time.Time duration)
+        public TimeLifecycle(TimePoint delay, TimePoint duration)
         {
             Delay = delay;
             Duration = duration;
         }
 
-        public override ModExpiry StartLifecycle(RpgGraph graph, Time.Time time, Mod? mod = null)
+        public override ModExpiry StartLifecycle(RpgGraph graph, TimePoint time, Mod? mod = null)
         {
             StartTime = Delay == null
                 ? graph.Time.BeginningOfTime

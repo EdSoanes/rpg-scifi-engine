@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rpg.ModObjects.Modifiers
+namespace Rpg.ModObjects.Mods
 {
     public enum ModScope
     {

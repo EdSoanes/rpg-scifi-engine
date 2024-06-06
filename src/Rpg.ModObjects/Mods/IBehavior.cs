@@ -1,6 +1,6 @@
 ﻿using Rpg.ModObjects.Props;
 
-namespace Rpg.ModObjects.Modifiers
+namespace Rpg.ModObjects.Mods
 {
     public interface IBehavior
     {

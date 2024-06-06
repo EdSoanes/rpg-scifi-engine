@@ -1,5 +1,5 @@
 ﻿using Rpg.ModObjects.Actions;
-using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Mods;
 using System.Reflection;
 
 namespace Rpg.ModObjects.States

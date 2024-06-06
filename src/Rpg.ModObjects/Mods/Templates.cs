@@ -4,13 +4,13 @@ using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
 
-namespace Rpg.ModObjects.Modifiers
+namespace Rpg.ModObjects.Mods
 {
     public class ModTemplate
     {
         public string? Name { get; protected set; }
         public BaseBehavior Behavior { get; protected set; }
-        public ITimeLifecycle Lifecycle { get; protected set; }
+        public ILifecycle Lifecycle { get; protected set; }
         public PropRef TargetPropRef { get; private set; }
         public PropRef? SourcePropRef { get; private set; }
         public Dice? SourceValue { get; private set; }
@@ -39,7 +39,7 @@ namespace Rpg.ModObjects.Modifiers
             return this;
         }
 
-        public ModTemplate SetLifecycle(ITimeLifecycle lifecycle)
+        public ModTemplate SetLifecycle(ILifecycle lifecycle)
         {
             Lifecycle = lifecycle;
             return this;

@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System.Reflection;
 
-namespace Rpg.ModObjects.Cmds
+namespace Rpg.ModObjects.Actions
 {
-    public class ModCmdArg
+    public class RpgActionArg
     {
         public const string InitiatorArg = "initiator";
         public const string RecipientArg = "recipient";
@@ -39,17 +39,17 @@ namespace Rpg.ModObjects.Cmds
         [JsonProperty] public string TypeName { get; private set; }
         [JsonProperty] public bool IsNullable { get; private set; }
         [JsonProperty] public bool IsReserved { get; private set; }
-        [JsonProperty] public ModCmdArgType ArgType { get; private set; }
+        [JsonProperty] public RpgActionArgType ArgType { get; private set; }
 
-        [JsonConstructor] private ModCmdArg() { }
+        [JsonConstructor] private RpgActionArg() { }
 
-        internal ModCmdArg(ParameterInfo parameterInfo, ModCmdArgAttribute? attr)
+        internal RpgActionArg(ParameterInfo parameterInfo, RpgActionArgAttribute? attr)
         {
             Name = parameterInfo.Name!;
             TypeName = parameterInfo.ParameterType.AssemblyQualifiedName!;
             IsNullable = Nullable.GetUnderlyingType(parameterInfo.ParameterType) != null;
             IsReserved = ReservedArgs.Contains(parameterInfo.Name);
-            ArgType = attr?.ArgType ?? ModCmdArgType.Any;
+            ArgType = attr?.ArgType ?? RpgActionArgType.Any;
         }
 
         public bool IsOfType(object? obj)
@@ -57,7 +57,7 @@ namespace Rpg.ModObjects.Cmds
             if (IsNullable && obj == null)
                 return true;
 
-            if (obj != null && obj.GetType().FullName == TypeName)
+            if (obj != null && obj.GetType().AssemblyQualifiedName == TypeName)
                 return true;
 
             return false;

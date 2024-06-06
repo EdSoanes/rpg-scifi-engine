@@ -1,6 +1,6 @@
 ﻿using Rpg.ModObjects.Actions;
-using Rpg.ModObjects.Cmds;
-using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 
@@ -39,8 +39,8 @@ namespace Rpg.ModObjects.Tests.Models
 
         public bool ShouldNerf() => Melee.Roll() < 1;
 
-        [ModCmd()]
-        [ModCmdArg("initiator", ModCmdArgType.Actor)]
+        [RpgAction()]
+        [RpgActionArg("initiator", RpgActionArgType.Actor)]
         public ModSet TestCommand(RpgObject initiator, int target)
         {
             return new ModSet(Id, nameof(TestCommand));

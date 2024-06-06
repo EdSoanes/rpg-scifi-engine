@@ -2,7 +2,7 @@
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Values;
 
-namespace Rpg.ModObjects.Modifiers
+namespace Rpg.ModObjects.Mods
 {
     public abstract class BaseBehavior : IBehavior
     {

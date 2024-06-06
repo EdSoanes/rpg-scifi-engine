@@ -1,5 +1,5 @@
 ﻿using NanoidDotNet;
-using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Time;
 using System.Linq.Expressions;
@@ -43,10 +43,10 @@ namespace Rpg.ModObjects
             return entity;
         }
 
-        public static T AddModSet<T>(this T entity, string name, ITimeLifecycle lifecycle, Action<ModSet> addAction)
+        public static T AddModSet<T>(this T entity, string name, ILifecycle lifecycle, Action<ModSet> addAction)
             where T : RpgObject
         {
-            var modSet = new ModSet(entity.Id, name, lifecycle);
+            var modSet = new ModSet(lifecycle, entity.Id, name);
             addAction.Invoke(modSet);
             entity.AddModSet(modSet);
 

@@ -1,13 +1,14 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects;
-using Rpg.ModObjects.Modifiers;
-using Rpg.ModObjects.Time;
+using Rpg.ModObjects.Meta;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.Sys.Components.Values
 {
     public class ScoreBonusValue : RpgEntityComponent
     {
+        [MetaPropUI(Min = 3, Max = 18)]
         [JsonProperty] public int Score { get; protected set; }
         [JsonProperty] public int Bonus { get; protected set; }
 

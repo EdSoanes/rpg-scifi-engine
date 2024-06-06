@@ -1,25 +1,25 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.States;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 
-namespace Rpg.ModObjects.Cmds
+namespace Rpg.ModObjects.Actions
 {
-    public class ModCmd : IGraphEvents, ITimeEvent
+    public class RpgAction : IGraphEvents, ITimeEvent
     {
         protected RpgGraph? Graph { get; set; }
         protected RpgObject? Entity { get; set; }
 
         [JsonProperty] public string EntityId { get; private set; }
-        [JsonProperty] public string CommandName { get; private set; }
+        [JsonProperty] public string ActionName { get; private set; }
         [JsonProperty] public string InstanceName { get; private set; }
-        [JsonProperty] public string? OutcomeCommandName { get; private set; }
-        [JsonProperty] public string[] EnabledOnStates { get; private set; }
-        [JsonProperty] public string[] DisabledOnStates { get; private set; }
-        [JsonProperty] public ModCmdArg[] Args { get; private set; } = new ModCmdArg[0];
+        [JsonProperty] public string? OutcomeAction { get; private set; }
+        [JsonProperty] public string[] EnabledWhen { get; private set; }
+        [JsonProperty] public string[] DisabledWhen { get; private set; }
+        [JsonProperty] public RpgActionArg[] Args { get; private set; } = new RpgActionArg[0];
 
-        public ModState State { get => new ModState(EntityId, CommandName); }
+        public ModState State { get => new ModState(EntityId, ActionName); }
 
         public int? GetTarget(RpgObject initiator, ModSet? modSet)
             => Graph!.GetPropValue(initiator, modSet?.TargetPropName).Roll();
@@ -30,17 +30,17 @@ namespace Rpg.ModObjects.Cmds
         public int? GetOutcome(RpgObject initiator, ModSet? modSet)
             => Graph!.GetPropValue(initiator, modSet?.OutcomePropName).Roll();
 
-        public static ModCmd Create(string entityId, string commandName, ModCmdAttribute cmdAttr, ModCmdArg[]? cmdArgs)
+        public static RpgAction Create(string entityId, string actionName, RpgActionAttribute cmdAttr, RpgActionArg[]? cmdArgs)
         {
-            var cmd = new ModCmd
+            var cmd = new RpgAction
             {
                 EntityId = entityId,
-                CommandName = commandName,
-                OutcomeCommandName = cmdAttr.OutcomeMethod,
-                InstanceName = $"{entityId}.{commandName}",
-                Args = cmdArgs ?? new ModCmdArg[0],
-                EnabledOnStates = CreateStateList(cmdAttr.EnabledWhen, cmdAttr.EnabledWhenAll),
-                DisabledOnStates = CreateStateList(cmdAttr.DisabledWhen, cmdAttr.DisabledWhenAll)
+                ActionName = actionName,
+                OutcomeAction = cmdAttr.OutcomeMethod,
+                InstanceName = $"{entityId}.{actionName}",
+                Args = cmdArgs ?? new RpgActionArg[0],
+                EnabledWhen = CreateStateList(cmdAttr.EnabledWhen, cmdAttr.EnabledWhenAll),
+                DisabledWhen = CreateStateList(cmdAttr.DisabledWhen, cmdAttr.DisabledWhenAll)
             };
 
             return cmd;
@@ -59,21 +59,21 @@ namespace Rpg.ModObjects.Cmds
             return res.Distinct().ToArray();
         }
 
-        public ModCmdArgSet ArgSet()
-            => new ModCmdArgSet(Args);
+        public RpgActionArgSet ArgSet()
+            => new RpgActionArgSet(Args);
 
-        public ModCmdArgSet ArgSet<T>(T initiator)
+        public RpgActionArgSet ArgSet<T>(T initiator)
             where T : RpgObject
-                => new ModCmdArgSet(Args).SetInitiator(initiator);
+                => new RpgActionArgSet(Args).SetInitiator(initiator);
 
-        public ModCmdArgSet ArgSet<TI, TR>(TI initiator, TR recipient)
+        public RpgActionArgSet ArgSet<TI, TR>(TI initiator, TR recipient)
             where TI : RpgObject
             where TR : RpgObject
-                => new ModCmdArgSet(Args)
+                => new RpgActionArgSet(Args)
                     .SetInitiator(initiator)
                     .SetRecipient(recipient);
 
-        public ModSet? Create(ModCmdArgSet argSet)
+        public ModSet? Create(RpgActionArgSet argSet)
         {
             var entity = Graph!.GetEntity(EntityId);
             if (entity == null)
@@ -86,7 +86,7 @@ namespace Rpg.ModObjects.Cmds
                 .SetModSet(modSet)
                 .ToArgs();
 
-            modSet = entity.ExecuteFunction<ModSet>(CommandName, args);
+            modSet = entity.ExecuteFunction<ModSet>(ActionName, args);
             return modSet;
         }
 
@@ -104,7 +104,7 @@ namespace Rpg.ModObjects.Cmds
         }
 
         private ModSet CreateModSet()
-            => new ModSet(EntityId, CommandName, Lifecycle.Turn());
+            => new ModSet(Graph!.Time.Create().Lifecycle, EntityId, ActionName);
 
         public void OnGraphCreating(RpgGraph graph, RpgObject entity)
         {
@@ -114,6 +114,6 @@ namespace Rpg.ModObjects.Cmds
 
         public void OnObjectsCreating() { }
 
-        public void OnUpdating(RpgGraph graph, Time.Time time) { }
+        public void OnUpdating(RpgGraph graph, TimePoint time) { }
     }
 }

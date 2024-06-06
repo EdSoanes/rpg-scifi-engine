@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Cmds;
-using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.States;
 using Rpg.ModObjects.Time;
@@ -20,7 +20,7 @@ namespace Rpg.ModObjects
         [JsonProperty] internal ModSetStore ModSetStore { get; private set; }
         [JsonProperty] internal ModStateStore StateStore { get; private set; }
         [JsonProperty] internal bool IsCreated { get; set; }
-        [JsonProperty] internal ModCmdStore CmdStore { get; private set; }
+        [JsonProperty] internal RpgActionStore CmdStore { get; private set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -33,7 +33,7 @@ namespace Rpg.ModObjects
             PropStore = new PropStore(Id);
             ModSetStore = new ModSetStore(Id);
             StateStore = new ModStateStore(Id);
-            CmdStore = new ModCmdStore(Id);
+            CmdStore = new RpgActionStore(Id);
         }
 
         public void AddMods(params Mod[] mods)
@@ -42,10 +42,10 @@ namespace Rpg.ModObjects
         internal bool AddModSet(ModSet modSet)
             => ModSetStore.Add(modSet);
 
-        public ModCmd? GetCommand(string commandName)
-            => CmdStore.Get().FirstOrDefault(x => x.CommandName == commandName);
+        public RpgAction? GetCommand(string commandName)
+            => CmdStore.Get().FirstOrDefault(x => x.ActionName == commandName);
 
-        public ModCmd[] GetCommands()
+        public RpgAction[] GetCommands()
             => CmdStore.Get();
 
         public string[] StateNames { get => StateStore.StateNames; }
@@ -80,7 +80,7 @@ namespace Rpg.ModObjects
                 var states = this.CreateModStates();
                 StateStore.Add(states);
 
-                var cmds = this.CreateModCommands();
+                var cmds = this.CreateActions();
                 var cmdStates = cmds.Select(x => x.State).ToArray();
                 CmdStore.Add(cmds);
                 StateStore.Add(cmdStates);
@@ -103,6 +103,6 @@ namespace Rpg.ModObjects
         }
 
         protected virtual void OnCreating() { }
-        public virtual void OnUpdating(RpgGraph graph, Time.Time time) { }
+        public virtual void OnUpdating(RpgGraph graph, TimePoint time) { }
     }
 }

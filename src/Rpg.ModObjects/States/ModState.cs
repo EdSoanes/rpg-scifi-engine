@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 
@@ -79,7 +79,7 @@ namespace Rpg.ModObjects.States
 
         public void OnObjectsCreating() { }
 
-        public void OnUpdating(RpgGraph graph, Time.Time time) 
+        public void OnUpdating(RpgGraph graph, TimePoint time) 
         {
             var entity = graph.GetEntity(EntityId);
 

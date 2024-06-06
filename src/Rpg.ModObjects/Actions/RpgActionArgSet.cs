@@ -1,17 +1,17 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Values;
 
-namespace Rpg.ModObjects.Cmds
+namespace Rpg.ModObjects.Actions
 {
-    public class ModCmdArgSet
+    public class RpgActionArgSet
     {
-        private readonly ModCmdArg[] _args;
+        private readonly RpgActionArg[] _args;
         [JsonProperty] private Dictionary<string, object?> Commands { get; set; } = new Dictionary<string, object?>();
 
-        [JsonConstructor] private ModCmdArgSet() { }
+        [JsonConstructor] private RpgActionArgSet() { }
 
-        public ModCmdArgSet(ModCmdArg[] args) 
+        public RpgActionArgSet(RpgActionArg[] args) 
         {
             _args = args;
             foreach (var arg in args)
@@ -37,7 +37,7 @@ namespace Rpg.ModObjects.Cmds
             return modArg.Type.IsAssignableTo(typeof(T));
         }
 
-        public ModCmdArgSet Set<T>(string arg, T? value)
+        public RpgActionArgSet Set<T>(string arg, T? value)
         {
             if (IsValid<T>(arg, value))
             {
@@ -50,25 +50,25 @@ namespace Rpg.ModObjects.Cmds
             return this;
         }
 
-        public ModCmdArgSet SetModSet(ModSet modSet)
-            => Set(ModCmdArg.ModSetArg, modSet);
+        public RpgActionArgSet SetModSet(ModSet modSet)
+            => Set(RpgActionArg.ModSetArg, modSet);
 
-        public ModCmdArgSet SetInitiator<T>(T initiator)
+        public RpgActionArgSet SetInitiator<T>(T initiator)
             where T : RpgObject
-                => Set(ModCmdArg.InitiatorArg, initiator);
+                => Set(RpgActionArg.InitiatorArg, initiator);
 
-        public ModCmdArgSet SetRecipient<T>(T recipient) 
+        public RpgActionArgSet SetRecipient<T>(T recipient) 
             where T : RpgObject
-                => Set(ModCmdArg.RecipientArg, recipient);
+                => Set(RpgActionArg.RecipientArg, recipient);
 
-        public ModCmdArgSet SetTarget(int target)
-            => Set(ModCmdArg.TargetArg, target);
+        public RpgActionArgSet SetTarget(int target)
+            => Set(RpgActionArg.TargetArg, target);
 
-        public ModCmdArgSet SetDiceRoll(Dice diceRoll)
-            => Set(ModCmdArg.DiceRollArg, diceRoll);
+        public RpgActionArgSet SetDiceRoll(Dice diceRoll)
+            => Set(RpgActionArg.DiceRollArg, diceRoll);
 
-        public ModCmdArgSet SetOutcome(int outcome)
-            => Set(ModCmdArg.OutcomeArg, outcome);
+        public RpgActionArgSet SetOutcome(int outcome)
+            => Set(RpgActionArg.OutcomeArg, outcome);
 
         public object?[] ToArgs()
         {

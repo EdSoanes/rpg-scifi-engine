@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Props

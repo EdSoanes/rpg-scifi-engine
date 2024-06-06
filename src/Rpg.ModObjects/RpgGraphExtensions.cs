@@ -1,5 +1,5 @@
-﻿using Rpg.ModObjects.Cmds;
-using Rpg.ModObjects.Modifiers;
+﻿using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.States;
 using Rpg.ModObjects.Values;
@@ -11,7 +11,7 @@ namespace Rpg.ModObjects
 {
     public static class RpgGraphExtensions
     {
-        private static List<string> ScannableNamespaces = new List<string>();
+        public static List<string> ScannableNamespaces = new List<string>();
         private static Type[] ModdablePropertyTypes = new Type[]
         {
             typeof(int),
@@ -20,12 +20,12 @@ namespace Rpg.ModObjects
 
         private static Type[] ExcludedPropertyTypes = new Type[]
         {
-            typeof(ModCmdStore),
+            typeof(RpgActionStore),
             typeof(ModSetStore),
             typeof(ModStateStore),
             typeof(PropStore),
             typeof(RpgGraph),
-            typeof(ModCmd),
+            typeof(RpgAction),
             typeof(ModState),
             typeof(ModSet),
             typeof(Mod),

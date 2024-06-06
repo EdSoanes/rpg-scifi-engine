@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Time
 {
-    public class Time
+    public class TimePoint
     {
         public string Type { get; private set; }
         public int Tick { get; private set; }
 
-        [JsonConstructor] private Time() { }
+        [JsonConstructor] private TimePoint() { }
 
-        public Time(string type, int tick) 
+        public TimePoint(string type, int tick) 
         {
             Type = type;
             Tick = tick;

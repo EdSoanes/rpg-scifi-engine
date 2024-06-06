@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Rpg.Sys.Components.Values
 {
-    public class PresenceValue : MaxCurrentValue
+    public class PresenceValue : MinMaxValue
     {
         public int Radius { get; protected set; }
 

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rpg.ModObjects.Cmds
+namespace Rpg.ModObjects.Actions
 {
-    public enum ModCmdArgType
+    public enum RpgActionArgType
     {
         Any,
         Actor,

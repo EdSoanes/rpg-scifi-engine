@@ -1,4 +1,4 @@
-﻿using Rpg.ModObjects.Modifiers;
+﻿using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Tests.Models;
 using System.Reflection;
 

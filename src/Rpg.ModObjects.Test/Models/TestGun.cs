@@ -1,6 +1,6 @@
 ﻿using Rpg.ModObjects.Actions;
-using Rpg.ModObjects.Cmds;
-using Rpg.ModObjects.Modifiers;
+using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 
@@ -24,7 +24,7 @@ namespace Rpg.ModObjects.Tests.Models
             Ammo = new MaxCurrentValue(Id, nameof(Ammo), 10);
         }
 
-        [ModCmd(DisabledWhen = nameof(AmmoEmpty), OutcomeMethod = nameof(InflictDamage))]
+        [RpgAction(DisabledWhen = nameof(AmmoEmpty), OutcomeMethod = nameof(InflictDamage))]
         public ModSet Shoot(ModSet modSet, TestHuman initiator, int targetDefense, int targetRange)
         {
             modSet
@@ -44,7 +44,7 @@ namespace Rpg.ModObjects.Tests.Models
             return modSet;
         }
 
-        [ModCmd(EnabledWhen = nameof(Shoot))]
+        [RpgAction(EnabledWhen = nameof(Shoot))]
         public ModSet InflictDamage(ModSet modSet, TestHuman initiator, TestHuman recipient, int targetRoll, int outcome)
         {
             var success = outcome - targetRoll;

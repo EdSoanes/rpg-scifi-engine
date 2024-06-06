@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rpg.ModObjects.Cmds
+namespace Rpg.ModObjects.Actions
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public sealed class ModCmdAttribute : Attribute
+    public sealed class RpgActionAttribute : Attribute
     {
         public string? EnabledWhen { get; set; }
         public string? DisabledWhen { get; set; }

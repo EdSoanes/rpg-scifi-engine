@@ -79,6 +79,6 @@ namespace Rpg.ModObjects.Stores
         }
 
         public virtual void OnObjectsCreating() { }
-        public virtual void OnUpdating(RpgGraph graph, Time.Time time) { }
+        public virtual void OnUpdating(RpgGraph graph, TimePoint time) { }
     }
 }

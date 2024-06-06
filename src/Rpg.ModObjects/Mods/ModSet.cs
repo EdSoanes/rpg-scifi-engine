@@ -1,10 +1,10 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Cmds;
+using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
 
-namespace Rpg.ModObjects.Modifiers
+namespace Rpg.ModObjects.Mods
 {
     public class ModSet : IGraphEvents, ITimeEvent
     {
@@ -12,10 +12,10 @@ namespace Rpg.ModObjects.Modifiers
         [JsonProperty] public string InitiatorId { get; private set; }
         [JsonProperty] public string Name { get; set; }
         [JsonIgnore] public List<Mod> Mods { get; private set; } = new List<Mod>();
-        [JsonProperty] public ITimeLifecycle Lifecycle { get; private set; }
+        [JsonProperty] public ILifecycle Lifecycle { get; private set; }
         [JsonConstructor] protected ModSet() { }
 
-        public ModSet(string initiatorId, string name, ITimeLifecycle lifecycle)
+        public ModSet(ILifecycle lifecycle, string initiatorId, string name)
         {
             Id = this.NewId();
             InitiatorId = initiatorId;
@@ -24,12 +24,12 @@ namespace Rpg.ModObjects.Modifiers
         }
 
         public ModSet(string initiatorId, string name)
-            : this(initiatorId, name, new PermanentLifecycle())
+            : this(new PermanentLifecycle(), initiatorId, name)
         {
         }
 
-        public ModSet(string initiatorId, string name, ITimeLifecycle lifecycle, params Mod[] mods)
-            : this(initiatorId, name, lifecycle)
+        public ModSet(ILifecycle lifecycle, string initiatorId, string name, params Mod[] mods)
+            : this(lifecycle, initiatorId, name)
         {
             Add(mods);
         }
@@ -53,7 +53,7 @@ namespace Rpg.ModObjects.Modifiers
                 var mods = modGroup.ToArray();
                 var dice = graph.CalculateModsValue(mods);
 
-                var subSet = new ModSubSet(InitiatorId, mods.First(), mods, dice);
+                var subSet = new ModSubSet(Lifecycle, InitiatorId, mods.First(), mods, dice);
                 subSets.Add(subSet);
             }
 
@@ -72,15 +72,15 @@ namespace Rpg.ModObjects.Modifiers
 
         public void OnObjectsCreating() { }
 
-        public void OnAdding(RpgGraph graph, Time.Time currentTime)
+        public void OnAdding(RpgGraph graph, TimePoint currentTime)
             => Lifecycle.StartLifecycle(graph, currentTime);
 
-        public void OnUpdating(RpgGraph graph, Time.Time currentTime)
+        public void OnUpdating(RpgGraph graph, TimePoint currentTime)
             => Lifecycle.UpdateLifecycle(graph, currentTime);
 
-        public string TargetPropName => $"{InitiatorId}.{Name}.{ModCmdArg.TargetArg}";
-        public string DiceRollPropName => $"{InitiatorId}.{Name}.{ModCmdArg.DiceRollArg}";
-        public string OutcomePropName => $"{InitiatorId}.{Name}.{ModCmdArg.OutcomeArg}";
+        public string TargetPropName => $"{InitiatorId}.{Name}.{RpgActionArg.TargetArg}";
+        public string DiceRollPropName => $"{InitiatorId}.{Name}.{RpgActionArg.DiceRollArg}";
+        public string OutcomePropName => $"{InitiatorId}.{Name}.{RpgActionArg.OutcomeArg}";
 
         public ModSet AddState<TTarget>(TTarget target)
             where TTarget : RpgObject

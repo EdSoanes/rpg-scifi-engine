@@ -8,6 +8,6 @@ namespace Rpg.ModObjects.Time
 {
     public interface ITimeEvent
     {
-        void OnUpdating(RpgGraph graph, Time time);
+        void OnUpdating(RpgGraph graph, TimePoint time);
     }
 }
