@@ -6,10 +6,13 @@ namespace Rpg.Sys.Archetypes
 {
     public abstract class Artifact : RpgEntity
     {
-        [JsonProperty] public Presence Presence { get; private set; }
-        [JsonProperty] public Defenses Defenses { get; private set; }
-        [JsonProperty] public Damage Damage { get; private set; }
         [JsonProperty] public Health Health { get; private set; }
+
+        [JsonProperty] public Presence Presence { get; private set; }
+
+        [JsonProperty] public Defenses Defenses { get; private set; }
+
+        [JsonProperty] public Damage Damage { get; private set; }
 
         [JsonConstructor] protected Artifact() { }
 

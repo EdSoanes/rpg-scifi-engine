@@ -10,8 +10,17 @@ namespace Rpg.ModObjects.Meta
 {
     public class MetaGraph
     {
-        private static List<Assembly> ScannableAssemblies = new List<Assembly>();
-        public static List<string> ScannableNamespaces = new List<string>();
+        private static string[] ExcludeAssembliesWith =
+        {
+            "Microsoft",
+            "System",
+            "Umbraco",
+            "Newtonsoft",
+            "Azure",
+            "SixLabors",
+            "NPoco",
+            "Asp"
+        };
 
         private static Type[] ModdablePropertyTypes = new Type[]
         {
@@ -38,82 +47,204 @@ namespace Rpg.ModObjects.Meta
         private static string[] RpgObjectBaseTypes = new string[]
         {
             nameof(RpgEntity),
-            nameof(RpgEntityComponent)
+            nameof(RpgComponent)
         };
 
         private Dictionary<string, MetaObject> _metaObjects = new Dictionary<string, MetaObject>();
+        private List<MetaPropUIAttribute> _propUIAttributes = new List<MetaPropUIAttribute>();
+
+        private static List<Assembly> _scanAssemblies = new List<Assembly>();
+        public static void RegisterAssembly(Assembly assembly)
+        {
+            if (!_scanAssemblies.Contains(assembly))
+                _scanAssemblies.Add(assembly);
+        }
+
+        private List<Assembly> GetScanAssemblies()
+        {
+            if (_scanAssemblies.Any())
+            {
+                if (!_scanAssemblies.Contains(typeof(IMetaSystem).Assembly))
+                    _scanAssemblies.Add(typeof(IMetaSystem).Assembly);
+
+                return _scanAssemblies;
+            }
+
+            return AppDomain.CurrentDomain.GetAssemblies()
+                .Where(x => !ExcludeAssembliesWith.Any(n => x.FullName?.Contains(n) ?? false))
+                .ToList();
+        }
 
         public MetaGraph()
         {
-            RegisterAssembly(GetType().Assembly);
-            RegisterAssembly(Assembly.GetCallingAssembly());
         }
 
-        public static void RegisterAssembly(Assembly assembly)
+        public IMetaSystem Build()
         {
-            if (!ScannableAssemblies.Contains(assembly))
-            {
-                ScannableAssemblies.Add(assembly);
+            var sysType = DiscoverMetaSystems().FirstOrDefault();
+            if (sysType == null)
+                throw new InvalidOperationException("No IMetaSystem types found");
 
-                var namespaces = assembly.GetTypes()
-                    .Select(t => t.Namespace)
-                    .Where(x => !string.IsNullOrEmpty(x) && !x.StartsWith("System.") && !x.StartsWith("Microsoft."))
+            LoadPropTypes();
+            LoadMetaObjects();
+            InitializeMetaObjects();
+
+            var system = Activator.CreateInstance(sysType) as IMetaSystem;
+            if (system == null)
+                throw new InvalidOperationException($"Could not create instance of IMetaSystem {sysType.Name}");
+
+            system.Objects = _metaObjects.Values.ToArray();
+            system.PropUIAttributes = _propUIAttributes.ToArray();
+
+            return system;
+        }
+
+        private void InitializeMetaObjects()
+        {
+            foreach (var metaObject in _metaObjects.Values)
+                metaObject.ParentTo = metaObject.Properties
+                    .Where(x => _metaObjects.Keys.Contains(x.ReturnType))
+                    .Select(x => x.ReturnType)
                     .Distinct()
-                    .Cast<string>();
+                    .ToArray();
 
-                ScannableNamespaces.AddRange(namespaces);
-                ScannableNamespaces = ScannableNamespaces.Distinct().ToList();
-            }
-        }
+            var archetypes = GetOrderedArchetypes();
+            archetypes.Reverse();
 
-        public MetaObject[] GetObjects()
-        {
-            foreach (var assembly in ScannableAssemblies)
+            foreach (var archetype in archetypes)
             {
-                var types = FindDerivedTypes(assembly, typeof(RpgObject));
-                foreach (var type in types)
+                var obj = _metaObjects[archetype];
+                foreach (var prop in obj.Properties)
                 {
-                    var obj = GetObject(type);
-                    if (obj != null)
+                    if (_metaObjects.ContainsKey(prop.ReturnType))
                     {
-                        if (!_metaObjects.ContainsKey(obj.Archetype))
-                            _metaObjects.Add(obj.Archetype, obj);
-                        else
-                            Debug.WriteLine(obj.Archetype);
+                        var propObj = _metaObjects[prop.ReturnType];
+                        propObj.Inherit(prop);
                     }
                 }
             }
-
-            foreach (var metaObj in _metaObjects.Values)
-                foreach (var prop in metaObj.Properties)
-                {
-                    prop.IsComponent = _metaObjects.ContainsKey(prop.ReturnType) && _metaObjects[prop.ReturnType].IsComponent;
-                }
-            return _metaObjects.Values.ToArray();
         }
 
-        public MetaObject? GetObject(Type type)
+        private void LoadMetaObjects()
         {
-            if (RpgObjectBaseTypes.Contains(type.Name))
-                return null;
+            var templateTypes = FindDerivedTypes<IRpgEntityTemplate>()
+                .Union(FindDerivedTypes<IRpgComponentTemplate>());
 
-            var properties = GetModdableProperties(type)
-                .Select(x => new MetaProperty(x))
-                .ToArray();
-
-            var baseTypes = GetBaseTypes(type);
-            var metaObject = new MetaObject()
+            var objectTypes = FindDerivedTypes<RpgObject>();
+            foreach (var objectType in objectTypes)
             {
-                Archetype = type.Name,
-                BaseType = baseTypes.First(x => RpgObjectBaseTypes.Contains(x)),
-                BaseTypes = baseTypes.Where(x => !RpgObjectBaseTypes.Contains(x)).ToArray(),
-                Properties = GetProperties(type),
-                States = GetStates(type),
-                Actions = GetActions(type),
-                IsComponent = baseTypes.Contains(nameof(RpgEntityComponent))
-            };
+                var obj = GetObject(objectType, templateTypes);
+                if (obj != null)
+                {
+                    if (!_metaObjects.ContainsKey(obj.Archetype))
+                        _metaObjects.Add(obj.Archetype, obj);
+                    else
+                        Debug.WriteLine(obj.Archetype);
+                }
+            }
+        }
 
-            return metaObject;
+        private void LoadPropTypes()
+        {
+            _propUIAttributes = FindDerivedTypes<MetaPropUIAttribute>()
+                .GroupBy(x => x.Name)
+                .Select(x => Activator.CreateInstance(x.First()) as MetaPropUIAttribute)
+                .Where(x => x != null)
+                .Cast<MetaPropUIAttribute>()
+                .ToList();
+        }
+
+        private List<string> GetOrderedArchetypes()
+        {
+            var archetypes = new List<string>();
+
+            foreach (var metaObject in _metaObjects.Values)
+                Merge(archetypes, metaObject);
+
+            return archetypes;
+        }
+
+        private void Merge(List<string> target, MetaObject metaObject)
+        {
+            var archetypes = new List<string>() { metaObject.Archetype };
+            archetypes.AddRange(metaObject.ParentTo);
+
+            Merge(target, archetypes);
+        }
+
+
+        private void Merge(List<string> target, IEnumerable<string> source)
+        {
+            var intersect = target.Intersect(source);
+            if (!intersect.Any())
+            {
+                target.AddRange(source);
+                return;
+            }
+
+            bool intersected = false;
+            foreach (var srcArchetype in source)
+            {
+                if (target.Contains(srcArchetype))
+                {
+                    intersected = true;
+                    continue;
+                }
+
+                var idxs = intersect.Select(x => target.IndexOf(x)).OrderBy(x => x);
+                var i = !intersected
+                    ? idxs.First()
+                    : idxs.Last() + 1;
+
+                if (i >= target.Count)
+                    target.Add(srcArchetype);
+                else
+                    target.Insert(i, srcArchetype);
+            }
+        }
+
+        public MetaObject? GetObject(Type type, IEnumerable<Type> templateTypes)
+        {
+            var templateType = GetTemplate(type, templateTypes);
+            if (templateType != null)
+            {
+                var properties = GetModdableProperties(templateType)
+                    .Select(x => new MetaProperty(x))
+                    .ToArray();
+
+                var baseTypes = GetBaseTypes(type);
+                var metaObject = new MetaObject()
+                {
+                    Archetype = type.Name,
+                    TemplateType = templateType.Name,
+                    BaseType = baseTypes.First(x => RpgObjectBaseTypes.Contains(x)),
+                    BaseTypes = baseTypes.Where(x => !RpgObjectBaseTypes.Contains(x) && x != type.Name).ToArray(),
+                    Properties = GetProperties(templateType),
+                    States = GetStates(type),
+                    Actions = GetActions(type)
+                };
+
+                return metaObject;
+            }
+
+
+            return null;
+        }
+
+        private Type? GetTemplate(Type type, IEnumerable<Type> templateTypes)
+        {
+            if (!templateTypes.Any())
+                return type;
+
+            var constructors = type.GetConstructors();
+            foreach (var constructor in constructors)
+            {
+                var templateParam = constructor.GetParameters().FirstOrDefault(x => templateTypes.Contains(x.ParameterType));
+                if (templateParam != null)
+                    return templateParam.ParameterType;
+            }
+
+            return null;
         }
 
         private string[] GetBaseTypes(Type type)
@@ -190,30 +321,36 @@ namespace Rpg.ModObjects.Meta
             return false;
         }
 
-        private IEnumerable<Type> FindDerivedTypes(Assembly assembly, Type baseType)
+        private IEnumerable<Type> FindDerivedTypes<T>()
         {
-            TypeInfo baseTypeInfo = baseType.GetTypeInfo();
+            var res = new List<Type>();
+
+            TypeInfo baseTypeInfo = typeof(T).GetTypeInfo();
             bool isClass = baseTypeInfo.IsClass, isInterface = baseTypeInfo.IsInterface;
 
-            return
-                from type in assembly.DefinedTypes
-                where isClass ? type.IsSubclassOf(baseType) :
-                      isInterface ? type.ImplementedInterfaces.Contains(baseTypeInfo.AsType()) : false
-                select type.AsType();
+            foreach (var assembly in GetScanAssemblies())
+            {
+                var assemblyTypes =
+                    from type in assembly.DefinedTypes
+                    where isClass ? type.IsSubclassOf(typeof(T)) :
+                          isInterface ? type.ImplementedInterfaces.Contains(baseTypeInfo.AsType()) : false
+                    select type.AsType();
+
+                res.AddRange(assemblyTypes);
+            }
+
+            return res;
         }
 
         private PropertyInfo[] GetModdableProperties(Type type)
         {
             return type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => IsModdableProperty(x) || IsRpgObjectProperty(x))
+                .Where(x => IsModdableProperty(x) || IsRpgObjectProperty(x) || IsRpgTemplateProperty(x))
                 .ToArray();
         }
 
         private bool IsModdableProperty(PropertyInfo propertyInfo)
         {
-            if (!InScannableNamespace(propertyInfo.DeclaringType))
-                return false;
-
             if (!ModdablePropertyTypes.Any(x => x == propertyInfo.PropertyType))
                 return false;
 
@@ -228,11 +365,45 @@ namespace Rpg.ModObjects.Meta
                 && (propertyInfo.PropertyType.IsAssignableTo(typeof(RpgObject)) || propertyInfo.PropertyType.IsAssignableTo(typeof(IEnumerable<RpgObject>)));
         }
 
-        private static bool InScannableNamespace(Type? type)
+        private bool IsRpgTemplateProperty(PropertyInfo propertyInfo)
         {
-            return type == null
-                ? false
-                : ScannableNamespaces.Any(x => type.Namespace == x);
+            return propertyInfo.GetMethod != null
+                && (propertyInfo.GetMethod.IsPublic || propertyInfo.GetMethod.IsFamily)
+                && (propertyInfo.PropertyType.IsAssignableTo(typeof(IRpgEntityTemplate)) || propertyInfo.PropertyType.IsAssignableTo(typeof(IRpgComponentTemplate)));
+        }
+
+        private List<Type> DiscoverMetaSystems()
+        {
+            var types = new List<Type>();
+
+            foreach (var assembly in GetScanAssemblies())
+            {
+                var assTypes = GetLoadableTypes(assembly)
+                    .Where(x => x != typeof(IMetaSystem) && x.IsAssignableTo(typeof(IMetaSystem)))
+                    .ToList();
+
+                if (assTypes != null)
+                    types.AddRange(assTypes);
+            }
+
+            return types;
+        }
+
+        private IEnumerable<Type> GetLoadableTypes(Assembly assembly)
+        {
+            if (assembly == null) 
+                throw new ArgumentNullException("assembly");
+
+            try
+            {
+                return assembly.GetTypes();
+            }
+            catch (ReflectionTypeLoadException e)
+            {
+                return e.Types
+                    .Where(t => t != null)
+                    .Cast<Type>();
+            }
         }
     }
 }

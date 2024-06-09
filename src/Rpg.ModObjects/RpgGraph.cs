@@ -201,18 +201,18 @@ namespace Rpg.ModObjects
         public IEnumerable<RpgObject> GetScopedEntities(string rpgObjId, ModScope scope)
         {
             var entity = GetEntity(rpgObjId);
-            if (entity is RpgEntityComponent)
-                entity = GetEntity((entity as RpgEntityComponent)!.EntityId);
+            if (entity is RpgComponent)
+                entity = GetEntity((entity as RpgComponent)!.EntityId);
 
-            var all = ObjectStore.Values.Where(x => x.Id == entity!.Id || (x as RpgEntityComponent)?.EntityId == entity!.Id);
+            var all = ObjectStore.Values.Where(x => x.Id == entity!.Id || (x as RpgComponent)?.EntityId == entity!.Id);
             if (scope == ModScope.Objects)
                 return all.Where(x => x.Id != rpgObjId);
 
             if (scope == ModScope.Components)
             {
                 var components = all
-                    .Where(x => x is RpgEntityComponent && x.Id != rpgObjId)
-                    .Select(x => x as RpgEntityComponent)
+                    .Where(x => x is RpgComponent && x.Id != rpgObjId)
+                    .Select(x => x as RpgComponent)
                     .Where(x => x != null)
                     .Cast<RpgObject>();
 

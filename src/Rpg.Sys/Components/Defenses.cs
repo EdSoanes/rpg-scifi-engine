@@ -4,7 +4,7 @@ using Rpg.Sys.Components.Values;
 
 namespace Rpg.Sys.Components
 {
-    public class Defenses : RpgEntityComponent
+    public class Defenses : RpgComponent
     {
         [JsonProperty] public DefenseValue Kinetic { get; private set; }
         [JsonProperty] public DefenseValue Heat { get; private set; }

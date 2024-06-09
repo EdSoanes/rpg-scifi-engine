@@ -4,7 +4,7 @@ using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects.Tests.Models
 {
-    public class MaxCurrentValue : RpgEntityComponent
+    public class MaxCurrentValue : RpgComponent
     {
         [JsonProperty] public int Max { get; protected set; }
         [JsonProperty] public int Current { get; protected set; }

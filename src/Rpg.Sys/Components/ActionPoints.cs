@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace Rpg.Sys.Components
 {
-    public class ActionPoints : RpgEntityComponent
+    public class ActionPoints : RpgComponent
     {
         [JsonProperty] public MinMaxValue Action { get; private set; }
         [JsonProperty] public MinMaxValue Exertion { get; private set; }

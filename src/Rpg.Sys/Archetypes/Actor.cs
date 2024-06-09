@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using Rpg.Sys.Components;
 
@@ -8,9 +7,11 @@ namespace Rpg.Sys.Archetypes
 {
     public abstract class Actor : Artifact
     {
-        [JsonProperty] public Movement Movement { get; private set; }
-        [JsonProperty] public ActionPoints Actions { get; private set; }
         [JsonProperty] public StatPoints Stats { get; private set; }
+
+        [JsonProperty] public Movement Movement { get; private set; }
+
+        [JsonProperty] public ActionPoints Actions { get; private set; }
 
         [JsonConstructor] protected Actor() { }
 

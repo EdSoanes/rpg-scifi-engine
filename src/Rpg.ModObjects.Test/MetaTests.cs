@@ -14,18 +14,18 @@ namespace Rpg.ModObjects.Tests
         public void MetaGraph_EnsureValues()
         {
             var meta = new MetaGraph();
-            var objects = meta.GetObjects();
+            var system = meta.Build();
 
-            Assert.That(objects, Is.Not.Empty);
+            Assert.That(system, Is.Not.Null);
         }
 
         [Test]
         public void MetaGraph_Serialize_EnsureValues()
         {
             var meta = new MetaGraph();
-            var objects = meta.GetObjects();
+            var system = meta.Build();
 
-            var json = RpgSerializer.Serialize(objects);
+            var json = RpgSerializer.Serialize(system);
 
             Assert.That(json, Is.Not.Null);
         }

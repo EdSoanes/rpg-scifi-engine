@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Rpg.Sys.Components
 {
-    public class Damage : RpgEntityComponent
+    public class Damage : RpgComponent
     {
         [JsonProperty] public DamageValue Kinetic { get; private set; }
         [JsonProperty] public DamageValue Heat { get; private set; }

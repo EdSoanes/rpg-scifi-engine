@@ -6,10 +6,11 @@ using Rpg.ModObjects.Values;
 
 namespace Rpg.Sys.Components.Values
 {
-    public class ScoreBonusValue : RpgEntityComponent
+    public class ScoreBonusValue : RpgComponent
     {
-        [MetaPropUI(Min = 3, Max = 18)]
-        [JsonProperty] public int Score { get; protected set; }
+        [JsonProperty]
+        public int Score { get; protected set; }
+
         [JsonProperty] public int Bonus { get; protected set; }
 
         [JsonConstructor] private ScoreBonusValue() { }

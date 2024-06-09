@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Tests
 {
-    public class EntityComponent1 : RpgEntityComponent
+    public class EntityComponent1 : RpgComponent
     {
         public int Prop {  get; set; }
         public EntityComponent1(string entityId, string name) : base(entityId, name) { }

@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace Rpg.ModObjects
 {
-    public abstract class RpgEntityComponent : RpgObject
+    public abstract class RpgComponent : RpgObject
     {
         [JsonProperty] public string EntityId { get; private set; }
 
-        [JsonConstructor] protected RpgEntityComponent() { }
+        [JsonConstructor] protected RpgComponent() { }
 
-        public RpgEntityComponent(string entityId, string name)
+        public RpgComponent(string entityId, string name)
         {
             EntityId = entityId;
             Name = name;

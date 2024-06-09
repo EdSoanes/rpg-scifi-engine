@@ -4,7 +4,7 @@ using System.Xml.Linq;
 
 namespace Rpg.Sys.Components.Values
 {
-    public class DefenseValue : RpgEntityComponent
+    public class DefenseValue : RpgComponent
     {
         [JsonProperty] public int Value { get; protected set; }
         [JsonProperty] public int Shielding { get; protected set; }

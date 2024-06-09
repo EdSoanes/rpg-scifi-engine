@@ -5,7 +5,7 @@ using System.Xml.Linq;
 
 namespace Rpg.Sys.Components
 {
-    public class Movement : RpgEntityComponent
+    public class Movement : RpgComponent
     {
         [JsonProperty] public MinMaxValue Speed { get; private set; }
         [JsonProperty] public int Acceleration { get; protected set; }

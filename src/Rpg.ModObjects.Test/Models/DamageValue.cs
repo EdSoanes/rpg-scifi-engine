@@ -4,15 +4,15 @@ using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Tests.Models
 {
-    public class DamageValue : RpgEntityComponent
+    public class DamageValue : RpgComponent
     {
         [JsonProperty] public Dice Dice { get; protected set; }
 
-        [MetaPropUI(Unit = "%")]
+        [PercentUI]
         [JsonProperty] public int ArmorPenetration { get; protected set; }
 
         [JsonProperty] 
-        [MetaPropUI(Unit = "m")]
+        [MetersUI]
         public int Radius { get; protected set; }
 
         [JsonConstructor] private DamageValue() { }

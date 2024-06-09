@@ -1,3 +1,5 @@
+using Rpg.Cms.Services;
+
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.CreateUmbracoBuilder()
@@ -7,7 +9,14 @@ builder.CreateUmbracoBuilder()
     .AddComposers()
     .Build();
 
-WebApplication app = builder.Build();
+builder.Services
+    .AddTransient<IRpgSystemSyncService, RpgSystemSyncService>()
+    .AddTransient<IRpgPropertyTypeFactory, RpgPropertyTypeFactory>()
+    .AddTransient<IRpgDocTypeFactory, RpgDocTypeFactory>()
+    .AddTransient<IRpgDataTypeFactory, RpgDataTypeFactory>();
+
+WebApplication app = builder
+    .Build();
 
 await app.BootUmbracoAsync();
 

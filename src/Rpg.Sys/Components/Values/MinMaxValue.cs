@@ -5,7 +5,7 @@ using Rpg.ModObjects.Time;
 
 namespace Rpg.Sys.Components.Values
 {
-    public class MinMaxValue : RpgEntityComponent
+    public class MinMaxValue : RpgComponent
     {
         [JsonProperty] public int Min { get; protected set; }
         [JsonProperty] public int Max { get; protected set; }

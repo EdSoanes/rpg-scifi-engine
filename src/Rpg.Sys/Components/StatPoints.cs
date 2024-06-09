@@ -4,7 +4,7 @@ using Rpg.Sys.Components.Values;
 
 namespace Rpg.Sys.Components
 {
-    public class StatPoints : RpgEntityComponent
+    public class StatPoints : RpgComponent
     {
         [JsonProperty] public ScoreBonusValue Strength { get; private set; }
         [JsonProperty] public ScoreBonusValue Intelligence { get; private set; }

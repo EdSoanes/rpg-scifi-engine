@@ -4,7 +4,7 @@ using Rpg.Sys.Components.Values;
 
 namespace Rpg.Sys.Components
 {
-    public class Presence : RpgEntityComponent
+    public class Presence : RpgComponent
     {
         [JsonProperty] public int Size { get; protected set; }
         [JsonProperty] public int Weight { get; protected set; }

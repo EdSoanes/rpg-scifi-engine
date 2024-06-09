@@ -1,18 +1,17 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Meta;
 using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Tests.Models
 {
-    public class ScoreBonusValue : RpgEntityComponent
+    public class ScoreBonusValue : RpgComponent
     {
-        [JsonProperty] 
-        [MetaPropUI(Min = 3, Max = 18)]
+        [JsonProperty]
+        [ScoreUI]
         public int Score { get; protected set; }
 
-        [MetaPropUI(Ignore = true)]
+        [MetaPropUI(nameof(Int32), Ignore = true)]
         [JsonProperty] public int Bonus { get; protected set; }
 
         [JsonConstructor] private ScoreBonusValue() { }

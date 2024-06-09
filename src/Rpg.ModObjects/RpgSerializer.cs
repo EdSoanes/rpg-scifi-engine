@@ -18,5 +18,9 @@ namespace Rpg.ModObjects
 
         public static string Serialize(object obj)
             => JsonConvert.SerializeObject(obj, JsonSettings);
+
+        public static T Deserialize<T>(string json)
+            where T : class
+                => JsonConvert.DeserializeObject<T>(json, JsonSettings)!;
     }
 }

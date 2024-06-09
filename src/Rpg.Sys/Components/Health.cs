@@ -4,7 +4,7 @@ using Rpg.Sys.Components.Values;
 
 namespace Rpg.Sys.Components
 {
-    public class Health : RpgEntityComponent
+    public class Health : RpgComponent
     {
         [JsonProperty] public MinMaxValue Physical { get; private set; }
         [JsonProperty] public MinMaxValue Mental { get; private set; }
