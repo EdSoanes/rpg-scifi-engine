@@ -22,12 +22,6 @@ namespace Rpg.ModObjects.Meta
             "Asp"
         };
 
-        private static Type[] ModdablePropertyTypes = new Type[]
-        {
-            typeof(int),
-            typeof(Dice)
-        };
-
         private static Type[] ExcludedPropertyTypes = new Type[]
         {
             typeof(RpgActionStore),
@@ -44,11 +38,12 @@ namespace Rpg.ModObjects.Meta
             typeof(Guid)
         };
 
-        private static string[] RpgObjectBaseTypes = new string[]
-        {
+        private static string[] RpgObjectBaseTypes =
+        [
+            nameof(RpgObject),
             nameof(RpgEntity),
             nameof(RpgComponent)
-        };
+        ];
 
         private Dictionary<string, MetaObject> _metaObjects = new Dictionary<string, MetaObject>();
         private List<MetaPropUIAttribute> _propUIAttributes = new List<MetaPropUIAttribute>();
@@ -87,20 +82,7 @@ namespace Rpg.ModObjects.Meta
 
             LoadPropTypes();
             LoadMetaObjects();
-            InitializeMetaObjects();
 
-            var system = Activator.CreateInstance(sysType) as IMetaSystem;
-            if (system == null)
-                throw new InvalidOperationException($"Could not create instance of IMetaSystem {sysType.Name}");
-
-            system.Objects = _metaObjects.Values.ToArray();
-            system.PropUIAttributes = _propUIAttributes.ToArray();
-
-            return system;
-        }
-
-        private void InitializeMetaObjects()
-        {
             foreach (var metaObject in _metaObjects.Values)
                 metaObject.ParentTo = metaObject.Properties
                     .Where(x => _metaObjects.Keys.Contains(x.ReturnType))
@@ -108,21 +90,17 @@ namespace Rpg.ModObjects.Meta
                     .Distinct()
                     .ToArray();
 
-            var archetypes = GetOrderedArchetypes();
-            archetypes.Reverse();
+            var system = Activator.CreateInstance(sysType) as IMetaSystem;
+            if (system == null)
+                throw new InvalidOperationException($"Could not create instance of IMetaSystem {sysType.Name}");
 
-            foreach (var archetype in archetypes)
-            {
-                var obj = _metaObjects[archetype];
-                foreach (var prop in obj.Properties)
-                {
-                    if (_metaObjects.ContainsKey(prop.ReturnType))
-                    {
-                        var propObj = _metaObjects[prop.ReturnType];
-                        propObj.Inherit(prop);
-                    }
-                }
-            }
+            system.Objects = GetOrderedArchetypes()
+                .Select(x => _metaObjects[x])
+                .ToArray();
+
+            system.PropUIAttributes = _propUIAttributes.ToArray();
+
+            return system;
         }
 
         private void LoadMetaObjects()
@@ -130,10 +108,14 @@ namespace Rpg.ModObjects.Meta
             var templateTypes = FindDerivedTypes<IRpgEntityTemplate>()
                 .Union(FindDerivedTypes<IRpgComponentTemplate>());
 
-            var objectTypes = FindDerivedTypes<RpgObject>();
+            var objectTypes = FindDerivedTypes<RpgObject>()
+                .Union(templateTypes)
+                .Where(x => !RpgObjectBaseTypes.Contains(x.Name));
+
             foreach (var objectType in objectTypes)
             {
-                var obj = GetObject(objectType, templateTypes);
+                var objectTemplateType = GetTemplate(objectType, templateTypes);
+                var obj = GetObject(objectType, objectTemplateType);
                 if (obj != null)
                 {
                     if (!_metaObjects.ContainsKey(obj.Archetype))
@@ -203,38 +185,29 @@ namespace Rpg.ModObjects.Meta
             }
         }
 
-        public MetaObject? GetObject(Type type, IEnumerable<Type> templateTypes)
+        public MetaObject? GetObject(Type type, Type? objectTemplateType)
         {
-            var templateType = GetTemplate(type, templateTypes);
-            if (templateType != null)
+            var properties = type.GetModdableProperties()
+                .Select(x => new MetaProperty(x))
+                .ToArray();
+
+            var metaObject = new MetaObject()
             {
-                var properties = GetModdableProperties(templateType)
-                    .Select(x => new MetaProperty(x))
-                    .ToArray();
+                Archetype = type.Name,
+                ObjectType = type.GetObjectType(),
+                TemplateType = objectTemplateType?.Name,
+                Properties = GetProperties(type),
+                States = GetStates(type),
+                Actions = GetActions(type)
+            };
 
-                var baseTypes = GetBaseTypes(type);
-                var metaObject = new MetaObject()
-                {
-                    Archetype = type.Name,
-                    TemplateType = templateType.Name,
-                    BaseType = baseTypes.First(x => RpgObjectBaseTypes.Contains(x)),
-                    BaseTypes = baseTypes.Where(x => !RpgObjectBaseTypes.Contains(x) && x != type.Name).ToArray(),
-                    Properties = GetProperties(templateType),
-                    States = GetStates(type),
-                    Actions = GetActions(type)
-                };
-
-                return metaObject;
-            }
-
-
-            return null;
+            return metaObject;
         }
 
         private Type? GetTemplate(Type type, IEnumerable<Type> templateTypes)
         {
             if (!templateTypes.Any())
-                return type;
+                return null;
 
             var constructors = type.GetConstructors();
             foreach (var constructor in constructors)
@@ -247,23 +220,9 @@ namespace Rpg.ModObjects.Meta
             return null;
         }
 
-        private string[] GetBaseTypes(Type type)
-        {
-            var res = new List<string>();
-            var t = type;
-            while (t != null & t != typeof(RpgObject))
-            {
-                res.Add(t!.Name);
-                t = t.BaseType;
-            }
-
-            res.Reverse();
-            return res.ToArray();
-        }
-
         public MetaProperty[] GetProperties(Type type)
         {
-            var properties = GetModdableProperties(type)
+            var properties = type.GetModdableProperties()
                 .Select(x => new MetaProperty(x))
                 .ToArray();
 
@@ -342,35 +301,6 @@ namespace Rpg.ModObjects.Meta
             return res;
         }
 
-        private PropertyInfo[] GetModdableProperties(Type type)
-        {
-            return type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => IsModdableProperty(x) || IsRpgObjectProperty(x) || IsRpgTemplateProperty(x))
-                .ToArray();
-        }
-
-        private bool IsModdableProperty(PropertyInfo propertyInfo)
-        {
-            if (!ModdablePropertyTypes.Any(x => x == propertyInfo.PropertyType))
-                return false;
-
-            return propertyInfo.GetMethod != null
-                && (propertyInfo.GetMethod.IsPublic || propertyInfo.GetMethod.IsFamily);
-        }
-
-        private bool IsRpgObjectProperty(PropertyInfo propertyInfo)
-        {
-            return propertyInfo.GetMethod != null
-                && (propertyInfo.GetMethod.IsPublic || propertyInfo.GetMethod.IsFamily)
-                && (propertyInfo.PropertyType.IsAssignableTo(typeof(RpgObject)) || propertyInfo.PropertyType.IsAssignableTo(typeof(IEnumerable<RpgObject>)));
-        }
-
-        private bool IsRpgTemplateProperty(PropertyInfo propertyInfo)
-        {
-            return propertyInfo.GetMethod != null
-                && (propertyInfo.GetMethod.IsPublic || propertyInfo.GetMethod.IsFamily)
-                && (propertyInfo.PropertyType.IsAssignableTo(typeof(IRpgEntityTemplate)) || propertyInfo.PropertyType.IsAssignableTo(typeof(IRpgComponentTemplate)));
-        }
 
         private List<Type> DiscoverMetaSystems()
         {

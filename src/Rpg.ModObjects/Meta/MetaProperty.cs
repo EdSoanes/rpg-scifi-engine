@@ -9,8 +9,7 @@ namespace Rpg.ModObjects.Meta
     {
         [JsonProperty] public string Name { get; private set; }
         [JsonProperty] public string ReturnType { get; private set; }
-        [JsonProperty] public string? FullReturnType { get; private set; }
-        [JsonProperty] public bool IsComponent { get; private set; }
+        [JsonProperty] public MetaObjectType ReturnObjectType { get; private set; }
         [JsonProperty] public MetaPropUIAttribute UI { get; private set; }
 
         [JsonConstructor] private MetaProperty() { }
@@ -19,7 +18,7 @@ namespace Rpg.ModObjects.Meta
         {
             Name = propertyInfo.Name;
             ReturnType = propertyInfo.PropertyType.Name;
-            FullReturnType = propertyInfo.PropertyType.AssemblyQualifiedName;
+            ReturnObjectType = propertyInfo.PropertyType.GetObjectType();
 
             var ui = propertyInfo.GetCustomAttributes(true)
                 .FirstOrDefault(x => x.GetType().IsAssignableTo(typeof(MetaPropUIAttribute))) as MetaPropUIAttribute;
@@ -36,7 +35,6 @@ namespace Rpg.ModObjects.Meta
             }
 
             UI = ui;
-            IsComponent = UI is ComponentUIAttribute;
         }
 
         public override string ToString()

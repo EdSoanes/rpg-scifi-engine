@@ -14,12 +14,6 @@ namespace Rpg.Cms.Services
             _propertyTypeFactory = propertyTypeFactory;
         }
 
-        public string GetName(IMetaSystem system, MetaObject metaObject)
-            => $"{system.Identifier} {metaObject.Archetype}";
-
-        public string GetAlias(IMetaSystem system, MetaObject metaObject)
-            => $"{system.Identifier}_{metaObject.Archetype}";
-
         public ContentTypeCreateModel Create(RpgSyncSession session, IMetaSystem system, IUmbracoEntity parentFolder, DocTypeTemplate template)
         {
             var containers = CreateContainers(system, template);
@@ -37,15 +31,18 @@ namespace Rpg.Cms.Services
                 Properties = properties
             };
 
+            if (template.AllowedDocTypeAliases.Any())
+                createDocType.AllowedContentTypes = template.AllowedDocTypeAliases.Select(x => new ContentTypeSort(x.Key, 0, x.Alias));
+
             return createDocType;
         }
 
         public ContentTypeCreateModel Create(RpgSyncSession session, IMetaSystem system, IUmbracoEntity parentFolder, MetaObject metaObject)
         {
-            var docTypeTemplate = new DocTypeTemplate(system.Identifier, metaObject.Archetype, metaObject.IsComponent)
+            var docTypeTemplate = new DocTypeTemplate(system.Identifier, metaObject.Archetype, metaObject.ObjectType)
             {
-                Name = GetName(system, metaObject),
-                Alias = GetAlias(system, metaObject)
+                Name = session.GetDocTypeName(system, metaObject),
+                Alias = session.GetDocTypeAlias(system, metaObject)
             };
 
             docTypeTemplate.AddProp<RichTextUIAttribute>("Description");
@@ -75,10 +72,10 @@ namespace Rpg.Cms.Services
 
         public ContentTypeUpdateModel Update(RpgSyncSession session, IMetaSystem system, MetaObject metaObject, IContentType docType)
         {
-            var docTypeTemplate = new DocTypeTemplate(system.Identifier, metaObject.Archetype, metaObject.IsComponent)
+            var docTypeTemplate = new DocTypeTemplate(system.Identifier, metaObject.Archetype, metaObject.ObjectType)
             {
-                Name = GetName(system, metaObject),
-                Alias = GetAlias(system, metaObject)
+                Name = session.GetDocTypeName(system, metaObject),
+                Alias = session.GetDocTypeAlias(system, metaObject)
             };
 
             docTypeTemplate.AddProp<RichTextUIAttribute>("Description");
@@ -90,7 +87,7 @@ namespace Rpg.Cms.Services
         private List<ContentTypePropertyContainerModel> CreateContainers(IMetaSystem system, DocTypeTemplate template, IContentType? docType = null)
         {
             var containers = new List<ContentTypePropertyContainerModel>();
-            foreach (var tab in template.Properties.Select(x => x.UI.Tab).Distinct())
+            foreach (var tab in template.Properties.Select(x => x.Tab ?? string.Empty).Distinct())
             {
                 var tabName = _propertyTypeFactory.GetContainerName(system, tab);
                 var existingTabContainer = docType?.PropertyGroups.FirstOrDefault(x => x.Name == tabName && x.Type == PropertyGroupType.Tab);
@@ -105,8 +102,8 @@ namespace Rpg.Cms.Services
                 containers.Add(tabContainer);
 
                 var groups = template.Properties
-                    .Where(x => x.UI.Tab == tab)
-                    .Select(x => x.UI.Group)
+                    .Where(x => (x.Tab ?? string.Empty) == tab)
+                    .Select(x => x.Group ?? string.Empty)
                     .Distinct();
 
                 foreach (var group in groups)

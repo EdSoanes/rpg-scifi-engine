@@ -35,7 +35,7 @@ namespace Rpg.ModObjects.Meta
         public string Unit { get; set; } = nameof(Int32);
         public int Min { get; set; } = int.MinValue;
         public int Max { get; set; } = int.MaxValue;
-        public string[]? Keys => null;
+        public string[]? Keys { get; set; }
 
         public IntegerUIAttribute()
             : base(nameof(Int32))

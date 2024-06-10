@@ -51,22 +51,22 @@ namespace Rpg.Cms.Services
             EntityFolderTemplate = new FolderTemplate(system.Identifier, "Entities");
             ComponentFolderTemplate = new FolderTemplate(system.Identifier, "Components");
 
-            ObjectTemplate = new DocTypeTemplate(system.Identifier, "Object", false, "icon-fullscreen")
+            ObjectTemplate = new DocTypeTemplate(system.Identifier, "Object", "icon-fullscreen")
                 .AddProp<RichTextUIAttribute>("Description");
 
-            EntityTemplate = new DocTypeTemplate(system.Identifier, "Entity", false, "icon-stop")
+            EntityTemplate = new DocTypeTemplate(system.Identifier, "Entity", "icon-stop")
                 .AddProp<RichTextUIAttribute>("Description");
 
-            ComponentTemplate = new DocTypeTemplate(system.Identifier, "Component", false, "icon-brick")
+            ComponentTemplate = new DocTypeTemplate(system.Identifier, "Component", "icon-brick")
                 .AddProp<RichTextUIAttribute>("Description");
 
-            StateTemplate = new DocTypeTemplate(system.Identifier, "State", true, "icon-checkbox")
+            StateTemplate = new DocTypeTemplate(system.Identifier, "State", "icon-checkbox")
                 .AddProp<RichTextUIAttribute>("Description");
 
-            ActionTemplate = new DocTypeTemplate(system.Identifier, "Action", true, "icon-command")
+            ActionTemplate = new DocTypeTemplate(system.Identifier, "Action", "icon-command")
                 .AddProp<RichTextUIAttribute>("Description");
 
-            SystemTemplate = new DocTypeTemplate(system.Identifier, system.Identifier, false, "icon-settings")
+            SystemTemplate = new DocTypeTemplate(system.Identifier, system.Identifier, "icon-settings")
                 .AddProp<TextUIAttribute>("Identifier")
                 .AddProp<TextUIAttribute>("Version")
                 .AddProp<RichTextUIAttribute>("Description");
@@ -90,12 +90,23 @@ namespace Rpg.Cms.Services
 
             return res;
         }
+
+        public string GetDocTypeName(IMetaSystem system, MetaObject metaObject)
+            => GetDocTypeName(system, metaObject.Archetype);
+
+        public string GetDocTypeName(IMetaSystem system, string archetype)
+            => $"{system.Identifier} {archetype}";
+
+        public string GetDocTypeAlias(IMetaSystem system, MetaObject metaObject)
+            => $"{system.Identifier}_{metaObject.Archetype}";
     }
 
     public class PropertyTypeTemplate
     {
         public string Name { get; set; }
         public string Alias { get; set; }
+        public string? Tab {  get; set; }
+        public string? Group { get; set; }
         public MetaPropUIAttribute UI { get; set; }
 
         public PropertyTypeTemplate(string name, MetaPropUIAttribute propUI)
@@ -103,13 +114,17 @@ namespace Rpg.Cms.Services
             Name = name;
             Alias = name.ToLower();
             UI = propUI;
+            Tab = propUI.Tab;
+            Group = propUI.Group;
         }
 
-        public PropertyTypeTemplate(string name, string alias, MetaPropUIAttribute propUI)
+        public PropertyTypeTemplate(string name, string alias, MetaPropUIAttribute propUI, string? parentTab, string? parentGroup)
         {
             Name = name;
             Alias = alias;
             UI = propUI;
+            Tab = string.IsNullOrEmpty(propUI.Tab) ? parentTab : propUI.Tab;
+            Group = string.IsNullOrEmpty(propUI.Group) ? parentTab : propUI.Group;
         }
     }
 
@@ -135,13 +150,22 @@ namespace Rpg.Cms.Services
         public string Icon { get; set; }
         public bool AllowedAsRoot { get; set; }
         public List<PropertyTypeTemplate> Properties { get; private set; } = new List<PropertyTypeTemplate>();
-        public List<string> AllowedDocTypeAliases { get; private set; } = new List<string>();
+        public List<DocTypeAliasTemplate> AllowedDocTypeAliases { get; private set; } = new List<DocTypeAliasTemplate>();
 
-        public DocTypeTemplate(string identifier, string name, bool isElement, string icon = "icon-checkbox-dotted", bool allowAtRoot = false)
+        public DocTypeTemplate(string identifier, string name, MetaObjectType objectType, string icon = "icon-checkbox-dotted", bool allowAtRoot = false)
         {
             Name = name;
             Alias = identifier == name ? identifier : $"{identifier}_{name}";
-            IsElement = isElement;
+            IsElement = objectType == MetaObjectType.Component || objectType == MetaObjectType.ComponentTemplate;
+            Icon = icon;
+            AllowedAsRoot = allowAtRoot;
+        }
+
+        public DocTypeTemplate(string identifier, string name, string icon = "icon-checkbox-dotted", bool allowAtRoot = false)
+        {
+            Name = name;
+            Alias = identifier == name ? identifier : $"{identifier}_{name}";
+            IsElement = false;
             Icon = icon;
             AllowedAsRoot = allowAtRoot;
         }
@@ -158,12 +182,24 @@ namespace Rpg.Cms.Services
             return this;
         }
 
-        public DocTypeTemplate AddAllowedAlias(DocTypeTemplate docType)
+        public DocTypeTemplate AddAllowedAlias(Guid? key, string? alias)
         {
-            if (!AllowedDocTypeAliases.Contains(docType.Alias))
-                AllowedDocTypeAliases.Add(docType.Alias);
+            if (key != null && !string.IsNullOrEmpty(alias) && !AllowedDocTypeAliases.Any(x => x.Alias == alias))
+                AllowedDocTypeAliases.Add(new DocTypeAliasTemplate(key.Value, alias));
 
             return this;
+        }
+
+        public class DocTypeAliasTemplate
+        {
+            public Guid Key { get; set; }
+            public string Alias { get; set; }
+
+            public DocTypeAliasTemplate(Guid key, string alias)
+            {
+                Key = key;
+                Alias = alias;
+            }
         }
     }
 }

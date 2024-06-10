@@ -7,9 +7,6 @@ namespace Rpg.Cms.Services
 {
     public interface IRpgDocTypeFactory
     {
-        string GetAlias(IMetaSystem system, MetaObject metaObject);
-        string GetName(IMetaSystem system, MetaObject metaObject);
-
         ContentTypeCreateModel Create(RpgSyncSession session, IMetaSystem system, IUmbracoEntity parentFolder, DocTypeTemplate template);
         ContentTypeCreateModel Create(RpgSyncSession session, IMetaSystem system, IUmbracoEntity parentFolder, MetaObject metaObject);
         ContentTypeUpdateModel Update(RpgSyncSession session, IMetaSystem system, DocTypeTemplate template, IContentType docType);

@@ -2,6 +2,7 @@
 using Umbraco.Cms.Api.Management.Factories;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.Models.ContentTypeEditing;
 using Umbraco.Cms.Core.Models.Entities;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Services.ContentTypeEditing;
@@ -42,6 +43,39 @@ namespace Rpg.Cms.Services
             _rpgDocTypeFactory = rpgDocTypeFactory;
         }
 
+        public IEnumerable<IContentType> DocumentTypes()
+        {
+            var meta = new MetaGraph();
+            var system = meta.Build();
+
+            return GetAllDocTypes(system);
+        }
+
+        public async Task<IEnumerable<ContentTypeCreateModel>> DocumentTypeUpdatesAsync(Guid userKey)
+        {
+            var meta = new MetaGraph();
+            var system = meta.Build();
+            if (system != null)
+            {
+                var session = new RpgSyncSession(userKey, system);
+
+                session.RootDataTypeFolder = await EnsureDataTypeFolderAsync(session, system);
+                session.DataTypes = await EnsureDataTypesAsync(session, system);
+
+                session.DocTypes = GetAllDocTypes(system);
+                session.DocTypeFolders = GetAllDocTypeFolders(system);
+
+                session.RootDocTypeFolder = await EnsureDocTypeFolderAsync(session, session.RootFolderTemplate, -1);
+                var res = system.Objects
+                    .Select(x => _rpgDocTypeFactory.Create(session, system, session.RootDocTypeFolder, x))
+                    .ToList();
+
+                return res;
+            }
+
+            return Enumerable.Empty<ContentTypeCreateModel>();
+        }
+
         public async Task Sync(Guid userKey)
         {
             var meta = new MetaGraph();
@@ -60,19 +94,20 @@ namespace Rpg.Cms.Services
                 session.EntityDocTypeFolder = await EnsureDocTypeFolderAsync(session, session.EntityFolderTemplate, session.RootDocTypeFolder!.Id);
                 session.ComponentDocTypeFolder = await EnsureDocTypeFolderAsync(session, session.ComponentFolderTemplate, session.RootDocTypeFolder!.Id);
 
+                //session.ObjectDocType = await EnsureDocTypeAsync(session, system, session.ObjectTemplate, session.RootDocTypeFolder);
+                //session.EntityDocType = await EnsureDocTypeAsync(session, system, session.EntityTemplate, session.RootDocTypeFolder); 
+                //session.ComponentDocType = await EnsureDocTypeAsync(session, system, session.ComponentTemplate, session.RootDocTypeFolder);
+
+                session.StateElementType = await EnsureDocTypeAsync(session, system, session.StateTemplate, session.ComponentDocTypeFolder);
+                session.ActionElementType = await EnsureDocTypeAsync(session, system, session.ActionTemplate, session.ComponentDocTypeFolder);
+
+                foreach (var metaObject in system.Objects.Where(x => x.ObjectType == MetaObjectType.Entity))
+                {
+                    var docType = await EnsureDocTypeAsync(session, system, metaObject, session.EntityDocTypeFolder);
+                    session.SystemTemplate.AddAllowedAlias(docType?.Key, docType?.Alias);
+                }
+                
                 session.SystemDocType = await EnsureDocTypeAsync(session, system, session.SystemTemplate, session.RootDocTypeFolder);
-                session.ObjectDocType = await EnsureDocTypeAsync(session, system, session.ObjectTemplate, session.RootDocTypeFolder);
-                session.EntityDocType = await EnsureDocTypeAsync(session, system, session.EntityTemplate, session.RootDocTypeFolder); 
-                session.ComponentDocType = await EnsureDocTypeAsync(session, system, session.ComponentTemplate, session.RootDocTypeFolder);
-
-                session.StateElementType = await EnsureDocTypeAsync(session, system, session.StateTemplate, session.RootDocTypeFolder);
-                session.ActionElementType = await EnsureDocTypeAsync(session, system, session.ActionTemplate, session.RootDocTypeFolder);
-
-                foreach (var metaObject in system.Objects.Where(x => x.IsComponent))
-                    await EnsureDocTypeAsync(session, system, metaObject, session.ComponentDocTypeFolder);
-
-                foreach (var metaObject in system.Objects.Where(x => !x.IsComponent))
-                    await EnsureDocTypeAsync(session, system, metaObject, session.EntityDocTypeFolder);
             }
         }
 
@@ -216,7 +251,7 @@ namespace Rpg.Cms.Services
 
         private async Task<IContentType?> EnsureDocTypeAsync(RpgSyncSession session, IMetaSystem system, MetaObject metaObject, IUmbracoEntity parentFolder)
         {
-            var docType = session.GetDocType(_rpgDocTypeFactory.GetAlias(system, metaObject), faultOnNotFound: false);
+            var docType = session.GetDocType(session.GetDocTypeAlias(system, metaObject), faultOnNotFound: false);
             if (docType == null)
             {
                 var createDocType = _rpgDocTypeFactory.Create(session, system, parentFolder, metaObject);

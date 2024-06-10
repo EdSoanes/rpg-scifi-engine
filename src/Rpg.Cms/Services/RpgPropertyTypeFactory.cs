@@ -29,14 +29,18 @@ namespace Rpg.Cms.Services
 
             foreach (var template in templates)
             {
-                var tabName = GetContainerName(system, template.UI.Tab);
-                var groupName = GetContainerName(system, template.UI.Group);
+                var tabName = GetContainerName(system, template.Tab);
+                var groupName = GetContainerName(system, template.Group);
 
                 var propModel = Create(session, system, template);
-                var tab = containers.First(x => x.Name == tabName && x.Type == "Tab");
+                var tab = containers.FirstOrDefault(x => x.Name == tabName && x.Type == "Tab");
+                if (tab == null)
+                    throw new InvalidOperationException($"Could not find tab {tabName} for prop {template.Name}");
 
                 var tabGroups = containers.Where(x => x.ParentKey == tab.Key && x.Type == "Group");
-                var group = tabGroups.First(x => x.Name == groupName);
+                var group = tabGroups.FirstOrDefault(x => x.Name == groupName);
+                if (group == null)
+                    throw new InvalidOperationException($"Could not find group {groupName} for prop {template.Name}");
 
                 var propGroup = docType?.PropertyGroups.FirstOrDefault(x => x.Name == group.Name && x.Type == PropertyGroupType.Group);
                 var propType = propGroup?.PropertyTypes?.FirstOrDefault(x => x.Name == template.Name);
@@ -64,19 +68,33 @@ namespace Rpg.Cms.Services
             return propTypeModel;
         }
 
-        public PropertyTypeTemplate[] CreateTemplates(RpgSyncSession session, IMetaSystem system, MetaObject metaObject, string? aliasPrefix = null)
+        public PropertyTypeTemplate[] CreateTemplates(RpgSyncSession session, IMetaSystem system, MetaObject metaObject, string? aliasPrefix = null, string? parentTab = null, string? parentGroup = null)
         {
             var propertyTypeTemplates = new List<PropertyTypeTemplate>();
-            
-            foreach (var prop in metaObject.Properties)
+
+            var properties = !string.IsNullOrEmpty(metaObject.TemplateType)
+                ? system.Objects.First(x => x.Archetype == metaObject.TemplateType).Properties
+                : metaObject.Properties;
+
+            foreach (var prop in properties)
             {
                 var alias = GetAlias(prop.Name, aliasPrefix);
-                if (!prop.IsComponent && !prop.UI.Ignore)
-                    propertyTypeTemplates.Add(new PropertyTypeTemplate(prop.Name, alias, prop.UI));
+                if (prop.ReturnObjectType == MetaObjectType.None && !prop.UI.Ignore)
+                    propertyTypeTemplates.Add(new PropertyTypeTemplate(prop.Name, alias, prop.UI, parentTab, parentGroup));
                 else
                 {
                     var propDocType = system.Objects.First(x => x.TemplateType == prop.ReturnType);
-                    propertyTypeTemplates.AddRange(CreateTemplates(session, system, propDocType, alias));
+
+                    var oldParentTab = parentTab;
+                    var oldParentGroup = parentGroup;
+
+                    parentTab = !string.IsNullOrEmpty(prop.UI.Tab) ? prop.UI.Tab : parentTab;
+                    parentGroup = !string.IsNullOrEmpty(prop.UI.Group) ? prop.UI.Group : parentGroup;
+
+                    propertyTypeTemplates.AddRange(CreateTemplates(session, system, propDocType, alias, parentTab, parentGroup));
+
+                    parentTab = oldParentTab;
+                    parentGroup = oldParentGroup;
                 }
             }
 
