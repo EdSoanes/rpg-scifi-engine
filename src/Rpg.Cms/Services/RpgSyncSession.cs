@@ -79,7 +79,7 @@ namespace Rpg.Cms.Services
             EntityLibraryTemplate = new DocTypeTemplate(system.Identifier, "Entity Library", "icon-stop")
                 .AddAllowedSelf();
 
-            SystemTemplate = new DocTypeTemplate(system.Identifier, system.Identifier, "icon-settings")
+            SystemTemplate = new DocTypeTemplate(system.Identifier, system.Identifier, "icon-settings", true)
                 .AddProp<TextUIAttribute>("Identifier")
                 .AddProp<TextUIAttribute>("Version")
                 .AddProp<RichTextUIAttribute>("Description")
