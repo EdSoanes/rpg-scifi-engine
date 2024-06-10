@@ -214,7 +214,7 @@ namespace Rpg.Cms.Services
             if (folder != null)
                 return folder;
 
-            var attempt = await _contentTypeContainerService.CreateAsync(null, template.Name, parentFolder?.Key, session.UserKey);
+            var attempt = await _contentTypeContainerService.CreateAsync(template.Key, template.Name, parentFolder?.Key, session.UserKey);
             if (!attempt.Success)
                 throw new InvalidOperationException(attempt.Status.ToString());
 

@@ -22,6 +22,9 @@ namespace Rpg.Cms.Services
         public IUmbracoEntity? ComponentDocTypeFolder { get; set; }
 
         public DocTypeTemplate SystemTemplate { get; private set; }
+        public DocTypeTemplate ActionLibraryTemplate { get; private set; }
+        public DocTypeTemplate EntityLibraryTemplate { get; private set; }
+
         public DocTypeTemplate ObjectTemplate { get; private set; }
         public DocTypeTemplate EntityTemplate { get; private set; }
         public DocTypeTemplate ComponentTemplate { get; private set; }
@@ -30,6 +33,9 @@ namespace Rpg.Cms.Services
         public DocTypeTemplate ActionTemplate { get; private set; }
 
         public IContentType? SystemDocType { get; set; }
+        public IContentType? ActionLibraryDocType { get; set; }
+        public IContentType? EntityLibraryDocType { get; set; }
+
         public IContentType? ObjectDocType { get; set; }
         public IContentType? EntityDocType { get; set; }
         public IContentType? ComponentDocType { get; set; }
@@ -66,10 +72,20 @@ namespace Rpg.Cms.Services
             ActionTemplate = new DocTypeTemplate(system.Identifier, "Action", "icon-command")
                 .AddProp<RichTextUIAttribute>("Description");
 
+            ActionLibraryTemplate = new DocTypeTemplate(system.Identifier, "Action Library", "icon-command")
+                .AddAllowedAlias(ActionTemplate.Key, ActionTemplate.Alias)
+                .AddAllowedSelf();
+
+            EntityLibraryTemplate = new DocTypeTemplate(system.Identifier, "Entity Library", "icon-stop")
+                .AddAllowedSelf();
+
             SystemTemplate = new DocTypeTemplate(system.Identifier, system.Identifier, "icon-settings")
                 .AddProp<TextUIAttribute>("Identifier")
                 .AddProp<TextUIAttribute>("Version")
-                .AddProp<RichTextUIAttribute>("Description");
+                .AddProp<RichTextUIAttribute>("Description")
+                .AddAllowedAlias(ActionTemplate.Key, ActionLibraryTemplate.Alias)
+                .AddAllowedAlias(ActionTemplate.Key, EntityLibraryTemplate.Alias)
+                .AddAllowedSelf();
         }
 
         public IDataType GetDataType(string name)
@@ -103,6 +119,7 @@ namespace Rpg.Cms.Services
 
     public class PropertyTypeTemplate
     {
+        public Guid Key { get; set; } = Guid.NewGuid();
         public string Name { get; set; }
         public string Alias { get; set; }
         public string? Tab {  get; set; }
@@ -130,6 +147,7 @@ namespace Rpg.Cms.Services
 
     public class FolderTemplate
     {
+        public Guid Key { get; set; } = Guid.NewGuid();
         public string Name { get; set; }
         public string Alias { get; set; }
 
@@ -144,6 +162,7 @@ namespace Rpg.Cms.Services
 
     public class DocTypeTemplate
     {
+        public Guid Key { get; set; } = Guid.NewGuid();
         public string Name { get; set; }
         public string Alias { get; set; }
         public bool IsElement { get; set; }
@@ -186,6 +205,14 @@ namespace Rpg.Cms.Services
         {
             if (key != null && !string.IsNullOrEmpty(alias) && !AllowedDocTypeAliases.Any(x => x.Alias == alias))
                 AllowedDocTypeAliases.Add(new DocTypeAliasTemplate(key.Value, alias));
+
+            return this;
+        }
+
+        public DocTypeTemplate AddAllowedSelf()
+        {
+            if (Key != Guid.Empty && !string.IsNullOrEmpty(Alias) && !AllowedDocTypeAliases.Any(x => x.Alias == Alias))
+                AllowedDocTypeAliases.Add(new DocTypeAliasTemplate(Key, Alias));
 
             return this;
         }

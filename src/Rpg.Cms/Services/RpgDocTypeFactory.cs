@@ -21,6 +21,7 @@ namespace Rpg.Cms.Services
 
             var createDocType = new ContentTypeCreateModel
             {
+                Key = template.Key,
                 Name = template.Name,
                 Alias = template.Alias,
                 ContainerKey = parentFolder.Key,
