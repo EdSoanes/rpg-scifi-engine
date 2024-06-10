@@ -101,12 +101,19 @@ namespace Rpg.Cms.Services
                 session.StateElementType = await EnsureDocTypeAsync(session, system, session.StateTemplate, session.ComponentDocTypeFolder);
                 session.ActionElementType = await EnsureDocTypeAsync(session, system, session.ActionTemplate, session.ComponentDocTypeFolder);
 
+                session.ActionLibraryTemplate.AddAllowedAlias(session.ActionElementType?.Key, session.ActionElementType?.Alias);
+                session.ActionLibraryDocType = await EnsureDocTypeAsync(session, system, session.ActionLibraryTemplate, session.RootDocTypeFolder);
+
                 foreach (var metaObject in system.Objects.Where(x => x.ObjectType == MetaObjectType.Entity))
                 {
                     var docType = await EnsureDocTypeAsync(session, system, metaObject, session.EntityDocTypeFolder);
-                    session.SystemTemplate.AddAllowedAlias(docType?.Key, docType?.Alias);
+                    session.EntityLibraryTemplate.AddAllowedAlias(docType?.Key, docType?.Alias);
                 }
-                
+                session.EntityLibraryDocType = await EnsureDocTypeAsync(session, system, session.EntityLibraryTemplate, session.RootDocTypeFolder);
+
+                session.SystemTemplate
+                    .AddAllowedAlias(session.ActionLibraryDocType?.Key, session.ActionLibraryDocType?.Alias)
+                    .AddAllowedAlias(session.EntityLibraryDocType?.Key, session.EntityLibraryDocType?.Alias);
                 session.SystemDocType = await EnsureDocTypeAsync(session, system, session.SystemTemplate, session.RootDocTypeFolder);
             }
         }
