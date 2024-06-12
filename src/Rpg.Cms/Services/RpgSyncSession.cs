@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
+using Rpg.Cms.Services.Templates;
 using Rpg.ModObjects.Meta;
 using Umbraco.Cms.Api.Management.ViewModels.DataType;
 using Umbraco.Cms.Core.Models;
@@ -11,9 +12,9 @@ namespace Rpg.Cms.Services
         public IMetaSystem System { get; set; }
         public Guid UserKey { get; set; }
 
-        public FolderTemplate RootFolderTemplate { get; set; }
-        public FolderTemplate EntityFolderTemplate { get; set; }
-        public FolderTemplate ComponentFolderTemplate { get; set; }
+        public DocTypeFolderTemplate RootFolderTemplate { get; set; }
+        public DocTypeFolderTemplate EntityFolderTemplate { get; set; }
+        public DocTypeFolderTemplate ComponentFolderTemplate { get; set; }
 
         public IUmbracoEntity? RootDataTypeFolder { get; set; }
 
@@ -21,16 +22,6 @@ namespace Rpg.Cms.Services
         public IUmbracoEntity? EntityDocTypeFolder { get; set; }
         public IUmbracoEntity? ComponentDocTypeFolder { get; set; }
 
-        public DocTypeTemplate SystemTemplate { get; private set; }
-        public DocTypeTemplate ActionLibraryTemplate { get; private set; }
-        public DocTypeTemplate EntityLibraryTemplate { get; private set; }
-
-        public DocTypeTemplate ObjectTemplate { get; private set; }
-        public DocTypeTemplate EntityTemplate { get; private set; }
-        public DocTypeTemplate ComponentTemplate { get; private set; }
-
-        public DocTypeTemplate StateTemplate { get; private set; }
-        public DocTypeTemplate ActionTemplate { get; private set; }
 
         public IContentType? SystemDocType { get; set; }
         public IContentType? ActionLibraryDocType { get; set; }
@@ -53,39 +44,9 @@ namespace Rpg.Cms.Services
             System = system;
             UserKey = userKey;
 
-            RootFolderTemplate = new FolderTemplate(system.Identifier, system.Identifier);
-            EntityFolderTemplate = new FolderTemplate(system.Identifier, "Entities");
-            ComponentFolderTemplate = new FolderTemplate(system.Identifier, "Components");
-
-            ObjectTemplate = new DocTypeTemplate(system.Identifier, "Object", "icon-fullscreen")
-                .AddProp<RichTextUIAttribute>("Description");
-
-            EntityTemplate = new DocTypeTemplate(system.Identifier, "Entity", "icon-stop")
-                .AddProp<RichTextUIAttribute>("Description");
-
-            ComponentTemplate = new DocTypeTemplate(system.Identifier, "Component", "icon-brick")
-                .AddProp<RichTextUIAttribute>("Description");
-
-            StateTemplate = new DocTypeTemplate(system.Identifier, "State", "icon-checkbox")
-                .AddProp<RichTextUIAttribute>("Description");
-
-            ActionTemplate = new DocTypeTemplate(system.Identifier, "Action", "icon-command")
-                .AddProp<RichTextUIAttribute>("Description");
-
-            ActionLibraryTemplate = new DocTypeTemplate(system.Identifier, "Action Library", "icon-command")
-                .AddAllowedAlias(ActionTemplate.Key, ActionTemplate.Alias)
-                .AddAllowedSelf();
-
-            EntityLibraryTemplate = new DocTypeTemplate(system.Identifier, "Entity Library", "icon-stop")
-                .AddAllowedSelf();
-
-            SystemTemplate = new DocTypeTemplate(system.Identifier, system.Identifier, "icon-settings", true)
-                .AddProp<TextUIAttribute>("Identifier")
-                .AddProp<TextUIAttribute>("Version")
-                .AddProp<RichTextUIAttribute>("Description")
-                .AddAllowedAlias(ActionTemplate.Key, ActionLibraryTemplate.Alias)
-                .AddAllowedAlias(ActionTemplate.Key, EntityLibraryTemplate.Alias)
-                .AddAllowedSelf();
+            RootFolderTemplate = new DocTypeFolderTemplate(system.Identifier, system.Identifier);
+            EntityFolderTemplate = new DocTypeFolderTemplate(system.Identifier, "Entities");
+            ComponentFolderTemplate = new DocTypeFolderTemplate(system.Identifier, "Components");
         }
 
         public IDataType GetDataType(string name)
@@ -117,116 +78,18 @@ namespace Rpg.Cms.Services
             => $"{system.Identifier}_{metaObject.Archetype}";
     }
 
-    public class PropertyTypeTemplate
+
+
+
+    public class DocTypeAliasTemplate
     {
-        public Guid Key { get; set; } = Guid.NewGuid();
-        public string Name { get; set; }
+        public Guid Key { get; set; }
         public string Alias { get; set; }
-        public string? Tab {  get; set; }
-        public string? Group { get; set; }
-        public MetaPropUIAttribute UI { get; set; }
 
-        public PropertyTypeTemplate(string name, MetaPropUIAttribute propUI)
+        public DocTypeAliasTemplate(Guid key, string alias)
         {
-            Name = name;
-            Alias = name.ToLower();
-            UI = propUI;
-            Tab = propUI.Tab;
-            Group = propUI.Group;
-        }
-
-        public PropertyTypeTemplate(string name, string alias, MetaPropUIAttribute propUI, string? parentTab, string? parentGroup)
-        {
-            Name = name;
+            Key = key;
             Alias = alias;
-            UI = propUI;
-            Tab = string.IsNullOrEmpty(propUI.Tab) ? parentTab : propUI.Tab;
-            Group = string.IsNullOrEmpty(propUI.Group) ? parentTab : propUI.Group;
-        }
-    }
-
-    public class FolderTemplate
-    {
-        public Guid Key { get; set; } = Guid.NewGuid();
-        public string Name { get; set; }
-        public string Alias { get; set; }
-
-        public FolderTemplate(string identifier, string name)
-        {
-            Name = name;
-            Alias = identifier == name 
-                ? identifier
-                : $"{identifier}_{name}";
-        }
-    }
-
-    public class DocTypeTemplate
-    {
-        public Guid Key { get; set; } = Guid.NewGuid();
-        public string Name { get; set; }
-        public string Alias { get; set; }
-        public bool IsElement { get; set; }
-        public string Icon { get; set; }
-        public bool AllowedAsRoot { get; set; }
-        public List<PropertyTypeTemplate> Properties { get; private set; } = new List<PropertyTypeTemplate>();
-        public List<DocTypeAliasTemplate> AllowedDocTypeAliases { get; private set; } = new List<DocTypeAliasTemplate>();
-
-        public DocTypeTemplate(string identifier, string name, MetaObjectType objectType, string icon = "icon-checkbox-dotted", bool allowAtRoot = false)
-        {
-            Name = name;
-            Alias = identifier == name ? identifier : $"{identifier}_{name}";
-            IsElement = objectType == MetaObjectType.Component || objectType == MetaObjectType.ComponentTemplate;
-            Icon = icon;
-            AllowedAsRoot = allowAtRoot;
-        }
-
-        public DocTypeTemplate(string identifier, string name, string icon = "icon-checkbox-dotted", bool allowAtRoot = false)
-        {
-            Name = name;
-            Alias = identifier == name ? identifier : $"{identifier}_{name}";
-            IsElement = false;
-            Icon = icon;
-            AllowedAsRoot = allowAtRoot;
-        }
-
-        public DocTypeTemplate AddProp<T>(string name)
-            where T : MetaPropUIAttribute
-        {
-            if (!Properties.Any(x => x.Name == name))
-            {
-                var propUI = Activator.CreateInstance<T>();
-                Properties.Add(new PropertyTypeTemplate(name, propUI));
-            }
-
-            return this;
-        }
-
-        public DocTypeTemplate AddAllowedAlias(Guid? key, string? alias)
-        {
-            if (key != null && !string.IsNullOrEmpty(alias) && !AllowedDocTypeAliases.Any(x => x.Alias == alias))
-                AllowedDocTypeAliases.Add(new DocTypeAliasTemplate(key.Value, alias));
-
-            return this;
-        }
-
-        public DocTypeTemplate AddAllowedSelf()
-        {
-            if (Key != Guid.Empty && !string.IsNullOrEmpty(Alias) && !AllowedDocTypeAliases.Any(x => x.Alias == Alias))
-                AllowedDocTypeAliases.Add(new DocTypeAliasTemplate(Key, Alias));
-
-            return this;
-        }
-
-        public class DocTypeAliasTemplate
-        {
-            public Guid Key { get; set; }
-            public string Alias { get; set; }
-
-            public DocTypeAliasTemplate(Guid key, string alias)
-            {
-                Key = key;
-                Alias = alias;
-            }
         }
     }
 }

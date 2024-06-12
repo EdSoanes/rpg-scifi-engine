@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Meta;
+﻿using Rpg.Cms.Services.Templates;
+using Rpg.ModObjects.Meta;
 using Umbraco.Cms.Api.Management.Factories;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models;
@@ -101,8 +102,8 @@ namespace Rpg.Cms.Services
                 session.StateElementType = await EnsureDocTypeAsync(session, system, session.StateTemplate, session.ComponentDocTypeFolder);
                 session.ActionElementType = await EnsureDocTypeAsync(session, system, session.ActionTemplate, session.ComponentDocTypeFolder);
 
-                session.ActionLibraryTemplate.AddAllowedAlias(session.ActionElementType?.Key, session.ActionElementType?.Alias);
-                session.ActionLibraryDocType = await EnsureDocTypeAsync(session, system, session.ActionLibraryTemplate, session.RootDocTypeFolder);
+                var actionTemplate = new ActionLibraryTemplate(system.Identifier);
+                session.ActionDocType = await EnsureDocTypeAsync(session, system, session.ActionLibraryTemplate, session.RootDocTypeFolder);
 
                 foreach (var metaObject in system.Objects.Where(x => x.ObjectType == MetaObjectType.Entity))
                 {
@@ -207,7 +208,7 @@ namespace Rpg.Cms.Services
             return attempt.Result!;
         }
 
-        private async Task<IUmbracoEntity> EnsureDocTypeFolderAsync(RpgSyncSession session, FolderTemplate template, int parentId)
+        private async Task<IUmbracoEntity> EnsureDocTypeFolderAsync(RpgSyncSession session, DocTypeFolderTemplate template, int parentId)
         {
             var parentFolder = session.DocTypeFolders.FirstOrDefault(x => x.Id == parentId);
             var folder = session.DocTypeFolders.FirstOrDefault(x => x.ParentId == (parentFolder?.Id ?? -1) && x.Name == template.Name);
