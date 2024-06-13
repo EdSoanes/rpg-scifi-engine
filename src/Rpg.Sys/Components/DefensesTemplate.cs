@@ -13,22 +13,22 @@ namespace Rpg.Sys.Components
         public string? Name { get; set; }
         public string? Description { get; set; }
 
-        [MinZeroUI(Group = "Kinetic")]
+        [MinZeroUI(Group = "Kinetic", EditorName = "Kinetic Defense")]
         public int Kinetic {  get; set; }
 
-        [PercentUI(Group = "Kinetic")]
+        [PercentUI(Group = "Kinetic", EditorName = "Kinetic Defense Shielding")]
         public int KineticShielding { get; set; }
 
-        [MinZeroUI(Group = "Heat")]
+        [MinZeroUI(Group = "Heat", EditorName = "Heat Defense")]
         public int Heat { get; set; }
 
-        [PercentUI(Group = "Heat")]
+        [PercentUI(Group = "Heat", EditorName = "Kinetic Defense Shielding")]
         public int HeatShielding { get; set; }
 
-        [MinZeroUI(Group = "Energy")]
+        [MinZeroUI(Group = "Energy", EditorName = "Energy Defense")]
         public int Energy { get; set; }
 
-        [PercentUI(Group = "Energy")]
+        [PercentUI(Group = "Energy", EditorName = "Energy Defense Shielding")]
         public int EnergyShielding { get; set; }
 
         [MinZeroUI(Group = "Chemical")]

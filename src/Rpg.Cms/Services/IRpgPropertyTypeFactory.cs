@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Meta;
+﻿using Rpg.Cms.Services.Templates;
+using Rpg.ModObjects.Meta;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.ContentTypeEditing;
 

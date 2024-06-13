@@ -16,7 +16,7 @@ namespace Rpg.Cms.Services.Templates
         public DocTypeTemplate(string identifier, string name, MetaObjectType objectType, string icon = "icon-checkbox-dotted", bool allowAtRoot = false)
         {
             Name = name;
-            Alias = identifier == name ? identifier : $"{identifier}_{name}";
+            Alias = identifier == name ? identifier : $"{identifier}_{name}".Replace(' ', '_');
             IsElement = objectType == MetaObjectType.Component || objectType == MetaObjectType.ComponentTemplate;
             Icon = icon;
             AllowedAsRoot = allowAtRoot;
@@ -25,7 +25,7 @@ namespace Rpg.Cms.Services.Templates
         public DocTypeTemplate(string identifier, string name, string icon = "icon-checkbox-dotted", bool allowAtRoot = false)
         {
             Name = name;
-            Alias = identifier == name ? identifier : $"{identifier}_{name}";
+            Alias = identifier == name ? identifier : $"{identifier}_{name}".Replace(' ', '_');
             IsElement = false;
             Icon = icon;
             AllowedAsRoot = allowAtRoot;

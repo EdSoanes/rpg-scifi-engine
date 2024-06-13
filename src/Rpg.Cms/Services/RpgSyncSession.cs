@@ -12,10 +12,6 @@ namespace Rpg.Cms.Services
         public IMetaSystem System { get; set; }
         public Guid UserKey { get; set; }
 
-        public DocTypeFolderTemplate RootFolderTemplate { get; set; }
-        public DocTypeFolderTemplate EntityFolderTemplate { get; set; }
-        public DocTypeFolderTemplate ComponentFolderTemplate { get; set; }
-
         public IUmbracoEntity? RootDataTypeFolder { get; set; }
 
         public IUmbracoEntity? RootDocTypeFolder { get; set; }
@@ -43,10 +39,6 @@ namespace Rpg.Cms.Services
         {
             System = system;
             UserKey = userKey;
-
-            RootFolderTemplate = new DocTypeFolderTemplate(system.Identifier, system.Identifier);
-            EntityFolderTemplate = new DocTypeFolderTemplate(system.Identifier, "Entities");
-            ComponentFolderTemplate = new DocTypeFolderTemplate(system.Identifier, "Components");
         }
 
         public IDataType GetDataType(string name)

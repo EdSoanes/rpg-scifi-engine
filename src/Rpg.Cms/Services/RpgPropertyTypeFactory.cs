@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Meta;
+﻿using Rpg.Cms.Services.Templates;
+using Rpg.ModObjects.Meta;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.ContentTypeEditing;
 
@@ -6,9 +7,9 @@ namespace Rpg.Cms.Services
 {
     public class RpgPropertyTypeFactory : IRpgPropertyTypeFactory
     {
-        private readonly IRpgDataTypeFactory _typeFactory;
+        private readonly IDataTypeSynchronizer _typeFactory;
 
-        public RpgPropertyTypeFactory(IRpgDataTypeFactory typeFactory)
+        public RpgPropertyTypeFactory(IDataTypeSynchronizer typeFactory)
         {
             _typeFactory = typeFactory;
         }
@@ -61,7 +62,7 @@ namespace Rpg.Cms.Services
             {
                 Key = Guid.NewGuid(),
                 Alias = template.Alias,
-                Name = template.Name,
+                Name = template.EditorName,
                 DataTypeKey = dataType.Key,
             };
 

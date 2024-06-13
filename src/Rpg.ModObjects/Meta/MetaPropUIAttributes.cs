@@ -12,6 +12,7 @@ namespace Rpg.ModObjects.Meta
     public class MetaPropUIAttribute: Attribute
     {
         public string Name { get => GetType().Name; }
+        public string EditorName { get; set; }
         public string Editor { get; set; }
         public bool Ignore {  get; set; }
         public string Tab { get; set; } = string.Empty;
@@ -20,6 +21,8 @@ namespace Rpg.ModObjects.Meta
         public MetaPropUIAttribute(string editor)
         {
             Editor = editor;
+            EditorName = GetType().Name;
+
         }
     }
 

@@ -20,9 +20,9 @@ namespace Rpg.Sys.Archetypes
         public HealthTemplate Health { get; set; } = new HealthTemplate();
 
         [ComponentUI(Tab = "Combat")]
-        public DefensesTemplate Defenses { get; set; } = new DefensesTemplate();
+        public DamageTemplate Damage { get; set; } = new DamageTemplate();
 
         [ComponentUI(Tab = "Combat")]
-        public DamageTemplate Damage { get; set; } = new DamageTemplate();
+        public DefensesTemplate Defenses { get; set; } = new DefensesTemplate();
     }
 }

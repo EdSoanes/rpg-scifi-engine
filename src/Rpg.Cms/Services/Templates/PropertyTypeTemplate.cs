@@ -6,6 +6,7 @@ namespace Rpg.Cms.Services.Templates
     {
         public Guid Key { get; set; } = Guid.NewGuid();
         public string Name { get; set; }
+        public string EditorName { get; set; }
         public string Alias { get; set; }
         public string? Tab { get; set; }
         public string? Group { get; set; }
@@ -14,6 +15,7 @@ namespace Rpg.Cms.Services.Templates
         public PropertyTypeTemplate(string name, MetaPropUIAttribute propUI)
         {
             Name = name;
+            EditorName = name;
             Alias = name.ToLower();
             UI = propUI;
             Tab = propUI.Tab;
@@ -23,6 +25,7 @@ namespace Rpg.Cms.Services.Templates
         public PropertyTypeTemplate(string name, string alias, MetaPropUIAttribute propUI, string? parentTab, string? parentGroup)
         {
             Name = name;
+            EditorName = propUI.EditorName;
             Alias = alias;
             UI = propUI;
             Tab = string.IsNullOrEmpty(propUI.Tab) ? parentTab : propUI.Tab;

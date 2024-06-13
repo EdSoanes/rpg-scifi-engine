@@ -11,7 +11,7 @@
             Name = name;
             Alias = identifier == name
                 ? identifier
-                : $"{identifier}_{name}";
+                : $"{identifier}_{name}".Replace(' ', '_');
         }
     }
 }
