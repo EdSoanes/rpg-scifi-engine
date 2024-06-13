@@ -91,8 +91,6 @@ namespace Rpg.Cms.Services
 
                 session.StateElementType = await _docTypeSynchronizer.Synchronize(session, system, new StateComponentTemplate(system.Identifier), session.ComponentDocTypeFolder);
                 session.ActionElementType = await _docTypeSynchronizer.Synchronize(session, system, new ActionComponentTemplate(system.Identifier), session.ComponentDocTypeFolder);
-
-                var actionTemplate = new ActionLibraryTemplate(system.Identifier);
                 session.ActionLibraryDocType = await _docTypeSynchronizer.Synchronize(session, system, new ActionLibraryTemplate(system.Identifier), session.RootDocTypeFolder);
 
                 var entityLibraryTemplate =new EntityLibraryTemplate(system.Identifier);
