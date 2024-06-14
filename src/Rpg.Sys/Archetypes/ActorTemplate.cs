@@ -12,7 +12,7 @@ namespace Rpg.Sys.Archetypes
     {
         public string? Class { get; set; }
 
-        [ComponentUI]
+        [ComponentUI(Tab = "Stats")]
         public StatPointsTemplate Stats { get; set; } = new StatPointsTemplate();
 
         [ComponentUI]

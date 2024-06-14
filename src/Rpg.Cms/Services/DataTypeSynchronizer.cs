@@ -44,7 +44,7 @@ namespace Rpg.Cms.Services
             return res;
         }
 
-        private async Task<List<IDataType>> Synchronize(RpgSyncSession session, IMetaSystem system)
+        public async Task<List<IDataType>> Synchronize(RpgSyncSession session, IMetaSystem system)
         {
             var res = new List<IDataType>();
 

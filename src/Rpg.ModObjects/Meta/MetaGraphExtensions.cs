@@ -58,5 +58,23 @@ namespace Rpg.ModObjects.Meta
                 && (propertyInfo.PropertyType.IsAssignableTo(typeof(IRpgEntityTemplate)) || propertyInfo.PropertyType.IsAssignableTo(typeof(IRpgComponentTemplate)));
         }
 
+        internal static MetaPropUIAttribute GetPropUI(this PropertyInfo propertyInfo)
+        {
+            var ui = propertyInfo.GetCustomAttributes(true)
+                .FirstOrDefault(x => x.GetType().IsAssignableTo(typeof(MetaPropUIAttribute))) as MetaPropUIAttribute;
+
+            if (ui == null)
+            {
+                ui = propertyInfo.PropertyType.Name switch
+                {
+                    nameof(Int32) => new IntegerUIAttribute(),
+                    nameof(Dice) => new DiceUIAttribute(),
+                    nameof(String) => new TextUIAttribute(),
+                    _ => new ComponentUIAttribute()
+                };
+            }
+
+            return ui!;
+        }
     }
 }
