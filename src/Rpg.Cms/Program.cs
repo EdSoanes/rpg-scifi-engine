@@ -1,4 +1,6 @@
 using Rpg.Cms.Services;
+using Rpg.Cms.Services.Factories;
+using Rpg.Cms.Services.Synchronizers;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -11,10 +13,12 @@ builder.CreateUmbracoBuilder()
 
 builder.Services
     .AddTransient<IRpgSystemSyncService, RpgSystemSyncService>()
-    .AddTransient<IRpgPropertyTypeFactory, RpgPropertyTypeFactory>()
     .AddTransient<IDocTypeSynchronizer, DocTypeSynchronizer>()
     .AddTransient<IDocTypeFolderSynchronizer, DocTypeFolderSynchronizer>()
-    .AddTransient<IDataTypeSynchronizer, DataTypeSynchronizer>();
+    .AddTransient<IDataTypeSynchronizer, DataTypeSynchronizer>()
+    .AddTransient<IDataTypeFolderSynchronizer, DataTypeFolderSynchronizer>()
+    .AddTransient<DocTypeModelFactory>()
+    .AddTransient<DataTypeModelFactory>();
 
 WebApplication app = builder
     .Build();

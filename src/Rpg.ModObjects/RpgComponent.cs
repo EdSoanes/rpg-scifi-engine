@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Meta;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,9 @@ namespace Rpg.ModObjects
 {
     public abstract class RpgComponent : RpgObject
     {
-        [JsonProperty] public string EntityId { get; private set; }
+        [JsonProperty] 
+        [TextUI(Ignore = true)]
+        public string EntityId { get; private set; }
 
         [JsonConstructor] protected RpgComponent() { }
 

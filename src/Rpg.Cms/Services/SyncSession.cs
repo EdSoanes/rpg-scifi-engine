@@ -1,13 +1,11 @@
-﻿using Microsoft.AspNetCore.Components.Forms;
-using Rpg.Cms.Services.Templates;
-using Rpg.ModObjects.Meta;
-using Umbraco.Cms.Api.Management.ViewModels.DataType;
+﻿using Rpg.ModObjects.Meta;
+using System.Security.Cryptography.Xml;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.Entities;
 
 namespace Rpg.Cms.Services
 {
-    public class RpgSyncSession
+    public class SyncSession
     {
         public IMetaSystem System { get; set; }
         public Guid UserKey { get; set; }
@@ -35,14 +33,15 @@ namespace Rpg.Cms.Services
         public List<IDataType> DataTypes { get; set; } = new List<IDataType>();
 
 
-        public RpgSyncSession(Guid userKey, IMetaSystem system)
+        public SyncSession(Guid userKey, IMetaSystem system)
         {
             System = system;
             UserKey = userKey;
         }
 
-        public IDataType GetDataType(string name)
+        public IDataType GetDataType(string propType)
         {
+            var name = GetDataTypeName(propType);
             var res = DataTypes.FirstOrDefault(x => x.Name == name);
             if (res == null)
                 throw new InvalidOperationException($"Missing data type {name}");
@@ -60,14 +59,33 @@ namespace Rpg.Cms.Services
             return res;
         }
 
-        public string GetDocTypeName(IMetaSystem system, MetaObject metaObject)
-            => GetDocTypeName(system, metaObject.Archetype);
+        public string GetDataTypeName(string propType)
+            => $"{System.Identifier} {propType}";
 
-        public string GetDocTypeName(IMetaSystem system, string archetype)
-            => $"{system.Identifier} {archetype}";
+        public string GetDocTypeName(MetaObj metaObject)
+            => GetDocTypeName(metaObject.Archetype);
 
-        public string GetDocTypeAlias(IMetaSystem system, MetaObject metaObject)
-            => $"{system.Identifier}_{metaObject.Archetype}";
+        public string GetDocTypeName(string archetype)
+            => $"{System.Identifier} {archetype}";
+
+        public string GetDocTypeAlias(MetaObj metaObject)
+            => $"{System.Identifier}_{metaObject.Archetype}";
+
+        public string GetDocTypeAlias(string archetype)
+            => $"{System.Identifier}_{archetype}";
+
+        public string GetPropTypeAlias(MetaProp prop)
+            => $"{System.Identifier}_{prop.Prop}";
+
+        public string GetPropTypeTabName(string? tab)
+            => string.IsNullOrEmpty(tab)
+                ? System.Name
+                : tab;
+
+        public string GetPropTypeGroupName(string? group)
+            => string.IsNullOrEmpty(group)
+                ? System.Name
+                : group;
     }
 
 

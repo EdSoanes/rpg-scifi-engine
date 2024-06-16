@@ -12,7 +12,6 @@ namespace Rpg.ModObjects.Meta
         public string Name { get; }
         public string Version { get; }
         public string Description { get; }
-        public MetaObject[] Objects { get; set; }
-        public MetaPropUIAttribute[] PropUIAttributes { get; set; }
+        public MetaObj[] Objects { get; set; }
     }
 }

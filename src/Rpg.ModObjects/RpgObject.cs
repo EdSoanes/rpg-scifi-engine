@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Meta;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.States;
@@ -13,8 +14,14 @@ namespace Rpg.ModObjects
     {
         protected RpgGraph? Graph { get; private set; }
 
-        [JsonProperty] public string Id { get; private set; }
-        [JsonProperty] public string Name { get; set; }
+        [JsonProperty]
+        [TextUI(Ignore = true)]
+        public string Id { get; private set; }
+
+        [JsonProperty] 
+        [TextUI(Ignore = true)]
+        public string Name { get; set; }
+
         [JsonProperty] public string[] Is { get; private set; }
         [JsonProperty] internal PropStore PropStore { get; private set; }
         [JsonProperty] internal ModSetStore ModSetStore { get; private set; }

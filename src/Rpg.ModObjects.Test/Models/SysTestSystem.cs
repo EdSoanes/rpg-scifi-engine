@@ -17,7 +17,7 @@ namespace Rpg.ModObjects.Tests.Models
 
         public string Description { get => "Test System for Unit Tests"; }
 
-        public MetaObject[] Objects { get; set; } = Array.Empty<MetaObject>();
+        public MetaObj[] Objects { get; set; } = Array.Empty<MetaObj>();
 
         public MetaPropUIAttribute[] PropUIAttributes { get; set; } = Array.Empty<MetaPropUIAttribute>();
     }

@@ -16,10 +16,20 @@ namespace Rpg.Sys.Tests
         [Test]
         public void CreateActorTemplate_MetaObj_EnsureValues()
         {
-            var gen = new MetaGen();
+            var gen = new MetaGraph();
             var obj = gen.Object(typeof(ActorTemplate));
 
             Assert.That(obj, Is.Not.Null);
         }
+
+        [Test]
+        public void CreateHuman_MetaObj_EnsureValues()
+        {
+            var gen = new MetaGraph();
+            var obj = gen.Object(typeof(Human));
+
+            Assert.That(obj, Is.Not.Null);
+        }
+
     }
 }
