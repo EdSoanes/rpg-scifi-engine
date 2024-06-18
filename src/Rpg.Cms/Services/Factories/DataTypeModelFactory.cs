@@ -8,52 +8,71 @@ namespace Rpg.Cms.Services.Factories
 {
     public class DataTypeModelFactory
     {
-        public CreateDataTypeRequestModel ToDataTypeModel(SyncSession session, MetaProp prop, IUmbracoEntity parentFolder)
+        public CreateDataTypeRequestModel[] ToDataTypeModels(SyncSession session, IUmbracoEntity parentFolder)
+        {
+            var res = new List<CreateDataTypeRequestModel>();
+            foreach (var attr in session.System.PropUIAttributes)
+            {
+                var dataTypeName = session.GetDataTypeName(attr.DataType);
+                if (!res.Any(x => x.Name == dataTypeName))
+                {
+                    var model = ToDataTypeModel(session, attr, parentFolder);
+                    res.Add(model);
+                }
+            }
+
+            return res.ToArray();
+        }
+
+        public CreateDataTypeRequestModel ToDataTypeModel(SyncSession session, MetaPropUIAttribute attr, IUmbracoEntity parentFolder)
         {
             var res = new CreateDataTypeRequestModel();
 
-            res.Name = session.GetDataTypeName(prop.Type);
+            res.Id = Guid.NewGuid();
+            res.Name = session.GetDataTypeName(attr.DataType);
             res.Parent = new ReferenceByIdModel(parentFolder.Key);
-            res.EditorAlias = MapPropTypeToUmbEditor(prop.Type);
-            res.EditorUiAlias = MapPropTypeToUmbUIEditor(prop.Type);
-            res.Values = MapPropToUmbValues(prop);
+            res.EditorAlias = ToUmbEditor(attr);
+            res.EditorUiAlias = ToUmbUIEditor(attr);
+            res.Values = ToUmbValues(attr);
 
             return res;
         }
 
-        private string MapPropTypeToUmbEditor(string propType)
+        private string ToUmbEditor(MetaPropUIAttribute attr)
         {
-            return propType switch
+            return attr.ReturnType switch
             {
                 nameof(Int32) => "Umbraco.Integer",
                 nameof(Dice) => "Umbraco.TextBox",
-                "Html" => "Umbraco.RichText",
-                _ => "Umbraco.TextBox"
+                _ => attr.DataType == "RichText" 
+                    ? "Umbraco.RichText" 
+                    : "Umbraco.TextBox"
             };
         }
 
-        private string MapPropTypeToUmbUIEditor(string propType)
+        private string ToUmbUIEditor(MetaPropUIAttribute attr)
         {
-            return propType switch
+            return attr.DataType switch
             {
-                nameof(Int32) => "Umb.PropertyEditorUi.Integer",
                 nameof(Dice) => "Umb.PropertyEditorUi.TextBox",
-                "Html" => "Umb.PropertyEditorUi.TinyMCE",
-                _ => "Umb.PropertyEditorUi.TextBox"
+                "RichText" => "Umb.PropertyEditorUi.TinyMCE",
+                "Text" => "Umb.PropertyEditorUi.TextBox",
+                _ => "Umb.PropertyEditorUi.Integer",
             };
         }
 
-        private IEnumerable<DataTypePropertyPresentationModel> MapPropToUmbValues(MetaProp metaProp)
+        private IEnumerable<DataTypePropertyPresentationModel> ToUmbValues(MetaPropUIAttribute attr)
         {
-            return metaProp.Type switch
+            return attr.ReturnType switch
             {
-                nameof(Int32) => CreateIntValues(metaProp),
-                "Html" => CreateHtmlValues(metaProp),
-                _ => Enumerable.Empty<DataTypePropertyPresentationModel>()
+                nameof(Int32) => CreateIntValues(attr),
+                _ => attr.DataType == "RichText"
+                    ? CreateRichTextValues(attr)
+                    : Enumerable.Empty<DataTypePropertyPresentationModel>()
             };
-
         }
-        private IEnumerable<DataTypePropertyPresentationModel> CreateIntValues(MetaProp metaProp)
+
+        private IEnumerable<DataTypePropertyPresentationModel> CreateIntValues(MetaPropUIAttribute metaProp)
         {
 
             var vals = new List<DataTypePropertyPresentationModel>();
@@ -68,7 +87,7 @@ namespace Rpg.Cms.Services.Factories
             return vals;
         }
 
-        private IEnumerable<DataTypePropertyPresentationModel> CreateHtmlValues(MetaProp metaProp)
+        private IEnumerable<DataTypePropertyPresentationModel> CreateRichTextValues(MetaPropUIAttribute metaProp)
         {
             var vals = new List<DataTypePropertyPresentationModel>
             {

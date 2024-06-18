@@ -9,9 +9,12 @@ namespace Rpg.Sys.Components.Values
     public class ScoreBonusValue : RpgComponent
     {
         [JsonProperty]
+        [ScoreUI()]
         public int Score { get; protected set; }
 
-        [JsonProperty] public int Bonus { get; protected set; }
+        [JsonProperty]
+        [IntegerUI(Ignore = true)]
+        public int Bonus { get; protected set; }
 
         [JsonConstructor] private ScoreBonusValue() { }
 

@@ -51,26 +51,28 @@ namespace Rpg.Cms.Services.Synchronizers
 
         public async Task<List<IDataType>> Sync(SyncSession session)
         {
-            var res = await GetDataTypesAsync(session);
-            foreach (var metaProp in session.System.Objects.SelectMany(x => x.Props))
+            var dataTypes = await GetDataTypesAsync(session);
+
+            var res = dataTypes.ToList();
+            var models = _dataTypeModelFactory.ToDataTypeModels(session, session.RootDataTypeFolder!);
+
+            foreach (var model in models)
             {
-                var name = session.GetDataTypeName(metaProp.Prop);
-                if (!res.Any(x => x.Name == name))
+                if (!res.Any(x => x.Name == model.Name))
                 {
-                    var dataTypeModel = _dataTypeModelFactory.ToDataTypeModel(session, metaProp, session.RootDataTypeFolder!);
-                    var presAttempt = await _dataTypePresentationFactory.CreateAsync(dataTypeModel);
+                    var presAttempt = await _dataTypePresentationFactory.CreateAsync(model);
                     if (!presAttempt.Success)
-                        throw new InvalidOperationException($"Failed to create datatype presentation for {name}");
+                        throw new InvalidOperationException($"Failed to create datatype presentation for {model.Name}");
 
                     var dataTypeAttempt = await _dataTypeService.CreateAsync(presAttempt.Result, session.UserKey);
                     if (!dataTypeAttempt.Success)
-                        throw new InvalidOperationException($"Failed to create datatype for {name}");
+                        throw new InvalidOperationException($"Failed to create datatype for {model.Name}");
 
                     res.Add(dataTypeAttempt.Result);
                 }
             }
 
-            return res.ToList();
+            return res;
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Rpg.Cms.Services.Templates;
-using Umbraco.Cms.Core.Models.Entities;
+﻿using Umbraco.Cms.Core.Models.Entities;
 
 namespace Rpg.Cms.Services.Synchronizers
 {

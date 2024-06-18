@@ -1,11 +1,9 @@
-using Newtonsoft.Json;
-using Rpg.ModObjects;
 using Rpg.ModObjects.Meta;
 using Rpg.Sys.Archetypes;
 
 namespace Rpg.Sys.Tests
 {
-    public class MetaGenTests
+    public class MetaObjectTests
     {
         [SetUp]
         public void Setup()
@@ -30,6 +28,5 @@ namespace Rpg.Sys.Tests
 
             Assert.That(obj, Is.Not.Null);
         }
-
     }
 }

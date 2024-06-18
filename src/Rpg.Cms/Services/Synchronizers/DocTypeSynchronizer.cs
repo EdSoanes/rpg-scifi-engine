@@ -45,7 +45,13 @@ namespace Rpg.Cms.Services.Synchronizers
                 createDocType.ContainerKey = parentFolder.Key;
 
                 docType = await CreateAsync(session, createDocType);
+
+                if (docType != null && metaObject.AllowedChildArchetypes.Any())
+                {
+
+                }
             }
+
 
             return docType;
         }

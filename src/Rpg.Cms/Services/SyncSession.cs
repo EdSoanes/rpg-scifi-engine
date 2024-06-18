@@ -69,10 +69,10 @@ namespace Rpg.Cms.Services
             => $"{System.Identifier} {archetype}";
 
         public string GetDocTypeAlias(MetaObj metaObject)
-            => $"{System.Identifier}_{metaObject.Archetype}";
+            => GetDocTypeAlias(metaObject.Archetype);
 
         public string GetDocTypeAlias(string archetype)
-            => $"{System.Identifier}_{archetype}";
+            => $"{System.Identifier}_{archetype}".Replace(" ", "");
 
         public string GetPropTypeAlias(MetaProp prop)
             => $"{System.Identifier}_{prop.Prop}";

@@ -18,5 +18,7 @@ namespace Rpg.Sys
         public string Description { get => "A test rpg system"; }
 
         public MetaObj[] Objects { get; set; } = Array.Empty<MetaObj>();
+
+        public MetaPropUIAttribute[] PropUIAttributes { get; set; } = Array.Empty<MetaPropUIAttribute>();
     }
 }

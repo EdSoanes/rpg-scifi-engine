@@ -16,7 +16,7 @@ namespace Rpg.Cms.Services.Factories
             return SetModel(session, createDocType, metaObject, icon);
         }
 
-        public ContentTypeUpdateModel UpdateModel(SyncSession session, MetaObj metaObject, IContentType docType, string? icon = null)
+        public ContentTypeUpdateModel UpdateModel(SyncSession session, MetaObj metaObject, IContentType docType, string icon = "icon-checkbox-dotted")
         {
             var updateDocType = SetModel(session, new ContentTypeUpdateModel(), metaObject, icon ?? docType.Icon!);
             return updateDocType;
@@ -30,9 +30,24 @@ namespace Rpg.Cms.Services.Factories
 
             docTypeModel.Name = session.GetDocTypeName(metaObject);
             docTypeModel.Alias = session.GetDocTypeAlias(metaObject);
-            docTypeModel.Icon = icon;
+            docTypeModel.Icon = metaObject.Icon ?? icon;
             docTypeModel.Containers = containers;
             docTypeModel.Properties = properties;
+            docTypeModel.AllowedAsRoot = metaObject.AllowedAsRoot;
+
+            if (metaObject.AllowedChildArchetypes.Any())
+            {
+                var allowedTypes = new List<ContentTypeSort>();
+                int i = 0;
+                foreach (var archetype in metaObject.AllowedChildArchetypes)
+                {
+                    var docType = session.GetDocType(archetype, faultOnNotFound: false);
+                    if (docType != null)
+                        allowedTypes.Add(new ContentTypeSort(docType.Key, i++, docType.Alias));
+                }
+
+                docTypeModel.AllowedContentTypes = allowedTypes;
+            }
 
             return docTypeModel;
         }
@@ -103,7 +118,7 @@ namespace Rpg.Cms.Services.Factories
             var res = new List<ContentTypePropertyTypeModel>();
             foreach (var metaProp in metaProps)
             {
-                var dataType = session.GetDataType(metaProp.Type);
+                var dataType = session.GetDataType(metaProp.DataType);
                 var propModel = new ContentTypePropertyTypeModel
                 {
                     Key = Guid.NewGuid(),

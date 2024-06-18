@@ -11,7 +11,7 @@ namespace Rpg.ModObjects.Tests.Models
         [ScoreUI]
         public int Score { get; protected set; }
 
-        [MetaPropUI(nameof(Int32), Ignore = true)]
+        [IntegerUI(Ignore = true)]
         [JsonProperty] public int Bonus { get; protected set; }
 
         [JsonConstructor] private ScoreBonusValue() { }

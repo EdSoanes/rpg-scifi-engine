@@ -24,19 +24,25 @@ namespace Rpg.ModObjects.Meta
                 .Select(Object)
                 .ToArray();
 
+            var propUITypes = GetMetaTypes<MetaPropUIAttribute>()
+                .Select(x => (MetaPropUIAttribute)Activator.CreateInstance(x)!)
+                .ToArray();
+
             var system = Activator.CreateInstance(sysType) as IMetaSystem;
             if (system == null)
                 throw new InvalidOperationException($"Could not create instance of IMetaSystem {sysType.Name}");
 
             system.Objects = res;
+            system.PropUIAttributes = propUITypes;
+
             return system;
         }
 
         public MetaObj Object(Type type)
         {
-            var obj = new MetaObj();
-            obj.Archetype = type.Name;
+            var obj = new MetaObj(type.Name);
             obj.Props = Props(type);
+
             return obj;
         }
 
@@ -63,15 +69,16 @@ namespace Rpg.ModObjects.Meta
                     var metaProp = new MetaProp();
 
                     metaProp.Prop = propInfo.Name;
-                    metaProp.Type = propUI?.GetType().Name.Replace("UIAttribute", "") ?? propInfo.PropertyType.Name;
+                    metaProp.DataType = propUI?.DataType ?? propInfo.PropertyType.Name;
+                    metaProp.ReturnType = propInfo.PropertyType.Name;
                     metaProp.Path = propStack.ToList();
                     metaProp.Path.Reverse();
 
                     metaProp.Tab = tab;
                     metaProp.Group = group;
-                    metaProp.DisplayName = !string.IsNullOrEmpty(propUI?.EditorName) ? propUI.EditorName : propInfo.Name;
+                    metaProp.DisplayName = !string.IsNullOrEmpty(propUI?.DisplayName) ? propUI.DisplayName : string.Join('.', new List<string>(metaProp.Path) { metaProp.Prop });
+                    metaProp.Ignore = propUI?.Ignore ?? false;
 
-                    SetPropUIValues(metaProp, propUI);
                     metaProps.Add(metaProp);
                 }
                 else if (propInfo.PropertyType.IsClass && !propInfo.PropertyType.IsAssignableTo(typeof(IEnumerable)))
@@ -82,20 +89,6 @@ namespace Rpg.ModObjects.Meta
                         Prop(metaProps, propStack, childPropInfo, tab, group);
 
                     propStack.Pop();
-                }
-            }
-        }
-
-        public void SetPropUIValues(MetaProp metaProp, MetaPropUIAttribute? attr)
-        {
-            metaProp.Values.Clear();
-
-            if (attr != null)
-            {
-                foreach (var propInfo in attr.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
-                {
-                    if (BaseTypes.Contains(propInfo.PropertyType) || propInfo.PropertyType == typeof(bool))
-                        metaProp.Values.Add(propInfo.Name, propInfo.GetValue(attr));
                 }
             }
         }
@@ -125,21 +118,32 @@ namespace Rpg.ModObjects.Meta
         {
             var res = new List<Type>();
 
-            TypeInfo baseTypeInfo = typeof(T).GetTypeInfo();
-            bool isClass = baseTypeInfo.IsClass, isInterface = baseTypeInfo.IsInterface;
-
             foreach (var assembly in GetScanAssemblies())
             {
-                var assemblyTypes =
-                    from type in assembly.DefinedTypes
-                    where isClass ? type.IsSubclassOf(typeof(T)) :
-                          isInterface ? type.ImplementedInterfaces.Contains(baseTypeInfo.AsType()) : false
-                    select type.AsType();
+                var assemblyTypes = assembly.DefinedTypes
+                    .Where(x => IsValidMetaType<T>(x))
+                    .Select(x => x.AsType());
 
                 res.AddRange(assemblyTypes);
             }
 
             return res;
+        }
+
+        private bool IsValidMetaType<T>(TypeInfo typeInfo)
+        {
+            if (typeInfo.IsAbstract) 
+                return false;
+
+            var baseTypeInfo = typeof(T).GetTypeInfo();
+
+            if (baseTypeInfo.IsClass)
+                return typeInfo.IsSubclassOf(baseTypeInfo.AsType());
+
+            if (baseTypeInfo.IsInterface)
+                return typeInfo.ImplementedInterfaces.Contains(typeof(T));
+
+            return false;
         }
 
         private List<Assembly> GetScanAssemblies()

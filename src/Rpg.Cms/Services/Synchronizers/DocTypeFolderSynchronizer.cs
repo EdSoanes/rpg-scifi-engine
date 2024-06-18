@@ -1,6 +1,4 @@
-﻿using Rpg.Cms.Services.Templates;
-using Rpg.ModObjects.Meta;
-using Umbraco.Cms.Core;
+﻿using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.Entities;
 using Umbraco.Cms.Core.Services;
@@ -51,7 +49,7 @@ namespace Rpg.Cms.Services.Synchronizers
             if (folder != null)
                 return folder;
 
-            var attempt = await _contentTypeContainerService.CreateAsync(Guid.NewGuid(), GetFolderName(session, folderName), parentFolder?.Key, session.UserKey);
+            var attempt = await _contentTypeContainerService.CreateAsync(Guid.NewGuid(), folderName, parentFolder?.Key, session.UserKey);
             if (!attempt.Success)
                 throw new InvalidOperationException(attempt.Status.ToString());
 
@@ -60,10 +58,5 @@ namespace Rpg.Cms.Services.Synchronizers
 
             return entityContainer;
         }
-
-        private string GetFolderName(SyncSession session, string? folderName = null)
-            => !string.IsNullOrEmpty(folderName) && session.System.Identifier != folderName
-                ? $"{session.System.Identifier}.{folderName}"
-                : session.System.Identifier;
     }
 }

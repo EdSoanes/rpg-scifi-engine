@@ -1,48 +1,68 @@
 ﻿using Rpg.ModObjects.Values;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
 
 namespace Rpg.ModObjects.Meta
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public class MetaPropUIAttribute: Attribute
+    public abstract class MetaPropUIAttribute: Attribute
     {
-        public string Name { get => GetType().Name; }
-        public string EditorName { get; set; }
-        public string Editor { get; set; }
+        public string DataType { get; private set; }
+        public string ReturnType { get; protected set; }
+        public string? DisplayName { get; set; }
         public bool Ignore {  get; set; }
         public string Tab { get; set; } = string.Empty;
         public string Group { get; set; } = string.Empty;
+        private Dictionary<string, object?> Values { get; set; }
 
-        public MetaPropUIAttribute(string editor)
+        public Dictionary<string, object?> GetValues()
         {
-            Editor = editor;
-            EditorName = GetType().Name;
+            if (Values == null)
+            {
+                Values = new Dictionary<string, object?>();
+                foreach (var propInfo in GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                    Values.Add(propInfo.Name, propInfo.GetValue(this));
+            }
 
+            return Values;
+        }
+        public T GetValue<T>(string prop, T def)
+        {
+            var values = GetValues();
+            if (values.TryGetValue(prop, out var val) && val != null)
+            {
+                if (typeof(T) == typeof(string))
+                    return (T)(object)(val.ToString() ?? string.Empty);
+
+                if (val is T)
+                    return (T)val;
+            }
+
+            return def;
+        }
+
+        protected MetaPropUIAttribute()
+        {
+            DataType = GetType().Name.Replace("UIAttribute", "");
         }
     }
 
     public class ComponentUIAttribute : MetaPropUIAttribute
     {
         public ComponentUIAttribute()
-            : base("Component")
         { }
     }
 
     public class IntegerUIAttribute : MetaPropUIAttribute
     {
-        public string Unit { get; set; } = nameof(Int32);
-        public int Min { get; set; } = int.MinValue;
-        public int Max { get; set; } = int.MaxValue;
-        public string[]? Keys { get; set; }
+        public string Unit { get; protected set; } = nameof(Int32);
+        public int Min { get; protected set; } = int.MinValue;
+        public int Max { get; protected set; } = int.MaxValue;
+        public string[]? Keys { get; protected set; }
 
         public IntegerUIAttribute()
-            : base(nameof(Int32))
-        { }
+        {
+            ReturnType = nameof(Int32);
+        }
     }
 
     public class MinZeroUIAttribute : IntegerUIAttribute
@@ -80,21 +100,24 @@ namespace Rpg.ModObjects.Meta
     public class DiceUIAttribute : MetaPropUIAttribute
     {
         public DiceUIAttribute()
-            : base(nameof(Dice))
-        { }
+        {
+            ReturnType = nameof(Dice);
+        }
     }
 
     public class TextUIAttribute : MetaPropUIAttribute
     {
         public TextUIAttribute()
-            : base(nameof(String))
-        { }
+        {
+            ReturnType = nameof(String);
+        }
     }
 
     public class RichTextUIAttribute : MetaPropUIAttribute
     {
         public RichTextUIAttribute()
-            : base("Html")
-        { }
+        {
+            ReturnType = nameof(String);
+        }
     }
 }

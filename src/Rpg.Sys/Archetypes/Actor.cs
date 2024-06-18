@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Meta;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Values;
 using Rpg.Sys.Components;

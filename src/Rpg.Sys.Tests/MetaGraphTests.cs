@@ -4,7 +4,7 @@ using Rpg.ModObjects.Meta;
 
 namespace Rpg.Sys.Tests
 {
-    public class Tests
+    public class MetaGraphTests
     {
         [SetUp]
         public void Setup()

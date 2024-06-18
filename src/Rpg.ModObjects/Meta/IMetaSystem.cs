@@ -8,10 +8,11 @@ namespace Rpg.ModObjects.Meta
 {
     public interface IMetaSystem
     {
-        public string Identifier { get; }
-        public string Name { get; }
-        public string Version { get; }
-        public string Description { get; }
-        public MetaObj[] Objects { get; set; }
+        string Identifier { get; }
+        string Name { get; }
+        string Version { get; }
+        string Description { get; }
+        MetaObj[] Objects { get; set; }
+        MetaPropUIAttribute[] PropUIAttributes { get; set; }
     }
 }
