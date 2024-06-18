@@ -159,60 +159,54 @@ namespace Rpg.Cms.Services
             var systemRoot = _contentService.GetRootContent().FirstOrDefault(x => x.ContentType.Alias == session.SystemDocType!.Alias);
             if (systemRoot == null)
             {
-                var model = new ContentCreateModel
+                var props = new Dictionary<string, object>
                 {
-                    ContentTypeKey = session.SystemDocType!.Key,
-                    InvariantName = session.System.Name,
-                    ParentKey = Constants.System.RootKey,
-                    InvariantProperties = new List<PropertyValueModel>
-                    {
-                        new PropertyValueModel { Alias = "Identifier", Value = session.System.Identifier },
-                        new PropertyValueModel { Alias = "Version", Value = session.System.Version },
-                        new PropertyValueModel { Alias = "Description", Value = session.System.Description }
-                    }
+                    { "Identifier", session.System.Identifier },
+                    { "Version", session.System.Version },
+                    { "Description", session.System.Description }
                 };
 
-                var attempt = await _contentEditingService.CreateAsync(model, session.UserKey);
-                if (!attempt.Success)
-                    throw new InvalidOperationException("Failed to publish root");
-
-                systemRoot = attempt.Result.Content;
+                systemRoot = await CreateContentAsync(session.UserKey, session.System.Identifier, session.SystemDocType!.Key, Constants.System.RootKey, props);
             }
 
             var sysChildren = _contentService.GetPagedChildren(systemRoot!.Id, 0, 10000, out var totalRecords);
             var entityLibrary = sysChildren.FirstOrDefault(x => x.ContentType.Alias == session.EntityLibraryDocType!.Alias);
             if (entityLibrary == null)
             {
-                var model = new ContentCreateModel
-                {
-                    ContentTypeKey = session.EntityLibraryDocType!.Key,
-                    InvariantName = "Entity Library",
-                    ParentKey = systemRoot.Key
-                };
-
-                var attempt = await _contentEditingService.CreateAsync(model, session.UserKey);
-                if (!attempt.Success)
-                    throw new InvalidOperationException("Failed to publish Entity Library");
-
-                entityLibrary = attempt.Result.Content;
+                entityLibrary = await CreateContentAsync(session.UserKey, "Entity Library", session.EntityLibraryDocType!.Key, systemRoot.Key);
             }
 
             var actionLibrary = sysChildren.FirstOrDefault(x => x.ContentType.Alias == session.ActionLibraryDocType!.Alias);
             if (actionLibrary == null)
             {
-                var model = new ContentCreateModel
-                {
-                    ContentTypeKey = session.ActionLibraryDocType!.Key,
-                    InvariantName = "Action Library",
-                    ParentKey = systemRoot.Key
-                };
-
-                var attempt = await _contentEditingService.CreateAsync(model, session.UserKey);
-                if (!attempt.Success)
-                    throw new InvalidOperationException("Failed to publish Action Library");
-
-                actionLibrary = attempt.Result.Content;
+                entityLibrary = await CreateContentAsync(session.UserKey, "Action Library", session.ActionLibraryDocType!.Key, systemRoot.Key);
             }
+        }
+
+        private async Task<IContent> CreateContentAsync(Guid userKey, string name, Guid docTypeKey, Guid? parentKey, Dictionary<string, object>? props = null)
+        {
+            var model = new ContentCreateModel
+            {
+                ContentTypeKey = docTypeKey,
+                InvariantName = name,
+                ParentKey = parentKey
+            };
+
+            if (props != null)
+            {
+                var invariantProperties = new List<PropertyValueModel>();
+
+                foreach (var prop in props)
+                    invariantProperties.Add(new PropertyValueModel { Alias = prop.Key, Value = prop.Value });
+
+                model.InvariantProperties = invariantProperties;
+            }
+
+            var attempt = await _contentEditingService.CreateAsync(model, userKey);
+            if (!attempt.Success)
+                throw new InvalidOperationException($"Failed to publish {name}");
+
+            return attempt.Result.Content!;
         }
     }
 }
