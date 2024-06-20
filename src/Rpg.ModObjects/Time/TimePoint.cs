@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Values;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,17 +8,40 @@ using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Time
 {
-    public class TimePoint
+    public struct TimePoint
     {
         public string Type { get; private set; }
         public int Tick { get; private set; }
-
-        [JsonConstructor] private TimePoint() { }
 
         public TimePoint(string type, int tick) 
         {
             Type = type;
             Tick = tick;
+        }
+
+        public static bool operator ==(TimePoint d1, TimePoint d2) => d1.Type == d2.Type && d1.Tick == d2.Tick;
+        public static bool operator !=(TimePoint d1, TimePoint d2) => d1.Type != d2.Type || d1.Tick != d2.Tick;
+
+        public static bool operator >(TimePoint d1, TimePoint d2) => d1.Tick > d2.Tick;
+        public static bool operator <(TimePoint d1, TimePoint d2) => d1.Tick < d2.Tick;
+
+        public static bool operator >=(TimePoint d1, TimePoint d2) => d1.Tick >= d2.Tick;
+        public static bool operator <=(TimePoint d1, TimePoint d2) => d1.Tick <= d2.Tick;
+
+        public override bool Equals(object? obj)
+        {
+            if (obj == null)
+                return false;
+
+            if (obj is TimePoint tp)
+                return tp.Type == Type && tp.Tick == Tick;
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 }

@@ -3,21 +3,31 @@ using Rpg.ModObjects.Mods;
 
 namespace Rpg.ModObjects.Time
 {
+    public partial class TimePoints
+    {
+        public static TimePoint BeforeEncounter = new TimePoint(nameof(BeforeEncounter), -1);
+        public static TimePoint BeginningOfEncounter = new TimePoint(nameof(BeginningOfEncounter), 0);
+        public static TimePoint Encounter(int turn)
+        {
+            if (turn < 1)
+                turn = 1;
+
+            if (turn >= EndOfEncounter.Tick)
+                turn = EndOfEncounter.Tick - 1;
+
+            return new TimePoint(nameof(Encounter), turn);
+        }
+
+        public static TimePoint EndOfEncounter = new TimePoint(nameof(EndOfEncounter), int.MaxValue - 1);
+    }
+
     public class TurnBasedTimeEngine : ITimeEngine
     {
-        public TimePoint BeginningOfTime { get; private set; } = new(nameof(BeforeEncounter), int.MinValue);
-        public TimePoint EndOfTime { get; private set; } = new(nameof(BeforeEncounter), int.MaxValue);
-
-        public static TimePoint BeforeEncounter = new(nameof(BeforeEncounter), -1);
-        public static TimePoint EncounterStart = new(nameof(EncounterStart), 0);
-        public static TimePoint Encounter = new(nameof(Encounter), 1);
-        public static TimePoint EncounterEnd = new(nameof(EncounterEnd), int.MaxValue - 1);
-
         [JsonProperty] public TimePoint Current { get; private set; }
 
         public TurnBasedTimeEngine()
         {
-            Current = BeforeEncounter;
+            Current = TimePoints.BeforeTime;
         }
 
         public event NotifyTimeEventHandler? OnTimeEvent;
@@ -38,34 +48,28 @@ namespace Rpg.ModObjects.Time
 
         public TimePoint CalculateStartTime(TimePoint delay)
         {
-            if (delay.Type == nameof(EncounterStart))
-                return EncounterStart;
+            if (delay == TimePoints.Empty || delay.Type == nameof(TimePoints.Encounter))
+                return TimePoints.Encounter(Current.Tick + delay.Tick);
 
-            if (delay.Type == nameof(EncounterEnd))
-                return EncounterEnd;
-
-            if (delay.Type == nameof(Encounter))
-                return new TimePoint(nameof(Encounter), Current.Tick + delay.Tick);
-
-            return BeforeEncounter;
+            return delay;
         }
 
         public TimePoint CalculateEndTime(TimePoint startTime, TimePoint duration)
         {
-            if (duration == EndOfTime)
-                return EndOfTime;
+            if (duration.Type != nameof(TimePoints.Encounter))
+                return duration;
 
-            return new TimePoint(nameof(Encounter), startTime.Tick + duration.Tick - 1);
+            return TimePoints.Encounter(startTime.Tick + duration.Tick - 1);
         }
 
         public ModExpiry CalculateExpiry(TimePoint startTime, TimePoint endTime)
         {
-            if (startTime == BeginningOfTime && endTime == EndOfTime)
+            if (startTime == TimePoints.BeginningOfTime && endTime == TimePoints.EndOfTime)
                 return ModExpiry.Active;
 
             if (endTime.Tick < Current.Tick)
             {
-                return Current.Type == nameof(Encounter)
+                return Current.Type == nameof(TimePoints.Encounter)
                     ? ModExpiry.Expired
                     : ModExpiry.Remove;
             }
@@ -78,12 +82,12 @@ namespace Rpg.ModObjects.Time
 
         public void NewEncounter()
         {
-            if (Current.Type == Encounter.Type)
+            if (Current.Type == nameof(TimePoints.Encounter))
                 EndEncounter();
 
-            if (Current.Type != EncounterStart.Type)
+            if (Current != TimePoints.BeginningOfEncounter)
             {
-                Current = EncounterStart;
+                Current = TimePoints.BeginningOfEncounter;
                 TriggerEvent();
             }
 
@@ -92,13 +96,13 @@ namespace Rpg.ModObjects.Time
 
         public void EndEncounter()
         {
-            Current = EncounterEnd;
+            Current = TimePoints.EndOfEncounter;
             TriggerEvent();
         }
 
         public void NewTurn()
         {
-            Current = new TimePoint(nameof(Encounter), Current.Tick + 1);
+            Current = TimePoints.Encounter(Current.Tick + 1);
             TriggerEvent();
         }
 
@@ -106,16 +110,16 @@ namespace Rpg.ModObjects.Time
         {
             if (Current.Tick > 1)
             {
-                Current = new TimePoint(nameof(Encounter), Current.Tick - 1);
+                Current = TimePoints.Encounter(Current.Tick - 1);
                 TriggerEvent();
             }
         }
 
         public void SetTurn(int turn)
         {
-            if (Current.Type == nameof(Encounter) && turn > 0 && turn < EncounterEnd.Tick)
+            if (Current.Type == nameof(TimePoints.Encounter) && turn > 0 && turn < TimePoints.EndOfEncounter.Tick)
             {
-                Current = new TimePoint(nameof(Encounter), turn);
+                Current = TimePoints.Encounter(turn);
                 TriggerEvent();
             }
         }

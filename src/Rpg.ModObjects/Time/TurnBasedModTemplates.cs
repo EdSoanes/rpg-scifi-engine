@@ -20,8 +20,8 @@ namespace Rpg.ModObjects.Time
         public TurnMod(int delay, int duration)
         {
             Lifecycle = new TimeLifecycle(
-                new TimePoint(nameof(TurnBasedTimeEngine.Encounter), delay),
-                new TimePoint(nameof(TurnBasedTimeEngine.Encounter), duration));
+                delay == 0 ? TimePoints.Empty : TimePoints.Encounter(delay), 
+                TimePoints.Encounter(duration));
 
             Behavior = new Add(ModType.Standard);
         }
@@ -32,8 +32,8 @@ namespace Rpg.ModObjects.Time
         public EncounterMod()
         {
             Lifecycle = new TimeLifecycle(
-                TurnBasedTimeEngine.EncounterStart,
-                TurnBasedTimeEngine.EncounterEnd);
+                TimePoints.Empty,
+                TimePoints.EndOfEncounter);
 
             Behavior = new Add(ModType.Standard);
         }

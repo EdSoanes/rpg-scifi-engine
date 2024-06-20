@@ -19,8 +19,8 @@ namespace Rpg.ModObjects.Mods
 
         public virtual ModExpiry StartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
         {
-            StartTime = graph.Time.BeginningOfTime;
-            EndTime = graph.Time.EndOfTime;
+            StartTime = TimePoints.BeginningOfTime;
+            EndTime = TimePoints.EndOfTime;
 
             Expiry = graph.Time.CalculateExpiry(StartTime, EndTime);
             return Expiry;
@@ -70,8 +70,8 @@ namespace Rpg.ModObjects.Mods
 
     public class TimeLifecycle : BaseLifecycle
     {
-        [JsonProperty] public TimePoint? Delay { get; private set; }
-        [JsonProperty] public TimePoint? Duration { get; private set; }
+        [JsonProperty] public TimePoint Delay { get; private set; } = TimePoints.Empty;
+        [JsonProperty] public TimePoint Duration { get; private set; } = TimePoints.EndOfTime;
 
         public TimeLifecycle(TimePoint duration)
         {
@@ -86,14 +86,8 @@ namespace Rpg.ModObjects.Mods
 
         public override ModExpiry StartLifecycle(RpgGraph graph, TimePoint time, Mod? mod = null)
         {
-            StartTime = Delay == null
-                ? graph.Time.BeginningOfTime
-                : graph.Time.CalculateStartTime(Delay);
-
-            EndTime = Duration == null
-                ? graph.Time.EndOfTime
-                : graph.Time.CalculateEndTime(StartTime, Duration);
-
+            StartTime = graph.Time.CalculateStartTime(Delay);
+            EndTime = graph.Time.CalculateEndTime(StartTime, Duration);
             Expiry = graph.Time.CalculateExpiry(StartTime, ExpiredTime ?? EndTime);
 
             return Expiry;
