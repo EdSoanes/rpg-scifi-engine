@@ -1,92 +1,52 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Time;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace Rpg.ModObjects.Actions
 {
-    public abstract class ActionModification<TOwner> : Modification, ILifecycle
+    public abstract class ActionModification<TOwner> : Modification
         where TOwner : RpgObject
     {
-        [JsonProperty] public TimePoint? ExpiredTime { get; protected set; }
-        [JsonProperty] public ModExpiry Expiry { get; protected set; }
-        [JsonProperty] public RpgActionArg[] OnActivatedArgs { get; private set; } = new RpgActionArg[0];
-        [JsonProperty] public RpgActionArg[] OnOutcomeArgs { get; private set; } = new RpgActionArg[0];
+        //[JsonProperty] private ActionMethod<TOwner, bool> OnIsEnabledWhen { get; set; }
+        [JsonProperty] private ActionMethod<TOwner, Modification> OnCost { get; set; }
+        [JsonProperty] private ActionMethod<TOwner, Modification> OnAct { get; set; }
+        [JsonProperty] private ActionMethod<TOwner, Modification[]> OnOutcome { get; set; }
 
         public ActionModification(TOwner owner)
-            : this(owner, owner)
-        { }
-
-        public ActionModification(TOwner owner, RpgObject initiator)
+            : base(new PermanentLifecycle())
         {
             AddOwner(owner);
-            AddInitiator(initiator);
+
             Name = GetType().Name;
-            Lifecycle = this;
 
-            EnsureOnActivatedMethod();
-            EnsureOnOutcomeMethod();
+            //OnIsEnabledWhen = new ActionMethod<TOwner, bool>(this, nameof(OnIsEnabledWhen));
+            OnCost = new ActionMethod<TOwner, Modification>(this, nameof(OnCost));
+            OnAct = new ActionMethod<TOwner, Modification>(this, nameof(OnAct));
+            OnOutcome = new ActionMethod<TOwner, Modification[]>(this, nameof(OnOutcome));
         }
 
-        protected abstract bool IsEnabledWhen(TOwner owner);
+        public abstract bool IsEnabled(TOwner owner, RpgEntity initiator);
 
-        public void SetExpired(TimePoint currentTime)
-        {
-            if (Expiry == ModExpiry.Active)
-                ExpiredTime = new TimePoint(currentTime.Type, currentTime.Tick - 1);
-        }
+        //public ActionMethodArgs IsEnabledWhenArgs()
+        //    => OnIsEnabledWhen.GetActionMethodArgs();
 
-        public ModExpiry StartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
-            => CalculateLifecycle();
+        //public bool IsEnabledWhen(TOwner owner, ActionMethodArgs args)
+        //    => OnIsEnabledWhen.Execute(owner, args);
+        public ActionMethodArgs CostArgs()
+            => OnAct.GetActionMethodArgs();
 
-        public ModExpiry UpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
-            => CalculateLifecycle();
+        public Modification Cost(TOwner owner, ActionMethodArgs args)
+            => OnAct.Execute(owner, args);
 
-        private ModExpiry CalculateLifecycle()
-        {
-            var owner = Graph!.GetEntity<TOwner>(OwnerObjId)!;
-            Expiry = IsEnabledWhen(owner)
-                ? ModExpiry.Active
-                : ModExpiry.Expired;
+        public ActionMethodArgs ActArgs() 
+            => OnAct.GetActionMethodArgs();
 
-            return Expiry;
-        }
+        public Modification Act(TOwner owner, ActionMethodArgs args)
+            => OnAct.Execute(owner, args);
 
-        private void EnsureOnActivatedMethod()
-        {
-            var methodInfo = GetType().GetMethod("OnActivated");
-            if (methodInfo == null)
-                throw new InvalidOperationException("OnActivated() method not found on ActionModification class");
+        public ActionMethodArgs OutcomeArgs() 
+            => OnOutcome.GetActionMethodArgs();
 
-            if (!methodInfo.ReturnType.IsAssignableTo(typeof(Modification)))
-                throw new InvalidOperationException("OnActivated() method does not have return type 'Modification'");
-
-            var args = methodInfo.GetParameters()
-                .Select(x => new RpgActionArg(x, null))
-                .ToArray();
-
-            OnActivatedArgs = args;
-        }
-
-        private void EnsureOnOutcomeMethod()
-        {
-            var methodInfo = GetType().GetMethod("OnOutcome");
-            if (methodInfo == null)
-                throw new InvalidOperationException("OnOutcome() method not found on ActionModification class");
-
-            if (!methodInfo.ReturnType.IsAssignableTo(typeof(Modification)))
-                throw new InvalidOperationException("OnOutcome() method does not have return type 'Modification'");
-
-            var args = methodInfo.GetParameters()
-                .Select(x => new RpgActionArg(x, null))
-                .ToArray();
-
-            OnOutcomeArgs = args;
-        }
+        public Modification[] Outcome(TOwner owner, ActionMethodArgs args)
+            => OnOutcome.Execute(owner, args);
     }
 }

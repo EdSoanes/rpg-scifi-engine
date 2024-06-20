@@ -14,14 +14,6 @@ namespace Rpg.ModObjects.Mods
         Objects
     }
 
-    public enum ModExpiry
-    {
-        Pending,
-        Active,
-        Expired,
-        Remove
-    }
-
     public enum ModMerging
     {
         Add,

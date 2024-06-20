@@ -1,12 +1,13 @@
-﻿using Rpg.ModObjects.Actions;
+﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.States;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Tests.Models
 {
-    public class ModdableEntity : RpgEntity
+    public class ModdableEntity : RpgEntity<ModdableEntity>
     {
         public ScoreBonusValue Strength { get; private set; }
         public DamageValue Damage { get; private set; }
@@ -20,24 +21,28 @@ namespace Rpg.ModObjects.Tests.Models
             Damage = new DamageValue(Id, nameof(Damage), "d6", 10, 100);
         }
 
-        protected override void OnCreating()
+        protected override void OnLifecycleStarting()
         {
             this
                 .BaseMod(x => x.Melee, x => x.Strength.Bonus)
                 .BaseMod(x => x.Damage.Dice, x => x.Strength.Bonus);
+
+            StateStore.Add(
+                new BuffState(this),
+                new NerfState(this));
         }
 
-        [ModState(ActiveWhen = nameof(ShouldBuff))]
-        public void Buff(ModSet modSet)
-            => modSet.SyncedMod(this, x => x.Health, 10);
+        public override void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
+        {
+            base.OnBeginningOfTime(graph, entity);
+        }
 
-        public bool ShouldBuff() => Melee.Roll() >= 10;
-
-        [ModState(ActiveWhen = nameof(ShouldNerf))]
-        public void Nerf(ModSet modSet)
-            => modSet.SyncedMod(this, x => x.Health, -10);
-
-        public bool ShouldNerf() => Melee.Roll() < 1;
+        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
+        {
+            var expiry = base.OnUpdateLifecycle(graph, currentTime, mod);
+            StateStore.OnUpdateLifecycle(graph, currentTime);
+            return expiry;
+        }
 
         [RpgAction()]
         [RpgActionArg("initiator", RpgActionArgType.Actor)]

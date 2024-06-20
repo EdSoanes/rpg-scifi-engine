@@ -5,19 +5,23 @@ namespace Rpg.ModObjects.Time
 {
     public class TurnBasedTimeEngine : ITimeEngine
     {
-        public TimePoint BeginningOfTime { get; private set; } = new(nameof(BeforeEncounter), int.MinValue);
+        public bool TimeHasBegun { get => Current.Type != nameof(BeforeTime);  }
+
+        public TimePoint BeforeTime { get; private set; } = new(nameof(BeforeTime), int.MinValue);
+        public TimePoint BeginningOfTime { get; private set; } = new(nameof(BeginningOfTime), int.MinValue);
         public TimePoint EndOfTime { get; private set; } = new(nameof(BeforeEncounter), int.MaxValue);
 
-        public static TimePoint BeforeEncounter = new(nameof(BeforeEncounter), -1);
-        public static TimePoint EncounterStart = new(nameof(EncounterStart), 0);
-        public static TimePoint Encounter = new(nameof(Encounter), 1);
-        public static TimePoint EncounterEnd = new(nameof(EncounterEnd), int.MaxValue - 1);
+        public TimePoint BeforeEncounter = new(nameof(BeforeEncounter), -1);
+        public TimePoint EncounterStart = new(nameof(EncounterStart), 0);
+        public TimePoint Encounter = new(nameof(Encounter), 1);
+        public TimePoint EncounterEnd = new(nameof(EncounterEnd), int.MaxValue - 1);
+
 
         [JsonProperty] public TimePoint Current { get; private set; }
 
         public TurnBasedTimeEngine()
         {
-            Current = BeforeEncounter;
+            Current = BeginningOfTime;
         }
 
         public event NotifyTimeEventHandler? OnTimeEvent;
@@ -58,22 +62,33 @@ namespace Rpg.ModObjects.Time
             return new TimePoint(nameof(Encounter), startTime.Tick + duration.Tick - 1);
         }
 
-        public ModExpiry CalculateExpiry(TimePoint startTime, TimePoint endTime)
+        public LifecycleExpiry CalculateExpiry(TimePoint startTime, TimePoint endTime)
         {
             if (startTime == BeginningOfTime && endTime == EndOfTime)
-                return ModExpiry.Active;
+                return LifecycleExpiry.Active;
 
             if (endTime.Tick < Current.Tick)
             {
                 return Current.Type == nameof(Encounter)
-                    ? ModExpiry.Expired
-                    : ModExpiry.Remove;
+                    ? LifecycleExpiry.Expired
+                    : LifecycleExpiry.Remove;
             }
 
             if (startTime.Tick > Current.Tick)
-                return ModExpiry.Pending;
+                return LifecycleExpiry.Pending;
 
-            return ModExpiry.Active;
+            return LifecycleExpiry.Active;
+        }
+
+        public void Begin()
+        {
+            if (!TimeHasBegun)
+            {
+                TriggerEvent();
+
+                Current = BeginningOfTime;
+                TriggerEvent();
+            }
         }
 
         public void NewEncounter()

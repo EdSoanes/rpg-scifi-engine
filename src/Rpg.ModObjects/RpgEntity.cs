@@ -1,4 +1,7 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.States;
+using Rpg.ModObjects.Time;
 using System.Collections.Specialized;
 
 namespace Rpg.ModObjects
@@ -53,8 +56,7 @@ namespace Rpg.ModObjects
             }
 
             store.Add(obj);
-            if (Graph?.AddEntity(obj) ?? false)
-                obj.OnGraphCreating(Graph);
+            Graph?.AddEntity(obj);
 
             CallCollectionChanged(NotifyCollectionChangedAction.Add);
 
@@ -78,5 +80,36 @@ namespace Rpg.ModObjects
 
         protected void CallCollectionChanged(NotifyCollectionChangedAction action)
             => CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(action));
+    }
+
+    public abstract class RpgEntity<T> : RpgEntity
+    where T : RpgEntity
+    {
+        [JsonProperty] public StateStore<T> StateStore { get; private set; }
+        [JsonProperty] public RpgActionStore<T> ActionStore { get; private set; }
+
+        public RpgEntity()
+        {
+            StateStore = new StateStore<T>(Id);
+            ActionStore = new RpgActionStore<T>(Id);
+        }
+
+        public bool IsStateOn(string state)
+            => (StateStore[state]?.Expiry ?? LifecycleExpiry.Expired) == LifecycleExpiry.Active;
+
+        public bool SetStateOn(string state)
+            => StateStore[state]?.On() ?? false;
+
+        public bool SetStateOff(string state)
+            => StateStore[state]?.Off() ?? false;
+
+        public StateModification<T>? GetState(string state)
+            => StateStore[state];
+
+        public bool IsActionEnabled(string action, RpgEntity initiator)
+            => GetAction(action)?.IsEnabled((this as T)!, initiator) ?? false;
+
+        public ActionModification<T>? GetAction(string action)
+            => ActionStore[action];
     }
 }

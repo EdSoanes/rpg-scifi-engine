@@ -1,26 +1,29 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Time;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Mods
 {
-    public abstract class Modification
+    public abstract class Modification : ILifecycle
     {
         protected RpgGraph? Graph { get; private set; }
 
         [JsonProperty] public string Id { get; private set; }
-        [JsonProperty] public string? InitiatorObjId { get; private set; }
-        [JsonProperty] public string? RecipientObjId { get; private set; }
-        [JsonProperty] public string? OwnerObjId { get; private set; }
+        [JsonProperty] public string? OwnerId { get; private set; }
+        [JsonProperty] public string? OwnerArchetype { get; private set; }
+
+        [JsonProperty] public string? InitiatorId { get; private set; }
+        [JsonProperty] public string? InitiatorArchetype { get; private set; }
+
+        [JsonProperty] public string? RecipientId { get; private set; }
+        [JsonProperty] public string? RecipientArchetype { get; private set; }
 
         [JsonProperty] public string Name { get; set; }
 
         [JsonIgnore] public List<Mod> Mods { get; private set; } = new List<Mod>();
         [JsonProperty] public ILifecycle Lifecycle { get; protected set; }
+
+        public LifecycleExpiry Expiry { get => Lifecycle.Expiry; protected set { } }
+
         [JsonConstructor] protected Modification() { }
 
         public Modification(ILifecycle lifecycle, string? name = null)
@@ -38,19 +41,25 @@ namespace Rpg.ModObjects.Mods
 
         public Modification AddOwner(RpgObject? owner)
         {
-            OwnerObjId = owner?.Id;
+            OwnerId = owner?.Id;
+            OwnerArchetype = owner?.GetType().Name;
+
             return this;
         }
 
         public Modification AddRecipient(RpgObject? recipient)
         {
-            RecipientObjId = recipient?.Id;
+            RecipientId = recipient?.Id;
+            RecipientArchetype = recipient?.GetType().Name;
+
             return this;
         }
 
         public Modification AddInitiator(RpgObject? initiator)
         {
-            InitiatorObjId = initiator?.Id;
+            InitiatorId = initiator?.Id;
+            InitiatorArchetype = initiator?.GetType().Name;
+
             return this;
         }
 
@@ -83,28 +92,24 @@ namespace Rpg.ModObjects.Mods
         //    return subSets.ToArray();
         //}
 
-        public void OnGraphCreating(RpgGraph graph, RpgObject? entity = null)
+        public virtual void SetExpired(TimePoint currentTime)
+            => Lifecycle.SetExpired(currentTime);
+
+        public void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
         {
             Graph = graph;
+            OwnerId ??= entity?.Id;
+
             if (!Mods.Any())
                 Mods = graph.GetMods().Where(x => x.SyncedToId == Id).ToList();
+
+            Lifecycle.OnBeginningOfTime(graph, entity);
         }
 
-        public void OnObjectsCreating() { }
+        public LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
+            => Lifecycle.OnStartLifecycle(graph, currentTime);
 
-        public void OnAdding(RpgGraph graph, TimePoint currentTime)
-            => Lifecycle.StartLifecycle(graph, currentTime);
-
-        public void OnUpdating(RpgGraph graph, TimePoint currentTime)
-            => Lifecycle.UpdateLifecycle(graph, currentTime);
-    }
-
-    public abstract class Modification<T> : Modification
-        where T : RpgObject
-    {
-        public Modification AddLifecycle()
-        {
-            return this;
-        }
+        public LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
+            => Lifecycle.OnUpdateLifecycle(graph, currentTime);
     }
 }

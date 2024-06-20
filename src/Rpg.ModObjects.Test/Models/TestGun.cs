@@ -1,5 +1,4 @@
 ﻿using Rpg.ModObjects.Actions;
-using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
@@ -12,7 +11,7 @@ namespace Rpg.ModObjects.Tests.Models
     /// Ammo 10
     /// </summary>
 
-    public class TestGun : RpgEntity
+    public class TestGun : RpgEntity<TestGun>
     {
         public int HitBonus { get; private set; } = 2;
         public DamageValue Damage { get; private set; }
@@ -22,9 +21,11 @@ namespace Rpg.ModObjects.Tests.Models
         { 
             Damage = new DamageValue(Id, nameof(Damage), "d6", 0, 0);
             Ammo = new MaxCurrentValue(Id, nameof(Ammo), 10);
+
+            StateStore.Add(new AmmoEmptyState(this));
         }
 
-        [RpgAction(DisabledWhen = nameof(AmmoEmpty), OutcomeMethod = nameof(InflictDamage))]
+        [RpgAction(DisabledWhen = nameof(AmmoEmptyState), OutcomeMethod = nameof(InflictDamage))]
         public ModSet Shoot(ModSet modSet, TestHuman initiator, int targetDefense, int targetRange)
         {
             modSet
@@ -56,12 +57,5 @@ namespace Rpg.ModObjects.Tests.Models
 
             return modSet;
         }
-
-        public bool IsAmmoEmpty()
-            => Ammo.Current <= 0;
-
-        [ModState(ActiveWhen = nameof(IsAmmoEmpty))]
-        public void AmmoEmpty(ModSet modSet)
-        { }
     }
 }

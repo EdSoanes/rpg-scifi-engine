@@ -40,7 +40,7 @@ namespace Rpg.Sys.Components.Values
             Current = current;
         }
 
-        protected override void OnCreating()
+        protected override void OnLifecycleStarting()
         {
             this.BaseMod(x => x.Current, x => x.Max);
         }

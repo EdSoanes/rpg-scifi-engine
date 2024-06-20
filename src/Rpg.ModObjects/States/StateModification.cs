@@ -1,78 +1,96 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+using Rpg.ModObjects.Values;
+using System.Linq.Expressions;
 
 namespace Rpg.ModObjects.States
 {
-    public abstract class StateModification<T> : Modification, ILifecycle
+    public abstract class StateModification<T> : Modification
         where T : RpgObject
     {
-        [JsonProperty] public TimePoint? ExpiredTime { get; protected set; }
-        [JsonProperty] public ModExpiry Expiry { get; protected set; }
-
         [JsonProperty] private bool? ForcedOn { get; set; }
+        [JsonProperty] private bool IsOn { get; set; }
 
-        public void On() => ForcedOn = true;
-        public void Off() => ForcedOn = false;
+        public StateModification(T owner)
+        {
+            AddOwner(owner);
+            Lifecycle = new ConditionalLifecycle(CalculateExpiry);
+            WhenOn(owner);
+        }
+
+        public bool On()
+        {
+            ForcedOn = true;
+            return true;
+        }
+
+        public bool Off()
+        {
+            ForcedOn = false;
+            return true;
+        }
+
         public void Release() => ForcedOn = null;
 
-        public StateModification()
+        protected abstract bool IsOnWhen(T owner);
+
+        protected abstract void WhenOn(T owner);
+
+        public StateModification<T> Mod<TTargetValue>(T entity, Expression<Func<T, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
         {
-            Name = GetType().Name;
-            Lifecycle = this;
+            var mod = new SyncedMod(OwnerId!, OwnerArchetype!)
+                .SetProps(entity, targetExpr, dice, valueFunc)
+                .Create();
+
+            AddMods(mod);
+
+            return this;
         }
 
-        protected abstract bool IsOnWhen(T recipientObjId);
-
-        protected abstract bool WhenOn(T recipientObjId);
-
-        public void SetExpired(TimePoint currentTime)
+        public StateModification<T> Mod<TTargetValue, TSourceValue>(T entity, Expression<Func<T, TTargetValue>> targetExpr, Expression<Func<T, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
         {
-            if (Expiry == ModExpiry.Active)
-                ExpiredTime = new TimePoint(currentTime.Type, currentTime.Tick - 1);
+            var mod = new SyncedMod(OwnerId!, OwnerArchetype!)
+                .SetProps(entity, targetExpr, entity, sourceExpr, valueFunc)
+                .Create();
+
+            AddMods(mod);
+
+            return this;
         }
 
-        public ModExpiry StartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
-            => CalculateLifecycle();
-
-        public ModExpiry UpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
-            => CalculateLifecycle();
-
-        private ModExpiry CalculateLifecycle()
+        private LifecycleExpiry CalculateExpiry()
         {
+            LifecycleExpiry expiry;
+
             if (ForcedOn == false)
-                Expiry = ModExpiry.Expired;
+                expiry = LifecycleExpiry.Expired;
 
             else if (ForcedOn == true)
-                Expiry = ModExpiry.Active;
+                expiry = LifecycleExpiry.Active;
 
             else
             {
-                var obj = Graph!.GetEntity<T>(RecipientObjId)!;
-                Expiry = IsOnWhen(obj)
-                    ? ModExpiry.Active
-                    : ModExpiry.Expired;
+                var obj = Graph!.GetEntity<T>(RecipientId)!;
+                expiry = IsOnWhen(obj)
+                    ? LifecycleExpiry.Active
+                    : LifecycleExpiry.Expired;
+
+                //Should we do the following here? Won't the engine ensure that the mods are added later on?
+                if (expiry == LifecycleExpiry.Active && !IsOn)
+                {
+                    IsOn = true;
+
+                    var entity = Graph!.GetEntity<T>(OwnerId)!;
+                    Graph.AddMods(Mods.ToArray());
+                }
+                else if (expiry != LifecycleExpiry.Active && IsOn)
+                {
+                    Graph!.RemoveMods(Mods.ToArray());
+                }
             }
 
-            if (Expiry != ModExpiry.Active)
-            {
-                Graph!.RemoveMods(Mods.ToArray());
-                Mods.Clear();
-            }
-            else
-            {
-                var entity = Graph!.GetEntity<T>(RecipientObjId)!;
-                WhenOn(entity);
-                Graph.AddMods(Mods.ToArray());
-            }
-
-            return Expiry;
+            return expiry;
         }
     }
 }

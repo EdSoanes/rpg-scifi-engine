@@ -59,9 +59,9 @@ namespace Rpg.ModObjects.Props
             }
         }
 
-        public override void OnUpdating(RpgGraph graph, TimePoint time)
+        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? modx = null)
         {
-            base.OnUpdating(graph, time);
+            var res = base.OnUpdateLifecycle(graph, currentTime, modx);
 
             var toRemove = new List<Mod>();
             foreach (var modProp in Items.Values)
@@ -69,10 +69,10 @@ namespace Rpg.ModObjects.Props
                 foreach (var mod in modProp.Mods)
                 {
                     var oldExpiry = mod.Expiry;
-                    mod.OnUpdating(Graph, modProp, time);
+                    mod.OnUpdating(Graph, modProp, currentTime);
                     var expiry = mod.Expiry;
 
-                    if (expiry == ModExpiry.Remove)
+                    if (expiry == LifecycleExpiry.Remove)
                         toRemove.Add(mod);
 
                     if (expiry != oldExpiry)
@@ -81,6 +81,8 @@ namespace Rpg.ModObjects.Props
             }
 
             Remove(toRemove.ToArray());
+
+            return res;
         }
 
         public void Remove(params Mod[] mods)

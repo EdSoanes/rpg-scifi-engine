@@ -3,14 +3,13 @@ using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Meta;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
-using Rpg.ModObjects.States;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.ComponentModel;
 
 namespace Rpg.ModObjects
 {
-    public abstract class RpgObject : INotifyPropertyChanged, IGraphEvents
+    public abstract class RpgObject : INotifyPropertyChanged, ILifecycle
     {
         protected RpgGraph? Graph { get; private set; }
 
@@ -23,11 +22,12 @@ namespace Rpg.ModObjects
         public string Name { get; set; }
 
         [JsonProperty] public string[] Is { get; private set; }
+
+        [JsonProperty] public LifecycleExpiry Expiry { get; set; } = LifecycleExpiry.Pending;
+
         [JsonProperty] internal PropStore PropStore { get; private set; }
         [JsonProperty] internal ModSetStore ModSetStore { get; private set; }
-        [JsonProperty] internal ModStateStore StateStore { get; private set; }
-        [JsonProperty] internal bool IsCreated { get; set; }
-        [JsonProperty] internal RpgActionStore CmdStore { get; private set; }
+
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -39,8 +39,6 @@ namespace Rpg.ModObjects
 
             PropStore = new PropStore(Id);
             ModSetStore = new ModSetStore(Id);
-            StateStore = new ModStateStore(Id);
-            CmdStore = new RpgActionStore(Id);
         }
 
         public void AddMods(params Mod[] mods)
@@ -49,48 +47,33 @@ namespace Rpg.ModObjects
         internal bool AddModSet(ModSet modSet)
             => ModSetStore.Add(modSet);
 
-        public RpgAction? GetCommand(string commandName)
-            => CmdStore.Get().FirstOrDefault(x => x.ActionName == commandName);
-
-        public RpgAction[] GetCommands()
-            => CmdStore.Get();
-
-        public string[] StateNames { get => StateStore.StateNames; }
-        public string[] ActiveStateNames { get => StateStore.ActiveStateNames; }
-
-        public string? GetStateInstanceName(string state)
-            => StateStore[state]?.InstanceName;
-
-        public bool IsStateActive(string state)
-            => StateStore[state]?.IsActive() ?? false;
-
-        public bool ActivateState(string state)
-            => StateStore.SetActive(state);
-
-        public bool DeactivateState(string state)
-            => StateStore.SetInactive(state);
-
         public bool IsA(string type) => Is.Contains(type);
 
         internal ModObjectPropDescription Describe(string prop)
             => new ModObjectPropDescription(Graph!, this, prop);
 
-        public void OnGraphCreating(RpgGraph graph, RpgObject? entity = null)
+        protected virtual void OnLifecycleStarting() { }
+        public virtual void OnUpdating(RpgGraph graph, TimePoint time) { }
+
+        public void SetExpired(TimePoint currentTime)
         {
-            Graph = graph;
         }
 
-        public void OnObjectsCreating()
+        public virtual void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
         {
-            if (!IsCreated)
-            {
-                var states = this.CreateModStates();
-                StateStore.Add(states);
+            Graph = graph;
+            PropStore.OnBeginningOfTime(graph, entity);
+            ModSetStore.OnBeginningOfTime(graph, entity);
+            //CmdStore.OnBeginningOfTime(graph, entity);
+        }
 
-                var cmds = this.CreateActions();
-                var cmdStates = cmds.Select(x => x.State).ToArray();
-                CmdStore.Add(cmds);
-                StateStore.Add(cmdStates);
+        public virtual LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
+        {
+            if (Expiry == LifecycleExpiry.Pending)
+            {
+                //var cmds = this.CreateActions();
+                //var cmdStates = cmds.Select(x => x.State).ToArray();
+                //CmdStore.Add(cmds);
 
                 foreach (var propInfo in this.GetModdableProperties())
                 {
@@ -104,12 +87,21 @@ namespace Rpg.ModObjects
                     }
                 }
 
-                OnCreating();
-                IsCreated = true;
+                OnLifecycleStarting();
+
+                Expiry = LifecycleExpiry.Active;
             }
+
+            return Expiry;
         }
 
-        protected virtual void OnCreating() { }
-        public virtual void OnUpdating(RpgGraph graph, TimePoint time) { }
+        public virtual LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
+        {
+            ModSetStore.OnUpdateLifecycle(graph, currentTime);
+            PropStore.OnUpdateLifecycle(graph, currentTime);
+            //CmdStore.OnUpdateLifecycle(graph, currentTime);
+
+            return Expiry;
+        }
     }
 }

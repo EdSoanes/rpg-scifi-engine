@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time;
 using System.Collections.Specialized;
 
 namespace Rpg.ModObjects.Stores
 {
-    public abstract class ModBaseStore<TKey, TVal> : IGraphEvents, ITimeEvent, INotifyCollectionChanged
+    public abstract class ModBaseStore<TKey, TVal> : ILifecycle, INotifyCollectionChanged
         where TKey : notnull
         where TVal : class
     {
@@ -29,6 +30,8 @@ namespace Rpg.ModObjects.Stores
         }
 
         public TKey[] Keys { get => Items.Keys.ToArray(); }
+
+        public virtual LifecycleExpiry Expiry { get => LifecycleExpiry.Active; protected set { } }
 
         public ModBaseStore(string entityId)
             => EntityId = entityId;
@@ -72,13 +75,22 @@ namespace Rpg.ModObjects.Stores
         public bool Contains(TVal val)
             => Items.Values.Contains(val);
 
-        public virtual void OnGraphCreating(RpgGraph graph, RpgObject entity)
+        public virtual void SetExpired(TimePoint currentTime) { }
+
+        public virtual void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
         {
             Graph = graph;
             EntityId = entity!.Id;
         }
 
-        public virtual void OnObjectsCreating() { }
-        public virtual void OnUpdating(RpgGraph graph, TimePoint time) { }
+        public virtual LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
+        {
+            return LifecycleExpiry.Active;
+        }
+
+        public virtual LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
+        {
+            return LifecycleExpiry.Active;
+        }
     }
 }

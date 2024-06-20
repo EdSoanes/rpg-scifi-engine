@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Props;
+using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Mods
@@ -8,7 +9,7 @@ namespace Rpg.ModObjects.Mods
     {
         [JsonProperty] public ModType Type { get; protected set; } = ModType.Standard;
         [JsonProperty] public ModScope Scope { get; internal set; } = ModScope.Standard;
-        [JsonProperty] public ModExpiry Expiry { get; private set; } = ModExpiry.Active;
+        [JsonProperty] public LifecycleExpiry Expiry { get; private set; } = LifecycleExpiry.Active;
 
         public virtual void OnAdding(RpgGraph graph, Prop modProp, Mod mod)
         {

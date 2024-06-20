@@ -9,10 +9,12 @@ namespace Rpg.ModObjects.Time
 {
     public interface ILifecycle
     {
-        ModExpiry Expiry { get; }
+        LifecycleExpiry Expiry { get; }
 
         void SetExpired(TimePoint currentTime);
-        ModExpiry StartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null);
-        ModExpiry UpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null);
+
+        void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null);
+        LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null);
+        LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null);
     }
 }

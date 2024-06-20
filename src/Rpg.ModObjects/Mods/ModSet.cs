@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace Rpg.ModObjects.Mods
 {
-    public class ModSet : IGraphEvents, ITimeEvent
+    public class ModSet : ILifecycle
     {
         [JsonProperty] public string Id { get; private set; }
         [JsonProperty] public string InitiatorId { get; private set; }
@@ -64,38 +64,43 @@ namespace Rpg.ModObjects.Mods
             => Mods.Where(x => x.Prop == prop && (filterFunc?.Invoke(x) ?? true)).ToArray();
 
 
-        public void OnGraphCreating(RpgGraph graph, RpgObject? entity = null)
+        public void SetExpired(TimePoint currentTime)
+            => Lifecycle.SetExpired(currentTime);
+
+        public void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
         {
             if (!Mods.Any())
                 Mods = graph.GetMods().Where(x => x.SyncedToId == Id).ToList();
+
+            Lifecycle.OnBeginningOfTime(graph, entity);
         }
 
-        public void OnObjectsCreating() { }
+        public LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
+            => Lifecycle.OnStartLifecycle(graph, currentTime);
 
-        public void OnAdding(RpgGraph graph, TimePoint currentTime)
-            => Lifecycle.StartLifecycle(graph, currentTime);
-
-        public void OnUpdating(RpgGraph graph, TimePoint currentTime)
-            => Lifecycle.UpdateLifecycle(graph, currentTime);
+        public LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
+            => Lifecycle.OnUpdateLifecycle(graph, currentTime);
 
         public string TargetPropName => $"{InitiatorId}.{Name}.{RpgActionArg.TargetArg}";
         public string DiceRollPropName => $"{InitiatorId}.{Name}.{RpgActionArg.DiceRollArg}";
         public string OutcomePropName => $"{InitiatorId}.{Name}.{RpgActionArg.OutcomeArg}";
 
-        public ModSet AddState<TTarget>(TTarget target)
-            where TTarget : RpgObject
-        {
-            var state = target.GetStateInstanceName(Name)!;
+        public LifecycleExpiry Expiry => throw new NotImplementedException();
 
-            var mod = new SyncedMod(Id, nameof(ModSet))
-                .SetBehavior(new ForceState())
-                .SetProps(target, state, 1)
-                .Create(state);
+        //public ModSet AddState<TTarget>(TTarget target)
+        //    where TTarget : RpgObject
+        //{
+        //    var state = target.GetStateInstanceName(Name)!;
 
-            Add(mod);
+        //    var mod = new SyncedMod(Id, nameof(ModSet))
+        //        .SetBehavior(new ForceState())
+        //        .SetProps(target, state, 1)
+        //        .Create(state);
 
-            return this;
-        }
+        //    Add(mod);
+
+        //    return this;
+        //}
 
         public ModSet Target<TEntity>(TEntity entity, Dice value, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject

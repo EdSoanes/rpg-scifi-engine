@@ -17,7 +17,7 @@ namespace Rpg.ModObjects.Mods
             {
                 if (string.IsNullOrEmpty(modSet.Name) || !Get().Any(x => x.Name == modSet.Name))
                 {
-                    modSet.OnAdding(Graph!, Graph!.Time.Current);
+                    modSet.OnBeginningOfTime(Graph!, Graph!.GetEntity(EntityId));
                     Items.Add(modSet.Id, modSet);
                     Graph!.AddMods(modSet.Mods.ToArray());
 
@@ -49,20 +49,20 @@ namespace Rpg.ModObjects.Mods
             }
         }
 
-        public override void OnUpdating(RpgGraph graph, TimePoint time)
+        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
         {
-            base.OnUpdating(graph, time);
-
+            var expiry = base.OnUpdateLifecycle(graph, currentTime, mod);
             var toRemove = new List<ModSet>();
             foreach (var modSet in Get())
             {
-                modSet.OnUpdating(graph, time);
-                if (modSet.Lifecycle.Expiry == ModExpiry.Remove)
+                modSet.OnUpdateLifecycle(graph, currentTime);
+                if (modSet.Lifecycle.Expiry == LifecycleExpiry.Remove)
                     toRemove.Add(modSet);
             }
 
             foreach (var remove in toRemove)
                 Items.Remove(remove.Id);
+            return expiry;
         }
     }
 }

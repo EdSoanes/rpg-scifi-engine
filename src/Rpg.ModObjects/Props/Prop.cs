@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Props
@@ -16,7 +17,7 @@ namespace Rpg.ModObjects.Props
         public Mod[] Get(RpgGraph graph)
         {
             var activeModifiers = Mods
-                .Where(x => x.Expiry == ModExpiry.Active);
+                .Where(x => x.Expiry == LifecycleExpiry.Active);
 
             var res = activeModifiers
                 .Where(x => !x.IsBaseMod)
@@ -105,7 +106,7 @@ namespace Rpg.ModObjects.Props
         public bool Clean(RpgGraph graph)
         {
             var toRemove = Mods
-                .Where(x => x.Expiry == ModExpiry.Remove)
+                .Where(x => x.Expiry == LifecycleExpiry.Remove)
                 .ToArray();
 
             if (toRemove.Any())

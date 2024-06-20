@@ -1,119 +1,136 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.States;
-using Rpg.ModObjects.Time;
-using Rpg.ModObjects.Values;
+﻿//using Newtonsoft.Json;
+//using Rpg.ModObjects.Mods;
+//using Rpg.ModObjects.States;
+//using Rpg.ModObjects.Time;
+//using Rpg.ModObjects.Values;
 
-namespace Rpg.ModObjects.Actions
-{
-    public class RpgAction : IGraphEvents, ITimeEvent
-    {
-        protected RpgGraph? Graph { get; set; }
-        protected RpgObject? Entity { get; set; }
+//namespace Rpg.ModObjects.Actions
+//{
+//    public class RpgAction : ILifecycle
+//    {
+//        protected RpgGraph? Graph { get; set; }
+//        protected RpgObject? Entity { get; set; }
 
-        [JsonProperty] public string EntityId { get; private set; }
-        [JsonProperty] public string ActionName { get; private set; }
-        [JsonProperty] public string InstanceName { get; private set; }
-        [JsonProperty] public string? OutcomeAction { get; private set; }
-        [JsonProperty] public string[] EnabledWhen { get; private set; }
-        [JsonProperty] public string[] DisabledWhen { get; private set; }
-        [JsonProperty] public RpgActionArg[] Args { get; private set; } = new RpgActionArg[0];
+//        [JsonProperty] public string EntityId { get; private set; }
+//        [JsonProperty] public string ActionName { get; private set; }
+//        [JsonProperty] public string InstanceName { get; private set; }
+//        [JsonProperty] public string? OutcomeAction { get; private set; }
+//        [JsonProperty] public string[] EnabledWhen { get; private set; }
+//        [JsonProperty] public string[] DisabledWhen { get; private set; }
+//        [JsonProperty] public RpgActionArg[] Args { get; private set; } = new RpgActionArg[0];
 
-        public ModState State { get => new ModState(EntityId, ActionName); }
+//        //public ModState State { get => new ModState(EntityId, ActionName); }
 
-        public int? GetTarget(RpgObject initiator, ModSet? modSet)
-            => Graph!.GetPropValue(initiator, modSet?.TargetPropName).Roll();
+//        public LifecycleExpiry Expiry => throw new NotImplementedException();
 
-        public Dice? GetDiceRoll(RpgObject initiator, ModSet? modSet)
-            => Graph!.GetPropValue(initiator, modSet?.DiceRollPropName);
+//        public int? GetTarget(RpgObject initiator, ModSet? modSet)
+//            => Graph!.GetPropValue(initiator, modSet?.TargetPropName).Roll();
 
-        public int? GetOutcome(RpgObject initiator, ModSet? modSet)
-            => Graph!.GetPropValue(initiator, modSet?.OutcomePropName).Roll();
+//        public Dice? GetDiceRoll(RpgObject initiator, ModSet? modSet)
+//            => Graph!.GetPropValue(initiator, modSet?.DiceRollPropName);
 
-        public static RpgAction Create(string entityId, string actionName, RpgActionAttribute cmdAttr, RpgActionArg[]? cmdArgs)
-        {
-            var cmd = new RpgAction
-            {
-                EntityId = entityId,
-                ActionName = actionName,
-                OutcomeAction = cmdAttr.OutcomeMethod,
-                InstanceName = $"{entityId}.{actionName}",
-                Args = cmdArgs ?? new RpgActionArg[0],
-                EnabledWhen = CreateStateList(cmdAttr.EnabledWhen, cmdAttr.EnabledWhenAll),
-                DisabledWhen = CreateStateList(cmdAttr.DisabledWhen, cmdAttr.DisabledWhenAll)
-            };
+//        public int? GetOutcome(RpgObject initiator, ModSet? modSet)
+//            => Graph!.GetPropValue(initiator, modSet?.OutcomePropName).Roll();
 
-            return cmd;
-        }
+//        public static RpgAction Create(string entityId, string actionName, RpgActionAttribute cmdAttr, RpgActionArg[]? cmdArgs)
+//        {
+//            var cmd = new RpgAction
+//            {
+//                EntityId = entityId,
+//                ActionName = actionName,
+//                OutcomeAction = cmdAttr.OutcomeMethod,
+//                InstanceName = $"{entityId}.{actionName}",
+//                Args = cmdArgs ?? new RpgActionArg[0],
+//                EnabledWhen = CreateStateList(cmdAttr.EnabledWhen, cmdAttr.EnabledWhenAll),
+//                DisabledWhen = CreateStateList(cmdAttr.DisabledWhen, cmdAttr.DisabledWhenAll)
+//            };
 
-        private static string[] CreateStateList(string? state, IEnumerable<string>? states)
-        {
-            var res = new List<string>();
-            if (!string.IsNullOrEmpty(state))
-                res.Add(state);
+//            return cmd;
+//        }
 
-            if (states != null)
-                foreach (var item in states.Where(x => !string.IsNullOrEmpty(x)))
-                    res.Add(item);
+//        private static string[] CreateStateList(string? state, IEnumerable<string>? states)
+//        {
+//            var res = new List<string>();
+//            if (!string.IsNullOrEmpty(state))
+//                res.Add(state);
 
-            return res.Distinct().ToArray();
-        }
+//            if (states != null)
+//                foreach (var item in states.Where(x => !string.IsNullOrEmpty(x)))
+//                    res.Add(item);
 
-        public RpgActionArgSet ArgSet()
-            => new RpgActionArgSet(Args);
+//            return res.Distinct().ToArray();
+//        }
 
-        public RpgActionArgSet ArgSet<T>(T initiator)
-            where T : RpgObject
-                => new RpgActionArgSet(Args).SetInitiator(initiator);
+//        public RpgActionArgSet ArgSet()
+//            => new RpgActionArgSet(Args);
 
-        public RpgActionArgSet ArgSet<TI, TR>(TI initiator, TR recipient)
-            where TI : RpgObject
-            where TR : RpgObject
-                => new RpgActionArgSet(Args)
-                    .SetInitiator(initiator)
-                    .SetRecipient(recipient);
+//        public RpgActionArgSet ArgSet<T>(T initiator)
+//            where T : RpgObject
+//                => new RpgActionArgSet(Args).SetInitiator(initiator);
 
-        public ModSet? Create(RpgActionArgSet argSet)
-        {
-            var entity = Graph!.GetEntity(EntityId);
-            if (entity == null)
-                return null;
+//        public RpgActionArgSet ArgSet<TI, TR>(TI initiator, TR recipient)
+//            where TI : RpgObject
+//            where TR : RpgObject
+//                => new RpgActionArgSet(Args)
+//                    .SetInitiator(initiator)
+//                    .SetRecipient(recipient);
 
-            var modSet = CreateModSet()
-                .AddState(entity);
+//        public ModSet? Create(RpgActionArgSet argSet)
+//        {
+//            var entity = Graph!.GetEntity(EntityId);
+//            if (entity == null)
+//                return null;
 
-            var args = argSet
-                .SetModSet(modSet)
-                .ToArgs();
+//            var modSet = CreateModSet()
+//                .AddState(entity);
 
-            modSet = entity.ExecuteFunction<ModSet>(ActionName, args);
-            return modSet;
-        }
+//            var args = argSet
+//                .SetModSet(modSet)
+//                .ToArgs();
 
-        public void Apply(ModSet? modSet)
-        {
-            if (modSet != null)
-            {
-                var entity = Graph!.GetEntity(EntityId);
-                if (entity != null)
-                {
-                    entity.AddModSet(modSet);
-                    Graph!.Time.TriggerEvent();
-                }
-            }
-        }
+//            modSet = entity.ExecuteFunction<ModSet>(ActionName, args);
+//            return modSet;
+//        }
 
-        private ModSet CreateModSet()
-            => new ModSet(Graph!.Time.Create().Lifecycle, EntityId, ActionName);
+//        public void Apply(ModSet? modSet)
+//        {
+//            if (modSet != null)
+//            {
+//                var entity = Graph!.GetEntity(EntityId);
+//                if (entity != null)
+//                {
+//                    entity.AddModSet(modSet);
+//                    Graph!.Time.TriggerEvent();
+//                }
+//            }
+//        }
 
-        public void OnGraphCreating(RpgGraph graph, RpgObject entity)
-        {
-            Graph = graph;
-            Entity = entity;
-        }
+//        private ModSet CreateModSet()
+//            => new ModSet(Graph!.Time.Create().Lifecycle, EntityId, ActionName);
 
-        public void OnObjectsCreating() { }
+//        public void OnGraphCreating(RpgGraph graph, RpgObject entity)
+//        {
+//            Graph = graph;
+//            Entity = entity;
+//        }
 
-        public void OnUpdating(RpgGraph graph, TimePoint time) { }
-    }
-}
+//        public void OnObjectsCreating() { }
+
+//        public void OnUpdating(RpgGraph graph, TimePoint time) { }
+
+//        public void SetExpired(TimePoint currentTime)
+//        {
+
+//        }
+
+//        public LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
+//        {
+//            return LifecycleExpiry.Active;
+//        }
+
+//        public LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
+//        {
+//            return LifecycleExpiry.Active;
+//        }
+//    }
+//}

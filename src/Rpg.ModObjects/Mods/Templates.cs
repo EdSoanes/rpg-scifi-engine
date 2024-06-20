@@ -165,25 +165,25 @@ namespace Rpg.ModObjects.Mods
         }
     }
 
-    public class StateMod : SyncedMod
-    {
-        public StateMod(ModState state, int increment)
-            : base(state.EntityId, nameof(ModState))
-        {
-            SetBehavior(new Combine(ModType.State));
-            SetProps(state.EntityId, state.InstanceName, increment);
-        }
-    }
+    //public class StateMod : SyncedMod
+    //{
+    //    public StateMod(ModState state, int increment)
+    //        : base(state.EntityId, nameof(ModState))
+    //    {
+    //        SetBehavior(new Combine(ModType.State));
+    //        SetProps(state.EntityId, state.InstanceName, increment);
+    //    }
+    //}
 
-    public class ForceStateMod : PermanentMod
-    {
-        public ForceStateMod(ModState state)
-            : base(state.InstanceName)
-        {
-            SetBehavior(new Replace(ModType.ForceState));
-            SetProps(state.EntityId, state.InstanceName, 1);
-        }
-    }
+    //public class ForceStateMod : PermanentMod
+    //{
+    //    public ForceStateMod(ModState state)
+    //        : base(state.InstanceName)
+    //    {
+    //        SetBehavior(new Replace(ModType.ForceState));
+    //        SetProps(state.EntityId, state.InstanceName, 1);
+    //    }
+    //}
 
     public class PermanentMod : ModTemplate
     {
