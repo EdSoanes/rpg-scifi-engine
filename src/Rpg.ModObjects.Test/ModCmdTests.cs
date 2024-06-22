@@ -1,4 +1,4 @@
-﻿using Rpg.ModObjects.Actions;
+﻿using Rpg.ModObjects.Tests.Actions;
 using Rpg.ModObjects.Tests.Models;
 using System.Reflection;
 
@@ -18,20 +18,51 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new RpgGraph(entity);
 
-            Assert.That(entity.GetCommands().Count(), Is.EqualTo(1));
+            Assert.That(entity.GetActions().Count(), Is.EqualTo(1));
 
-            var testCmd = entity.GetCommands().Single();
-            Assert.That(testCmd.ActionName, Is.EqualTo("TestCommand"));
-            Assert.That(testCmd.EntityId, Is.EqualTo(entity.Id));
+            var testAction = entity.GetAction(nameof(TestAction));
+            Assert.That(testAction, Is.Not.Null);
+            Assert.That(testAction.Name, Is.EqualTo(nameof(TestAction)));
+            Assert.That(testAction.OwnerId, Is.EqualTo(entity.Id));
 
-            Assert.That(testCmd.Args.Count(), Is.EqualTo(2));
-            Assert.That(testCmd.Args[0].Name, Is.EqualTo("initiator"));
-            Assert.That(testCmd.Args[0].ArgType, Is.EqualTo(RpgActionArgType.Actor));
-            Assert.That(testCmd.Args[0].TypeName, Is.EqualTo(typeof(RpgObject).AssemblyQualifiedName));
+            //Cost
+            var costArgSet = testAction.CostArgs();
+            Assert.That(costArgSet, Is.Not.Null);
+            Assert.That(costArgSet.Count(), Is.EqualTo(2));
+            Assert.That(costArgSet[0]!.Name, Is.EqualTo("owner"));
+            Assert.That(costArgSet[0]!.TypeName, Is.EqualTo(nameof(ModdableEntity)));
+            Assert.That(costArgSet[1]!.Name, Is.EqualTo("initiator"));
+            Assert.That(costArgSet[1]!.TypeName, Is.EqualTo(nameof(TestHuman)));
+            Assert.That(costArgSet.ArgNames, Does.Contain("owner"));
+            Assert.That(costArgSet.ArgNames, Does.Contain("initiator"));
 
-            Assert.That(testCmd.Args[1].Name, Is.EqualTo("target"));
-            Assert.That(testCmd.Args[1].ArgType, Is.EqualTo(RpgActionArgType.Any));
-            Assert.That(testCmd.Args[1].TypeName, Is.EqualTo(typeof(int).AssemblyQualifiedName));
+            //Act
+            var actArgSet = testAction.ActArgs();
+            Assert.That(actArgSet, Is.Not.Null);
+            Assert.That(actArgSet.Count(), Is.EqualTo(3));
+            Assert.That(actArgSet[0]!.Name, Is.EqualTo("owner"));
+            Assert.That(actArgSet[0]!.TypeName, Is.EqualTo(nameof(ModdableEntity)));
+            Assert.That(actArgSet[1]!.Name, Is.EqualTo("initiator"));
+            Assert.That(actArgSet[1]!.TypeName, Is.EqualTo(nameof(TestHuman)));
+            Assert.That(actArgSet[2]!.Name, Is.EqualTo("target"));
+            Assert.That(actArgSet[2]!.TypeName, Is.EqualTo(nameof(Int32)));
+            Assert.That(actArgSet.ArgNames, Does.Contain("owner"));
+            Assert.That(actArgSet.ArgNames, Does.Contain("initiator"));
+            Assert.That(actArgSet.ArgNames, Does.Contain("target"));
+
+            //Outcome
+            var outcomeArgs = testAction.OutcomeArgs();
+            Assert.That(outcomeArgs, Is.Not.Null);
+            Assert.That(outcomeArgs.Count(), Is.EqualTo(3));
+            Assert.That(outcomeArgs[0].Name, Is.EqualTo("owner"));
+            Assert.That(outcomeArgs[0].TypeName, Is.EqualTo(nameof(ModdableEntity)));
+            Assert.That(outcomeArgs[1].Name, Is.EqualTo("initiator"));
+            Assert.That(outcomeArgs[1].TypeName, Is.EqualTo(nameof(TestHuman)));
+            Assert.That(outcomeArgs[2].Name, Is.EqualTo("diceRoll"));
+            Assert.That(outcomeArgs[2].TypeName, Is.EqualTo(nameof(Int32)));
+            Assert.That(outcomeArgs.ArgNames, Does.Contain("owner"));
+            Assert.That(outcomeArgs.ArgNames, Does.Contain("initiator"));
+            Assert.That(outcomeArgs.ArgNames, Does.Contain("diceRoll"));
         }
     }
 }

@@ -35,18 +35,14 @@ namespace Rpg.ModObjects
 
         public static T AddModSet<T>(this T entity, string name, Action<ModSet> addAction)
             where T : RpgObject
-        {
-            var modSet = new ModSet(entity.Id, name);
-            addAction.Invoke(modSet);
-            entity.AddModSet(modSet);
-
-            return entity;
-        }
+                => AddModSet<T>(entity, name, new PermanentLifecycle(), addAction);
 
         public static T AddModSet<T>(this T entity, string name, ILifecycle lifecycle, Action<ModSet> addAction)
             where T : RpgObject
         {
-            var modSet = new ModSet(lifecycle, entity.Id, name);
+            var modSet = new ModSet(lifecycle, name)
+                .AddOwner(entity);
+
             addAction.Invoke(modSet);
             entity.AddModSet(modSet);
 

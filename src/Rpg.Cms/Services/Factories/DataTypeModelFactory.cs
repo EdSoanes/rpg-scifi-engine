@@ -11,7 +11,7 @@ namespace Rpg.Cms.Services.Factories
         public CreateDataTypeRequestModel[] ToDataTypeModels(SyncSession session, IUmbracoEntity parentFolder)
         {
             var res = new List<CreateDataTypeRequestModel>();
-            foreach (var attr in session.System.PropUIAttributes)
+            foreach (var attr in session.System.PropUIs)
             {
                 var dataTypeName = session.GetDataTypeName(attr.DataType);
                 if (!res.Any(x => x.Name == dataTypeName))

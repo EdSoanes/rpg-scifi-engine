@@ -62,66 +62,168 @@ namespace Rpg.ModObjects.Time
             return TimePoints.Encounter(startTime.Tick + duration.Tick - 1);
         }
 
-        public ModExpiry CalculateExpiry(TimePoint startTime, TimePoint endTime)
+        public LifecycleExpiry CalculateExpiry(TimePoint startTime, TimePoint endTime)
         {
             if (startTime == TimePoints.BeginningOfTime && endTime == TimePoints.EndOfTime)
-                return ModExpiry.Active;
+                return LifecycleExpiry.Active;
 
             if (endTime.Tick < Current.Tick)
             {
                 return Current.Type == nameof(TimePoints.Encounter)
-                    ? ModExpiry.Expired
-                    : ModExpiry.Remove;
+                    ? LifecycleExpiry.Expired
+                    : LifecycleExpiry.Remove;
             }
 
             if (startTime.Tick > Current.Tick)
-                return ModExpiry.Pending;
+                return LifecycleExpiry.Pending;
 
-            return ModExpiry.Active;
+            return LifecycleExpiry.Active;
         }
 
-        public void NewEncounter()
+        public void Begin()
         {
-            if (Current.Type == nameof(TimePoints.Encounter))
-                EndEncounter();
-
-            if (Current != TimePoints.BeginningOfEncounter)
+            if (Current == TimePoints.BeforeTime)
             {
-                Current = TimePoints.BeginningOfEncounter;
                 TriggerEvent();
+
+                Current = TimePoints.BeginningOfTime;
+                TriggerEvent();
+
+                Current = TimePoints.BeforeEncounter;
             }
-
-            NewTurn();
         }
-
-        public void EndEncounter()
+        
+        public bool IncreaseTick()
         {
-            Current = TimePoints.EndOfEncounter;
-            TriggerEvent();
-        }
+            if (Current.Type != nameof(TimePoints.Encounter))
+                return false;
 
-        public void NewTurn()
-        {
             Current = TimePoints.Encounter(Current.Tick + 1);
             TriggerEvent();
+
+            return true;
         }
 
-        public void PrevTurn()
+        public bool DecreaseTick()
         {
-            if (Current.Tick > 1)
+            if (Current.Type != nameof(TimePoints.Encounter) || Current.Tick <= 1)
+                return false;
+
+            Current = TimePoints.Encounter(Current.Tick - 1);
+            TriggerEvent();
+
+            return true;
+        }
+
+        public bool SetTick(int tick)
+        {
+            if (Current.Type != nameof(TimePoints.Encounter) || tick < 1 || tick >= TimePoints.EndOfEncounter.Tick)
+                return false;
+
+            Current = TimePoints.Encounter(tick);
+            TriggerEvent();
+
+            return true;
+        }
+
+        public void SetTime(TimePoint timePoint)
+        {
+            if (Current == timePoint)
+                return;
+
+            if (Current.Type == nameof(TimePoints.Encounter))
             {
-                Current = TimePoints.Encounter(Current.Tick - 1);
+                if (timePoint == TimePoints.EndOfEncounter)
+                {
+                    Current = TimePoints.EndOfEncounter;
+                    TriggerEvent();
+
+                    return;
+                }
+
+                if (timePoint == TimePoints.BeginningOfEncounter)
+                {
+                    Current = TimePoints.EndOfEncounter;
+                    TriggerEvent();
+
+                    Current = TimePoints.BeginningOfEncounter;
+                    TriggerEvent();
+
+                    return;
+                }
+
+                if (timePoint == TimePoints.BeginningOfEncounter)
+                {
+                    Current = TimePoints.BeginningOfEncounter;
+                    TriggerEvent();
+                }
+
+
+                if (timePoint.Type == nameof(TimePoints.Encounter))
+                {
+                    Current = timePoint;
+                    TriggerEvent();
+                    return;
+                }
+
+                return;
+            }
+
+            if (timePoint != TimePoints.BeforeTime && timePoint != TimePoints.BeginningOfTime && timePoint != TimePoints.EndOfTime)
+            {
+                Current = timePoint;
                 TriggerEvent();
+
+                if (timePoint == TimePoints.BeginningOfEncounter)
+                {
+                    Current = TimePoints.Encounter(1);
+                    TriggerEvent();
+                }
             }
         }
 
-        public void SetTurn(int turn)
-        {
-            if (Current.Type == nameof(TimePoints.Encounter) && turn > 0 && turn < TimePoints.EndOfEncounter.Tick)
-            {
-                Current = TimePoints.Encounter(turn);
-                TriggerEvent();
-            }
-        }
+        //public void NewEncounter()
+        //{
+        //    if (Current.Type == nameof(TimePoints.Encounter))
+        //        EndEncounter();
+
+        //    if (Current != TimePoints.BeginningOfEncounter)
+        //    {
+        //        Current = TimePoints.BeginningOfEncounter;
+        //        TriggerEvent();
+        //    }
+
+        //    NewTurn();
+        //}
+
+        //public void EndEncounter()
+        //{
+        //    Current = TimePoints.EndOfEncounter;
+        //    TriggerEvent();
+        //}
+
+        //public void NewTurn()
+        //{
+        //    Current = TimePoints.Encounter(Current.Tick + 1);
+        //    TriggerEvent();
+        //}
+
+        //public void PrevTurn()
+        //{
+        //    if (Current.Tick > 1)
+        //    {
+        //        Current = TimePoints.Encounter(Current.Tick - 1);
+        //        TriggerEvent();
+        //    }
+        //}
+
+        //public void SetTurn(int turn)
+        //{
+        //    if (Current.Type == nameof(TimePoints.Encounter) && turn > 0 && turn < TimePoints.EndOfEncounter.Tick)
+        //    {
+        //        Current = TimePoints.Encounter(turn);
+        //        TriggerEvent();
+        //    }
+        //}
     }
 }

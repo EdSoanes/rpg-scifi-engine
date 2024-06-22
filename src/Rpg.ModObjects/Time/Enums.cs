@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Time
 {
-    public interface ITimeEvent
+    public enum LifecycleExpiry
     {
-        void OnUpdating(RpgGraph graph, TimePoint time);
+        Pending,
+        Active,
+        Expired,
+        Remove
     }
 }

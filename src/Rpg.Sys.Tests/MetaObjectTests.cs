@@ -1,4 +1,5 @@
 using Rpg.ModObjects.Meta;
+using Rpg.ModObjects.Reflection;
 using Rpg.Sys.Archetypes;
 
 namespace Rpg.Sys.Tests
@@ -8,7 +9,7 @@ namespace Rpg.Sys.Tests
         [SetUp]
         public void Setup()
         {
-            MetaGraph.RegisterAssembly(typeof(MetaSystem).Assembly);
+            RpgReflection.RegisterAssembly(typeof(MetaSystem).Assembly);
         }
 
         [Test]

@@ -1,6 +1,6 @@
-﻿using Rpg.ModObjects.Actions;
-using Rpg.ModObjects.Actions;
-using Rpg.ModObjects.Mods;
+﻿using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.States;
+using Rpg.ModObjects.Tests.States;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 
@@ -20,30 +20,23 @@ namespace Rpg.ModObjects.Tests.Models
             Damage = new DamageValue(Id, nameof(Damage), "d6", 10, 100);
         }
 
-        protected override void OnCreating()
+        protected override void OnLifecycleStarting()
         {
             this
                 .BaseMod(x => x.Melee, x => x.Strength.Bonus)
                 .BaseMod(x => x.Damage.Dice, x => x.Strength.Bonus);
         }
 
-        [ModState(ActiveWhen = nameof(ShouldBuff))]
-        public void Buff(ModSet modSet)
-            => modSet.SyncedMod(this, x => x.Health, 10);
-
-        public bool ShouldBuff() => Melee.Roll() >= 10;
-
-        [ModState(ActiveWhen = nameof(ShouldNerf))]
-        public void Nerf(ModSet modSet)
-            => modSet.SyncedMod(this, x => x.Health, -10);
-
-        public bool ShouldNerf() => Melee.Roll() < 1;
-
-        [RpgAction()]
-        [RpgActionArg("initiator", RpgActionArgType.Actor)]
-        public ModSet TestCommand(RpgObject initiator, int target)
+        public override void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
         {
-            return new ModSet(Id, nameof(TestCommand));
+            base.OnBeginningOfTime(graph, entity);
+        }
+
+        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
+        {
+            var expiry = base.OnUpdateLifecycle(graph, currentTime, mod);
+            StateStore.OnUpdateLifecycle(graph, currentTime);
+            return expiry;
         }
     }
 }

@@ -1,4 +1,7 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.States;
+using Rpg.ModObjects.Time;
 using System.Collections.Specialized;
 
 namespace Rpg.ModObjects
@@ -6,18 +9,51 @@ namespace Rpg.ModObjects
     public class RpgEntity : RpgObject, INotifyCollectionChanged
     {
         [JsonProperty] protected RpgEntityStore EntityStore { get; private set; }
+        [JsonProperty] public StateStore StateStore { get; private set; }
+        [JsonProperty] public RpgActionStore ActionStore { get; private set; }
 
         public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
-        [JsonConstructor] protected RpgEntity()
-            : base() { }
+        public RpgEntity()
+            : base() 
+        {
+            EntityStore = new RpgEntityStore(Id);
+            StateStore = new StateStore(Id);
+            ActionStore = new RpgActionStore(Id);
+        }
 
         public RpgEntity(string name)
-            : base()
+            : this()
         {
             Name = name;
-            EntityStore = new RpgEntityStore(Id);
         }
+
+        public bool IsStateOn(string state)
+            => (StateStore[state]?.Expiry ?? LifecycleExpiry.Expired) == LifecycleExpiry.Active;
+
+        public bool SetStateOn(string state)
+            => StateStore[state]?.On() ?? false;
+
+        public bool SetStateOff(string state)
+            => StateStore[state]?.Off() ?? false;
+
+        public State? GetState(string state)
+            => StateStore[state];
+
+        public State[] GetStates()
+            => StateStore.Get();
+
+
+        public bool IsActionEnabled<TOwner>(string action, RpgEntity initiator)
+            where TOwner : RpgEntity
+                => GetAction(action)?.IsEnabled<TOwner>((this as TOwner)!, initiator) ?? false;
+
+        public Actions.Action? GetAction(string action)
+            => ActionStore[action];
+
+        public Actions.Action[] GetActions()
+            => ActionStore.Get();
+
 
         public bool Contains(RpgEntity obj)
             => Contains(obj.Id);
@@ -53,8 +89,7 @@ namespace Rpg.ModObjects
             }
 
             store.Add(obj);
-            if (Graph?.AddEntity(obj) ?? false)
-                obj.OnGraphCreating(Graph);
+            Graph?.AddEntity(obj);
 
             CallCollectionChanged(NotifyCollectionChangedAction.Add);
 
@@ -78,5 +113,21 @@ namespace Rpg.ModObjects
 
         protected void CallCollectionChanged(NotifyCollectionChangedAction action)
             => CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(action));
+
+        public override void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
+        {
+            base.OnBeginningOfTime(graph, entity);
+
+            var actions = this.CreateActions();
+            ActionStore.Add(actions);
+            ActionStore.OnBeginningOfTime(graph, entity);
+
+            var states = this.CreateStates()
+                .Union(this.CreateStateActions(actions))
+                .ToArray();
+
+            StateStore.Add(states);
+            StateStore.OnBeginningOfTime(graph, entity);
+        }
     }
 }

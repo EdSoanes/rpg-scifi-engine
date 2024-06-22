@@ -13,6 +13,8 @@ namespace Rpg.ModObjects.Meta
         string Version { get; }
         string Description { get; }
         MetaObj[] Objects { get; set; }
-        MetaPropUIAttribute[] PropUIAttributes { get; set; }
+        Actions.Action[] Actions { get; set; }
+        MetaState[] States { get; set; }
+        MetaPropUIAttribute[] PropUIs { get; set; }
     }
 }

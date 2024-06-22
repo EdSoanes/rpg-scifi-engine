@@ -15,7 +15,7 @@ namespace Rpg.ModObjects.Mods
 
         [JsonProperty] public PropRef? SourcePropRef { get; protected set; }
         [JsonProperty] public Dice? SourceValue { get; protected set; }
-        [JsonProperty] public ModSourceValueFunction SourceValueFunc { get; protected set; } = new ModSourceValueFunction();
+        [JsonProperty] internal ModValueMethod SourceValueFunc { get; private set; } = new ModValueMethod();
 
         [JsonProperty] public BaseBehavior Behavior { get; protected set; }
         [JsonProperty] public ILifecycle Lifecycle { get; protected set; }
@@ -23,7 +23,7 @@ namespace Rpg.ModObjects.Mods
         [JsonProperty] public bool IsBaseOverrideMod { get => Behavior.Type == ModType.Override; }
         [JsonProperty] public bool IsBaseMod { get => IsBaseInitMod || IsBaseOverrideMod || Behavior.Type == ModType.Base; }
 
-        public ModExpiry Expiry { get => (int)Lifecycle.Expiry > (int)Behavior.Expiry ? Lifecycle.Expiry : Behavior.Expiry; }
+        public LifecycleExpiry Expiry { get => (int)Lifecycle.Expiry > (int)Behavior.Expiry ? Lifecycle.Expiry : Behavior.Expiry; }
 
         [JsonConstructor] protected Mod() { }
 
@@ -51,13 +51,13 @@ namespace Rpg.ModObjects.Mods
 
         public void OnAdding(RpgGraph graph, Prop modProp, Time.TimePoint time)
         {
-            Lifecycle.StartLifecycle(graph, time, this);
+            Lifecycle.OnStartLifecycle(graph, time, this);
             Behavior.OnAdding(graph, modProp, this);
         }
 
         public void OnUpdating(RpgGraph graph, Prop modProp, Time.TimePoint time)
         {
-            Lifecycle.UpdateLifecycle(graph, time, this);
+            Lifecycle.OnUpdateLifecycle(graph, time, this);
             Behavior.OnUpdating(graph, modProp, this);
         }
 
@@ -70,7 +70,7 @@ namespace Rpg.ModObjects.Mods
         {
             var src = $"{SourcePropRef}{SourceValue}";
             src = SourceValueFunc.IsCalc
-                ? $"{SourceValueFunc.FuncName}({src})"
+                ? $"{SourceValueFunc.MethodName}({src})"
                 : src;
 
             var mod = $"({Behavior.Type}) {EntityId}.{Prop} <= {src}";

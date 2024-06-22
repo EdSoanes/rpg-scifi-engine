@@ -1,26 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Meta
 {
     public class MetaState
     {
-        public string Name { get; set; }
-        public string? ActiveWhen { get; set; }
+        [JsonProperty] public string Name { get; private set; }
+        [JsonProperty] public string Archetype { get; private set; }
 
-        public MetaState(string name, string? activeWhen)
+        [JsonConstructor] private MetaState() { }
+
+        public MetaState(Type stateType)
         {
-            Name = name;
-            ActiveWhen = activeWhen;
+            Name = stateType.Name;
+            Archetype = stateType.BaseType!.GenericTypeArguments[0].Name;
         }
 
         public override string ToString()
         {
-            return Name;
+            return $"{Name} ({Archetype})";
         }
-
     }
 }

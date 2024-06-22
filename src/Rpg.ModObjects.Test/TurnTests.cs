@@ -21,14 +21,14 @@ namespace Rpg.ModObjects.Tests
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
 
-            graph.Time.NewEncounter();
+            graph.Time.SetTime(TimePoints.BeginningOfEncounter);
 
             entity.AddMod(new TurnMod(), x => x.Melee, 2);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
 
-            graph.Time.NewTurn();
+            graph.Time.IncreaseTick();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
         }
@@ -41,14 +41,14 @@ namespace Rpg.ModObjects.Tests
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
 
-            graph.Time.NewEncounter();
+            graph.Time.SetTime(TimePoints.BeginningOfEncounter);
 
             entity.AddMod(new TurnMod(), x => x.Melee, 2);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
 
-            graph.Time.SetTurn(1);
+            graph.Time.SetTick(1);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
         }
@@ -61,18 +61,18 @@ namespace Rpg.ModObjects.Tests
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
 
-            graph.Time.NewEncounter();
+            graph.Time.SetTime(TimePoints.BeginningOfEncounter);
 
             entity.AddMod(new TurnMod(), x => x.Melee, 2);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
 
-            graph.Time.NewTurn();
+            graph.Time.IncreaseTick();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
 
-            graph.Time.PrevTurn();
+            graph.Time.DecreaseTick();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
         }
@@ -87,14 +87,14 @@ namespace Rpg.ModObjects.Tests
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
 
-            graph.Time.NewEncounter();
+            graph.Time.SetTime(TimePoints.BeginningOfEncounter);
 
             entity.AddMod(new TurnMod(), x => x.Melee, 2);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
 
-            graph.Time.NewEncounter();
+            graph.Time.SetTime(TimePoints.BeginningOfEncounter);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(graph.GetMods().Count(), Is.EqualTo(modCount));
@@ -110,14 +110,14 @@ namespace Rpg.ModObjects.Tests
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
 
-            graph.Time.NewEncounter();
+            graph.Time.SetTime(TimePoints.BeginningOfEncounter);
 
             entity.AddMod(new TurnMod(), x => x.Melee, 2);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
 
-            graph.Time.EndEncounter();
+            graph.Time.SetTime(TimePoints.EndOfEncounter);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(graph.GetMods().Count(), Is.EqualTo(modCount));
@@ -131,7 +131,7 @@ namespace Rpg.ModObjects.Tests
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
 
-            graph.Time.NewEncounter();
+            graph.Time.SetTime(TimePoints.BeginningOfEncounter);
 
             entity.AddMod(new TurnMod(3), x => x.Melee, 2);
             graph.Time.TriggerEvent();
@@ -139,15 +139,15 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
 
             //Turn 2
-            graph.Time.NewTurn();
+            graph.Time.IncreaseTick();
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
 
             //Turn 3
-            graph.Time.NewTurn();
+            graph.Time.IncreaseTick();
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
 
             //Turn 4
-            graph.Time.NewTurn();
+            graph.Time.IncreaseTick();
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
         }
 
@@ -159,7 +159,7 @@ namespace Rpg.ModObjects.Tests
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
 
-            graph.Time.NewEncounter();
+            graph.Time.SetTime(TimePoints.BeginningOfEncounter);
 
             entity.AddMod(new TurnMod(3), x => x.Melee, 2);
             graph.Time.TriggerEvent();
@@ -167,11 +167,11 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
 
             //Set to Turn 4
-            graph.Time.SetTurn(4);
+            graph.Time.SetTick(4);
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
 
             //Set to Turn 3
-            graph.Time.SetTurn(3);
+            graph.Time.SetTick(3);
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
         }
     }

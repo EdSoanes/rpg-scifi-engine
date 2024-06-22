@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Tests.Models;
+using Rpg.ModObjects.Tests.States;
 using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects.Tests
@@ -29,11 +30,11 @@ namespace Rpg.ModObjects.Tests
             Assert.That(graph.GetEntities().Count(), Is.EqualTo(3));
             var mods = graph.GetMods();
             Assert.That(mods.Count(), Is.EqualTo(11));
-            Assert.That(entity.StateNames.Count(), Is.EqualTo(3));
-            Assert.That(entity.StateNames, Does.Contain("Buff"));
-            Assert.That(entity.StateNames, Does.Contain("Nerf"));
-            Assert.That(entity.StateNames, Does.Contain("TestCommand"));
-            Assert.That(entity.ActiveStateNames.Count(), Is.EqualTo(0));
+
+            Assert.That(entity.GetStates().Count(), Is.EqualTo(3));
+            Assert.That(entity.GetState(nameof(BuffState)), Is.Not.Null);
+            Assert.That(entity.GetState(nameof(NerfState)), Is.Not.Null);
+            Assert.That(entity.GetState("TestAction"), Is.Not.Null);
         }
 
         [Test]

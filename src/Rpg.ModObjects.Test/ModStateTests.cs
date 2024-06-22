@@ -19,14 +19,14 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new RpgGraph(entity);
 
-            Assert.That(entity.ActiveStateNames, Does.Not.Contain("Buff"));
+            Assert.That(entity.IsStateOn("Buff"), Is.False);
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));
 
             var mod = entity.AddMod(new PermanentMod(), x => x.Melee, 6);
             graph.Time.TriggerEvent();
 
-            Assert.That(entity.ActiveStateNames, Does.Contain("Buff"));
+            Assert.That(entity.IsStateOn("Buff"), Is.True);
             Assert.That(entity.Melee.Roll(), Is.EqualTo(10));
             Assert.That(entity.Health, Is.EqualTo(20));
         }
@@ -76,17 +76,17 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));
 
-            entity.ActivateState("Buff");
+            entity.SetStateOn("Buff");
             graph.Time.TriggerEvent();
 
-            Assert.That(entity.ActiveStateNames, Does.Contain("Buff"));
+            Assert.That(entity.IsStateOn("Buff"), Is.True);
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(20));
 
-            entity.DeactivateState("Buff");
+            entity.SetStateOff("Buff");
             graph.Time.TriggerEvent();
 
-            Assert.That(entity.ActiveStateNames, Does.Not.Contain("Buff"));
+            Assert.That(entity.IsStateOn("Buff"), Is.False);
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));
         }

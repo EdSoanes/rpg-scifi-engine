@@ -21,7 +21,7 @@ namespace Rpg.Sys.Archetypes
             Stats = new StatPoints(Id, nameof(Stats), template.Stats);
         }
 
-        protected override void OnCreating()
+        protected override void OnLifecycleStarting()
         {
             this.BaseMod(x => x.Actions.Exertion.Max, x => x.Stats.Strength.Bonus);
             this.BaseMod(x => x.Actions.Action.Max, x => x.Stats.Dexterity.Bonus);

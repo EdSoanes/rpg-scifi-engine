@@ -1,17 +1,11 @@
-﻿using Rpg.ModObjects.Values;
-using System.Collections;
+﻿using System.Collections;
 using System.Reflection;
+using Rpg.ModObjects.Reflection;
 
 namespace Rpg.ModObjects.Meta
 {
     public class MetaGraph
     {
-        private static readonly Type[] BaseTypes =
-        [
-            typeof(int),
-            typeof(string),
-            typeof(Dice)
-        ];
 
         public IMetaSystem Build()
         {
@@ -19,13 +13,21 @@ namespace Rpg.ModObjects.Meta
             if (sysType == null)
                 throw new InvalidOperationException("No IMetaSystem types found");
 
-            var objectTypes = GetMetaTypes<RpgEntity>();
+            var objectTypes = RpgReflection.ScanForTypes<RpgEntity>();
             var res = objectTypes
                 .Select(Object)
                 .ToArray();
 
-            var propUITypes = GetMetaTypes<MetaPropUIAttribute>()
+            var propUIs = RpgReflection.ScanForTypes<MetaPropUIAttribute>()
                 .Select(x => (MetaPropUIAttribute)Activator.CreateInstance(x)!)
+                .ToArray();
+
+            var actions = RpgReflection.ScanForTypes<Actions.Action>()
+                .Select(x => (Actions.Action)Activator.CreateInstance(x)!)
+                .ToArray();
+
+            var states = RpgReflection.ScanForTypes<States.State>()
+                .Select(x => new MetaState(x))
                 .ToArray();
 
             var system = Activator.CreateInstance(sysType) as IMetaSystem;
@@ -33,7 +35,9 @@ namespace Rpg.ModObjects.Meta
                 throw new InvalidOperationException($"Could not create instance of IMetaSystem {sysType.Name}");
 
             system.Objects = res;
-            system.PropUIAttributes = propUITypes;
+            system.Actions = actions;
+            system.States = states;
+            system.PropUIs = propUIs;
 
             return system;
         }
@@ -64,7 +68,7 @@ namespace Rpg.ModObjects.Meta
                 tab = !string.IsNullOrEmpty(propUI?.Tab) ? propUI.Tab : tab;
                 group = !string.IsNullOrEmpty(propUI?.Group) ? propUI.Group : group;
 
-                if (BaseTypes.Contains(propInfo.PropertyType))
+                if (RpgReflection.RpgPropertyTypes.Contains(propInfo.PropertyType))
                 {
                     var metaProp = new MetaProp();
 
@@ -93,81 +97,13 @@ namespace Rpg.ModObjects.Meta
             }
         }
 
-        #region Discovery
-
-        private static string[] ExcludeAssembliesWith =
-{
-            "Microsoft",
-            "System",
-            "Umbraco",
-            "Newtonsoft",
-            "Azure",
-            "SixLabors",
-            "NPoco",
-            "Asp"
-        };
-
-        private static List<Assembly> _scanAssemblies = new List<Assembly>();
-        public static void RegisterAssembly(Assembly assembly)
-        {
-            if (!_scanAssemblies.Contains(assembly))
-                _scanAssemblies.Add(assembly);
-        }
-
-        private IEnumerable<Type> GetMetaTypes<T>()
-        {
-            var res = new List<Type>();
-
-            foreach (var assembly in GetScanAssemblies())
-            {
-                var assemblyTypes = assembly.DefinedTypes
-                    .Where(x => IsValidMetaType<T>(x))
-                    .Select(x => x.AsType());
-
-                res.AddRange(assemblyTypes);
-            }
-
-            return res;
-        }
-
-        private bool IsValidMetaType<T>(TypeInfo typeInfo)
-        {
-            if (typeInfo.IsAbstract) 
-                return false;
-
-            var baseTypeInfo = typeof(T).GetTypeInfo();
-
-            if (baseTypeInfo.IsClass)
-                return typeInfo.IsSubclassOf(baseTypeInfo.AsType());
-
-            if (baseTypeInfo.IsInterface)
-                return typeInfo.ImplementedInterfaces.Contains(typeof(T));
-
-            return false;
-        }
-
-        private List<Assembly> GetScanAssemblies()
-        {
-            if (_scanAssemblies.Any())
-            {
-                if (!_scanAssemblies.Contains(typeof(IMetaSystem).Assembly))
-                    _scanAssemblies.Add(typeof(IMetaSystem).Assembly);
-
-                return _scanAssemblies;
-            }
-
-            return AppDomain.CurrentDomain.GetAssemblies()
-                .Where(x => !ExcludeAssembliesWith.Any(n => x.FullName?.Contains(n) ?? false))
-                .ToList();
-        }
-
         private List<Type> DiscoverMetaSystems()
         {
             var types = new List<Type>();
 
-            foreach (var assembly in GetScanAssemblies())
+            foreach (var assembly in RpgReflection.GetScanAssemblies())
             {
-                var assTypes = GetLoadableTypes(assembly)
+                var assTypes = RpgReflection.GetLoadableTypes(assembly)
                     .Where(x => x != typeof(IMetaSystem) && x.IsAssignableTo(typeof(IMetaSystem)))
                     .ToList();
 
@@ -177,24 +113,5 @@ namespace Rpg.ModObjects.Meta
 
             return types;
         }
-
-        private IEnumerable<Type> GetLoadableTypes(Assembly assembly)
-        {
-            if (assembly == null)
-                throw new ArgumentNullException("assembly");
-
-            try
-            {
-                return assembly.GetTypes();
-            }
-            catch (ReflectionTypeLoadException e)
-            {
-                return e.Types
-                    .Where(t => t != null)
-                    .Cast<Type>();
-            }
-        }
-
-        #endregion
     }
 }

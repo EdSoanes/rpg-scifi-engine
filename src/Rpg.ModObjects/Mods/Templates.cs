@@ -1,5 +1,4 @@
 ﻿using Rpg.ModObjects.Props;
-using Rpg.ModObjects.States;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
@@ -14,7 +13,7 @@ namespace Rpg.ModObjects.Mods
         public PropRef TargetPropRef { get; private set; }
         public PropRef? SourcePropRef { get; private set; }
         public Dice? SourceValue { get; private set; }
-        public ModSourceValueFunction SourceValueFunc { get; private set; } = new ModSourceValueFunction();
+        internal ModValueMethod SourceValueFunc { get; private set; } = new ModValueMethod();
 
         public virtual Mod Create(string name)
         {
@@ -53,15 +52,15 @@ namespace Rpg.ModObjects.Mods
             return this;
         }
 
-        public ModTemplate SetProps(PropRef targetPropRef, PropRef? sourcePropRef, Dice? value, ModSourceValueFunction? valueFunc)
+        public ModTemplate SetProps(PropRef targetPropRef, Mod mod)
         {
-            TargetPropRef = new PropRef(targetPropRef.EntityId, targetPropRef.Prop);
-            SourcePropRef = sourcePropRef != null
-                ? new PropRef(sourcePropRef.EntityId, sourcePropRef.Prop)
+            TargetPropRef = new PropRef(mod.EntityId, mod.Prop);
+            SourcePropRef = mod.SourcePropRef != null
+                ? new PropRef(mod.SourcePropRef.EntityId, mod.SourcePropRef.Prop)
                 : null;
 
-            SourceValue = value;
-            SourceValueFunc.Set(valueFunc);
+            SourceValue = mod.SourceValue;
+            SourceValueFunc.Set(mod.SourceValueFunc);
 
             return this;
         }
@@ -165,25 +164,25 @@ namespace Rpg.ModObjects.Mods
         }
     }
 
-    public class StateMod : SyncedMod
-    {
-        public StateMod(ModState state, int increment)
-            : base(state.EntityId, nameof(ModState))
-        {
-            SetBehavior(new Combine(ModType.State));
-            SetProps(state.EntityId, state.InstanceName, increment);
-        }
-    }
+    //public class StateMod : SyncedMod
+    //{
+    //    public StateMod(ModState state, int increment)
+    //        : base(state.EntityId, nameof(ModState))
+    //    {
+    //        SetBehavior(new Combine(ModType.State));
+    //        SetProps(state.EntityId, state.InstanceName, increment);
+    //    }
+    //}
 
-    public class ForceStateMod : PermanentMod
-    {
-        public ForceStateMod(ModState state)
-            : base(state.InstanceName)
-        {
-            SetBehavior(new Replace(ModType.ForceState));
-            SetProps(state.EntityId, state.InstanceName, 1);
-        }
-    }
+    //public class ForceStateMod : PermanentMod
+    //{
+    //    public ForceStateMod(ModState state)
+    //        : base(state.InstanceName)
+    //    {
+    //        SetBehavior(new Replace(ModType.ForceState));
+    //        SetProps(state.EntityId, state.InstanceName, 1);
+    //    }
+    //}
 
     public class PermanentMod : ModTemplate
     {

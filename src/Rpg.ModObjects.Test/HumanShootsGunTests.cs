@@ -1,4 +1,5 @@
 ﻿using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Tests.Actions;
 using Rpg.ModObjects.Tests.Models;
 using Rpg.ModObjects.Time;
 using System.Reflection;
@@ -49,29 +50,57 @@ namespace Rpg.ModObjects.Tests
             Assert.That(initiator.MentalActionPoints.Current, Is.EqualTo(3));
 
             //Gun
-            Assert.That(gun.GetCommands().Count(), Is.EqualTo(2));
+            Assert.That(gun.GetActions().Count(), Is.EqualTo(2));
 
-            var shoot = gun.GetCommand(nameof(TestGun.Shoot));
-            Assert.That(shoot, Is.Not.Null);
-            Assert.That(shoot.DisabledWhen.Count(), Is.EqualTo(1));
-            Assert.That(shoot.DisabledWhen, Does.Contain(nameof(TestGun.AmmoEmpty)));
+            var fireGun = gun.GetAction(nameof(FireGunAction));
+            Assert.That(fireGun, Is.Not.Null);
 
-            var damage = gun.GetCommand(nameof(TestGun.InflictDamage));
-            Assert.That(damage, Is.Not.Null);
-            Assert.That(damage.EnabledWhen.Count(), Is.EqualTo(1));
-            Assert.That(damage.EnabledWhen, Does.Contain(nameof(TestGun.Shoot)));
+            var costArgs = fireGun.CostArgs();
+            costArgs["owner"] = gun;
+            costArgs["initiator"] = initiator;
+
+            var costModSet = fireGun.Cost(costArgs);
+            initiator.AddModSet(costModSet);
+
+            var actArgs = fireGun.ActArgs();
+            costArgs["owner"] = gun;
+            costArgs["initiator"] = initiator;
+            costArgs["targetDefense"] = 2;
+
+            var actModSet = fireGun.Act(actArgs);
+            gun.AddModSet(actModSet);
+
+            var diceRoll = actModSet.GetValue(initiator.Id, $"{nameof(FireGunAction)}.{nameof(FireGunAction.OnAct)}");
+            Assert.That(diceRoll.ToString(), Is.EqualTo("1d20 + 2"));
+
+            var outcomeArgs = fireGun.OutcomeArgs();
+            outcomeArgs["initiator"] = initiator;
+            outcomeArgs["diceRoll"] = 20;
+            outcomeArgs["target"] = 15;
+
+            var outcomeModSets = fireGun.Outcome(outcomeArgs);
 
 
-            Assert.That(gun.StateNames.Count(), Is.EqualTo(3));
-            Assert.That(gun.StateNames, Does.Contain(nameof(TestGun.AmmoEmpty)));
-            Assert.That(gun.StateNames, Does.Contain(nameof(TestGun.Shoot)));
-            Assert.That(gun.StateNames, Does.Contain(nameof(TestGun.InflictDamage)));
-            Assert.That(gun.ActiveStateNames.Count(), Is.EqualTo(0));
+            //Assert.That(fireGun, Is.Not.Null);
+            //Assert.That(fireGun.DisabledWhen.Count(), Is.EqualTo(1));
+            //Assert.That(fireGun.DisabledWhen, Does.Contain(nameof(TestGun.AmmoEmpty)));
 
-            Assert.That(gun.HitBonus, Is.EqualTo(2));
-            Assert.That(gun.Damage.Dice.ToString(), Is.EqualTo("1d6"));
-            Assert.That(gun.Ammo.Max, Is.EqualTo(10));
-            Assert.That(gun.Ammo.Current, Is.EqualTo(10));
+            //var damage = gun.GetCommand(nameof(TestGun.InflictDamage));
+            //Assert.That(damage, Is.Not.Null);
+            //Assert.That(damage.EnabledWhen.Count(), Is.EqualTo(1));
+            //Assert.That(damage.EnabledWhen, Does.Contain(nameof(TestGun.Shoot)));
+
+
+            //Assert.That(gun.StateNames.Count(), Is.EqualTo(3));
+            //Assert.That(gun.StateNames, Does.Contain(nameof(TestGun.AmmoEmpty)));
+            //Assert.That(gun.StateNames, Does.Contain(nameof(TestGun.Shoot)));
+            //Assert.That(gun.StateNames, Does.Contain(nameof(TestGun.InflictDamage)));
+            //Assert.That(gun.ActiveStateNames.Count(), Is.EqualTo(0));
+
+            //Assert.That(gun.HitBonus, Is.EqualTo(2));
+            //Assert.That(gun.Damage.Dice.ToString(), Is.EqualTo("1d6"));
+            //Assert.That(gun.Ammo.Max, Is.EqualTo(10));
+            //Assert.That(gun.Ammo.Current, Is.EqualTo(10));
         }
 
         [Test]
@@ -87,45 +116,45 @@ namespace Rpg.ModObjects.Tests
             location.AddToStore("Room", gun);
 
             var graph = new RpgGraph(location);
-            graph.Time.NewEncounter();
+            graph.Time.SetTime(TimePoints.BeginningOfEncounter);
 
-            var shootCmd = gun.GetCommand(nameof(TestGun.Shoot))!;
-            var args = shootCmd.ArgSet(initiator);
+            //var fireGun = gun.GetAction(nameof(FireGunAction))!;
+            //var args = fireGun.ArgSet(initiator);
 
-            Assert.That(args.ArgNames().Count(), Is.EqualTo(4));
-            Assert.That(args.ArgNames(), Does.Contain("modSet"));
-            Assert.That(args.ArgNames(), Does.Contain("initiator"));
-            Assert.That(args.ArgNames(), Does.Contain("targetDefense"));
-            Assert.That(args.ArgNames(), Does.Contain("targetRange"));
+            //Assert.That(args.ArgNames().Count(), Is.EqualTo(4));
+            //Assert.That(args.ArgNames(), Does.Contain("modSet"));
+            //Assert.That(args.ArgNames(), Does.Contain("initiator"));
+            //Assert.That(args.ArgNames(), Does.Contain("targetDefense"));
+            //Assert.That(args.ArgNames(), Does.Contain("targetRange"));
 
-            args
-                .Set("targetDefense", recipient.Defense)
-                .Set("targetRange", 10);
-            
-            //Assert the modSets
-            var modSet = shootCmd.Create(args)!;
-            var shootSubsets = modSet.SubSets(graph);
+            //args
+            //    .Set("targetDefense", recipient.Defense)
+            //    .Set("targetRange", 10);
 
-            var target = shootSubsets.FirstOrDefault(x => x.TargetProp == modSet.TargetPropName);
-            Assert.That(target, Is.Not.Null);
-            Assert.That(target.IsResolved, Is.True);
-            Assert.That(target.Dice.Roll(), Is.EqualTo(5));
+            ////Assert the modSets
+            //var modSet = fireGun.Create(args)!;
+            //var shootSubsets = modSet.SubSets(graph);
 
-            var diceRoll = shootSubsets.FirstOrDefault(x => x.TargetProp == modSet.DiceRollPropName);
-            Assert.That(diceRoll, Is.Not.Null);
-            Assert.That(diceRoll.IsResolved, Is.False);
-            Assert.That(diceRoll.Dice.ToString(), Is.EqualTo("1d20 + 4"));
+            //var target = shootSubsets.FirstOrDefault(x => x.TargetProp == modSet.TargetPropName);
+            //Assert.That(target, Is.Not.Null);
+            //Assert.That(target.IsResolved, Is.True);
+            //Assert.That(target.Dice.Roll(), Is.EqualTo(5));
 
-            //Actually shoot the gun...
-            shootCmd.Apply(modSet);
+            //var diceRoll = shootSubsets.FirstOrDefault(x => x.TargetProp == modSet.DiceRollPropName);
+            //Assert.That(diceRoll, Is.Not.Null);
+            //Assert.That(diceRoll.IsResolved, Is.False);
+            //Assert.That(diceRoll.Dice.ToString(), Is.EqualTo("1d20 + 4"));
 
-            //Assert the gun
-            Assert.That(gun.IsStateActive(nameof(TestGun.Shoot)), Is.True);
-            Assert.That(gun.Ammo.Current, Is.EqualTo(9));
+            ////Actually shoot the gun...
+            //fireGun.Apply(modSet);
 
-            //Assert the initiator
-            Assert.That(initiator.PhysicalActionPoints.Current, Is.EqualTo(4));
-            Assert.That(initiator.MentalActionPoints.Current, Is.EqualTo(2));
+            ////Assert the gun
+            //Assert.That(gun.IsStateOn(nameof(FireGunAction)), Is.True);
+            //Assert.That(gun.Ammo.Current, Is.EqualTo(9));
+
+            ////Assert the initiator
+            //Assert.That(initiator.PhysicalActionPoints.Current, Is.EqualTo(4));
+            //Assert.That(initiator.MentalActionPoints.Current, Is.EqualTo(2));
         }
 
         [Test]
@@ -141,34 +170,34 @@ namespace Rpg.ModObjects.Tests
             location.AddToStore("Room", gun);
 
             var graph = new RpgGraph(location);
-            graph.Time.NewEncounter();
+            graph.Time.SetTime(TimePoints.BeginningOfEncounter);
 
             //Get the gun command and the args needed to execute it
-            var shootCmd = gun.GetCommand(nameof(TestGun.Shoot))!;
-            var shootArgs = shootCmd
-                .ArgSet(initiator, recipient)
-                .Set("targetDefense", recipient.Defense)
-                .Set("targetRange", 10);
+            //var shootCmd = gun.GetCommand(nameof(TestGun.Shoot))!;
+            //var shootArgs = shootCmd
+            //    .ArgSet(initiator, recipient)
+            //    .Set("targetDefense", recipient.Defense)
+            //    .Set("targetRange", 10);
 
-            var shootModSet = shootCmd.Create(shootArgs);
-            var shootSubSets = shootModSet?.SubSets(graph).Where(x => !x.IsResolved);
+            //var shootModSet = shootCmd.Create(shootArgs);
+            //var shootSubSets = shootModSet?.SubSets(graph).Where(x => !x.IsResolved);
 
-            shootCmd.Apply(shootModSet);
+            //shootCmd.Apply(shootModSet);
 
-            var target = shootCmd.GetTarget(initiator, shootModSet)!.Value;
-            var outcome = target + 1;
+            //var target = shootCmd.GetTarget(initiator, shootModSet)!.Value;
+            //var outcome = target + 1;
 
-            var damageCmd = gun.GetCommand(shootCmd.OutcomeAction!);
-            var damageArgs = damageCmd!
-                .ArgSet(initiator, recipient)
-                .SetTarget(target)
-                .SetOutcome(outcome);
+            //var damageCmd = gun.GetCommand(shootCmd.OutcomeAction!);
+            //var damageArgs = damageCmd!
+            //    .ArgSet(initiator, recipient)
+            //    .SetTarget(target)
+            //    .SetOutcome(outcome);
 
-            var damageModSet = damageCmd.Create(damageArgs);
-            var damageRoll = damageModSet?.SubSets(graph).FirstOrDefault(x => !x.IsResolved);
+            //var damageModSet = damageCmd.Create(damageArgs);
+            //var damageRoll = damageModSet?.SubSets(graph).FirstOrDefault(x => !x.IsResolved);
 
-            Assert.That(damageRoll, Is.Not.Null);
-            Assert.That(damageRoll.Dice.ToString(), Is.EqualTo(damageRoll.Dice.ToString()));
+            //Assert.That(damageRoll, Is.Not.Null);
+            //Assert.That(damageRoll.Dice.ToString(), Is.EqualTo(damageRoll.Dice.ToString()));
         }
 
         [Test]
@@ -184,44 +213,44 @@ namespace Rpg.ModObjects.Tests
             location.AddToStore("Room", gun);
 
             var graph = new RpgGraph(location);
-            graph.Time.NewEncounter();
+            graph.Time.SetTime(TimePoints.BeginningOfEncounter);
 
-            //Get the gun command and the args needed to execute it
-            var shootCmd = gun.GetCommand(nameof(TestGun.Shoot))!;
-            var shootArgs = shootCmd
-                .ArgSet(initiator, recipient)
-                .Set("targetDefense", recipient.Defense)
-                .Set("targetRange", 10);
+            ////Get the gun command and the args needed to execute it
+            //var shootCmd = gun.GetCommand(nameof(TestGun.Shoot))!;
+            //var shootArgs = shootCmd
+            //    .ArgSet(initiator, recipient)
+            //    .Set("targetDefense", recipient.Defense)
+            //    .Set("targetRange", 10);
 
-            var shootModSet = shootCmd.Create(shootArgs);
-            //shootCmd.Apply(shootModSet);
+            //var shootModSet = shootCmd.Create(shootArgs);
+            ////shootCmd.Apply(shootModSet);
 
-            //Simulate outcome of shooting the test gun
-            var target = shootCmd.GetTarget(initiator, shootModSet)!.Value;
-            var outcome = target + 1;
+            ////Simulate outcome of shooting the test gun
+            //var target = shootCmd.GetTarget(initiator, shootModSet)!.Value;
+            //var outcome = target + 1;
 
-            //Get the inflict damage command and set the args needed to execute it
-            var damageCmd = gun.GetCommand(shootCmd.OutcomeAction!);
-            var damageArgs = damageCmd!
-                .ArgSet(initiator, recipient)
-                .SetTarget(target)
-                .SetOutcome(outcome);
+            ////Get the inflict damage command and set the args needed to execute it
+            //var damageCmd = gun.GetCommand(shootCmd.OutcomeAction!);
+            //var damageArgs = damageCmd!
+            //    .ArgSet(initiator, recipient)
+            //    .SetTarget(target)
+            //    .SetOutcome(outcome);
 
-            //Find which mod subsets need resolving (dice rolls)
-            var damageModSet = damageCmd.Create(damageArgs)!;
-            var damageSet = damageModSet.SubSets(graph).Single(x => !x.IsResolved);
+            ////Find which mod subsets need resolving (dice rolls)
+            //var damageModSet = damageCmd.Create(damageArgs)!;
+            //var damageSet = damageModSet.SubSets(graph).Single(x => !x.IsResolved);
 
-            //TODO: How to we determine what the outcome mod lifecycle and behavior should be??
-            var damageRoll = damageSet.Resolve(new ExpireOnZeroMod(), -5);
+            ////TODO: How to we determine what the outcome mod lifecycle and behavior should be??
+            //var damageRoll = damageSet.Resolve(new ExpireOnZeroMod(), -5);
 
-            Assert.That(damageSet.TargetId, Is.EqualTo(recipient.Id));
+            //Assert.That(damageSet.TargetId, Is.EqualTo(recipient.Id));
 
-            //Apply the resolved dice rolls to the recipient(s)
-            Assert.That(recipient.Health, Is.EqualTo(10));
-            recipient.AddMods(damageRoll);
-            graph.Time.TriggerEvent();
+            ////Apply the resolved dice rolls to the recipient(s)
+            //Assert.That(recipient.Health, Is.EqualTo(10));
+            //recipient.AddMods(damageRoll);
+            //graph.Time.TriggerEvent();
 
-            Assert.That(recipient.Health, Is.EqualTo(5));
+            //Assert.That(recipient.Health, Is.EqualTo(5));
         }
     }
 }

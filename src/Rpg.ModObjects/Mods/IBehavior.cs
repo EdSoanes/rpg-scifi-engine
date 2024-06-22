@@ -1,10 +1,11 @@
 ﻿using Rpg.ModObjects.Props;
+using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects.Mods
 {
     public interface IBehavior
     {
-        ModExpiry Expiry { get; }
+        LifecycleExpiry Expiry { get; }
         ModScope Scope { get; }
         ModType Type { get; }
 

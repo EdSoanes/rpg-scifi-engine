@@ -19,6 +19,10 @@ namespace Rpg.ModObjects.Tests.Models
 
         public MetaObj[] Objects { get; set; } = Array.Empty<MetaObj>();
 
-        public MetaPropUIAttribute[] PropUIAttributes { get; set; } = Array.Empty<MetaPropUIAttribute>();
+        public ModObjects.Actions.Action[] Actions { get; set; } = Array.Empty<ModObjects.Actions.Action>();
+
+        public MetaState[] States { get; set; } = Array.Empty<MetaState>();
+
+        public MetaPropUIAttribute[] PropUIs { get; set; } = Array.Empty<MetaPropUIAttribute>();
     }
 }

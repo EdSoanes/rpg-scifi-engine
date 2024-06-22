@@ -1,40 +1,17 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Reflection;
+using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Rpg.ModObjects.Mods
 {
-    public class ModSourceValueFunction
+    internal class ModValueMethod : RpgMethod<Mod, Dice>
     {
         [JsonProperty] public string? EntityId { get; private set; }
-        [JsonProperty] public string? ClassName { get; private set; }
-        [JsonProperty] public string? FuncName { get; private set; }
-        [JsonProperty] public string? FullName { get; private set; }
 
-        public bool IsStatic => !string.IsNullOrWhiteSpace(ClassName)
-            && !string.IsNullOrWhiteSpace(FuncName);
-
-        public bool IsCalc => !string.IsNullOrWhiteSpace(FuncName)
+        public bool IsCalc => !string.IsNullOrWhiteSpace(MethodName)
             && (EntityId != null || !string.IsNullOrWhiteSpace(ClassName));
-
-        public void Clear()
-        {
-            EntityId = null;
-            ClassName = null;
-            FuncName = null;
-            FullName = null;
-        }
-
-        public void Set(ModSourceValueFunction? valueFunc)
-        {
-            if (valueFunc != null)
-            {
-                EntityId = valueFunc.EntityId;
-                ClassName = valueFunc.ClassName;
-                FuncName = valueFunc.FuncName;
-                FullName = valueFunc.FullName;
-            }
-        }
 
         public void Set<T>(Expression<Func<Func<T, T>>>? expression)
         {
@@ -49,8 +26,8 @@ namespace Rpg.ModObjects.Mods
             if (methodInfo.IsStatic)
             {
                 ClassName = methodInfo.DeclaringType!.Name;
-                FuncName = methodInfo.Name;
-                FullName = $"{ClassName}.{FuncName}";
+                MethodName = methodInfo.Name;
+
                 return;
             }
 
@@ -69,10 +46,21 @@ namespace Rpg.ModObjects.Mods
             }
 
             EntityId = entity?.Id;
-            FuncName = methodInfo.Name;
-            FullName = FuncName;
+            MethodName = methodInfo.Name;
 
             return;
         }
+
+        public void Set(ModValueMethod? valueFunc)
+        {
+            if (valueFunc != null)
+            {
+                EntityId = valueFunc.EntityId;
+                ClassName = valueFunc.ClassName;
+                MethodName = valueFunc.MethodName;
+            }
+        }
+
+
     }
 }
