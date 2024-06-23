@@ -1,10 +1,13 @@
-﻿using Rpg.ModObjects.States;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.States;
 using Rpg.ModObjects.Tests.Models;
 
 namespace Rpg.ModObjects.Tests.States
 {
     public class AmmoEmptyState : State<TestGun>
     {
+        [JsonConstructor] private AmmoEmptyState() { }
+
         public AmmoEmptyState(TestGun owner)
             : base(owner)
         { }

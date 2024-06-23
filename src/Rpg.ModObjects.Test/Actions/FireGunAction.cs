@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Mods;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Tests.Models;
 using Rpg.ModObjects.Tests.States;
 using Rpg.ModObjects.Time;
@@ -7,6 +8,8 @@ namespace Rpg.ModObjects.Tests.Actions
 {
     public class FireGunAction : ModObjects.Actions.Action<TestGun>
     {
+        [JsonConstructor] private FireGunAction() { }
+
         public FireGunAction(TestGun owner)
             : base(owner) { }
 
@@ -15,13 +18,13 @@ namespace Rpg.ModObjects.Tests.Actions
 
         public ModSet OnCost(TestGun owner, TestHuman initiator)
         {
-            return new ModSet(owner)
+            return new ModSet(new TimeLifecycle(TimePoints.Encounter(1)))
                 .AddMod(new TurnMod(), initiator, x => x.PhysicalActionPoints.Current, -1);
         }
 
         public ModSet OnAct(TestGun owner, TestHuman initiator, int targetDefence)
         {
-            return new ModSet(owner)
+            return new ModSet(new TimeLifecycle(TimePoints.Encounter(1)))
                 .AddMod(new TurnMod(), initiator, $"{nameof(FireGunAction)}.{nameof(OnAct)}", "1d20")
                 .AddMod(new TurnMod(), initiator, $"{nameof(FireGunAction)}.{nameof(OnAct)}", x => x.MissileAttack)
                 .AddMod(new TurnMod(), initiator, $"{nameof(FireGunAction)}.{nameof(OnAct)}", -targetDefence);
@@ -29,7 +32,7 @@ namespace Rpg.ModObjects.Tests.Actions
 
         public ModSet[] OnOutcome(TestGun owner, TestHuman initiator, int target, int diceRoll)
         {
-            var damage = new ModSet(owner)
+            var damage = new ModSet(new TimeLifecycle(TimePoints.Encounter(1)))
                 .AddMod(new TurnMod(), owner, $"{nameof(FireGunAction)}.{nameof(OnOutcome)}", x => x.Damage.Dice)
                 .AddMod(new TurnMod(), owner, $"{nameof(FireGunAction)}.{nameof(OnOutcome)}", initiator, x => x.Dexterity.Bonus);
 

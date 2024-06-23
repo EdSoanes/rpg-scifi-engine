@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Tests.Models;
 using Rpg.ModObjects.Tests.States;
 using Rpg.ModObjects.Time;
@@ -18,7 +19,7 @@ namespace Rpg.ModObjects.Tests
         [SetUp]
         public void Setup()
         {
-            RpgGraphExtensions.RegisterAssembly(this.GetType().Assembly);
+            RpgReflection.RegisterAssembly(this.GetType().Assembly);
         }
 
         [Test]

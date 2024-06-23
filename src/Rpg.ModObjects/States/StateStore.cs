@@ -35,12 +35,9 @@ namespace Rpg.ModObjects.States
 
         public void Add(params State[] states)
         {
-            if (Graph != null && Graph.Time.Current != TimePoints.BeginningOfTime)
-                throw new InvalidOperationException("Cannot add states to an entity after time has begun");
-
             foreach (var state in states)
             {
-                if (!Contains(state))
+                if (!Contains(state.Name))
                     Items.Add(state.Name, state);
             }
         }
@@ -76,13 +73,14 @@ namespace Rpg.ModObjects.States
 
             foreach (var state in Get())
             {
-                var wasOn = state!.IsOn;
-                state.OnUpdateLifecycle(graph, currentTime);
+                var oldExpiry = state.Expiry;
+                var newExpiry = state.OnUpdateLifecycle(graph, currentTime);
 
-                if (wasOn && !state.IsOn)
-                    graph.RemoveMods(state.Mods.ToArray());
-                else if (!wasOn && state.IsOn)
+                if (oldExpiry != LifecycleExpiry.Active && newExpiry == LifecycleExpiry.Active)
                     graph.AddMods(state.Mods.ToArray());
+
+                else if (oldExpiry == LifecycleExpiry.Active && newExpiry != LifecycleExpiry.Active)
+                    graph.RemoveMods(state.Mods.ToArray());
             }
 
             return expiry;

@@ -15,7 +15,7 @@ namespace Rpg.ModObjects.Actions
         [JsonProperty] private RpgMethod<Action, ModSet> OnAct { get; set; }
         [JsonProperty] private RpgMethod<Action, ModSet[]> OnOutcome { get; set; }
 
-        internal Action()
+        [JsonConstructor] protected Action()
         {
             Id = this.NewId();
             Name = GetType().Name;
@@ -58,6 +58,8 @@ namespace Rpg.ModObjects.Actions
     public abstract class Action<T> : Action
         where T : RpgEntity
     {
+        [JsonConstructor] protected Action() { }
+
         public Action(T owner)
             : base(owner)
         { }

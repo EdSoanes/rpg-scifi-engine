@@ -1,5 +1,7 @@
 ﻿using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Tests.Models;
+using Rpg.ModObjects.Tests.States;
 using Rpg.ModObjects.Time;
 using System.Reflection;
 
@@ -10,7 +12,7 @@ namespace Rpg.ModObjects.Tests
         [SetUp]
         public void Setup()
         {
-            RpgGraphExtensions.RegisterAssembly(Assembly.GetExecutingAssembly());
+            RpgReflection.RegisterAssembly(this.GetType().Assembly);
         }
 
         [Test]
@@ -19,14 +21,14 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new RpgGraph(entity);
 
-            Assert.That(entity.IsStateOn("Buff"), Is.False);
+            Assert.That(entity.IsStateOn(nameof(BuffState)), Is.False);
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));
 
             var mod = entity.AddMod(new PermanentMod(), x => x.Melee, 6);
             graph.Time.TriggerEvent();
 
-            Assert.That(entity.IsStateOn("Buff"), Is.True);
+            Assert.That(entity.IsStateOn(nameof(BuffState)), Is.True);
             Assert.That(entity.Melee.Roll(), Is.EqualTo(10));
             Assert.That(entity.Health, Is.EqualTo(20));
         }
@@ -76,17 +78,17 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));
 
-            entity.SetStateOn("Buff");
+            entity.SetStateOn(nameof(BuffState));
             graph.Time.TriggerEvent();
 
-            Assert.That(entity.IsStateOn("Buff"), Is.True);
+            Assert.That(entity.IsStateOn(nameof(BuffState)), Is.True);
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(20));
 
-            entity.SetStateOff("Buff");
+            entity.SetStateOff(nameof(BuffState));
             graph.Time.TriggerEvent();
 
-            Assert.That(entity.IsStateOn("Buff"), Is.False);
+            Assert.That(entity.IsStateOn(nameof(BuffState)), Is.False);
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));
         }

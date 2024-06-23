@@ -35,14 +35,106 @@ namespace Rpg.ModObjects.Reflection
 
         internal static Type? ScanForType(string qualifiedTypeName)
         {
+            var type = RpgPropertyTypes.FirstOrDefault(x => x.AssemblyQualifiedName == qualifiedTypeName);
+            if (type != null)
+                return type;
+
             foreach (var assembly in GetScanAssemblies())
             {
-                var type = assembly.GetType(qualifiedTypeName);
+                type = assembly.GetExportedTypes().FirstOrDefault(x => x.AssemblyQualifiedName == qualifiedTypeName);
                 if (type != null)
                     return type;
             }
 
             return null;
+        }
+
+        internal static void ExecuteMethod(string staticMethod, object?[]? args = null)
+        {
+            var methodInfo = ScanForMethod(staticMethod);
+            methodInfo.Invoke(null, args);
+        }
+
+        internal static TReturn? ExecuteMethod<TReturn>(string staticMethod, object?[]? args = null)
+        {
+            var methodInfo = ScanForMethod(staticMethod);
+            return (TReturn?)methodInfo.Invoke(null, args);
+        }
+
+        internal static void ExecuteMethod(object obj, string methodName, object?[]? args = null)
+        {
+            var methodInfo = ScanForMethod(obj.GetType(), methodName);
+            methodInfo.Invoke(obj, args);
+        }
+
+        internal static TReturn? ExecuteMethod<TReturn>(object obj, string methodName, object?[]? args = null)
+        {
+            var methodInfo = ScanForMethod(obj.GetType(), methodName);
+            return (TReturn?)methodInfo.Invoke(obj, args);
+        }
+
+        internal static PropertyInfo[] ScanForModdableProperties(this RpgObject context)
+        {
+            return context.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(IsModdableProperty)
+                .ToArray();
+        }
+
+        internal static PropertyInfo? ScanForModdableProperty(this object context, string prop)
+        {
+            return context.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .FirstOrDefault(x => x.Name == prop && x.IsModdableProperty());
+        }
+
+        private static bool IsModdableProperty(this PropertyInfo propertyInfo)
+        {
+            if (!RpgPropertyTypes.Any(x => x == propertyInfo.PropertyType))
+                return false;
+
+            if (propertyInfo.PropertyType == typeof(string))
+                return false;
+
+            return propertyInfo.GetMethod != null
+                && (propertyInfo.GetMethod.IsPublic || propertyInfo.GetMethod.IsFamily);
+        }
+
+        internal static MethodInfo ScanForMethod(string staticMethod)
+        {
+            var parts = staticMethod.Split('.', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            if (parts.Length != 2)
+                throw new ArgumentException($"Invalid Class.Method format in {staticMethod}");
+
+            var className = parts[0];
+            var methodName = parts[1];
+
+            Type? type = ScanForType(className);
+            if (type == null)
+                throw new ArgumentException($"Failed to find class for static method {staticMethod}");
+
+            var methodInfo = ScanForMethod(type!, methodName);
+            if (!methodInfo.IsStatic)
+                throw new ArgumentException($"Method {staticMethod} is not static");
+
+            return methodInfo;
+        }
+
+        internal static MethodInfo ScanForMethod(Type type, string methodName)
+        {
+            var methodInfo = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+            if (methodInfo == null)
+                throw new InvalidOperationException($"{methodName}() method not found on {type.Name} class");
+
+            return methodInfo;
+        }
+
+        internal static MethodInfo ScanForMethod<TReturn>(Type type, string methodName)
+        {
+            var methodInfo = ScanForMethod(type, methodName);
+
+            if (!methodInfo.ReturnType.IsAssignableTo(typeof(TReturn)))
+                throw new InvalidOperationException($"{methodName}() method on {type.Name} class does not have return type {nameof(TReturn)}");
+
+            return methodInfo;
         }
 
         internal static IEnumerable<Type> ScanForTypes<T>()

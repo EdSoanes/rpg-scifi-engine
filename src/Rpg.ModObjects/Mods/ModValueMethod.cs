@@ -6,12 +6,30 @@ using System.Reflection;
 
 namespace Rpg.ModObjects.Mods
 {
-    internal class ModValueMethod : RpgMethod<Mod, Dice>
+    internal class ModValueMethod : RpgMethod<RpgObject, Dice>
     {
+        [JsonConstructor] internal ModValueMethod() { }
+
         [JsonProperty] public string? EntityId { get; private set; }
 
-        public bool IsCalc => !string.IsNullOrWhiteSpace(MethodName)
+        public bool IsCalc => 
+            !string.IsNullOrWhiteSpace(MethodName)
             && (EntityId != null || !string.IsNullOrWhiteSpace(ClassName));
+
+        public Dice Execute(RpgGraph graph, Dice dice)
+        {
+            var args = Create();
+            args["dice"] = dice;
+
+            if (IsStatic)
+                return Execute(args);
+
+            var entity = graph.GetEntity(EntityId);
+            if (entity == null)
+                throw new InvalidOperationException($"Could not find entity {EntityId} for {nameof(ModValueMethod)}");
+
+            return Execute(entity, args);
+        }
 
         public void Set<T>(Expression<Func<Func<T, T>>>? expression)
         {
@@ -25,9 +43,7 @@ namespace Rpg.ModObjects.Mods
 
             if (methodInfo.IsStatic)
             {
-                ClassName = methodInfo.DeclaringType!.Name;
-                MethodName = methodInfo.Name;
-
+                DiscoverMethod(methodInfo.DeclaringType!, methodInfo.Name);
                 return;
             }
 
@@ -45,10 +61,8 @@ namespace Rpg.ModObjects.Mods
                 entity = constantExpression?.Value as RpgObject;
             }
 
-            EntityId = entity?.Id;
-            MethodName = methodInfo.Name;
-
-            return;
+            DiscoverMethod(entity!.GetType(), methodInfo.Name);
+            EntityId = entity!.Id;
         }
 
         public void Set(ModValueMethod? valueFunc)
@@ -60,7 +74,5 @@ namespace Rpg.ModObjects.Mods
                 MethodName = valueFunc.MethodName;
             }
         }
-
-
     }
 }

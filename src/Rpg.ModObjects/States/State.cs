@@ -9,15 +9,15 @@ namespace Rpg.ModObjects.States
 {
     public abstract class State : ModSet
     {
-        [JsonProperty] public string Id { get; private set; }
         [JsonProperty] public bool? ForcedOn { get; protected set; }
         [JsonProperty] public bool ConditionallyOn { get; protected set; }
         public bool IsOn { get => (ForcedOn != null && ForcedOn.Value) || ConditionallyOn; }
 
-        public State(RpgObject owner)
+        [JsonConstructor] protected State() { }
+
+        protected State(RpgObject owner)
+            : base(owner.Id, owner.Archetype)
         {
-            Name = GetType().Name;
-            AddOwner(owner);
         }
 
         public bool On()
@@ -40,10 +40,12 @@ namespace Rpg.ModObjects.States
     public abstract class State<T> : State
         where T : RpgObject
     {
+        [JsonConstructor] protected State() { }
+
         public State(T owner)
             : base(owner)
         {
-            Lifecycle = new ConditionalLifecycle<T>(Id, new RpgMethod<T, LifecycleExpiry>(owner, nameof(CalculateExpiry)));
+            Lifecycle = new ConditionalLifecycle<State<T>>(Id, new RpgMethod<State<T>, LifecycleExpiry>(this, nameof(CalculateExpiry)));
             WhenOn(owner);
         }
 
@@ -72,13 +74,9 @@ namespace Rpg.ModObjects.States
                 if (expiry == LifecycleExpiry.Active && !ConditionallyOn)
                 {
                     ConditionallyOn = true;
-
-                    //var entity = Graph!.GetEntity<T>(OwnerId)!;
-                    //Graph.AddMods(Mods.ToArray());
                 }
                 else if (expiry != LifecycleExpiry.Active && ConditionallyOn)
                 {
-                    //Graph!.RemoveMods(Mods.ToArray());
                     ConditionallyOn = false;
                 }
             }
@@ -88,7 +86,7 @@ namespace Rpg.ModObjects.States
 
         public State<T> Mod<TTargetValue>(T entity, Expression<Func<T, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
         {
-            var mod = new SyncedMod(OwnerId!, OwnerArchetype!)
+            var mod = new SyncedMod(OwnerId!)
                 .SetProps(entity, targetExpr, dice, valueFunc)
                 .Create();
 
@@ -99,7 +97,7 @@ namespace Rpg.ModObjects.States
 
         public State<T> Mod<TTargetValue, TSourceValue>(T entity, Expression<Func<T, TTargetValue>> targetExpr, Expression<Func<T, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
         {
-            var mod = new SyncedMod(OwnerId!, OwnerArchetype!)
+            var mod = new SyncedMod(OwnerId!)
                 .SetProps(entity, targetExpr, entity, sourceExpr, valueFunc)
                 .Create();
 

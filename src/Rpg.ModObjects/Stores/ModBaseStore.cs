@@ -77,20 +77,25 @@ namespace Rpg.ModObjects.Stores
 
         public virtual void SetExpired(TimePoint currentTime) { }
 
-        public virtual void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
+        public virtual void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
         {
             Graph = graph;
             EntityId = entity!.Id;
         }
 
+        public virtual void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
+        {
+            Expiry = LifecycleExpiry.Active;
+        }
+
         public virtual LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
         {
-            return LifecycleExpiry.Active;
+            return Expiry;
         }
 
         public virtual LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
         {
-            return LifecycleExpiry.Active;
+            return Expiry;
         }
     }
 }

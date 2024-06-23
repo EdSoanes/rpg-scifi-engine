@@ -1,7 +1,4 @@
 ﻿using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.States;
-using Rpg.ModObjects.Tests.States;
-using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Tests.Models
@@ -24,19 +21,8 @@ namespace Rpg.ModObjects.Tests.Models
         {
             this
                 .BaseMod(x => x.Melee, x => x.Strength.Bonus)
-                .BaseMod(x => x.Damage.Dice, x => x.Strength.Bonus);
-        }
-
-        public override void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
-        {
-            base.OnBeginningOfTime(graph, entity);
-        }
-
-        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
-        {
-            var expiry = base.OnUpdateLifecycle(graph, currentTime, mod);
-            StateStore.OnUpdateLifecycle(graph, currentTime);
-            return expiry;
+                .BaseMod(x => x.Damage.Dice, x => x.Strength.Bonus)
+                .InitActionsAndStates(Graph!);
         }
     }
 }

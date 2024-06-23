@@ -10,13 +10,15 @@ namespace Rpg.ModObjects.Mods
         [JsonProperty] public TimePoint StartTime { get; protected set; }
         [JsonProperty] public TimePoint EndTime { get; protected set; }
 
-        public LifecycleExpiry Expiry { get; protected set; }
+        public LifecycleExpiry Expiry { get; protected set; } = LifecycleExpiry.Pending;
 
         public void SetExpired(TimePoint currentTime)
         {
-            if (Expiry == LifecycleExpiry.Active)
-                ExpiredTime = new TimePoint(currentTime.Type, currentTime.Tick - 1);
+            ExpiredTime ??= new TimePoint(currentTime.Type, currentTime.Tick - 1);
         }
+
+        public void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        { }
 
         public virtual void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
         { }
@@ -48,12 +50,14 @@ namespace Rpg.ModObjects.Mods
         [JsonProperty] public RpgMethod<TOwner, LifecycleExpiry> OnStartConditional { get; private set; }
         [JsonProperty] public RpgMethod<TOwner, LifecycleExpiry> OnUpdateConditional { get; private set; }
 
+        [JsonConstructor]private ConditionalLifecycle() { }
+
         public ConditionalLifecycle(
-            string entityId,
+            string ownerId,
             RpgMethod<TOwner, LifecycleExpiry> onStartConditional,
             RpgMethod<TOwner, LifecycleExpiry> onUpdateConditional)
         {
-            OwnerId = entityId;
+            OwnerId = ownerId;
             OnStartConditional = onStartConditional;
             OnUpdateConditional = onUpdateConditional;
         }
@@ -69,19 +73,25 @@ namespace Rpg.ModObjects.Mods
 
         public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
         {
-            var owner = GetOwner(graph);
+            var owner = graph.Locate<TOwner>(OwnerId);
+            if (owner == null)
+                new InvalidOperationException($"{nameof(ConditionalLifecycle<TOwner>)}.{nameof(GetOwner)} could not find owner");
+
             var argSet = OnStartConditional.Create();
 
-            Expiry = OnStartConditional.Execute(owner, argSet);
+            Expiry = OnStartConditional.Execute(owner!, argSet);
             return Expiry;
         }
 
         public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
         {
-            var owner = GetOwner(graph);
+            var owner = graph.Locate<TOwner>(OwnerId);
+            if (owner == null)
+                new InvalidOperationException($"{nameof(ConditionalLifecycle<TOwner>)}.{nameof(GetOwner)} could not find owner");
+
             var argSet = OnUpdateConditional.Create();
 
-            Expiry = OnUpdateConditional.Execute(owner, argSet);
+            Expiry = OnUpdateConditional.Execute(owner!, argSet);
             return Expiry;
         }
 
@@ -107,30 +117,40 @@ namespace Rpg.ModObjects.Mods
     {
         public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
         {
-            if (!string.IsNullOrEmpty(mod?.SyncedToId))
+            var modSet = graph.Locate<ModSet>(mod?.OwnerId);
+            if (modSet != null)
             {
-                if (mod.SyncedToType == nameof(ModSet))
-                {
-                    var syncedToModSet = graph.GetModSet(mod?.SyncedToId);
-                    Expiry = syncedToModSet?.Lifecycle.Expiry ?? LifecycleExpiry.Remove;
-                }
-                else if (mod.SyncedToType == nameof(Mod))
-                {
-                    var syncedToMod = graph.GetMods().FirstOrDefault(x => x.Id == mod?.SyncedToId);
-                    Expiry = syncedToMod?.Lifecycle.Expiry ?? LifecycleExpiry.Remove;
-                }
+                Expiry = modSet.Lifecycle.Expiry;
+                return Expiry;
             }
 
-            
+            var ownerMod = graph.Locate<Mod>(mod?.OwnerId);
+            if (ownerMod != null)
+            {
+                Expiry = ownerMod.Lifecycle.Expiry;
+                return Expiry;
+            }
+
             return base.OnStartLifecycle(graph, currentTime, mod);
         }
 
         public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
         {
-            var modSet = graph.GetModSet(mod?.SyncedToId);
+            var modSet = graph.Locate<ModSet>(mod?.OwnerId);
+            if (modSet != null)
+            {
+                Expiry = modSet.Lifecycle.Expiry;
+                return Expiry;
+            }
 
-            Expiry = modSet?.Lifecycle.Expiry ?? LifecycleExpiry.Remove;
-            return Expiry;
+            var ownerMod = graph.Locate<Mod>(mod?.OwnerId);
+            if (ownerMod != null)
+            {
+                Expiry = ownerMod.Lifecycle.Expiry;
+                return Expiry;
+            }
+
+            return base.OnUpdateLifecycle(graph, currentTime, mod);
         }
     }
 

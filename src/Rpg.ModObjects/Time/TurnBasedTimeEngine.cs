@@ -67,14 +67,21 @@ namespace Rpg.ModObjects.Time
             if (startTime == TimePoints.BeginningOfTime && endTime == TimePoints.EndOfTime)
                 return LifecycleExpiry.Active;
 
-            if (endTime.Tick < Current.Tick)
+            if (Current.Type == nameof(TimePoints.Encounter))
             {
-                return Current.Type == nameof(TimePoints.Encounter)
-                    ? LifecycleExpiry.Expired
-                    : LifecycleExpiry.Remove;
+                if (endTime.Tick < Current.Tick)
+                    return LifecycleExpiry.Expired;
+
+                if (startTime.Tick > Current.Tick)
+                    return LifecycleExpiry.Pending;
+
+                return LifecycleExpiry.Active;
             }
 
-            if (startTime.Tick > Current.Tick)
+            if (endTime <= Current)
+                return LifecycleExpiry.Remove;
+
+            if (startTime > Current)
                 return LifecycleExpiry.Pending;
 
             return LifecycleExpiry.Active;

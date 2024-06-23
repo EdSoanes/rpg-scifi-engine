@@ -114,20 +114,30 @@ namespace Rpg.ModObjects
         protected void CallCollectionChanged(NotifyCollectionChangedAction action)
             => CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(action));
 
-        public override void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
+        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
         {
-            base.OnBeginningOfTime(graph, entity);
+            base.OnBeforeTime(graph, entity);
 
-            var actions = this.CreateActions();
-            ActionStore.Add(actions);
-            ActionStore.OnBeginningOfTime(graph, entity);
+            ActionStore.OnBeforeTime(graph, entity);
+            StateStore.OnBeforeTime(graph, entity);
+        }
 
-            var states = this.CreateStates()
-                .Union(this.CreateStateActions(actions))
-                .ToArray();
+        public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime, Mods.Mod? mod = null)
+        {
+            StateStore.OnStartLifecycle(graph, currentTime);
+            var expiry = base.OnStartLifecycle(graph, currentTime, mod);
+            ActionStore.OnStartLifecycle(graph, currentTime);
 
-            StateStore.Add(states);
-            StateStore.OnBeginningOfTime(graph, entity);
+            return expiry;
+        }
+
+        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mods.Mod? mod = null)
+        {
+            StateStore.OnUpdateLifecycle(graph, currentTime);
+            var expiry = base.OnUpdateLifecycle(graph, currentTime, mod);
+            ActionStore.OnUpdateLifecycle(graph, currentTime);
+
+            return expiry;
         }
     }
 }

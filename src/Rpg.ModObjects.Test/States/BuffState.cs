@@ -6,6 +6,8 @@ namespace Rpg.ModObjects.Tests.States
 {
     public class BuffState : State<ModdableEntity>
     {
+        [JsonConstructor] private BuffState() { }
+
         public BuffState(ModdableEntity owner)
             : base(owner)
         { }

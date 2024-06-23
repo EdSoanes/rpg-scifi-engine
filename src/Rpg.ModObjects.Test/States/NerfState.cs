@@ -6,6 +6,8 @@ namespace Rpg.ModObjects.Tests.States
 {
     public class NerfState : State<ModdableEntity>
     {
+        [JsonConstructor] private NerfState() { }
+
         public NerfState(ModdableEntity owner)
             : base(owner)
         { }

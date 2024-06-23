@@ -23,7 +23,7 @@ namespace Rpg.ModObjects.Meta
                 .ToArray();
 
             var actions = RpgReflection.ScanForTypes<Actions.Action>()
-                .Select(x => (Actions.Action)Activator.CreateInstance(x)!)
+                .Select(x => (Actions.Action)Activator.CreateInstance(x, true)!)
                 .ToArray();
 
             var states = RpgReflection.ScanForTypes<States.State>()

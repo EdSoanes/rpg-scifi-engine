@@ -5,8 +5,6 @@ namespace Rpg.ModObjects.Reflection
 {
     public class RpgArgSet
     {
-        private Type? _type;
-
         [JsonProperty] private RpgArg[] Args { get; set; }
         [JsonProperty] private Dictionary<string, object?> ArgValues { get; set; } = new Dictionary<string, object?>();
 
@@ -20,10 +18,13 @@ namespace Rpg.ModObjects.Reflection
             }
             set
             { 
-                if (ArgValues.ContainsKey(key) && IsValid(key, value))
-                    ArgValues[key] = value;
-                else
-                    ArgValues.Add(key, value);
+                if (IsValid(key, value))
+                {
+                    if (ArgValues.ContainsKey(key))
+                        ArgValues[key] = value;
+                    else
+                        ArgValues.Add(key, value);
+                }
             }
         }
 
@@ -54,7 +55,6 @@ namespace Rpg.ModObjects.Reflection
             => new RpgArgSet
             {
                 Args = Args.Select(x => x.Clone()).ToArray(),
-                _type = _type
             };
 
         public bool IsValid(string arg, object? value)
@@ -73,10 +73,9 @@ namespace Rpg.ModObjects.Reflection
             if (value == null)
                 return true;
 
-            if (_type == null)
-             _type = RpgReflection.ScanForType(modArg.QualifiedTypeName);
+            var type = RpgReflection.ScanForType(modArg.QualifiedTypeName);
 
-            return _type!.IsAssignableTo(value!.GetType());
+            return type!.IsAssignableTo(value!.GetType());
         }
 
         public object?[] ToArgs()

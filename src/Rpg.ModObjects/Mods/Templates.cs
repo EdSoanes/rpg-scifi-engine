@@ -54,7 +54,7 @@ namespace Rpg.ModObjects.Mods
 
         public ModTemplate SetProps(PropRef targetPropRef, Mod mod)
         {
-            TargetPropRef = new PropRef(mod.EntityId, mod.Prop);
+            TargetPropRef = targetPropRef;
             SourcePropRef = mod.SourcePropRef != null
                 ? new PropRef(mod.SourcePropRef.EntityId, mod.SourcePropRef.Prop)
                 : null;
@@ -146,20 +146,18 @@ namespace Rpg.ModObjects.Mods
 
     public class SyncedMod : ModTemplate
     {
-        public string SyncedToId { get; private set; }
-        public string SyncedToType {  get; private set; }
+        public string OwnerId { get; private set; }
 
-        public SyncedMod(string syncedToId, string syncedToType)
+        public SyncedMod(string ownerId)
         {
-            SyncedToId = syncedToId;
-            SyncedToType = syncedToType;
+            OwnerId = ownerId;
             Behavior = new Add(ModType.Standard);
             Lifecycle = new SyncedLifecycle();
         }
 
         public override Mod Create(string name)
         {
-            var mod = new Mod(SyncedToId, SyncedToType, name, this);
+            var mod = new Mod(OwnerId, name, this);
             return mod;
         }
     }

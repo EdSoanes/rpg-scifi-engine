@@ -59,6 +59,33 @@ namespace Rpg.ModObjects.Props
             }
         }
 
+        public void Remove(params Mod[] mods)
+        {
+            var toRemove = new List<Prop>();
+            foreach (var mod in mods.Where(x => x.EntityId == EntityId))
+            {
+                var modProp = this[mod.Prop];
+                if (modProp != null)
+                {
+                    mod.OnRemoving(Graph!, modProp, mod);
+                    modProp.Remove(mod);
+
+                    if (!modProp.Mods.Any() && !toRemove.Contains(modProp))
+                        toRemove.Add(modProp);
+
+                    Graph.OnPropUpdated(modProp);
+                }
+            }
+
+            foreach (var modProp in toRemove)
+                this.Remove(modProp.Prop);
+        }
+
+        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        {
+            base.OnBeforeTime(graph, entity);
+        }
+
         public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? modx = null)
         {
             var res = base.OnUpdateLifecycle(graph, currentTime, modx);
@@ -85,26 +112,5 @@ namespace Rpg.ModObjects.Props
             return res;
         }
 
-        public void Remove(params Mod[] mods)
-        {
-            var toRemove = new List<Prop>();
-            foreach (var mod in mods.Where(x => x.EntityId == EntityId))
-            {
-                var modProp = this[mod.Prop];
-                if (modProp != null)
-                {
-                    mod.OnRemoving(Graph!, modProp, mod);
-                    modProp.Remove(mod);
-
-                    if (!modProp.Mods.Any() && !toRemove.Contains(modProp))
-                        toRemove.Add(modProp);
-
-                    Graph.OnPropUpdated(modProp);
-                }
-            }
-
-            foreach (var modProp in toRemove)
-                this.Remove(modProp.Prop);
-        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Mods;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Tests.Models;
 using Rpg.ModObjects.Time;
 
@@ -6,6 +7,8 @@ namespace Rpg.ModObjects.Tests.Actions
 {
     public class TakeDamageAction : ModObjects.Actions.Action<TestHuman>
     {
+        [JsonConstructor] private TakeDamageAction() { }
+
         public TakeDamageAction(TestHuman owner)
             : base(owner) { }
 

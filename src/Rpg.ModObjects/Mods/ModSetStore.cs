@@ -17,9 +17,14 @@ namespace Rpg.ModObjects.Mods
             {
                 if (string.IsNullOrEmpty(modSet.Name) || !Get().Any(x => x.Name == modSet.Name))
                 {
-                    modSet.OnBeginningOfTime(Graph!, Graph!.GetEntity(EntityId));
+                    var entity = Graph!.GetEntity(EntityId);
+                    modSet.OnBeforeTime(Graph, entity);
+                    modSet.OnBeginningOfTime(Graph, entity);
+
                     Items.Add(modSet.Id, modSet);
+
                     Graph!.AddMods(modSet.Mods.ToArray());
+                    modSet.OnStartLifecycle(Graph!, Graph.Time.Current);
 
                     return true;
                 }
@@ -34,7 +39,7 @@ namespace Rpg.ModObjects.Mods
             if (existing != null)
             {
                 existing.Lifecycle.SetExpired(Graph!.Time.Current);
-                Graph?.RemoveMods(existing.Mods.ToArray());
+                Graph?.RemoveMods(existing.Mods.Where(x => x.Lifecycle is SyncedLifecycle).ToArray());
                 Items.Remove(existing.Id);
 
                 return true;
@@ -48,6 +53,23 @@ namespace Rpg.ModObjects.Mods
             var existing = Get().FirstOrDefault(x => x.Name == name);
             if (existing != null)
                 Remove(existing.Id);
+        }
+
+        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        {
+            base.OnBeforeTime(graph, entity);
+            foreach (var modSet in Get())
+                modSet.OnBeforeTime(graph, entity);
+        }
+
+        public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
+        {
+            var expiry = base.OnStartLifecycle(graph, currentTime, mod);
+            
+            foreach (var modSet in Get())
+                modSet.OnStartLifecycle(graph, currentTime, mod);
+
+            return expiry;
         }
 
         public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)

@@ -51,7 +51,8 @@ namespace Rpg.ModObjects.Tests.Models
                 .BaseMod(x => x.MeleeDamage.Dice, x => x.Strength.Bonus)
                 .BaseMod(x => x.MissileAttack, x => x.Intelligence.Bonus)
                 .BaseMod(x => x.PhysicalActionPoints.Max, x => x.Strength.Bonus)
-                .BaseMod(x => x.MentalActionPoints.Max, x => x.Intelligence.Bonus);
+                .BaseMod(x => x.MentalActionPoints.Max, x => x.Intelligence.Bonus)
+                .InitActionsAndStates(Graph!);
         }
     }
 }

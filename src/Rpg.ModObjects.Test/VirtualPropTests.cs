@@ -1,12 +1,6 @@
 ﻿using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Tests.Models;
-using Rpg.ModObjects.Time;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Tests
 {
@@ -15,7 +9,7 @@ namespace Rpg.ModObjects.Tests
         [SetUp]
         public void Setup()
         {
-            RpgGraphExtensions.RegisterAssembly(Assembly.GetExecutingAssembly());
+            RpgReflection.RegisterAssembly(this.GetType().Assembly);
         }
 
         [Test] 

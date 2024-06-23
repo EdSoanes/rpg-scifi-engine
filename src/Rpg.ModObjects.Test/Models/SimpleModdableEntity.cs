@@ -16,7 +16,9 @@ namespace Rpg.ModObjects.Tests.Models
 
         protected override void OnLifecycleStarting()
         {
-            this.BaseMod(x => x.Score, x => x.Bonus);
+            this
+                .BaseMod(x => x.Score, x => x.Bonus)
+                .InitActionsAndStates(Graph!);
         }
     }
 }

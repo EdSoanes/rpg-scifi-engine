@@ -1,4 +1,5 @@
 ﻿using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Tests.Models;
 using Rpg.ModObjects.Time;
 using System.Reflection;
@@ -10,7 +11,7 @@ namespace Rpg.ModObjects.Tests
         [SetUp]
         public void Setup()
         {
-            RpgGraphExtensions.RegisterAssembly(Assembly.GetExecutingAssembly());
+            RpgReflection.RegisterAssembly(this.GetType().Assembly);
         }
 
         [Test]
@@ -27,9 +28,9 @@ namespace Rpg.ModObjects.Tests
             entity.AddModSet("name", modSet =>
             {
                 modSet
-                    .AddMod(new SyncedMod(modSet.Id, nameof(ModSet)), entity, x => x.Melee, 1)
-                    .AddMod(new SyncedMod(modSet.Id, nameof(ModSet)), entity, x => x.Health, 1)
-                    .AddMod(new SyncedMod(modSet.Id, nameof(ModSet)), entity, x => x.Damage.ArmorPenetration, 1);
+                    .AddMod(new SyncedMod(modSet.Id), entity, x => x.Melee, 1)
+                    .AddMod(new SyncedMod(modSet.Id), entity, x => x.Health, 1)
+                    .AddMod(new SyncedMod(modSet.Id), entity, x => x.Damage.ArmorPenetration, 1);
             });
 
             graph.Time.TriggerEvent();
@@ -49,9 +50,9 @@ namespace Rpg.ModObjects.Tests
             entity.AddModSet("test", modSet =>
             {
                 modSet
-                    .AddMod(new SyncedMod(modSet.Id, nameof(ModSet)), entity, x => x.Melee, 1)
-                    .AddMod(new SyncedMod(modSet.Id, nameof(ModSet)), entity, x => x.Health, 1)
-                    .AddMod(new SyncedMod(modSet.Id, nameof(ModSet)), entity, x => x.Damage.ArmorPenetration, 1);
+                    .AddMod(new SyncedMod(modSet.Id), entity, x => x.Melee, 1)
+                    .AddMod(new SyncedMod(modSet.Id), entity, x => x.Health, 1)
+                    .AddMod(new SyncedMod(modSet.Id), entity, x => x.Damage.ArmorPenetration, 1);
             });
 
             graph.Time.TriggerEvent();
@@ -81,8 +82,8 @@ namespace Rpg.ModObjects.Tests
             entity.AddModSet("test", modSet =>
             {
                 modSet
-                    .AddMod(new SyncedMod(modSet.Id, nameof(ModSet)), entity, x => x.Health, 1)
-                    .AddMod(new SyncedMod(modSet.Id, nameof(ModSet)), entity, x => x.Damage.ArmorPenetration, 1)
+                    .AddMod(new SyncedMod(modSet.Id), entity, x => x.Health, 1)
+                    .AddMod(new SyncedMod(modSet.Id), entity, x => x.Damage.ArmorPenetration, 1)
                     .AddMod(new PermanentMod(), entity, x => x.Melee, 1);
             });
 
@@ -117,9 +118,9 @@ namespace Rpg.ModObjects.Tests
             entity.AddModSet("test", modSet =>
             {
                 modSet
-                    .AddMod(new SyncedMod(modSet.Id, nameof(ModSet)), entity, x => x.Melee, 1)
-                    .AddMod(new SyncedMod(modSet.Id, nameof(ModSet)), entity, x => x.Health, 1)
-                    .AddMod(new SyncedMod(modSet.Id, nameof(ModSet)), entity, x => x.Damage.ArmorPenetration, 1);
+                    .AddMod(new SyncedMod(modSet.Id), entity, x => x.Melee, 1)
+                    .AddMod(new SyncedMod(modSet.Id), entity, x => x.Health, 1)
+                    .AddMod(new SyncedMod(modSet.Id), entity, x => x.Damage.ArmorPenetration, 1);
             });
 
             graph.Time.TriggerEvent();
@@ -150,9 +151,9 @@ namespace Rpg.ModObjects.Tests
             entity.AddModSet("name", graph.Time.Create("encounter").Lifecycle, modSet =>
             {
                 modSet
-                    .AddMod(new SyncedMod(modSet.Id, nameof(ModSet)), entity, x => x.Melee, 1)
-                    .AddMod(new SyncedMod(modSet.Id, nameof(ModSet)), entity, x => x.Health, 1)
-                    .AddMod(new SyncedMod(modSet.Id, nameof(ModSet)), entity, x => x.Damage.ArmorPenetration, 1);
+                    .AddMod(new SyncedMod(modSet.Id), entity, x => x.Melee, 1)
+                    .AddMod(new SyncedMod(modSet.Id), entity, x => x.Health, 1)
+                    .AddMod(new SyncedMod(modSet.Id), entity, x => x.Damage.ArmorPenetration, 1);
             });
 
             graph.Time.TriggerEvent();
@@ -165,6 +166,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(11));
 
             graph.Time.SetTime(TimePoints.EndOfEncounter);
+            graph.Time.TriggerEvent();
 
             Assert.That(graph.GetModSets().Count(), Is.EqualTo(0));
             Assert.That(graph.GetMods().Count(), Is.EqualTo(11));

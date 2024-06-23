@@ -9,8 +9,7 @@ namespace Rpg.ModObjects.Mods
     public class Mod : PropRef
     {
         [JsonProperty] public string Id { get; protected set; }
-        [JsonProperty] public string? SyncedToId { get; internal set; }
-        [JsonProperty] public string? SyncedToType { get; internal set; }
+        [JsonProperty] public string? OwnerId { get; internal set; }
         [JsonProperty] public string Name { get; protected set; }
 
         [JsonProperty] public PropRef? SourcePropRef { get; protected set; }
@@ -42,11 +41,10 @@ namespace Rpg.ModObjects.Mods
             SourceValueFunc = template.SourceValueFunc; 
         }
 
-        internal Mod(string syncedToId, string syncedToType, string name, ModTemplate template)
+        internal Mod(string ownerId, string name, ModTemplate template)
             : this(name, template)
         {
-            SyncedToId = syncedToId;
-            SyncedToType = syncedToType;
+            OwnerId = ownerId;
         }
 
         public void OnAdding(RpgGraph graph, Prop modProp, Time.TimePoint time)

@@ -11,7 +11,7 @@ namespace Rpg.ModObjects.Reflection
         [JsonProperty] public string MethodName { get; protected set; }
         [JsonProperty] protected RpgArgSet ArgSet { get; private set; }
 
-        public string FullName { get => IsStatic ? MethodName : $"{ClassName}.{MethodName}"; }
+        public string FullName { get => IsStatic ? $"{ClassName}.{MethodName}" : MethodName; }
         public bool IsStatic { get => !string.IsNullOrEmpty(ClassName); }
 
         [JsonConstructor] protected RpgMethod() { }
@@ -68,30 +68,19 @@ namespace Rpg.ModObjects.Reflection
             => ArgSet.Clone();
 
         public TReturn Execute(RpgArgSet argSet)
-        {
-            if (!IsStatic)
-                throw new InvalidOperationException($"{FullName} is not static");
-
-            var res = this.ExecuteFunction<TReturn>(FullName, argSet.ToArgs())!;
-            return res;
-        }
+            => RpgReflection.ExecuteMethod<TReturn>(FullName, argSet.ToArgs())!;
 
         public TReturn Execute(TOwner owner, RpgArgSet argSet)
-        {
-            var res = owner.ExecuteFunction<TReturn>(MethodName, argSet.ToArgs())!;
-            return res;
-        }
+            => RpgReflection.ExecuteMethod<TReturn>(owner, MethodName, argSet.ToArgs())!;
 
-        private void DiscoverMethod(Type type, string methodName)
+        protected void DiscoverMethod(Type type, string methodName)
         {
-            var methodInfo = type.GetMethod(methodName);
-            if (methodInfo == null)
-                throw new InvalidOperationException($"{methodName}() method not found on {type.Name} class");
-
-            if (!methodInfo.ReturnType.IsAssignableTo(typeof(TReturn)))
-                throw new InvalidOperationException($"{methodName}() method on {type.Name} class does not have return type {nameof(TReturn)}");
+            var methodInfo = RpgReflection.ScanForMethod<TReturn>(type, methodName);
 
             MethodName = methodName;
+            if (methodInfo.IsStatic)
+                ClassName = type.Name;
+
             ArgSet = new RpgArgSet(methodInfo.GetParameters());
         }
     }

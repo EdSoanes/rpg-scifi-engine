@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
+using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 
@@ -23,13 +24,31 @@ namespace Rpg.ModObjects
 
         public RpgGraph(RpgObject context)
         {
-            RpgGraphExtensions.RegisterAssembly(GetType().Assembly);
+            RpgReflection.RegisterAssembly(GetType().Assembly);
 
             Context = context;
 
             Time = new TurnBasedTimeEngine();
             Time.OnTimeEvent += OnTimeEvent;
             Time.Begin();
+        }
+
+        public T? Locate<T>(string? id)
+            where T : class
+        {
+            if (typeof(T).IsAssignableTo(typeof(RpgObject)))
+                return GetEntity(id) as T;
+
+            if (typeof(T).IsAssignableTo(typeof(States.State)))
+                return GetState(id) as T;
+
+            if (typeof(T).IsAssignableTo(typeof(ModSet)))
+                return GetModSet(id) as T;
+
+            if (typeof(T).IsAssignableTo(typeof(Mod)))
+                return GetEntities().SelectMany(x => x.PropStore.GetMods()).FirstOrDefault(x => x.Id == id) as T;
+
+            return null;
         }
 
         public Mod[] GetMods(PropRef? propRef, bool filtered = true)
@@ -141,6 +160,12 @@ namespace Rpg.ModObjects
         public IEnumerable<RpgObject> GetEntities()
             => ObjectStore.Values;
 
+        public IEnumerable<T> GetEntities<T>()
+            where T : RpgObject
+                => ObjectStore.Values
+                    .Where(x => x is T)
+                    .Cast<T>();      
+
         public IEnumerable<RpgObject> GetScopedEntities(string rpgObjId, ModScope scope)
         {
             var entity = GetEntity(rpgObjId);
@@ -155,9 +180,7 @@ namespace Rpg.ModObjects
             {
                 var components = all
                     .Where(x => x is RpgComponent && x.Id != rpgObjId)
-                    .Select(x => x as RpgComponent)
-                    .Where(x => x != null)
-                    .Cast<RpgObject>();
+                    .Cast<RpgComponent>();
 
                 return components;
             }
@@ -287,12 +310,7 @@ namespace Rpg.ModObjects
             Dice value = mod.SourceValue ?? GetPropValue(GetEntity(mod.SourcePropRef!.EntityId), mod.SourcePropRef.Prop);
 
             if (mod.SourceValueFunc.IsCalc)
-            {
-                var funcEntity = (object?)GetEntity(mod.SourceValueFunc.EntityId)
-                    ?? this;
-
-                value = funcEntity.ExecuteFunction<Dice, Dice>(mod.SourceValueFunc.FullName!, value);
-            }
+                value = mod.SourceValueFunc.Execute(this, value);
 
             return value;
         }
@@ -324,6 +342,13 @@ namespace Rpg.ModObjects
 
         public void OnPropUpdated(PropRef propRef)
             => UpdatedProps.Merge(propRef);
+
+        public void OnPropsUpdated()
+        {
+            foreach (var obj in ObjectStore.Values)
+                foreach (var modProp in GetModProps(obj))
+                    UpdatedProps.Merge(modProp);
+        }
 
         public void SetPropValue(PropRef propRef)
         {
@@ -373,7 +398,7 @@ namespace Rpg.ModObjects
                     OnBeforeTime();
                     break;
                 case nameof(TimePoints.BeginningOfTime): 
-                    OnTimeBegun(); 
+                    OnBeginningOfTime(); 
                     break;
                 default:
                     OnTimeUpdates();
@@ -388,34 +413,43 @@ namespace Rpg.ModObjects
             foreach (var entity in Context.Traverse())
             {
                 AddEntity(entity);
-                entity.OnBeginningOfTime(this, entity);
+                entity.OnBeforeTime(this, entity);
             }
         }
 
-        private void OnTimeBegun()
-        { 
-            foreach (var entity in ObjectStore.Values)
-                entity.OnStartLifecycle(this, Time.Current);
+        private void OnBeginningOfTime()
+        {
+            var created = new List<RpgObject>();
+            foreach (var entity in ObjectStore.Values.Where(x => x.Expiry == LifecycleExpiry.Pending))
+            {
+                entity.OnBeginningOfTime(this, entity);
+                created.Add(entity);
+            }
 
+            if (created.Any())
+            {
+                OnPropsUpdated();
+                UpdateProps();
+            
+                foreach (var entity in created)
+                    entity.OnStartLifecycle(this, Time.Current);
+            }
+
+            OnPropsUpdated();
             UpdateProps();
         }
 
         private void OnTimeUpdates()
         {
-            //Call OnBeforeUpdate() all rpg objects to set expiry and expire/remove
-            // modsets as needed
             foreach (var entity in ObjectStore.Values)
                 entity.OnUpdateLifecycle(this, Time.Current);
 
             UpdateProps();
 
-            ////Call OnAfterUpdate() on each rpg object to give states a chance to update
-            //// after property values have been updated
-            //foreach (var entity in ObjectStore.Values)
-            //    entity.StateStore.OnUpdating(this, args.Time);
+            foreach (var entity in ObjectStore.Values.Where(x => x is RpgEntity).Cast<RpgEntity>())
+                entity.StateStore.OnUpdateLifecycle(this, Time.Current);
 
-            ////If OnAfterUpdate() has caused any props to change then update the relevant props
-            //UpdateProps();
+            UpdateProps();
         }
     }
 }

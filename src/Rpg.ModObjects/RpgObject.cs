@@ -2,6 +2,7 @@
 using Rpg.ModObjects.Meta;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
+using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.ComponentModel;
@@ -15,6 +16,10 @@ namespace Rpg.ModObjects
         [JsonProperty]
         [TextUI(Ignore = true)]
         public string Id { get; private set; }
+
+        [JsonProperty]
+        [TextUI(Ignore = true)]
+        public string Archetype { get; set; }
 
         [JsonProperty] 
         [TextUI(Ignore = true)]
@@ -33,6 +38,7 @@ namespace Rpg.ModObjects
         public RpgObject()
         {
             Id = this.NewId();
+            Archetype = GetType().Name;
             Name = GetType().Name;
             Is = this.GetBaseTypes();
 
@@ -58,38 +64,39 @@ namespace Rpg.ModObjects
         {
         }
 
-        public virtual void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
+        public virtual void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
         {
             Graph = graph;
+            PropStore.OnBeforeTime(graph, entity);
+            ModSetStore.OnBeforeTime(graph, entity);
+        }
+
+        public virtual void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
+        {
             PropStore.OnBeginningOfTime(graph, entity);
+            foreach (var propInfo in RpgReflection.ScanForModdableProperties(this))
+            {
+                var val = this.PropertyValue(propInfo.Name, out var propExists);
+                if (val != null)
+                {
+                    if (val is Dice dice)
+                        this.InitMod(propInfo.Name, dice);
+                    else if (val is int i)
+                        this.InitMod(propInfo.Name, i);
+                }
+            }
+
+            OnLifecycleStarting();
+
+            Expiry = LifecycleExpiry.Active;
+
             ModSetStore.OnBeginningOfTime(graph, entity);
-            //CmdStore.OnBeginningOfTime(graph, entity);
         }
 
         public virtual LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
         {
-            if (Expiry == LifecycleExpiry.Pending)
-            {
-                //var cmds = this.CreateActions();
-                //var cmdStates = cmds.Select(x => x.State).ToArray();
-                //CmdStore.Add(cmds);
-
-                foreach (var propInfo in this.GetModdableProperties())
-                {
-                    var val = this.PropertyValue(propInfo.Name, out var propExists);
-                    if (val != null)
-                    {
-                        if (val is Dice dice)
-                            this.InitMod(propInfo.Name, dice);
-                        else if (val is int i)
-                            this.InitMod(propInfo.Name, i);
-                    }
-                }
-
-                OnLifecycleStarting();
-
-                Expiry = LifecycleExpiry.Active;
-            }
+            ModSetStore.OnStartLifecycle(graph, currentTime);
+            PropStore.OnStartLifecycle(graph, currentTime);
 
             return Expiry;
         }
@@ -98,7 +105,6 @@ namespace Rpg.ModObjects
         {
             ModSetStore.OnUpdateLifecycle(graph, currentTime);
             PropStore.OnUpdateLifecycle(graph, currentTime);
-            //CmdStore.OnUpdateLifecycle(graph, currentTime);
 
             return Expiry;
         }

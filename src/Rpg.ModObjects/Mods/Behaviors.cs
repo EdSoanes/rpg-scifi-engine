@@ -26,7 +26,7 @@ namespace Rpg.ModObjects.Mods
                 var entities = graph.GetScopedEntities(mod.EntityId, Scope);
                 foreach (var entity in entities)
                 {
-                    var syncedMod = new SyncedMod(mod.Id, nameof(Mod))
+                    var syncedMod = new SyncedMod(mod.Id)
                         .SetProps(new PropRef(entity.Id, mod.Prop), mod)
                         .Create(mod.Name);
 

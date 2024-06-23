@@ -1,4 +1,5 @@
 ﻿using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Tests.Actions;
 using Rpg.ModObjects.Tests.Models;
 using Rpg.ModObjects.Time;
@@ -11,7 +12,7 @@ namespace Rpg.ModObjects.Tests
         [SetUp]
         public void Setup()
         {
-            RpgGraphExtensions.RegisterAssembly(Assembly.GetExecutingAssembly());
+            RpgReflection.RegisterAssembly(this.GetType().Assembly);
         }
 
         [Test]
@@ -50,7 +51,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(initiator.MentalActionPoints.Current, Is.EqualTo(3));
 
             //Gun
-            Assert.That(gun.GetActions().Count(), Is.EqualTo(2));
+            Assert.That(gun.GetActions().Count(), Is.EqualTo(1));
 
             var fireGun = gun.GetAction(nameof(FireGunAction));
             Assert.That(fireGun, Is.Not.Null);
@@ -61,24 +62,28 @@ namespace Rpg.ModObjects.Tests
 
             var costModSet = fireGun.Cost(costArgs);
             initiator.AddModSet(costModSet);
+            graph.Time.TriggerEvent();
 
             var actArgs = fireGun.ActArgs();
-            costArgs["owner"] = gun;
-            costArgs["initiator"] = initiator;
-            costArgs["targetDefense"] = 2;
+            actArgs["owner"] = gun;
+            actArgs["initiator"] = initiator;
+            actArgs["targetDefense"] = 2;
 
             var actModSet = fireGun.Act(actArgs);
             gun.AddModSet(actModSet);
+            graph.Time.TriggerEvent();
 
             var diceRoll = actModSet.GetValue(initiator.Id, $"{nameof(FireGunAction)}.{nameof(FireGunAction.OnAct)}");
             Assert.That(diceRoll.ToString(), Is.EqualTo("1d20 + 2"));
 
             var outcomeArgs = fireGun.OutcomeArgs();
+            outcomeArgs["owner"] = gun;
             outcomeArgs["initiator"] = initiator;
             outcomeArgs["diceRoll"] = 20;
             outcomeArgs["target"] = 15;
 
             var outcomeModSets = fireGun.Outcome(outcomeArgs);
+            graph.Time.TriggerEvent();
 
 
             //Assert.That(fireGun, Is.Not.Null);

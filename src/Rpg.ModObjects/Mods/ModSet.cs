@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
@@ -28,6 +27,14 @@ namespace Rpg.ModObjects.Mods
         public LifecycleExpiry Expiry { get => Lifecycle.Expiry; protected set { } }
 
         [JsonConstructor] protected ModSet() { }
+
+        protected ModSet(string ownerId, string ownerArchetype, string? name = null) 
+        {
+            Id = this.NewId();
+            Name = name ?? GetType().Name;
+            OwnerId = ownerId;
+            OwnerArchetype = ownerArchetype;
+        }
 
         public ModSet(ILifecycle lifecycle, string? name = null)
         {
@@ -70,7 +77,7 @@ namespace Rpg.ModObjects.Mods
         {
             foreach (var mod in mods)
             {
-                mod.SyncedToId = Id;
+                mod.OwnerId = Id;
                 Mods.Add(mod);
             }
 
@@ -88,32 +95,20 @@ namespace Rpg.ModObjects.Mods
             return val;
         }
            
-
-        //public Modification[] SubSets(RpgGraph graph)
-        //{
-        //    var subSets = new List<Modification>();
-        //    foreach (var modGroup in Mods.GroupBy(x => $"{x.EntityId}.{x.Prop}"))
-        //    {
-        //        var mods = modGroup.ToArray();
-        //        var dice = graph.CalculateModsValue(mods);
-
-        //        var subSet = new Modification(modGroup.Key, Lifecycle, mods);
-        //        subSets.Add(subSet);
-        //    }
-
-        //    return subSets.ToArray();
-        //}
-
         public virtual void SetExpired(TimePoint currentTime)
             => Lifecycle.SetExpired(currentTime);
 
-        public void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
+        public void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
         {
             Graph = graph;
             OwnerId ??= entity?.Id;
+            Lifecycle.OnBeforeTime(graph, entity);
+        }
 
+        public void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
+        {
             if (!Mods.Any())
-                Mods = graph.GetMods().Where(x => x.SyncedToId == Id).ToList();
+                Mods = graph.GetMods().Where(x => x.OwnerId == Id).ToList();
 
             Lifecycle.OnBeginningOfTime(graph, entity);
         }

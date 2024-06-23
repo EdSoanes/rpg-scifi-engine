@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Mods;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Mods;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,8 @@ namespace Rpg.ModObjects.Actions
 {
     public class ActionState : States.State<RpgEntity>
     {
+        [JsonConstructor] protected ActionState() { }
+
         public ActionState(RpgEntity owner, string name)
             : base(owner)
         {

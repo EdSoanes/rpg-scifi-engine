@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Actions;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Tests.Models;
 using Rpg.ModObjects.Time;
@@ -12,6 +13,8 @@ namespace Rpg.ModObjects.Tests.Actions
 {
     public class TestAction : ModObjects.Actions.Action<ModdableEntity>
     {
+        [JsonConstructor] private TestAction() { }
+
         public TestAction(ModdableEntity owner)
             : base(owner) { }
 
