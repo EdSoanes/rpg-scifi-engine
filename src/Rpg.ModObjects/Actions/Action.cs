@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Reflection;
+using System.Security.AccessControl;
 
 namespace Rpg.ModObjects.Actions
 {
@@ -17,9 +18,11 @@ namespace Rpg.ModObjects.Actions
 
         [JsonConstructor] protected Action()
         {
-            Id = this.NewId();
-            Name = GetType().Name;
+            var type = GetType();
 
+            Id = this.NewId();
+            Name = type.Name;
+            OwnerArchetype = type.BaseType!.IsGenericType ? type.BaseType!.GenericTypeArguments[0].Name : null;
             OnCost = new RpgMethod<Action, ModSet>(this, nameof(OnCost));
             OnAct = new RpgMethod<Action, ModSet>(this, nameof(OnAct));
             OnOutcome = new RpgMethod<Action, ModSet[]>(this, nameof(OnOutcome));
@@ -29,7 +32,6 @@ namespace Rpg.ModObjects.Actions
             : this()
         {
             OwnerId = owner.Id;
-            OwnerArchetype = owner.GetType().Name;
             Name = GetType().Name;
         }
 
