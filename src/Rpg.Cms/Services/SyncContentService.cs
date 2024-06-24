@@ -1,6 +1,8 @@
-﻿using Umbraco.Cms.Core;
+﻿using Umbraco.Cms.Api.Management.ViewModels.Document;
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.ContentEditing;
+using Umbraco.Cms.Core.Models.ContentPublishing;
 using Umbraco.Cms.Core.Services;
 
 namespace Rpg.Cms.Services
@@ -9,13 +11,16 @@ namespace Rpg.Cms.Services
     {
         private readonly IContentService _contentService;
         private readonly IContentEditingService _contentEditingService;
+        private readonly IContentPublishingService _contentPublishingService;
 
         public SyncContentService(
             IContentService contentService,
-            IContentEditingService contentEditingService)
+            IContentEditingService contentEditingService,
+            IContentPublishingService contentPublishingService)
         {
             _contentService = contentService;
             _contentEditingService = contentEditingService;
+            _contentPublishingService = contentPublishingService;
         }
 
         public async Task Sync(SyncSession session)
@@ -110,7 +115,20 @@ namespace Rpg.Cms.Services
             if (!attempt.Success)
                 throw new InvalidOperationException($"Failed to update {name}");
 
-            return attempt.Result.Content!;
+            var schedule = new ContentScheduleCollection();
+            schedule.Add(new ContentSchedule("*", DateTime.UtcNow, ContentScheduleAction.Release));
+
+            var publishModel = new CultureAndScheduleModel
+            {
+                CulturesToPublishImmediately = new HashSet<string> { "*" },
+                Schedules = schedule
+            };
+
+            var publishAttempt = await _contentPublishingService.PublishAsync(contentKey, publishModel, session.UserKey);
+            if (!attempt.Success)
+                throw new InvalidOperationException($"Failed to publish {name}");
+
+            return publishAttempt.Result.Content!;
         }
     }
 }
