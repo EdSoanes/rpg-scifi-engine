@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Meta.Attributes;
+using System.Reflection;
 
 namespace Rpg.ModObjects.Meta
 {
@@ -6,6 +8,7 @@ namespace Rpg.ModObjects.Meta
     {
         [JsonProperty] public string Name { get; private set; }
         [JsonProperty] public string Archetype { get; private set; }
+        [JsonProperty] public bool Required { get; private set; }
 
         [JsonConstructor] private MetaState() { }
 
@@ -13,6 +16,10 @@ namespace Rpg.ModObjects.Meta
         {
             Name = stateType.Name;
             Archetype = stateType.BaseType!.GenericTypeArguments[0].Name;
+
+            var attr = stateType.GetCustomAttribute<StateAttribute>();
+            if (attr != null)
+                Required = attr.Required;
         }
 
         public override string ToString()

@@ -1,5 +1,6 @@
 ﻿using Rpg.ModObjects;
 using Rpg.ModObjects.Meta;
+using Rpg.ModObjects.Meta.Attributes;
 
 namespace Rpg.Sys.Components
 {

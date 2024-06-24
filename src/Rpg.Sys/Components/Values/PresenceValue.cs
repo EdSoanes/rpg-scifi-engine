@@ -1,9 +1,4 @@
-﻿using Rpg.ModObjects.Meta;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Rpg.ModObjects.Meta.Attributes;
 
 namespace Rpg.Sys.Components.Values
 {

@@ -1,10 +1,12 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Tests.Models;
 using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects.Tests.Actions
 {
+    [Action(Required = true)]
     public class TakeDamageAction : ModObjects.Actions.Action<TestHuman>
     {
         [JsonConstructor] private TakeDamageAction() { }

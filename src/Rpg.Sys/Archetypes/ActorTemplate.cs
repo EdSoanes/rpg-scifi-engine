@@ -1,4 +1,5 @@
 ﻿using Rpg.ModObjects.Meta;
+using Rpg.ModObjects.Meta.Attributes;
 using Rpg.Sys.Components;
 using System;
 using System.Collections.Generic;

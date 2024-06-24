@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Values;
+﻿using Rpg.ModObjects.Meta.Attributes;
+using Rpg.ModObjects.Values;
 using System.Reflection;
 
 namespace Rpg.ModObjects.Meta

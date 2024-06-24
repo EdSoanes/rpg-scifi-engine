@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects;
-using Rpg.ModObjects.Meta;
-using System.Xml.Linq;
+using Rpg.ModObjects.Meta.Attributes;
 
 namespace Rpg.Sys.Components.Values
 {

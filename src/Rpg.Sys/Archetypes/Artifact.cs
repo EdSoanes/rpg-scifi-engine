@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta;
+using Rpg.ModObjects.Meta.Attributes;
 using Rpg.Sys.Components;
 
 namespace Rpg.Sys.Archetypes

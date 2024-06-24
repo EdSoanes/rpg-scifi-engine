@@ -1,4 +1,5 @@
 ﻿using Rpg.ModObjects.Meta;
+using Rpg.ModObjects.Meta.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace Rpg.ModObjects.Tests.Models
 
         public MetaObj[] Objects { get; set; } = Array.Empty<MetaObj>();
 
-        public ModObjects.Actions.Action[] Actions { get; set; } = Array.Empty<ModObjects.Actions.Action>();
+        public MetaAction[] Actions { get; set; } = Array.Empty<MetaAction>();
 
         public MetaState[] States { get; set; } = Array.Empty<MetaState>();
 

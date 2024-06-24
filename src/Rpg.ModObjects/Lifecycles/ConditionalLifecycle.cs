@@ -39,7 +39,7 @@ namespace Rpg.ModObjects.Lifecycles
             if (owner == null)
                 new InvalidOperationException($"{nameof(ConditionalLifecycle<TOwner>)}.{nameof(GetOwner)} could not find owner");
 
-            var argSet = OnStartConditional.Create();
+            var argSet = OnStartConditional.CreateArgSet();
 
             Expiry = OnStartConditional.Execute(owner!, argSet);
             return Expiry;
@@ -51,7 +51,7 @@ namespace Rpg.ModObjects.Lifecycles
             if (owner == null)
                 new InvalidOperationException($"{nameof(ConditionalLifecycle<TOwner>)}.{nameof(GetOwner)} could not find owner");
 
-            var argSet = OnUpdateConditional.Create();
+            var argSet = OnUpdateConditional.CreateArgSet();
 
             Expiry = OnUpdateConditional.Execute(owner!, argSet);
             return Expiry;

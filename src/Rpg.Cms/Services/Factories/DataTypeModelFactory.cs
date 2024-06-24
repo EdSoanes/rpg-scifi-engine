@@ -1,4 +1,4 @@
-﻿using Rpg.ModObjects.Meta;
+﻿using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Values;
 using Umbraco.Cms.Api.Management.ViewModels;
 using Umbraco.Cms.Api.Management.ViewModels.DataType;

@@ -1,8 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects;
-using Rpg.ModObjects.Meta;
+using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Time;
 
 namespace Rpg.Sys.Components.Values
 {

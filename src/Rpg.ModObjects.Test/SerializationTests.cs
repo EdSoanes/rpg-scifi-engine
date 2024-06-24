@@ -33,7 +33,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(method.MethodName, Is.EqualTo(nameof(ScoreBonusValue.CalculateStatBonus)));
             Assert.That(method.ClassName, Is.Null);
 
-            var argSet = method.Create();
+            var argSet = method.CreateArgSet();
             Assert.That(argSet.Count(), Is.EqualTo(1));
             Assert.That(argSet.ArgNames, Does.Contain("dice"));
 
@@ -43,7 +43,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(method2.MethodName, Is.EqualTo(nameof(ScoreBonusValue.CalculateStatBonus)));
             Assert.That(method2.ClassName, Is.Null);
 
-            var argSet2 = method2.Create();
+            var argSet2 = method2.CreateArgSet();
             Assert.That(argSet2.Count(), Is.EqualTo(1));
             Assert.That(argSet2.ArgNames, Does.Contain("dice"));
         }

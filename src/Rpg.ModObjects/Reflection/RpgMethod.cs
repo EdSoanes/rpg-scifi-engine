@@ -64,8 +64,20 @@ namespace Rpg.ModObjects.Reflection
             return rpgMethod;
         }
 
-        public RpgArgSet Create()
+        public RpgArgSet CreateArgSet()
             => ArgSet.Clone();
+
+        public T Clone<T>()
+            where T : RpgMethod<TOwner, TReturn>
+        {
+            var method = Activator.CreateInstance<T>();
+
+            method.ClassName = ClassName;
+            method.MethodName = MethodName;
+            method.ArgSet = ArgSet.Clone();
+
+            return method;
+        }
 
         public TReturn Execute(RpgArgSet argSet)
             => RpgReflection.ExecuteMethod<TReturn>(FullName, argSet.ToArgs())!;

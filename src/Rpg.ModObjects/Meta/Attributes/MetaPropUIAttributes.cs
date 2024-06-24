@@ -1,15 +1,15 @@
 ﻿using Rpg.ModObjects.Values;
 using System.Reflection;
 
-namespace Rpg.ModObjects.Meta
+namespace Rpg.ModObjects.Meta.Attributes
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public abstract class MetaPropUIAttribute: Attribute
+    public abstract class MetaPropUIAttribute : Attribute
     {
         public string DataType { get; private set; }
         public string ReturnType { get; protected set; }
         public string? DisplayName { get; set; }
-        public bool Ignore {  get; set; }
+        public bool Ignore { get; set; }
         public string Tab { get; set; } = string.Empty;
         public string Group { get; set; } = string.Empty;
         private Dictionary<string, object?> Values { get; set; }
@@ -75,7 +75,7 @@ namespace Rpg.ModObjects.Meta
 
     public class MetersUIAttribute : IntegerUIAttribute
     {
-        public MetersUIAttribute() 
+        public MetersUIAttribute()
         {
             Unit = "m";
         }
