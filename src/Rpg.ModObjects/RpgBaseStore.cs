@@ -1,11 +1,12 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time;
 using System.Collections.Specialized;
 
-namespace Rpg.ModObjects.Stores
+namespace Rpg.ModObjects
 {
-    public abstract class ModBaseStore<TKey, TVal> : ILifecycle, INotifyCollectionChanged
+    internal abstract class RpgBaseStore<TKey, TVal> : ILifecycle, INotifyCollectionChanged
         where TKey : notnull
         where TVal : class
     {
@@ -33,7 +34,7 @@ namespace Rpg.ModObjects.Stores
 
         public virtual LifecycleExpiry Expiry { get => LifecycleExpiry.Active; protected set { } }
 
-        public ModBaseStore(string entityId)
+        public RpgBaseStore(string entityId)
             => EntityId = entityId;
 
         public event NotifyCollectionChangedEventHandler? CollectionChanged;

@@ -1,10 +1,9 @@
 ﻿using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Stores;
 using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects.States
 {
-    public class StateStore : ModBaseStore<string, States.State>
+    internal class StateStore : RpgBaseStore<string, States.State>
     {
         public StateStore(string entityId)
             : base(entityId) { }

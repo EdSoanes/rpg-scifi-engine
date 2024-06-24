@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Reflection;
 using System.Linq.Expressions;
 
 namespace Rpg.ModObjects.Props
@@ -23,21 +24,19 @@ namespace Rpg.ModObjects.Props
             if (memberExpression == null)
                 throw new ArgumentException($"Invalid path expression. {expression.Name} not a member expression");
 
-            var pathSegments = new List<string>();
-
-            //Get the prop name
             var prop = memberExpression.Member.Name;
-
+            var path = new List<string>();
             while (memberExpression != null)
             {
                 memberExpression = memberExpression.Expression as MemberExpression;
                 if (memberExpression != null)
-                    pathSegments.Add(memberExpression.Member.Name);
+                    path.Add(memberExpression.Member.Name);
             }
 
-            pathSegments.Reverse();
-            var path = string.Join(".", pathSegments);
-            var entity = rootEntity.PropertyValue<RpgObject>(path);
+            path.Reverse();
+            var entity = !path.Any()
+                ? rootEntity
+                : rootEntity.PropertyValue<RpgObject>(string.Join(".", path));
 
             return new PropRef(entity!.Id, prop);
         }

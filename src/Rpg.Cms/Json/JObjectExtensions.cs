@@ -4,7 +4,7 @@ using Newtonsoft.Json.Serialization;
 using System.Collections;
 using System.Diagnostics.Contracts;
 
-namespace Rpg.ModObjects.Json
+namespace Rpg.Cms.Json
 {
     public static class JObjectExtensions
     {

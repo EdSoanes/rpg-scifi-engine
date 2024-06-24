@@ -1,9 +1,9 @@
-﻿using Rpg.ModObjects.Stores;
+﻿using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects.Mods
 {
-    public class ModSetStore : ModBaseStore<string, ModSet>
+    internal class ModSetStore : RpgBaseStore<string, ModSet>
     {
         public ModSetStore(string entityId)
             : base(entityId) { }

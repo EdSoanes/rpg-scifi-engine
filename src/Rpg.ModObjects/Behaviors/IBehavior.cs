@@ -1,7 +1,8 @@
-﻿using Rpg.ModObjects.Props;
+﻿using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Time;
 
-namespace Rpg.ModObjects.Mods
+namespace Rpg.ModObjects.Behaviors
 {
     public interface IBehavior
     {

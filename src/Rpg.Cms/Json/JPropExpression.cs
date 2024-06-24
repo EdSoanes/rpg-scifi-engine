@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rpg.ModObjects.Json
+namespace Rpg.Cms.Json
 {
     public class JPropExpression<T>
     {

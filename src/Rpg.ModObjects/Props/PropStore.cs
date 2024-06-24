@@ -1,10 +1,9 @@
 ﻿using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Stores;
 using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects.Props
 {
-    public class PropStore : ModBaseStore<string, Prop>
+    internal class PropStore : RpgBaseStore<string, Prop>
     {
         public PropStore(string entityId)
             : base(entityId) { }

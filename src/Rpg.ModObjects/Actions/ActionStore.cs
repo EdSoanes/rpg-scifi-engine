@@ -1,10 +1,8 @@
-﻿using Rpg.ModObjects.Stores;
-
-namespace Rpg.ModObjects.Actions
+﻿namespace Rpg.ModObjects.Actions
 {
-    public class RpgActionStore : ModBaseStore<string, Action>
+    internal class ActionStore : RpgBaseStore<string, Action>
     {
-        public RpgActionStore(string entityId)
+        public ActionStore(string entityId)
             : base(entityId) { }
 
         public void Add(params Action[] actions)

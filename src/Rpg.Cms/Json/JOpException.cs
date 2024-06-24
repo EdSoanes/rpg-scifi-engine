@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rpg.ModObjects.Json
+namespace Rpg.Cms.Json
 {
     public class JOpException : Exception
     {

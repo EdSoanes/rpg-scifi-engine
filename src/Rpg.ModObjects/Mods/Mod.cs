@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Behaviors;
+using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;

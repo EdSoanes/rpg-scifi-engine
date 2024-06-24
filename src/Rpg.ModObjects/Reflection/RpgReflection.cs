@@ -80,15 +80,57 @@ namespace Rpg.ModObjects.Reflection
                 .ToArray();
         }
 
-        internal static PropertyInfo? ScanForModdableProperty(this object context, string prop)
+
+        internal static PropertyInfo? ScanForProperty(this object? entity, string path, out object? pathEntity)
         {
-            return context.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .FirstOrDefault(x => x.Name == prop && x.IsModdableProperty());
+            pathEntity = null;
+            if (entity == null || string.IsNullOrEmpty(path))
+                return null;
+
+            var parts = path.Split('.');
+            PropertyInfo? propInfo = null;
+
+            for (int i = 0; i < parts.Length; i++)
+            {
+                var part = parts[i];
+
+                propInfo = entity.GetType().GetProperty(part, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (propInfo == null)
+                    return null;
+
+                if (i < parts.Length - 1)
+                {
+                    entity = propInfo.GetValue(entity, null);
+                    if (entity == null)
+                        return null;
+                }
+            }
+
+            if (propInfo != null)
+            {
+                pathEntity = entity;
+                return propInfo;
+            }
+
+            pathEntity = null;
+            return null;
         }
 
-        private static bool IsModdableProperty(this PropertyInfo propertyInfo)
+        internal static PropertyInfo? ScanForModdableProperty(this object? entity, string path, out object? pathEntity)
         {
-            if (!RpgPropertyTypes.Any(x => x == propertyInfo.PropertyType))
+            var propInfo = ScanForProperty(entity, path, out pathEntity);
+            if (!propInfo.IsModdableProperty())
+            {
+                pathEntity = null;
+                return null;
+            }
+
+            return propInfo;
+        }
+
+        private static bool IsModdableProperty(this PropertyInfo? propertyInfo)
+        {
+            if (propertyInfo == null || !RpgPropertyTypes.Any(x => x == propertyInfo.PropertyType))
                 return false;
 
             if (propertyInfo.PropertyType == typeof(string))

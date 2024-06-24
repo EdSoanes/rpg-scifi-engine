@@ -8,9 +8,9 @@ namespace Rpg.ModObjects
 {
     public class RpgEntity : RpgObject, INotifyCollectionChanged
     {
-        [JsonProperty] protected RpgEntityStore EntityStore { get; private set; }
-        [JsonProperty] public StateStore StateStore { get; private set; }
-        [JsonProperty] public RpgActionStore ActionStore { get; private set; }
+        [JsonProperty] internal RpgEntityStore EntityStore { get; private set; }
+        [JsonProperty] internal StateStore StateStore { get; private set; }
+        [JsonProperty] internal ActionStore ActionStore { get; private set; }
 
         public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
@@ -19,7 +19,7 @@ namespace Rpg.ModObjects
         {
             EntityStore = new RpgEntityStore(Id);
             StateStore = new StateStore(Id);
-            ActionStore = new RpgActionStore(Id);
+            ActionStore = new ActionStore(Id);
         }
 
         public RpgEntity(string name)

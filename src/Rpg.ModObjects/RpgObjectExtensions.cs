@@ -1,9 +1,11 @@
 ﻿using NanoidDotNet;
 using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
+using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.States;
-using Rpg.ModObjects.Time;
+using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
 
 namespace Rpg.ModObjects
@@ -16,16 +18,20 @@ namespace Rpg.ModObjects
         public static string NewId(this object obj)
             => $"{obj.GetType().Name}[{Nanoid.Generate(Alphabet, Size)}]";
 
-        public static void Merge(this List<PropRef> target, PropRef propRef)
+        internal static string[] GetBaseTypes(this RpgObject entity)
         {
-            if (!target.Any(x => x == propRef))
-                target.Add(propRef);
-        }
+            var res = new List<string>();
+            var t = entity.GetType();
+            while (t != null)
+            {
+                res.Add(t.Name);
+                t = t == typeof(RpgObject)
+                    ? null
+                    : t.BaseType;
+            }
 
-        public static void Merge(this List<PropRef> target, IEnumerable<PropRef> source)
-        {
-            foreach (var a in source)
-                target.Merge(a);
+            res.Reverse();
+            return res.ToArray();
         }
 
         public static ModObjectPropDescription Describe<TEntity, T1>(this TEntity entity, Expression<Func<TEntity, T1>> targetExpr)
@@ -72,6 +78,42 @@ namespace Rpg.ModObjects
             entity.StateStore.OnBeginningOfTime(graph, entity);
 
             return entity;
+        }
+
+        internal static object? PropertyValue(this object? entity, string path, out bool propExists)
+        {
+            var propInfo = RpgReflection.ScanForProperty(entity, path, out var pathEntity);
+
+            propExists = pathEntity != null;
+            var val = propInfo?.GetValue(pathEntity, null);
+
+            return val;
+        }
+
+        internal static T? PropertyValue<T>(this RpgObject? entity, string path)
+        {
+            var propInfo = RpgReflection.ScanForProperty(entity, path, out var pathEntity);
+            var res = propInfo?.GetValue(pathEntity, null);
+
+            if (res is T)
+                return (T?)res;
+
+            if (typeof(T) == typeof(string))
+                return (T?)(object?)res?.ToString();
+
+            return default;
+        }
+
+        internal static void PropertyValue(this object? entity, string path, object? value)
+        {
+            var propInfo = RpgReflection.ScanForModdableProperty(entity, path, out var pathEntity);
+            if (propInfo?.SetMethod != null)
+            {
+                if (propInfo.PropertyType == typeof(int) && value is Dice)
+                    propInfo?.SetValue(pathEntity, ((Dice)value).Roll());
+                else
+                    propInfo?.SetValue(pathEntity, (Dice)value);
+            }
         }
     }
 }
