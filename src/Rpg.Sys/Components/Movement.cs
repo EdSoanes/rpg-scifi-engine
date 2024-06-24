@@ -30,24 +30,5 @@ namespace Rpg.Sys.Components
             Acceleration = acceleration;
             Deceleration = deceleration;
         }
-
-        public int CalculateMoveDistance(Actor actor, int distance)
-        {
-            var moveDistance = actor.Movement.Speed.Max - (actor.Movement.Speed.Current + distance);
-            if (moveDistance < 0)
-                moveDistance = 0;
-
-            return moveDistance;
-        }
-
-        public int CalculateMoveCost(Actor actor, int distance)
-        {
-            var moveCost = actor.Movement.Speed.Max - (actor.Movement.Speed.Current + distance);
-            if (moveCost < 0)
-                moveCost = 0;
-
-            return moveCost;
-        }
-
     }
 }
