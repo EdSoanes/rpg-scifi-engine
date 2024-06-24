@@ -53,5 +53,20 @@ namespace Rpg.Sys.Actions
 
             return res.ToArray();
         }
+
+        private int CalculateMoveDistance(Actor actor, int actionPoints)
+        {
+            var moveDistance = actor.Movement.Speed.Max * actionPoints;
+            if (moveDistance < 0)
+                moveDistance = 0;
+
+            return moveDistance;
+        }
+
+        private int CalculateMoveCost(Actor actor, int distance)
+        {
+            var movementCost = Convert.ToInt32(Math.Ceiling((double)distance / 10));
+            return movementCost;
+        }
     }
 }
