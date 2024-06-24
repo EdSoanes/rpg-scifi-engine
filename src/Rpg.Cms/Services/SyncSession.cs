@@ -18,6 +18,7 @@ namespace Rpg.Cms.Services
 
 
         public IContentType? SystemDocType { get; set; }
+        public IContentType? StateLibraryDocType { get; set; }
         public IContentType? ActionLibraryDocType { get; set; }
         public IContentType? EntityLibraryDocType { get; set; }
 
@@ -25,8 +26,8 @@ namespace Rpg.Cms.Services
         public IContentType? EntityDocType { get; set; }
         public IContentType? ComponentDocType { get; set; }
 
-        public IContentType? StateElementType { get; set; }
-        public IContentType? ActionElementType { get; set; }
+        public IContentType? StateDocType { get; set; }
+        public IContentType? ActionDocType { get; set; }
 
         public List<IContentType> DocTypes { get; set; } = new List<IContentType>();
         public List<IUmbracoEntity> DocTypeFolders { get; set; } = new List<IUmbracoEntity>();

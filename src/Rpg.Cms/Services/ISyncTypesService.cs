@@ -4,10 +4,10 @@ using Umbraco.Cms.Core.Models.Entities;
 
 namespace Rpg.Cms.Services
 {
-    public interface IRpgSystemSyncService
+    public interface ISyncTypesService
     {
         IEnumerable<IContentType> DocumentTypes();
         Task<IEnumerable<ContentTypeCreateModel>> DocumentTypeUpdatesAsync(Guid userKey);
-        Task Sync(Guid userKey);
+        Task Sync(SyncSession session);
     }
 }

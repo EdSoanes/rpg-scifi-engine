@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Reflection;
+using System.Runtime.InteropServices.JavaScript;
 using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Reflection;
@@ -8,34 +9,36 @@ namespace Rpg.ModObjects.Meta
 {
     public class MetaGraph
     {
-
         public IMetaSystem Build()
         {
-            var sysType = DiscoverMetaSystems().FirstOrDefault();
-            if (sysType == null)
+            var system = DiscoverMetaSystems().FirstOrDefault();
+            if (system == null)
                 throw new InvalidOperationException("No IMetaSystem types found");
 
-            var objectTypes = RpgReflection.ScanForTypes<RpgEntity>();
+            return Build(system);
+        }
+
+        public IMetaSystem Build(IMetaSystem system)
+        {
+            var systemAssemblies = DiscoverSystemAssemblies(system);
+
+            var objectTypes = RpgReflection.ScanForTypes<RpgEntity>(systemAssemblies);
             var res = objectTypes
                 .Select(Object)
                 .ToArray();
 
-            var propUIs = RpgReflection.ScanForTypes<MetaPropUIAttribute>()
+            var propUIs = RpgReflection.ScanForTypes<MetaPropUIAttribute>(systemAssemblies)
                 .Select(x => (MetaPropUIAttribute)Activator.CreateInstance(x)!)
                 .ToArray();
 
-            var actions = RpgReflection.ScanForTypes<Actions.Action>()
+            var actions = RpgReflection.ScanForTypes<Actions.Action>(systemAssemblies)
                 .Select(x => new MetaAction(x))
                 .ToArray();
 
-            var states = RpgReflection.ScanForTypes<States.State>()
+            var states = RpgReflection.ScanForTypes<States.State>(systemAssemblies)
                 .Where(x => x != typeof(ActionState))
                 .Select(x => new MetaState(x))
                 .ToArray();
-
-            var system = Activator.CreateInstance(sysType) as IMetaSystem;
-            if (system == null)
-                throw new InvalidOperationException($"Could not create instance of IMetaSystem {sysType.Name}");
 
             system.Objects = res;
             system.Actions = actions;
@@ -100,7 +103,17 @@ namespace Rpg.ModObjects.Meta
             }
         }
 
-        private List<Type> DiscoverMetaSystems()
+        private Assembly[] DiscoverSystemAssemblies(IMetaSystem system)
+        {
+            var assemblies = new List<Assembly>() { system.GetType().Assembly };
+            var libAssembly = GetType().Assembly;
+            if (!assemblies.Contains(libAssembly))
+                assemblies.Add(libAssembly);
+
+            return assemblies.ToArray();
+        }
+
+        public static IMetaSystem[] DiscoverMetaSystems()
         {
             var types = new List<Type>();
 
@@ -114,7 +127,16 @@ namespace Rpg.ModObjects.Meta
                     types.AddRange(assTypes);
             }
 
-            return types;
+            var systems = new List<IMetaSystem>();
+            foreach (var type in types)
+            {
+                var system = Activator.CreateInstance(type) as IMetaSystem;
+                if (system == null)
+                    throw new InvalidOperationException($"Could not create instance of IMetaSystem {type.Name}");
+
+                systems.Add(system);
+            }
+            return systems.ToArray();
         }
     }
 }

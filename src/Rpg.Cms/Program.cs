@@ -1,6 +1,8 @@
 using Rpg.Cms.Services;
 using Rpg.Cms.Services.Factories;
 using Rpg.Cms.Services.Synchronizers;
+using Rpg.ModObjects.Reflection;
+using Rpg.Sys;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +14,9 @@ builder.CreateUmbracoBuilder()
     .Build();
 
 builder.Services
-    .AddTransient<IRpgSystemSyncService, RpgSystemSyncService>()
+    .AddTransient<ISyncTypesService, SyncTypesService>()
+    .AddTransient<ISyncContentService, SyncContentService>()
+    .AddTransient<SyncSessionFactory>()
     .AddTransient<IDocTypeSynchronizer, DocTypeSynchronizer>()
     .AddTransient<IDocTypeFolderSynchronizer, DocTypeFolderSynchronizer>()
     .AddTransient<IDataTypeSynchronizer, DataTypeSynchronizer>()
@@ -25,6 +29,7 @@ WebApplication app = builder
 
 await app.BootUmbracoAsync();
 
+RpgReflection.RegisterAssembly(typeof(MetaSystem).Assembly);
 
 app.UseUmbraco()
     .WithMiddleware(u =>

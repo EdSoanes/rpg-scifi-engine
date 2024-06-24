@@ -19,13 +19,22 @@ namespace Rpg.Cms.Controllers
     [ApiExplorerSettings(GroupName = "_Rpg")]
     public class RpgController : ManagementApiControllerBase
     {
-        private readonly IRpgSystemSyncService _rpgSystemSyncService;
+        private readonly SyncSessionFactory _syncSessionFactory;
+        private readonly ISyncTypesService _syncTypesService;
+        private readonly ISyncContentService _syncContentService;
         private readonly IBackOfficeSecurityAccessor _backOfficeSecurityAccessor;
         private readonly IUmbracoMapper _umbracoMapper;
 
-        public RpgController(IRpgSystemSyncService rpgSystemSyncService, IBackOfficeSecurityAccessor backOfficeSecurityAccessor, IUmbracoMapper umbracoMapper) 
+        public RpgController(
+            SyncSessionFactory syncSessionFactory, 
+            ISyncTypesService syncTypesService,
+            ISyncContentService syncContentService,
+            IBackOfficeSecurityAccessor backOfficeSecurityAccessor, 
+            IUmbracoMapper umbracoMapper) 
         {
-            _rpgSystemSyncService = rpgSystemSyncService;
+            _syncSessionFactory = syncSessionFactory;
+            _syncTypesService = syncTypesService;
+            _syncContentService = syncContentService;
             _backOfficeSecurityAccessor = backOfficeSecurityAccessor;
             _umbracoMapper = umbracoMapper;
         }
@@ -35,7 +44,14 @@ namespace Rpg.Cms.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Sync()
         {
-            await _rpgSystemSyncService.Sync(CurrentUserKey(_backOfficeSecurityAccessor));
+            var userKey = CurrentUserKey(_backOfficeSecurityAccessor);
+
+            var systems = _syncSessionFactory.GetSystems();
+            var session = _syncSessionFactory.CreateSession(userKey, systems.First());
+
+            await _syncTypesService.Sync(session);
+            await _syncContentService.Sync(session);
+
             return Ok();
         }
 
@@ -56,7 +72,7 @@ namespace Rpg.Cms.Controllers
         [ProducesResponseType(typeof(IMetaSystem), StatusCodes.Status200OK)]
         public IActionResult DocumentTypes()
         {
-            var docTypes = _rpgSystemSyncService.DocumentTypes();
+            var docTypes = _syncTypesService.DocumentTypes();
 
             IEnumerable<DocumentTypeResponseModel> models = docTypes.Select(x => _umbracoMapper.Map<DocumentTypeResponseModel>(x)!);
             return Ok(models);
@@ -67,7 +83,7 @@ namespace Rpg.Cms.Controllers
         [ProducesResponseType(typeof(IMetaSystem), StatusCodes.Status200OK)]
         public async Task<IActionResult> DocumentTypeUpdates()
         {
-            var res = await _rpgSystemSyncService.DocumentTypeUpdatesAsync(CurrentUserKey(_backOfficeSecurityAccessor));
+            var res = await _syncTypesService.DocumentTypeUpdatesAsync(CurrentUserKey(_backOfficeSecurityAccessor));
 
             var json = RpgSerializer.Serialize(res);
             return Content(json, "application/json");

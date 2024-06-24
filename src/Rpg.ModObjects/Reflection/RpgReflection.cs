@@ -181,9 +181,15 @@ namespace Rpg.ModObjects.Reflection
 
         internal static IEnumerable<Type> ScanForTypes<T>()
         {
+            var assemblies = GetScanAssemblies();
+            return ScanForTypes<T>(assemblies);
+        }
+
+        internal static IEnumerable<Type> ScanForTypes<T>(IEnumerable<Assembly> assemblies)
+        {
             var res = new List<Type>();
 
-            foreach (var assembly in GetScanAssemblies())
+            foreach (var assembly in assemblies)
             {
                 var assemblyTypes = assembly.DefinedTypes
                     .Where(x => IsValidScanType<T>(x))
