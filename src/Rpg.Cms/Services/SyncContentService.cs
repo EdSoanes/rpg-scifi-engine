@@ -1,5 +1,4 @@
-﻿using Umbraco.Cms.Api.Management.ViewModels.Document;
-using Umbraco.Cms.Core;
+﻿using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.ContentEditing;
 using Umbraco.Cms.Core.Models.ContentPublishing;
@@ -25,19 +24,7 @@ namespace Rpg.Cms.Services
 
         public async Task Sync(SyncSession session)
         {
-            var systemRoot = _contentService.GetRootContent().FirstOrDefault(x => x.ContentType.Alias == session.SystemDocType!.Alias);
-            if (systemRoot == null)
-            {
-                var props = new Dictionary<string, object>
-                {
-                    { "Identifier", session.System.Identifier },
-                    { "Version", session.System.Version },
-                    { "Description", session.System.Description }
-                };
-
-                systemRoot = await CreateContentAsync(session, session.System.Identifier, session.SystemDocType!.Key, Constants.System.RootKey, props);
-            }
-
+            var systemRoot = await EnsureSystemRootAsync(session);
             var sysChildren = _contentService.GetPagedChildren(systemRoot!.Id, 0, 10000, out _);
             var entityLibrary = await EnsureContentAsync(session, "Entity Library", session.EntityLibraryDocType!.Key, systemRoot, sysChildren);
             var actionLibrary = await EnsureContentAsync(session, "Action Library", session.ActionLibraryDocType!.Key, systemRoot, sysChildren);
@@ -58,13 +45,34 @@ namespace Rpg.Cms.Services
             }
         }
 
+        private async Task<IContent> EnsureSystemRootAsync(SyncSession session)
+        {
+            var systemRoot = _contentService.GetRootContent().FirstOrDefault(x => x.ContentType.Alias == session.SystemDocType!.Alias);
+            if (systemRoot == null)
+            {
+                var props = new Dictionary<string, object>
+                {
+                    { "Identifier", session.System.Identifier },
+                    { "Version", session.System.Version },
+                    { "Description", session.System.Description }
+                };
+
+                systemRoot = await CreateContentAsync(session, session.System.Identifier, session.SystemDocType!.Key, Constants.System.RootKey, props);
+            }
+
+            if (!systemRoot.Published)
+                systemRoot = await PublishAsync(session, systemRoot.Key, session.System.Identifier);
+
+            return systemRoot;
+        }
+
         private async Task<IContent> EnsureContentAsync(SyncSession session, string name, Guid docTypeKey, IContent parent, IEnumerable<IContent>? siblings, Dictionary<string, object>? props = null)
         {
             siblings ??= _contentService.GetPagedChildren(parent!.Id, 0, 10000, out var totalRecords);
             var content = siblings.FirstOrDefault(x => x.ContentType.Key == docTypeKey && x.Name == name);
 
             return content == null
-                ? await CreateContentAsync(session, name, session.EntityLibraryDocType!.Key, parent.Key)
+                ? await CreateContentAsync(session, name, docTypeKey, parent.Key)
                 : await UpdateContentAsync(session, content.Key, name, props);
         }
 
@@ -89,9 +97,10 @@ namespace Rpg.Cms.Services
 
             var attempt = await _contentEditingService.CreateAsync(model, session.UserKey);
             if (!attempt.Success)
-                throw new InvalidOperationException($"Failed to publish {name}");
+                throw new InvalidOperationException($"Failed to create {name} {attempt.Status}", attempt.Exception);
 
-            return attempt.Result.Content!;
+            var content = await PublishAsync(session, attempt.Result.Content!.Key, name);
+            return content;
         }
 
         private async Task<IContent> UpdateContentAsync(SyncSession session, Guid contentKey, string name, Dictionary<string, object>? props = null)
@@ -115,6 +124,12 @@ namespace Rpg.Cms.Services
             if (!attempt.Success)
                 throw new InvalidOperationException($"Failed to update {name}");
 
+            var content = await PublishAsync(session, contentKey, name);
+            return content;
+        }
+
+        private async Task<IContent> PublishAsync(SyncSession session, Guid contentKey, string name)
+        {
             var schedule = new ContentScheduleCollection();
             schedule.Add(new ContentSchedule("*", DateTime.UtcNow, ContentScheduleAction.Release));
 
@@ -124,11 +139,11 @@ namespace Rpg.Cms.Services
                 Schedules = schedule
             };
 
-            var publishAttempt = await _contentPublishingService.PublishAsync(contentKey, publishModel, session.UserKey);
+            var attempt = await _contentPublishingService.PublishAsync(contentKey, publishModel, session.UserKey);
             if (!attempt.Success)
-                throw new InvalidOperationException($"Failed to publish {name}");
+                throw new InvalidOperationException($"Failed to publish {name} {attempt.Status}", attempt.Exception);
 
-            return publishAttempt.Result.Content!;
+            return attempt.Result.Content!;
         }
     }
 }

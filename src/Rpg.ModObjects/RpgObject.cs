@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Lifecycles;
-using Rpg.ModObjects.Meta;
 using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
@@ -27,7 +26,7 @@ namespace Rpg.ModObjects
         [TextUI(Ignore = true)]
         public string Name { get; set; }
 
-        [JsonProperty] public string[] Is { get; private set; }
+        [JsonProperty] public string[] Archetypes { get; private set; }
 
         [JsonProperty] public LifecycleExpiry Expiry { get; set; } = LifecycleExpiry.Pending;
 
@@ -42,7 +41,7 @@ namespace Rpg.ModObjects
             Id = this.NewId();
             Archetype = GetType().Name;
             Name = GetType().Name;
-            Is = this.GetBaseTypes();
+            Archetypes = this.GetType().GetArchetypes();
 
             PropStore = new PropStore(Id);
             ModSetStore = new ModSetStore(Id);
@@ -54,7 +53,8 @@ namespace Rpg.ModObjects
         public bool AddModSet(ModSet modSet)
             => ModSetStore.Add(modSet);
 
-        public bool IsA(string type) => Is.Contains(type);
+        public bool IsA(string type) 
+            => Archetypes.Contains(type);
 
         internal ModObjectPropDescription Describe(string prop)
             => new ModObjectPropDescription(Graph!, this, prop);

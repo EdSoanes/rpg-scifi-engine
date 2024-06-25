@@ -25,19 +25,15 @@ namespace Rpg.Sys.Actions
 
         public ModSet OnCost(Actor owner, int distance)
         {
-            var movementCost = Convert.ToInt32(Math.Ceiling((double)distance / 10));
+            var movementCost = CalculateMoveCost(owner, distance);
             return new ModSet(owner)
                 .AddMod(new TurnMod(), owner, x => x.Actions.Action, -movementCost);
         }
 
         public ModSet OnAct(Actor owner, int distance)
         {
-            var moveDistance = owner.Movement.Speed.Max - (owner.Movement.Speed.Current + distance);
-            if (moveDistance < 0)
-                moveDistance = 0;
-
             return new ModSet(owner)
-                .AddMod(new TurnMod(), owner, $"{nameof(Move)}.{nameof(OnAct)}", moveDistance);
+                .AddMod(new TurnMod(), owner, $"{nameof(Move)}.{nameof(OnAct)}", distance);
         }
 
         public ModSet[] OnOutcome(Actor owner, int distance)
@@ -54,18 +50,9 @@ namespace Rpg.Sys.Actions
             return res.ToArray();
         }
 
-        private int CalculateMoveDistance(Actor actor, int actionPoints)
-        {
-            var moveDistance = actor.Movement.Speed.Max * actionPoints;
-            if (moveDistance < 0)
-                moveDistance = 0;
-
-            return moveDistance;
-        }
-
         private int CalculateMoveCost(Actor actor, int distance)
         {
-            var movementCost = Convert.ToInt32(Math.Ceiling((double)distance / 10));
+            var movementCost = Convert.ToInt32(Math.Ceiling((double)distance / actor.Movement.Speed.Max));
             return movementCost;
         }
     }

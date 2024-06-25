@@ -22,11 +22,6 @@ namespace Rpg.ModObjects.Meta
         {
             var systemAssemblies = DiscoverSystemAssemblies(system);
 
-            var objectTypes = RpgReflection.ScanForTypes<RpgEntity>(systemAssemblies);
-            var res = objectTypes
-                .Select(Object)
-                .ToArray();
-
             var propUIs = RpgReflection.ScanForTypes<MetaPropUIAttribute>(systemAssemblies)
                 .Select(x => (MetaPropUIAttribute)Activator.CreateInstance(x)!)
                 .ToArray();
@@ -40,6 +35,11 @@ namespace Rpg.ModObjects.Meta
                 .Select(x => new MetaState(x))
                 .ToArray();
 
+            var objectTypes = RpgReflection.ScanForTypes<RpgEntity>(systemAssemblies);
+            var res = objectTypes
+                .Select(x => Object(x, actions, states))
+                .ToArray();
+
             system.Objects = res;
             system.Actions = actions;
             system.States = states;
@@ -48,10 +48,12 @@ namespace Rpg.ModObjects.Meta
             return system;
         }
 
-        public MetaObj Object(Type type)
+        public MetaObj Object(Type type, MetaAction[] actions, MetaState[] states)
         {
-            var obj = new MetaObj(type.Name);
+            var obj = new MetaObj(type);
             obj.Props = Props(type);
+            obj.AllowedActions.AddRange(actions.Where(x => obj.Archetypes.Contains(x.OwnerArchetype)));
+            obj.AllowedStates.AddRange(states.Where(x => obj.Archetypes.Contains(x.Archetype)));
 
             return obj;
         }

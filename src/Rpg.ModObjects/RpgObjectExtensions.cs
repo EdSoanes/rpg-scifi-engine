@@ -18,22 +18,6 @@ namespace Rpg.ModObjects
         public static string NewId(this object obj)
             => $"{obj.GetType().Name}[{Nanoid.Generate(Alphabet, Size)}]";
 
-        internal static string[] GetBaseTypes(this RpgObject entity)
-        {
-            var res = new List<string>();
-            var t = entity.GetType();
-            while (t != null)
-            {
-                res.Add(t.Name);
-                t = t == typeof(RpgObject)
-                    ? null
-                    : t.BaseType;
-            }
-
-            res.Reverse();
-            return res.ToArray();
-        }
-
         public static ModObjectPropDescription Describe<TEntity, T1>(this TEntity entity, Expression<Func<TEntity, T1>> targetExpr)
             where TEntity : RpgObject
         {

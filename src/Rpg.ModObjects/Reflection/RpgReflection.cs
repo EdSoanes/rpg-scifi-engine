@@ -33,6 +33,25 @@ namespace Rpg.ModObjects.Reflection
                 _scanAssemblies.Add(assembly);
         }
 
+        internal static string[] GetArchetypes(this Type type)
+        {
+            var res = new List<string>();
+            if (type.IsAssignableTo(typeof(RpgObject)))
+            {
+                while (type != null)
+                {
+                    res.Add(type.Name);
+                    if (type == typeof(RpgObject) || type.BaseType == null)
+                        break;
+
+                    type = type.BaseType;
+                }
+            }
+
+            res.Reverse();
+            return res.ToArray();
+        }
+
         internal static Type? ScanForType(string qualifiedTypeName)
         {
             var type = RpgPropertyTypes.FirstOrDefault(x => x.AssemblyQualifiedName == qualifiedTypeName);
