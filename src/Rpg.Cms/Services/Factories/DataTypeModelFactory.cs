@@ -63,7 +63,7 @@ namespace Rpg.Cms.Services.Factories
             {
                 Id = Guid.NewGuid(),
                 Parent = new ReferenceByIdModel(parentFolder.Key),
-                Name = session.GetDataTypeName("Boolean"),
+                Name = session.GetDataTypeName("Boolean"),  
                 EditorAlias = "Umbraco.TrueFalse",
                 EditorUiAlias = "Umb.PropertyEditorUi.Toggle"
             };
@@ -138,6 +138,7 @@ namespace Rpg.Cms.Services.Factories
                 nameof(Int32) => "Umbraco.Integer",
                 nameof(Dice) => "Umbraco.TextBox",
                 nameof(Boolean) => "Umbraco.TrueFalse",
+                "Select" => "Umbraco.BlockList",
                 _ => attr.DataType == "RichText" 
                     ? "Umbraco.RichText" 
                     : "Umbraco.TextBox"
@@ -150,6 +151,7 @@ namespace Rpg.Cms.Services.Factories
             {
                 nameof(Dice) => "Umb.PropertyEditorUi.TextBox",
                 nameof(Boolean) => "Umb.PropertyEditorUi.Toggle",
+                "Select" =>"Umb.PropertyEditorUi.BlockList",
                 "RichText" => "Umb.PropertyEditorUi.TinyMCE",
                 "Text" => "Umb.PropertyEditorUi.TextBox",
                 _ => "Umb.PropertyEditorUi.Integer",
@@ -204,6 +206,20 @@ namespace Rpg.Cms.Services.Factories
                     "indent",
                     "sourcecode"
                 }}
+            };
+
+            return vals;
+        }
+
+        private IEnumerable<DataTypePropertyPresentationModel> CreateBlockListValues(MetaPropUIAttribute metaProp)
+        {
+            var vals = new List<DataTypePropertyPresentationModel>
+            {
+                new DataTypePropertyPresentationModel { Alias = "useInlineEditingAsDefault", Value = false },
+                new DataTypePropertyPresentationModel { Alias = "useLiveEditing", Value = true },
+                new DataTypePropertyPresentationModel { Alias = "blocks", Value = [
+                    new { contentElementTypeKey = "", label = "{{ArgName}}" }
+                ]}
             };
 
             return vals;
