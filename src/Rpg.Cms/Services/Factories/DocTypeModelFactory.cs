@@ -10,7 +10,9 @@ namespace Rpg.Cms.Services.Factories
         {
             var createDocType = new ContentTypeCreateModel
             {
-                Key = Guid.NewGuid()
+                Key = Guid.NewGuid(),
+                Name = session.GetDocTypeName(metaObject),
+                Alias = session.GetDocTypeAlias(metaObject)
             };
 
             return SetModel(session, createDocType, metaObject, icon);
@@ -18,7 +20,13 @@ namespace Rpg.Cms.Services.Factories
 
         public ContentTypeUpdateModel UpdateModel(SyncSession session, MetaObj metaObject, IContentType docType, string icon = "icon-checkbox-dotted")
         {
-            var updateDocType = SetModel(session, new ContentTypeUpdateModel(), metaObject, icon ?? docType.Icon!);
+            var updateDocType = new ContentTypeUpdateModel
+            {
+                Name = docType.Name!,
+                Alias = docType.Alias,
+            };
+            
+            updateDocType = SetModel(session, updateDocType, metaObject, icon ?? docType.Icon!);
             return updateDocType;
         }
 
@@ -28,12 +36,11 @@ namespace Rpg.Cms.Services.Factories
             var containers = CreateContainers(session, metaObject);
             var properties = CreateProperties(session, metaObject.Props, containers);
 
-            docTypeModel.Name = session.GetDocTypeName(metaObject);
-            docTypeModel.Alias = session.GetDocTypeAlias(metaObject);
             docTypeModel.Icon = metaObject.Icon ?? icon;
             docTypeModel.Containers = containers;
             docTypeModel.Properties = properties;
             docTypeModel.AllowedAsRoot = metaObject.AllowedAsRoot;
+            docTypeModel.IsElement = metaObject.IsElement;
 
             if (metaObject.AllowedChildArchetypes.Any())
             {
@@ -118,13 +125,14 @@ namespace Rpg.Cms.Services.Factories
             var res = new List<ContentTypePropertyTypeModel>();
             foreach (var metaProp in metaProps)
             {
-                var dataType = session.GetDataType(metaProp.DataType);
+                var dataType = session.GetDataType(metaProp.DataType, faultOnNotFound: false);
                 var propModel = new ContentTypePropertyTypeModel
                 {
                     Key = Guid.NewGuid(),
                     Alias = metaProp.FullProp,
                     Name = metaProp.DisplayName,
                     DataTypeKey = dataType.Key,
+                    
                 };
 
                 var tabName = session.GetPropTypeTabName(metaProp.Tab);

@@ -87,9 +87,23 @@ namespace Rpg.Cms.Services
 
             session.StateDocType = await _docTypeSynchronizer.Sync(session, stateDocType, session.ComponentDocTypeFolder!);
 
+            var actionArgDocType = new MetaObj("Action Arg")
+                .SetIsElement(true)
+                .AddIcon("icon-rectangle-ellipsis")
+                .AddProp("Arg Name", "Text")
+                .AddProp("Description", "RichText")
+                .AddProp("Type Name", "Text")
+                .AddProp("Qualified Type Name", "Text")
+                .AddProp("Is Nullable", "Boolean");
+
+            session.ActionArgDocType = await _docTypeSynchronizer.Sync(session, actionArgDocType, session.ComponentDocTypeFolder!);
+
             var actionDocType = new MetaObj("Action")
                 .AddIcon("icon-command")
-                .AddProp("Description", "RichText");
+                .AddProp("Description", "RichText")
+                .AddProp("Action.Cost", "RichText")
+                .AddProp("Action.Act", "RichText")
+                .AddProp("Action.Outcome", "RichText");
 
             session.ActionDocType = await _docTypeSynchronizer.Sync(session, actionDocType, session.ComponentDocTypeFolder!);
 

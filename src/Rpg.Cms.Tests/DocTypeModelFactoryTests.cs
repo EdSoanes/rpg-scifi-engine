@@ -24,7 +24,7 @@ namespace Rpg.Cms.Tests
 
             var session = new SyncSession(Guid.Empty, system);
             var dataTypeConverter = new DataTypeModelFactory();
-            var models = dataTypeConverter.ToDataTypeModels(session, new TestDataTypeRootFolder());
+            var models = dataTypeConverter.CreateModels(session, new TestDataTypeRootFolder());
             session.DataTypes = TestDataType.Convert(models);
 
             Assert.IsNotNull(session.DataTypes);
@@ -38,7 +38,7 @@ namespace Rpg.Cms.Tests
 
             var session = new SyncSession(Guid.Empty, system);
             var dataTypeConverter = new DataTypeModelFactory();
-            var models = dataTypeConverter.ToDataTypeModels(session, new TestDataTypeRootFolder());
+            var models = dataTypeConverter.CreateModels(session, new TestDataTypeRootFolder());
             session.DataTypes = TestDataType.Convert(models);
 
             var converter = new DocTypeModelFactory();

@@ -1,5 +1,4 @@
-﻿using Humanizer;
-using Rpg.ModObjects.Meta;
+﻿using Rpg.ModObjects.Meta;
 using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Values;
 using Umbraco.Cms.Api.Management.ViewModels;
@@ -10,7 +9,15 @@ namespace Rpg.Cms.Services.Factories
 {
     public class DataTypeModelFactory
     {
-        public CreateDataTypeRequestModel[] ToDataTypeModels(SyncSession session, IUmbracoEntity parentFolder)
+        public UpdateDataTypeRequestModel UpdateModel(SyncSession session, MetaPropUIAttribute attr)
+        {
+            var res = new UpdateDataTypeRequestModel();
+            res = UpdateModel(session, attr);
+
+            return res;
+        }
+
+        public CreateDataTypeRequestModel[] CreateModels(SyncSession session, IUmbracoEntity parentFolder)
         {
             var res = new List<CreateDataTypeRequestModel>();
             foreach (var attr in session.System.PropUIs)
@@ -18,15 +25,16 @@ namespace Rpg.Cms.Services.Factories
                 var dataTypeName = session.GetDataTypeName(attr.DataType);
                 if (!res.Any(x => x.Name == dataTypeName))
                 {
-                    var model = ToDataTypeModel(session, attr, parentFolder);
+                    var model = CreateModel(session, attr, parentFolder);
                     res.Add(model);
                 }
             }
+            res.Add(CreateBooleanModel(session, parentFolder));
 
             foreach (var metaObj in session.System.Objects)
             {
-                var actionDataType = ToActionDataTypeModel(session, metaObj, parentFolder);
-                var stateDataType = ToStateDataTypeModel(session, metaObj, parentFolder);
+                var actionDataType = CreateActionModel(session, metaObj, parentFolder);
+                var stateDataType = CreateStateModel(session, metaObj, parentFolder);
 
                 if (actionDataType != null)
                     res.Add(actionDataType);
@@ -38,19 +46,53 @@ namespace Rpg.Cms.Services.Factories
             return res.ToArray();
         }
 
-        public CreateDataTypeRequestModel? ToActionDataTypeModel(SyncSession session, MetaObj metaObj, IUmbracoEntity parentFolder)
-            => ToCheckBoxList(session, metaObj, parentFolder, "Actions", metaObj.AllowedActions.Select(x => $"{session.System.Identifier}.{x}").ToArray());
-
-        public CreateDataTypeRequestModel? ToStateDataTypeModel(SyncSession session, MetaObj metaObj, IUmbracoEntity parentFolder)
-            => ToCheckBoxList(session, metaObj, parentFolder, "States", metaObj.AllowedStates.Select(x => $"{session.System.Identifier}.{x}").ToArray());
-
-        public CreateDataTypeRequestModel ToDataTypeModel(SyncSession session, MetaPropUIAttribute attr, IUmbracoEntity parentFolder)
+        public CreateDataTypeRequestModel CreateModel(SyncSession session, MetaPropUIAttribute attr, IUmbracoEntity parentFolder)
         {
             var res = new CreateDataTypeRequestModel();
 
             res.Id = Guid.NewGuid();
-            res.Name = session.GetDataTypeName(attr.DataType);
             res.Parent = new ReferenceByIdModel(parentFolder.Key);
+            res = UpdateModel(res, session, attr);
+
+            return res;
+        }
+
+        public CreateDataTypeRequestModel CreateBooleanModel(SyncSession session, IUmbracoEntity parentFolder)
+        {
+            var res = new CreateDataTypeRequestModel
+            {
+                Id = Guid.NewGuid(),
+                Parent = new ReferenceByIdModel(parentFolder.Key),
+                Name = session.GetDataTypeName("Boolean"),
+                EditorAlias = "Umbraco.TrueFalse",
+                EditorUiAlias = "Umb.PropertyEditorUi.Toggle"
+            };
+
+            return res;
+        }
+
+        public CreateDataTypeRequestModel? CreateActionModel(SyncSession session, MetaObj metaObj, IUmbracoEntity parentFolder)
+            => CreateCheckBoxListModel(session, metaObj, parentFolder, "Actions", metaObj.AllowedActions.Select(x => $"{session.System.Identifier}.{x}").ToArray());
+
+        public CreateDataTypeRequestModel? CreateStateModel(SyncSession session, MetaObj metaObj, IUmbracoEntity parentFolder)
+            => CreateCheckBoxListModel(session, metaObj, parentFolder, "States", metaObj.AllowedStates.Select(x => $"{session.System.Identifier}.{x}").ToArray());
+
+        public UpdateDataTypeRequestModel? UpdateActionModel(SyncSession session, MetaObj metaObj, IUmbracoEntity parentFolder)
+        {
+            var res = new UpdateDataTypeRequestModel();
+            return UpdateCheckBoxListModel(res, session, metaObj, "Actions", metaObj.AllowedActions.Select(x => $"{session.System.Identifier}.{x}").ToArray());
+        }
+
+        public UpdateDataTypeRequestModel? UpdateStateModel(SyncSession session, MetaObj metaObj, IUmbracoEntity parentFolder)
+        {
+            var res = new UpdateDataTypeRequestModel();
+            return UpdateCheckBoxListModel(res, session, metaObj, "States", metaObj.AllowedStates.Select(x => $"{session.System.Identifier}.{x}").ToArray());
+        }
+
+        private T UpdateModel<T>(T res, SyncSession session, MetaPropUIAttribute attr)
+            where T : DataTypeModelBase
+        {
+            res.Name = session.GetDataTypeName(attr.DataType);
             res.EditorAlias = ToUmbEditor(attr);
             res.EditorUiAlias = ToUmbUIEditor(attr);
             res.Values = ToUmbValues(attr);
@@ -58,34 +100,44 @@ namespace Rpg.Cms.Services.Factories
             return res;
         }
 
-        private CreateDataTypeRequestModel? ToCheckBoxList(SyncSession session, MetaObj metaObj, IUmbracoEntity parentFolder, string name, string[] items)
+        private CreateDataTypeRequestModel? CreateCheckBoxListModel(SyncSession session, MetaObj metaObj, IUmbracoEntity parentFolder, string name, string[] items)
         {
             if (metaObj.AllowedActions.Any())
             {
                 var res = new CreateDataTypeRequestModel();
 
                 res.Id = Guid.NewGuid();
-                res.Name = session.GetDataTypeName($"{metaObj.Archetype} {name}");
                 res.Parent = new ReferenceByIdModel(parentFolder.Key);
-                res.EditorAlias = "Umbraco.CheckBoxList";
-                res.EditorUiAlias = "Umb.PropertyEditorUi.CheckBoxList";
-
-                res.Values = new List<DataTypePropertyPresentationModel>
-                {
-                    new DataTypePropertyPresentationModel { Alias = "items", Value = items }
-                };
+                res = UpdateCheckBoxListModel(res, session, metaObj, name, items);
 
                 return res;
             }
 
             return null;
         }
+
+        private T UpdateCheckBoxListModel<T>(T res, SyncSession session, MetaObj metaObj, string name, string[] items)
+            where T : DataTypeModelBase
+        {
+            res.Name = session.GetDataTypeName($"{metaObj.Archetype} {name}");
+            res.EditorAlias = "Umbraco.CheckBoxList";
+            res.EditorUiAlias = "Umb.PropertyEditorUi.CheckBoxList";
+
+            res.Values = new List<DataTypePropertyPresentationModel>
+                {
+                    new DataTypePropertyPresentationModel { Alias = "items", Value = items }
+                };
+
+            return res;
+        }
+
         private string ToUmbEditor(MetaPropUIAttribute attr)
         {
             return attr.ReturnType switch
             {
                 nameof(Int32) => "Umbraco.Integer",
                 nameof(Dice) => "Umbraco.TextBox",
+                nameof(Boolean) => "Umbraco.TrueFalse",
                 _ => attr.DataType == "RichText" 
                     ? "Umbraco.RichText" 
                     : "Umbraco.TextBox"
@@ -97,6 +149,7 @@ namespace Rpg.Cms.Services.Factories
             return attr.DataType switch
             {
                 nameof(Dice) => "Umb.PropertyEditorUi.TextBox",
+                nameof(Boolean) => "Umb.PropertyEditorUi.Toggle",
                 "RichText" => "Umb.PropertyEditorUi.TinyMCE",
                 "Text" => "Umb.PropertyEditorUi.TextBox",
                 _ => "Umb.PropertyEditorUi.Integer",

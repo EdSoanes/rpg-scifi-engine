@@ -27,6 +27,7 @@ namespace Rpg.Cms.Services
         public IContentType? ComponentDocType { get; set; }
 
         public IContentType? StateDocType { get; set; }
+        public IContentType? ActionArgDocType { get; set; }
         public IContentType? ActionDocType { get; set; }
 
         public List<IContentType> DocTypes { get; set; } = new List<IContentType>();
@@ -40,11 +41,11 @@ namespace Rpg.Cms.Services
             UserKey = userKey;
         }
 
-        public IDataType GetDataType(string propType)
+        public IDataType? GetDataType(string propType, bool faultOnNotFound = true)
         {
             var name = GetDataTypeName(propType);
             var res = DataTypes.FirstOrDefault(x => x.Name == name);
-            if (res == null)
+            if (res == null && faultOnNotFound)
                 throw new InvalidOperationException($"Missing data type {name}");
 
             return res;

@@ -19,7 +19,7 @@ namespace Rpg.ModObjects.Meta
         [JsonProperty] public List<string> AllowedChildArchetypes { get; private set; } = new List<string>();
         [JsonProperty] public List<MetaAction> AllowedActions { get; set; } = new List<MetaAction>();
         [JsonProperty] public List<MetaState> AllowedStates { get; set; } = new List<MetaState>();
-
+        [JsonProperty] public bool IsElement { get; private set; }
 
         [JsonConstructor] private MetaObj() { }
 
@@ -33,6 +33,12 @@ namespace Rpg.ModObjects.Meta
         {
             Archetype = archetype;
             Archetypes = Array.Empty<string>();
+        }
+
+        public MetaObj SetIsElement(bool isElement)
+        {
+            IsElement = isElement;
+            return this;
         }
 
         public MetaObj AddIcon(string icon)

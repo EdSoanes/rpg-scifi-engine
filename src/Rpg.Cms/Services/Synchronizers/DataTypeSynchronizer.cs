@@ -41,6 +41,12 @@ namespace Rpg.Cms.Services.Synchronizers
             types = await _dataTypeService.GetByEditorAliasAsync(Constants.PropertyEditors.Aliases.RichText);
             res.AddRange(types);
 
+            types = await _dataTypeService.GetByEditorAliasAsync(Constants.PropertyEditors.Aliases.Boolean);
+            res.AddRange(types);
+
+            types = await _dataTypeService.GetByEditorAliasAsync(Constants.PropertyEditors.Aliases.CheckBoxList);
+            res.AddRange(types);
+
             res = res
                 .Where(x => x.Name?.StartsWith(session.System.Identifier) ?? false)
                 .ToList();
@@ -53,11 +59,12 @@ namespace Rpg.Cms.Services.Synchronizers
             var dataTypes = await GetDataTypesAsync(session);
 
             var res = dataTypes.ToList();
-            var models = _dataTypeModelFactory.ToDataTypeModels(session, session.RootDataTypeFolder!);
+            var models = _dataTypeModelFactory.CreateModels(session, session.RootDataTypeFolder!);
 
             foreach (var model in models)
             {
-                if (!res.Any(x => x.Name == model.Name))
+                var existing = res.FirstOrDefault(x => x.Name == model.Name);
+                if (existing == null)
                 {
                     var presAttempt = await _dataTypePresentationFactory.CreateAsync(model);
                     if (!presAttempt.Success)
@@ -68,6 +75,19 @@ namespace Rpg.Cms.Services.Synchronizers
                         throw new InvalidOperationException($"Failed to create datatype for {model.Name}");
 
                     res.Add(dataTypeAttempt.Result);
+                }
+                else
+                {
+                    existing.ConfigurationData = model.Values
+                        .Where(x => x.Value != null)
+                        .ToDictionary(x => x.Alias, x => x.Value!);
+
+                    var updated = await _dataTypeService.UpdateAsync(existing, session.UserKey);
+                    if (!updated.Success)
+                        throw new InvalidOperationException($"Failed to update datatype presentation for {model.Name}");
+
+                    res = res.Where(x => x.Key != existing.Key).ToList();
+                    res.Add(updated.Result);
                 }
             }
 
