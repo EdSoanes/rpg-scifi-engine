@@ -82,6 +82,7 @@ namespace Rpg.ModObjects.Meta
 
                     metaProp.Prop = propInfo.Name;
                     metaProp.DataType = propUI?.DataType ?? propInfo.PropertyType.Name;
+                    metaProp.DataTypeName = propUI?.DataTypeName ?? propInfo.PropertyType.Name;
                     metaProp.ReturnType = propInfo.PropertyType.Name;
                     metaProp.Path = propStack.ToList();
                     metaProp.Path.Reverse();

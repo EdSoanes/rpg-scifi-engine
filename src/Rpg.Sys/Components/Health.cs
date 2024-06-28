@@ -6,18 +6,18 @@ namespace Rpg.Sys.Components
 {
     public class Health : RpgComponent
     {
-        [JsonProperty] public MinMaxValue Physical { get; private set; }
-        [JsonProperty] public MinMaxValue Mental { get; private set; }
-        [JsonProperty] public MinMaxValue Cyber { get; private set; }
+        [JsonProperty] public HealthValue Physical { get; private set; }
+        [JsonProperty] public HealthValue Mental { get; private set; }
+        [JsonProperty] public HealthValue Cyber { get; private set; }
 
         [JsonConstructor] private Health() { }
 
-        public Health(string entityId, string name, HealthTemplate template)
+        public Health(string entityId, string name)
             : base(entityId, name)
         {
-            Physical = new MinMaxValue(entityId, nameof(Physical), template.Physical);
-            Mental = new MinMaxValue(entityId, nameof(Mental), template.Mental);
-            Cyber = new MinMaxValue(entityId, nameof(Cyber), template.Cyber);
+            Physical = new HealthValue(entityId, nameof(Physical));
+            Mental = new HealthValue(entityId, nameof(Mental));
+            Cyber = new HealthValue(entityId, nameof(Cyber));
         }
     }
 }

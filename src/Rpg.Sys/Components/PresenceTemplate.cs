@@ -1,6 +1,7 @@
 ﻿using Rpg.ModObjects;
 using Rpg.ModObjects.Meta;
 using Rpg.ModObjects.Meta.Attributes;
+using Rpg.Sys.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;

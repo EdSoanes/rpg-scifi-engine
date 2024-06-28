@@ -19,7 +19,7 @@ namespace Rpg.Sys.Components.Values
         [MinZeroUI]
         public int Current { get; protected set; }
 
-        [JsonConstructor] private MinMaxValue() { }
+        [JsonConstructor] protected MinMaxValue() { }
 
         public MinMaxValue(string entityId, string name, int max)
             : base(entityId, name)

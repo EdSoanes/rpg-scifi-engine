@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects;
-using Rpg.ModObjects.Meta;
 using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Values;
+using Rpg.Sys.Attributes;
 
 namespace Rpg.Sys.Components.Values
 {

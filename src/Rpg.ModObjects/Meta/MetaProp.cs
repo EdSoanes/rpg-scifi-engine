@@ -12,6 +12,7 @@ namespace Rpg.ModObjects.Meta
         public string FullProp { get => string.Join('.', new List<string>(Path) { Prop }); }
         public List<string> Path { get; set; } = new List<string>();
         public string DataType { get; set; }
+        public string DataTypeName { get; set; }
         public string ReturnType { get; set; }
         public string DisplayName { get; set; }
         public string? Tab { get; set; }

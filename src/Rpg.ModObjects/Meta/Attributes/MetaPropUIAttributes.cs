@@ -6,7 +6,8 @@ namespace Rpg.ModObjects.Meta.Attributes
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public abstract class MetaPropUIAttribute : Attribute
     {
-        public string DataType { get; private set; }
+        public string DataTypeName { get; protected set; }
+        public string DataType { get; protected set; }
         public string ReturnType { get; protected set; }
         public string? DisplayName { get; set; }
         public bool Ignore { get; set; }
@@ -43,6 +44,7 @@ namespace Rpg.ModObjects.Meta.Attributes
         protected MetaPropUIAttribute()
         {
             DataType = GetType().Name.Replace("UIAttribute", "");
+            DataTypeName = DataType;
         }
     }
 }

@@ -34,7 +34,7 @@ namespace Rpg.Sys.Archetypes
             Presence = new Presence(Id, nameof(Presence), template.Presence);
             Defenses = new Defenses(Id, nameof(Defenses), template.Defenses);
             Damage = new Damage(Id, nameof(Damage), template.Damage);
-            Health = new Health(Id, nameof(Health), template.Health);
+            Health = new Health(Id, nameof(Health));
         }
     }
 }

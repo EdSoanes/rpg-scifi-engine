@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rpg.Sys.Components
+namespace Rpg.Sys.Attributes
 {
     public class ScoreUIAttribute : IntegerUIAttribute
     {
@@ -13,15 +13,6 @@ namespace Rpg.Sys.Components
         {
             Min = 3;
             Max = 18;
-        }
-    }
-
-    public class PresenceUIAttribute : IntegerUIAttribute
-    {
-        public PresenceUIAttribute()
-        {
-            Min = 0;
-            Max = 10;
         }
     }
 }

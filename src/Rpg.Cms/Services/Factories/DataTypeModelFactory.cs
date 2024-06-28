@@ -22,12 +22,12 @@ namespace Rpg.Cms.Services.Factories
             var res = new List<CreateDataTypeRequestModel>();
             foreach (var attr in session.System.PropUIs)
             {
-                var dataTypeName = session.GetDataTypeName(attr.DataType);
-                if (!res.Any(x => x.Name == dataTypeName))
-                {
-                    var model = CreateModel(session, attr, parentFolder);
-                    res.Add(model);
-                }
+                //var dataTypeName = session.GetDataTypeName(attr.DataTypeName);
+                //if (!res.Any(x => x.Name == dataTypeName))
+                //{
+                var model = CreateModel(session, attr, parentFolder);
+                res.Add(model);
+                //}
             }
             res.Add(CreateBooleanModel(session, parentFolder));
 
@@ -52,6 +52,7 @@ namespace Rpg.Cms.Services.Factories
 
             res.Id = Guid.NewGuid();
             res.Parent = new ReferenceByIdModel(parentFolder.Key);
+            res.Name = session.GetDataTypeName(attr.DataTypeName);
             res = UpdateModel(res, session, attr);
 
             return res;
@@ -92,7 +93,6 @@ namespace Rpg.Cms.Services.Factories
         private T UpdateModel<T>(T res, SyncSession session, MetaPropUIAttribute attr)
             where T : DataTypeModelBase
         {
-            res.Name = session.GetDataTypeName(attr.DataType);
             res.EditorAlias = ToUmbEditor(attr);
             res.EditorUiAlias = ToUmbUIEditor(attr);
             res.Values = ToUmbValues(attr);
@@ -135,10 +135,11 @@ namespace Rpg.Cms.Services.Factories
         {
             return attr.ReturnType switch
             {
-                nameof(Int32) => "Umbraco.Integer",
+                nameof(Int32) => attr.DataType == "Select" 
+                    ? "Umbraco.DropDown.Flexible" 
+                    :"Umbraco.Integer",
                 nameof(Dice) => "Umbraco.TextBox",
                 nameof(Boolean) => "Umbraco.TrueFalse",
-                "Select" => "Umbraco.BlockList",
                 _ => attr.DataType == "RichText" 
                     ? "Umbraco.RichText" 
                     : "Umbraco.TextBox"
@@ -151,7 +152,7 @@ namespace Rpg.Cms.Services.Factories
             {
                 nameof(Dice) => "Umb.PropertyEditorUi.TextBox",
                 nameof(Boolean) => "Umb.PropertyEditorUi.Toggle",
-                "Select" =>"Umb.PropertyEditorUi.BlockList",
+                "Select" =>"Umb.PropertyEditorUi.Dropdown",
                 "RichText" => "Umb.PropertyEditorUi.TinyMCE",
                 "Text" => "Umb.PropertyEditorUi.TextBox",
                 _ => "Umb.PropertyEditorUi.Integer",
@@ -162,7 +163,9 @@ namespace Rpg.Cms.Services.Factories
         {
             return attr.ReturnType switch
             {
-                nameof(Int32) => CreateIntValues(attr),
+                nameof(Int32) => attr.DataType == "Select" 
+                    ? CreateDropDownValues(attr) 
+                    : CreateIntValues(attr),
                 _ => attr.DataType == "RichText"
                     ? CreateRichTextValues(attr)
                     : Enumerable.Empty<DataTypePropertyPresentationModel>()
@@ -180,6 +183,17 @@ namespace Rpg.Cms.Services.Factories
             var max = metaProp.GetValue("Max", int.MaxValue);
             if (max != int.MaxValue)
                 vals.Add(new DataTypePropertyPresentationModel { Alias = "max", Value = max });
+
+            return vals;
+        }
+
+        private IEnumerable<DataTypePropertyPresentationModel> CreateDropDownValues(MetaPropUIAttribute metaProp)
+        {
+            var selectUI = (metaProp as SelectUIAttribute)!;
+            var vals = new List<DataTypePropertyPresentationModel>
+            {
+                new DataTypePropertyPresentationModel { Alias = "items", Value = selectUI.Values }
+            };
 
             return vals;
         }
@@ -211,18 +225,31 @@ namespace Rpg.Cms.Services.Factories
             return vals;
         }
 
-        private IEnumerable<DataTypePropertyPresentationModel> CreateBlockListValues(MetaPropUIAttribute metaProp)
-        {
-            var vals = new List<DataTypePropertyPresentationModel>
-            {
-                new DataTypePropertyPresentationModel { Alias = "useInlineEditingAsDefault", Value = false },
-                new DataTypePropertyPresentationModel { Alias = "useLiveEditing", Value = true },
-                new DataTypePropertyPresentationModel { Alias = "blocks", Value = [
-                    new { contentElementTypeKey = "", label = "{{ArgName}}" }
-                ]}
-            };
+        //private IEnumerable<DataTypePropertyPresentationModel> CreateBlockListValues(MetaPropUIAttribute metaProp)
+        //{
+        //    var blocks = (metaProp as SelectUIAttribute)?.Values.Select(x => new { contentElementKey = })
+        //    var vals = new List<DataTypePropertyPresentationModel>
+        //    {
+        //        new DataTypePropertyPresentationModel 
+        //        { 
+        //            Alias = "useInlineEditingAsDefault", 
+        //            Value = false 
+        //        },
+        //        new DataTypePropertyPresentationModel 
+        //        { 
+        //            Alias = "useLiveEditing", 
+        //            Value = true 
+        //        },
+        //        new DataTypePropertyPresentationModel 
+        //        { 
+        //            Alias = "blocks", Value = new[]
+        //            {
+        //                new { contentElementTypeKey = "", label = "{{ArgName}}" }
+        //            }
+        //        }
+        //    };
 
-            return vals;
-        }
+        //    return vals;
+        //}
     }
 }

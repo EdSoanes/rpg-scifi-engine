@@ -12,7 +12,7 @@ namespace Rpg.ModObjects.Meta.Attributes
     {
         public string[] Values { get; protected set; } = Array.Empty<string>();
 
-        public SelectUIAttribute(string[] values)
+        public SelectUIAttribute(params string[] values)
             : base()
         {
             Values = values;

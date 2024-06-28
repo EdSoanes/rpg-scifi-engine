@@ -1,5 +1,6 @@
 ﻿using Rpg.ModObjects;
 using Rpg.ModObjects.Meta.Attributes;
+using Rpg.Sys.Attributes;
 
 namespace Rpg.Sys.Components
 {
@@ -8,13 +9,13 @@ namespace Rpg.Sys.Components
         public string? Name { get; set; }
         public string? Description { get; set; }
 
-        [MinZeroUI(Group = "Health")]
+        [HealthUI(Group = "Health")]
         public int Physical { get; set; }
 
-        [MinZeroUI(Group = "Health")]
+        [HealthUI(Group = "Health")]
         public int Mental { get; set; }
 
-        [MinZeroUI(Group = "Health")]
+        [HealthUI(Group = "Health")]
         public int Cyber { get; set; }
     }
 }
