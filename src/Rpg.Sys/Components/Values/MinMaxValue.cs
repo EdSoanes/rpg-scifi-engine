@@ -8,7 +8,7 @@ namespace Rpg.Sys.Components.Values
     public class MinMaxValue : RpgComponent
     {
         [JsonProperty] 
-        [MinZeroUI]
+        [MinZeroUI(Ignore = true)]
         public int Min { get; protected set; }
 
         [JsonProperty] 
