@@ -1,4 +1,5 @@
 using Rpg.Cms.Services;
+using Rpg.Cms.Services.Converter;
 using Rpg.Cms.Services.Factories;
 using Rpg.Cms.Services.Synchronizers;
 using Rpg.ModObjects.Reflection;
@@ -22,7 +23,13 @@ builder.Services
     .AddTransient<IDataTypeSynchronizer, DataTypeSynchronizer>()
     .AddTransient<IDataTypeFolderSynchronizer, DataTypeFolderSynchronizer>()
     .AddTransient<DocTypeModelFactory>()
-    .AddTransient<DataTypeModelFactory>();
+    .AddTransient<DataTypeModelFactory>()
+    .AddSingleton<ContentConverter>();
+
+foreach (var propConverterType in RpgReflection.ScanForTypes<IPropConverter>())
+{
+    builder.Services.AddSingleton(typeof(IPropConverter), propConverterType);
+}
 
 WebApplication app = builder
     .Build();

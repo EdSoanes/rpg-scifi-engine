@@ -14,7 +14,7 @@ namespace Rpg.ModObjects.Reflection
         ];
 
         private static string[] ExcludeAssembliesWith =
-{
+        {
             "Microsoft",
             "System",
             "Umbraco",
@@ -198,7 +198,7 @@ namespace Rpg.ModObjects.Reflection
             return methodInfo;
         }
 
-        internal static IEnumerable<Type> ScanForTypes<T>()
+        public static IEnumerable<Type> ScanForTypes<T>()
         {
             var assemblies = GetScanAssemblies();
             return ScanForTypes<T>(assemblies);

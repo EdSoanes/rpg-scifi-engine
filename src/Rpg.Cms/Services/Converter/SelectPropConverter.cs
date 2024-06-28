@@ -14,7 +14,7 @@ namespace Rpg.Cms.Services.Converter
         {
             //Get the data type items, then the value and return the index
             var val = (source.GetValue() as int?) ?? 0;
-            target.AddProp(source.Alias, val);
+            target.AddProp(source.Alias.Replace('_', '.'), val);
         }
     }
 }

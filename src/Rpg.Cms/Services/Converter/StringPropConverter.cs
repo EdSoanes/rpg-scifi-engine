@@ -12,7 +12,7 @@ namespace Rpg.Cms.Services.Converter
         public void Convert(JObject target, IPublishedProperty source)
         {
             var val = source.GetValue()?.ToString() ?? string.Empty;
-            target.AddProp(source.Alias, val);
+            target.AddProp(source.Alias.Replace('_', '.'), val);
         }
     }
 }

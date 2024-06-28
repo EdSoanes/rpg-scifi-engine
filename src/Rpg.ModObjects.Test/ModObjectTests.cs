@@ -9,13 +9,6 @@ namespace Rpg.ModObjects.Tests
 {
     public class ModObjectTests
     {
-        private static JsonSerializerSettings JsonSettings = new JsonSerializerSettings
-        {
-            TypeNameHandling = TypeNameHandling.Auto,
-            NullValueHandling = NullValueHandling.Include,
-            Formatting = Formatting.Indented
-        };
-
         [SetUp]
         public void Setup()
         {
@@ -84,9 +77,9 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new RpgGraph(entity);
 
-            var json = JsonConvert.SerializeObject(entity, JsonSettings);
+            var json = RpgSerializer.Serialize(entity);
 
-            var entity2 = JsonConvert.DeserializeObject<ModdableEntity>(json, JsonSettings)!;
+            var entity2 = RpgSerializer.Deserialize<ModdableEntity>(json)!;
             var graph2 = new RpgGraph(entity2);
 
             Assert.That(entity2, Is.Not.Null);

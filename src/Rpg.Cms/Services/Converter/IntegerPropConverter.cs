@@ -14,7 +14,7 @@ namespace Rpg.Cms.Services.Converter
         public void Convert(JObject target, IPublishedProperty source)
         {
             var val = (source.GetValue() as int?) ?? 0;
-            target.AddProp(source.Alias, val);
+            target.AddProp(source.Alias.Replace('_', '.'), val);
         }
     }
 }

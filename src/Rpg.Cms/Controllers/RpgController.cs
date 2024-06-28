@@ -4,15 +4,18 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using Rpg.Cms.Json;
 using Rpg.Cms.Services;
+using Rpg.Cms.Services.Converter;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta;
 using Rpg.Sys;
+using Rpg.Sys.Archetypes;
 using Umbraco.Cms.Api.Management.Controllers;
 using Umbraco.Cms.Api.Management.ViewModels.DocumentType;
 using Umbraco.Cms.Core.Mapping;
 using Umbraco.Cms.Core.PublishedCache;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services.OperationStatus;
+using Umbraco.Cms.Web.Common;
 using Umbraco.Cms.Web.Common.Authorization;
 
 namespace Rpg.Cms.Controllers
@@ -22,26 +25,30 @@ namespace Rpg.Cms.Controllers
     [ApiExplorerSettings(GroupName = "_Rpg")]
     public class RpgController : ManagementApiControllerBase
     {
+        private readonly ContentConverter _contentConverter;
         private readonly SyncSessionFactory _syncSessionFactory;
         private readonly ISyncTypesService _syncTypesService;
         private readonly ISyncContentService _syncContentService;
         private readonly IBackOfficeSecurityAccessor _backOfficeSecurityAccessor;
         private readonly IUmbracoMapper _umbracoMapper;
-        private readonly IPublishedContentCache _publishedContentCache;
+        private readonly UmbracoHelper _umbracoHelper;
+
         public RpgController(
+            ContentConverter contentConverter,
             SyncSessionFactory syncSessionFactory, 
             ISyncTypesService syncTypesService,
             ISyncContentService syncContentService,
             IBackOfficeSecurityAccessor backOfficeSecurityAccessor, 
-            IUmbracoMapper umbracoMapper
-            IPublishedContentCache publishedContentCache) 
+            IUmbracoMapper umbracoMapper,
+            UmbracoHelper umbracoHelper) 
         {
+            _contentConverter = contentConverter;
             _syncSessionFactory = syncSessionFactory;
             _syncTypesService = syncTypesService;
             _syncContentService = syncContentService;
             _backOfficeSecurityAccessor = backOfficeSecurityAccessor;
             _umbracoMapper = umbracoMapper;
-            _publishedContentCache = publishedContentCache;
+            _umbracoHelper = umbracoHelper;
         }
 
         [HttpPost("sync")]
@@ -65,19 +72,15 @@ namespace Rpg.Cms.Controllers
         [ProducesResponseType(typeof(IEnumerable<DocumentTypeResponseModel>), StatusCodes.Status200OK)]
         public IActionResult Entity(string system, Guid id)
         {
-            var content = _publishedContentCache.GetById(id);
+            var content = _umbracoHelper.Content(id);
             if (content == null || !content.ContentType.Alias.StartsWith(system))
                 return NotFound();
 
-            var res = new JObject();
-            foreach (var prop in content.Properties)
-            {
-                res.AddProp(prop.Alias, prop.Value);
-            }
-            var meta = new MetaGraph();
-            var metaSystem = meta.Build();
+            var entity = _contentConverter.Convert<Human>(content)!;
+            var graph = new RpgGraph(entity);
 
-            var json = RpgSerializer.Serialize(metaSystem);
+            var json = RpgSerializer.Serialize(entity);
+
             return Content(json, "application/json");
         }
 

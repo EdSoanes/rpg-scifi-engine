@@ -129,7 +129,7 @@ namespace Rpg.Cms.Services.Factories
                 var propModel = new ContentTypePropertyTypeModel
                 {
                     Key = Guid.NewGuid(),
-                    Alias = metaProp.FullProp,
+                    Alias = metaProp.FullProp.Replace('.', '_'),
                     Name = metaProp.DisplayName,
                     DataTypeKey = dataType.Key,
                     
