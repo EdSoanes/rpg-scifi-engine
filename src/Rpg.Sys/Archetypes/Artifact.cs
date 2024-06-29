@@ -36,5 +36,15 @@ namespace Rpg.Sys.Archetypes
             Damage = new Damage(Id, nameof(Damage), template.Damage);
             Health = new Health(Id, nameof(Health));
         }
+
+        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        {
+            base.OnBeforeTime(graph, this);
+            Damage.OnBeforeTime(graph, this);
+            Defenses.OnBeforeTime(graph, this);
+            Presence.OnBeforeTime(graph, this);
+            Health.OnBeforeTime(graph, this);
+        }
+
     }
 }

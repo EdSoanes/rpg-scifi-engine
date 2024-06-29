@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Values;
 using Rpg.Sys.Components;
@@ -19,6 +20,14 @@ namespace Rpg.Sys.Archetypes
             Movement = new Movement(Id, nameof(Movement), template.Movement);
             Actions = new ActionPoints(Id, nameof(Actions), template.Actions);
             Stats = new StatPoints(Id, nameof(Stats), template.Stats);
+        }
+
+        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        {
+            base.OnBeforeTime(graph, this);
+            Movement.OnBeforeTime(graph, this);
+            Actions.OnBeforeTime(graph, this);
+            Stats.OnBeforeTime(graph, this);
         }
 
         protected override void OnLifecycleStarting()
