@@ -30,5 +30,17 @@ namespace Rpg.Sys.Components
             Cyber = new DefenseValue(entityId, nameof(Cyber), template.Cyber, template.CyberShielding);
             Mental = new DefenseValue(entityId, nameof(Mental), template.Mental, template.MentalShielding);
         }
+
+        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        {
+            base.OnBeforeTime(graph, entity);
+            Kinetic.OnBeforeTime(graph, entity);
+            Heat.OnBeforeTime(graph, entity);
+            Energy.OnBeforeTime(graph, entity);
+            Chemical.OnBeforeTime(graph, entity);
+            Radiation.OnBeforeTime(graph, entity);
+            Cyber.OnBeforeTime(graph, entity);
+            Mental.OnBeforeTime(graph, entity);
+        }
     }
 }

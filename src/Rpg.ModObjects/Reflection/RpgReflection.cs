@@ -52,6 +52,22 @@ namespace Rpg.ModObjects.Reflection
             return res.ToArray();
         }
 
+        public static Type? ScanForTypeByName(string name)
+        {
+            var type = RpgPropertyTypes.FirstOrDefault(x => x.Name == name);
+            if (type != null)
+                return type;
+
+            foreach (var assembly in GetScanAssemblies())
+            {
+                type = assembly.GetExportedTypes().FirstOrDefault(x => x.Name == name);
+                if (type != null)
+                    return type;
+            }
+
+            return null;
+        }
+
         internal static Type? ScanForType(string qualifiedTypeName)
         {
             var type = RpgPropertyTypes.FirstOrDefault(x => x.AssemblyQualifiedName == qualifiedTypeName);

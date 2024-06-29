@@ -33,5 +33,13 @@ namespace Rpg.Sys.Components
             Exertion = new MinMaxValue(entityId, nameof(Exertion), exertion);
             Focus = new MinMaxValue(entityId, nameof(Focus), focus);
         }
+
+        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        {
+            base.OnBeforeTime(graph, entity);
+            Action.OnBeforeTime(graph, entity);
+            Exertion.OnBeforeTime(graph, entity);
+            Focus.OnBeforeTime(graph, entity);
+        }
     }
 }

@@ -19,5 +19,13 @@ namespace Rpg.Sys.Components
             Mental = new HealthValue(entityId, nameof(Mental));
             Cyber = new HealthValue(entityId, nameof(Cyber));
         }
+
+        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        {
+            base.OnBeforeTime(graph, entity);
+            Physical.OnBeforeTime(graph, entity);
+            Cyber.OnBeforeTime(graph, entity);
+            Mental.OnBeforeTime(graph, entity);
+        }
     }
 }

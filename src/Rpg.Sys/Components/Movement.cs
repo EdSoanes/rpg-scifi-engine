@@ -1,9 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects;
-using Rpg.ModObjects.Values;
-using Rpg.Sys.Archetypes;
 using Rpg.Sys.Components.Values;
-using System.Xml.Linq;
 
 namespace Rpg.Sys.Components
 {
@@ -29,6 +26,12 @@ namespace Rpg.Sys.Components
             Speed = new MinMaxValue(entityId, nameof(Speed), maxSpeed, 0);
             Acceleration = acceleration;
             Deceleration = deceleration;
+        }
+
+        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        {
+            base.OnBeforeTime(graph, entity);
+            Speed.OnBeforeTime(graph, entity);
         }
     }
 }

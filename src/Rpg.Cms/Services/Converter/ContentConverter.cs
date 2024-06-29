@@ -16,13 +16,12 @@ namespace Rpg.Cms.Services.Converter
             _propConverters = propConverters;
         }
 
-        public T? Convert<T>(IPublishedContent source)
-            where T : RpgObject
+        public RpgEntity? Convert(string systemIdentifier, Type type, IPublishedContent source)
         {
             var target = new JObject()
                 .AddProp("id", this.NewId())
                 .AddProp("name", source.Name)
-                .AddProp("archetype", source.ContentType.Alias);
+                .AddProp("archetype", type.Name);
 
             foreach (var prop in source.Properties)
             {
@@ -34,8 +33,8 @@ namespace Rpg.Cms.Services.Converter
             }
 
             var json = target.ToJson();
-            var entity = RpgSerializer.Deserialize<T>(json);
-            return entity;
+            var entity = RpgSerializer.Deserialize(type, json);
+            return entity as RpgEntity;
         }
     }
 }

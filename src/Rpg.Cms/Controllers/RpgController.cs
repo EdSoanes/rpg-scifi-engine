@@ -7,6 +7,7 @@ using Rpg.Cms.Services;
 using Rpg.Cms.Services.Converter;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta;
+using Rpg.ModObjects.Reflection;
 using Rpg.Sys;
 using Rpg.Sys.Archetypes;
 using Umbraco.Cms.Api.Management.Controllers;
@@ -67,16 +68,17 @@ namespace Rpg.Cms.Controllers
             return Ok();
         }
 
-        [HttpGet("entity/{system}/{id}")]
+        [HttpGet("entities/{system}/{archetype}/{id}")]
         [MapToApiVersion("1.0")]
-        [ProducesResponseType(typeof(IEnumerable<DocumentTypeResponseModel>), StatusCodes.Status200OK)]
-        public IActionResult Entity(string system, Guid id)
+        [ProducesResponseType(typeof(RpgEntity), StatusCodes.Status200OK)]
+        public IActionResult Entity(string system, string archetype, Guid id)
         {
             var content = _umbracoHelper.Content(id);
             if (content == null || !content.ContentType.Alias.StartsWith(system))
                 return NotFound();
 
-            var entity = _contentConverter.Convert<Human>(content)!;
+            var type = RpgReflection.ScanForTypeByName(archetype)!;
+            var entity = (_contentConverter.Convert(system, type, content) as RpgObject)!;
             var graph = new RpgGraph(entity);
 
             var json = RpgSerializer.Serialize(entity);

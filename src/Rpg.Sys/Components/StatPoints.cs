@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects;
 using Rpg.Sys.Components.Values;
+using System.Runtime.ConstrainedExecution;
 
 namespace Rpg.Sys.Components
 {
@@ -24,6 +25,17 @@ namespace Rpg.Sys.Components
             Dexterity = new ScoreBonusValue(entityId, nameof(Dexterity), template.Dexterity);
             Constitution = new ScoreBonusValue(entityId, nameof(Constitution), template.Constitution);
             Charisma = new ScoreBonusValue(entityId, nameof(Charisma), template.Charisma);
+        }
+
+        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        {
+            base.OnBeforeTime(graph, entity);
+            Strength.OnBeforeTime(graph, entity);
+            Intelligence.OnBeforeTime(graph, entity);
+            Wisdom.OnBeforeTime(graph, entity);
+            Dexterity.OnBeforeTime(graph, entity);
+            Constitution.OnBeforeTime(graph, entity);
+            Charisma.OnBeforeTime(graph, entity);
         }
     }
 }

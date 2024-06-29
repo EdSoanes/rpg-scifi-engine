@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects;
 using Rpg.Sys.Components.Values;
+using System.Runtime.ConstrainedExecution;
 
 namespace Rpg.Sys.Components
 {
@@ -28,6 +29,17 @@ namespace Rpg.Sys.Components
             Chemical = new PresenceValue(entityId, nameof(Chemical), template.ChemicalMax, template.ChemicalCurrent, template.ChemicalRadius);
             Radiation = new PresenceValue(entityId, nameof(Radiation), template.RadiationMax, template.RadiationCurrent, template.RadiationRadius);
             Electromagnetic = new PresenceValue(entityId, nameof(Electromagnetic), template.ElectromagneticMax, template.ElectromagneticCurrent, template.ElectromagneticRadius);
+        }
+
+        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        {
+            base.OnBeforeTime(graph, entity);
+            Sound.OnBeforeTime(graph, entity);
+            Heat.OnBeforeTime(graph, entity);
+            Light.OnBeforeTime(graph, entity);
+            Chemical.OnBeforeTime(graph, entity);
+            Radiation.OnBeforeTime(graph, entity);
+            Electromagnetic.OnBeforeTime(graph, entity);
         }
     }
 }

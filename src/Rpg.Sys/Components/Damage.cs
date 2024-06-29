@@ -32,5 +32,17 @@ namespace Rpg.Sys.Components
             Cyber = new DamageValue(entityId, nameof(Cyber), template.Cyber, template.CyberArmorPenetration, template.CyberRadius);
             Mental = new DamageValue(entityId, nameof(Mental), template.Mental, template.MentalArmorPenetration, template.MentalRadius);
         }
+
+        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        {
+            base.OnBeforeTime(graph, entity);
+            Kinetic.OnBeforeTime(graph, entity);
+            Heat.OnBeforeTime(graph, entity);
+            Energy.OnBeforeTime(graph, entity);
+            Chemical.OnBeforeTime(graph, entity);
+            Radiation.OnBeforeTime(graph, entity);
+            Cyber.OnBeforeTime(graph, entity);
+            Mental.OnBeforeTime(graph, entity);
+        }
     }
 }
