@@ -10,7 +10,7 @@ namespace Rpg.ModObjects.Mods
 {
     public static class Extensions
     {
-        internal static void InitMod<TTarget>(this TTarget entity, string targetProp, Dice dice)
+        public static void InitMod<TTarget>(this TTarget entity, string targetProp, Dice dice)
             where TTarget : RpgObject
         {
             var mod = new InitialMod()
