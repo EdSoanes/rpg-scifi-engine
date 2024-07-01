@@ -17,39 +17,39 @@ namespace Rpg.Cyborgs.Skills.Combat
             IsIntrinsic = true;
         }
 
-        public override bool IsEnabled<TOwner>(TOwner owner, RpgEntity initiator)
+        public override bool IsEnabled<TOwner, TInitiator>(TOwner owner, TInitiator initiator)
             => true;
 
-        public ModSet OnCost(Actor owner, int focusPoints)
+        public ModSet OnCost(Actor owner, Actor initiator, int focusPoints)
         {
             return new ModSet(new TimeLifecycle(TimePoints.BeginningOfEncounter))
                 .AddMod(new TurnMod(), owner, x => x.CurrentFocusPoints, -focusPoints);
         }
 
-        public ModSet OnAct(Actor owner, int focusPoints, int? abilityScore)
+        public ModSet OnAct(int actionNo, Actor owner, Actor initiator, int focusPoints, int? abilityScore)
         {
             var modSet = new ModSet(new TimeLifecycle(TimePoints.Encounter(1)));
 
-            ModCheck(modSet, "2d6");
-            ModCheck(modSet, focusPoints);
+            ActResultMod(actionNo, modSet, initiator, "Base", "2d6");
+            ActResultMod(actionNo, modSet, initiator, "FocusPoints", focusPoints);
 
             if (abilityScore != null)
-                ModCheck(modSet, abilityScore.Value);
+                ActResultMod(actionNo, modSet, initiator, "AbilityScore", abilityScore.Value);
             else
-                ModCheck(modSet, x => x.MeleeAttack);
+                ActResultMod(actionNo, modSet, initiator, x => x.MeleeAttack);
 
             return modSet;
         }
 
         public ModSet[] OnOutcome(Actor owner, int diceRoll, int targetDefence)
         {
+            var moving = owner.CreateStateInstance(nameof(Moving), new TimeLifecycle(TimePoints.Encounter(1)));
             var res = new List<ModSet>()
             {
-                owner.GetState(nameof(Moving))!
+                moving
             };
 
             return res.ToArray();
         }
-
     }
 }

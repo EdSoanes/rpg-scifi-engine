@@ -8,34 +8,61 @@ using System.Linq.Expressions;
 
 namespace Rpg.ModObjects.States
 {
-    public abstract class State : ModSet
+    public abstract class State
     {
-        [JsonProperty] public bool? ForcedOn { get; protected set; }
+        protected RpgGraph Graph { get; set; }
+
+        [JsonProperty] public string Id { get; private set; }
+        [JsonProperty] public string Name { get; protected set; }
+        [JsonProperty] public string? OwnerId { get; private set; }
+        [JsonProperty] public string? OwnerArchetype { get; private set; }
+
+        public ILifecycle Lifecycle { get => ForcedLifecycle ?? ConditionalLifecycle; }
+        [JsonProperty] protected ILifecycle ConditionalLifecycle { get; set; }
+        [JsonProperty] protected ILifecycle? ForcedLifecycle { get; set; }
+
         [JsonProperty] public bool ConditionallyOn { get; protected set; }
-        public bool IsOn { get => (ForcedOn != null && ForcedOn.Value) || ConditionallyOn; }
+        public bool IsOn { get => Lifecycle.Expiry == LifecycleExpiry.Active; }
 
         [JsonConstructor] protected State() { }
 
         protected State(RpgObject owner)
-            : base(owner.Id, owner.Archetype)
         {
+            Id = this.NewId();
+            Name = GetType().Name;
+            OwnerId = owner.Id;
+            OwnerArchetype = owner.Archetype;
+        }
+
+        internal abstract void FillStateSet(ModSet modSet);
+
+        internal void OnAdding(RpgGraph graph)
+        {
+            Graph = graph;
         }
 
         public bool On()
         {
-            ForcedOn = true;
+            if (ForcedLifecycle == null)
+            {
+                ForcedLifecycle = new PermanentLifecycle();
+                ForcedLifecycle.OnStartLifecycle(Graph!, Graph!.Time.Current);
+            }
+
+            return true;
+        }
+
+        public bool On(ILifecycle lifecycle)
+        {
+            ForcedLifecycle = lifecycle;
             return true;
         }
 
         public bool Off()
         {
-            ForcedOn = false;
+            ForcedLifecycle = null;
             return true;
         }
-
-        public void Release() => ForcedOn = null;
-
-        protected abstract LifecycleExpiry CalculateExpiry();
     }
 
     public abstract class State<T> : State
@@ -46,24 +73,28 @@ namespace Rpg.ModObjects.States
         public State(T owner)
             : base(owner)
         {
-            Lifecycle = new ConditionalLifecycle<State<T>>(Id, new RpgMethod<State<T>, LifecycleExpiry>(this, nameof(CalculateExpiry)));
-            WhenOn(owner);
+            ConditionalLifecycle = new ConditionalLifecycle<State<T>>(Id, new RpgMethod<State<T>, LifecycleExpiry>(this, nameof(CalculateExpiry)));
         }
 
-        protected abstract bool IsOnWhen(T owner);
+        protected virtual bool IsOnWhen(T owner)
+            => false;
 
-        protected abstract void WhenOn(T owner);
+        internal override void FillStateSet(ModSet modSet)
+        {
+            var owner = Graph!.GetEntity<T>(OwnerId)!;
+            OnFillStateSet(modSet, owner);
+        }
 
-        protected override LifecycleExpiry CalculateExpiry()
+        protected virtual void OnFillStateSet(ModSet modSet, T owner)
+        { }
+
+        protected virtual LifecycleExpiry CalculateExpiry()
         {
             LifecycleExpiry expiry;
-
-            if (ForcedOn == false)
-                expiry = LifecycleExpiry.Expired;
-
-            else if (ForcedOn == true)
-                expiry = LifecycleExpiry.Active;
-
+            if (ForcedLifecycle != null)
+            {
+                expiry = ForcedLifecycle.OnUpdateLifecycle(Graph!, Graph!.Time.Current);
+            }
             else
             {
                 var obj = Graph!.GetEntity<T>(OwnerId)!;
@@ -85,26 +116,26 @@ namespace Rpg.ModObjects.States
             return expiry;
         }
 
-        public State<T> Mod<TTargetValue>(T entity, Expression<Func<T, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-        {
-            var mod = new SyncedMod(OwnerId!)
-                .SetProps(entity, targetExpr, dice, valueFunc)
-                .Create();
+        //public State<T> Mod<TTargetValue>(T entity, Expression<Func<T, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+        //{
+        //    var mod = new SyncedMod(OwnerId!)
+        //        .SetProps(entity, targetExpr, dice, valueFunc)
+        //        .Create();
 
-            AddMods(mod);
+        //    AddMods(mod);
 
-            return this;
-        }
+        //    return this;
+        //}
 
-        public State<T> Mod<TTargetValue, TSourceValue>(T entity, Expression<Func<T, TTargetValue>> targetExpr, Expression<Func<T, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-        {
-            var mod = new SyncedMod(OwnerId!)
-                .SetProps(entity, targetExpr, entity, sourceExpr, valueFunc)
-                .Create();
+        //public State<T> Mod<TTargetValue, TSourceValue>(T entity, Expression<Func<T, TTargetValue>> targetExpr, Expression<Func<T, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+        //{
+        //    var mod = new SyncedMod(OwnerId!)
+        //        .SetProps(entity, targetExpr, entity, sourceExpr, valueFunc)
+        //        .Create();
 
-            AddMods(mod);
+        //    AddMods(mod);
 
-            return this;
-        }
+        //    return this;
+        //}
     }
 }

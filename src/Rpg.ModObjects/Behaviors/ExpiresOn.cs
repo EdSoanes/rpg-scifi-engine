@@ -11,7 +11,8 @@ namespace Rpg.ModObjects.Behaviors
 
         public ExpiresOn(int value)
             : base(ModType.Standard)
-        { }
+        { 
+        }
 
         public override void OnAdding(RpgGraph graph, Prop modProp, Mod mod)
         {

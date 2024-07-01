@@ -21,6 +21,6 @@ namespace Rpg.ModObjects.Actions
         protected override bool IsOnWhen(RpgEntity owner)
             => false;
 
-        protected override void WhenOn(RpgEntity owner) { }
+        protected override void OnFillStateSet(ModSet modSet, RpgEntity owner) { }
     }
 }

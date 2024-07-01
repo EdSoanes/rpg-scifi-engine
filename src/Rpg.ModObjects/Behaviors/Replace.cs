@@ -1,10 +1,13 @@
 ﻿using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
+using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects.Behaviors
 {
     public class Replace : BaseBehavior
     {
+        [JsonConstructor] protected Replace() { }
+
         public Replace(ModType modType)
         {
             Type = modType;
@@ -13,7 +16,7 @@ namespace Rpg.ModObjects.Behaviors
         public override void OnAdding(RpgGraph graph, Prop modProp, Mod mod)
         {
             base.OnAdding(graph, modProp, mod);
-            var oldMods = modProp.Get(mod.Behavior.Type, mod.Name);
+            var oldMods = modProp.Get((x) => x.Behavior.Type == mod.Behavior.Type && x.Name == mod.Name);
 
             foreach (var oldMod in oldMods)
                 modProp.Remove(oldMod);

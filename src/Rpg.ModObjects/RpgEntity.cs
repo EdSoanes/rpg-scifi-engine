@@ -6,7 +6,7 @@ using System.Collections.Specialized;
 
 namespace Rpg.ModObjects
 {
-    public class RpgEntity : RpgObject, INotifyCollectionChanged
+    public class RpgEntity : RpgObject
     {
         [JsonProperty] internal StateStore StateStore { get; private set; }
         [JsonProperty] internal ActionStore ActionStore { get; private set; }
@@ -25,7 +25,7 @@ namespace Rpg.ModObjects
         }
 
         public bool IsStateOn(string state)
-            => (StateStore[state]?.Expiry ?? LifecycleExpiry.Expired) == LifecycleExpiry.Active;
+            => StateStore[state]?.IsOn ?? false;
 
         public bool SetStateOn(string state)
             => StateStore[state]?.On() ?? false;
@@ -33,16 +33,14 @@ namespace Rpg.ModObjects
         public bool SetStateOff(string state)
             => StateStore[state]?.Off() ?? false;
 
-        public State? GetState(string state)
-            => StateStore[state];
-
         public State[] GetStates()
             => StateStore.Get();
 
 
-        public bool IsActionEnabled<TOwner>(string action, RpgEntity initiator)
+        public bool IsActionEnabled<TOwner, TInitiator>(string action, TInitiator initiator)
             where TOwner : RpgEntity
-                => GetAction(action)?.IsEnabled<TOwner>((this as TOwner)!, initiator) ?? false;
+            where TInitiator : RpgEntity
+                => GetAction(action)?.IsEnabled((this as TOwner)!, initiator) ?? false;
 
         public Actions.Action? GetAction(string action)
             => ActionStore[action];

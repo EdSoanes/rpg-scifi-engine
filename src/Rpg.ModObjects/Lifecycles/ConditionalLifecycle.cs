@@ -28,11 +28,6 @@ namespace Rpg.ModObjects.Lifecycles
             : this(entityId, conditional, conditional)
         { }
 
-        public override void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
-        {
-            base.OnBeginningOfTime(graph, entity);
-        }
-
         public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
         {
             var owner = graph.Locate<TOwner>(OwnerId);

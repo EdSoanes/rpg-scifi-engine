@@ -84,7 +84,7 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new RpgGraph(entity);
 
-            var modCount = graph.GetMods().Count();
+            var modCount = graph.GetActiveMods().Count();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
 
@@ -98,7 +98,7 @@ namespace Rpg.ModObjects.Tests
             graph.Time.SetTime(TimePoints.BeginningOfEncounter);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
-            Assert.That(graph.GetMods().Count(), Is.EqualTo(modCount));
+            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(modCount));
         }
 
         [Test]
@@ -107,7 +107,7 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new RpgGraph(entity);
 
-            var modCount = graph.GetMods().Count();
+            var modCount = graph.GetActiveMods().Count();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
 
@@ -121,7 +121,7 @@ namespace Rpg.ModObjects.Tests
             graph.Time.SetTime(TimePoints.EndOfEncounter);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
-            Assert.That(graph.GetMods().Count(), Is.EqualTo(modCount));
+            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(modCount));
         }
 
         [Test]

@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Rpg.ModObjects.Meta.Attributes;
+using Rpg.ModObjects.Lifecycles;
 
 namespace Rpg.Sys.Actions
 {
@@ -20,7 +21,7 @@ namespace Rpg.Sys.Actions
         public Move(Actor owner)
             : base(owner) { }
 
-        public override bool IsEnabled<TOwner>(TOwner owner, RpgEntity initiator)
+        public override bool IsEnabled<TOwner, TInitiator>(TOwner owner, TInitiator initiator)
             => true;
 
         public ModSet OnCost(Actor owner, int distance)
@@ -41,10 +42,11 @@ namespace Rpg.Sys.Actions
             var moveSet = new ModSet(owner)
                 .AddMod(new TurnMod(), owner, x => x.Movement.Speed.Current, distance);
 
+            var moving = owner.CreateStateInstance(nameof(Move), new TimeLifecycle(TimePoints.Encounter(1)));
             var res = new List<ModSet>
             {
                 moveSet,
-                owner.GetState(nameof(Move))!
+                moving
             };
 
             return res.ToArray();

@@ -1,14 +1,19 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Reflection;
+using Rpg.ModObjects.Time;
+using Rpg.ModObjects.Values;
+using System.Linq.Expressions;
 
 namespace Rpg.ModObjects.Actions
 {
     public abstract class Action
     {
+        protected RpgGraph Graph { get; private set; }
+
         [JsonProperty] public string Id { get; private set; }
         [JsonProperty] public string Name { get; private set; }
-        [JsonProperty] public string? OwnerId { get; private set; }
+        [JsonProperty] public string OwnerId { get; private set; }
         [JsonProperty] public string OwnerArchetype { get; private set; }
 
         [JsonProperty] internal RpgMethod<Action, ModSet> OnCost { get; private set; }
@@ -34,8 +39,70 @@ namespace Rpg.ModObjects.Actions
             Name = GetType().Name;
         }
 
-        public abstract bool IsEnabled<TOwner>(TOwner owner, RpgEntity initiator)
-            where TOwner : RpgEntity;
+        public void OnBeforeTime(RpgGraph graph)
+        {
+            Graph = graph;
+        }
+
+        internal string ActResultProp(int actionNo)
+            => $"{GetType().Name}_ActResult_{actionNo}";
+
+        internal string OutcomeResultProp(int actionNo)
+            => $"{GetType().Name}_OutcomeResult_{actionNo}";
+
+        internal Dice ActResult(RpgEntity initiator, int actionNo)
+            => Graph.CalculatePropValue(initiator, ActResultProp(actionNo)) ?? Dice.Zero;
+
+        internal Dice OutcomeResult(RpgEntity initiator, int actionNo)
+            => Graph.CalculatePropValue(initiator, OutcomeResultProp(actionNo)) ?? Dice.Zero;
+
+        protected void ActResultMod<TInitiator>(int actionNo, ModSet modSet, TInitiator initiator, string name, Dice dice)
+            where TInitiator : RpgEntity
+        {
+            modSet.AddMod(new TurnMod().SetName(name), initiator, ActResultProp(actionNo), dice);
+        }
+
+        protected void ActResultMod<TInitiator, TSourceValue>(int actionNo, ModSet modSet, TInitiator initiator, Expression<Func<TInitiator, TSourceValue>> sourceExpr)
+            where TInitiator : RpgEntity
+        {
+            modSet.AddMod(new TurnMod(), initiator, ActResultProp(actionNo), sourceExpr);
+        }
+
+        protected void ActResultMod<TInitiator>(int actionNo, ModSet modSet, TInitiator initiator, string sourceProp)
+            where TInitiator : RpgEntity
+        {
+            modSet.AddMod(new TurnMod(), initiator, ActResultProp(actionNo), sourceProp);
+        }
+
+        protected void DiceRollMod<TInitiator, TSource, TSourceValue>(int actionNo, ModSet modSet, TInitiator initiator, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr)
+            where TInitiator : RpgEntity
+            where TSource : RpgObject
+        {
+            modSet.AddMod(new TurnMod(), initiator, ActResultProp(actionNo), source, sourceExpr);
+        }
+
+        protected void OutcomeMod<TInitiator>(int actionNo, ModSet modSet, TInitiator initiator, string name, Dice dice)
+            where TInitiator : RpgEntity
+        {
+            modSet.AddMod(new TurnMod().SetName(name), initiator, OutcomeResultProp(actionNo), dice);
+        }
+
+        protected void OutcomeMod<TInitiator, TSourceValue>(int actionNo, ModSet modSet, TInitiator initiator, Expression<Func<TInitiator, TSourceValue>> sourceExpr)
+            where TInitiator : RpgEntity
+        {
+            modSet.AddMod(new TurnMod(), initiator, OutcomeResultProp(actionNo), sourceExpr);
+        }
+
+        protected void OutcomeMod<TInitiator, TSource, TSourceValue>(int actionNo, ModSet modSet, TInitiator initiator, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr)
+            where TInitiator : RpgEntity
+            where TSource : RpgObject
+        {
+            modSet.AddMod(new TurnMod(), initiator, OutcomeResultProp(actionNo), source, sourceExpr);
+        }
+
+        public abstract bool IsEnabled<TOwner, TInitiator>(TOwner owner, TInitiator initiator)
+            where TOwner : RpgEntity
+            where TInitiator : RpgEntity;
 
         public RpgArgSet CostArgs()
             => OnCost.CreateArgSet();
@@ -56,12 +123,12 @@ namespace Rpg.ModObjects.Actions
             => OnOutcome.Execute(this, args);
     }
 
-    public abstract class Action<T> : Action
-        where T : RpgEntity
+    public abstract class Action<TOwner> : Action
+        where TOwner : RpgEntity
     {
         [JsonConstructor] protected Action() { }
 
-        public Action(T owner)
+        public Action(TOwner owner)
             : base(owner)
         { }
     }

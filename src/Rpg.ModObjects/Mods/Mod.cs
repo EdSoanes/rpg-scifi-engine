@@ -22,7 +22,7 @@ namespace Rpg.ModObjects.Mods
         [JsonProperty] public ILifecycle Lifecycle { get; protected set; }
         [JsonProperty] public bool IsBaseInitMod { get => Behavior.Type == ModType.Initial; }
         [JsonProperty] public bool IsBaseOverrideMod { get => Behavior.Type == ModType.Override; }
-        [JsonProperty] public bool IsBaseMod { get => IsBaseInitMod || IsBaseOverrideMod || Behavior.Type == ModType.Base; }
+        [JsonProperty] public bool IsBaseMod { get => Behavior.Type == ModType.Base; }
 
         public LifecycleExpiry Expiry { get => (int)Lifecycle.Expiry > (int)Behavior.Expiry ? Lifecycle.Expiry : Behavior.Expiry; }
 

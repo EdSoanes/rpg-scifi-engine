@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Behaviors;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
@@ -9,13 +10,6 @@ namespace Rpg.ModObjects
 {
     public class RpgGraph
     {
-        private static JsonSerializerSettings JsonSettings = new JsonSerializerSettings
-        {
-            TypeNameHandling = TypeNameHandling.Auto,
-            NullValueHandling = NullValueHandling.Include,
-            Formatting = Formatting.Indented
-        };
-
         private List<PropRef> UpdatedProps = new List<PropRef>();
 
         [JsonProperty] public RpgObject Context { get; private set; }
@@ -51,25 +45,35 @@ namespace Rpg.ModObjects
             return null;
         }
 
-        public Mod[] GetMods(PropRef? propRef, bool filtered = true)
-            => GetEntity(propRef?.EntityId)?.PropStore.GetMods(propRef!.Prop, filtered) ?? Array.Empty<Mod>();
+        public Mod[] GetActiveMods(RpgObject? rpgObj, string prop)
+            => rpgObj?.PropStore.GetMods(prop, active: true) 
+                    ?? Array.Empty<Mod>();
+
+        public Mod[] GetActiveMods(PropRef? propRef)
+            => GetEntity(propRef?.EntityId)
+                ?.PropStore.GetMods(propRef!.Prop, active: true) 
+                    ?? Array.Empty<Mod>();
+
+        public Mod[] GetActiveMods()
+            => ObjectStore.Values
+                .SelectMany(x => x.PropStore.GetMods(active: true))
+                .ToArray()
+                    ?? Array.Empty<Mod>();
+
+        public Mod[] GetActiveMods(Func<Mod, bool> filterFunc)
+            => ObjectStore.Values
+                .SelectMany(x => x.PropStore.GetMods(active: true))
+                .Where(x => filterFunc(x))
+                .ToArray()
+                    ?? Array.Empty<Mod>();
 
         public Mod[] GetMods(PropRef? propRef, Func<Mod, bool> filterFunc)
-            => GetEntity(propRef?.EntityId)?.PropStore.GetMods(propRef!.Prop, filterFunc) ?? Array.Empty<Mod>();
+            => GetEntity(propRef?.EntityId)
+                ?.PropStore.GetMods(propRef!.Prop, filterFunc) 
+                    ?? Array.Empty<Mod>();
 
-        public Mod[] GetMods(RpgObject? rpgObj, string prop, Func<Mod, bool> filterFunc)
-            => rpgObj?.PropStore.GetMods(prop, filterFunc) ?? Array.Empty<Mod>();
-
-        public Mod[] GetMods(RpgObject? rpgObj, string prop, bool filtered = true)
-            => rpgObj?.PropStore.GetMods(prop, filtered) ?? Array.Empty<Mod>();
-
-        public Mod[] GetMods(RpgObject? rpgObj, bool filtered = true)
-            => rpgObj?.PropStore.GetMods(filtered).ToArray() 
-                ?? Array.Empty<Mod>();
-
-        public Mod[] GetMods(bool filtered = true)
-            => ObjectStore.Values
-                .SelectMany(x => GetMods(x, filtered)).ToArray() 
+        public Mod[] GetActiveMods(RpgObject? rpgObj, string prop, Func<Mod, bool> filterFunc)
+            => rpgObj?.PropStore.GetMods(prop, (x) => x.Lifecycle.Expiry == LifecycleExpiry.Active && filterFunc(x)) 
                 ?? Array.Empty<Mod>();
 
         public void AddMods(params Mod[] mods)
@@ -286,8 +290,8 @@ namespace Rpg.ModObjects
                 return null;
 
             var mods = filterFunc != null
-                ? GetMods(entity, prop, filterFunc)
-                : GetMods(entity, prop);
+                ? GetActiveMods(entity, prop, filterFunc)
+                : GetActiveMods(entity, prop);
 
             var dice = CalculateModsValue(mods);
             return dice;
@@ -296,8 +300,22 @@ namespace Rpg.ModObjects
         public Dice CalculateModsValue(Mod[] mods)
         {
             var dice = Dice.Zero;
-            foreach (var mod in mods)
+            foreach (var mod in mods.Where(x => !(x.Behavior is Threshold)))
                 dice += CalculateModValue(mod);
+
+            return ApplyThreshold(mods, dice);
+        }
+
+        private Dice ApplyThreshold(Mod[] mods, Dice dice)
+        {
+            var threshold = mods.FirstOrDefault(x => x.Behavior is Threshold)?.Behavior as Threshold;
+            if (threshold != null && dice.IsConstant)
+            {
+                if (dice.Roll() < threshold.Min)
+                    dice = threshold.Min;
+                else if (dice.Roll() > threshold.Max)
+                    dice = threshold.Max;
+            }
 
             return dice;
         }
@@ -331,7 +349,7 @@ namespace Rpg.ModObjects
 
             if (!propExists)
             {
-                var mods = GetMods(entity, prop);
+                var mods = GetActiveMods(entity, prop);
                 var dice = CalculateModsValue(mods);
 
                 return dice;

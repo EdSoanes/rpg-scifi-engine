@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Behaviors;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time;
-using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Props
 {
@@ -14,34 +14,21 @@ namespace Rpg.ModObjects.Props
         {
         }
 
-        public Mod[] Get(RpgGraph graph)
+        public Mod[] GetActive()
         {
-            var activeModifiers = Mods
-                .Where(x => x.Expiry == LifecycleExpiry.Active);
+            if (Mods.Any(x => x.IsBaseOverrideMod))
+                return Mods
+                    .Where(x => x.Expiry == LifecycleExpiry.Active && (x.IsBaseOverrideMod || x.Behavior is Threshold))
+                    .ToArray();
 
-            var res = activeModifiers
-                .Where(x => !x.IsBaseMod)
-                .ToList();
-
-            var baseMods = activeModifiers
-                .Where(x => x.IsBaseOverrideMod);
-
-            if (!baseMods.Any())
-                baseMods = activeModifiers
-                    .Where(x => x.IsBaseMod);
-
-            res.AddRange(baseMods);
-            return res.ToArray();
+            return Mods
+                    .Where(x => x.Expiry == LifecycleExpiry.Active)
+                    .ToArray();
         }
 
-        public Mod[] Get(ModType modType)
+        public Mod[] Get(Func<Mod, bool> filterFunc)
             => Mods
-                .Where(x => x.Behavior.Type == modType)
-                .ToArray();
-
-        public Mod[] Get(ModType modType, string modName)
-            => Mods
-                .Where(x => x.Behavior.Type == modType && x.Name == modName)
+                .Where(x => filterFunc(x))
                 .ToArray();
 
         public bool Contains(Mod mod)
@@ -52,32 +39,6 @@ namespace Rpg.ModObjects.Props
         {
             if (!Contains(mod))
                 Mods.Add(mod);
-        }
-
-        internal void Combine(RpgGraph graph, Mod mod)
-        {
-            var entity = graph.GetEntity(mod.EntityId);
-            var oldValue = graph.CalculatePropValue(entity, mod.Prop, x => x.Behavior.Type == mod.Behavior.Type && x.Name == mod.Name);
-            var newValue = (oldValue ?? Dice.Zero) + graph?.CalculateModValue(mod) ?? Dice.Zero;
-
-            mod.SetSource(newValue);
-            var oldMods = Get(mod.Behavior.Type, mod.Name);
-            foreach (var oldMod in oldMods)
-                Remove(oldMod);
-
-            if (mod.SourceValue != null && mod.SourceValue != Dice.Zero)
-                Add(mod);
-        }
-
-        internal void Replace(Mod mod)
-        {
-            var oldMods = Get(mod.Behavior.Type, mod.Name);
-            foreach (var oldMod in oldMods)
-                Remove(oldMod);
-
-            //Don't add if the source is a Value without a ValueFunction and the Value = null
-            if (mod.SourcePropRef != null || mod.SourceValue != null || mod.SourceValueFunc.IsCalc)
-                Add(mod);
         }
 
         public Mod? Remove(string id)

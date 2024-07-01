@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.States;
 using Rpg.ModObjects.Tests.Models;
 
@@ -15,7 +16,7 @@ namespace Rpg.ModObjects.Tests.States
         protected override bool IsOnWhen(ModdableEntity owner)
             => owner.Melee.Roll() >= 10;
 
-        protected override void WhenOn(ModdableEntity owner)
-            => Mod(owner, x => x.Health, 10);
+        protected override void OnFillStateSet(ModSet modSet, ModdableEntity owner)
+            => modSet.AddMod(new SyncedMod(modSet.OwnerId!), owner, x => x.Health, 10);
     }
 }

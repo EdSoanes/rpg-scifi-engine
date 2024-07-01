@@ -1,12 +1,36 @@
 ﻿using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Reflection;
+using Rpg.ModObjects.States;
 using Rpg.ModObjects.Tests.Models;
 using Rpg.ModObjects.Tests.States;
-using Rpg.ModObjects.Time;
-using System.Reflection;
 
 namespace Rpg.ModObjects.Tests
 {
+    public class StateEntity : RpgEntity
+    {
+        public int Value { get; protected set; } = 4;
+        public int BuffedValue { get; protected set; }
+
+        protected override void OnLifecycleStarting()
+        {
+            base.OnLifecycleStarting();
+            this.InitActionsAndStates(Graph!);
+        }
+    }
+
+    public class Buff : State<StateEntity>
+    {
+        public Buff(StateEntity owner)
+            : base(owner)
+        { }
+
+        protected override bool IsOnWhen(StateEntity owner)
+            => owner.Value >= 10;
+
+        protected override void OnFillStateSet(ModSet modSet, StateEntity owner)
+            => modSet.AddMod(new SyncedMod(modSet.Id), owner, x => x.BuffedValue, 10);
+    }
+
     public class ModStateTests
     {
         [SetUp]
@@ -36,21 +60,21 @@ namespace Rpg.ModObjects.Tests
         [Test]
         public void ActivateBuffState_DecreaseMeleeTo4_VerifyValues()
         {
-            var entity = new ModdableEntity();
+            var entity = new StateEntity();
             var graph = new RpgGraph(entity);
 
-            entity.AddMod(new PermanentMod("mymod"), x => x.Melee, 6);
+            entity.AddMod(new PermanentMod("mymod"), x => x.Value, 6);
             graph.Time.TriggerEvent();
 
-            Assert.That(entity.Melee.Roll(), Is.EqualTo(10));
-            Assert.That(entity.Health, Is.EqualTo(20));
+            Assert.That(entity.Value, Is.EqualTo(10));
+            Assert.That(entity.BuffedValue, Is.EqualTo(10));
 
-            var mods = graph.GetMods(entity, "Melee", mod => mod.Name == "mymod");
+            var mods = graph.GetActiveMods(entity, nameof(StateEntity.Value), mod => mod.Name == "mymod");
             graph.RemoveMods(mods);
             graph.Time.TriggerEvent();
 
-            Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
-            Assert.That(entity.Health, Is.EqualTo(10));
+            Assert.That(entity.Value, Is.EqualTo(4));
+            Assert.That(entity.BuffedValue, Is.EqualTo(0));
         }
 
         [Test]

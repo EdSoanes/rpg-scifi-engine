@@ -11,7 +11,6 @@ namespace Rpg.ModObjects.Meta.Attributes
         public string Unit { get; protected set; } = nameof(Int32);
         public int Min { get; protected set; } = int.MinValue;
         public int Max { get; protected set; } = int.MaxValue;
-        public string[]? Keys { get; protected set; }
 
         public IntegerUIAttribute()
         {

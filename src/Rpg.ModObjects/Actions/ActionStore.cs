@@ -10,7 +10,10 @@
             foreach (var action in actions)
             {
                 if (!Contains(action))
+                {
+                    action.OnBeforeTime(Graph!);
                     Items.Add(action.Name, action);
+                }
             }
         }
     }

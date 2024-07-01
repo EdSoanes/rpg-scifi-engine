@@ -1,13 +1,8 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Tests.Models;
 using Rpg.ModObjects.Time;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Tests.Actions
 {
@@ -18,7 +13,7 @@ namespace Rpg.ModObjects.Tests.Actions
         public TestAction(ModdableEntity owner)
             : base(owner) { }
 
-        public override bool IsEnabled<TOwner>(TOwner owner, RpgEntity initiator)
+        public override bool IsEnabled<TOwner, TInitiator>(TOwner owner, TInitiator initiator)
             => true;
 
         public ModSet OnCost(ModdableEntity owner, TestHuman initiator)
@@ -34,9 +29,10 @@ namespace Rpg.ModObjects.Tests.Actions
 
         public ModSet[] OnOutcome(ModdableEntity owner, TestHuman initiator, int diceRoll)
         {
+            var testing = owner.CreateStateInstance(nameof(TestAction), new TimeLifecycle(TimePoints.Encounter(1)));
             var res = new List<ModSet>
             {
-                owner.GetState(nameof(TestAction))!
+                testing
             };
 
             return res.ToArray();

@@ -3,10 +3,12 @@ using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
+using Rpg.ModObjects.Props.Attributes;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.ComponentModel;
+using System.Reflection;
 
 namespace Rpg.ModObjects
 {
@@ -85,6 +87,10 @@ namespace Rpg.ModObjects
                         this.InitMod(propInfo.Name, dice);
                     else if (val is int i)
                         this.InitMod(propInfo.Name, i);
+
+                    var threshold = propInfo.GetCustomAttribute<ThresholdAttribute>();
+                    if (threshold != null)
+                        this.ThresholdMod(propInfo.Name, threshold.Min, threshold.Max);
                 }
             }
 

@@ -18,24 +18,25 @@ namespace Rpg.ModObjects.Props
             return modProp;
         }
 
-        public Mod[] GetMods(bool filtered = true)
+        public Mod[] GetMods(bool active = true)
         {
-            return filtered
-                ? Items.Values.SelectMany(x => x.Get(Graph!)).ToArray()
+            return active
+                ? Items.Values.SelectMany(x => x.GetActive()).ToArray()
                 : Items.Values.SelectMany(x => x.Mods).ToArray();
         }
 
-        public Mod[] GetMods(string prop, bool filtered = true)
+        public Mod[] GetMods(string prop, bool active = true)
         {
-            var res = filtered
-                ? this[prop]?.Get(Graph!)
+            var res = active
+                ? this[prop]?.GetActive()
                 : this[prop]?.Mods?.ToArray();
 
-            return res ?? new Mod[0];
+            return res ?? Array.Empty<Mod>();
         }
 
         public Mod[] GetMods(string prop, Func<Mod, bool> filterFunc)
-            => this[prop]?.Mods.Where(x => filterFunc(x)).ToArray() ?? Array.Empty<Mod>();
+            => this[prop]
+                ?.Get(filterFunc) ?? Array.Empty<Mod>();
 
         public Prop Create(string prop)
         {

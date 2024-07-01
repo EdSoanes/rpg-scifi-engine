@@ -6,19 +6,11 @@ using System.Linq.Expressions;
 
 namespace Rpg.ModObjects.Mods
 {
-    public class ModSet : ILifecycle
+    public class ModSet
     {
-        protected RpgGraph? Graph { get; private set; }
-
         [JsonProperty] public string Id { get; private set; }
         [JsonProperty] public string? OwnerId { get; private set; }
         [JsonProperty] public string? OwnerArchetype { get; private set; }
-
-        [JsonProperty] public string? InitiatorId { get; private set; }
-        [JsonProperty] public string? InitiatorArchetype { get; private set; }
-
-        [JsonProperty] public string? RecipientId { get; private set; }
-        [JsonProperty] public string? RecipientArchetype { get; private set; }
 
         [JsonProperty] public string Name { get; set; }
 
@@ -44,32 +36,10 @@ namespace Rpg.ModObjects.Mods
             Name = name ?? GetType().Name;
         }
 
-        public ModSet(string name, ILifecycle lifecycle, params Mod[] mods)
-            : this(lifecycle, name)
-        {
-            AddMods(mods);
-        }
-
-        public ModSet AddOwner(RpgObject? owner)
+        public ModSet SetOwner(RpgObject? owner)
         {
             OwnerId = owner?.Id;
             OwnerArchetype = owner?.GetType().Name;
-
-            return this;
-        }
-
-        public ModSet AddRecipient(RpgObject? recipient)
-        {
-            RecipientId = recipient?.Id;
-            RecipientArchetype = recipient?.GetType().Name;
-
-            return this;
-        }
-
-        public ModSet AddInitiator(RpgObject? initiator)
-        {
-            InitiatorId = initiator?.Id;
-            InitiatorArchetype = initiator?.GetType().Name;
 
             return this;
         }
@@ -85,40 +55,14 @@ namespace Rpg.ModObjects.Mods
             return this;
         }
 
-        public Mod[] GetMods(string prop, Func<Mod, bool>? filterFunc = null)
-            => Mods.Where(x => x.Prop == prop && (filterFunc?.Invoke(x) ?? true)).ToArray();
-
-        public Dice GetValue(string entityId, string prop)
-        {
-            var mods = Mods.Where(x => x.EntityId == entityId && x.Prop == prop).ToArray();
-            var val = Graph!.CalculateModsValue(mods.ToArray());
-
-            return val;
-        }
-           
-        public virtual void SetExpired(TimePoint currentTime)
+        public virtual void SetExpired(TimePoint currentTime) 
             => Lifecycle.SetExpired(currentTime);
 
-        public void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        public void OnAdding(RpgObject? entity = null)
         {
-            Graph = graph;
             OwnerId ??= entity?.Id;
-            Lifecycle.OnBeforeTime(graph, entity);
+            OwnerArchetype ??= entity?.Archetype;
         }
-
-        public void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
-        {
-            if (!Mods.Any())
-                Mods = graph.GetMods().Where(x => x.OwnerId == Id).ToList();
-
-            Lifecycle.OnBeginningOfTime(graph, entity);
-        }
-
-        public LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
-            => Lifecycle.OnStartLifecycle(graph, currentTime);
-
-        public LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
-            => Lifecycle.OnUpdateLifecycle(graph, currentTime);
     }
 
     public static class ModSetExtensions

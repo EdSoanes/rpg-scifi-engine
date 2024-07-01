@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Values;
+﻿using Rpg.ModObjects.Behaviors;
+using Rpg.ModObjects.Values;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,17 @@ namespace Rpg.ModObjects.Mods
         {
             var mod = new InitialMod()
                 .SetProps(entity.Id, targetProp, dice)
+                .Create();
+
+            entity.AddMods(mod);
+        }
+
+        public static void ThresholdMod<TTarget>(this TTarget entity, string targetProp, int min, int max)
+            where TTarget : RpgObject
+        {
+            var mod = new InitialMod()
+                .SetBehavior(new Threshold(min, max))
+                .SetProps(entity.Id, targetProp, Dice.Zero)
                 .Create();
 
             entity.AddMods(mod);

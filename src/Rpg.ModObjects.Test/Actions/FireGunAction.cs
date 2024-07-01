@@ -14,7 +14,7 @@ namespace Rpg.ModObjects.Tests.Actions
         public FireGunAction(TestGun owner)
             : base(owner) { }
 
-        public override bool IsEnabled<TOwner>(TOwner owner, RpgEntity initiator)
+        public override bool IsEnabled<TOwner, TInitiator>(TOwner owner, TInitiator initiator)
             => owner.GetState(nameof(AmmoEmptyState))?.Off() ?? true;
 
         public ModSet OnCost(TestGun owner, TestHuman initiator)
@@ -23,28 +23,32 @@ namespace Rpg.ModObjects.Tests.Actions
                 .AddMod(new TurnMod(), initiator, x => x.PhysicalActionPoints.Current, -1);
         }
 
-        public ModSet OnAct(TestGun owner, TestHuman initiator, int targetDefence)
+        public ModSet OnAct(int actionNo, TestGun owner, TestHuman initiator, int targetDefence)
         {
-            return new ModSet(new TimeLifecycle(TimePoints.Encounter(1)))
-                .AddMod(new TurnMod(), initiator, $"{nameof(FireGunAction)}.{nameof(OnAct)}", "1d20")
-                .AddMod(new TurnMod(), initiator, $"{nameof(FireGunAction)}.{nameof(OnAct)}", x => x.MissileAttack)
-                .AddMod(new TurnMod(), initiator, $"{nameof(FireGunAction)}.{nameof(OnAct)}", -targetDefence);
+            var modSet = new ModSet(new TimeLifecycle(TimePoints.Encounter(1)));
+
+            ActResultMod(actionNo, modSet, initiator, "Base", "2d6");
+            ActResultMod(actionNo, modSet, initiator, x => x.MissileAttack);
+            ActResultMod(actionNo, modSet, initiator, "TargetDefence", -targetDefence);
+
+            return modSet;
         }
 
-        public ModSet[] OnOutcome(TestGun owner, TestHuman initiator, int target, int diceRoll)
+        public ModSet[] OnOutcome(int actionNo, TestGun owner, TestHuman initiator, int target, int diceRoll)
         {
-            var damage = new ModSet(new TimeLifecycle(TimePoints.Encounter(1)))
-                .AddMod(new TurnMod(), owner, $"{nameof(FireGunAction)}.{nameof(OnOutcome)}", x => x.Damage.Dice)
-                .AddMod(new TurnMod(), owner, $"{nameof(FireGunAction)}.{nameof(OnOutcome)}", initiator, x => x.Dexterity.Bonus);
+            var outcome = new ModSet(new TimeLifecycle(TimePoints.Encounter(1)));
+            OutcomeMod(actionNo, outcome, initiator, owner, x => x.Damage.Dice);
+            OutcomeMod(actionNo, outcome, initiator, x => x.Dexterity.Bonus);
 
             var ammo = new Modification<TestGun>(owner)
                 .AddMod(new PermanentMod(), owner, x => x.Ammo.Current, -1);
 
+            var firing = owner.CreateStateInstance(nameof(FireGunAction), new TimeLifecycle(TimePoints.Encounter(1)));
             var res = new List<ModSet>
             {
-                damage,
+                outcome,
                 ammo,
-                owner.GetState(nameof(FireGunAction))!
+                firing
             };
 
             return res.ToArray();

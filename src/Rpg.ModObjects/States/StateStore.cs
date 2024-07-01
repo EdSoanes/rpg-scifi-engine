@@ -37,52 +37,59 @@ namespace Rpg.ModObjects.States
             foreach (var state in states)
             {
                 if (!Contains(state.Name))
+                {
+                    state.OnAdding(Graph);
                     Items.Add(state.Name, state);
+                }
             }
-        }
-
-        public override void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
-        {
-            base.OnBeginningOfTime(graph, entity);
-            foreach (var state in Get())
-                state.OnBeginningOfTime(graph, entity);
         }
 
         public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
         {
-            var expiry = base.OnStartLifecycle(graph, currentTime, mod);
+            base.OnStartLifecycle(graph, currentTime, mod);
 
             foreach (var state in Get())
             {
-                var wasOn = state!.IsOn;
-                state.OnStartLifecycle(graph, currentTime);
-
-                if (wasOn && !state.IsOn)
-                    graph.RemoveMods(state.Mods.ToArray());
-                else if (!wasOn && state.IsOn)
-                    graph.AddMods(state.Mods.ToArray());
+                var stateExpiry = state.Lifecycle.OnStartLifecycle(graph, currentTime);
+                if (stateExpiry == LifecycleExpiry.Active)
+                {
+                    var entity = graph.GetEntity<RpgEntity>(state.OwnerId)!;
+                    if (graph.GetModSet(entity, state.Name) == null)
+                    {
+                        var stateModSet = entity.CreateStateInstance(state.Name);
+                        entity.AddModSet(stateModSet);
+                    }
+                }
             }
 
-            return expiry;
+            return LifecycleExpiry.Active;
         }
 
         public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
         {
-            var expiry = base.OnUpdateLifecycle(graph, currentTime, mod);
+            base.OnUpdateLifecycle(graph, currentTime, mod);
 
             foreach (var state in Get())
             {
-                var oldExpiry = state.Expiry;
-                var newExpiry = state.OnUpdateLifecycle(graph, currentTime);
-
-                if (oldExpiry != LifecycleExpiry.Active && newExpiry == LifecycleExpiry.Active)
-                    graph.AddMods(state.Mods.ToArray());
-
-                else if (oldExpiry == LifecycleExpiry.Active && newExpiry != LifecycleExpiry.Active)
-                    graph.RemoveMods(state.Mods.ToArray());
+                var stateExpiry = state.Lifecycle.OnUpdateLifecycle(graph, currentTime);
+                var entity = graph.GetEntity<RpgEntity>(state.OwnerId)!;
+                if (stateExpiry == LifecycleExpiry.Active)
+                {
+                    if (graph.GetModSet(entity, state.Name) == null)
+                    {
+                        var stateModSet = entity.CreateStateInstance(state.Name);
+                        entity.AddModSet(stateModSet);
+                    }
+                }
+                else
+                {
+                    var stateInstance = entity.GetStateInstance(state.Name);
+                    if (stateInstance != null)
+                        graph.RemoveModSet(stateInstance.Id);
+                }
             }
 
-            return expiry;
+            return LifecycleExpiry.Active;
         }
     }
 }

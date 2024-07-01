@@ -13,21 +13,20 @@ namespace Rpg.ModObjects.Mods
 
         public bool Add(ModSet modSet)
         {
-            if (!Contains(modSet))
+            if (!string.IsNullOrEmpty(modSet.OwnerId) && modSet.OwnerId != EntityId)
+                throw new InvalidOperationException("ModSet.OwnerId is set but does not match the ModSetStore.EntityId");
+
+            if (!Contains(modSet.Id))
             {
-                if (string.IsNullOrEmpty(modSet.Name) || !Get().Any(x => x.Name == modSet.Name))
-                {
-                    var entity = Graph!.GetEntity(EntityId);
-                    modSet.OnBeforeTime(Graph, entity);
-                    modSet.OnBeginningOfTime(Graph, entity);
+                var entity = Graph!.GetEntity(EntityId);
+                modSet.OnAdding(entity);
 
-                    Items.Add(modSet.Id, modSet);
+                Items.Add(modSet.Id, modSet);
 
-                    Graph!.AddMods(modSet.Mods.ToArray());
-                    modSet.OnStartLifecycle(Graph!, Graph.Time.Current);
+                Graph!.AddMods(modSet.Mods.ToArray());
+                modSet.Lifecycle.OnStartLifecycle(Graph!, Graph.Time.Current);
 
-                    return true;
-                }
+                return true;
             }
 
             return false;
@@ -55,19 +54,17 @@ namespace Rpg.ModObjects.Mods
                 Remove(existing.Id);
         }
 
-        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
-        {
-            base.OnBeforeTime(graph, entity);
-            foreach (var modSet in Get())
-                modSet.OnBeforeTime(graph, entity);
-        }
-
         public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
         {
             var expiry = base.OnStartLifecycle(graph, currentTime, mod);
-            
+
             foreach (var modSet in Get())
-                modSet.OnStartLifecycle(graph, currentTime, mod);
+            {
+                if (!modSet.Mods.Any())
+                    modSet.Mods.AddRange(graph.GetActiveMods(x => x.OwnerId == modSet.Id));
+
+                modSet.Lifecycle.OnStartLifecycle(graph, currentTime, mod);
+            }
 
             return expiry;
         }
@@ -78,7 +75,7 @@ namespace Rpg.ModObjects.Mods
             var toRemove = new List<ModSet>();
             foreach (var modSet in Get())
             {
-                modSet.OnUpdateLifecycle(graph, currentTime);
+                modSet.Lifecycle.OnUpdateLifecycle(graph, currentTime);
                 if (modSet.Lifecycle.Expiry == LifecycleExpiry.Remove)
                     toRemove.Add(modSet);
             }

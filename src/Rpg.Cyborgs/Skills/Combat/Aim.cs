@@ -14,17 +14,12 @@ namespace Rpg.Cyborgs.Skills.Combat
             IsIntrinsic = true;
         }
 
-        public override bool IsEnabled<TOwner>(TOwner owner, RpgEntity initiator)
+        public override bool IsEnabled<TOwner, TInitiator>(TOwner owner, TInitiator initiator)
         {
             if (owner is Actor actor)
-            {
-                var isAiming = actor.GetState(nameof(Aiming))?.IsOn ?? false;
-                return !isAiming || actor.RangedAimBonus < 6;
-            }
+                return !actor.IsStateOn(nameof(Aiming)) || actor.RangedAimBonus < 6;
 
             return false;
         }
-
-
     }
 }

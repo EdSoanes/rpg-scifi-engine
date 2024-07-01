@@ -25,6 +25,32 @@ namespace Rpg.ModObjects
             return entity.Describe(propRef.Prop);
         }
 
+        public static ActionInstance<TOwner, TInitiator>? CreateActionInstance<TOwner, TInitiator>(this TOwner owner, TInitiator initiator, string actionName, int actionNo)
+            where TOwner : RpgEntity
+            where TInitiator : RpgEntity
+        {
+            var action = owner.GetAction(actionName);
+            return action != null
+                ? new ActionInstance<TOwner, TInitiator>(owner, initiator, action, actionNo)
+                : null;
+        }
+
+        public static State? GetState(this RpgEntity entity, string stateName)
+            => entity.StateStore[stateName] as State;
+
+        public static ModSet CreateStateInstance<T>(this T entity, string stateName, ILifecycle? lifecycle = null)
+            where T : RpgEntity
+        {
+            var state = entity.GetState(stateName)!;
+            var modSet = new ModSet(lifecycle ?? new PermanentLifecycle(), stateName).SetOwner(entity);
+            state.FillStateSet(modSet);
+            return modSet;
+        }
+
+        public static ModSet? GetStateInstance<T>(this T entity, string stateName)
+            where T : RpgEntity
+            => entity.ModSetStore.Get(stateName);
+
         public static T AddModSet<T>(this T entity, string name, System.Action<ModSet> addAction)
             where T : RpgObject
                 => AddModSet(entity, name, new PermanentLifecycle(), addAction);
@@ -33,7 +59,7 @@ namespace Rpg.ModObjects
             where T : RpgObject
         {
             var modSet = new ModSet(lifecycle, name)
-                .AddOwner(entity);
+                .SetOwner(entity);
 
             addAction.Invoke(modSet);
             entity.AddModSet(modSet);
@@ -44,19 +70,13 @@ namespace Rpg.ModObjects
         public static T InitActionsAndStates<T>(this T entity, RpgGraph graph)
             where T : RpgEntity
         {
-            var actions = entity.CreateActions();
+            var actions = entity.CreateOwnerActions();
             entity.ActionStore.Add(actions);
             entity.ActionStore.OnBeginningOfTime(graph, entity);
 
             var states = entity.CreateStates()
                 .Union(entity.CreateStateActions(actions))
                 .ToArray();
-
-            foreach (var state in states)
-            {
-                state.OnBeforeTime(graph, entity);
-                state.OnBeginningOfTime(graph, entity);
-            }
 
             entity.StateStore.Add(states);
             entity.StateStore.OnBeginningOfTime(graph, entity);

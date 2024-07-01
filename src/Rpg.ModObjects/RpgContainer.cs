@@ -13,8 +13,9 @@ namespace Rpg.ModObjects
         [JsonProperty] internal RpgEntityStore ContainerStore { get; private set; }
         public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
-        public RpgContainer()
-            : base()
+
+        public RpgContainer(string name)
+            : base(name)
         {
             ContainerStore = new RpgEntityStore(Id);
         }

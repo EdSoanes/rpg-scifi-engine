@@ -25,6 +25,12 @@ namespace Rpg.ModObjects.Mods
         public virtual Mod Create()
             => Create(Name ?? TargetPropRef.Prop);
 
+        public ModTemplate SetName(string name)
+        {
+            Name = name;
+            return this;
+        }
+
         public ModTemplate SetBehavior(BaseBehavior behavior)
         {
             Behavior = behavior;

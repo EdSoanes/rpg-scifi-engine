@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-
-
 namespace Rpg.ModObjects.Meta.Attributes
 {
     public abstract class SelectUIAttribute : MinZeroUIAttribute

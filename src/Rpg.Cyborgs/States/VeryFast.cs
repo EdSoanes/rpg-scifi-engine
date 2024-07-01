@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.States;
+﻿using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.States;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +12,5 @@ namespace Rpg.Cyborgs.States
     {
         protected override bool IsOnWhen(Actor owner)
             => owner.Reactions > 10;
-
-        protected override void WhenOn(Actor owner)
-        {
-        }
     }
 }

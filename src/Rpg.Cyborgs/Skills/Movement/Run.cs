@@ -17,7 +17,7 @@ namespace Rpg.Cyborgs.Skills.Movement
             IsIntrinsic = true;
         }
 
-        public override bool IsEnabled<TOwner>(TOwner owner, RpgEntity initiator)
+        public override bool IsEnabled<TOwner, TInitiator>(TOwner owner, TInitiator initiator)
             => true;
 
         public ModSet OnCost(Actor owner, int focusPoints)
@@ -33,9 +33,10 @@ namespace Rpg.Cyborgs.Skills.Movement
 
         public ModSet[] OnOutcome(Actor owner)
         {
+            var moving = owner.CreateStateInstance(nameof(Moving), new TimeLifecycle(TimePoints.Encounter(1)));
             var res = new List<ModSet>()
             {
-                owner.GetState(nameof(Moving))!
+                moving
             };
 
             return res.ToArray();

@@ -5,22 +5,59 @@ namespace Rpg.ModObjects.Actions
 {
     internal static class ReflectionExtensions
     {
-        public static Action[] CreateActions<T>(this T entity)
-            where T : RpgEntity
+        public static bool IsInitiatorActionType<TInitiator>(this Type? actionType, TInitiator entity)
+            where TInitiator : RpgEntity
         {
-            var types = RpgReflection.ScanForTypes<Action>()
-                .Where(x => x.BaseType!.IsGenericType && entity.GetType().IsAssignableFrom(x.BaseType!.GenericTypeArguments[0]));
+            while (actionType != null)
+            {
+                if (actionType.IsGenericType)
+                {
+                    var genericTypes = actionType.GetGenericArguments();
+                    if (genericTypes.Length == 2 && entity.GetType().IsAssignableFrom(genericTypes[1]))
+                        return true;
+                }
 
+                actionType = actionType.BaseType;
+            }
+
+            return false;
+        }
+
+        public static Action[] CreateOwnerActions<TOwner>(this TOwner entity)
+            where TOwner : RpgEntity
+        {
             var actions = new List<Action>();
+
+            var types = RpgReflection.ScanForTypes<Action>()
+                .Where(x => IsOwnerActionType(entity, x));
 
             foreach (var type in types)
             {
+
                 var action = (Action)Activator.CreateInstance(type, [entity])!;
                 if (entity.IsA(action.OwnerArchetype!)) 
                     actions.Add(action);
             }
 
             return actions.ToArray();
+        }
+
+        private static bool IsOwnerActionType<TOwner>(TOwner entity, Type? actionType) 
+            where TOwner : RpgEntity
+        {
+            while (actionType != null)
+            {
+                if (actionType.IsGenericType)
+                {
+                    var genericTypes = actionType.GetGenericArguments();
+                    if (genericTypes.Length == 1 && entity.GetType().IsAssignableFrom(genericTypes[0]))
+                        return true;
+                }
+
+                actionType = actionType.BaseType;
+            }
+
+            return false;
         }
 
         public static State[] CreateStateActions<T>(this T entity, Action[] actions)

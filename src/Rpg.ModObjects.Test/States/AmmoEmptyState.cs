@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.States;
 using Rpg.ModObjects.Tests.Models;
 
@@ -15,6 +16,8 @@ namespace Rpg.ModObjects.Tests.States
         protected override bool IsOnWhen(TestGun owner)
             => owner.Ammo.Current <= 0;
 
-        protected override void WhenOn(TestGun owner) { }
+        protected override void OnFillStateSet(ModSet modSet, TestGun owner)
+        {
+        }
     }
 }

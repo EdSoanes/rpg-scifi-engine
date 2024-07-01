@@ -1,9 +1,7 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Mods;
+﻿using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Tests.Models;
 using Rpg.ModObjects.Tests.States;
-using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects.Tests
 {
@@ -22,7 +20,7 @@ namespace Rpg.ModObjects.Tests
             var graph = new RpgGraph(entity);
 
             Assert.That(graph.GetEntities().Count(), Is.EqualTo(3));
-            var mods = graph.GetMods();
+            var mods = graph.GetActiveMods();
             Assert.That(mods.Count(), Is.EqualTo(11));
 
             Assert.That(entity.GetStates().Count(), Is.EqualTo(3));
@@ -119,19 +117,19 @@ namespace Rpg.ModObjects.Tests
             var graph = new RpgGraph(entity);
 
             Assert.That(entity.Health, Is.EqualTo(10));
-            Assert.That(graph.GetMods().Count(), Is.EqualTo(11));
+            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(11));
 
             entity.AddMod(new ExpireOnZeroMod(), x => x.Health, -10);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Health, Is.EqualTo(0));
-            Assert.That(graph.GetMods().Count(), Is.EqualTo(12));
+            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(12));
 
             entity.AddMod(new ExpireOnZeroMod(), x => x.Health, 10);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Health, Is.EqualTo(10));
-            Assert.That(graph.GetMods().Count(), Is.EqualTo(11));
+            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(11));
         }
     }
 }

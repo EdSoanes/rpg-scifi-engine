@@ -1,9 +1,7 @@
-﻿using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Reflection;
+﻿using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Tests.Actions;
 using Rpg.ModObjects.Tests.Models;
 using Rpg.ModObjects.Time;
-using System.Reflection;
 
 namespace Rpg.ModObjects.Tests
 {
@@ -22,7 +20,7 @@ namespace Rpg.ModObjects.Tests
             var recipient = new TestHuman();
             var gun = new TestGun();
 
-            var location = new RpgEntity("Room");
+            var location = new RpgContainer("Room");
             location.AddToStore("Room", initiator);
             location.AddToStore("Room", recipient);
             location.AddToStore("Room", gun);
@@ -53,38 +51,37 @@ namespace Rpg.ModObjects.Tests
             //Gun
             Assert.That(gun.GetActions().Count(), Is.EqualTo(1));
 
-            var fireGun = gun.GetAction(nameof(FireGunAction));
-            Assert.That(fireGun, Is.Not.Null);
+            var fireInst = gun.CreateActionInstance(initiator, nameof(FireGunAction), 0);
+            Assert.That(fireInst, Is.Not.Null);
 
-            var costArgs = fireGun.CostArgs();
-            costArgs["owner"] = gun;
-            costArgs["initiator"] = initiator;
+            fireInst.CostArgs["owner"] = gun;
+            fireInst.CostArgs["initiator"] = initiator;
 
-            var costModSet = fireGun.Cost(costArgs);
+            var costModSet = fireInst.Cost();
             initiator.AddModSet(costModSet);
             graph.Time.TriggerEvent();
 
-            var actArgs = fireGun.ActArgs();
-            actArgs["owner"] = gun;
-            actArgs["initiator"] = initiator;
-            actArgs["targetDefense"] = 2;
+            fireInst.ActArgs["owner"] = gun;
+            fireInst.ActArgs["initiator"] = initiator;
+            fireInst.ActArgs["targetDefense"] = 2;
 
-            var actModSet = fireGun.Act(actArgs);
-            gun.AddModSet(actModSet);
+            var actModSet = fireInst.Act();
+            initiator.AddModSet(actModSet);
             graph.Time.TriggerEvent();
 
-            var diceRoll = actModSet.GetValue(initiator.Id, $"{nameof(FireGunAction)}.{nameof(FireGunAction.OnAct)}");
-            Assert.That(diceRoll.ToString(), Is.EqualTo("1d20 + 2"));
+            var diceRoll = fireInst.ActResult;
+            Assert.That(diceRoll.ToString(), Is.EqualTo("2d6 + 2"));
 
-            var outcomeArgs = fireGun.OutcomeArgs();
-            outcomeArgs["owner"] = gun;
-            outcomeArgs["initiator"] = initiator;
-            outcomeArgs["diceRoll"] = 20;
-            outcomeArgs["target"] = 15;
+            fireInst.OutcomeArgs["owner"] = gun;
+            fireInst.OutcomeArgs["initiator"] = initiator;
+            fireInst.OutcomeArgs["diceRoll"] = 20;
+            fireInst.OutcomeArgs["target"] = 15;
 
-            var outcomeModSets = fireGun.Outcome(outcomeArgs);
+            var outcomeModSet = fireInst.Outcome();
+            initiator.AddModSet(actModSet);
             graph.Time.TriggerEvent();
 
+            var outcome = fireInst.Outcome;
 
             //Assert.That(fireGun, Is.Not.Null);
             //Assert.That(fireGun.DisabledWhen.Count(), Is.EqualTo(1));
@@ -109,13 +106,13 @@ namespace Rpg.ModObjects.Tests
         }
 
         [Test]
-        public void HumanShootsGun_ShootGunCmd_EnsureCmdValues()
+        public void HumanShootsGun_InLocation_EnsureCost()
         {
             var initiator = new TestHuman();
             var recipient = new TestHuman();
             var gun = new TestGun();
 
-            var location = new RpgEntity("Room");
+            var location = new RpgContainer("Room");
             location.AddToStore("Room", initiator);
             location.AddToStore("Room", recipient);
             location.AddToStore("Room", gun);
@@ -123,6 +120,17 @@ namespace Rpg.ModObjects.Tests
             var graph = new RpgGraph(location);
             graph.Time.SetTime(TimePoints.BeginningOfEncounter);
 
+            Assert.That(initiator.PhysicalActionPoints.Current, Is.EqualTo(5));
+
+            var fireInst = gun.CreateActionInstance(initiator, nameof(FireGunAction), 0)!;
+            fireInst.CostArgs["owner"] = gun;
+            fireInst.CostArgs["initiator"] = initiator;
+
+            var costModSet = fireInst.Cost();
+            initiator.AddModSet(costModSet);
+            graph.Time.TriggerEvent();
+
+            Assert.That(initiator.PhysicalActionPoints.Current, Is.EqualTo(4));
             //var fireGun = gun.GetAction(nameof(FireGunAction))!;
             //var args = fireGun.ArgSet(initiator);
 
@@ -163,13 +171,13 @@ namespace Rpg.ModObjects.Tests
         }
 
         [Test]
-        public void HumanShootsGun_ShootGunCmd_InflictDamageCmd_EnsureOutcomeValues()
+        public void HumanShootsGun_InLocation_EnsureAct()
         {
             var initiator = new TestHuman();
             var recipient = new TestHuman();
             var gun = new TestGun();
 
-            var location = new RpgEntity("Room");
+            var location = new RpgContainer("Room");
             location.AddToStore("Room", initiator);
             location.AddToStore("Room", recipient);
             location.AddToStore("Room", gun);
@@ -177,32 +185,26 @@ namespace Rpg.ModObjects.Tests
             var graph = new RpgGraph(location);
             graph.Time.SetTime(TimePoints.BeginningOfEncounter);
 
-            //Get the gun command and the args needed to execute it
-            //var shootCmd = gun.GetCommand(nameof(TestGun.Shoot))!;
-            //var shootArgs = shootCmd
-            //    .ArgSet(initiator, recipient)
-            //    .Set("targetDefense", recipient.Defense)
-            //    .Set("targetRange", 10);
+            Assert.That(initiator.PhysicalActionPoints.Current, Is.EqualTo(5));
 
-            //var shootModSet = shootCmd.Create(shootArgs);
-            //var shootSubSets = shootModSet?.SubSets(graph).Where(x => !x.IsResolved);
+            var fireInst = gun.CreateActionInstance(initiator, nameof(FireGunAction), 0)!;
+            fireInst.CostArgs["owner"] = gun;
+            fireInst.CostArgs["initiator"] = initiator;
 
-            //shootCmd.Apply(shootModSet);
+            var costModSet = fireInst.Cost();
+            initiator.AddModSet(costModSet);
+            graph.Time.TriggerEvent();
 
-            //var target = shootCmd.GetTarget(initiator, shootModSet)!.Value;
-            //var outcome = target + 1;
+            fireInst.ActArgs["owner"] = gun;
+            fireInst.ActArgs["initiator"] = initiator;
+            fireInst.ActArgs["targetDefense"] = 2;
 
-            //var damageCmd = gun.GetCommand(shootCmd.OutcomeAction!);
-            //var damageArgs = damageCmd!
-            //    .ArgSet(initiator, recipient)
-            //    .SetTarget(target)
-            //    .SetOutcome(outcome);
+            var actModSet = fireInst.Act();
+            initiator.AddModSet(actModSet);
+            graph.Time.TriggerEvent();
 
-            //var damageModSet = damageCmd.Create(damageArgs);
-            //var damageRoll = damageModSet?.SubSets(graph).FirstOrDefault(x => !x.IsResolved);
-
-            //Assert.That(damageRoll, Is.Not.Null);
-            //Assert.That(damageRoll.Dice.ToString(), Is.EqualTo(damageRoll.Dice.ToString()));
+            Assert.That(graph.CalculatePropValue(initiator, $"{nameof(FireGunAction)}_ActResult_0")?.ToString(), Is.EqualTo("2d6 + 2"));
+            Assert.That(fireInst.ActResult.ToString(), Is.EqualTo("2d6 + 2"));
         }
 
         [Test]
@@ -212,7 +214,7 @@ namespace Rpg.ModObjects.Tests
             var recipient = new TestHuman();
             var gun = new TestGun();
 
-            var location = new RpgEntity("Room");
+            var location = new RpgContainer("Room");
             location.AddToStore("Room", initiator);
             location.AddToStore("Room", recipient);
             location.AddToStore("Room", gun);
