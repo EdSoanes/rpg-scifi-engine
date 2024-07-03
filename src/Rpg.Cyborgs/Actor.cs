@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.Cyborgs.Attributes;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Mods;
@@ -10,93 +11,133 @@ namespace Rpg.Cyborgs
     public abstract class Actor : RpgEntity
     {
         [JsonProperty]
-        [IntegerUI]
+        [IntegerUI(Group = "Stats")]
         public int Strength { get; protected set; }
 
         [JsonProperty]
-        [IntegerUI]
+        [IntegerUI(Group = "Stats")]
         public int Agility { get; protected set; }
 
         [JsonProperty]
-        [IntegerUI]
+        [IntegerUI(Group = "Stats")]
         public int Health { get; protected set; }
 
         [JsonProperty]
-        [IntegerUI]
+        [IntegerUI(Group = "Stats")]
         public int Brains { get; protected set; }
 
         [JsonProperty]
-        [IntegerUI]
+        [IntegerUI(Group = "Stats")]
         public int Insight { get; protected set; }
 
         [JsonProperty]
-        [IntegerUI]
+        [IntegerUI(Group = "Stats")]
         public int Charisma { get; protected set; }
 
-
         [JsonProperty]
         [Threshold(Min = 1)]
-        public int StaminaPoints { get; protected set; } = 12;
-
-        [JsonProperty]
-        [Threshold(Min = 0)]
-        public int CurrentStaminaPoints { get; protected set; }
-
-        [JsonProperty]
-        [Threshold(Min = 1)]
-        public int LifePoints { get; protected set; } = 6;
-
-        [JsonProperty]
-        [Threshold(Min = 0)]
-        public int CurrentLifePoints { get; protected set; }
-
-        [JsonProperty]
-        [Threshold(Min = 1)]
+        [IntegerUI(Group = "Stats")]
         public int FocusPoints { get; protected set; }
 
         [JsonProperty]
         [Threshold(Min = 0)]
+        [IntegerUI(Ignore = true)]
         public int CurrentFocusPoints { get; protected set; }
 
         [JsonProperty]
         [Threshold(Min = 0)]
+        [IntegerUI(Group = "Stats")]
         public int LuckPoints { get; protected set; } = 1;
 
         [JsonProperty]
         [Threshold(Min = 0)]
+        [IntegerUI(Ignore = true)]
         public int CurrentLuckPoints { get; protected set; }
 
         [JsonProperty]
-        [IntegerUI]
-        public int Defence { get; protected set; } = 7;
-
-        [JsonProperty]
-        [IntegerUI]
+        [IntegerUI(Group = "Stats")]
         public int Reactions { get; protected set; } = 7;
 
         [JsonProperty]
-        [IntegerUI]
+        [Threshold(Min = 1)]
+        [IntegerUI(Group = "Health")]
+        public int StaminaPoints { get; protected set; } = 12;
+
+        [JsonProperty]
+        [Threshold(Min = 0)]
+        [IntegerUI(Ignore = true)]
+        public int CurrentStaminaPoints { get; protected set; }
+
+        [JsonProperty]
+        [InjuryUI(Group = "Health")]
+        public int Head { get; protected set; }
+
+        [JsonProperty]
+        [InjuryUI(Group = "Health")]
+        public int Torso { get; protected set; }
+
+        [JsonProperty]
+        [InjuryUI(Group = "Health")]
+        public int LeftArm { get; protected set; }
+
+        [JsonProperty]
+        [InjuryUI(Group = "Health")]
+        public int RightArm { get; protected set; }
+
+        [JsonProperty]
+        [InjuryUI(Group = "Health")]
+        public int LeftLeg { get; protected set; }
+
+        [JsonProperty]
+        [InjuryUI(Group = "Health")]
+        public int RightLeg { get; protected set; }
+
+        [JsonProperty]
+        [Threshold(Min = 1)]
+        [IntegerUI(Group = "Health")]
+        public int LifePoints { get; protected set; } = 6;
+
+        [JsonProperty]
+        [Threshold(Min = 0)]
+        [IntegerUI(Ignore = true)]
+        public int CurrentLifePoints { get; protected set; }
+
+
+        [JsonProperty]
+        [IntegerUI(Group = "Combat")]
+        public int Defence { get; protected set; } = 7;
+
+        [JsonProperty]
+        [IntegerUI(Group = "Combat")]
         public int ArmourRating { get; protected set; } = 6;
 
         [JsonProperty]
-        [IntegerUI]
+        [IntegerUI(Group = "Combat")]
         public int UnarmedDamageBonus { get; protected set; }
         
         [JsonProperty]
-        [IntegerUI]
+        [IntegerUI(Group = "Combat")]
         public int ParryDamageReduction { get; protected set; }
 
         [JsonProperty]
-        [IntegerUI]
+        [IntegerUI(Group = "Combat")]
         public int RangedAttack { get; protected set; }
 
         [JsonProperty]
-        [IntegerUI]
+        [IntegerUI(Group = "Combat")]
         public int RangedAimBonus { get; protected set; }
 
         [JsonProperty]
-        [IntegerUI]
+        [IntegerUI(Group = "Combat")]
         public int MeleeAttack { get; protected set; }
+
+        [JsonProperty]
+        [Threshold(Min = 0)]
+        [IntegerUI(Ignore = true)]
+        public int Actions { get; protected set; }
+
+        public RpgContainer Hands { get; protected set; } = new RpgContainer(nameof(Hands));
+        public RpgContainer Wearing { get; protected set; } = new RpgContainer(nameof(Wearing));
 
         protected override void OnLifecycleStarting()
         {

@@ -88,9 +88,9 @@ namespace Rpg.ModObjects
                     else if (val is int i)
                         this.InitMod(propInfo.Name, i);
 
-                    var threshold = propInfo.GetCustomAttribute<ThresholdAttribute>();
-                    if (threshold != null)
-                        this.ThresholdMod(propInfo.Name, threshold.Min, threshold.Max);
+                    var (min, max) = propInfo.GetPropertyThresholds();
+                    if (min != null || max != null)
+                        this.ThresholdMod(propInfo.Name, min ?? int.MinValue, max ?? int.MaxValue);
                 }
             }
 

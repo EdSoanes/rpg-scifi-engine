@@ -18,7 +18,7 @@ namespace Rpg.Cyborgs.Actions
         }
 
         public override bool IsEnabled<TOwner, TInitiator>(TOwner owner, TInitiator initiator)
-            => true;
+            => (initiator as Actor)!.Hands.Contains(owner);
 
         public ModSet OnCost(int actionNo, MeleeWeapon owner, Actor initiator, int focusPoints)
         {

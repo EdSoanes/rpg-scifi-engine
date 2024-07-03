@@ -10,70 +10,48 @@ namespace Rpg.ModObjects
         [TextUI(Ignore = true)]
         public string EntityId { get; private set; }
     
-        [JsonProperty] internal RpgEntityStore ContainerStore { get; private set; }
-        public event NotifyCollectionChangedEventHandler? CollectionChanged;
+        [JsonProperty] internal List<string> ContainerStore { get; private set; } = new List<string>();
+        
+        private List<RpgEntity> _preloadedEntities = new List<RpgEntity>();
 
+        public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
         public RpgContainer(string name)
             : base(name)
         {
-            ContainerStore = new RpgEntityStore(Id);
         }
 
         public bool Contains(RpgEntity obj)
             => Contains(obj.Id);
 
         public bool Contains(string entityId)
-        {
-            foreach (var store in ContainerStore.Get())
-                if (store.Any(x => x.Id == entityId))
-                    return true;
+            => ContainerStore.Contains(entityId);
 
-            return false;
-        }
-
-        public string? ContainedInStore(RpgEntity entity)
-        {
-            foreach (var storeName in ContainerStore.Keys)
-                if (ContainerStore[storeName]!.Any(x => x.Id == entity.Id))
-                    return storeName;
-
-            return null;
-        }
-
-        public bool AddToStore(string storeName, RpgEntity obj)
+        public bool Add(RpgEntity obj)
         {
             if (Contains(obj))
                 return false;
 
-            var store = ContainerStore[storeName];
-            if (store == null)
-            {
-                store = new List<RpgEntity>();
-                ContainerStore[storeName] = store;
-            }
+            if (Graph == null)
+                _preloadedEntities.Add(obj);
+            else if (Graph.GetEntity(obj.Id) == null)
+                Graph!.AddEntity(obj);
 
-            store.Add(obj);
-            Graph?.AddEntity(obj);
-
+            ContainerStore.Add(obj.Id);
             CallCollectionChanged(NotifyCollectionChangedAction.Add);
 
             return true;
         }
 
-        public bool RemoveFromStore(RpgEntity obj)
+        public bool Remove(RpgEntity obj)
         {
-            var storeName = ContainedInStore(obj);
-            if (!string.IsNullOrEmpty(storeName))
-            {
-                var toRemove = ContainerStore[storeName]!.Single(x => x.Id == obj.Id);
-                ContainerStore[storeName]!.Remove(toRemove);
-                CallCollectionChanged(NotifyCollectionChangedAction.Remove);
+            if (!Contains(obj))
+                return false;
 
-                return true;
-            }
+            ContainerStore.Remove(obj.Id);
+            CallCollectionChanged(NotifyCollectionChangedAction.Remove);
 
-            return false;
+            return true;
         }
 
         protected void CallCollectionChanged(NotifyCollectionChangedAction action)
@@ -81,6 +59,14 @@ namespace Rpg.ModObjects
 
         public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
         {
+            foreach (var e in _preloadedEntities)
+            {
+                e.OnBeforeTime(graph, e);
+                graph.AddEntity(e);
+            }
+
+            _preloadedEntities.Clear();
+
             base.OnBeforeTime(graph, entity);
             this.EntityId ??= entity!.Id;
         }

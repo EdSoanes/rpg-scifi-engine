@@ -18,12 +18,13 @@ namespace Rpg.Cyborgs.Skills.Combat
         }
 
         public override bool IsEnabled<TOwner, TInitiator>(TOwner owner, TInitiator initiator)
-            => true;
+            => !initiator.IsStateOn(nameof(Parrying));
 
         public ModSet OnCost(Actor owner, Actor initiator, int focusPoints)
         {
             return new ModSet(new TimeLifecycle(TimePoints.BeginningOfEncounter))
-                .AddMod(new TurnMod(), owner, x => x.CurrentFocusPoints, -focusPoints);
+                .AddMod(new TurnMod(), owner, x => x.CurrentFocusPoints, -focusPoints)
+                .AddMod(new TurnMod(1, 1), initiator, x => x.Actions, -1);
         }
 
         public ModSet OnAct(int actionNo, Actor owner, Actor initiator, int focusPoints, int? abilityScore)
@@ -43,10 +44,10 @@ namespace Rpg.Cyborgs.Skills.Combat
 
         public ModSet[] OnOutcome(Actor owner, int diceRoll, int targetDefence)
         {
-            var moving = owner.CreateStateInstance(nameof(Moving), new TimeLifecycle(TimePoints.Encounter(1)));
+            var parrying = owner.CreateStateInstance(nameof(Parrying), new TimeLifecycle(TimePoints.Encounter(1)));
             var res = new List<ModSet>()
             {
-                moving
+                parrying
             };
 
             return res.ToArray();

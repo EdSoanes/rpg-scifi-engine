@@ -430,8 +430,8 @@ namespace Rpg.ModObjects
 
             foreach (var entity in Context.Traverse())
             {
-                AddEntity(entity);
                 entity.OnBeforeTime(this, entity);
+                AddEntity(entity);
             }
         }
 

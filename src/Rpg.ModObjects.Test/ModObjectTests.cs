@@ -21,7 +21,7 @@ namespace Rpg.ModObjects.Tests
 
             Assert.That(graph.GetEntities().Count(), Is.EqualTo(3));
             var mods = graph.GetActiveMods();
-            Assert.That(mods.Count(), Is.EqualTo(11));
+            Assert.That(mods.Count(), Is.EqualTo(12));
 
             Assert.That(entity.GetStates().Count(), Is.EqualTo(3));
             Assert.That(entity.GetState(nameof(BuffState)), Is.Not.Null);
@@ -117,19 +117,19 @@ namespace Rpg.ModObjects.Tests
             var graph = new RpgGraph(entity);
 
             Assert.That(entity.Health, Is.EqualTo(10));
-            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(11));
+            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(12));
 
             entity.AddMod(new ExpireOnZeroMod(), x => x.Health, -10);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Health, Is.EqualTo(0));
-            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(12));
+            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(13));
 
             entity.AddMod(new ExpireOnZeroMod(), x => x.Health, 10);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Health, Is.EqualTo(10));
-            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(11));
+            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(12));
         }
     }
 }

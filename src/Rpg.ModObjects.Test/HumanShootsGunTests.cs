@@ -21,9 +21,9 @@ namespace Rpg.ModObjects.Tests
             var gun = new TestGun();
 
             var location = new RpgContainer("Room");
-            location.AddToStore("Room", initiator);
-            location.AddToStore("Room", recipient);
-            location.AddToStore("Room", gun);
+            location.Add(initiator);
+            location.Add(recipient);
+            location.Add(gun);
 
             var graph = new RpgGraph(location);
 
@@ -82,27 +82,6 @@ namespace Rpg.ModObjects.Tests
             graph.Time.TriggerEvent();
 
             var outcome = fireInst.Outcome;
-
-            //Assert.That(fireGun, Is.Not.Null);
-            //Assert.That(fireGun.DisabledWhen.Count(), Is.EqualTo(1));
-            //Assert.That(fireGun.DisabledWhen, Does.Contain(nameof(TestGun.AmmoEmpty)));
-
-            //var damage = gun.GetCommand(nameof(TestGun.InflictDamage));
-            //Assert.That(damage, Is.Not.Null);
-            //Assert.That(damage.EnabledWhen.Count(), Is.EqualTo(1));
-            //Assert.That(damage.EnabledWhen, Does.Contain(nameof(TestGun.Shoot)));
-
-
-            //Assert.That(gun.StateNames.Count(), Is.EqualTo(3));
-            //Assert.That(gun.StateNames, Does.Contain(nameof(TestGun.AmmoEmpty)));
-            //Assert.That(gun.StateNames, Does.Contain(nameof(TestGun.Shoot)));
-            //Assert.That(gun.StateNames, Does.Contain(nameof(TestGun.InflictDamage)));
-            //Assert.That(gun.ActiveStateNames.Count(), Is.EqualTo(0));
-
-            //Assert.That(gun.HitBonus, Is.EqualTo(2));
-            //Assert.That(gun.Damage.Dice.ToString(), Is.EqualTo("1d6"));
-            //Assert.That(gun.Ammo.Max, Is.EqualTo(10));
-            //Assert.That(gun.Ammo.Current, Is.EqualTo(10));
         }
 
         [Test]
@@ -113,9 +92,9 @@ namespace Rpg.ModObjects.Tests
             var gun = new TestGun();
 
             var location = new RpgContainer("Room");
-            location.AddToStore("Room", initiator);
-            location.AddToStore("Room", recipient);
-            location.AddToStore("Room", gun);
+            location.Add(initiator);
+            location.Add(recipient);
+            location.Add(gun);
 
             var graph = new RpgGraph(location);
             graph.Time.SetTime(TimePoints.BeginningOfEncounter);
@@ -131,43 +110,6 @@ namespace Rpg.ModObjects.Tests
             graph.Time.TriggerEvent();
 
             Assert.That(initiator.PhysicalActionPoints.Current, Is.EqualTo(4));
-            //var fireGun = gun.GetAction(nameof(FireGunAction))!;
-            //var args = fireGun.ArgSet(initiator);
-
-            //Assert.That(args.ArgNames().Count(), Is.EqualTo(4));
-            //Assert.That(args.ArgNames(), Does.Contain("modSet"));
-            //Assert.That(args.ArgNames(), Does.Contain("initiator"));
-            //Assert.That(args.ArgNames(), Does.Contain("targetDefense"));
-            //Assert.That(args.ArgNames(), Does.Contain("targetRange"));
-
-            //args
-            //    .Set("targetDefense", recipient.Defense)
-            //    .Set("targetRange", 10);
-
-            ////Assert the modSets
-            //var modSet = fireGun.Create(args)!;
-            //var shootSubsets = modSet.SubSets(graph);
-
-            //var target = shootSubsets.FirstOrDefault(x => x.TargetProp == modSet.TargetPropName);
-            //Assert.That(target, Is.Not.Null);
-            //Assert.That(target.IsResolved, Is.True);
-            //Assert.That(target.Dice.Roll(), Is.EqualTo(5));
-
-            //var diceRoll = shootSubsets.FirstOrDefault(x => x.TargetProp == modSet.DiceRollPropName);
-            //Assert.That(diceRoll, Is.Not.Null);
-            //Assert.That(diceRoll.IsResolved, Is.False);
-            //Assert.That(diceRoll.Dice.ToString(), Is.EqualTo("1d20 + 4"));
-
-            ////Actually shoot the gun...
-            //fireGun.Apply(modSet);
-
-            ////Assert the gun
-            //Assert.That(gun.IsStateOn(nameof(FireGunAction)), Is.True);
-            //Assert.That(gun.Ammo.Current, Is.EqualTo(9));
-
-            ////Assert the initiator
-            //Assert.That(initiator.PhysicalActionPoints.Current, Is.EqualTo(4));
-            //Assert.That(initiator.MentalActionPoints.Current, Is.EqualTo(2));
         }
 
         [Test]
@@ -178,9 +120,9 @@ namespace Rpg.ModObjects.Tests
             var gun = new TestGun();
 
             var location = new RpgContainer("Room");
-            location.AddToStore("Room", initiator);
-            location.AddToStore("Room", recipient);
-            location.AddToStore("Room", gun);
+            location.Add(initiator);
+            location.Add(recipient);
+            location.Add(gun);
 
             var graph = new RpgGraph(location);
             graph.Time.SetTime(TimePoints.BeginningOfEncounter);
@@ -215,9 +157,9 @@ namespace Rpg.ModObjects.Tests
             var gun = new TestGun();
 
             var location = new RpgContainer("Room");
-            location.AddToStore("Room", initiator);
-            location.AddToStore("Room", recipient);
-            location.AddToStore("Room", gun);
+            location.Add(initiator);
+            location.Add(recipient);
+            location.Add(gun);
 
             var graph = new RpgGraph(location);
             graph.Time.SetTime(TimePoints.BeginningOfEncounter);

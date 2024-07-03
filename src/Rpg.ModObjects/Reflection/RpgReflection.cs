@@ -1,4 +1,6 @@
 ﻿using Rpg.ModObjects.Meta;
+using Rpg.ModObjects.Meta.Attributes;
+using Rpg.ModObjects.Props.Attributes;
 using Rpg.ModObjects.Values;
 using System.Reflection;
 
@@ -115,6 +117,25 @@ namespace Rpg.ModObjects.Reflection
                 .ToArray();
         }
 
+        internal static (int?, int?) GetPropertyThresholds(this PropertyInfo propInfo)
+        {
+            if (propInfo.PropertyType == typeof(int))
+            {
+                var threshold = propInfo.GetCustomAttribute<ThresholdAttribute>();
+                if (threshold != null)
+                    return (threshold.Min, threshold.Max);
+
+                var select = propInfo.GetCustomAttribute<SelectUIAttribute>();
+                if (select != null)
+                    return (select.Min, select.Max);
+
+                var integer = propInfo.GetCustomAttribute<IntegerUIAttribute>();
+                if (integer != null && (integer.Min > int.MinValue || integer.Max < int.MaxValue))
+                    return (integer.Min, integer.Max);
+            }
+
+            return (null, null);
+        }
 
         internal static PropertyInfo? ScanForProperty(this object? entity, string path, out object? pathEntity)
         {

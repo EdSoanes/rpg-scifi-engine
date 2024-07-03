@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Rpg.ModObjects
 {
-    internal class RpgEntityStore : RpgBaseStore<string, List<RpgEntity>>
+    internal class RpgEntityStore : RpgBaseStore<string, RpgEntity>
     {
         public RpgEntityStore(string entityId)
             : base(entityId) { }
