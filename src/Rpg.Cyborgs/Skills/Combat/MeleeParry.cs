@@ -19,8 +19,8 @@ namespace Rpg.Cyborgs.Skills.Combat
             IsIntrinsic = true;
         }
 
-        public override bool IsEnabled<TOwner, TInitiator>(TOwner owner, TInitiator initiator)
-            => !initiator.IsStateOn(nameof(Parrying));
+        public bool OnCanAct(Actor owner)
+            => !owner.IsStateOn(nameof(Parrying));
 
         public ModSet OnCost(Actor owner, Actor initiator, int focusPoints)
         {

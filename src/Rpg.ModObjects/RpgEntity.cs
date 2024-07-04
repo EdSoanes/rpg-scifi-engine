@@ -43,11 +43,6 @@ namespace Rpg.ModObjects
         public ModSet[] GetActiveManualStateSets(string stateName)
             => Graph!.GetModSets(this, (x) => x.Name == stateName && !(x.Lifecycle is SyncedLifecycle) && x.Expiry == LifecycleExpiry.Active);
 
-        public bool IsActionEnabled<TOwner, TInitiator>(string action, TInitiator initiator)
-            where TOwner : RpgEntity
-            where TInitiator : RpgEntity
-                => GetAction(action)?.IsEnabled((this as TOwner)!, initiator) ?? false;
-
         public Actions.Action? GetAction(string action)
             => ActionStore[action];
 

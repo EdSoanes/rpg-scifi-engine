@@ -16,8 +16,8 @@ namespace Rpg.Cyborgs.Skills.Movement
             IsIntrinsic = true;
         }
 
-        public override bool IsEnabled<TOwner, TInitiator>(TOwner owner, TInitiator initiator)
-            => true;
+        public bool OnCanAct(Actor owner)
+            => owner.CurrentActions > 0;
 
         public ModSet OnCost(Actor owner, int focusPoints)
         {

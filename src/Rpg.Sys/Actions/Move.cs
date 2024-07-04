@@ -1,17 +1,9 @@
-﻿using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Time;
+﻿using Newtonsoft.Json;
 using Rpg.ModObjects;
-using Rpg.Sys.Archetypes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 using Rpg.ModObjects.Meta.Attributes;
-using Rpg.ModObjects.Lifecycles;
-using Rpg.ModObjects.Time.Templates;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time.Lifecycles;
+using Rpg.Sys.Archetypes;
 
 namespace Rpg.Sys.Actions
 {
@@ -23,7 +15,7 @@ namespace Rpg.Sys.Actions
         public Move(Actor owner)
             : base(owner) { }
 
-        public override bool IsEnabled<TOwner, TInitiator>(TOwner owner, TInitiator initiator)
+        public bool OnCanAct(Actor owner)
             => true;
 
         public ModSet OnCost(Actor owner, int distance)

@@ -14,7 +14,7 @@ namespace Rpg.Cyborgs.Actions
         {
         }
 
-        public override bool IsEnabled<TOwner, TInitiator>(TOwner owner, TInitiator initiator)
+        public bool OnCanAct(Actor owner)
             => true;
 
         public ModSet OnCost(int actionNo, Actor owner)

@@ -12,7 +12,8 @@ namespace Rpg.ModObjects.Tests.Actions
         public TestAction(ModdableEntity owner)
             : base(owner) { }
 
-        public override bool IsEnabled<TOwner, TInitiator>(TOwner owner, TInitiator initiator)
+
+        public bool OnCanAct(ModdableEntity owner)
             => true;
 
         public ModSet OnCost(ModdableEntity owner, TestHuman initiator)

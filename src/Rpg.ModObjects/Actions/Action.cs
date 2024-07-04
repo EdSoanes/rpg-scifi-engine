@@ -17,6 +17,7 @@ namespace Rpg.ModObjects.Actions
         [JsonProperty] public string OwnerId { get; private set; }
         [JsonProperty] public string OwnerArchetype { get; private set; }
 
+        [JsonProperty] internal RpgMethod<Action, bool> OnCanAct { get; private set; }
         [JsonProperty] internal RpgMethod<Action, ModSet> OnCost { get; private set; }
         [JsonProperty] internal RpgMethod<Action, ModSet[]> OnAct { get; private set; }
         [JsonProperty] internal RpgMethod<Action, ModSet[]> OnOutcome { get; private set; }
@@ -28,6 +29,8 @@ namespace Rpg.ModObjects.Actions
             Id = this.NewId();
             Name = type.Name;
             OwnerArchetype = type.OwnerArchetype() ?? nameof(RpgEntity);
+
+            OnCanAct = new RpgMethod<Action, bool>(this, nameof(OnCanAct));
             OnCost = new RpgMethod<Action, ModSet>(this, nameof(OnCost));
             OnAct = new RpgMethod<Action, ModSet[]>(this, nameof(OnAct));
             OnOutcome = new RpgMethod<Action, ModSet[]>(this, nameof(OnOutcome));
@@ -101,12 +104,14 @@ namespace Rpg.ModObjects.Actions
             modSet.Add(new TurnMod(), initiator, OutcomeResultProp(actionNo), source, sourceExpr);
         }
 
-        public abstract bool IsEnabled<TOwner, TInitiator>(TOwner owner, TInitiator initiator)
-            where TOwner : RpgEntity
-            where TInitiator : RpgEntity;
+        public RpgArgSet CanActArgs()
+            => OnCanAct.CreateArgSet();
 
         public RpgArgSet CostArgs()
             => OnCost.CreateArgSet();
+
+        public bool CanAct(RpgArgSet argSet)
+            => OnCanAct.Execute(this, argSet);
 
         public ModSet Cost(RpgArgSet argSet)
             => OnCost.Execute(this, argSet);

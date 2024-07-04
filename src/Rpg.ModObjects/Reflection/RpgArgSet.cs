@@ -80,6 +80,30 @@ namespace Rpg.ModObjects.Reflection
             }
         }
 
+        public RpgArgSet Merge(RpgArgSet other)
+        {
+            var args = Args.Select(x => x.Clone()).ToList();
+            foreach (var arg in other.Args)
+            {
+                if (!args.Any(x => x.Name == arg.Name))
+                    args.Add(arg.Clone());
+            }
+
+            return new RpgArgSet
+            {
+                Args = args.ToArray()
+            };
+        }
+
+        public void FillFrom(RpgArgSet other)
+        {
+            foreach (var arg in other.ArgValues)
+            {
+                if (HasArg(arg.Key) && this[arg.Key] == null)
+                    this[arg.Key] = arg.Value;
+            }
+        }
+
         public bool HasArg(string arg)
             => Args.Any(x => x.Name == arg);
 

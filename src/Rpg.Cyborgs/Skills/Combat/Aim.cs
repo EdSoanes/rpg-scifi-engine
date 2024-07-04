@@ -18,13 +18,8 @@ namespace Rpg.Cyborgs.Skills.Combat
             IsIntrinsic = true;
         }
 
-        public override bool IsEnabled<TOwner, TInitiator>(TOwner owner, TInitiator initiator)
-        {
-            if (owner is Actor actor)
-                return !actor.IsStateOn(nameof(Aiming)) || actor.RangedAimBonus < 6;
-
-            return false;
-        }
+        public bool OnCanAct(Actor owner)
+            => !owner.IsStateOn(nameof(Aiming)) || owner.RangedAimBonus < 6;
 
         public ModSet OnCost(Actor owner, Actor initiator, int focusPoints)
         {

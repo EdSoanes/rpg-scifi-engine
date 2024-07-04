@@ -15,7 +15,7 @@ namespace Rpg.ModObjects.Tests.Actions
         public TakeDamageAction(TestHuman owner)
             : base(owner) { }
 
-        public override bool IsEnabled<TOwner, TInitiator>(TOwner owner, TInitiator initiator)
+        public bool OnCanAct(TestHuman owner)
             => true;
 
         public ModSet OnCost(TestHuman owner)

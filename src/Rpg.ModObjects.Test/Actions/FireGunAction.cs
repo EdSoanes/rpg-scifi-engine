@@ -14,8 +14,8 @@ namespace Rpg.ModObjects.Tests.Actions
         public FireGunAction(TestGun owner)
             : base(owner) { }
 
-        public override bool IsEnabled<TOwner, TInitiator>(TOwner owner, TInitiator initiator)
-            => owner.GetState(nameof(AmmoEmptyState))?.Off() ?? true;
+        public bool OnCanAct(TestGun owner, TestHuman initiator)
+            => !owner.IsStateOn(nameof(AmmoEmptyState));
 
         public ModSet OnCost(TestGun owner, TestHuman initiator)
         {
