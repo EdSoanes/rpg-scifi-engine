@@ -9,6 +9,9 @@ namespace Rpg.ModObjects.Meta
         [JsonProperty] public string Name { get; private set; }
         [JsonProperty] public string Archetype { get; private set; }
         [JsonProperty] public bool Required { get; private set; }
+        [JsonProperty] public bool Hidden { get; private set; }
+        [JsonProperty] public string? Category { get; private set; }
+        [JsonProperty] public string? SubCategory { get; private set; }
 
         [JsonConstructor] private MetaState() { }
 
@@ -19,7 +22,12 @@ namespace Rpg.ModObjects.Meta
 
             var attr = stateType.GetCustomAttribute<StateAttribute>();
             if (attr != null)
+            {
                 Required = attr.Required;
+                Hidden = attr.Hidden;
+                Category = attr.Category;
+                SubCategory = attr.SubCategory;
+            }
         }
 
         public override string ToString()

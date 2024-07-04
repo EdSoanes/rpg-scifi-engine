@@ -65,5 +65,26 @@ namespace Rpg.Cyborgs.Tests
 
             Assert.That(_pc.CurrentActions, Is.EqualTo(0));
         }
+
+        [Test]
+        public void Benny_Tries_Two_Transfers_One_Turn()
+        {
+            Assert.That(_pc.CurrentActions, Is.EqualTo(1));
+
+            _graph.Time.SetTime(TimePoints.Encounter(1));
+
+            var drop = _sword.CreateActionInstance(_pc, nameof(Transfer), 0)!;
+            drop.AutoCompleteArgs["from"] = _pc.Hands;
+            drop.AutoCompleteArgs["to"] = _graph.Context;
+            drop.AutoComplete(_graph);
+
+            Assert.That(_pc.CurrentActions, Is.EqualTo(0));
+
+            var pickup = _sword.CreateActionInstance(_pc, nameof(Transfer), 1)!;
+            pickup.AutoCompleteArgs["from"] = _graph.Context;
+            pickup.AutoCompleteArgs["to"] = _pc.Hands;
+
+            Assert.Throws<InvalidOperationException>(() => pickup.AutoComplete(_graph));
+        }
     }
 }

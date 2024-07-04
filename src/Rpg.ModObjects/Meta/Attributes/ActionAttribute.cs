@@ -10,6 +10,9 @@ namespace Rpg.ModObjects.Meta.Attributes
     public class ActionAttribute : Attribute
     {
         public bool Required { get; set; }
+        public string? Category { get; set; }
+        public string? SubCategory { get; set; }
+
         public ActionAttribute() { }
     }
 }

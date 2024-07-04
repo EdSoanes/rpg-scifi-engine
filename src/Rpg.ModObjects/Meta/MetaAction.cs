@@ -11,6 +11,8 @@ namespace Rpg.ModObjects.Meta
         [JsonProperty] public string Name { get; private set; }
         [JsonProperty] public string OwnerArchetype { get; private set; }
         [JsonProperty] public bool Required { get; private set; }
+        [JsonProperty] public string? Category { get; private set; }
+        [JsonProperty] public string? SubCategory { get; private set; }
 
         [JsonProperty] private RpgMethod<Actions.Action, ModSet> OnCost { get; set; }
         [JsonProperty] private RpgMethod<Actions.Action, ModSet[]> OnAct { get; set; }
@@ -30,7 +32,11 @@ namespace Rpg.ModObjects.Meta
 
             var attr = actionType.GetCustomAttribute<ActionAttribute>();
             if (attr != null)
+            {
                 Required = attr.Required;
+                Category = attr.Category;
+                SubCategory = attr.SubCategory;
+            }
         }
 
         public override string ToString()
