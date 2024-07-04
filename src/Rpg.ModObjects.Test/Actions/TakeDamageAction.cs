@@ -1,8 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Mods.Templates;
 using Rpg.ModObjects.Tests.Models;
-using Rpg.ModObjects.Time;
+using Rpg.ModObjects.Time.Lifecycles;
 
 namespace Rpg.ModObjects.Tests.Actions
 {
@@ -18,12 +19,12 @@ namespace Rpg.ModObjects.Tests.Actions
             => true;
 
         public ModSet OnCost(TestHuman owner)
-            => new ModSet(owner);
+            => new ModSet(owner, new TurnLifecycle());
 
-        public ModSet OnAct(TestHuman owner, int damage)
+        public ModSet[] OnAct(TestHuman owner, int damage)
         {
-            return new ModSet(owner)
-                .AddMod(new TurnMod(), owner, x => x.Health, -damage);
+            return [new ModSet(owner, new TurnLifecycle())
+                .Add(new PermanentMod(), owner, x => x.Health, -damage)];
         }
 
         public ModSet[] OnOutcome(TestHuman owner)

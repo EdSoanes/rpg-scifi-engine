@@ -79,6 +79,15 @@ namespace Rpg.ModObjects.States
         protected virtual bool IsOnWhen(T owner)
             => false;
 
+        public ModSet CreateStateInstance(string stateName, ILifecycle? lifecycle = null)
+        {
+            var owner = Graph!.GetEntity<T>(Id)!;
+            var modSet = new ModSet(owner, lifecycle ?? new SyncedLifecycle(Id), stateName);
+            OnFillStateSet(modSet, owner);
+
+            return modSet;
+        }
+
         internal override void FillStateSet(ModSet modSet)
         {
             var owner = Graph!.GetEntity<T>(OwnerId)!;
@@ -115,27 +124,5 @@ namespace Rpg.ModObjects.States
 
             return expiry;
         }
-
-        //public State<T> Mod<TTargetValue>(T entity, Expression<Func<T, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-        //{
-        //    var mod = new SyncedMod(OwnerId!)
-        //        .SetProps(entity, targetExpr, dice, valueFunc)
-        //        .Create();
-
-        //    AddMods(mod);
-
-        //    return this;
-        //}
-
-        //public State<T> Mod<TTargetValue, TSourceValue>(T entity, Expression<Func<T, TTargetValue>> targetExpr, Expression<Func<T, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-        //{
-        //    var mod = new SyncedMod(OwnerId!)
-        //        .SetProps(entity, targetExpr, entity, sourceExpr, valueFunc)
-        //        .Create();
-
-        //    AddMods(mod);
-
-        //    return this;
-        //}
     }
 }

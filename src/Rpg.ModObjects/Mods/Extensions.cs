@@ -1,4 +1,5 @@
 ﻿using Rpg.ModObjects.Behaviors;
+using Rpg.ModObjects.Mods.Templates;
 using Rpg.ModObjects.Values;
 using System;
 using System.Collections.Generic;

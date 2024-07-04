@@ -1,4 +1,4 @@
-﻿using Rpg.ModObjects.Mods;
+﻿using Rpg.ModObjects.Mods.Templates;
 
 namespace Rpg.ModObjects.Time
 {

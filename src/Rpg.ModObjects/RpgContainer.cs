@@ -12,13 +12,32 @@ namespace Rpg.ModObjects
     
         [JsonProperty] internal List<string> ContainerStore { get; private set; } = new List<string>();
         
-        private List<RpgEntity> _preloadedEntities = new List<RpgEntity>();
-
         public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
         public RpgContainer(string name)
             : base(name)
         {
+        }
+
+        public T? GetById<T>(string entityId)
+            where T : RpgObject
+        {
+            if (Contains(entityId))
+            {
+                var obj = Graph!.GetEntity<T>(entityId);
+                return obj;
+            }
+
+            return null;
+        }
+
+        public IEnumerable<T> Get<T>()
+            where T : RpgObject
+        {
+            return ContainerStore
+                .Select(x => Graph!.GetEntity<T>(x))
+                .Where(x => x != null)
+                .Cast<T>();
         }
 
         public bool Contains(RpgEntity obj)
@@ -33,9 +52,9 @@ namespace Rpg.ModObjects
                 return false;
 
             if (Graph == null)
-                _preloadedEntities.Add(obj);
+                RpgGraph.PreAddEntity(obj);
             else if (Graph.GetEntity(obj.Id) == null)
-                Graph!.AddEntity(obj);
+                Graph.AddEntity(obj);
 
             ContainerStore.Add(obj.Id);
             CallCollectionChanged(NotifyCollectionChangedAction.Add);
@@ -59,16 +78,8 @@ namespace Rpg.ModObjects
 
         public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
         {
-            foreach (var e in _preloadedEntities)
-            {
-                e.OnBeforeTime(graph, e);
-                graph.AddEntity(e);
-            }
-
-            _preloadedEntities.Clear();
-
             base.OnBeforeTime(graph, entity);
-            this.EntityId ??= entity!.Id;
+            EntityId ??= entity!.Id;
         }
     }
 }

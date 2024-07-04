@@ -13,7 +13,7 @@ namespace Rpg.ModObjects.Meta
         [JsonProperty] public bool Required { get; private set; }
 
         [JsonProperty] private RpgMethod<Actions.Action, ModSet> OnCost { get; set; }
-        [JsonProperty] private RpgMethod<Actions.Action, ModSet> OnAct { get; set; }
+        [JsonProperty] private RpgMethod<Actions.Action, ModSet[]> OnAct { get; set; }
         [JsonProperty] private RpgMethod<Actions.Action, ModSet[]> OnOutcome { get; set; }
 
         [JsonConstructor] private MetaAction() { }

@@ -10,5 +10,7 @@ namespace Rpg.Cyborgs.States
 {
     public class Aiming : State<Actor>
     {
+        public Aiming(Actor owner) 
+            : base(owner) { }
     }
 }

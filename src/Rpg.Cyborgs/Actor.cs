@@ -134,10 +134,19 @@ namespace Rpg.Cyborgs
         [JsonProperty]
         [Threshold(Min = 0)]
         [IntegerUI(Ignore = true)]
-        public int Actions { get; protected set; }
+        public int Actions { get; protected set; } = 1;
 
+        [JsonProperty]
+        [Threshold(Min = 0)]
+        [IntegerUI(Ignore = true)]
+        public int CurrentActions { get; protected set; }
         public RpgContainer Hands { get; protected set; } = new RpgContainer(nameof(Hands));
         public RpgContainer Wearing { get; protected set; } = new RpgContainer(nameof(Wearing));
+
+        [JsonConstructor] protected Actor() { }
+
+        public Actor(string name)
+            : base(name) { }
 
         protected override void OnLifecycleStarting()
         {
@@ -162,9 +171,11 @@ namespace Rpg.Cyborgs
             this.BaseMod(x => x.ParryDamageReduction, x => x.Strength);
             this.BaseMod(x => x.RangedAttack, x => x.Agility);
             this.BaseMod(x => x.MeleeAttack, x => x.Strength);
+
+            this.BaseMod(x => x.CurrentActions, x => x.Actions);
         }
 
         public Dice CalculateStamina(Dice health)
-            => 12 + (health.Roll() * 2);
+            => health.Roll() * 2;
     }
 }

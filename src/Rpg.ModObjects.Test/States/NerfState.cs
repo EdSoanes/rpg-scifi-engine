@@ -17,6 +17,6 @@ namespace Rpg.ModObjects.Tests.States
             => owner.Melee.Roll() < 1;
 
         protected override void OnFillStateSet(ModSet modSet, ModdableEntity owner)
-            => modSet.AddMod(new SyncedMod(modSet.Id), owner, x => x.Health, -10);
+            => modSet.Add(owner, x => x.Health, -10);
     }
 }

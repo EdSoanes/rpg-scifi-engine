@@ -2,6 +2,7 @@
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Tests.Models;
 using Rpg.ModObjects.Time;
+using Rpg.ModObjects.Time.Templates;
 using System.Reflection;
 
 namespace Rpg.ModObjects.Tests

@@ -38,11 +38,11 @@ namespace Rpg.ModObjects
         public static State? GetState(this RpgEntity entity, string stateName)
             => entity.StateStore[stateName] as State;
 
-        public static ModSet CreateStateInstance<T>(this T entity, string stateName, ILifecycle? lifecycle = null)
+        public static ModSet CreateStateInstance<T>(this T owner, string stateName, ILifecycle? lifecycle = null)
             where T : RpgEntity
         {
-            var state = entity.GetState(stateName)!;
-            var modSet = new ModSet(lifecycle ?? new PermanentLifecycle(), stateName).SetOwner(entity);
+            var state = owner.GetState(stateName)!;
+            var modSet = new ModSet(owner, lifecycle ?? new PermanentLifecycle(), stateName);
             state.FillStateSet(modSet);
             return modSet;
         }
@@ -74,10 +74,7 @@ namespace Rpg.ModObjects
             entity.ActionStore.Add(actions);
             entity.ActionStore.OnBeginningOfTime(graph, entity);
 
-            var states = entity.CreateStates()
-                .Union(entity.CreateStateActions(actions))
-                .ToArray();
-
+            var states = entity.CreateStates();
             entity.StateStore.Add(states);
             entity.StateStore.OnBeginningOfTime(graph, entity);
 

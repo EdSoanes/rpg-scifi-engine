@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Lifecycles;
+using Rpg.ModObjects.Time.Templates;
+using Rpg.ModObjects.Time.Lifecycles;
 
 namespace Rpg.Sys.Actions
 {
@@ -27,29 +29,24 @@ namespace Rpg.Sys.Actions
         public ModSet OnCost(Actor owner, int distance)
         {
             var movementCost = CalculateMoveCost(owner, distance);
-            return new ModSet(owner)
-                .AddMod(new TurnMod(), owner, x => x.Actions.Action, -movementCost);
+            return new ModSet(owner, new TurnLifecycle())
+                .Add(owner, x => x.Actions.Action, -movementCost);
         }
 
-        public ModSet OnAct(Actor owner, int distance)
+        public ModSet[] OnAct(Actor owner, int distance)
         {
-            return new ModSet(owner)
-                .AddMod(new TurnMod(), owner, $"{nameof(Move)}.{nameof(OnAct)}", distance);
+            return [new ModSet(owner, new TurnLifecycle())
+                .Add(owner, $"{nameof(Move)}.{nameof(OnAct)}", distance)];
         }
 
         public ModSet[] OnOutcome(Actor owner, int distance)
         {
-            var moveSet = new ModSet(owner)
-                .AddMod(new TurnMod(), owner, x => x.Movement.Speed.Current, distance);
+            var moveSet = new ModSet(owner, new TurnLifecycle())
+                .Add(owner, x => x.Movement.Speed.Current, distance);
 
-            var moving = owner.CreateStateInstance(nameof(Move), new TimeLifecycle(TimePoints.Encounter(1)));
-            var res = new List<ModSet>
-            {
-                moveSet,
-                moving
-            };
+            var moving = owner.CreateStateInstance(nameof(Move), new TurnLifecycle());
 
-            return res.ToArray();
+            return [moveSet, moving];
         }
 
         private int CalculateMoveCost(Actor actor, int distance)

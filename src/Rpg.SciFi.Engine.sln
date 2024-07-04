@@ -17,7 +17,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rpg.Sys.Tests", "Rpg.Sys.Te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rpg.Cms.Tests", "Rpg.Cms.Tests\Rpg.Cms.Tests.csproj", "{33496583-5CD3-4348-9EA0-4B2B16F881C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rpg.Cyborgs", "Rpg.Cyborgs\Rpg.Cyborgs.csproj", "{B2001051-A65D-4BD4-B721-168924D6228C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rpg.Cyborgs", "Rpg.Cyborgs\Rpg.Cyborgs.csproj", "{B2001051-A65D-4BD4-B721-168924D6228C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rpg.Cyborgs.Tests", "Rpg.Cyborgs.Tests\Rpg.Cyborgs.Tests.csproj", "{D98CED08-178C-4804-99A2-A8FD930CFA4F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,6 +55,10 @@ Global
 		{B2001051-A65D-4BD4-B721-168924D6228C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B2001051-A65D-4BD4-B721-168924D6228C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B2001051-A65D-4BD4-B721-168924D6228C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D98CED08-178C-4804-99A2-A8FD930CFA4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D98CED08-178C-4804-99A2-A8FD930CFA4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D98CED08-178C-4804-99A2-A8FD930CFA4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D98CED08-178C-4804-99A2-A8FD930CFA4F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

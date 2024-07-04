@@ -22,12 +22,10 @@ namespace Rpg.Cyborgs.Actions
             return new ModSet(new TimeLifecycle(TimePoints.BeginningOfEncounter));
         }
 
-        public ModSet OnAct(int actionNo, Actor owner, int damage)
+        public ModSet[] OnAct(int actionNo, Actor owner, int damage)
         {
             var modSet = new ModSet(new TimeLifecycle(TimePoints.Encounter(1)));
-
-
-            return modSet;
+            return [modSet];
         }
 
         public ModSet[] OnOutcome(MeleeWeapon owner, Actor initiator, int damage, int roll1, int roll2)

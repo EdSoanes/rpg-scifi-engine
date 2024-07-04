@@ -31,7 +31,6 @@ namespace Rpg.ModObjects.Meta
                 .ToArray();
 
             var states = RpgReflection.ScanForTypes<States.State>(systemAssemblies)
-                .Where(x => x != typeof(ActionState))
                 .Select(x => new MetaState(x))
                 .ToArray();
 

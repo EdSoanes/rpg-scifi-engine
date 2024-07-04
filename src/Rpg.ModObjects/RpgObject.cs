@@ -55,6 +55,14 @@ namespace Rpg.ModObjects
         public bool AddModSet(ModSet modSet)
             => ModSetStore.Add(modSet);
 
+        public bool AddModSets(params ModSet[] modSets)
+        {
+            foreach (var modSet in modSets)
+                AddModSet(modSet);
+
+            return true;
+        }
+
         public bool IsA(string type) 
             => Archetypes.Contains(type);
 

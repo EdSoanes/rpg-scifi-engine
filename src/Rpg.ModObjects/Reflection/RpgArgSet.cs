@@ -17,14 +17,13 @@ namespace Rpg.ModObjects.Reflection
                     : null;
             }
             set
-            { 
-                if (IsValid(key, value))
-                {
-                    if (ArgValues.ContainsKey(key))
-                        ArgValues[key] = value;
-                    else
-                        ArgValues.Add(key, value);
-                }
+            {
+                ValidateArgValue(key, value);
+
+                if (ArgValues.ContainsKey(key))
+                    ArgValues[key] = value;
+                else
+                    ArgValues.Add(key, value);
             }
         }
 
@@ -57,39 +56,41 @@ namespace Rpg.ModObjects.Reflection
                 Args = Args.Select(x => x.Clone()).ToArray(),
             };
 
-        public bool IsValid(string arg, object? value)
+        public void ValidateArgValue(string arg, object? value)
         {
             var modArgs = Args.Where(x => x.Name == arg);
             if (modArgs.Count() != 1)
-                return false;
+                throw new ArgumentException($"'{arg}' param does not exist");
 
             var modArg = modArgs.Single();
             if (!modArg.IsNullable && value == null)
-                return false;
+                throw new ArgumentException($"'{arg}' param value is null");
 
             if (string.IsNullOrEmpty(modArg.TypeName))
-                return false;
+                throw new ArgumentException($"Type name for param '{arg}' not set");
 
-            if (value == null)
-                return true;
+            if (value != null)
+            {
+                var type = RpgReflection.ScanForType(modArg.QualifiedTypeName);
+                if (type == null)
+                    throw new ArgumentException($"Could not find param type for param '{arg}'");
 
-            var type = RpgReflection.ScanForType(modArg.QualifiedTypeName);
-
-            return type!.IsAssignableTo(value!.GetType());
+                if (value != null && !value.GetType().IsAssignableTo(type))
+                    throw new ArgumentException($"'{arg}' value with type {value.GetType().Name} not assignable to method param with with type {type.Name}");
+            }
         }
+
+        public bool HasArg(string arg)
+            => Args.Any(x => x.Name == arg);
 
         public object?[] ToArgs()
         {
             var res = new List<object?>();
             foreach (var arg in Args)
             {
-                if (ArgValues.ContainsKey(arg.Name))
-                {
-                    var obj = ArgValues[arg.Name];
+                var obj = this[arg.Name];
+                if (obj != null || arg.IsNullable)
                     res.Add(obj);
-                }
-                else
-                    res.Add(null);
             }
 
             return res.ToArray();

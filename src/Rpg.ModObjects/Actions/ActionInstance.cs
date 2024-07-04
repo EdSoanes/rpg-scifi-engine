@@ -26,15 +26,13 @@ namespace Rpg.ModObjects.Actions
         public abstract bool CanAct();
 
         public ModSet Cost()
-            => Action.Cost(CostArgs).SetOwner(Initiator);
+            => Action.Cost(CostArgs);
 
-        public ModSet Act()
-            => Action.Act(ActArgs).SetOwner(Initiator);
+        public ModSet[] Act()
+            => Action.Act(ActArgs);
 
         public ModSet[] Outcome()
-            => Action.Outcome(OutcomeArgs)
-                .Select(x => x.SetOwner(Initiator))
-                .ToArray();
+            => Action.Outcome(OutcomeArgs);
     }
 
     public sealed class ActionInstance<TOwner, TInitiator> : ActionInstance<TInitiator>
@@ -51,19 +49,34 @@ namespace Rpg.ModObjects.Actions
             Action = action;
 
             CostArgs = action.CostArgs();
-            CostArgs["actionNo"] = actionNo;
-            CostArgs["initiator"] = initiator;
-            CostArgs["owner"] = owner;
+            if (CostArgs.HasArg("actionNo"))
+                CostArgs["actionNo"] = actionNo;
+
+            if (CostArgs.HasArg("initiator"))
+                CostArgs["initiator"] = initiator;
+
+            if (CostArgs.HasArg("owner"))
+                CostArgs["owner"] = owner;
 
             ActArgs = action.ActArgs();
-            ActArgs["actionNo"] = actionNo;
-            ActArgs["initiator"] = initiator;
-            ActArgs["owner"] = owner;
+            if (ActArgs.HasArg("actionNo"))
+                ActArgs["actionNo"] = actionNo;
+
+            if (ActArgs.HasArg("initiator"))
+                ActArgs["initiator"] = initiator;
+
+            if (ActArgs.HasArg("owner"))
+                ActArgs["owner"] = owner;
 
             OutcomeArgs = action.OutcomeArgs();
-            OutcomeArgs["actionNo"] = actionNo;
-            OutcomeArgs["initiator"] = initiator;
-            OutcomeArgs["owner"] = owner;
+            if (OutcomeArgs.HasArg("actionNo"))
+                OutcomeArgs["actionNo"] = actionNo;
+
+            if (OutcomeArgs.HasArg("initiator"))
+                OutcomeArgs["initiator"] = initiator;
+
+            if (OutcomeArgs.HasArg("owner"))
+                OutcomeArgs["owner"] = owner;
         }
 
         public override bool CanAct()

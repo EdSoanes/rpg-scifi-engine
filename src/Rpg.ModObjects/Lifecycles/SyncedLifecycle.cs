@@ -1,10 +1,20 @@
-﻿using Rpg.ModObjects.Mods;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects.Lifecycles
 {
     public class SyncedLifecycle : BaseLifecycle
     {
+        [JsonProperty] public string OwnerId { get; private set; }
+
+        [JsonConstructor] private SyncedLifecycle() { }
+
+        public SyncedLifecycle(string ownerId)
+        {
+            OwnerId = ownerId;
+        }
+
         public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
         {
             var modSet = graph.Locate<ModSet>(mod?.OwnerId);

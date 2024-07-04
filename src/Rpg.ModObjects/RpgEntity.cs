@@ -2,7 +2,6 @@
 using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.States;
 using Rpg.ModObjects.Time;
-using System.Collections.Specialized;
 
 namespace Rpg.ModObjects
 {

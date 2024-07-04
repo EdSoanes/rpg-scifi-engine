@@ -9,5 +9,7 @@ namespace Rpg.Cyborgs.States
 {
     public class Firing : State<RangedWeapon>
     {
+        public Firing(RangedWeapon owner)
+            : base(owner) { }
     }
 }

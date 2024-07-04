@@ -4,6 +4,8 @@ using Rpg.ModObjects;
 using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time;
+using Rpg.ModObjects.Time.Lifecycles;
+using Rpg.ModObjects.Time.Templates;
 
 namespace Rpg.Cyborgs.Skills.Combat
 {
@@ -22,35 +24,30 @@ namespace Rpg.Cyborgs.Skills.Combat
 
         public ModSet OnCost(Actor owner, Actor initiator, int focusPoints)
         {
-            return new ModSet(new TimeLifecycle(TimePoints.BeginningOfEncounter))
-                .AddMod(new TurnMod(), owner, x => x.CurrentFocusPoints, -focusPoints)
-                .AddMod(new TurnMod(1, 1), initiator, x => x.Actions, -1);
+            return new ModSet(initiator, new TurnLifecycle())
+                .Add(owner, x => x.CurrentFocusPoints, -focusPoints)
+                .Add(new TurnMod(1, 1), initiator, x => x.CurrentActions, -1);
         }
 
-        public ModSet OnAct(int actionNo, Actor owner, Actor initiator, int focusPoints, int? abilityScore)
+        public ModSet[] OnAct(int actionNo, Actor owner, Actor initiator, int focusPoints, int? abilityScore)
         {
-            var modSet = new ModSet(new TimeLifecycle(TimePoints.Encounter(1)));
+            var modSet = new ModSet(initiator, new TurnLifecycle());
 
-            ActResultMod(actionNo, modSet, initiator, "Base", "2d6");
-            ActResultMod(actionNo, modSet, initiator, "FocusPoints", focusPoints);
+            ActResult(actionNo, modSet, initiator, "Base", "2d6");
+            ActResult(actionNo, modSet, initiator, "FocusPoints", focusPoints);
 
             if (abilityScore != null)
-                ActResultMod(actionNo, modSet, initiator, "AbilityScore", abilityScore.Value);
+                ActResult(actionNo, modSet, initiator, "AbilityScore", abilityScore.Value);
             else
-                ActResultMod(actionNo, modSet, initiator, x => x.MeleeAttack);
+                ActResult(actionNo, modSet, initiator, x => x.MeleeAttack);
 
-            return modSet;
+            return [modSet];
         }
 
         public ModSet[] OnOutcome(Actor owner, int diceRoll, int targetDefence)
         {
             var parrying = owner.CreateStateInstance(nameof(Parrying), new TimeLifecycle(TimePoints.Encounter(1)));
-            var res = new List<ModSet>()
-            {
-                parrying
-            };
-
-            return res.ToArray();
+            return [parrying];
         }
     }
 }

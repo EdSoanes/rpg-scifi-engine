@@ -50,7 +50,7 @@ namespace Rpg.ModObjects.Actions
                 if (actionType.IsGenericType)
                 {
                     var genericTypes = actionType.GetGenericArguments();
-                    if (genericTypes.Length == 1 && entity.GetType().IsAssignableFrom(genericTypes[0]))
+                    if (genericTypes.Length == 1 && entity.GetType().IsAssignableTo(genericTypes[0]))
                         return true;
                 }
 
@@ -60,17 +60,24 @@ namespace Rpg.ModObjects.Actions
             return false;
         }
 
-        public static State[] CreateStateActions<T>(this T entity, Action[] actions)
-        where T : RpgEntity
+        public static string? OwnerArchetype(this Type? actionType)
         {
-            var actionStates = new List<State>();
-            foreach (var action in actions)
+            if (actionType != null && actionType.IsAssignableTo(typeof(Actions.Action)))
             {
-                var actionState = new ActionState(entity, action.Name);
-                actionStates.Add(actionState);
+                while (actionType != null)
+                {
+                    if (actionType.IsGenericType)
+                    {
+                        var genericTypes = actionType.GetGenericArguments();
+                        if (genericTypes.Length == 1)
+                            return genericTypes[0].Name;
+                    }
+
+                    actionType = actionType.BaseType;
+                }
             }
 
-            return actionStates.ToArray();
+            return null;
         }
     }
 }

@@ -4,7 +4,7 @@ using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
 
-namespace Rpg.ModObjects.Mods
+namespace Rpg.ModObjects.Mods.Templates
 {
     public class ModTemplate
     {
@@ -122,102 +122,5 @@ namespace Rpg.ModObjects.Mods
 
             return this;
         }
-    }
-
-    public class InitialMod : ModTemplate
-    {
-        public InitialMod()
-        {
-            Behavior = new Replace(ModType.Initial);
-            Lifecycle = new PermanentLifecycle();
-        }
-    }
-
-    public class BaseMod : ModTemplate
-    {
-        public BaseMod()
-        {
-            Behavior = new Replace(ModType.Base);
-            Lifecycle = new PermanentLifecycle();
-        }
-    }
-
-    public class OverrideMod : ModTemplate
-    {
-        public OverrideMod()
-        {
-            Behavior = new Replace(ModType.Override);
-            Lifecycle = new PermanentLifecycle();
-        }
-    }
-
-    public class SyncedMod : ModTemplate
-    {
-        public string OwnerId { get; private set; }
-
-        public SyncedMod(string ownerId)
-        {
-            OwnerId = ownerId;
-            Behavior = new Add(ModType.Standard);
-            Lifecycle = new SyncedLifecycle();
-        }
-
-        public override Mod Create(string name)
-        {
-            var mod = new Mod(OwnerId, name, this);
-            return mod;
-        }
-    }
-
-    //public class StateMod : SyncedMod
-    //{
-    //    public StateMod(ModState state, int increment)
-    //        : base(state.EntityId, nameof(ModState))
-    //    {
-    //        SetBehavior(new Combine(ModType.State));
-    //        SetProps(state.EntityId, state.InstanceName, increment);
-    //    }
-    //}
-
-    //public class ForceStateMod : PermanentMod
-    //{
-    //    public ForceStateMod(ModState state)
-    //        : base(state.InstanceName)
-    //    {
-    //        SetBehavior(new Replace(ModType.ForceState));
-    //        SetProps(state.EntityId, state.InstanceName, 1);
-    //    }
-    //}
-
-    public class PermanentMod : ModTemplate
-    {
-        public PermanentMod(string name)
-        {
-            Name = name;
-            SetLifecycle(new PermanentLifecycle());
-            SetBehavior(new Add(ModType.Standard));
-        }
-
-        public PermanentMod()
-        {
-            SetLifecycle(new PermanentLifecycle());
-            SetBehavior(new Add(ModType.Standard));
-        }
-    }
-
-    public class ExpiresOnMod : ModTemplate
-    {
-        public ExpiresOnMod(int value) 
-        {
-            SetLifecycle(new PermanentLifecycle());
-            SetBehavior(new ExpiresOn(value));
-        }
-    }
-
-    public class ExpireOnZeroMod : ExpiresOnMod
-    {
-        public ExpireOnZeroMod()
-            : base(0)
-        { }
     }
 }

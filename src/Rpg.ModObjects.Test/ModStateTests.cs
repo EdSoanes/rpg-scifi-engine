@@ -1,4 +1,5 @@
 ﻿using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Mods.Templates;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.States;
 using Rpg.ModObjects.Tests.Models;
@@ -28,7 +29,7 @@ namespace Rpg.ModObjects.Tests
             => owner.Value >= 10;
 
         protected override void OnFillStateSet(ModSet modSet, StateEntity owner)
-            => modSet.AddMod(new SyncedMod(modSet.Id), owner, x => x.BuffedValue, 10);
+            => modSet.Add(owner, x => x.BuffedValue, 10);
     }
 
     public class ModStateTests

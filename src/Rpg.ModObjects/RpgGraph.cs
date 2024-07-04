@@ -27,6 +27,13 @@ namespace Rpg.ModObjects
             Time.Begin();
         }
 
+        private static List<RpgObject> _preAddedObjects = new List<RpgObject>();
+        internal static void PreAddEntity(RpgObject obj)
+        {
+            if (!_preAddedObjects.Any(x => x.Id == obj.Id))
+                _preAddedObjects.Add(obj);
+        }
+
         public T? Locate<T>(string? id)
             where T : class
         {
@@ -80,6 +87,15 @@ namespace Rpg.ModObjects
         {
             foreach (var modGroup in mods.GroupBy(x => x.EntityId))
                 GetEntity(modGroup.Key)?.PropStore.Add(modGroup.ToArray());
+        }
+
+        public void AddModSets(params ModSet[] modSets)
+        {
+            foreach (var modSet in modSets)
+            {
+                var entity = GetEntity(modSet.OwnerId)!;
+                entity.AddModSet(modSet);
+            }
         }
 
         public void RemoveMods(params Mod[] mods)
@@ -427,6 +443,14 @@ namespace Rpg.ModObjects
         private void OnBeforeTime()
         {
             ObjectStore.Clear();
+
+            foreach (var preAddedObject in _preAddedObjects.SelectMany(x => x.Traverse())) 
+            {
+                preAddedObject.OnBeforeTime(this, preAddedObject);
+                AddEntity(preAddedObject);
+            }
+
+            _preAddedObjects.Clear();
 
             foreach (var entity in Context.Traverse())
             {

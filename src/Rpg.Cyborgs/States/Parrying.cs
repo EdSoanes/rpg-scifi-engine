@@ -10,5 +10,7 @@ namespace Rpg.Cyborgs.States
 {
     public class Parrying : State<Actor>
     {
+        public Parrying(Actor owner)
+            : base(owner) { }
     }
 }

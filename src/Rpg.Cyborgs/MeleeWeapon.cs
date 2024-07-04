@@ -5,7 +5,7 @@ using Rpg.ModObjects.Values;
 
 namespace Rpg.Cyborgs
 {
-    public abstract class MeleeWeapon : RpgEntity
+    public class MeleeWeapon : RpgEntity
     {
         [JsonProperty]
         [DiceUI]
@@ -14,5 +14,20 @@ namespace Rpg.Cyborgs
         [JsonProperty]
         [DiceUI]
         public int HitBonus { get; protected set; }
+
+        [JsonConstructor] private MeleeWeapon() { }
+
+        public MeleeWeapon(MeleeWeaponTemplate template)
+            : base(template.Name)
+        {
+            Damage = template.Damage;
+            HitBonus = template.HitBonus;
+        }
+
+        protected override void OnLifecycleStarting()
+        {
+            base.OnLifecycleStarting();
+            this.InitActionsAndStates(Graph!);
+        }
     }
 }

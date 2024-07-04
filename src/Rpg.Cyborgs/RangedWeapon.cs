@@ -5,7 +5,7 @@ using Rpg.ModObjects.Values;
 
 namespace Rpg.Cyborgs
 {
-    public abstract class RangedWeapon : RpgEntity
+    public class RangedWeapon : RpgEntity
     {
         [JsonProperty]
         [DiceUI]
@@ -14,5 +14,19 @@ namespace Rpg.Cyborgs
         [JsonProperty]
         [DiceUI]
         public int HitBonus { get; protected set; }
+
+        [JsonConstructor] private RangedWeapon() { }
+
+        public RangedWeapon(RangedWeaponTemplate template)
+            : base(template.Name)
+        {
+            Damage = template.Damage;
+            HitBonus = template.HitBonus;
+        }
+        protected override void OnLifecycleStarting()
+        {
+            base.OnLifecycleStarting();
+            this.InitActionsAndStates(Graph!);
+        }
     }
 }

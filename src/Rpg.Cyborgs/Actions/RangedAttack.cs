@@ -5,6 +5,8 @@ using Rpg.ModObjects;
 using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time;
+using Rpg.ModObjects.Time.Lifecycles;
+using Rpg.ModObjects.Time.Templates;
 
 namespace Rpg.Cyborgs.Actions
 {
@@ -18,39 +20,35 @@ namespace Rpg.Cyborgs.Actions
         }
 
         public override bool IsEnabled<TOwner, TInitiator>(TOwner owner, TInitiator initiator)
-            => (initiator as Actor)!.Hands.Contains(owner);
+            => (initiator as Actor)!.Hands.Contains(owner) && (initiator as Actor)!.CurrentActions > 0;
 
         public ModSet OnCost(int actionNo, MeleeWeapon owner, Actor initiator, int focusPoints)
         {
-            return new ModSet(new TimeLifecycle(TimePoints.BeginningOfEncounter))
-                .AddMod(new TurnMod(), initiator, x => x.CurrentFocusPoints, -focusPoints);
+            return new ModSet(initiator, new TurnLifecycle())
+                .Add(initiator, x => x.CurrentFocusPoints, -focusPoints)
+                .Add(initiator, x => x.CurrentActions, -1);
         }
 
-        public ModSet OnAct(int actionNo, MeleeWeapon owner, Actor initiator, int focusPoints, int? abilityScore)
+        public ModSet[] OnAct(int actionNo, MeleeWeapon owner, Actor initiator, int focusPoints, int? abilityScore)
         {
-            var modSet = new ModSet(new TimeLifecycle(TimePoints.Encounter(1)));
+            var modSet = new ModSet(initiator, new TurnLifecycle());
 
-            ActResultMod(actionNo, modSet, initiator, "Base", "2d6");
-            ActResultMod(actionNo, modSet, initiator, "FocusPoints", focusPoints);
-            ActResultMod(actionNo, modSet, initiator, $"{nameof(Aim)}_{nameof(Aim.Rating)}");
+            ActResult(actionNo, modSet, initiator, "Base", "2d6");
+            ActResult(actionNo, modSet, initiator, "FocusPoints", focusPoints);
+            ActResult(actionNo, modSet, initiator, $"{nameof(Aim)}_{nameof(Aim.Rating)}");
 
             if (abilityScore != null)
-                ActResultMod(actionNo, modSet, initiator, "Ability", abilityScore.Value);
+                ActResult(actionNo, modSet, initiator, "Ability", abilityScore.Value);
             else
-                ActResultMod(actionNo, modSet, initiator, x => x.RangedAttack);
+                ActResult(actionNo, modSet, initiator, x => x.RangedAttack);
 
-            return modSet;
+            return [modSet];
         }
 
         public ModSet[] OnOutcome(MeleeWeapon owner, Actor initiator, int diceRoll, int targetDefence)
         {
             var moving = owner.CreateStateInstance(nameof(Firing), new TimeLifecycle(TimePoints.Encounter(1)));
-            var res = new List<ModSet>()
-            {
-                moving
-            };
-
-            return res.ToArray();
+            return [moving];
         }
     }
 }

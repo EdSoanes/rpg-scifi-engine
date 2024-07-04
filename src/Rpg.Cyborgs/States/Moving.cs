@@ -10,5 +10,7 @@ namespace Rpg.Cyborgs.States
 {
     public class Moving : State<Actor>
     {
+        public Moving(Actor owner)
+            : base(owner) { }
     }
 }
