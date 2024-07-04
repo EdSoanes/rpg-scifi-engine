@@ -21,19 +21,19 @@ namespace Rpg.Cyborgs.Skills.Movement
 
         public ModSet OnCost(Actor owner, int focusPoints)
         {
-            return new ModSet(owner, new TurnLifecycle())
+            return new ModSet(owner.Id, new TurnLifecycle())
                 .Add(owner, x => x.CurrentFocusPoints, -focusPoints)
                 .Add(owner, x => x.CurrentActions, -1);
         }
 
         public ModSet[] OnAct(Actor owner)
         {
-            return [new ModSet(owner, new TurnLifecycle())];
+            return [new ModSet(owner.Id, new TurnLifecycle())];
         }
 
         public ModSet[] OnOutcome(Actor owner)
         {
-            var moving = owner.CreateStateInstance(nameof(Moving), new TurnLifecycle());
+            var moving = owner.GetState(nameof(Moving))!.CreateInstance(new TurnLifecycle());
             return [moving];
         }
     }

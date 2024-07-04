@@ -19,13 +19,13 @@ namespace Rpg.Cyborgs.Actions
 
         public ModSet OnCost(int actionNo, RpgEntity owner, Actor initiator, RpgContainer from, RpgContainer to)
         {
-            return new ModSet(initiator, new TurnLifecycle())
+            return new ModSet(initiator.Id, new TurnLifecycle())
                 .Add(initiator, x => x.CurrentActions, -1);
         }
 
         public ModSet[] OnAct(int actionNo, RpgEntity owner, Actor initiator, RpgContainer from, RpgContainer to)
         {
-            var modSet = new ModSet(initiator, new TurnLifecycle());
+            var modSet = new ModSet(initiator.Id, new TurnLifecycle());
             return [modSet];
         }
 

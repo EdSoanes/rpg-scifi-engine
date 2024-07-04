@@ -3,8 +3,6 @@ using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
-using Rpg.ModObjects.Values;
-using System.Linq.Expressions;
 
 namespace Rpg.ModObjects.States
 {
@@ -17,12 +15,11 @@ namespace Rpg.ModObjects.States
         [JsonProperty] public string? OwnerId { get; private set; }
         [JsonProperty] public string? OwnerArchetype { get; private set; }
 
-        public ILifecycle Lifecycle { get => ForcedLifecycle ?? ConditionalLifecycle; }
-        [JsonProperty] protected ILifecycle ConditionalLifecycle { get; set; }
-        [JsonProperty] protected ILifecycle? ForcedLifecycle { get; set; }
+        [JsonProperty] public ILifecycle Lifecycle { get; set; }
 
-        [JsonProperty] public bool ConditionallyOn { get; protected set; }
-        public bool IsOn { get => Lifecycle.Expiry == LifecycleExpiry.Active; }
+        public bool IsOn { get => IsOnConditionally || IsOnManually; }
+        public bool IsOnConditionally { get => Graph?.GetEntity<RpgEntity>(OwnerId)!.GetActiveConditionalStateSets(Name).Any() ?? false; }
+        public bool IsOnManually { get => Graph?.GetEntity<RpgEntity>(OwnerId)!.GetActiveManualStateSets(Name).Any() ?? false; }
 
         [JsonConstructor] protected State() { }
 
@@ -34,6 +31,14 @@ namespace Rpg.ModObjects.States
             OwnerArchetype = owner.Archetype;
         }
 
+        public ModSet CreateInstance(ILifecycle? lifecycle = null)
+        {
+            var modSet = new ModSet(OwnerId!, lifecycle ?? new SyncedLifecycle(Id), Name);
+            FillStateSet(modSet);
+
+            return modSet;
+        }
+
         internal abstract void FillStateSet(ModSet modSet);
 
         internal void OnAdding(RpgGraph graph)
@@ -42,51 +47,53 @@ namespace Rpg.ModObjects.States
         }
 
         public bool On()
+            => On(new PermanentLifecycle());
+
+        public bool On(ILifecycle lifecycle)
         {
-            if (ForcedLifecycle == null)
+            if (Graph == null)
+                return false;
+            
+            if (!IsOnManually)
             {
-                ForcedLifecycle = new PermanentLifecycle();
-                ForcedLifecycle.OnStartLifecycle(Graph!, Graph!.Time.Current);
+                var stateSet = CreateInstance(new PermanentLifecycle());
+                Graph.AddModSets(stateSet);
             }
 
             return true;
         }
 
-        public bool On(ILifecycle lifecycle)
-        {
-            ForcedLifecycle = lifecycle;
-            return true;
-        }
-
         public bool Off()
         {
-            ForcedLifecycle = null;
+            if (Graph == null)
+                return false;
+
+            if (IsOnManually)
+            {
+                var entity = Graph.GetEntity<RpgEntity>(OwnerId)!;
+                var stateSets = entity.GetActiveManualStateSets(Name);
+
+                foreach (var stateSet in stateSets)
+                    entity.ModSetStore.Remove(stateSet.Id);
+            }
+
             return true;
         }
     }
 
     public abstract class State<T> : State
-        where T : RpgObject
+        where T : RpgEntity
     {
         [JsonConstructor] protected State() { }
 
         public State(T owner)
             : base(owner)
         {
-            ConditionalLifecycle = new ConditionalLifecycle<State<T>>(Id, new RpgMethod<State<T>, LifecycleExpiry>(this, nameof(CalculateExpiry)));
+            Lifecycle = new ConditionalLifecycle<State<T>>(Id, new RpgMethod<State<T>, LifecycleExpiry>(this, nameof(CalculateExpiry)));
         }
 
         protected virtual bool IsOnWhen(T owner)
             => false;
-
-        public ModSet CreateStateInstance(string stateName, ILifecycle? lifecycle = null)
-        {
-            var owner = Graph!.GetEntity<T>(Id)!;
-            var modSet = new ModSet(owner, lifecycle ?? new SyncedLifecycle(Id), stateName);
-            OnFillStateSet(modSet, owner);
-
-            return modSet;
-        }
 
         internal override void FillStateSet(ModSet modSet)
         {
@@ -99,30 +106,10 @@ namespace Rpg.ModObjects.States
 
         protected virtual LifecycleExpiry CalculateExpiry()
         {
-            LifecycleExpiry expiry;
-            if (ForcedLifecycle != null)
-            {
-                expiry = ForcedLifecycle.OnUpdateLifecycle(Graph!, Graph!.Time.Current);
-            }
-            else
-            {
-                var obj = Graph!.GetEntity<T>(OwnerId)!;
-                expiry = IsOnWhen(obj)
-                    ? LifecycleExpiry.Active
-                    : LifecycleExpiry.Expired;
-
-                //Should we do the following here? Won't the engine ensure that the mods are added later on?
-                if (expiry == LifecycleExpiry.Active && !ConditionallyOn)
-                {
-                    ConditionallyOn = true;
-                }
-                else if (expiry != LifecycleExpiry.Active && ConditionallyOn)
-                {
-                    ConditionallyOn = false;
-                }
-            }
-
-            return expiry;
+            var entity = Graph!.GetEntity<T>(OwnerId)!;
+            return IsOnWhen(entity)
+                ? LifecycleExpiry.Active
+                : LifecycleExpiry.Expired;
         }
     }
 }

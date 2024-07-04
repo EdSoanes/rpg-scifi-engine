@@ -20,7 +20,7 @@ namespace Rpg.ModObjects.Lifecycles
             Duration = duration;
         }
 
-        public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint time, Mod? mod = null)
+        public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint time)
         {
             StartTime = graph.Time.CalculateStartTime(Delay);
             EndTime = graph.Time.CalculateEndTime(StartTime, Duration);

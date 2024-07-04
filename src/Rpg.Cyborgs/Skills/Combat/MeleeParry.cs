@@ -24,14 +24,14 @@ namespace Rpg.Cyborgs.Skills.Combat
 
         public ModSet OnCost(Actor owner, Actor initiator, int focusPoints)
         {
-            return new ModSet(initiator, new TurnLifecycle())
+            return new ModSet(initiator.Id, new TurnLifecycle())
                 .Add(owner, x => x.CurrentFocusPoints, -focusPoints)
                 .Add(new TurnMod(1, 1), initiator, x => x.CurrentActions, -1);
         }
 
         public ModSet[] OnAct(int actionNo, Actor owner, Actor initiator, int focusPoints, int? abilityScore)
         {
-            var modSet = new ModSet(initiator, new TurnLifecycle());
+            var modSet = new ModSet(initiator.Id, new TurnLifecycle());
 
             ActResult(actionNo, modSet, initiator, "Base", "2d6");
             ActResult(actionNo, modSet, initiator, "FocusPoints", focusPoints);
@@ -46,7 +46,7 @@ namespace Rpg.Cyborgs.Skills.Combat
 
         public ModSet[] OnOutcome(Actor owner, int diceRoll, int targetDefence)
         {
-            var parrying = owner.CreateStateInstance(nameof(Parrying), new TimeLifecycle(TimePoints.Encounter(1)));
+            var parrying = owner.GetState(nameof(Parrying))!.CreateInstance(new TurnLifecycle());
             return [parrying];
         }
     }

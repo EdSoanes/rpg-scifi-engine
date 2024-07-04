@@ -11,7 +11,6 @@ namespace Rpg.ModObjects.Mods
     {
         [JsonProperty] public string Id { get; private set; }
         [JsonProperty] public string? OwnerId { get; private set; }
-        [JsonProperty] public string? OwnerArchetype { get; private set; }
 
         [JsonProperty] public string Name { get; set; }
 
@@ -22,12 +21,11 @@ namespace Rpg.ModObjects.Mods
 
         [JsonConstructor] protected ModSet() { }
 
-        protected ModSet(string ownerId, string ownerArchetype, string? name = null) 
+        protected ModSet(string ownerId, string? name = null) 
         {
             Id = this.NewId();
             Name = name ?? GetType().Name;
             OwnerId = ownerId;
-            OwnerArchetype = ownerArchetype;
         }
 
         public ModSet(ILifecycle lifecycle, string? name = null)
@@ -37,20 +35,17 @@ namespace Rpg.ModObjects.Mods
             Name = name ?? GetType().Name;
         }
 
-        public ModSet(RpgObject owner, ILifecycle lifecycle, string? name = null)
+        public ModSet(string ownerId, ILifecycle lifecycle, string? name = null)
         {
             Id = this.NewId();
             Lifecycle = lifecycle;
             Name = name ?? GetType().Name;
-            OwnerId = owner.Id;
-            OwnerArchetype = owner.Archetype;
+            OwnerId = ownerId;
         }
 
         public ModSet SetOwner(RpgObject? owner)
         {
             OwnerId = owner?.Id;
-            OwnerArchetype = owner?.GetType().Name;
-
             return this;
         }
 
@@ -71,7 +66,6 @@ namespace Rpg.ModObjects.Mods
         public void OnAdding(RpgObject? entity = null)
         {
             OwnerId ??= entity?.Id;
-            OwnerArchetype ??= entity?.Archetype;
         }
     }
 

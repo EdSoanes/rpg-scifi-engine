@@ -19,11 +19,11 @@ namespace Rpg.ModObjects.Tests.Actions
             => true;
 
         public ModSet OnCost(TestHuman owner)
-            => new ModSet(owner, new TurnLifecycle());
+            => new ModSet(owner.Id, new TurnLifecycle());
 
         public ModSet[] OnAct(TestHuman owner, int damage)
         {
-            return [new ModSet(owner, new TurnLifecycle())
+            return [new ModSet(owner.Id, new TurnLifecycle())
                 .Add(new PermanentMod(), owner, x => x.Health, -damage)];
         }
 

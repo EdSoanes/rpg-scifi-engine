@@ -19,13 +19,13 @@ namespace Rpg.ModObjects.Tests.Actions
 
         public ModSet OnCost(TestGun owner, TestHuman initiator)
         {
-            return new ModSet(initiator, new TurnLifecycle())
+            return new ModSet(initiator.Id, new TurnLifecycle())
                 .Add(initiator, x => x.PhysicalActionPoints.Current, -1);
         }
 
         public ModSet[] OnAct(int actionNo, TestGun owner, TestHuman initiator, int targetDefence)
         {
-            var modSet = new ModSet(initiator, new TurnLifecycle());
+            var modSet = new ModSet(initiator.Id, new TurnLifecycle());
 
             ActResult(actionNo, modSet, initiator, "Base", "d20");
             ActResult(actionNo, modSet, initiator, x => x.MissileAttack);
@@ -36,14 +36,14 @@ namespace Rpg.ModObjects.Tests.Actions
 
         public ModSet[] OnOutcome(int actionNo, TestGun owner, TestHuman initiator, int target, int diceRoll)
         {
-            var outcome = new ModSet(initiator, new TurnLifecycle());
+            var outcome = new ModSet(initiator.Id, new TurnLifecycle());
             OutcomeMod(actionNo, outcome, initiator, owner, x => x.Damage.Dice);
             OutcomeMod(actionNo, outcome, initiator, x => x.Dexterity.Bonus);
 
-            var ammo = new ModSet(owner, new TurnLifecycle())
+            var ammo = new ModSet(owner.Id, new TurnLifecycle())
                 .Add(new PermanentMod(), owner, x => x.Ammo.Current, -1);
 
-            var firing = owner.CreateStateInstance(nameof(GunFiring), new TurnLifecycle());
+            var firing = owner.GetState(nameof(GunFiring))!.CreateInstance(new TurnLifecycle());
             var res = new List<ModSet>
             {
                 outcome,

@@ -62,7 +62,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(11));
             Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(15));
 
-            var modSet = graph.GetModSet(entity, "test")!;
+            var modSet = graph.GetModSets(entity, (x) => x.Name == "test").First();
             modSet.Lifecycle.SetExpired(graph.Time.Current);
             graph.Time.TriggerEvent();
 
@@ -94,7 +94,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(11));
             Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(15));
 
-            var modSet = graph.GetModSet(entity, "test")!;
+            var modSet = graph.GetModSets(entity, (x) => x.Name == "test").First();
             modSet.Lifecycle.SetExpired(graph.Time.Current);
             graph.Time.TriggerEvent();
 
@@ -130,7 +130,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(11));
             Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(15));
 
-            var modSet = graph.GetModSet(entity, "test")!;
+            var modSet = graph.GetModSets(entity, (x) => x.Name == "test").First();
             graph.RemoveModSet(entity, modSet.Id);
             graph.Time.TriggerEvent();
 

@@ -54,24 +54,24 @@ namespace Rpg.ModObjects.Mods
                 Remove(existing.Id);
         }
 
-        public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
+        public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime)
         {
-            var expiry = base.OnStartLifecycle(graph, currentTime, mod);
+            var expiry = base.OnStartLifecycle(graph, currentTime);
 
             foreach (var modSet in Get())
             {
                 if (!modSet.Mods.Any())
                     modSet.Mods.AddRange(graph.GetActiveMods(x => x.OwnerId == modSet.Id));
 
-                modSet.Lifecycle.OnStartLifecycle(graph, currentTime, mod);
+                modSet.Lifecycle.OnStartLifecycle(graph, currentTime);
             }
 
             return expiry;
         }
 
-        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
+        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime)
         {
-            var expiry = base.OnUpdateLifecycle(graph, currentTime, mod);
+            var expiry = base.OnUpdateLifecycle(graph, currentTime);
             var toRemove = new List<ModSet>();
             foreach (var modSet in Get())
             {

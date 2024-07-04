@@ -67,7 +67,7 @@ namespace Rpg.ModObjects.Props
                 var modProp = this[mod.Prop];
                 if (modProp != null)
                 {
-                    mod.OnRemoving(Graph!, modProp, mod);
+                    mod.OnRemoving(Graph!, modProp);
                     modProp.Remove(mod);
 
                     if (!modProp.Mods.Any() && !toRemove.Contains(modProp))
@@ -86,9 +86,9 @@ namespace Rpg.ModObjects.Props
             base.OnBeforeTime(graph, entity);
         }
 
-        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? modx = null)
+        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime)
         {
-            var res = base.OnUpdateLifecycle(graph, currentTime, modx);
+            var res = base.OnUpdateLifecycle(graph, currentTime);
 
             var toRemove = new List<Mod>();
             foreach (var modProp in Items.Values)

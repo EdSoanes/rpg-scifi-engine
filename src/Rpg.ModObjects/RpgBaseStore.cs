@@ -89,12 +89,12 @@ namespace Rpg.ModObjects
             Expiry = LifecycleExpiry.Active;
         }
 
-        public virtual LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
+        public virtual LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint time)
         {
             return Expiry;
         }
 
-        public virtual LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
+        public virtual LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint time)
         {
             return Expiry;
         }

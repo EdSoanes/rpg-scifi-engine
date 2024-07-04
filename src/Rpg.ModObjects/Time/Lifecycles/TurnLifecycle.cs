@@ -22,20 +22,20 @@ namespace Rpg.ModObjects.Time.Lifecycles
             : base(delay == 0 ? TimePoints.Empty : TimePoints.Encounter(delay), TimePoints.Encounter(duration))
         { }
 
-        public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint time, Mod? mod = null)
+        public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint time)
         {
             Expiry = time.Type != nameof(TimePoints.Encounter)
                 ? LifecycleExpiry.Expired
-                : base.OnStartLifecycle(graph, time, mod);
+                : base.OnStartLifecycle(graph, time);
 
             return Expiry;
         }
 
-        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint time, Mod? mod = null)
+        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint time)
         {
             Expiry = time.Type != nameof(TimePoints.Encounter)
                 ? LifecycleExpiry.Expired
-                : base.OnUpdateLifecycle(graph, time, mod);
+                : base.OnUpdateLifecycle(graph, time);
 
             return Expiry;
         }

@@ -23,7 +23,7 @@ namespace Rpg.ModObjects.Lifecycles
         public virtual void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
         { }
 
-        public virtual LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint time, Mod? mod = null)
+        public virtual LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint time)
         {
             StartTime = TimePoints.BeginningOfTime;
             EndTime = TimePoints.EndOfTime;
@@ -32,7 +32,7 @@ namespace Rpg.ModObjects.Lifecycles
             return Expiry;
         }
 
-        public virtual LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint time, Mod? mod = null)
+        public virtual LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint time)
         {
             Expiry = graph.Time.CalculateExpiry(StartTime, ExpiredTime ?? EndTime);
             return Expiry;

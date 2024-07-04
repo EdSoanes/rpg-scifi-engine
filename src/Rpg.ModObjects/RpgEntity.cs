@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Lifecycles;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.States;
 using Rpg.ModObjects.Time;
 
@@ -35,6 +37,11 @@ namespace Rpg.ModObjects
         public State[] GetStates()
             => StateStore.Get();
 
+        public ModSet[] GetActiveConditionalStateSets(string stateName)
+            => Graph!.GetModSets(this, (x) => x.Name == stateName && x.Lifecycle is SyncedLifecycle && x.Expiry == LifecycleExpiry.Active);
+
+        public ModSet[] GetActiveManualStateSets(string stateName)
+            => Graph!.GetModSets(this, (x) => x.Name == stateName && !(x.Lifecycle is SyncedLifecycle) && x.Expiry == LifecycleExpiry.Active);
 
         public bool IsActionEnabled<TOwner, TInitiator>(string action, TInitiator initiator)
             where TOwner : RpgEntity
@@ -55,19 +62,19 @@ namespace Rpg.ModObjects
             StateStore.OnBeforeTime(graph, entity);
         }
 
-        public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime, Mods.Mod? mod = null)
+        public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime)
         {
             StateStore.OnStartLifecycle(graph, currentTime);
-            var expiry = base.OnStartLifecycle(graph, currentTime, mod);
+            var expiry = base.OnStartLifecycle(graph, currentTime);
             ActionStore.OnStartLifecycle(graph, currentTime);
 
             return expiry;
         }
 
-        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mods.Mod? mod = null)
+        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime)
         {
             StateStore.OnUpdateLifecycle(graph, currentTime);
-            var expiry = base.OnUpdateLifecycle(graph, currentTime, mod);
+            var expiry = base.OnUpdateLifecycle(graph, currentTime);
             ActionStore.OnUpdateLifecycle(graph, currentTime);
 
             return expiry;

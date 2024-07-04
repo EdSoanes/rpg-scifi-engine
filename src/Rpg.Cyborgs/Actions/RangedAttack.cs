@@ -24,14 +24,14 @@ namespace Rpg.Cyborgs.Actions
 
         public ModSet OnCost(int actionNo, MeleeWeapon owner, Actor initiator, int focusPoints)
         {
-            return new ModSet(initiator, new TurnLifecycle())
+            return new ModSet(initiator.Id, new TurnLifecycle())
                 .Add(initiator, x => x.CurrentFocusPoints, -focusPoints)
                 .Add(initiator, x => x.CurrentActions, -1);
         }
 
         public ModSet[] OnAct(int actionNo, MeleeWeapon owner, Actor initiator, int focusPoints, int? abilityScore)
         {
-            var modSet = new ModSet(initiator, new TurnLifecycle());
+            var modSet = new ModSet(initiator.Id, new TurnLifecycle());
 
             ActResult(actionNo, modSet, initiator, "Base", "2d6");
             ActResult(actionNo, modSet, initiator, "FocusPoints", focusPoints);
@@ -47,7 +47,7 @@ namespace Rpg.Cyborgs.Actions
 
         public ModSet[] OnOutcome(MeleeWeapon owner, Actor initiator, int diceRoll, int targetDefence)
         {
-            var moving = owner.CreateStateInstance(nameof(Firing), new TimeLifecycle(TimePoints.Encounter(1)));
+            var moving = owner.GetState(nameof(Firing))!.CreateInstance(new TurnLifecycle());
             return [moving];
         }
     }

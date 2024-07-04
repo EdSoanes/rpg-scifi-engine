@@ -109,7 +109,7 @@ namespace Rpg.ModObjects
             ModSetStore.OnBeginningOfTime(graph, entity);
         }
 
-        public virtual LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
+        public virtual LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime)
         {
             ModSetStore.OnStartLifecycle(graph, currentTime);
             PropStore.OnStartLifecycle(graph, currentTime);
@@ -117,7 +117,7 @@ namespace Rpg.ModObjects
             return Expiry;
         }
 
-        public virtual LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
+        public virtual LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime)
         {
             ModSetStore.OnUpdateLifecycle(graph, currentTime);
             PropStore.OnUpdateLifecycle(graph, currentTime);

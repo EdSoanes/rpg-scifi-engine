@@ -214,14 +214,10 @@ namespace Rpg.ModObjects
                 .SelectMany(x => x.ModSetStore.Get())
                 .ToArray();
 
-        public ModSet? GetModSet(RpgObject rpgObj, string name)
-        {
-            var modSet = rpgObj.ModSetStore.Get(name);
-            if (modSet != null)
-                return modSet;
-
-            return null;
-        }
+        public ModSet[] GetModSets(RpgObject rpgObj, Func<ModSet, bool> filterFunc)
+            =>rpgObj.ModSetStore.Get()
+                .Where(x => filterFunc(x))
+                .ToArray();
 
         public ModSet? GetModSet(string? modSetId)
         {

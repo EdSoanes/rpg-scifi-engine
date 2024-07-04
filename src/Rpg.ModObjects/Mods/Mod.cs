@@ -52,17 +52,17 @@ namespace Rpg.ModObjects.Mods
 
         public void OnAdding(RpgGraph graph, Prop modProp, Time.TimePoint time)
         {
-            Lifecycle.OnStartLifecycle(graph, time, this);
+            Lifecycle.OnStartLifecycle(graph, time);
             Behavior.OnAdding(graph, modProp, this);
         }
 
         public void OnUpdating(RpgGraph graph, Prop modProp, Time.TimePoint time)
         {
-            Lifecycle.OnUpdateLifecycle(graph, time, this);
+            Lifecycle.OnUpdateLifecycle(graph, time);
             Behavior.OnUpdating(graph, modProp, this);
         }
 
-        public void OnRemoving(RpgGraph graph, Prop modProp, Mod? mod = null)
+        public void OnRemoving(RpgGraph graph, Prop modProp)
         {
             Behavior.OnRemoving(graph, modProp, this);
         }

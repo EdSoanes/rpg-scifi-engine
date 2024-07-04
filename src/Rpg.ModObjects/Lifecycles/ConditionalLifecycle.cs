@@ -28,7 +28,7 @@ namespace Rpg.ModObjects.Lifecycles
             : this(entityId, conditional, conditional)
         { }
 
-        public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
+        public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime)
         {
             var owner = graph.Locate<TOwner>(OwnerId);
             if (owner == null)
@@ -40,7 +40,7 @@ namespace Rpg.ModObjects.Lifecycles
             return Expiry;
         }
 
-        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime, Mod? mod = null)
+        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime)
         {
             var owner = graph.Locate<TOwner>(OwnerId);
             if (owner == null)

@@ -29,22 +29,22 @@ namespace Rpg.Sys.Actions
         public ModSet OnCost(Actor owner, int distance)
         {
             var movementCost = CalculateMoveCost(owner, distance);
-            return new ModSet(owner, new TurnLifecycle())
+            return new ModSet(owner.Id, new TurnLifecycle())
                 .Add(owner, x => x.Actions.Action, -movementCost);
         }
 
         public ModSet[] OnAct(Actor owner, int distance)
         {
-            return [new ModSet(owner, new TurnLifecycle())
+            return [new ModSet(owner.Id, new TurnLifecycle())
                 .Add(owner, $"{nameof(Move)}.{nameof(OnAct)}", distance)];
         }
 
         public ModSet[] OnOutcome(Actor owner, int distance)
         {
-            var moveSet = new ModSet(owner, new TurnLifecycle())
+            var moveSet = new ModSet(owner.Id, new TurnLifecycle())
                 .Add(owner, x => x.Movement.Speed.Current, distance);
 
-            var moving = owner.CreateStateInstance(nameof(Move), new TurnLifecycle());
+            var moving = owner.GetState(nameof(Move))!.CreateInstance(new TurnLifecycle());
 
             return [moveSet, moving];
         }

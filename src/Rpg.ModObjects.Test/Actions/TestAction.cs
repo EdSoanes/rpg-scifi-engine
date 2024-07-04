@@ -17,7 +17,7 @@ namespace Rpg.ModObjects.Tests.Actions
 
         public ModSet OnCost(ModdableEntity owner, TestHuman initiator)
         {
-            return new ModSet(owner, new TurnLifecycle())
+            return new ModSet(owner.Id, new TurnLifecycle())
                 .Add(initiator, x => x.PhysicalActionPoints.Current, -1);
         }
 
@@ -28,7 +28,7 @@ namespace Rpg.ModObjects.Tests.Actions
 
         public ModSet[] OnOutcome(ModdableEntity owner, TestHuman initiator, int diceRoll)
         {
-            var testing = owner.CreateStateInstance(nameof(TestAction), new TurnLifecycle());
+            var testing = owner.GetState(nameof(TestAction))!.CreateInstance(new TurnLifecycle());
             return [testing];
         }
     }

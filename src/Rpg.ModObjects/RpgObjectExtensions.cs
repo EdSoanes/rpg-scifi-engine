@@ -38,19 +38,6 @@ namespace Rpg.ModObjects
         public static State? GetState(this RpgEntity entity, string stateName)
             => entity.StateStore[stateName] as State;
 
-        public static ModSet CreateStateInstance<T>(this T owner, string stateName, ILifecycle? lifecycle = null)
-            where T : RpgEntity
-        {
-            var state = owner.GetState(stateName)!;
-            var modSet = new ModSet(owner, lifecycle ?? new PermanentLifecycle(), stateName);
-            state.FillStateSet(modSet);
-            return modSet;
-        }
-
-        public static ModSet? GetStateInstance<T>(this T entity, string stateName)
-            where T : RpgEntity
-            => entity.ModSetStore.Get(stateName);
-
         public static T AddModSet<T>(this T entity, string name, System.Action<ModSet> addAction)
             where T : RpgObject
                 => AddModSet(entity, name, new PermanentLifecycle(), addAction);

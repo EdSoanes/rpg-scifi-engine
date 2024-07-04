@@ -3,6 +3,7 @@ using Rpg.ModObjects;
 using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time;
+using Rpg.ModObjects.Time.Lifecycles;
 using System.Text.Json.Serialization;
 
 namespace Rpg.Cyborgs.Skills.Combat
@@ -27,24 +28,19 @@ namespace Rpg.Cyborgs.Skills.Combat
 
         public ModSet OnCost(Actor owner, Actor initiator, int focusPoints)
         {
-            return new ModSet(new TimeLifecycle(TimePoints.BeginningOfEncounter));
+            return new ModSet(owner.Id, new TurnLifecycle());
         }
 
         public ModSet[] OnAct(int actionNo, Actor owner, Actor initiator, int focusPoints, int? abilityScore)
         {
-            var modSet = new ModSet(new TimeLifecycle(TimePoints.Encounter(1)));
+            var modSet = new ModSet(owner.Id, new TurnLifecycle());
             return [modSet];
         }
 
         public ModSet[] OnOutcome(Actor owner, int diceRoll, int targetDefence)
         {
-            var aiming = owner.CreateStateInstance(nameof(Aiming), new TimeLifecycle(TimePoints.Encounter(1)));
-            var res = new List<ModSet>()
-            {
-                aiming
-            };
-
-            return res.ToArray();
+            var aiming = owner.GetState(nameof(Aiming))!.CreateInstance(new TurnLifecycle());
+            return [aiming];
         }
     }
 }
