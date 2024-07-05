@@ -13,6 +13,7 @@ namespace Rpg.ModObjects.Meta
         [JsonProperty] public bool Required { get; private set; }
         [JsonProperty] public string? Category { get; private set; }
         [JsonProperty] public string? SubCategory { get; private set; }
+        [JsonProperty] public string[]? NextActionHints { get; private set; }
 
         [JsonProperty] private RpgMethod<Actions.Action, ModSet> OnCost { get; set; }
         [JsonProperty] private RpgMethod<Actions.Action, ModSet[]> OnAct { get; set; }
@@ -36,6 +37,7 @@ namespace Rpg.ModObjects.Meta
                 Required = attr.Required;
                 Category = attr.Category;
                 SubCategory = attr.SubCategory;
+                NextActionHints = attr.NextActionHints;
             }
         }
 

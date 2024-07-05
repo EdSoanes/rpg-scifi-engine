@@ -1,22 +1,19 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Cyborgs.States;
 using Rpg.ModObjects;
-using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Time.Lifecycles;
 using Rpg.ModObjects.Time.Templates;
 
-namespace Rpg.Cyborgs.Skills.Combat
+namespace Rpg.Cyborgs.Actions
 {
-    public class MeleeParry : Skill
+    public class MeleeParry : ModObjects.Actions.Action<Actor>
     {
         [JsonConstructor] private MeleeParry() { }
 
         public MeleeParry(Actor owner)
-            : base(owner) 
+            : base(owner)
         {
-            IsIntrinsic = true;
         }
 
         public bool OnCanAct(Actor owner)
@@ -44,9 +41,16 @@ namespace Rpg.Cyborgs.Skills.Combat
             return [modSet];
         }
 
-        public ModSet[] OnOutcome(Actor owner, int diceRoll, int targetDefence)
+        public ModSet[] OnOutcome(int actionNo, Actor owner, int diceRoll, int target, int damage)
         {
-            var parrying = owner.GetState(nameof(Parrying))!.CreateInstance(new TurnLifecycle());
+            var parrying = owner.GetState(nameof(Parrying))!.CreateInstance(new TurnLifecycle(1, 1));
+            var damageSet = new ModSet(owner.Id, new TurnLifecycle());
+            OutcomeMod(actionNo, damageSet, owner, "Damage", damage);
+
+            //If successful parry...
+            if (diceRoll >= target)
+                OutcomeMod(actionNo, damageSet, owner, x => -x.Strength);
+
             return [parrying];
         }
     }

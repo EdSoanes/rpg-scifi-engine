@@ -69,28 +69,28 @@ namespace Rpg.Cyborgs
         public int CurrentStaminaPoints { get; protected set; }
 
         [JsonProperty]
-        [InjuryUI(Group = "Health")]
-        public int Head { get; protected set; }
+        [ComponentUI(Group = "Health")]
+        public BodyPart Head { get; protected set; }
 
         [JsonProperty]
-        [InjuryUI(Group = "Health")]
-        public int Torso { get; protected set; }
+        [ComponentUI(Group = "Health")]
+        public BodyPart Torso { get; protected set; }
 
         [JsonProperty]
-        [InjuryUI(Group = "Health")]
-        public int LeftArm { get; protected set; }
+        [ComponentUI(Group = "Health")]
+        public BodyPart LeftArm { get; protected set; }
 
         [JsonProperty]
-        [InjuryUI(Group = "Health")]
-        public int RightArm { get; protected set; }
+        [ComponentUI(Group = "Health")]
+        public BodyPart RightArm { get; protected set; }
 
         [JsonProperty]
-        [InjuryUI(Group = "Health")]
-        public int LeftLeg { get; protected set; }
+        [ComponentUI(Group = "Health")]
+        public BodyPart LeftLeg { get; protected set; }
 
         [JsonProperty]
-        [InjuryUI(Group = "Health")]
-        public int RightLeg { get; protected set; }
+        [ComponentUI(Group = "Health")]
+        public BodyPart RightLeg { get; protected set; }
 
         [JsonProperty]
         [Threshold(Min = 1)]

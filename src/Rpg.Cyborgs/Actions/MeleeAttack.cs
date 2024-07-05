@@ -30,20 +30,25 @@ namespace Rpg.Cyborgs.Actions
             var modSet = new ModSet(initiator.Id, new TurnLifecycle());
 
             ActResult(actionNo, modSet, initiator, "Base", "2d6");
-            ActResult(actionNo, modSet, initiator, "FocusPoints", focusPoints);
 
             if (abilityScore != null)
-                ActResult(actionNo, modSet, initiator, "Ability", abilityScore.Value);
+                ActResult(actionNo, modSet, initiator, "Ability", abilityScore.Value * focusPoints);
             else
-                ActResult(actionNo, modSet, initiator, x => x.MeleeAttack);
+                ActResult(actionNo, modSet, initiator, "MeleeAttack", initiator.MeleeAttack * focusPoints);
 
             var attacking = initiator.GetState(nameof(MeleeAttacking))!.CreateInstance(new TurnLifecycle());
             return [modSet, attacking];
         }
 
-        public ModSet[] OnOutcome(MeleeWeapon owner, Actor initiator, int diceRoll, int targetDefence)
+        public ModSet[] OnOutcome(int actionNo, MeleeWeapon owner, Actor initiator, int diceRoll, int targetDefence)
         {
-            return Array.Empty<ModSet>();
+            var meleeAttacking = owner.GetState(nameof(MeleeAttacking))!.CreateInstance(new TurnLifecycle());
+
+            var damage = new ModSet(initiator.Id, new TurnLifecycle());
+            OutcomeMod(actionNo, damage, initiator, owner, x => x.Damage);
+            OutcomeMod(actionNo, damage, initiator, x => x.Strength);
+
+            return [meleeAttacking, damage];
         }
     }
 }

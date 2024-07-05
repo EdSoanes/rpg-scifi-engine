@@ -31,14 +31,12 @@ namespace Rpg.ModObjects
             return null;
         }
 
-        public IEnumerable<T> Get<T>()
+        public IEnumerable<T> Get<T>(Func<T, bool>? filterFunc = null)
             where T : RpgObject
-        {
-            return ContainerStore
-                .Select(x => Graph!.GetEntity<T>(x))
-                .Where(x => x != null)
-                .Cast<T>();
-        }
+                => ContainerStore
+                    .Select(x => Graph!.GetEntity<T>(x))
+                    .Where(x => x != null && (filterFunc?.Invoke(x) ?? true))
+                    .Cast<T>();
 
         public bool Contains(RpgEntity obj)
             => Contains(obj.Id);
