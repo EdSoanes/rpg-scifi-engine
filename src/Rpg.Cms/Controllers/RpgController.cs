@@ -52,6 +52,17 @@ namespace Rpg.Cms.Controllers
             _umbracoHelper = umbracoHelper;
         }
 
+        [HttpGet("systems")]
+        [MapToApiVersion("1.0")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> Systems()
+        {
+            var systems = _syncSessionFactory.GetSystems();
+            var json = RpgSerializer.Serialize(systems);
+
+            return Content(json, "application/json");
+        }
+
         [HttpPost("sync")]
         [MapToApiVersion("1.0")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -60,7 +71,32 @@ namespace Rpg.Cms.Controllers
             var userKey = CurrentUserKey(_backOfficeSecurityAccessor);
 
             var systems = _syncSessionFactory.GetSystems();
-            var session = _syncSessionFactory.CreateSession(userKey, systems.First());
+            foreach (var system in systems)
+            {
+                var session = _syncSessionFactory.CreateSession(userKey, system);
+
+                await _syncTypesService.Sync(session);
+                await _syncContentService.Sync(session);
+            }
+
+            return Ok();
+        }
+
+        [HttpPost("sync/{identifier}")]
+        [MapToApiVersion("1.0")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Sync(string identifier)
+        {
+            var userKey = CurrentUserKey(_backOfficeSecurityAccessor);
+
+            var system = _syncSessionFactory.GetSystems()
+                .FirstOrDefault(x => x.Identifier == identifier);
+
+            if (system == null)
+                return NotFound();
+
+            var session = _syncSessionFactory.CreateSession(userKey, system);
 
             await _syncTypesService.Sync(session);
             await _syncContentService.Sync(session);

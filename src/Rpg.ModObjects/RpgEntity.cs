@@ -7,12 +7,12 @@ using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects
 {
-    public class RpgEntity : RpgObject
+    public abstract class RpgEntity : RpgObject
     {
         [JsonProperty] internal StateStore StateStore { get; private set; }
         [JsonProperty] internal ActionStore ActionStore { get; private set; }
 
-        public RpgEntity()
+        [JsonConstructor] protected RpgEntity()
             : base() 
         {
             StateStore = new StateStore(Id);

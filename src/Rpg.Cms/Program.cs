@@ -2,6 +2,7 @@ using Rpg.Cms.Services;
 using Rpg.Cms.Services.Converter;
 using Rpg.Cms.Services.Factories;
 using Rpg.Cms.Services.Synchronizers;
+using Rpg.Cyborgs;
 using Rpg.ModObjects.Reflection;
 using Rpg.Sys;
 
@@ -37,6 +38,7 @@ WebApplication app = builder
 await app.BootUmbracoAsync();
 
 RpgReflection.RegisterAssembly(typeof(MetaSystem).Assembly);
+RpgReflection.RegisterAssembly(typeof(CyborgsSystem).Assembly);
 
 app.UseUmbraco()
     .WithMiddleware(u =>

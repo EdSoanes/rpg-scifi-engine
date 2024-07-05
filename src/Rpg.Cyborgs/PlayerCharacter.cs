@@ -5,7 +5,7 @@ namespace Rpg.Cyborgs
 {
     public class PlayerCharacter : Actor
     {
-        [JsonConstructor] private PlayerCharacter() { }
+        [JsonConstructor] protected PlayerCharacter() { }
 
         public PlayerCharacter(PlayerCharacterTemplate template)
             : base(template.Name)

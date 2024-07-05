@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Rpg.Cyborgs.Attributes;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Mods;
@@ -46,7 +45,7 @@ namespace Rpg.Cyborgs
 
         [JsonProperty]
         [Threshold(Min = 0)]
-        [IntegerUI(Group = "Stats")]
+        [IntegerUI(Ignore = true)]
         public int LuckPoints { get; protected set; } = 1;
 
         [JsonProperty]
@@ -55,12 +54,12 @@ namespace Rpg.Cyborgs
         public int CurrentLuckPoints { get; protected set; }
 
         [JsonProperty]
-        [IntegerUI(Group = "Stats")]
+        [IntegerUI(Ignore = true)]
         public int Reactions { get; protected set; } = 7;
 
         [JsonProperty]
         [Threshold(Min = 1)]
-        [IntegerUI(Group = "Health")]
+        [IntegerUI(Ignore = true)]
         public int StaminaPoints { get; protected set; } = 12;
 
         [JsonProperty]
@@ -69,32 +68,32 @@ namespace Rpg.Cyborgs
         public int CurrentStaminaPoints { get; protected set; }
 
         [JsonProperty]
-        [ComponentUI(Group = "Health")]
+        [ComponentUI(Ignore = true)]
         public BodyPart Head { get; protected set; }
 
         [JsonProperty]
-        [ComponentUI(Group = "Health")]
+        [ComponentUI(Ignore = true)]
         public BodyPart Torso { get; protected set; }
 
         [JsonProperty]
-        [ComponentUI(Group = "Health")]
+        [ComponentUI(Ignore = true)]
         public BodyPart LeftArm { get; protected set; }
 
         [JsonProperty]
-        [ComponentUI(Group = "Health")]
+        [ComponentUI(Ignore = true)]
         public BodyPart RightArm { get; protected set; }
 
         [JsonProperty]
-        [ComponentUI(Group = "Health")]
+        [ComponentUI(Ignore = true)]
         public BodyPart LeftLeg { get; protected set; }
 
         [JsonProperty]
-        [ComponentUI(Group = "Health")]
+        [ComponentUI(Ignore = true)]
         public BodyPart RightLeg { get; protected set; }
 
         [JsonProperty]
         [Threshold(Min = 1)]
-        [IntegerUI(Group = "Health")]
+        [IntegerUI(Ignore = true)]
         public int LifePoints { get; protected set; } = 6;
 
         [JsonProperty]
@@ -104,31 +103,31 @@ namespace Rpg.Cyborgs
 
 
         [JsonProperty]
-        [IntegerUI(Group = "Combat")]
+        [IntegerUI(Ignore = true)]
         public int Defence { get; protected set; } = 7;
 
         [JsonProperty]
-        [IntegerUI(Group = "Combat")]
+        [IntegerUI(Ignore = true)]
         public int ArmourRating { get; protected set; } = 6;
 
         [JsonProperty]
-        [IntegerUI(Group = "Combat")]
+        [IntegerUI(Ignore = true)]
         public int UnarmedDamageBonus { get; protected set; }
         
         [JsonProperty]
-        [IntegerUI(Group = "Combat")]
+        [IntegerUI(Ignore = true)]
         public int ParryDamageReduction { get; protected set; }
 
         [JsonProperty]
-        [IntegerUI(Group = "Combat")]
+        [IntegerUI(Ignore = true)]
         public int RangedAttack { get; protected set; }
 
         [JsonProperty]
-        [IntegerUI(Group = "Combat")]
+        [IntegerUI(Ignore = true)]
         public int RangedAimBonus { get; protected set; }
 
         [JsonProperty]
-        [IntegerUI(Group = "Combat")]
+        [IntegerUI(Ignore = true)]
         public int MeleeAttack { get; protected set; }
 
         [JsonProperty]
@@ -140,6 +139,7 @@ namespace Rpg.Cyborgs
         [Threshold(Min = 0)]
         [IntegerUI(Ignore = true)]
         public int CurrentActions { get; protected set; }
+
         public RpgContainer Hands { get; protected set; } = new RpgContainer(nameof(Hands));
         public RpgContainer Wearing { get; protected set; } = new RpgContainer(nameof(Wearing));
 
