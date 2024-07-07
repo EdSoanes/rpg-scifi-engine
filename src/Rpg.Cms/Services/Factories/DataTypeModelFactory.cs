@@ -11,9 +11,7 @@ namespace Rpg.Cms.Services.Factories
     {
         public UpdateDataTypeRequestModel UpdateModel(SyncSession session, MetaPropUIAttribute attr)
         {
-            var res = new UpdateDataTypeRequestModel();
-            res = UpdateModel(session, attr);
-
+            var res = UpdateModel(session, attr);
             return res;
         }
 

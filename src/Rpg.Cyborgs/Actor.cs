@@ -140,13 +140,28 @@ namespace Rpg.Cyborgs
         [IntegerUI(Ignore = true)]
         public int CurrentActions { get; protected set; }
 
-        public RpgContainer Hands { get; protected set; } = new RpgContainer(nameof(Hands));
-        public RpgContainer Wearing { get; protected set; } = new RpgContainer(nameof(Wearing));
+        public RpgContainer Hands { get; protected set; }
+        public RpgContainer Wearing { get; protected set; }
 
         [JsonConstructor] protected Actor() { }
 
         public Actor(string name)
             : base(name) { }
+
+        public override void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
+        {
+            base.OnBeginningOfTime(graph, entity);
+            
+            Hands ??= new RpgContainer(nameof(Hands));
+            Wearing ??= new RpgContainer(nameof(Wearing));
+
+            Head ??= new BodyPart(Id, nameof(Head));
+            Torso ??= new BodyPart(Id, nameof(Torso));
+            LeftArm ??= new BodyPart(Id, nameof(LeftArm));
+            RightArm ??= new BodyPart(Id, nameof(RightArm));
+            LeftLeg ??= new BodyPart(Id, nameof(LeftLeg));
+            RightLeg ??= new BodyPart(Id, nameof(RightLeg));
+        }
 
         protected override void OnLifecycleStarting()
         {
