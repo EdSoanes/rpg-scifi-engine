@@ -38,7 +38,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Melee.Roll(), Is.EqualTo(5));
             Assert.That(entity.Health, Is.EqualTo(11));
             Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(11));
-            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(15));
+            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(14));
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new RpgGraph(entity);
 
-            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(12));
+            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(11));
             entity.AddModSet("test", modSet =>
             {
                 modSet
@@ -92,7 +92,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Melee.Roll(), Is.EqualTo(5));
             Assert.That(entity.Health, Is.EqualTo(11));
             Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(11));
-            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(15));
+            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(14));
 
             var modSet = graph.GetModSets(entity, (x) => x.Name == "test").First();
             modSet.Lifecycle.SetExpired(graph.Time.Current);
@@ -101,7 +101,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Melee.Roll(), Is.EqualTo(5));
             Assert.That(entity.Health, Is.EqualTo(10));
             Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(10));
-            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(13));
+            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(12));
         }
 
         [Test]

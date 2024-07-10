@@ -31,7 +31,7 @@ namespace Rpg.ModObjects.Tests.Actions
                 .DiceRoll(initiator, "Base", "d20")
                 .DiceRoll(initiator, x => x.MissileAttack)
                 .Target(initiator, "Base", 10)
-                .Target(initiator, "TargetDefence", -targetDefence);
+                .Target(initiator, "TargetDefence", targetDefence);
 
             return actionModSet;
         }

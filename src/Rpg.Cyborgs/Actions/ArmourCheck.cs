@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Behaviors;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Templates;
 using Rpg.ModObjects.Time.Lifecycles;
@@ -23,7 +25,7 @@ namespace Rpg.Cyborgs.Actions
                 .Add(owner, x => x.CurrentLuckPoints, -luckPoints);
         }
 
-        public ModSet[] OnAct(int actionNo, Actor owner, int damage, int diceRoll1, int diceRoll2, int luckPoints)
+        public ActionModSet OnAct(ActionInstance actionInstance, Actor owner, int damage, int diceRoll1, int diceRoll2, int luckPoints)
         {
             var armour = owner.Wearing.Get<Armour>()
                 .OrderByDescending(x => x.CurrentArmourRating)
@@ -32,47 +34,44 @@ namespace Rpg.Cyborgs.Actions
             var armourRating = armour?.CurrentArmourRating ?? 0;
             var reduction = CalculateDamageReduction(armourRating, diceRoll1, diceRoll2, luckPoints);
 
-            var reductionSet = new ModSet(owner.Id, new TurnLifecycle());
+            var actionSet = actionInstance.CreateActionSet();
             switch (reduction)
             {
                 case "success":
-                    ActResult(actionNo, reductionSet, owner, "DamageReduction", damage);
-                    reductionSet.Add(new PermanentMod(), armour!, x => x.CurrentArmourRating, -2);
+                    actionSet.DiceRoll(owner, "DamageReduction", damage);
                     break;
                 case "partial":
-                    ActResult(actionNo, reductionSet, owner, "DamageReduction", Convert.ToInt32(Math.Ceiling((double)damage / 2)));
-                    reductionSet.Add(new PermanentMod(), armour!, x => x.CurrentArmourRating, -1);
+                    actionSet.DiceRoll(owner, "DamageReduction", Convert.ToInt32(Math.Ceiling((double)damage / 2)));
                     break;
-
                 default:
-                    ActResult(actionNo, reductionSet, owner, "DamageReduction", 0);
+                    actionSet.DiceRoll(owner, "DamageReduction", 0);
                     break;
             }
 
-            return [reductionSet];
+            return actionSet;
         }
 
-        public ModSet[] OnOutcome(int actionNo, Actor owner, int damage, int damageReduction)
+        public ModSet[] OnOutcome(ActionInstance actionInstance, Actor owner, int damage, int damageReduction)
         {
             var armour = owner.Wearing.Get<Armour>()
                 .OrderByDescending(x => x.CurrentArmourRating)
                 .FirstOrDefault();
 
-            var damageSet = new ModSet(owner.Id, new TurnLifecycle());
+            var damageSet = actionInstance.CreateOutcomeSet();
             if (damage > 0 && damageReduction > 0)
             {
                 if (damageReduction == damage)
-                    damageSet.Add(new PermanentMod(), armour!, x => x.CurrentArmourRating, -2);
+                    damageSet.Add(new PermanentMod().SetBehavior(new Combine()), armour!, x => x.CurrentArmourRating, -2);
                 else
-                    damageSet.Add(new PermanentMod(), armour!, x => x.CurrentArmourRating, -1);
+                    damageSet.Add(new PermanentMod().SetBehavior(new Combine()), armour!, x => x.CurrentArmourRating, -1);
             }
 
-            OutcomeMod(actionNo, damageSet, owner, "Damage", damage - damageReduction);
+            damageSet.Outcome(owner, "Damage", damage - damageReduction);
 
             return [damageSet];
         }
 
-        public string CalculateDamageReduction(int armourRating, int diceRoll1, int diceRoll2, int luckPoints)
+        private string CalculateDamageReduction(int armourRating, int diceRoll1, int diceRoll2, int luckPoints)
         {
             var success1 = luckPoints > 0 || diceRoll1 > armourRating;
             var success2 = luckPoints > 1 || diceRoll2 > armourRating;

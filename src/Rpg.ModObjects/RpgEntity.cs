@@ -4,6 +4,7 @@ using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.States;
 using Rpg.ModObjects.Time;
+using Rpg.ModObjects.Time.Lifecycles;
 
 namespace Rpg.ModObjects
 {
@@ -48,6 +49,26 @@ namespace Rpg.ModObjects
 
         public Actions.Action[] GetActions()
             => ActionStore.Get();
+
+        public ActionInstance? CreateActionInstance(RpgEntity initiator, string actionName, int actionNo)
+        {
+            var action = GetAction(actionName);
+            if (action != null)
+            {
+                var instance = new ActionInstance(this, initiator, action, actionNo);
+                instance.OnBeforeTime(Graph!);
+
+                return instance;
+            }
+
+            return null;
+        }
+
+        public State? GetState(string stateName)
+            => StateStore[stateName];
+
+        public ModSet CreateStateInstance(string stateName, ILifecycle? lifecycle = null)
+            => GetState(stateName)!.CreateInstance(lifecycle ?? new TurnLifecycle());
 
         public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
         {

@@ -44,7 +44,7 @@ namespace Rpg.Cyborgs.Tests
 
             transfer.AutoCompleteArgs["from"] = _pc.Hands;
             transfer.AutoCompleteArgs["to"] = _graph.Context;
-            transfer.AutoComplete(_graph);
+            transfer.AutoComplete();
 
             Assert.That(_pc.Hands.Contains(_sword), Is.False);
             Assert.That(_room.Contains(_sword), Is.True);
@@ -61,7 +61,7 @@ namespace Rpg.Cyborgs.Tests
             var transfer = _sword.CreateActionInstance(_pc, nameof(Transfer), 0)!;
             transfer.AutoCompleteArgs["from"] = _pc.Hands;
             transfer.AutoCompleteArgs["to"] = _graph.Context;
-            transfer.AutoComplete(_graph);
+            transfer.AutoComplete();
 
             Assert.That(_pc.CurrentActions, Is.EqualTo(0));
         }
@@ -76,7 +76,7 @@ namespace Rpg.Cyborgs.Tests
             var drop = _sword.CreateActionInstance(_pc, nameof(Transfer), 0)!;
             drop.AutoCompleteArgs["from"] = _pc.Hands;
             drop.AutoCompleteArgs["to"] = _graph.Context;
-            drop.AutoComplete(_graph);
+            drop.AutoComplete();
 
             Assert.That(_pc.CurrentActions, Is.EqualTo(0));
 
@@ -84,7 +84,7 @@ namespace Rpg.Cyborgs.Tests
             pickup.AutoCompleteArgs["from"] = _graph.Context;
             pickup.AutoCompleteArgs["to"] = _pc.Hands;
 
-            Assert.Throws<InvalidOperationException>(() => pickup.AutoComplete(_graph));
+            Assert.Throws<InvalidOperationException>(() => pickup.AutoComplete());
         }
     }
 }

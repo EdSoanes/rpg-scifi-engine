@@ -57,23 +57,23 @@ namespace Rpg.ModObjects.Tests
             var fireInst = gun.CreateActionInstance(initiator, nameof(FireGunAction), 0);
             Assert.That(fireInst, Is.Not.Null);
 
-            var costModSet = fireInst.Cost(graph);
+            var costModSet = fireInst.Cost();
             initiator.AddModSet(costModSet);
             graph.Time.TriggerEvent();
 
             fireInst.ActArgs["targetDefence"] = 1;
 
-            var actionModSet = fireInst.Act(graph);
+            var actionModSet = fireInst.Act();
             initiator.AddModSets(actionModSet);
             graph.Time.TriggerEvent();
 
             var diceRoll = actionModSet.DiceRoll(graph);
-            Assert.That(diceRoll.ToString(), Is.EqualTo("1d20 + 1"));
+            Assert.That(diceRoll.ToString(), Is.EqualTo("1d20 + 2"));
 
             fireInst.OutcomeArgs["diceRoll"] = 20;
             fireInst.OutcomeArgs["target"] = 15;
 
-            var outcomeModSets = fireInst.Outcome(graph);
+            var outcomeModSets = fireInst.Outcome();
             graph.AddModSets(outcomeModSets);
             graph.Time.TriggerEvent();
 
@@ -100,10 +100,8 @@ namespace Rpg.ModObjects.Tests
             Assert.That(initiator.PhysicalActionPoints.Current, Is.EqualTo(5));
 
             var fireInst = gun.CreateActionInstance(initiator, nameof(FireGunAction), 0)!;
-            fireInst.CostArgs["owner"] = gun;
-            fireInst.CostArgs["initiator"] = initiator;
 
-            var costModSet = fireInst.Cost(graph);
+            var costModSet = fireInst.Cost();
             initiator.AddModSet(costModSet);
             graph.Time.TriggerEvent();
 
@@ -128,23 +126,19 @@ namespace Rpg.ModObjects.Tests
             Assert.That(initiator.PhysicalActionPoints.Current, Is.EqualTo(5));
 
             var fireInst = gun.CreateActionInstance(initiator, nameof(FireGunAction), 0)!;
-            fireInst.CostArgs["owner"] = gun;
-            fireInst.CostArgs["initiator"] = initiator;
 
-            var costModSet = fireInst.Cost(graph);
+            var costModSet = fireInst.Cost();
             initiator.AddModSet(costModSet);
             graph.Time.TriggerEvent();
 
-            fireInst.ActArgs["owner"] = gun;
-            fireInst.ActArgs["initiator"] = initiator;
             fireInst.ActArgs["targetDefence"] = 1;
 
-            var actionModSet = fireInst.Act(graph);
+            var actionModSet = fireInst.Act();
             initiator.AddModSets(actionModSet);
             graph.Time.TriggerEvent();
 
-            Assert.That(graph.CalculatePropValue(initiator, $"{nameof(FireGunAction)}_ActResult_0")?.ToString(), Is.EqualTo("1d20 + 1"));
-            Assert.That(actionModSet.DiceRoll(graph).ToString(), Is.EqualTo("1d20 + 1"));
+            Assert.That(actionModSet.DiceRoll(graph).ToString(), Is.EqualTo("1d20 + 2"));
+            Assert.That(actionModSet.Target(graph).ToString(), Is.EqualTo("11"));
         }
 
         [Test]

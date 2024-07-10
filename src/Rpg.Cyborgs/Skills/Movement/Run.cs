@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Cyborgs.States;
 using Rpg.ModObjects;
+using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time.Lifecycles;
 
@@ -26,10 +27,8 @@ namespace Rpg.Cyborgs.Skills.Movement
                 .Add(owner, x => x.CurrentActions, -1);
         }
 
-        public ModSet[] OnAct(Actor owner)
-        {
-            return [new ModSet(owner.Id, new TurnLifecycle())];
-        }
+        public ActionModSet OnAct(ActionInstance actionInstance, Actor owner)
+            => actionInstance.CreateActionSet();
 
         public ModSet[] OnOutcome(Actor owner)
         {

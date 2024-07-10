@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rpg.Cms.Tests", "Rpg.Cms.Te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rpg.Cyborgs", "Rpg.Cyborgs\Rpg.Cyborgs.csproj", "{B2001051-A65D-4BD4-B721-168924D6228C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rpg.Cyborgs.Tests", "Rpg.Cyborgs.Tests\Rpg.Cyborgs.Tests.csproj", "{D98CED08-178C-4804-99A2-A8FD930CFA4F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rpg.Cyborgs.Tests", "Rpg.Cyborgs.Tests\Rpg.Cyborgs.Tests.csproj", "{D98CED08-178C-4804-99A2-A8FD930CFA4F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{08595625-17EB-41A5-A18C-0D0E63B8B36B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -62,6 +64,12 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2697FE9B-FD0E-4241-90A9-C5ECF2CA9A50} = {08595625-17EB-41A5-A18C-0D0E63B8B36B}
+		{F8F6F70B-78AD-4150-AFA3-0A682C131FBD} = {08595625-17EB-41A5-A18C-0D0E63B8B36B}
+		{33496583-5CD3-4348-9EA0-4B2B16F881C0} = {08595625-17EB-41A5-A18C-0D0E63B8B36B}
+		{D98CED08-178C-4804-99A2-A8FD930CFA4F} = {08595625-17EB-41A5-A18C-0D0E63B8B36B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C1D2E329-47AC-4F8A-A0FF-A138087B187C}

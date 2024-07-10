@@ -6,11 +6,6 @@ namespace Rpg.ModObjects.Behaviors
 {
     public class Combine : BaseBehavior
     {
-        public Combine(ModType modType)
-        {
-            Type = modType;
-        }
-
         public override void OnAdding(RpgGraph graph, Prop modProp, Mod mod)
         {
             var matchingMods = MatchingMods(graph, mod);

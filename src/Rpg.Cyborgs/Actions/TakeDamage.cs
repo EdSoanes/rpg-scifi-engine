@@ -1,7 +1,10 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects;
+using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Behaviors;
 using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Mods.Templates;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Time.Lifecycles;
 
@@ -22,7 +25,7 @@ namespace Rpg.Cyborgs.Actions
         public ModSet OnCost(int actionNo, Actor owner)
             => new ModSet(new TurnLifecycle());
 
-        public ModSet[] OnAct(int actionNo, Actor owner, int damage)
+        public ActionModSet OnAct(ActionInstance actionInstance, Actor owner, int damage)
         {
             var staminaDamage = owner.CurrentStaminaPoints >= damage
                 ? damage
@@ -32,28 +35,30 @@ namespace Rpg.Cyborgs.Actions
                 ? damage - staminaDamage
                 : 0;
 
-            var damageSet = new ModSet(new TurnLifecycle());
+            var damageSet = actionInstance.CreateActionSet();
+
             if (staminaDamage > 0)
-                damageSet.Add(owner, x => x.CurrentStaminaPoints, -staminaDamage);
+                damageSet.Add(new PermanentMod().SetBehavior(new Combine()), owner, x => x.CurrentStaminaPoints, -staminaDamage);
 
             if (lifeDamage > 0)
             {
-                damageSet.Add(owner, x => x.CurrentLifePoints, -lifeDamage);
-                ActResult(actionNo, damageSet, owner, "Base", "2d6");
-                ActResult(actionNo, damageSet, owner, "LifePoints", owner.CurrentLifePoints - lifeDamage);
+                damageSet
+                    .Add(new PermanentMod().SetBehavior(new Combine()), owner, x => x.CurrentLifePoints, -lifeDamage)
+                    .DiceRoll(owner, "Base", "2d6")
+                    .DiceRoll(owner, "CurrentLifePoints", owner.CurrentLifePoints - lifeDamage);
             }
 
-            return [damageSet];
+            return damageSet;
         }
 
-        public ModSet[] OnOutcome(int actionNo, Actor owner, int injuryRoll, int injuryLocationRoll, int locationType)
+        public ModSet[] OnOutcome(ActionInstance actionInstance, Actor owner, int injuryRoll, int injuryLocationRoll, int locationType)
         {
             var bodyPart = GetLocation(owner, injuryLocationRoll, locationType);
-            var resultSet = new ModSet(owner.Id, new TurnLifecycle());
+            var actionSet = actionInstance.CreateActionSet();
 
             //Add injuries to body part...
 
-            return [resultSet];
+            return [actionSet];
         }
 
         private RpgComponent GetLocation(Actor owner, int injuryLocationRoll, int locationType)

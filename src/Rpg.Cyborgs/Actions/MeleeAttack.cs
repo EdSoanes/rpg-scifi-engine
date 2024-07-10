@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Cyborgs.States;
-using Rpg.ModObjects;
+using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time.Lifecycles;
 
@@ -25,28 +25,29 @@ namespace Rpg.Cyborgs.Actions
                 .Add(initiator, x => x.CurrentActions, -1);
         }
 
-        public ModSet[] OnAct(int actionNo, MeleeWeapon owner, Actor initiator, int focusPoints, int? abilityScore)
+        public ActionModSet OnAct(ActionInstance actionInstance, MeleeWeapon owner, Actor initiator, int targetDefence, int focusPoints, int? abilityScore)
         {
-            var modSet = new ModSet(initiator.Id, new TurnLifecycle());
-
-            ActResult(actionNo, modSet, initiator, "Base", "2d6");
+            var modSet = actionInstance
+                .CreateActionSet()
+                .DiceRoll(initiator, "Base", "2d6")
+                .DiceRoll(initiator, owner, x => x.HitBonus)
+                .Target(initiator, "Base", targetDefence);
 
             if (abilityScore != null)
-                ActResult(actionNo, modSet, initiator, "Ability", abilityScore.Value * focusPoints);
+                modSet.DiceRoll(initiator, "Ability", abilityScore.Value * focusPoints + 1);
             else
-                ActResult(actionNo, modSet, initiator, "MeleeAttack", initiator.MeleeAttack * focusPoints);
+                modSet.DiceRoll(initiator, "MeleeAttack", initiator.MeleeAttack * focusPoints + 1);
 
-            var attacking = initiator.GetState(nameof(MeleeAttacking))!.CreateInstance(new TurnLifecycle());
-            return [modSet, attacking];
+            return modSet;
         }
 
-        public ModSet[] OnOutcome(int actionNo, MeleeWeapon owner, Actor initiator, int diceRoll, int targetDefence)
+        public ModSet[] OnOutcome(ActionInstance actionInstance, MeleeWeapon owner, Actor initiator, int diceRoll, int targetDefence)
         {
-            var meleeAttacking = owner.GetState(nameof(MeleeAttacking))!.CreateInstance(new TurnLifecycle());
-
-            var damage = new ModSet(initiator.Id, new TurnLifecycle());
-            OutcomeMod(actionNo, damage, initiator, owner, x => x.Damage);
-            OutcomeMod(actionNo, damage, initiator, x => x.Strength);
+            var meleeAttacking = owner.CreateStateInstance(nameof(MeleeAttacking));
+            var damage = actionInstance
+                .CreateOutcomeSet()
+                .Outcome(initiator, owner, x => x.Damage)
+                .Outcome(initiator, x => x.Strength);
 
             return [meleeAttacking, damage];
         }

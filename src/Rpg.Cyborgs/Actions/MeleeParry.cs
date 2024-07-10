@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Cyborgs.States;
-using Rpg.ModObjects;
+using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time.Lifecycles;
 using Rpg.ModObjects.Time.Templates;
@@ -26,30 +26,30 @@ namespace Rpg.Cyborgs.Actions
                 .Add(new TurnMod(1, 1), initiator, x => x.CurrentActions, -1);
         }
 
-        public ModSet[] OnAct(int actionNo, Actor owner, Actor initiator, int focusPoints, int? abilityScore)
+        public ActionModSet OnAct(ActionInstance actionInstance, Actor owner, int target, int focusPoints, int? abilityScore)
         {
-            var modSet = new ModSet(initiator.Id, new TurnLifecycle());
-
-            ActResult(actionNo, modSet, initiator, "Base", "2d6");
-            ActResult(actionNo, modSet, initiator, "FocusPoints", focusPoints);
+            var actionModSet = actionInstance.CreateActionSet()
+                .DiceRoll(owner, "Base", "2d6")
+                .Target(owner, "Target", target);
 
             if (abilityScore != null)
-                ActResult(actionNo, modSet, initiator, "AbilityScore", abilityScore.Value);
+                actionModSet.DiceRoll(owner, "AbilityScore", abilityScore.Value);
             else
-                ActResult(actionNo, modSet, initiator, x => x.MeleeAttack);
+                actionModSet.DiceRoll(owner, x => x.MeleeAttack);
 
-            return [modSet];
+            return actionModSet;
         }
 
-        public ModSet[] OnOutcome(int actionNo, Actor owner, int diceRoll, int target, int damage)
+        public ModSet[] OnOutcome(ActionInstance actionInstance, Actor owner, int diceRoll, int target, int damage)
         {
-            var parrying = owner.GetState(nameof(Parrying))!.CreateInstance(new TurnLifecycle(1, 1));
-            var damageSet = new ModSet(owner.Id, new TurnLifecycle());
-            OutcomeMod(actionNo, damageSet, owner, "Damage", damage);
+            var parrying = owner.CreateStateInstance(nameof(Parrying), new TurnLifecycle(1, 1));
+            var damageSet = actionInstance
+                .CreateOutcomeSet()
+                .Outcome(owner, "Damage", damage);
 
             //If successful parry...
             if (diceRoll >= target)
-                OutcomeMod(actionNo, damageSet, owner, x => -x.Strength);
+                damageSet.Outcome(owner, x => -x.Strength);
 
             return [parrying];
         }

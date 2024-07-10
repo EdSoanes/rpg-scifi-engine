@@ -26,22 +26,6 @@ namespace Rpg.ModObjects
             return entity.Describe(propRef.Prop);
         }
 
-        public static ActionInstance? CreateActionInstance<TOwner, TInitiator>(this TOwner owner, TInitiator initiator, string actionName, int actionNo)
-            where TOwner : RpgEntity
-            where TInitiator : RpgEntity
-        {
-            var action = owner.GetAction(actionName);
-            return action != null
-                ? new ActionInstance(owner, initiator, action, actionNo)
-                : null;
-        }
-
-        public static ModSet CreateStateInstance(this RpgEntity owner, string stateName, ILifecycle? lifecycle = null)
-            => owner.GetState(stateName)!.CreateInstance(lifecycle ?? new TurnLifecycle());
-             
-        public static State? GetState(this RpgEntity entity, string stateName)
-            => entity.StateStore[stateName] as State;
-
         public static T AddModSet<T>(this T entity, string name, System.Action<ModSet> addAction)
             where T : RpgObject
                 => AddModSet(entity, name, new PermanentLifecycle(), addAction);

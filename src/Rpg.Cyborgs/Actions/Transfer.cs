@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects;
+using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time.Lifecycles;
 
@@ -14,8 +15,8 @@ namespace Rpg.Cyborgs.Actions
         {
         }
 
-        public bool OnCanAct(Actor initiator)
-            => initiator.CurrentActions > 0;
+        public bool OnCanAct(RpgEntity owner, Actor initiator, RpgContainer from, RpgContainer to)
+            => initiator.CurrentActions > 0 && from.Contains(owner);
 
         public ModSet OnCost(int actionNo, RpgEntity owner, Actor initiator, RpgContainer from, RpgContainer to)
         {
@@ -23,13 +24,10 @@ namespace Rpg.Cyborgs.Actions
                 .Add(initiator, x => x.CurrentActions, -1);
         }
 
-        public ModSet[] OnAct(int actionNo, RpgEntity owner, Actor initiator, RpgContainer from, RpgContainer to)
-        {
-            var modSet = new ModSet(initiator.Id, new TurnLifecycle());
-            return [modSet];
-        }
+        public ActionModSet OnAct(ActionInstance actionInstance, RpgEntity owner, Actor initiator, RpgContainer from, RpgContainer to)
+            => actionInstance.CreateActionSet();
 
-        public ModSet[] OnOutcome(int actionNo, RpgEntity owner, Actor initiator, RpgContainer from, RpgContainer to)
+        public ModSet[] OnOutcome(RpgEntity owner, RpgContainer from, RpgContainer to)
         {
             from.Remove(owner);
             to.Add(owner);

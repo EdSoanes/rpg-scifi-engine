@@ -54,16 +54,21 @@ namespace Rpg.ModObjects.Actions
         public Dice? DiceRoll(RpgGraph graph)
             => graph.CalculatePropValue(new PropRef(OwnerId!, DiceRollProp));
 
-        public ActionModSet DiceRoll<TInitiator>(TInitiator initiator, string name, Dice dice)
-            where TInitiator : RpgEntity
-                => this.Add(new TurnMod().SetName(name), initiator, DiceRollProp, dice);
+        public ActionModSet DiceRoll<TTarget>(TTarget target, string name, Dice dice)
+            where TTarget : RpgEntity
+                => this.Add(new TurnMod().SetName(name), target, DiceRollProp, dice);
 
-        public ActionModSet DiceRoll<TInitiator, TSourceValue>(TInitiator initiator, Expression<Func<TInitiator, TSourceValue>> sourceExpr)
-            where TInitiator : RpgEntity
-                => this.Add(new TurnMod(), initiator, DiceRollProp, sourceExpr);
+        public ActionModSet DiceRoll<TTarget, TSourceValue>(TTarget target, Expression<Func<TTarget, TSourceValue>> sourceExpr)
+            where TTarget : RpgEntity
+                => this.Add(new TurnMod(), target, DiceRollProp, sourceExpr);
 
-        public ActionModSet DiceRoll<TInitiator>(TInitiator initiator, string sourceProp)
-            where TInitiator : RpgEntity
-                => this.Add(new TurnMod(), initiator, DiceRollProp, sourceProp);
+        public ActionModSet DiceRoll<TTarget, TSource, TSourceValue>(TTarget target, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr)
+            where TTarget : RpgEntity
+            where TSource : RpgEntity
+                => this.Add(new TurnMod(), target, DiceRollProp, source, sourceExpr);
+
+        public ActionModSet DiceRoll<TTarget>(TTarget target, string sourceProp)
+            where TTarget : RpgEntity
+                => this.Add(new TurnMod(), target, DiceRollProp, sourceProp);
     }
 }

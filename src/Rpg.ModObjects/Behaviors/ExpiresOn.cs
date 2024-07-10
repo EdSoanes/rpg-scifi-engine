@@ -10,8 +10,9 @@ namespace Rpg.ModObjects.Behaviors
         [JsonProperty] public Dice Value { get; private set; }
 
         public ExpiresOn(int value)
-            : base(ModType.Standard)
-        { 
+            : base()
+        {
+            Value = value;
         }
 
         public override void OnAdding(RpgGraph graph, Prop modProp, Mod mod)

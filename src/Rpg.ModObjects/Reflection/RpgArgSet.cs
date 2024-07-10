@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Actions;
+using System;
 using System.Reflection;
 
 namespace Rpg.ModObjects.Reflection
@@ -102,6 +104,29 @@ namespace Rpg.ModObjects.Reflection
                 if (HasArg(arg.Key) && this[arg.Key] == null)
                     this[arg.Key] = arg.Value;
             }
+        }
+
+        public void Fill(ActionInstance? actionInstance, RpgEntity? owner, RpgEntity? initiator, int? actionNo)
+        {
+            if (HasArg("actionInstance"))
+                this["actionInstance"] = actionInstance!;
+
+            if (HasArg("actionNo"))
+                this["actionNo"] = actionNo!.Value;
+
+            if (HasArg("initiator"))
+                this["initiator"] = initiator;
+
+            if (HasArg("owner"))
+                this["owner"] = owner;
+        }
+
+        public RpgArgSet SetArg(string arg, object? value)
+        {
+            if (HasArg(arg))
+                this[arg] = value;
+
+            return this;
         }
 
         public bool HasArg(string arg)
