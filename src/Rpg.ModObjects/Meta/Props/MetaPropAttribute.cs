@@ -1,19 +1,19 @@
 ﻿using Rpg.ModObjects.Values;
 using System.Reflection;
 
-namespace Rpg.ModObjects.Meta.Attributes
+namespace Rpg.ModObjects.Meta.Props
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public abstract class MetaPropUIAttribute : Attribute
+    public abstract class MetaPropAttribute : Attribute
     {
-        public string DataTypeName { get; protected set; }
-        public string DataType { get; protected set; }
-        public string ReturnType { get; protected set; }
+        public string DataTypeName { get; set; }
+        public EditorType Editor { get; set; }
+        public ReturnType Returns { get; set; }
         public string? DisplayName { get; set; }
         public bool Ignore { get; set; }
         public string Tab { get; set; } = string.Empty;
         public string Group { get; set; } = string.Empty;
-        private Dictionary<string, object?> Values { get; set; }
+        private Dictionary<string, object?>? Values { get; set; }
 
         public Dictionary<string, object?> GetValues()
         {
@@ -26,10 +26,10 @@ namespace Rpg.ModObjects.Meta.Attributes
 
             return Values;
         }
-        public T GetValue<T>(string prop, T def)
+
+        public T Value<T>(string prop, T def)
         {
-            var values = GetValues();
-            if (values.TryGetValue(prop, out var val) && val != null)
+            if (Values != null && Values.TryGetValue(prop, out var val) && val != null)
             {
                 if (typeof(T) == typeof(string))
                     return (T)(object)(val.ToString() ?? string.Empty);
@@ -41,10 +41,9 @@ namespace Rpg.ModObjects.Meta.Attributes
             return def;
         }
 
-        protected MetaPropUIAttribute()
+        protected MetaPropAttribute()
         {
-            DataType = GetType().Name.Replace("UIAttribute", "");
-            DataTypeName = DataType;
+            DataTypeName = GetType().Name.Replace("Attribute", "");
         }
     }
 }

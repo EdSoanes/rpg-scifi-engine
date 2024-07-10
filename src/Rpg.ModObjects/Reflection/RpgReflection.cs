@@ -1,6 +1,5 @@
 ﻿using Rpg.ModObjects.Meta;
-using Rpg.ModObjects.Meta.Attributes;
-using Rpg.ModObjects.Props.Attributes;
+using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Values;
 using System.Reflection;
 
@@ -125,11 +124,11 @@ namespace Rpg.ModObjects.Reflection
                 if (threshold != null)
                     return (threshold.Min, threshold.Max);
 
-                var select = propInfo.GetCustomAttribute<SelectUIAttribute>();
+                var select = propInfo.GetCustomAttribute<MetaSelectAttribute>();
                 if (select != null)
                     return (select.Min, select.Max);
 
-                var integer = propInfo.GetCustomAttribute<IntegerUIAttribute>();
+                var integer = propInfo.GetCustomAttribute<IntegerAttribute>();
                 if (integer != null && (integer.Min > int.MinValue || integer.Max < int.MaxValue))
                     return (integer.Min, integer.Max);
             }

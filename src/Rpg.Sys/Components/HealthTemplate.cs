@@ -9,13 +9,13 @@ namespace Rpg.Sys.Components
         public string? Name { get; set; }
         public string? Description { get; set; }
 
-        [HealthUI(Group = "Health")]
+        [Health(Group = "Health")]
         public int Physical { get; set; }
 
-        [HealthUI(Group = "Health")]
+        [Health(Group = "Health")]
         public int Mental { get; set; }
 
-        [HealthUI(Group = "Health")]
+        [Health(Group = "Health")]
         public int Cyber { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Reflection;
+﻿using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Tests.Actions;
 using Rpg.ModObjects.Tests.Models;
 using System.Reflection;
@@ -40,13 +41,15 @@ namespace Rpg.ModObjects.Tests
             //Act
             var actArgSet = testAction.ActArgs();
             Assert.That(actArgSet, Is.Not.Null);
-            Assert.That(actArgSet.Count(), Is.EqualTo(3));
-            Assert.That(actArgSet[0]!.Name, Is.EqualTo("owner"));
-            Assert.That(actArgSet[0]!.TypeName, Is.EqualTo(nameof(ModdableEntity)));
-            Assert.That(actArgSet[1]!.Name, Is.EqualTo("initiator"));
-            Assert.That(actArgSet[1]!.TypeName, Is.EqualTo(nameof(TestHuman)));
-            Assert.That(actArgSet[2]!.Name, Is.EqualTo("target"));
-            Assert.That(actArgSet[2]!.TypeName, Is.EqualTo(nameof(Int32)));
+            Assert.That(actArgSet.Count(), Is.EqualTo(4));
+            Assert.That(actArgSet[0]!.Name, Is.EqualTo("actionInstance"));
+            Assert.That(actArgSet[0]!.TypeName, Is.EqualTo(nameof(ActionInstance)));
+            Assert.That(actArgSet[1]!.Name, Is.EqualTo("owner"));
+            Assert.That(actArgSet[1]!.TypeName, Is.EqualTo(nameof(ModdableEntity)));
+            Assert.That(actArgSet[2]!.Name, Is.EqualTo("initiator"));
+            Assert.That(actArgSet[2]!.TypeName, Is.EqualTo(nameof(TestHuman)));
+            Assert.That(actArgSet[3]!.Name, Is.EqualTo("target"));
+            Assert.That(actArgSet[3]!.TypeName, Is.EqualTo(nameof(Int32)));
             Assert.That(actArgSet.ArgNames, Does.Contain("owner"));
             Assert.That(actArgSet.ArgNames, Does.Contain("initiator"));
             Assert.That(actArgSet.ArgNames, Does.Contain("target"));

@@ -4,18 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rpg.ModObjects.Meta.Attributes
+namespace Rpg.ModObjects.Meta.Props
 {
-    public abstract class SelectUIAttribute : MinZeroUIAttribute
+    public abstract class MetaSelectAttribute : MinZeroAttribute
     {
         public string[] Values { get; protected set; } = Array.Empty<string>();
 
-        public SelectUIAttribute(params string[] values)
+        public MetaSelectAttribute(params string[] values)
             : base()
         {
             Values = values;
             Max = Values.Length;
-            ReturnType = nameof(Int32);
+            Returns = ReturnType.Int32;
+            Editor = EditorType.Select;
         }
     }
 }

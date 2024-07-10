@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects;
+using Rpg.ModObjects.Meta.Props;
+using Rpg.ModObjects.Mods;
 using Rpg.Sys.Components.Values;
 using System;
 using System.Collections.Generic;
@@ -12,34 +14,56 @@ namespace Rpg.Sys.Components
 {
     public class ActionPoints : RpgComponent
     {
-        [JsonProperty] public MinMaxValue Action { get; private set; }
-        [JsonProperty] public MinMaxValue Exertion { get; private set; }
-        [JsonProperty] public MinMaxValue Focus { get; private set; }
+        [JsonProperty] 
+        [Threshold(Min = 0)]
+        public int Action { get; private set; }
+
+        [JsonProperty]
+        public int CurrentAction { get; private set; }
+
+        [JsonProperty]
+        [Threshold(Min = 0)]
+        public int Exertion { get; private set; }
+
+        [JsonProperty]
+        public int CurrentExertion { get; private set; }
+
+        [JsonProperty]
+        [Threshold(Min = 0)]
+        public int Focus { get; private set; }
+
+        [JsonProperty]
+        public int CurrentFocus { get; private set; }
 
         [JsonConstructor] private ActionPoints() { }
 
         public ActionPoints(string entityId, string name, ActionPointsTemplate template)
             : base(entityId, name)
         {
-            Action = new MinMaxValue(entityId, nameof(Action), template.Action);
-            Exertion = new MinMaxValue(entityId, nameof(Exertion), template.Exertion);
-            Focus = new MinMaxValue(entityId, nameof(Focus), template.Focus);
+            Action = template.Action;
+            Exertion = template.Exertion;
+            Focus = template.Focus;
         }
 
         public ActionPoints(string entityId, string name, int action, int exertion, int focus)
             : base(entityId, name)
         {
-            Action = new MinMaxValue(entityId, nameof(Action), action);
-            Exertion = new MinMaxValue(entityId, nameof(Exertion), exertion);
-            Focus = new MinMaxValue(entityId, nameof(Focus), focus);
+            Action = action;
+            Exertion = exertion;
+            Focus = focus;
+        }
+
+        protected override void OnLifecycleStarting()
+        {
+            base.OnLifecycleStarting();
+            this.BaseMod(x => x.CurrentAction, x => x.Action)
+                .BaseMod(x => x.CurrentExertion, x => x.Exertion)
+                .BaseMod(x => x.CurrentFocus, x => x.Focus);
         }
 
         public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
         {
             base.OnBeforeTime(graph, entity);
-            Action.OnBeforeTime(graph, entity);
-            Exertion.OnBeforeTime(graph, entity);
-            Focus.OnBeforeTime(graph, entity);
         }
     }
 }

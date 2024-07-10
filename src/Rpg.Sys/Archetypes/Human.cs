@@ -1,6 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects;
-using Rpg.Sys.Components;
 
 namespace Rpg.Sys.Archetypes
 {

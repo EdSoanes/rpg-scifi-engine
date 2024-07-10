@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Rpg.ModObjects.Meta.Attributes;
+using Rpg.ModObjects.Meta.Props;
 
 namespace Rpg.ModObjects.Meta
 {
@@ -16,6 +16,6 @@ namespace Rpg.ModObjects.Meta
         MetaObj[] Objects { get; set; }
         MetaAction[] Actions { get; set; }
         MetaState[] States { get; set; }
-        MetaPropUIAttribute[] PropUIs { get; set; }
+        MetaPropAttribute[] PropUIs { get; set; }
     }
 }

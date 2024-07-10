@@ -14,22 +14,22 @@ namespace Rpg.Sys.Components
         public string? Name { get; set; }
         public string? Description { get; set; }
 
-        [ScoreUI]
+        [Score]
         public int Strength { get; set; }
 
-        [ScoreUI]
+        [Score]
         public int Intelligence { get; set; }
 
-        [ScoreUI]
+        [Score]
         public int Wisdom { get; set; }
 
-        [ScoreUI]
+        [Score]
         public int Dexterity { get; set; }
 
-        [ScoreUI]
+        [Score]
         public int Constitution { get; set; }
 
-        [ScoreUI]
+        [Score]
         public int Charisma { get; set; }
     }
 }

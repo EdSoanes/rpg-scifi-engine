@@ -47,6 +47,9 @@ namespace Rpg.Cms.Services.Synchronizers
             types = await _dataTypeService.GetByEditorAliasAsync(Constants.PropertyEditors.Aliases.CheckBoxList);
             res.AddRange(types);
 
+            types = await _dataTypeService.GetByEditorAliasAsync(Constants.PropertyEditors.Aliases.DropDownListFlexible);
+            res.AddRange(types);
+
             res = res
                 .Where(x => x.Name?.StartsWith(session.System.Identifier) ?? false)
                 .ToList();
@@ -63,7 +66,7 @@ namespace Rpg.Cms.Services.Synchronizers
 
             foreach (var model in models)
             {
-                var existing = res.FirstOrDefault(x => x.Name == model.Name);
+                var existing = dataTypes.FirstOrDefault(x => x.Name == model.Name);
                 if (existing == null)
                 {
                     var presAttempt = await _dataTypePresentationFactory.CreateAsync(model);

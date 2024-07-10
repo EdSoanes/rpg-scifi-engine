@@ -1,10 +1,10 @@
-﻿using Rpg.ModObjects.Meta.Attributes;
+﻿using Rpg.ModObjects.Meta.Props;
 
 namespace Rpg.Sys.Components.Values
 {
     public class PresenceValue : MinMaxValue
     {
-        [MetersUI]
+        [Meters]
         public int Radius { get; protected set; }
 
         public PresenceValue(string entityId, string name, int max, int current, int radius)

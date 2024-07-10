@@ -5,6 +5,7 @@ using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.States;
+using Rpg.ModObjects.Time.Lifecycles;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
 
@@ -25,16 +26,19 @@ namespace Rpg.ModObjects
             return entity.Describe(propRef.Prop);
         }
 
-        public static ActionInstance<TOwner, TInitiator>? CreateActionInstance<TOwner, TInitiator>(this TOwner owner, TInitiator initiator, string actionName, int actionNo)
+        public static ActionInstance? CreateActionInstance<TOwner, TInitiator>(this TOwner owner, TInitiator initiator, string actionName, int actionNo)
             where TOwner : RpgEntity
             where TInitiator : RpgEntity
         {
             var action = owner.GetAction(actionName);
             return action != null
-                ? new ActionInstance<TOwner, TInitiator>(owner, initiator, action, actionNo)
+                ? new ActionInstance(owner, initiator, action, actionNo)
                 : null;
         }
 
+        public static ModSet CreateStateInstance(this RpgEntity owner, string stateName, ILifecycle? lifecycle = null)
+            => owner.GetState(stateName)!.CreateInstance(lifecycle ?? new TurnLifecycle());
+             
         public static State? GetState(this RpgEntity entity, string stateName)
             => entity.StateStore[stateName] as State;
 

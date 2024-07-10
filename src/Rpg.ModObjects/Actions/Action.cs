@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Reflection;
-using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Time.Templates;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
@@ -19,7 +18,7 @@ namespace Rpg.ModObjects.Actions
 
         [JsonProperty] internal RpgMethod<Action, bool> OnCanAct { get; private set; }
         [JsonProperty] internal RpgMethod<Action, ModSet> OnCost { get; private set; }
-        [JsonProperty] internal RpgMethod<Action, ModSet[]> OnAct { get; private set; }
+        [JsonProperty] internal RpgMethod<Action, ActionModSet> OnAct { get; private set; }
         [JsonProperty] internal RpgMethod<Action, ModSet[]> OnOutcome { get; private set; }
 
         [JsonConstructor] protected Action()
@@ -32,7 +31,7 @@ namespace Rpg.ModObjects.Actions
 
             OnCanAct = new RpgMethod<Action, bool>(this, nameof(OnCanAct));
             OnCost = new RpgMethod<Action, ModSet>(this, nameof(OnCost));
-            OnAct = new RpgMethod<Action, ModSet[]>(this, nameof(OnAct));
+            OnAct = new RpgMethod<Action, ActionModSet>(this, nameof(OnAct));
             OnOutcome = new RpgMethod<Action, ModSet[]>(this, nameof(OnOutcome));
         }
 
@@ -119,7 +118,7 @@ namespace Rpg.ModObjects.Actions
         public RpgArgSet ActArgs() 
             => OnAct.CreateArgSet();
 
-        public ModSet[] Act(RpgArgSet args)
+        public ActionModSet Act(RpgArgSet args)
             => OnAct.Execute(this, args);
 
         public RpgArgSet OutcomeArgs() 

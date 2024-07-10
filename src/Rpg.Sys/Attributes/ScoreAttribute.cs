@@ -1,4 +1,4 @@
-﻿using Rpg.ModObjects.Meta.Attributes;
+﻿using Rpg.ModObjects.Meta.Props;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace Rpg.Sys.Attributes
 {
-    public class ScoreUIAttribute : IntegerUIAttribute
+    public class ScoreAttribute : IntegerAttribute
     {
-        public ScoreUIAttribute()
+        public ScoreAttribute()
+            : base()
         {
             Min = 3;
             Max = 18;

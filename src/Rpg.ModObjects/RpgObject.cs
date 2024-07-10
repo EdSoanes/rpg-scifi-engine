@@ -1,14 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Lifecycles;
-using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
-using Rpg.ModObjects.Props.Attributes;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.ComponentModel;
-using System.Reflection;
 
 namespace Rpg.ModObjects
 {
@@ -17,15 +14,12 @@ namespace Rpg.ModObjects
         protected RpgGraph? Graph { get; private set; }
 
         [JsonProperty]
-        [TextUI(Ignore = true)]
         public string Id { get; private set; }
 
         [JsonProperty]
-        [TextUI(Ignore = true)]
         public string Archetype { get; set; }
 
         [JsonProperty] 
-        [TextUI(Ignore = true)]
         public string Name { get; set; }
 
         [JsonProperty] public string[] Archetypes { get; private set; }

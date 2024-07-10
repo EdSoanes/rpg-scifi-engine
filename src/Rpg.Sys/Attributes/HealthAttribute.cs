@@ -1,13 +1,13 @@
-﻿using Rpg.ModObjects.Meta.Attributes;
+﻿using Rpg.ModObjects.Meta;
+using Rpg.ModObjects.Meta.Props;
 
 namespace Rpg.Sys.Attributes
 {
-    public class HealthUIAttribute : SelectUIAttribute
+    public class HealthAttribute : MetaSelectAttribute
     {
-        public HealthUIAttribute()
+        public HealthAttribute()
             : base("Healthy", "Light", "Heavy", "Critical", "Fatal")
         {
-            DataType = "Select";
             DataTypeName = "Health";
         }
     }

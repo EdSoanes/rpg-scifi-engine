@@ -1,5 +1,6 @@
-﻿using Rpg.ModObjects.Meta.Attributes;
+﻿using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Values;
+using System.Collections;
 using System.Reflection;
 
 namespace Rpg.ModObjects.Meta
@@ -59,23 +60,31 @@ namespace Rpg.ModObjects.Meta
                 && (propertyInfo.PropertyType.IsAssignableTo(typeof(IRpgEntityTemplate)) || propertyInfo.PropertyType.IsAssignableTo(typeof(IRpgComponentTemplate)));
         }
 
-        internal static MetaPropUIAttribute GetPropUI(this PropertyInfo propertyInfo)
+        internal static MetaPropAttribute? GetPropUI(this PropertyInfo propertyInfo)
         {
             var ui = propertyInfo.GetCustomAttributes(true)
-                .FirstOrDefault(x => x.GetType().IsAssignableTo(typeof(MetaPropUIAttribute))) as MetaPropUIAttribute;
+                .FirstOrDefault(x => x.GetType().IsAssignableTo(typeof(MetaPropAttribute))) as MetaPropAttribute;
 
             if (ui == null)
             {
                 ui = propertyInfo.PropertyType.Name switch
                 {
-                    nameof(Int32) => new IntegerUIAttribute(),
-                    nameof(Dice) => new DiceUIAttribute(),
-                    nameof(String) => new TextUIAttribute(),
-                    _ => new ComponentUIAttribute()
+                    nameof(Int32) => new IntegerAttribute { Ignore = true },
+                    nameof(Dice) => new DiceAttribute { Ignore = true },
+                    nameof(String) => new TextAttribute { Ignore = true },
+                    _ => null
                 };
             }
 
-            return ui!;
+            if (ui == null)
+            {
+                if (propertyInfo.PropertyType.IsAssignableTo(typeof(RpgContainer)))
+                    ui = new ContainerAttribute { Ignore = true };
+                else if (propertyInfo.PropertyType.IsClass && !propertyInfo.PropertyType.IsAssignableTo(typeof(IEnumerable)))
+                    ui = new ComponentAttribute { Ignore = true };
+            }
+
+            return ui;
         }
     }
 }

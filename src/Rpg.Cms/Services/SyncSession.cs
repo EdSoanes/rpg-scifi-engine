@@ -41,9 +41,9 @@ namespace Rpg.Cms.Services
             UserKey = userKey;
         }
 
-        public IDataType? GetDataType(string propType, bool faultOnNotFound = true)
+        public IDataType? GetDataTypeByName(string dataTypeAlias, bool faultOnNotFound = true)
         {
-            var name = GetDataTypeName(propType);
+            var name = GetDataTypeName(dataTypeAlias);
             var res = DataTypes.FirstOrDefault(x => x.Name == name);
             if (res == null && faultOnNotFound)
                 throw new InvalidOperationException($"Missing data type {name}");
@@ -61,8 +61,8 @@ namespace Rpg.Cms.Services
             return res;
         }
 
-        public string GetDataTypeName(string propType)
-            => $"{System.Identifier} {propType}";
+        public string GetDataTypeName(string dataTypeName)
+            => !dataTypeName.StartsWith(System.Identifier) ? $"{System.Identifier} {dataTypeName}" : dataTypeName;
 
         public string GetDocTypeName(MetaObj metaObject)
             => GetDocTypeName(metaObject.Archetype);

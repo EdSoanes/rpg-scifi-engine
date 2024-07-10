@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects;
+using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Values;
 using Rpg.Sys.Components;
@@ -8,10 +9,18 @@ namespace Rpg.Sys.Archetypes
 {
     public abstract class Actor : Artifact
     {
-        [JsonProperty] public StatPoints Stats { get; private set; }
-        [JsonProperty] public ActionPoints Actions { get; private set; }
-        [JsonProperty] public Movement Movement { get; private set; }
+        [JsonProperty]
+        [Component(Group = "Stats")]
+        public StatPoints Stats { get; private set; }
 
+        [JsonProperty]
+        [Component(Group = "Movement")]
+        public Movement Movement { get; private set; }
+
+        [JsonProperty]
+        [Component(Group = "Actions")] 
+        public ActionPoints Actions { get; private set; }
+        
         [JsonConstructor] protected Actor() { }
 
         public Actor(ActorTemplate template)
@@ -32,9 +41,9 @@ namespace Rpg.Sys.Archetypes
 
         protected override void OnLifecycleStarting()
         {
-            this.BaseMod(x => x.Actions.Exertion.Max, x => x.Stats.Strength.Bonus);
-            this.BaseMod(x => x.Actions.Action.Max, x => x.Stats.Dexterity.Bonus);
-            this.BaseMod(x => x.Actions.Focus.Max, x => x.Stats.Intelligence.Bonus);
+            this.BaseMod(x => x.Actions.Exertion, x => x.Stats.Strength.Bonus);
+            this.BaseMod(x => x.Actions.Action, x => x.Stats.Dexterity.Bonus);
+            this.BaseMod(x => x.Actions.Focus, x => x.Stats.Intelligence.Bonus);
 
             this.BaseMod(x => x.Movement.Speed.Max, x => x.Stats.Dexterity.Bonus);
             this.BaseMod(x => x.Movement.Speed.Max, x => x.Presence.Weight, () => DiceCalculations.WeightSpeedBonus);

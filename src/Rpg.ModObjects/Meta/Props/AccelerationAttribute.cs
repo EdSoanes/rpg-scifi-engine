@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rpg.ModObjects.Meta.Attributes
+namespace Rpg.ModObjects.Meta.Props
 {
-    public class AccelerationUIAttribute : IntegerUIAttribute
+    public class AccelerationAttribute : IntegerAttribute
     {
-        public AccelerationUIAttribute()
+        public AccelerationAttribute()
+            :base()
         {
             Unit = "m/s";
         }

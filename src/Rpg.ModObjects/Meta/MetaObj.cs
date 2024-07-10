@@ -47,17 +47,10 @@ namespace Rpg.ModObjects.Meta
             return this;
         }
 
-        public MetaObj AddProp(string prop, string type, string? typeName = null)
+        public MetaObj AddProp(string prop, EditorType editor, ReturnType returns, string? dataTypeAlias = null, string? tab = null, string? group = null)
         {
             if (!Props.Any(x => x.Prop == prop))
-                Props.Add(new MetaProp 
-                { 
-                    Prop = prop, 
-                    DataType = type,
-                    DataTypeName = typeName ?? type,
-                    ReturnType = type,
-                    DisplayName = prop 
-                });
+                Props.Add(new MetaProp(prop, editor, returns, dataTypeAlias, tab, group));
 
             return this;
         }

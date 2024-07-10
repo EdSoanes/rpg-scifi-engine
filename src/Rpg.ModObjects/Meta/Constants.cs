@@ -14,4 +14,24 @@ namespace Rpg.ModObjects.Meta
         EntityTemplate,
         ComponentTemplate
     }
+
+    public enum ReturnType
+    {
+        Int32,
+        Dice,
+        Boolean,
+        String,
+        Component,
+        Container
+    }
+
+    public enum EditorType
+    {
+        Int32,
+        Text,
+        RichText,
+        Boolean,
+        Select,
+        CheckBoxList
+    }
 }

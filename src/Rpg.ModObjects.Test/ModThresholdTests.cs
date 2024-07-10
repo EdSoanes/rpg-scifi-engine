@@ -1,7 +1,7 @@
 ﻿using Rpg.ModObjects.Behaviors;
+using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Templates;
-using Rpg.ModObjects.Props.Attributes;
 using Rpg.ModObjects.Reflection;
 
 namespace Rpg.ModObjects.Tests

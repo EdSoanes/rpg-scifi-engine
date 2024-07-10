@@ -125,7 +125,7 @@ namespace Rpg.Cms.Services.Factories
             var res = new List<ContentTypePropertyTypeModel>();
             foreach (var metaProp in metaProps)
             {
-                var dataType = session.GetDataType(metaProp.DataTypeName, faultOnNotFound: false);
+                var dataType = session.GetDataTypeByName(metaProp.DataTypeName, faultOnNotFound: false);
                 var propModel = new ContentTypePropertyTypeModel
                 {
                     Key = Guid.NewGuid(),

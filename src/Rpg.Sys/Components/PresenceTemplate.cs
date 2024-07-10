@@ -1,6 +1,7 @@
 ﻿using Rpg.ModObjects;
 using Rpg.ModObjects.Meta;
 using Rpg.ModObjects.Meta.Attributes;
+using Rpg.ModObjects.Meta.Props;
 using Rpg.Sys.Attributes;
 using System;
 using System.Collections.Generic;
@@ -18,58 +19,58 @@ namespace Rpg.Sys.Components
         public int Size { get; set; }
         public int Weight { get; set; }
 
-        [PresenceUI(Group = "Sound")]
+        [Presence(Group = "Sound")]
         public int SoundMax { get; set; }
 
-        [PresenceUI(Group = "Sound")]
+        [Presence(Group = "Sound")]
         public int SoundCurrent { get; set; }
 
-        [MetersUI(Group = "Sound")]
+        [Meters(Group = "Sound")]
         public int SoundRadius { get; set; }
 
-        [PresenceUI(Group = "Light")]
+        [Presence(Group = "Light")]
         public int LightMax { get; set; }
 
-        [PresenceUI(Group = "Light")]
+        [Presence(Group = "Light")]
         public int LightCurrent { get; set; }
 
-        [MetersUI(Group = "Light")]
+        [Meters(Group = "Light")]
         public int LightRadius { get; set; }
 
-        [PresenceUI(Group = "Heat")]
+        [Presence(Group = "Heat")]
         public int HeatMax { get; set; }
 
-        [PresenceUI(Group = "Heat")]
+        [Presence(Group = "Heat")]
         public int HeatCurrent { get; set; }
 
-        [MetersUI(Group = "Heat")]
+        [Meters(Group = "Heat")]
         public int HeatRadius { get; set; }
 
-        [PresenceUI(Group = "Chemical")]
+        [Presence(Group = "Chemical")]
         public int ChemicalMax { get; set; }
 
-        [PresenceUI(Group = "Chemical")]
+        [Presence(Group = "Chemical")]
         public int ChemicalCurrent { get; set; }
 
-        [MetersUI(Group = "Chemical")]
+        [Meters(Group = "Chemical")]
         public int ChemicalRadius { get; set; }
 
-        [PresenceUI(Group = "Radiation")]
+        [Presence(Group = "Radiation")]
         public int RadiationMax { get; set; }
 
-        [PresenceUI(Group = "Radiation")]
+        [Presence(Group = "Radiation")]
         public int RadiationCurrent { get; set; }
 
-        [MetersUI(Group = "Radiation")]
+        [Meters(Group = "Radiation")]
         public int RadiationRadius { get; set; }
 
-        [PresenceUI(Group = "Electromagnetic")]
+        [Presence(Group = "Electromagnetic")]
         public int ElectromagneticMax { get; set; }
 
-        [PresenceUI(Group = "Electromagnetic")]
+        [Presence(Group = "Electromagnetic")]
         public int ElectromagneticCurrent { get; set; }
 
-        [MetersUI(Group = "Electromagnetic")]
+        [Meters(Group = "Electromagnetic")]
         public int ElectromagneticRadius { get; set; }
     }
 }

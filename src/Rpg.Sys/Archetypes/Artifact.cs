@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects;
-using Rpg.ModObjects.Meta;
-using Rpg.ModObjects.Meta.Attributes;
+using Rpg.ModObjects.Meta.Props;
 using Rpg.Sys.Components;
 
 namespace Rpg.Sys.Archetypes
@@ -9,19 +8,19 @@ namespace Rpg.Sys.Archetypes
     public abstract class Artifact : RpgEntity
     {
         [JsonProperty] 
-        [ComponentUI(Group = "Health")]
+        [Component(Group = "Health")]
         public Health Health { get; private set; }
 
         [JsonProperty] 
-        [ComponentUI(Group = "Presence")]
+        [Component(Group = "Presence")]
         public Presence Presence { get; private set; }
 
         [JsonProperty] 
-        [ComponentUI(Tab = "Combat", Group = "Attack")]
+        [Component(Tab = "Combat", Group = "Attack")]
         public Damage Damage { get; private set; }
 
         [JsonProperty] 
-        [ComponentUI(Tab = "Combat", Group = "Defense")]
+        [Component(Tab = "Combat", Group = "Defense")]
         public Defenses Defenses { get; private set; }
 
         [JsonConstructor] protected Artifact() { }
@@ -45,6 +44,5 @@ namespace Rpg.Sys.Archetypes
             Presence.OnBeforeTime(graph, this);
             Health.OnBeforeTime(graph, this);
         }
-
     }
 }

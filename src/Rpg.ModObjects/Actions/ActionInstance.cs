@@ -1,86 +1,36 @@
-﻿using Rpg.ModObjects.Mods;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Reflection;
-using Rpg.ModObjects.Values;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Rpg.ModObjects.Time.Lifecycles;
 
 namespace Rpg.ModObjects.Actions
 {
-    public abstract class ActionInstance<TInitiator>
-        where TInitiator : RpgEntity
+    public class ActionInstance
     {
-        public int ActionNo { get; protected set; }
-        public TInitiator Initiator { get; protected set; }
-        public Action Action { get; protected set; }
-        
-        public RpgArgSet CanActArgs {  get; protected set; } 
-        public RpgArgSet CostArgs { get; protected set; }
-        public RpgArgSet ActArgs { get; protected set; }
-        public RpgArgSet OutcomeArgs { get; protected set; }
-        public RpgArgSet AutoCompleteArgs { get; protected set; }
+        [JsonProperty] public string OwnerId { get; protected set; }
+        [JsonProperty] public string InitiatorId { get; protected set; }
+        [JsonProperty] public string ActionName { get; protected set; }
+        [JsonProperty] public int ActionNo { get; protected set; }
 
-        public Dice ActResult { get => Action.ActResult(Initiator, ActionNo); }
-        public Dice OutcomeResult { get => Action.OutcomeResult(Initiator, ActionNo); }
+        [JsonIgnore] public RpgArgSet? CanActArgs {  get; protected set; }
+        [JsonIgnore] public RpgArgSet? CostArgs { get; protected set; }
+        [JsonIgnore] public RpgArgSet? ActArgs { get; protected set; }
+        [JsonIgnore] public RpgArgSet? OutcomeArgs { get; protected set; }
+        [JsonIgnore] public RpgArgSet? AutoCompleteArgs { get; protected set; }
 
-        public bool CanAct()
-            => Action.CanAct(CanActArgs);
-
-        public ModSet Cost()
-            => Action.Cost(CostArgs);
-
-        public ModSet[] Act()
-            => Action.Act(ActArgs);
-
-        public ModSet[] Outcome()
-            => Action.Outcome(OutcomeArgs);
-
-        public void AutoComplete(RpgGraph graph)
+        public ActionInstance(RpgEntity owner, RpgEntity initiator, Action action, int actionNo)
         {
-            CanActArgs.FillFrom(AutoCompleteArgs);
-            if (!CanAct())
-                throw new InvalidOperationException("Cannot AutoComplete");
-
-            CostArgs.FillFrom(AutoCompleteArgs);
-            var costs = Cost();
-            var entity = graph.GetEntity(costs.OwnerId)!;
-            entity.AddModSet(costs);
-            graph.Time.TriggerEvent();
-
-            ActArgs.FillFrom(AutoCompleteArgs);
-            var actSets = Act();
-            foreach (var actSet in  actSets)
-            {
-                var owner = graph.GetEntity(actSet.OwnerId)!;
-                owner.AddModSet(actSet);
-                graph.Time.TriggerEvent();
-            }
-
-            OutcomeArgs.FillFrom(AutoCompleteArgs);
-            var outcomeSets = Outcome();
-            foreach (var outcomeSet in outcomeSets)
-            {
-                var owner = graph.GetEntity(outcomeSet.OwnerId)!;
-                owner.AddModSet(outcomeSet);
-                graph.Time.TriggerEvent();
-            }
-        }
-    }
-
-    public sealed class ActionInstance<TOwner, TInitiator> : ActionInstance<TInitiator>
-        where TOwner: RpgEntity
-        where TInitiator : RpgEntity
-    {
-        public TOwner Owner { get; private set; }
-
-        internal ActionInstance(TOwner owner, TInitiator initiator, Action action, int actionNo)
-        {
+            ActionName = action.Name;
             ActionNo = actionNo;
-            Owner = owner;
-            Initiator = initiator;
-            Action = action;
+            OwnerId = owner.Id;
+            InitiatorId = initiator.Id;
+        }
+
+        public void OnBeforeTime(RpgGraph graph)
+        {
+            var initiator = graph.GetEntity<RpgEntity>(InitiatorId)!;
+            var owner = graph.GetEntity<RpgEntity>(OwnerId)!;
+            var action = owner.GetAction(ActionName)!;
 
             CanActArgs = action.CanActArgs();
             CostArgs = action.CostArgs();
@@ -91,8 +41,11 @@ namespace Rpg.ModObjects.Actions
                 .Merge(ActArgs)
                 .Merge(OutcomeArgs);
 
+            if (CostArgs.HasArg("actionInstance"))
+                CostArgs["actionInstance"] = this;
+
             if (CostArgs.HasArg("actionNo"))
-                CostArgs["actionNo"] = actionNo;
+                CostArgs["actionNo"] = ActionNo;
 
             if (CostArgs.HasArg("initiator"))
                 CostArgs["initiator"] = initiator;
@@ -101,9 +54,11 @@ namespace Rpg.ModObjects.Actions
                 CostArgs["owner"] = owner;
 
 
-            ActArgs = action.ActArgs();
+            if (ActArgs.HasArg("actionInstance"))
+                ActArgs["actionInstance"] = this;
+
             if (ActArgs.HasArg("actionNo"))
-                ActArgs["actionNo"] = actionNo;
+                ActArgs["actionNo"] = ActionNo;
 
             if (ActArgs.HasArg("initiator"))
                 ActArgs["initiator"] = initiator;
@@ -112,8 +67,11 @@ namespace Rpg.ModObjects.Actions
                 ActArgs["owner"] = owner;
 
 
+            if (OutcomeArgs.HasArg("actionInstance"))
+                OutcomeArgs["actionInstance"] = this;
+
             if (OutcomeArgs.HasArg("actionNo"))
-                OutcomeArgs["actionNo"] = actionNo;
+                OutcomeArgs["actionNo"] = ActionNo;
 
             if (OutcomeArgs.HasArg("initiator"))
                 OutcomeArgs["initiator"] = initiator;
@@ -123,13 +81,71 @@ namespace Rpg.ModObjects.Actions
 
 
             if (AutoCompleteArgs.HasArg("actionNo"))
-                AutoCompleteArgs["actionNo"] = actionNo;
+                AutoCompleteArgs["actionNo"] = ActionNo;
 
             if (AutoCompleteArgs.HasArg("initiator"))
                 AutoCompleteArgs["initiator"] = initiator;
 
             if (AutoCompleteArgs.HasArg("owner"))
                 AutoCompleteArgs["owner"] = owner;
+        }
+
+        public ActionModSet CreateActionSet()
+            => new ActionModSet(InitiatorId, ActionName, ActionNo);
+
+        public OutcomeModSet CreateOutcomeSet()
+            => new OutcomeModSet(InitiatorId, ActionName, ActionNo);
+
+        public bool CanAct(RpgGraph graph)
+            => graph.GetEntity<RpgEntity>(OwnerId)!
+                .GetAction(ActionName)!
+                .CanAct(CanActArgs!);
+
+        public ModSet Cost(RpgGraph graph)
+            => graph.GetEntity<RpgEntity>(OwnerId)!
+                .GetAction(ActionName)!
+                .Cost(CostArgs!);
+
+        public ActionModSet Act(RpgGraph graph)
+            => graph.GetEntity<RpgEntity>(OwnerId)!
+                .GetAction(ActionName)!
+                .Act(ActArgs!);
+
+        public ModSet[] Outcome(RpgGraph graph)
+            => graph.GetEntity<RpgEntity>(OwnerId)!
+                .GetAction(ActionName)!
+                .Outcome(OutcomeArgs!);
+
+        public void AutoComplete(RpgGraph graph)
+        {
+            if (CanActArgs == null)
+                OnBeforeTime(graph);
+
+            CanActArgs!.FillFrom(AutoCompleteArgs!);
+            if (!CanAct(graph))
+                throw new InvalidOperationException("Cannot AutoComplete");
+
+            CostArgs!.FillFrom(AutoCompleteArgs!);
+            var costs = Cost(graph);
+            var entity = graph.GetEntity(costs.OwnerId)!;
+            entity.AddModSet(costs);
+            graph.Time.TriggerEvent();
+
+            ActArgs!.FillFrom(AutoCompleteArgs!);
+            var actionModSet = Act(graph);
+            
+            var owner = graph.GetEntity(actionModSet.OwnerId)!;
+            owner.AddModSet(actionModSet);
+            graph.Time.TriggerEvent();
+
+            OutcomeArgs!.FillFrom(AutoCompleteArgs!);
+            var outcomeSets = Outcome(graph);
+            foreach (var outcomeSet in outcomeSets)
+            {
+                owner = graph.GetEntity(outcomeSet.OwnerId)!;
+                owner.AddModSet(outcomeSet);
+                graph.Time.TriggerEvent();
+            }
         }
     }
 }

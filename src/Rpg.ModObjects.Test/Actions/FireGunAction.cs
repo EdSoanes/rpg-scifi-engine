@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Templates;
 using Rpg.ModObjects.Tests.Models;
@@ -23,35 +24,29 @@ namespace Rpg.ModObjects.Tests.Actions
                 .Add(initiator, x => x.PhysicalActionPoints.Current, -1);
         }
 
-        public ModSet[] OnAct(int actionNo, TestGun owner, TestHuman initiator, int targetDefence)
+        public ActionModSet OnAct(ActionInstance actionInstance, TestHuman initiator, int targetDefence)
         {
-            var modSet = new ModSet(initiator.Id, new TurnLifecycle());
+            var actionModSet = actionInstance
+                .CreateActionSet()
+                .DiceRoll(initiator, "Base", "d20")
+                .DiceRoll(initiator, x => x.MissileAttack)
+                .Target(initiator, "Base", 10)
+                .Target(initiator, "TargetDefence", -targetDefence);
 
-            ActResult(actionNo, modSet, initiator, "Base", "d20");
-            ActResult(actionNo, modSet, initiator, x => x.MissileAttack);
-            ActResult(actionNo, modSet, initiator, "TargetDefence", -targetDefence);
-
-            return [modSet];
+            return actionModSet;
         }
 
-        public ModSet[] OnOutcome(int actionNo, TestGun owner, TestHuman initiator, int target, int diceRoll)
+        public ModSet[] OnOutcome(ActionInstance actionInstance, TestGun owner, TestHuman initiator, int target, int diceRoll)
         {
-            var outcome = new ModSet(initiator.Id, new TurnLifecycle());
-            OutcomeMod(actionNo, outcome, initiator, owner, x => x.Damage.Dice);
-            OutcomeMod(actionNo, outcome, initiator, x => x.Dexterity.Bonus);
-
-            var ammo = new ModSet(owner.Id, new TurnLifecycle())
+            var outcome = actionInstance
+                .CreateOutcomeSet()
+                .Outcome(initiator, owner, x => x.Damage.Dice)
+                .Outcome(initiator, x => x.Dexterity.Bonus)
                 .Add(new PermanentMod(), owner, x => x.Ammo.Current, -1);
 
-            var firing = owner.GetState(nameof(GunFiring))!.CreateInstance(new TurnLifecycle());
-            var res = new List<ModSet>
-            {
-                outcome,
-                ammo,
-                firing
-            };
-
-            return res.ToArray();
+            var firing = owner.CreateStateInstance(nameof(GunFiring))!;
+            
+            return [outcome, firing];
         }
     }
 }

@@ -47,7 +47,7 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(_graph.Time.Current, Is.EqualTo(TimePoints.Encounter(1)));
 
             attack.CostArgs["focusPoints"] = 0;
-            var cost = attack.Cost();
+            var cost = attack.Cost(_graph);
 
             Assert.That(_pc.CurrentActions, Is.EqualTo(1));
 
@@ -56,14 +56,14 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(_pc.CurrentActions, Is.EqualTo(0));
 
             attack.ActArgs["focusPoints"] = 0;
-            var act = attack.Act();
-            _pc.AddModSets(act);
+            var actionModSet = attack.Act(_graph);
+            _pc.AddModSets(actionModSet);
             _graph.Time.TriggerEvent();
-            Assert.That(attack.ActResult.ToString(), Is.EqualTo("2d6 - 1"));
+            Assert.That(actionModSet.DiceRoll(_graph).ToString(), Is.EqualTo("2d6 - 1"));
 
             _graph.Time.SetTime(TimePoints.Encounter(2));
             Assert.That(_pc.CurrentActions, Is.EqualTo(1));
-            Assert.That(attack.ActResult.ToString(), Is.EqualTo(Dice.Zero.ToString()));
+            Assert.That(actionModSet.DiceRoll(_graph).ToString(), Is.EqualTo(Dice.Zero.ToString()));
         }
     }
 }

@@ -7,7 +7,6 @@ namespace Rpg.ModObjects
     public class RpgContainer : RpgEntity
     { 
         [JsonProperty]
-        [TextUI(Ignore = true)]
         public string EntityId { get; private set; }
     
         [JsonProperty] internal List<string> ContainerStore { get; private set; } = new List<string>();

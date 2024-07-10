@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta.Attributes;
+using Rpg.ModObjects.Meta.Props;
 using Rpg.Sys.Attributes;
 using System;
 using System.Collections.Generic;
@@ -13,11 +14,11 @@ namespace Rpg.Sys.Components.Values
     public class HealthValue : RpgComponent
     {
         [JsonProperty]
-        [MinZeroUI(Ignore = true)]
+        [MinZero]
         public int Max { get; protected set; }
 
         [JsonProperty]
-        [HealthUI()]
+        [MinZero(Ignore = true)]
         public int Current { get; protected set; }
 
         [JsonConstructor] private HealthValue() { }

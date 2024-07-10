@@ -1,17 +1,17 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects;
-using Rpg.ModObjects.Meta.Attributes;
+using Rpg.ModObjects.Meta.Props;
 
 namespace Rpg.Sys.Components.Values
 {
     public class DefenseValue : RpgComponent
     {
         [JsonProperty] 
-        [PercentUI]
+        [Percent]
         public int Value { get; protected set; }
 
         [JsonProperty]
-        [PercentUI]
+        [Percent]
         public int Shielding { get; protected set; }
 
         [JsonConstructor] private DefenseValue() { }

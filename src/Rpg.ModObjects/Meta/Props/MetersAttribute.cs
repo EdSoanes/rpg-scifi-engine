@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rpg.ModObjects.Meta.Attributes
+namespace Rpg.ModObjects.Meta.Props
 {
-    public class MetersUIAttribute : IntegerUIAttribute
+    public class MetersAttribute : IntegerAttribute
     {
-        public MetersUIAttribute()
+        public MetersAttribute()
+            : base()
         {
             Unit = "m";
         }

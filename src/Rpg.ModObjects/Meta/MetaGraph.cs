@@ -1,8 +1,6 @@
 ﻿using System.Collections;
 using System.Reflection;
-using System.Runtime.InteropServices.JavaScript;
-using Rpg.ModObjects.Actions;
-using Rpg.ModObjects.Meta.Attributes;
+using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Reflection;
 
 namespace Rpg.ModObjects.Meta
@@ -22,8 +20,8 @@ namespace Rpg.ModObjects.Meta
         {
             var systemAssemblies = DiscoverSystemAssemblies(system);
 
-            var propUIs = RpgReflection.ScanForTypes<MetaPropUIAttribute>(systemAssemblies)
-                .Select(x => (MetaPropUIAttribute)Activator.CreateInstance(x)!)
+            var propUIs = RpgReflection.ScanForTypes<MetaPropAttribute>(systemAssemblies)
+                .Select(x => (MetaPropAttribute)Activator.CreateInstance(x)!)
                 .ToArray();
 
             var actions = RpgReflection.ScanForTypes<Actions.Action>(systemAssemblies)
@@ -70,38 +68,26 @@ namespace Rpg.ModObjects.Meta
         private void Prop(List<MetaProp> metaProps, Stack<string> propStack, PropertyInfo propInfo, string? tab, string? group)
         {
             var propUI = propInfo.GetPropUI();
-            if (!(propUI?.Ignore ?? false))
+            if (propUI == null)
+                return;
+
+            tab = (!string.IsNullOrEmpty(propUI.Tab) ? propUI.Tab : tab) ?? string.Empty;
+            group = (!string.IsNullOrEmpty(propUI.Group) ? propUI.Group : group) ?? string.Empty;
+
+            if (!propUI.Ignore)
             {
-                tab = !string.IsNullOrEmpty(propUI?.Tab) ? propUI.Tab : tab;
-                group = !string.IsNullOrEmpty(propUI?.Group) ? propUI.Group : group;
+                var metaProp = new MetaProp(propInfo, propUI, propStack, tab, group);
+                metaProps.Add(metaProp);
+            }
 
-                if (RpgReflection.RpgPropertyTypes.Contains(propInfo.PropertyType))
-                {
-                    var metaProp = new MetaProp();
+            if (propUI is ComponentAttribute)
+            {
+                propStack.Push(propInfo.Name);
 
-                    metaProp.Prop = propInfo.Name;
-                    metaProp.DataType = propUI?.DataType ?? propInfo.PropertyType.Name;
-                    metaProp.DataTypeName = propUI?.DataTypeName ?? propInfo.PropertyType.Name;
-                    metaProp.ReturnType = propInfo.PropertyType.Name;
-                    metaProp.Path = propStack.ToList();
-                    metaProp.Path.Reverse();
+                foreach (var childPropInfo in propInfo.PropertyType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                    Prop(metaProps, propStack, childPropInfo, tab, group);
 
-                    metaProp.Tab = tab;
-                    metaProp.Group = group;
-                    metaProp.DisplayName = !string.IsNullOrEmpty(propUI?.DisplayName) ? propUI.DisplayName : string.Join('.', new List<string>(metaProp.Path) { metaProp.Prop });
-                    metaProp.Ignore = propUI?.Ignore ?? false;
-
-                    metaProps.Add(metaProp);
-                }
-                else if (propInfo.PropertyType.IsClass && !propInfo.PropertyType.IsAssignableTo(typeof(IEnumerable)))
-                {
-                    propStack.Push(propInfo.Name);
-
-                    foreach (var childPropInfo in propInfo.PropertyType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
-                        Prop(metaProps, propStack, childPropInfo, tab, group);
-
-                    propStack.Pop();
-                }
+                propStack.Pop();
             }
         }
 

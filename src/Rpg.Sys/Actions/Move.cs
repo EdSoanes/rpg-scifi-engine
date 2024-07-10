@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects;
+using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time.Lifecycles;
@@ -25,11 +26,8 @@ namespace Rpg.Sys.Actions
                 .Add(owner, x => x.Actions.Action, -movementCost);
         }
 
-        public ModSet[] OnAct(Actor owner, int distance)
-        {
-            return [new ModSet(owner.Id, new TurnLifecycle())
-                .Add(owner, $"{nameof(Move)}.{nameof(OnAct)}", distance)];
-        }
+        public ActionModSet OnAct(ActionInstance actionInstance)
+            => actionInstance.CreateActionSet();
 
         public ModSet[] OnOutcome(Actor owner, int distance)
         {

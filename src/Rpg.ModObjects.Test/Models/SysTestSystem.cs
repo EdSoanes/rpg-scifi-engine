@@ -1,5 +1,5 @@
 ﻿using Rpg.ModObjects.Meta;
-using Rpg.ModObjects.Meta.Attributes;
+using Rpg.ModObjects.Meta.Props;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +24,6 @@ namespace Rpg.ModObjects.Tests.Models
 
         public MetaState[] States { get; set; } = Array.Empty<MetaState>();
 
-        public MetaPropUIAttribute[] PropUIs { get; set; } = Array.Empty<MetaPropUIAttribute>();
+        public MetaPropAttribute[] PropUIs { get; set; } = Array.Empty<MetaPropAttribute>();
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta.Attributes;
+using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Values;
 using Rpg.Sys.Attributes;
@@ -10,11 +11,10 @@ namespace Rpg.Sys.Components.Values
     public class ScoreBonusValue : RpgComponent
     {
         [JsonProperty]
-        [ScoreUI()]
+        [Integer(DataTypeName = "Score")]
         public int Score { get; protected set; }
 
         [JsonProperty]
-        [IntegerUI(Ignore = true)]
         public int Bonus { get; protected set; }
 
         [JsonConstructor] private ScoreBonusValue() { }

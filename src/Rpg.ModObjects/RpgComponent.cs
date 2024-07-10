@@ -12,7 +12,6 @@ namespace Rpg.ModObjects
     public abstract class RpgComponent : RpgObject
     {
         [JsonProperty] 
-        [TextUI(Ignore = true)]
         public string EntityId { get; private set; }
 
         [JsonConstructor] protected RpgComponent() { }

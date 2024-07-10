@@ -54,7 +54,7 @@ namespace Rpg.Cyborgs.Tests
             var graph = new RpgGraph(pc);
 
             var actions = pc.GetActions();
-            Assert.That(actions.Count(), Is.EqualTo(5));
+            Assert.That(actions.Count(), Is.EqualTo(6));
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace Rpg.Cyborgs.Tests
             var graph = new RpgGraph(pc);
 
             var states = pc.GetStates();
-            Assert.That(states.Count(), Is.EqualTo(6));
+            Assert.That(states.Count(), Is.EqualTo(7));
             Assert.That(states.Where(x => x.IsOn).Count(), Is.EqualTo(0));
         }
 

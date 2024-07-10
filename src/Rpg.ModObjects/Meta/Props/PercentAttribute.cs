@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rpg.ModObjects.Meta.Attributes
+namespace Rpg.ModObjects.Meta.Props
 {
-    public class PercentUIAttribute : IntegerUIAttribute
+    public class PercentAttribute : IntegerAttribute
     {
-        public PercentUIAttribute()
+        public PercentAttribute()
+            : base()
         {
             Unit = "%";
         }

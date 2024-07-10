@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Meta.Attributes;
+﻿using Rpg.ModObjects.Meta;
+using Rpg.ModObjects.Meta.Props;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace Rpg.Cyborgs.Attributes
 {
-    public class InjuryUIAttribute : SelectUIAttribute
+    public class InjuryUIAttribute : MetaSelectAttribute
     {
         public InjuryUIAttribute()
             : base("None", "Flesh Wound", "Unusable", "Busted", "Mangled", "Severed/Eviscerated", "Obliterated")
         {
-            DataType = "Select";
+            Editor = EditorType.Select;
             DataTypeName = "Injury";
         }
     }

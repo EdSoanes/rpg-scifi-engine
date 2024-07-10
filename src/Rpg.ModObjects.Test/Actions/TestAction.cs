@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Tests.Models;
+using Rpg.ModObjects.Tests.States;
 using Rpg.ModObjects.Time.Lifecycles;
 
 namespace Rpg.ModObjects.Tests.Actions
@@ -22,14 +24,14 @@ namespace Rpg.ModObjects.Tests.Actions
                 .Add(initiator, x => x.PhysicalActionPoints.Current, -1);
         }
 
-        public ModSet[] OnAct(ModdableEntity owner, TestHuman initiator, int target)
+        public ActionModSet OnAct(ActionInstance actionInstance, ModdableEntity owner, TestHuman initiator, int target)
         {
-            return [new ModSet(owner)];
+            return actionInstance.CreateActionSet();
         }
 
         public ModSet[] OnOutcome(ModdableEntity owner, TestHuman initiator, int diceRoll)
         {
-            var testing = owner.GetState(nameof(TestAction))!.CreateInstance(new TurnLifecycle());
+            var testing = owner.CreateStateInstance(nameof(Testing))!;
             return [testing];
         }
     }

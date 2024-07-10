@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Reflection;
@@ -16,7 +17,7 @@ namespace Rpg.ModObjects.Meta
         [JsonProperty] public string[]? NextActionHints { get; private set; }
 
         [JsonProperty] private RpgMethod<Actions.Action, ModSet> OnCost { get; set; }
-        [JsonProperty] private RpgMethod<Actions.Action, ModSet[]> OnAct { get; set; }
+        [JsonProperty] private RpgMethod<Actions.Action, ActionModSet> OnAct { get; set; }
         [JsonProperty] private RpgMethod<Actions.Action, ModSet[]> OnOutcome { get; set; }
 
         [JsonConstructor] private MetaAction() { }

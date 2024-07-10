@@ -1,4 +1,4 @@
-﻿using Rpg.ModObjects.Meta.Attributes;
+﻿using Rpg.ModObjects.Meta.Props;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Tests.Models
 {
-    public class ScoreUIAttribute : IntegerUIAttribute
+    public class ScoreUIAttribute : IntegerAttribute
     {
         public ScoreUIAttribute()
         {         
@@ -16,7 +16,7 @@ namespace Rpg.ModObjects.Tests.Models
         }
     }
 
-    public class PresenceUIAttribute : IntegerUIAttribute
+    public class PresenceUIAttribute : IntegerAttribute
     {
         public PresenceUIAttribute()
         {
