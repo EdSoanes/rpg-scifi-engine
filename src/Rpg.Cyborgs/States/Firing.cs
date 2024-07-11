@@ -1,14 +1,12 @@
-﻿using Rpg.ModObjects.States;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.States;
 
 namespace Rpg.Cyborgs.States
 {
     public class Firing : State<RangedWeapon>
     {
+        [JsonConstructor] private Firing() { }
+
         public Firing(RangedWeapon owner)
             : base(owner) { }
     }

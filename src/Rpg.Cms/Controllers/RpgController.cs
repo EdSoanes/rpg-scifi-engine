@@ -1,159 +1,50 @@
 ﻿using Asp.Versioning;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
-using Rpg.Cms.Json;
+using Rpg.Cms.Extensions;
 using Rpg.Cms.Services;
 using Rpg.Cms.Services.Converter;
 using Rpg.ModObjects;
-using Rpg.ModObjects.Meta;
 using Rpg.ModObjects.Reflection;
-using Rpg.Sys;
-using Rpg.Sys.Archetypes;
-using Umbraco.Cms.Api.Management.Controllers;
-using Umbraco.Cms.Api.Management.ViewModels.DocumentType;
-using Umbraco.Cms.Core.Mapping;
-using Umbraco.Cms.Core.PublishedCache;
-using Umbraco.Cms.Core.Security;
-using Umbraco.Cms.Core.Services.OperationStatus;
 using Umbraco.Cms.Web.Common;
-using Umbraco.Cms.Web.Common.Authorization;
 
 namespace Rpg.Cms.Controllers
 {
-    [ApiVersion("1.0")]
-    [Authorize(Policy = AuthorizationPolicies.TreeAccessDocumentTypes)]
-    [ApiExplorerSettings(GroupName = "_Rpg")]
-    public class RpgController : ManagementApiControllerBase
+    [ApiController]
+    [Route("/api/rpg")]
+    public class RpgController : Controller
     {
         private readonly ContentConverter _contentConverter;
-        private readonly SyncSessionFactory _syncSessionFactory;
-        private readonly ISyncTypesService _syncTypesService;
-        private readonly ISyncContentService _syncContentService;
-        private readonly IBackOfficeSecurityAccessor _backOfficeSecurityAccessor;
-        private readonly IUmbracoMapper _umbracoMapper;
         private readonly UmbracoHelper _umbracoHelper;
+        private readonly SyncSessionFactory _syncSessionFactory;
 
-        public RpgController(
-            ContentConverter contentConverter,
-            SyncSessionFactory syncSessionFactory, 
-            ISyncTypesService syncTypesService,
-            ISyncContentService syncContentService,
-            IBackOfficeSecurityAccessor backOfficeSecurityAccessor, 
-            IUmbracoMapper umbracoMapper,
-            UmbracoHelper umbracoHelper) 
+        public RpgController(ContentConverter contentConverter, UmbracoHelper umbracoHelper, SyncSessionFactory syncSessionFactory) 
         {
             _contentConverter = contentConverter;
-            _syncSessionFactory = syncSessionFactory;
-            _syncTypesService = syncTypesService;
-            _syncContentService = syncContentService;
-            _backOfficeSecurityAccessor = backOfficeSecurityAccessor;
-            _umbracoMapper = umbracoMapper;
             _umbracoHelper = umbracoHelper;
+            _syncSessionFactory = syncSessionFactory;
         }
 
-        [HttpGet("systems")]
-        [MapToApiVersion("1.0")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> Systems()
-        {
-            var systems = _syncSessionFactory.GetSystems();
-            var json = RpgSerializer.Serialize(systems);
-
-            return Content(json, "application/json");
-        }
-
-        [HttpPost("sync")]
-        [MapToApiVersion("1.0")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> Sync()
-        {
-            var userKey = CurrentUserKey(_backOfficeSecurityAccessor);
-
-            var systems = _syncSessionFactory.GetSystems();
-            foreach (var system in systems)
-            {
-                var session = _syncSessionFactory.CreateSession(userKey, system);
-
-                await _syncTypesService.Sync(session);
-                await _syncContentService.Sync(session);
-            }
-
-            return Ok();
-        }
-
-        [HttpPost("sync/{identifier}")]
-        [MapToApiVersion("1.0")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Sync(string identifier)
-        {
-            var userKey = CurrentUserKey(_backOfficeSecurityAccessor);
-
-            var system = _syncSessionFactory.GetSystems()
-                .FirstOrDefault(x => x.Identifier == identifier);
-
-            if (system == null)
-                return NotFound();
-
-            var session = _syncSessionFactory.CreateSession(userKey, system);
-
-            await _syncTypesService.Sync(session);
-            await _syncContentService.Sync(session);
-
-            return Ok();
-        }
-
-        [HttpGet("entities/{system}/{archetype}/{id}")]
-        [MapToApiVersion("1.0")]
+        [HttpGet("{system}/{archetype}/{id}")]
         [ProducesResponseType(typeof(RpgEntity), StatusCodes.Status200OK)]
         public IActionResult Entity(string system, string archetype, Guid id)
         {
-            var content = _umbracoHelper.Content(id);
-            if (content == null || !content.ContentType.Alias.StartsWith(system))
-                return NotFound();
+            var sys = _syncSessionFactory.GetSystem(system);
+            if (sys == null)
+                return NotFound($"System {system} not found");
 
-            var type = RpgReflection.ScanForTypeByName(archetype)!;
-            var entity = (_contentConverter.Convert(system, type, content) as RpgObject)!;
+            var type = sys.GetMetaObjectType(archetype);
+            if (type == null)
+                return BadRequest($"No .net type found for archetype {archetype} in system {system}");
+
+            var content = _umbracoHelper.Content(id);
+            if (!sys.IsContentForSystem(content))
+                return NotFound($"Entity of archetype {archetype} in system {system} not found");
+
+            var entity = (_contentConverter.Convert(sys, type, content!) as RpgObject)!;
             var graph = new RpgGraph(entity);
 
-            var json = RpgSerializer.Serialize(entity);
-
-            return Content(json, "application/json");
-        }
-
-        [HttpGet("meta")]
-        [MapToApiVersion("1.0")]
-        [ProducesResponseType(typeof(IEnumerable<DocumentTypeResponseModel>), StatusCodes.Status200OK)]
-        public IActionResult Meta()
-        {
-            var meta = new MetaGraph();
-            var metaSystem = meta.Build();
-
-            var json = RpgSerializer.Serialize(metaSystem);
-            return Content(json, "application/json");
-        }
-
-        [HttpGet("document-types")]
-        [MapToApiVersion("1.0")]
-        [ProducesResponseType(typeof(IMetaSystem), StatusCodes.Status200OK)]
-        public IActionResult DocumentTypes()
-        {
-            var docTypes = _syncTypesService.DocumentTypes();
-
-            IEnumerable<DocumentTypeResponseModel> models = docTypes.Select(x => _umbracoMapper.Map<DocumentTypeResponseModel>(x)!);
-            return Ok(models);
-        }
-
-        [HttpGet("document-type-updates")]
-        [MapToApiVersion("1.0")]
-        [ProducesResponseType(typeof(IMetaSystem), StatusCodes.Status200OK)]
-        public async Task<IActionResult> DocumentTypeUpdates()
-        {
-            var res = await _syncTypesService.DocumentTypeUpdatesAsync(CurrentUserKey(_backOfficeSecurityAccessor));
-
-            var json = RpgSerializer.Serialize(res);
-            return Content(json, "application/json");
+            var graphStateJson = graph.Serialize();
+            return Content(graphStateJson, "application/json");
         }
     }
 }

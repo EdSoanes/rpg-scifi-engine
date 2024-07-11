@@ -17,5 +17,7 @@ namespace Rpg.ModObjects.Meta
         MetaAction[] Actions { get; set; }
         MetaState[] States { get; set; }
         MetaPropAttribute[] PropUIs { get; set; }
+
+        MetaObj AsContentTemplate(MetaObj obj);
     }
 }

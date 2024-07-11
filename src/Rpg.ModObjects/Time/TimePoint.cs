@@ -1,17 +1,11 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Values;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Time
 {
     public struct TimePoint
     {
-        public string Type { get; private set; }
-        public int Tick { get; private set; }
+        [JsonProperty] public string Type { get; private set; }
+        [JsonProperty] public int Tick { get; private set; }
 
         public TimePoint(string type, int tick) 
         {

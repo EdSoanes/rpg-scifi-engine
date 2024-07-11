@@ -12,7 +12,6 @@ namespace Rpg.ModObjects.Meta.Props
             : base()
         {
             Ignore = true;
-            Returns = ReturnType.Component;
         }
     }
 }

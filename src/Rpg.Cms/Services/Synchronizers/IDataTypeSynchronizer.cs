@@ -9,5 +9,6 @@ namespace Rpg.Cms.Services.Synchronizers
     {
         Task<IEnumerable<IDataType>> GetDataTypesAsync(SyncSession session);
         Task<List<IDataType>> Sync(SyncSession session);
+        Task<List<IDataType>> ContainerPickerSync(SyncSession session);
     }
 }

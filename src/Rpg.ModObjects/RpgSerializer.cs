@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,8 +24,8 @@ namespace Rpg.ModObjects
             where T : class
                 => JsonConvert.DeserializeObject<T>(json, JsonSettings)!;
 
-        public static object? Deserialize(Type type, string json)
-            => JsonConvert.DeserializeObject(json, type, JsonSettings)!;
-
+        public static T? Deserialize<T>(Type type, string json)
+            where T : RpgObject
+                => JsonConvert.DeserializeObject(json, type, JsonSettings)! as T;
     }
 }

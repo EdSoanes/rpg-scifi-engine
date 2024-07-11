@@ -10,15 +10,10 @@ namespace Rpg.Cyborgs.Tests
 {
     internal class ActorTests
     {
-        private RpgGraph _graph;
-        private PlayerCharacter _pc;
-
         [SetUp]
         public void Setup()
         {
             RpgReflection.RegisterAssembly(typeof(CyborgsSystem).Assembly);
-
-
         }
 
         [Test]
@@ -41,9 +36,11 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(pc.LuckPoints, Is.EqualTo(2));
 
             Assert.That(pc.Defence, Is.EqualTo(7));
+            Assert.That(pc.ArmourRating, Is.EqualTo(6));
             Assert.That(pc.Reactions, Is.EqualTo(7));
             Assert.That(pc.MeleeAttack, Is.EqualTo(-1));
 
+            Assert.That(pc.Actions, Is.EqualTo(1));
             Assert.That(pc.IsStateOn(nameof(VeryFast)), Is.False);
         }
 
@@ -115,6 +112,19 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(pc.Actions, Is.EqualTo(2));
             Assert.That(pc.CurrentActions, Is.EqualTo(2));
             Assert.That(pc.IsStateOn(nameof(VeryFast)), Is.True);
+        }
+
+        [Test]
+        public void Benny_CarriesSword_EnsureSerialization()
+        {
+            var sword = new MeleeWeapon(WeaponFactory.SwordTemplate);
+            var pc = new PlayerCharacter(ActorFactory.BennyTemplate);
+            pc.Hands.Add(sword);
+
+            var graph = new RpgGraph(pc);
+            var json = RpgSerializer.Serialize(pc);
+
+            Assert.That(json, Is.Not.Null);
         }
     }
 }

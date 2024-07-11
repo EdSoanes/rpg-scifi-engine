@@ -33,23 +33,19 @@ namespace Rpg.Cyborgs
         public int Charisma { get; protected set; }
 
         [JsonProperty]
-        [Threshold(Min = 1)]
-        [Integer(Group = "Stats")]
+        [Threshold(Min = 1, Ignore = true)]
         public int FocusPoints { get; protected set; }
 
         [JsonProperty]
-        [Threshold(Min = 0)]
-        [Integer(Ignore = true)]
+        [Threshold(Min = 0, Ignore = true)]
         public int CurrentFocusPoints { get; protected set; }
 
         [JsonProperty]
-        [Threshold(Min = 0)]
-        [Integer(Ignore = true)]
+        [Threshold(Min = 0, Ignore = true)]
         public int LuckPoints { get; protected set; } = 1;
 
         [JsonProperty]
-        [Threshold(Min = 0)]
-        [Integer(Ignore = true)]
+        [Threshold(Min = 0, Ignore = true)]
         public int CurrentLuckPoints { get; protected set; }
 
         [JsonProperty]
@@ -57,13 +53,12 @@ namespace Rpg.Cyborgs
         public int Reactions { get; protected set; } = 7;
 
         [JsonProperty]
-        [Threshold(Min = 1)]
-        [Integer(Ignore = true)]
+        [Threshold(Min = 1, Ignore = true)]
         public int StaminaPoints { get; protected set; } = 12;
 
         [JsonProperty]
-        [Threshold(Min = 0)]
-        [Integer(Ignore = true)]
+        [Threshold(Min = 0, Ignore = true)]
+        [Integer()]
         public int CurrentStaminaPoints { get; protected set; }
 
         [JsonProperty]
@@ -87,13 +82,11 @@ namespace Rpg.Cyborgs
         public BodyPart RightLeg { get; protected set; }
 
         [JsonProperty]
-        [Threshold(Min = 1)]
-        [Integer(Ignore = true)]
+        [Threshold(Min = 1, Ignore = true)]
         public int LifePoints { get; protected set; } = 6;
 
         [JsonProperty]
-        [Threshold(Min = 0)]
-        [Integer(Ignore = true)]
+        [Threshold(Min = 0, Ignore = true)]
         public int CurrentLifePoints { get; protected set; }
 
 
@@ -126,25 +119,25 @@ namespace Rpg.Cyborgs
         public int MeleeAttack { get; protected set; }
 
         [JsonProperty]
-        [Threshold(Min = 0)]
-        [Integer(Ignore = true)]
+        [Threshold(Min = 0, Ignore = true)]
         public int Actions { get; protected set; } = 1;
 
         [JsonProperty]
-        [Threshold(Min = 0)]
-        [Integer(Ignore = true)]
+        [Threshold(Min = 0, Ignore = true)]
         public int CurrentActions { get; protected set; }
 
+        [JsonProperty]
+        [Container(Tab = "Gear")]
         public RpgContainer Hands { get; protected set; }
+
+        [JsonProperty]
+        [Container(Tab = "Gear")]
         public RpgContainer Wearing { get; protected set; }
 
-        [JsonConstructor] protected Actor() { }
-
-        public Actor(string name)
-            : base(name) 
+        [JsonConstructor] protected Actor()
         {
-            Hands ??= new RpgContainer(nameof(Hands));
-            Wearing ??= new RpgContainer(nameof(Wearing));
+            Hands ??= new RpgContainer(Id, nameof(Hands));
+            Wearing ??= new RpgContainer(Id, nameof(Wearing));
 
             Head ??= new BodyPart(Id, nameof(Head));
             Torso ??= new BodyPart(Id, nameof(Torso));
@@ -152,6 +145,12 @@ namespace Rpg.Cyborgs
             RightArm ??= new BodyPart(Id, nameof(RightArm));
             LeftLeg ??= new BodyPart(Id, nameof(LeftLeg));
             RightLeg ??= new BodyPart(Id, nameof(RightLeg));
+        }
+
+        public Actor(string name)
+            : this() 
+        {
+            Name = name;
         }
 
         protected override void OnLifecycleStarting()

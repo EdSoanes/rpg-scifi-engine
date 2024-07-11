@@ -21,10 +21,10 @@ namespace Rpg.ModObjects.Tests
             var recipient = new TestHuman();
             var gun = new TestGun();
 
-            var location = new RpgContainer("Room");
-            location.Add(initiator);
-            location.Add(recipient);
-            location.Add(gun);
+            var location = new Room();
+            location.Contents.Add(initiator);
+            location.Contents.Add(recipient);
+            location.Contents.Add(gun);
 
             var graph = new RpgGraph(location);
 
@@ -89,10 +89,10 @@ namespace Rpg.ModObjects.Tests
             var recipient = new TestHuman();
             var gun = new TestGun();
 
-            var location = new RpgContainer("Room");
-            location.Add(initiator);
-            location.Add(recipient);
-            location.Add(gun);
+            var location = new Room();
+            location.Contents.Add(initiator);
+            location.Contents.Add(recipient);
+            location.Contents.Add(gun);
 
             var graph = new RpgGraph(location);
             graph.Time.SetTime(TimePoints.BeginningOfEncounter);
@@ -115,10 +115,10 @@ namespace Rpg.ModObjects.Tests
             var recipient = new TestHuman();
             var gun = new TestGun();
 
-            var location = new RpgContainer("Room");
-            location.Add(initiator);
-            location.Add(recipient);
-            location.Add(gun);
+            var location = new Room();
+            location.Contents.Add(initiator);
+            location.Contents.Add(recipient);
+            location.Contents.Add(gun);
 
             var graph = new RpgGraph(location);
             graph.Time.SetTime(TimePoints.BeginningOfEncounter);
@@ -148,10 +148,10 @@ namespace Rpg.ModObjects.Tests
             var recipient = new TestHuman();
             var gun = new TestGun();
 
-            var location = new RpgContainer("Room");
-            location.Add(initiator);
-            location.Add(recipient);
-            location.Add(gun);
+            var location = new Room();
+            location.Contents.Add(initiator);
+            location.Contents.Add(recipient);
+            location.Contents.Add(gun);
 
             var graph = new RpgGraph(location);
             graph.Time.SetTime(TimePoints.BeginningOfEncounter);

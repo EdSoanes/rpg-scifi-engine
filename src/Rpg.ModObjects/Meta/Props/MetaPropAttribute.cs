@@ -8,7 +8,7 @@ namespace Rpg.ModObjects.Meta.Props
     {
         public string DataTypeName { get; set; }
         public EditorType Editor { get; set; }
-        public ReturnType Returns { get; set; }
+        //public ReturnType Returns { get; set; }
         public string? DisplayName { get; set; }
         public bool Ignore { get; set; }
         public string Tab { get; set; } = string.Empty;

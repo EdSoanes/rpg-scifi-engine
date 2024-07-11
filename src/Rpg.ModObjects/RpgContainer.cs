@@ -1,20 +1,19 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Meta.Attributes;
 using System.Collections.Specialized;
 
 namespace Rpg.ModObjects
 {
-    public class RpgContainer : RpgEntity
+    public class RpgContainer : RpgComponent
     { 
-        [JsonProperty]
-        public string EntityId { get; private set; }
-    
         [JsonProperty] internal List<string> ContainerStore { get; private set; } = new List<string>();
-        
+
+        [JsonProperty] private List<RpgObject> PreAddedContents { get; set; } = new();
+        [JsonProperty] private string? _preAddedContents { get; set; }
+
         public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
-        public RpgContainer(string name)
-            : base(name)
+        public RpgContainer(string entityId, string name)
+            : base(entityId, name)
         {
         }
 
@@ -49,11 +48,13 @@ namespace Rpg.ModObjects
                 return false;
 
             if (Graph == null)
-                RpgGraph.PreAddEntity(obj);
-            else if (Graph.GetEntity(obj.Id) == null)
+                PreAddedContents.Add(obj);
+            else
+            {
                 Graph.AddEntity(obj);
+                ContainerStore.Add(obj.Id);
+            }
 
-            ContainerStore.Add(obj.Id);
             CallCollectionChanged(NotifyCollectionChangedAction.Add);
 
             return true;
@@ -75,8 +76,33 @@ namespace Rpg.ModObjects
 
         public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
         {
+            foreach (var preAdded in GetPreAddedContents())
+            {
+                preAdded.OnBeforeTime(graph, preAdded);
+                graph.AddEntity(preAdded);
+            }
+
             base.OnBeforeTime(graph, entity);
-            EntityId ??= entity!.Id;
+        }
+
+        private IEnumerable<RpgObject> GetPreAddedContents()
+        {
+            var res = new List<RpgObject>();
+            res.AddRange(PreAddedContents);
+            if (!string.IsNullOrEmpty(_preAddedContents))
+            {
+                var contents = RpgSerializer.Deserialize<RpgObject[]>(_preAddedContents);
+                res.AddRange(contents);
+            }
+
+            _preAddedContents = null;
+            PreAddedContents.Clear();
+
+            foreach (var preAdded in res)
+                if (!ContainerStore.Contains(preAdded.Id))
+                    ContainerStore.Add(preAdded.Id);
+
+            return res.SelectMany(x => x.Traverse());
         }
     }
 }

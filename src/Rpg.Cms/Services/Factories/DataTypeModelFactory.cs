@@ -4,6 +4,7 @@ using Umbraco.Cms.Api.Management.ViewModels;
 using Umbraco.Cms.Api.Management.ViewModels.DataType;
 using Umbraco.Cms.Core.Models.Entities;
 using Rpg.Cms.Extensions;
+using Umbraco.Cms.Core;
 
 namespace Rpg.Cms.Services.Factories
 {
@@ -19,6 +20,7 @@ namespace Rpg.Cms.Services.Factories
             }
 
             res.Add(CreateBooleanModel(session, parentFolder));
+            res.Add(CreateContainerModel(session, parentFolder));
 
             foreach (var metaObj in session.System.Objects)
             {
@@ -33,6 +35,26 @@ namespace Rpg.Cms.Services.Factories
             }
 
             return res.ToArray();
+        }
+
+        public CreateDataTypeRequestModel CreateContainerModel(SyncSession session, IUmbracoEntity parentFolder)
+        {
+            var res = new List<CreateDataTypeRequestModel>();
+            var aliases = session.System.Objects
+                .Where(x => x.Archetypes.Contains("RpgEntity"))
+                .Select(x => session.GetDocTypeAlias(x.Archetype));
+
+            var items = session.DocTypes
+                .Where(x => aliases.Contains(x.Alias))
+                .Select(x => x.Key.ToString())
+                .ToArray();
+
+            var model = CreateModel(session, session.System.PropUIs.First(x => x is ContainerAttribute), parentFolder);
+            var values = model.Values.Where(x => x.Alias != "filter").ToList();
+            values.Add(new DataTypePropertyPresentationModel { Alias = "filter", Value = string.Join(',', items) });
+            model.Values = values;
+
+            return model;
         }
 
         public CreateDataTypeRequestModel CreateModel(SyncSession session, MetaPropAttribute attr, IUmbracoEntity parentFolder)
@@ -56,7 +78,7 @@ namespace Rpg.Cms.Services.Factories
                 Id = Guid.NewGuid(),
                 Parent = new ReferenceByIdModel(parentFolder.Key),
                 Name = session.GetDataTypeName("Boolean"),  
-                EditorAlias = "Umbraco.TrueFalse",
+                EditorAlias = Constants.PropertyEditors.Aliases.Boolean,
                 EditorUiAlias = "Umb.PropertyEditorUi.Toggle"
             };
 
@@ -84,7 +106,7 @@ namespace Rpg.Cms.Services.Factories
                 res.Id = Guid.NewGuid();
                 res.Parent = new ReferenceByIdModel(parentFolder.Key);
                 res.Name = dataTypeName;
-                res.EditorAlias = "Umbraco.CheckBoxList";
+                res.EditorAlias = Constants.PropertyEditors.Aliases.CheckBoxList;
                 res.EditorUiAlias = "Umb.PropertyEditorUi.CheckBoxList";
                 res.Values = new List<DataTypePropertyPresentationModel>
                 {

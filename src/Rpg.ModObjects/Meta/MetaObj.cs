@@ -2,6 +2,7 @@
 using Rpg.ModObjects.Reflection;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ namespace Rpg.ModObjects.Meta
     public class MetaObj
     {
         [JsonProperty] public string Archetype { get; private set; }
+        [JsonProperty] public string? QualifiedClassName { get; private set; }
         [JsonProperty] public string[] Archetypes {  get; private set; }
         [JsonProperty] public string? Icon { get; private set; }
         [JsonProperty] public List<MetaProp> Props { get; set; } = new List<MetaProp>();
@@ -19,13 +21,15 @@ namespace Rpg.ModObjects.Meta
         [JsonProperty] public List<string> AllowedChildArchetypes { get; private set; } = new List<string>();
         [JsonProperty] public List<MetaAction> AllowedActions { get; set; } = new List<MetaAction>();
         [JsonProperty] public List<MetaState> AllowedStates { get; set; } = new List<MetaState>();
+        [JsonProperty] public List<MetaContainer> Containers { get; set; } = new List<MetaContainer>();
         [JsonProperty] public bool IsElement { get; private set; }
 
-        [JsonConstructor] private MetaObj() { }
+        [JsonConstructor] public MetaObj() { }
 
         public MetaObj(Type type)
         {
             Archetype = type.Name;
+            QualifiedClassName = type.AssemblyQualifiedName;
             Archetypes = type.GetArchetypes();
         }
 
@@ -47,10 +51,10 @@ namespace Rpg.ModObjects.Meta
             return this;
         }
 
-        public MetaObj AddProp(string prop, EditorType editor, ReturnType returns, string? dataTypeAlias = null, string? tab = null, string? group = null)
+        public MetaObj AddProp(string prop, EditorType editor, string? dataTypeAlias = null, string? tab = null, string? group = null)
         {
-            if (!Props.Any(x => x.Prop == prop))
-                Props.Add(new MetaProp(prop, editor, returns, dataTypeAlias, tab, group));
+            if (!Props.Any(x => x.FullProp == prop))
+                Props.Add(new MetaProp(prop, editor, dataTypeAlias, tab, group));
 
             return this;
         }
@@ -66,6 +70,38 @@ namespace Rpg.ModObjects.Meta
         public MetaObj AllowAsRoot(bool allow)
         {
             AllowedAsRoot = allow;
+            return this;
+        }
+
+        public MetaObj Merge(MetaObj other)
+        {
+            foreach (var prop in other.Props)
+                if (!Props.Any(x => x.FullProp == prop.FullProp))
+                    Props.Add(prop.Clone());
+
+            Archetype ??= other.Archetype;
+            Archetypes ??= other.Archetypes;
+            Icon ??= other.Icon;
+            IsElement = other.IsElement;
+
+            foreach (var action in other.AllowedActions)
+            {
+                if (!AllowedActions.Any(x => x.Name == action.Name))
+                    AllowedActions.Add(action);
+            }
+
+            foreach (var state in other.AllowedStates)
+            {
+                if (!AllowedStates.Any(x => x.Name == state.Name))
+                    AllowedStates.Add(state);
+            }
+
+            foreach (var child in other.AllowedChildArchetypes)
+            {
+                if (!AllowedChildArchetypes.Contains(child))
+                    AllowedChildArchetypes.Add(child);
+            }
+
             return this;
         }
     }

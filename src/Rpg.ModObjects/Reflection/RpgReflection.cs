@@ -69,7 +69,7 @@ namespace Rpg.ModObjects.Reflection
             return null;
         }
 
-        internal static Type? ScanForType(string qualifiedTypeName)
+        public static Type? ScanForType(string qualifiedTypeName)
         {
             var type = RpgPropertyTypes.FirstOrDefault(x => x.AssemblyQualifiedName == qualifiedTypeName);
             if (type != null)

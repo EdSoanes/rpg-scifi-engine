@@ -15,7 +15,6 @@ namespace Rpg.ModObjects.Meta.Props
         {
             Values = values;
             Max = Values.Length;
-            Returns = ReturnType.Int32;
             Editor = EditorType.Select;
         }
     }

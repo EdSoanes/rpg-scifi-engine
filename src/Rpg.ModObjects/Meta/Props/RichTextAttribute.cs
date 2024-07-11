@@ -12,7 +12,6 @@ namespace Rpg.ModObjects.Meta.Props
             : base()
         {
             Editor = EditorType.RichText;
-            Returns = ReturnType.String;
         }
     }
 }

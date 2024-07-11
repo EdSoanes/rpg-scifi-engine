@@ -16,7 +16,6 @@ namespace Rpg.ModObjects.Meta.Props
             : base()
         {
             Editor = EditorType.Int32;
-            Returns = ReturnType.Int32;
         }
     }
 }

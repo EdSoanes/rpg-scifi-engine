@@ -27,11 +27,38 @@ namespace Rpg.ModObjects
             Time.Begin();
         }
 
-        private static List<RpgObject> _preAddedObjects = new List<RpgObject>();
-        internal static void PreAddEntity(RpgObject obj)
+        public RpgGraph(RpgGraphState state)
         {
-            if (!_preAddedObjects.Any(x => x.Id == obj.Id))
-                _preAddedObjects.Add(obj);
+            RpgReflection.RegisterAssembly(GetType().Assembly);
+
+            Context = state.Entities.First(x => x.Id == state.ContextId);
+            Time = state.Time!;
+            Time.OnTimeEvent += OnTimeEvent;
+
+            foreach (var entity in state.Entities.SelectMany(x => x.Traverse()))
+            {
+                entity.OnBeforeTime(this, entity);
+                ObjectStore.Add(entity.Id, entity);
+            }
+        }
+
+        public string Serialize()
+        {
+            var state = new RpgGraphState
+            {
+                ContextId = Context.Id,
+                Entities = ObjectStore.Values.Where(x => x is RpgEntity).Cast<RpgEntity>().ToList(),
+                Time = Time,
+            };
+
+            var json = RpgSerializer.Serialize(state);
+            return json;
+        }
+
+        public static RpgGraph Deserialize(string stateJson)
+        {
+            var state = RpgSerializer.Deserialize<RpgGraphState>(stateJson);
+            return new RpgGraph(state);
         }
 
         public T? Locate<T>(string? id)
@@ -439,14 +466,6 @@ namespace Rpg.ModObjects
         private void OnBeforeTime()
         {
             ObjectStore.Clear();
-
-            foreach (var preAddedObject in _preAddedObjects.SelectMany(x => x.Traverse())) 
-            {
-                preAddedObject.OnBeforeTime(this, preAddedObject);
-                AddEntity(preAddedObject);
-            }
-
-            _preAddedObjects.Clear();
 
             foreach (var entity in Context.Traverse())
             {

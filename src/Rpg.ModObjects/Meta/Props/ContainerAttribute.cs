@@ -11,8 +11,8 @@ namespace Rpg.ModObjects.Meta.Props
         public ContainerAttribute()
             : base()
         {
-            Ignore = true;
-            Returns = ReturnType.Container;
+            Editor = EditorType.Container;
+            //Returns = ReturnType.Container;
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Rpg.Cms.Services.Factories
                 Alias = session.GetDocTypeAlias(metaObject)
             };
 
-            return SetModel(session, createDocType, metaObject, icon);
+            return SetModel(session, createDocType, metaObject, icon, null);
         }
 
         public ContentTypeUpdateModel UpdateModel(SyncSession session, MetaObj metaObject, IContentType docType, string icon = "icon-checkbox-dotted")
@@ -26,15 +26,16 @@ namespace Rpg.Cms.Services.Factories
                 Alias = docType.Alias,
             };
             
-            updateDocType = SetModel(session, updateDocType, metaObject, icon ?? docType.Icon!);
+            updateDocType = SetModel(session, updateDocType, metaObject, icon ?? docType.Icon!, docType);
+
             return updateDocType;
         }
 
-        private T SetModel<T>(SyncSession session, T docTypeModel, MetaObj metaObject, string icon)
+        private T SetModel<T>(SyncSession session, T docTypeModel, MetaObj metaObject, string icon, IContentType? docType)
             where T : ContentTypeModelBase
         {
             var containers = CreateContainers(session, metaObject);
-            var properties = CreateProperties(session, metaObject.Props, containers);
+            var properties = CreateProperties(session, metaObject.Props, containers, docType);
 
             docTypeModel.Icon = metaObject.Icon ?? icon;
             docTypeModel.Containers = containers;
@@ -48,7 +49,6 @@ namespace Rpg.Cms.Services.Factories
                 int i = 0;
                 foreach (var archetype in metaObject.AllowedChildArchetypes)
                 {
-                    var docType = session.GetDocType(archetype, faultOnNotFound: false);
                     if (docType != null)
                         allowedTypes.Add(new ContentTypeSort(docType.Key, i++, docType.Alias));
                 }
@@ -123,34 +123,42 @@ namespace Rpg.Cms.Services.Factories
         public ContentTypePropertyTypeModel[] CreateProperties(SyncSession session, IEnumerable<MetaProp> metaProps, IEnumerable<ContentTypePropertyContainerModel> containers, IContentType? docType = null)
         {
             var res = new List<ContentTypePropertyTypeModel>();
-            foreach (var metaProp in metaProps)
+            var sortOrder = 0;
+            foreach (var metaProp in metaProps.Where(x => !x.Ignore))
             {
+                var propType = docType?.PropertyTypes.FirstOrDefault(x => x.Name == metaProp.Prop);
                 var dataType = session.GetDataTypeByName(metaProp.DataTypeName, faultOnNotFound: false);
                 var propModel = new ContentTypePropertyTypeModel
                 {
-                    Key = Guid.NewGuid(),
-                    Alias = metaProp.FullProp.Replace('.', '_'),
+                    Key = propType?.Key ?? Guid.NewGuid(),
+                    Alias = metaProp.FullProp,
+                    Description = metaProp.FullProp,
                     Name = metaProp.DisplayName,
-                    DataTypeKey = dataType.Key,
-                    
+                    DataTypeKey = dataType!.Key,
+                    SortOrder = sortOrder++
                 };
 
-                var tabName = session.GetPropTypeTabName(metaProp.Tab);
-                var groupName = session.GetPropTypeGroupName(metaProp.Group);
-
-                var tab = GetTab(containers, tabName);
-                var group = GetTabGroup(containers, tab.Key, groupName);
-
-                var propGroup = docType?.PropertyGroups.FirstOrDefault(x => x.Name == group.Name && x.Type == PropertyGroupType.Group);
-                var propType = propGroup?.PropertyTypes?.FirstOrDefault(x => x.Name == metaProp.Prop);
-                if (propType != null)
+                if (propType?.Key != null)
                     propModel.Key = propType.Key;
 
+                var group = GetPropertyContainerModel(session, containers, metaProp);
                 propModel.ContainerKey = group.Key;
+
                 res.Add(propModel);
             }
 
             return res.ToArray();
+        }
+
+        private ContentTypePropertyContainerModel GetPropertyContainerModel(SyncSession session, IEnumerable<ContentTypePropertyContainerModel> containers, MetaProp? metaProp)
+        {
+            var tabName = session.GetPropTypeTabName(metaProp.Tab);
+            var groupName = session.GetPropTypeGroupName(metaProp.Group);
+
+            var tab = GetTab(containers, tabName);
+            var group = GetTabGroup(containers, tab.Key, groupName);
+
+            return group;
         }
     }
 

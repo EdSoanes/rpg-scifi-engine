@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Data;
 using System.Reflection;
 using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Reflection;
@@ -48,11 +49,31 @@ namespace Rpg.ModObjects.Meta
         public MetaObj Object(Type type, MetaAction[] actions, MetaState[] states)
         {
             var obj = new MetaObj(type);
-            obj.Props = Props(type);
-            obj.AllowedActions.AddRange(actions.Where(x => obj.Archetypes.Contains(x.OwnerArchetype)));
-            obj.AllowedStates.AddRange(states.Where(x => obj.Archetypes.Contains(x.Archetype)));
+            FillMetaObject(obj, type, actions, states);
 
             return obj;
+        }
+
+        private void FillMetaObject(MetaObj obj, Type type, MetaAction[] actions, MetaState[] states)
+        {
+            var props = Props(type);
+            obj.Props.AddRange(Props(type));
+            obj.Containers.AddRange(Containers(type));
+            obj.AllowedActions.AddRange(actions.Where(x => obj.Archetypes.Contains(x.OwnerArchetype)));
+            obj.AllowedStates.AddRange(states.Where(x => obj.Archetypes.Contains(x.Archetype)));
+        }
+
+        public List<MetaContainer> Containers(Type type)
+        {
+            var containers = new List<MetaContainer>();
+            foreach (var propInfo in type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(x => x.PropertyType.IsAssignableTo(typeof(RpgContainer))))
+            {
+                var container = new MetaContainer(propInfo.PropertyType, propInfo.Name);
+                FillMetaObject(container, propInfo.PropertyType, Array.Empty<MetaAction>(), Array.Empty<MetaState>());
+                containers.Add(container);
+            }
+
+            return containers;
         }
 
         public List<MetaProp> Props(Type type)
@@ -74,11 +95,8 @@ namespace Rpg.ModObjects.Meta
             tab = (!string.IsNullOrEmpty(propUI.Tab) ? propUI.Tab : tab) ?? string.Empty;
             group = (!string.IsNullOrEmpty(propUI.Group) ? propUI.Group : group) ?? string.Empty;
 
-            if (!propUI.Ignore)
-            {
-                var metaProp = new MetaProp(propInfo, propUI, propStack, tab, group);
-                metaProps.Add(metaProp);
-            }
+            var metaProp = new MetaProp(propInfo, propUI, propStack, tab, group);
+            metaProps.Add(metaProp);
 
             if (propUI is ComponentAttribute)
             {

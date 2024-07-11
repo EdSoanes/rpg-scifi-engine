@@ -22,8 +22,8 @@ namespace Rpg.Cyborgs.Tests
             _pc = new PlayerCharacter(ActorFactory.BennyTemplate);
             _pc.Hands.Add(_sword);
 
-            var room = new RpgContainer("Room");
-            room.Add(_pc);
+            var room = new Room();
+            room.Contents.Add(_pc);
 
             _graph = new RpgGraph(room);
         }

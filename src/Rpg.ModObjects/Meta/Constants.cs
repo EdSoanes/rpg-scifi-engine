@@ -15,15 +15,15 @@ namespace Rpg.ModObjects.Meta
         ComponentTemplate
     }
 
-    public enum ReturnType
-    {
-        Int32,
-        Dice,
-        Boolean,
-        String,
-        Component,
-        Container
-    }
+    //public enum ReturnType
+    //{
+    //    Int32,
+    //    Dice,
+    //    Boolean,
+    //    Text,
+    //    Component,
+    //    Container
+    //}
 
     public enum EditorType
     {
@@ -32,6 +32,8 @@ namespace Rpg.ModObjects.Meta
         RichText,
         Boolean,
         Select,
-        CheckBoxList
+        CheckBoxList,
+        Container,
+        LongText
     }
 }

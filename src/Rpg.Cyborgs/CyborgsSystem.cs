@@ -20,5 +20,15 @@ namespace Rpg.Cyborgs
         public MetaState[] States { get; set; } = Array.Empty<MetaState>();
 
         public MetaPropAttribute[] PropUIs { get; set; } = Array.Empty<MetaPropAttribute>();
+
+        public MetaObj AsContentTemplate(MetaObj obj)
+        {
+            var res = new MetaObj()
+                .AddProp("Summary", EditorType.RichText)
+                .AddProp("Description", EditorType.RichText)
+                .Merge(obj);
+
+            return res;
+        }
     }
 }

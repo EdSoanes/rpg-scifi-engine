@@ -20,5 +20,10 @@ namespace Rpg.Sys
         public MetaState[] States { get; set; } = Array.Empty<MetaState>();
         
         public MetaPropAttribute[] PropUIs { get; set; } = Array.Empty<MetaPropAttribute>();
+
+        public MetaObj AsContentTemplate(MetaObj obj)
+        {
+            return obj;
+        }
     }
 }

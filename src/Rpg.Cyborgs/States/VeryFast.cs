@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Mods;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Templates;
 using Rpg.ModObjects.States;
 
@@ -6,6 +7,8 @@ namespace Rpg.Cyborgs.States
 {
     public class VeryFast : State<Actor>
     {
+        [JsonConstructor] private VeryFast() { }
+
         public VeryFast(Actor owner)
             : base(owner) { }
 

@@ -58,9 +58,13 @@ namespace Rpg.Cms.Services
 
         public async Task Sync(SyncSession session)
         {
+            session.DocTypes = _docTypeSynchronizer.GetAllDocTypes(session);
+
             await SyncDataTypesAsync(session);
             await SyncDocTypeFoldersAsync(session);
             await SyncDocTypesAsync(session);
+
+            session.DataTypes = await _dataTypeSynchronizer.ContainerPickerSync(session);
         }
 
         private async Task SyncDataTypesAsync(SyncSession session)
@@ -83,33 +87,33 @@ namespace Rpg.Cms.Services
         {
             var stateDocType = new MetaObj("State")
                 .AddIcon("icon-rectangle-ellipsis")
-                .AddProp("Description", EditorType.RichText, ReturnType.String);
+                .AddProp("Description", EditorType.RichText);
 
             session.StateDocType = await _docTypeSynchronizer.Sync(session, stateDocType, session.ComponentDocTypeFolder!);
 
             var actionArgDocType = new MetaObj("Action Arg")
                 .SetIsElement(true)
                 .AddIcon("icon-rectangle-ellipsis")
-                .AddProp("Arg Name", EditorType.Text, ReturnType.String)
-                .AddProp("Description", EditorType.RichText, ReturnType.String)
-                .AddProp("Type Name", EditorType.Text, ReturnType.String)
-                .AddProp("Qualified Type Name", EditorType.Text, ReturnType.String)
-                .AddProp("Is Nullable", EditorType.Boolean, ReturnType.Boolean);
+                .AddProp("Arg Name", EditorType.Text)
+                .AddProp("Description", EditorType.RichText)
+                .AddProp("Type Name", EditorType.Text)
+                .AddProp("Qualified Type Name", EditorType.Text)
+                .AddProp("Is Nullable", EditorType.Boolean);
 
             session.ActionArgDocType = await _docTypeSynchronizer.Sync(session, actionArgDocType, session.ComponentDocTypeFolder!);
 
             var actionDocType = new MetaObj("Action")
                 .AddIcon("icon-command")
-                .AddProp("Description", EditorType.RichText, ReturnType.String)
-                .AddProp("Action.Cost", EditorType.RichText, ReturnType.String)
-                .AddProp("Action.Act", EditorType.RichText, ReturnType.String)
-                .AddProp("Action.Outcome", EditorType.RichText, ReturnType.String);
+                .AddProp("Description", EditorType.RichText)
+                .AddProp("Action.Cost", EditorType.RichText)
+                .AddProp("Action.Act", EditorType.RichText)
+                .AddProp("Action.Outcome", EditorType.RichText);
 
             session.ActionDocType = await _docTypeSynchronizer.Sync(session, actionDocType, session.ComponentDocTypeFolder!);
 
             var actionLibraryDocType = new MetaObj("Action Library")
                 .AddIcon("icon-books")
-                .AddProp("Description", EditorType.RichText, ReturnType.String)
+                .AddProp("Description", EditorType.RichText)
                 .AddAllowedArchetype(session.GetDocTypeAlias("Action Library"))
                 .AddAllowedArchetype(session.ActionDocType!.Alias);
 
@@ -117,7 +121,7 @@ namespace Rpg.Cms.Services
 
             var stateLibraryDocType = new MetaObj("State Library")
                 .AddIcon("icon-books")
-                .AddProp("Description", EditorType.RichText, ReturnType.String)
+                .AddProp("Description", EditorType.RichText)
                 .AddAllowedArchetype(session.GetDocTypeAlias("State Library"))
                 .AddAllowedArchetype(session.StateDocType!.Alias);
 
@@ -125,12 +129,13 @@ namespace Rpg.Cms.Services
 
             var entityLibraryDocType = new MetaObj("Entity Library")
                 .AddIcon("icon-books")
-                .AddProp("Description", EditorType.RichText, ReturnType.String)
+                .AddProp("Description", EditorType.RichText)
                 .AddAllowedArchetype(session.GetDocTypeAlias("Entity Library"));
 
             foreach (var metaObject in session.System.Objects)
             {
-                var docType = await _docTypeSynchronizer.Sync(session, metaObject, session.EntityDocTypeFolder!);
+                var entity = session.System.AsContentTemplate(metaObject);
+                var docType = await _docTypeSynchronizer.Sync(session, entity, session.EntityDocTypeFolder!);
                 entityLibraryDocType.AddAllowedArchetype(docType!.Alias);
             }
 
@@ -138,9 +143,9 @@ namespace Rpg.Cms.Services
 
             var systemDocType = new MetaObj(session.System.Identifier)
                 .AddIcon("icon-settings")
-                .AddProp("Identifier", EditorType.Text, ReturnType.String)
-                .AddProp("Version", EditorType.Text, ReturnType.String)
-                .AddProp("Description", EditorType.RichText, ReturnType.String)
+                .AddProp("Identifier", EditorType.Text)
+                .AddProp("Version", EditorType.Text)
+                .AddProp("Description", EditorType.RichText)
                 .AllowAsRoot(true)
                 .AddAllowedArchetype(session.GetDocTypeAlias(session.System.Identifier))
                 .AddAllowedArchetype(session.ActionLibraryDocType!.Alias)
@@ -148,14 +153,6 @@ namespace Rpg.Cms.Services
                 .AddAllowedArchetype(session.EntityLibraryDocType!.Alias);
 
             session.SystemDocType = await _docTypeSynchronizer.Sync(session, systemDocType, session.RootDocTypeFolder!);
-        }
-
-        private void AddEntityProperties(MetaObj? metaObj)
-        {
-            metaObj
-                .AddProp("Summary", EditorType.RichText, ReturnType.String)
-                .AddProp("Description", EditorType.RichText, ReturnType.String)
-                .AddProp("PropertyPath", EditorType.Text, ReturnType.String);
         }
     }
 }

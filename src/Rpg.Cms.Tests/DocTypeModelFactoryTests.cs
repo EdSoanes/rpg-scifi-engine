@@ -5,6 +5,7 @@ using Rpg.ModObjects.Meta;
 using Rpg.ModObjects.Reflection;
 using Rpg.Sys;
 using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.Strings;
 
 namespace Rpg.Cms.Tests
 {
@@ -47,6 +48,16 @@ namespace Rpg.Cms.Tests
             var res = converter.CreateModel(session, obj);
 
             Assert.IsNotNull(res);
+        }
+
+        [Test]
+        public void PropAliases()
+        {
+            var helper = new DefaultShortStringHelper(new DefaultShortStringHelperConfig());
+            var alias = helper.CleanStringForSafeAlias(@"Some_-:|/@#^\'=¤1234å /*[](){}thing");
+            var alias2 = helper.CleanStringForSafeAlias("This is a string");
+            Assert.That(alias, Is.Not.Null);
+
         }
     }
 }

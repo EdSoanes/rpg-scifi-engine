@@ -1,6 +1,7 @@
 ﻿using Rpg.ModObjects.Meta;
 using Rpg.ModObjects.Meta.Props;
 using Umbraco.Cms.Api.Management.ViewModels.DataType;
+using Umbraco.Cms.Core;
 
 namespace Rpg.Cms.Extensions
 {
@@ -10,12 +11,13 @@ namespace Rpg.Cms.Extensions
         {
             return attr.Editor switch
             {
-                EditorType.Int32 => "Umbraco.Integer",
-                EditorType.Select => "Umbraco.DropDown.Flexible",
-                EditorType.Boolean => "Umbraco.TrueFalse",
-                EditorType.CheckBoxList => "Umbraco.CheckBoxList",
-                EditorType.RichText => "Umbraco.RichText",
-                _ => "Umbraco.Text"
+                EditorType.Int32 => Constants.PropertyEditors.Aliases.Integer,
+                EditorType.Select => Constants.PropertyEditors.Aliases.DropDownListFlexible,
+                EditorType.Boolean => Constants.PropertyEditors.Aliases.Boolean,
+                EditorType.CheckBoxList => Constants.PropertyEditors.Aliases.CheckBoxList,
+                EditorType.Container => Constants.PropertyEditors.Aliases.MultiNodeTreePicker,
+                EditorType.RichText => Constants.PropertyEditors.Aliases.RichText,
+                _ => Constants.PropertyEditors.Aliases.TextBox
             };
         }
 
@@ -26,6 +28,7 @@ namespace Rpg.Cms.Extensions
                 EditorType.Boolean => "Umb.PropertyEditorUi.Toggle",
                 EditorType.Select => "Umb.PropertyEditorUi.Dropdown",
                 EditorType.CheckBoxList => "Umb.PropertyEditorUi.CheckBoxList",
+                EditorType.Container => "Umb.PropertyEditorUi.ContentPicker",
                 EditorType.RichText => "Umb.PropertyEditorUi.TinyMCE",
                 EditorType.Text => "Umb.PropertyEditorUi.TextBox",
                 _ => "Umb.PropertyEditorUi.Integer",
@@ -39,6 +42,7 @@ namespace Rpg.Cms.Extensions
                 EditorType.Int32 => attr.UmbInt32Values(),
                 EditorType.Select => attr.UmbMultiOptionValues(),
                 EditorType.CheckBoxList => attr.UmbMultiOptionValues(),
+                EditorType.Container => attr.UmbContainerValues(),
                 EditorType.RichText => attr.UmbRichTextValues(),
                 _ => null
             };
@@ -96,6 +100,16 @@ namespace Rpg.Cms.Extensions
                 "indent",
                 "sourcecode"
             });
+
+            return res;
+        }
+
+        private static Dictionary<string, object> UmbContainerValues(this MetaPropAttribute attr)
+        {
+            var res = new Dictionary<string, object>();
+            res.Add("minNumber", 0);
+            res.Add("maxNumber", 0);
+            res.Add("filter", "");
 
             return res;
         }
