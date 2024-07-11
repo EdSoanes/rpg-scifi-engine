@@ -84,7 +84,7 @@ namespace Rpg.ModObjects.Props
             TargetProp = new PropDescription(graph, rootEntity, mod);
             ModType = mod.Behavior.Type;
             Value = graph.CalculateModValue(mod);
-            ValueFunction = mod.SourceValueFunc.FullName;
+            ValueFunction = mod.SourceValueFunc?.FullName;
 
             var sourcePropRef = mod.SourcePropRef;
             if (sourcePropRef != null)

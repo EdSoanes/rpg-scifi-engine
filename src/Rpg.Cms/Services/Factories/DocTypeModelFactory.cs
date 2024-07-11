@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Meta;
+﻿using Rpg.Cms.Extensions;
+using Rpg.ModObjects.Meta;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.ContentTypeEditing;
 
@@ -11,8 +12,8 @@ namespace Rpg.Cms.Services.Factories
             var createDocType = new ContentTypeCreateModel
             {
                 Key = Guid.NewGuid(),
-                Name = session.GetDocTypeName(metaObject),
-                Alias = session.GetDocTypeAlias(metaObject)
+                Name = session.System.GetDocumentTypeAlias(metaObject.Archetype),
+                Alias = session.System.GetDocumentTypeAlias(metaObject.Archetype)
             };
 
             return SetModel(session, createDocType, metaObject, icon, null);
@@ -49,8 +50,9 @@ namespace Rpg.Cms.Services.Factories
                 int i = 0;
                 foreach (var archetype in metaObject.AllowedChildArchetypes)
                 {
-                    if (docType != null)
-                        allowedTypes.Add(new ContentTypeSort(docType.Key, i++, docType.Alias));
+                    var childDocType = session.GetDocType(archetype, faultOnNotFound: false);
+                    if (childDocType != null)
+                        allowedTypes.Add(new ContentTypeSort(childDocType.Key, i++, childDocType.Alias));
                 }
 
                 docTypeModel.AllowedContentTypes = allowedTypes;

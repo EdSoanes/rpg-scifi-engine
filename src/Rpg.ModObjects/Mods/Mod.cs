@@ -17,15 +17,15 @@ namespace Rpg.ModObjects.Mods
 
         [JsonProperty] public PropRef? SourcePropRef { get; protected set; }
         [JsonProperty] public Dice? SourceValue { get; protected set; }
-        [JsonProperty] internal ModValueMethod SourceValueFunc { get; private set; } = new ModValueMethod();
+        [JsonProperty] internal ModValueMethod? SourceValueFunc { get; private set; }
 
         [JsonProperty] public BaseBehavior Behavior { get; protected set; }
         [JsonProperty] public ILifecycle Lifecycle { get; protected set; }
-        [JsonProperty] public bool IsBaseInitMod { get => Behavior.Type == ModType.Initial; }
-        [JsonProperty] public bool IsBaseOverrideMod { get => Behavior.Type == ModType.Override; }
-        [JsonProperty] public bool IsBaseMod { get => Behavior.Type == ModType.Base; }
+        [JsonIgnore] public bool IsBaseInitMod { get => Behavior.Type == ModType.Initial; }
+        [JsonIgnore] public bool IsBaseOverrideMod { get => Behavior.Type == ModType.Override; }
+        [JsonIgnore] public bool IsBaseMod { get => Behavior.Type == ModType.Base; }
 
-        public LifecycleExpiry Expiry { get => (int)Lifecycle.Expiry > (int)Behavior.Expiry ? Lifecycle.Expiry : Behavior.Expiry; }
+        [JsonIgnore] public LifecycleExpiry Expiry { get => (int)Lifecycle.Expiry > (int)Behavior.Expiry ? Lifecycle.Expiry : Behavior.Expiry; }
 
         [JsonConstructor] protected Mod() { }
 
@@ -70,7 +70,7 @@ namespace Rpg.ModObjects.Mods
         public override string ToString()
         {
             var src = $"{SourcePropRef}{SourceValue}";
-            src = SourceValueFunc.IsCalc
+            src = (SourceValueFunc?.IsCalc ?? false)
                 ? $"{SourceValueFunc.MethodName}({src})"
                 : src;
 
@@ -82,7 +82,11 @@ namespace Rpg.ModObjects.Mods
         {
             SourceValue = value;
             SourcePropRef = null;
-            SourceValueFunc.Set(valueFunc);
+            if (valueFunc != null)
+            {
+                SourceValueFunc = new ModValueMethod();
+                SourceValueFunc.Set(valueFunc);
+            }
         }
     }
 }

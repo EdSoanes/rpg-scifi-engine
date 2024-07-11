@@ -8,9 +8,9 @@ namespace Rpg.ModObjects.Behaviors
 {
     public abstract class BaseBehavior : IBehavior
     {
-        [JsonProperty] public ModType Type { get; protected set; } = ModType.Standard;
-        [JsonProperty] public ModScope Scope { get; internal set; } = ModScope.Standard;
-        [JsonProperty] public LifecycleExpiry Expiry { get; private set; } = LifecycleExpiry.Active;
+        [JsonIgnore] public ModType Type { get; protected set; } = ModType.Standard;
+        [JsonIgnore] public ModScope Scope { get; internal set; } = ModScope.Standard;
+        [JsonIgnore] public LifecycleExpiry Expiry { get; private set; } = LifecycleExpiry.Active;
 
         public virtual void OnAdding(RpgGraph graph, Prop modProp, Mod mod)
         {

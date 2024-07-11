@@ -10,7 +10,7 @@ namespace Rpg.ModObjects.Lifecycles
         [JsonProperty] public TimePoint StartTime { get; protected set; }
         [JsonProperty] public TimePoint EndTime { get; protected set; }
 
-        public LifecycleExpiry Expiry { get; protected set; } = LifecycleExpiry.Pending;
+        [JsonProperty] public LifecycleExpiry Expiry { get; protected set; } = LifecycleExpiry.Pending;
 
         public void SetExpired(TimePoint currentTime)
         {

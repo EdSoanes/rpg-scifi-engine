@@ -6,6 +6,20 @@ namespace Rpg.Cms.Extensions
 {
     public static class MetaSystemExtensions
     {
+        public static string GetArchetype(this IMetaSystem system, string alias)
+        {
+            var archetype = alias.StartsWith(system.Identifier)
+                ? alias.Substring(system.Identifier.Length)
+                : alias;
+
+            return archetype.Replace("_", "").Trim();
+        }
+
+        public static string GetDocumentTypeAlias(this IMetaSystem system, string archetype)
+            => !archetype.StartsWith(system.Identifier)
+                ? $"{system.Identifier}_{archetype}".Replace(" ", "")
+                : archetype;
+
         public static Type? GetMetaObjectType(this IMetaSystem system, IPublishedContent publishedContent)
         {
             var archetype = publishedContent.ContentType.Alias.StartsWith(system.Identifier)

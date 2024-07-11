@@ -42,7 +42,7 @@ namespace Rpg.Cms.Services.Factories
             var res = new List<CreateDataTypeRequestModel>();
             var aliases = session.System.Objects
                 .Where(x => x.Archetypes.Contains("RpgEntity"))
-                .Select(x => session.GetDocTypeAlias(x.Archetype));
+                .Select(x => session.System.GetDocumentTypeAlias(x.Archetype));
 
             var items = session.DocTypes
                 .Where(x => aliases.Contains(x.Alias))

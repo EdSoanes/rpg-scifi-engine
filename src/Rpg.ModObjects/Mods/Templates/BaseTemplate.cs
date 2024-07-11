@@ -14,7 +14,7 @@ namespace Rpg.ModObjects.Mods.Templates
         public PropRef TargetPropRef { get; private set; }
         public PropRef? SourcePropRef { get; private set; }
         public Dice? SourceValue { get; private set; }
-        internal ModValueMethod SourceValueFunc { get; private set; } = new ModValueMethod();
+        internal ModValueMethod? SourceValueFunc { get; private set; }
 
         public virtual Mod Create(string name)
         {
@@ -67,7 +67,7 @@ namespace Rpg.ModObjects.Mods.Templates
                 : null;
 
             SourceValue = mod.SourceValue;
-            SourceValueFunc.Set(mod.SourceValueFunc);
+            SourceValueFunc = mod.SourceValueFunc;
 
             return this;
         }
@@ -77,7 +77,11 @@ namespace Rpg.ModObjects.Mods.Templates
         {
             TargetPropRef = PropRef.CreatePropRef(target, targetProp);
             SourcePropRef = PropRef.CreatePropRef(target, sourceExpr);
-            SourceValueFunc.Set(valueFunc);
+            if (valueFunc != null)
+            {
+                SourceValueFunc = new ModValueMethod();
+                SourceValueFunc.Set(valueFunc);
+            }
 
             return this;
         }
@@ -87,7 +91,11 @@ namespace Rpg.ModObjects.Mods.Templates
         {
             TargetPropRef = PropRef.CreatePropRef(target, targetProp);
             SourceValue = value;
-            SourceValueFunc.Set(valueFunc);
+            if (valueFunc != null)
+            {
+                SourceValueFunc = new ModValueMethod();
+                SourceValueFunc.Set(valueFunc);
+            }
 
             return this;
         }
@@ -97,7 +105,11 @@ namespace Rpg.ModObjects.Mods.Templates
         {
             TargetPropRef = PropRef.CreatePropRef(target, targetExpr);
             SourceValue = value;
-            SourceValueFunc.Set(valueFunc);
+            if (valueFunc != null)
+            {
+                SourceValueFunc = new ModValueMethod();
+                SourceValueFunc.Set(valueFunc);
+            }
 
             return this;
         }
@@ -108,7 +120,11 @@ namespace Rpg.ModObjects.Mods.Templates
         {
             TargetPropRef = PropRef.CreatePropRef(target, targetExpr);
             SourcePropRef = PropRef.CreatePropRef(source, sourceExpr);
-            SourceValueFunc.Set(valueFunc);
+            if (valueFunc != null)
+            {
+                SourceValueFunc = new ModValueMethod();
+                SourceValueFunc.Set(valueFunc);
+            }
 
             return this;
         }

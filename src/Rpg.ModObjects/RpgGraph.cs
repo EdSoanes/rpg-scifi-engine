@@ -366,7 +366,7 @@ namespace Rpg.ModObjects
 
             Dice value = mod.SourceValue ?? GetPropValue(GetEntity(mod.SourcePropRef!.EntityId), mod.SourcePropRef.Prop);
 
-            if (mod.SourceValueFunc.IsCalc)
+            if (mod.SourceValueFunc?.IsCalc ?? false)
                 value = mod.SourceValueFunc.Execute(this, value);
 
             return value;

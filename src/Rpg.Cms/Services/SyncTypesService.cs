@@ -1,6 +1,8 @@
-﻿using Rpg.Cms.Services.Factories;
+﻿using Rpg.Cms.Extensions;
+using Rpg.Cms.Services.Factories;
 using Rpg.Cms.Services.Synchronizers;
 using Rpg.ModObjects.Meta;
+using System.Security.Cryptography.Xml;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.ContentTypeEditing;
 
@@ -113,8 +115,8 @@ namespace Rpg.Cms.Services
 
             var actionLibraryDocType = new MetaObj("Action Library")
                 .AddIcon("icon-books")
-                .AddProp("Description", EditorType.RichText)
-                .AddAllowedArchetype(session.GetDocTypeAlias("Action Library"))
+            .AddProp("Description", EditorType.RichText)
+                .AddAllowedArchetype(session.System.GetDocumentTypeAlias("Action Library"))
                 .AddAllowedArchetype(session.ActionDocType!.Alias);
 
             session.ActionLibraryDocType = await _docTypeSynchronizer.Sync(session, actionLibraryDocType, session.RootDocTypeFolder!);
@@ -122,7 +124,7 @@ namespace Rpg.Cms.Services
             var stateLibraryDocType = new MetaObj("State Library")
                 .AddIcon("icon-books")
                 .AddProp("Description", EditorType.RichText)
-                .AddAllowedArchetype(session.GetDocTypeAlias("State Library"))
+                .AddAllowedArchetype(session.System.GetDocumentTypeAlias("State Library"))
                 .AddAllowedArchetype(session.StateDocType!.Alias);
 
             session.StateLibraryDocType = await _docTypeSynchronizer.Sync(session, stateLibraryDocType, session.RootDocTypeFolder!);
@@ -130,7 +132,7 @@ namespace Rpg.Cms.Services
             var entityLibraryDocType = new MetaObj("Entity Library")
                 .AddIcon("icon-books")
                 .AddProp("Description", EditorType.RichText)
-                .AddAllowedArchetype(session.GetDocTypeAlias("Entity Library"));
+                .AddAllowedArchetype(session.System.GetDocumentTypeAlias("Entity Library"));
 
             foreach (var metaObject in session.System.Objects)
             {
@@ -147,7 +149,7 @@ namespace Rpg.Cms.Services
                 .AddProp("Version", EditorType.Text)
                 .AddProp("Description", EditorType.RichText)
                 .AllowAsRoot(true)
-                .AddAllowedArchetype(session.GetDocTypeAlias(session.System.Identifier))
+                .AddAllowedArchetype(session.System.GetDocumentTypeAlias(session.System.Identifier))
                 .AddAllowedArchetype(session.ActionLibraryDocType!.Alias)
                 .AddAllowedArchetype(session.StateLibraryDocType!.Alias)
                 .AddAllowedArchetype(session.EntityLibraryDocType!.Alias);

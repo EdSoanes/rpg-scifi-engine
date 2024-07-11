@@ -70,12 +70,6 @@ namespace Rpg.Cms.Services
         public string GetDocTypeName(string archetype)
             => $"{System.Identifier} {archetype}";
 
-        public string GetDocTypeAlias(MetaObj metaObject)
-            => GetDocTypeAlias(metaObject.Archetype);
-
-        public string GetDocTypeAlias(string archetype)
-            => $"{System.Identifier}_{archetype}".Replace(" ", "");
-
         public string GetPropTypeAlias(MetaProp prop)
             => $"{System.Identifier}_{prop.Prop}";
 
