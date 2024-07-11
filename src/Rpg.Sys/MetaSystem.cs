@@ -7,6 +7,8 @@ namespace Rpg.Sys
     {
         public string Identifier { get => "RpgSys"; }
 
+        public string[]? Namespaces { get; set; }
+
         public string Name { get => "Rpg System"; }
 
         public string Version { get => "0.1"; }

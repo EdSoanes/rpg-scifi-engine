@@ -24,7 +24,7 @@ namespace Rpg.ModObjects.Tests
             var mods = graph.GetActiveMods();
             Assert.That(mods.Count(), Is.EqualTo(11));
 
-            Assert.That(entity.GetStates().Count(), Is.EqualTo(3));
+            Assert.That(entity.States.Count(), Is.EqualTo(3));
             Assert.That(entity.GetState(nameof(BuffState)), Is.Not.Null);
             Assert.That(entity.GetState(nameof(NerfState)), Is.Not.Null);
             Assert.That(entity.GetState(nameof(Testing)), Is.Not.Null);

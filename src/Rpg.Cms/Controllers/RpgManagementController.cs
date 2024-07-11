@@ -5,7 +5,7 @@ using Rpg.Cms.Services;
 using Rpg.Cms.Services.Converter;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta;
-using Rpg.ModObjects.Reflection;
+using Umbraco.Cms.Api.Common.Attributes;
 using Umbraco.Cms.Api.Management.Controllers;
 using Umbraco.Cms.Api.Management.ViewModels.DocumentType;
 using Umbraco.Cms.Core.Mapping;
@@ -15,9 +15,12 @@ using Umbraco.Cms.Web.Common.Authorization;
 
 namespace Rpg.Cms.Controllers
 {
+    [Route("api/v{version:apiVersion}/rpg")]
+    [ApiController]
     [ApiVersion("1.0")]
+    [MapToApi("rpg")]
     [Authorize(Policy = AuthorizationPolicies.TreeAccessDocumentTypes)]
-    [ApiExplorerSettings(GroupName = "_Rpg")]
+    [ApiExplorerSettings(GroupName = "Management")]
     public class RpgManagementController : ManagementApiControllerBase
     {
         private readonly ContentConverter _contentConverter;

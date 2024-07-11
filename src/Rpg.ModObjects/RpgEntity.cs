@@ -26,6 +26,8 @@ namespace Rpg.ModObjects
             Name = name;
         }
 
+        public State[] States { get => StateStore.Get(); }
+
         public bool IsStateOn(string state)
             => StateStore[state]?.IsOn ?? false;
 
@@ -34,9 +36,6 @@ namespace Rpg.ModObjects
 
         public bool SetStateOff(string state)
             => StateStore[state]?.Off() ?? false;
-
-        public State[] GetStates()
-            => StateStore.Get();
 
         public ModSet[] GetActiveConditionalStateSets(string stateName)
             => Graph!.GetModSets(this, (x) => x.Name == stateName && x.Lifecycle is SyncedLifecycle && x.Expiry == LifecycleExpiry.Active);
@@ -47,8 +46,7 @@ namespace Rpg.ModObjects
         public Actions.Action? GetAction(string action)
             => ActionStore[action];
 
-        public Actions.Action[] GetActions()
-            => ActionStore.Get();
+        public Actions.Action[] Actions { get => ActionStore.Get(); }
 
         public ActionInstance? CreateActionInstance(RpgEntity initiator, string actionName, int actionNo)
         {

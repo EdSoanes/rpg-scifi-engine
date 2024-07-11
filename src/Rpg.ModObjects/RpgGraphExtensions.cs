@@ -101,7 +101,7 @@ namespace Rpg.ModObjects
         {
             isEnumerable = false;
 
-            if (propertyInfo.GetMethod?.Name == "get_Item" || IsExcludedType(propertyInfo.PropertyType))
+            if (propertyInfo.GetMethod?.Name == "get_Item" || IsExcludedType(propertyInfo.PropertyType) || propertyInfo.PropertyType.IsPrimitive)
                 return Enumerable.Empty<object>();
 
             var obj = propertyInfo.GetValue(context, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, null, null);

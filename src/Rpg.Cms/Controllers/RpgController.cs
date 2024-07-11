@@ -1,16 +1,20 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Mvc;
 using Rpg.Cms.Extensions;
 using Rpg.Cms.Models;
 using Rpg.Cms.Services;
 using Rpg.Cms.Services.Converter;
 using Rpg.ModObjects;
-using System.Security.AccessControl;
+using Umbraco.Cms.Api.Common.Attributes;
 using Umbraco.Cms.Web.Common;
 
 namespace Rpg.Cms.Controllers
 {
+    [Route("api/v{version:apiVersion}/rpg")]
     [ApiController]
-    [Route("/api/rpg")]
+    [ApiVersion("1.0")]
+    [MapToApi("rpg")]
+    [ApiExplorerSettings(GroupName = "Entities")]
     public class RpgController : Controller
     {
         private readonly ContentConverter _contentConverter;

@@ -17,13 +17,13 @@ namespace Rpg.Cyborgs.Skills.Movement
         }
 
         public bool OnCanAct(Actor owner)
-            => owner.CurrentActions > 0;
+            => owner.CurrentActionPoints > 0;
 
         public ModSet OnCost(Actor owner, int focusPoints)
         {
             return new ModSet(owner.Id, new TurnLifecycle())
                 .Add(owner, x => x.CurrentFocusPoints, -focusPoints)
-                .Add(owner, x => x.CurrentActions, -1);
+                .Add(owner, x => x.CurrentActionPoints, -1);
         }
 
         public ActionModSet OnAct(ActionInstance actionInstance, Actor owner)

@@ -23,7 +23,7 @@ namespace Rpg.Cyborgs.Actions
         {
             return new ModSet(initiator.Id, new TurnLifecycle())
                 .Add(owner, x => x.CurrentFocusPoints, -focusPoints)
-                .Add(new TurnMod(1, 1), initiator, x => x.CurrentActions, -1);
+                .Add(new TurnMod(1, 1), initiator, x => x.CurrentActionPoints, -1);
         }
 
         public ActionModSet OnAct(ActionInstance actionInstance, Actor owner, int target, int focusPoints, int? abilityScore)

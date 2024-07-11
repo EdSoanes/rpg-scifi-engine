@@ -5,7 +5,7 @@ namespace Rpg.ModObjects
 {
     public class RpgContainer : RpgComponent
     { 
-        [JsonProperty] internal List<string> ContainerStore { get; private set; } = new List<string>();
+        [JsonProperty] public List<string> Contents { get; private set; } = new List<string>();
 
         [JsonProperty] private List<RpgObject> PreAddedContents { get; set; } = new();
         [JsonProperty] private string? _preAddedContents { get; set; }
@@ -31,7 +31,7 @@ namespace Rpg.ModObjects
 
         public IEnumerable<T> Get<T>(Func<T, bool>? filterFunc = null)
             where T : RpgObject
-                => ContainerStore
+                => Contents
                     .Select(x => Graph!.GetEntity<T>(x))
                     .Where(x => x != null && (filterFunc?.Invoke(x) ?? true))
                     .Cast<T>();
@@ -40,7 +40,7 @@ namespace Rpg.ModObjects
             => Contains(obj.Id);
 
         public bool Contains(string entityId)
-            => ContainerStore.Contains(entityId);
+            => Contents.Contains(entityId);
 
         public bool Add(RpgEntity obj)
         {
@@ -52,7 +52,7 @@ namespace Rpg.ModObjects
             else
             {
                 Graph.AddEntity(obj);
-                ContainerStore.Add(obj.Id);
+                Contents.Add(obj.Id);
             }
 
             CallCollectionChanged(NotifyCollectionChangedAction.Add);
@@ -65,7 +65,7 @@ namespace Rpg.ModObjects
             if (!Contains(obj))
                 return false;
 
-            ContainerStore.Remove(obj.Id);
+            Contents.Remove(obj.Id);
             CallCollectionChanged(NotifyCollectionChangedAction.Remove);
 
             return true;
@@ -99,8 +99,8 @@ namespace Rpg.ModObjects
             PreAddedContents.Clear();
 
             foreach (var preAdded in res)
-                if (!ContainerStore.Contains(preAdded.Id))
-                    ContainerStore.Add(preAdded.Id);
+                if (!Contents.Contains(preAdded.Id))
+                    Contents.Add(preAdded.Id);
 
             return res.SelectMany(x => x.Traverse());
         }

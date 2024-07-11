@@ -42,7 +42,8 @@ namespace Rpg.ModObjects.Meta
             system.Actions = actions;
             system.States = states;
             system.PropUIs = propUIs;
-
+            system.Namespaces = Namespaces(objectTypes);
+           
             return system;
         }
 
@@ -52,6 +53,22 @@ namespace Rpg.ModObjects.Meta
             FillMetaObject(obj, type, actions, states);
 
             return obj;
+        }
+
+        private string[] Namespaces(IEnumerable<Type> objectTypes)
+        {
+            var ns = objectTypes
+                .Select(x => x.Namespace)
+                .Where(x => x != null)
+                .Cast<string>()
+                .Distinct()
+                .ToList();
+
+            var thisNs = typeof(RpgObject).Namespace;
+            if (thisNs != null)
+                ns.Add(thisNs);
+
+            return ns.ToArray();
         }
 
         private void FillMetaObject(MetaObj obj, Type type, MetaAction[] actions, MetaState[] states)

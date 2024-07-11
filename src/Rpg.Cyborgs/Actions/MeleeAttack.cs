@@ -16,13 +16,13 @@ namespace Rpg.Cyborgs.Actions
         }
 
         public bool OnCanAct(MeleeWeapon owner, Actor initiator)
-            => initiator.Hands.Contains(owner) && initiator.CurrentActions > 0;
+            => initiator.Hands.Contains(owner) && initiator.CurrentActionPoints > 0;
 
         public ModSet OnCost(Actor initiator, int focusPoints)
         {
             return new ModSet(initiator.Id, new TurnLifecycle())
                 .Add(initiator, x => x.CurrentFocusPoints, -focusPoints)
-                .Add(initiator, x => x.CurrentActions, -1);
+                .Add(initiator, x => x.CurrentActionPoints, -1);
         }
 
         public ActionModSet OnAct(ActionInstance actionInstance, MeleeWeapon owner, Actor initiator, int targetDefence, int focusPoints, int? abilityScore)

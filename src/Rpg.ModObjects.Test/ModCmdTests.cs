@@ -20,7 +20,7 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new RpgGraph(entity);
 
-            Assert.That(entity.GetActions().Count(), Is.EqualTo(1));
+            Assert.That(entity.Actions.Count(), Is.EqualTo(1));
 
             var testAction = entity.GetAction(nameof(TestAction));
             Assert.That(testAction, Is.Not.Null);

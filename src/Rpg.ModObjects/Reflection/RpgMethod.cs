@@ -9,7 +9,7 @@ namespace Rpg.ModObjects.Reflection
     {
         [JsonProperty] public string? ClassName { get; protected set; }
         [JsonProperty] public string MethodName { get; protected set; }
-        [JsonProperty] protected RpgArgSet ArgSet { get; private set; }
+        [JsonProperty] public RpgArgSet ArgSet { get; private set; }
 
         public string FullName { get => IsStatic ? $"{ClassName}.{MethodName}" : MethodName; }
         public bool IsStatic { get => !string.IsNullOrEmpty(ClassName); }

@@ -120,11 +120,11 @@ namespace Rpg.Cyborgs
 
         [JsonProperty]
         [Threshold(Min = 0, Ignore = true)]
-        public int Actions { get; protected set; } = 1;
+        public int ActionPoints { get; protected set; } = 1;
 
         [JsonProperty]
         [Threshold(Min = 0, Ignore = true)]
-        public int CurrentActions { get; protected set; }
+        public int CurrentActionPoints { get; protected set; }
 
         [JsonProperty]
         [Container(Tab = "Gear")]
@@ -177,7 +177,7 @@ namespace Rpg.Cyborgs
             this.BaseMod(x => x.RangedAttack, x => x.Agility);
             this.BaseMod(x => x.MeleeAttack, x => x.Strength);
 
-            this.BaseMod(x => x.CurrentActions, x => x.Actions);
+            this.BaseMod(x => x.CurrentActionPoints, x => x.ActionPoints);
         }
 
         public Dice CalculateStamina(Dice health)

@@ -236,8 +236,39 @@ namespace Rpg.ModObjects.Reflection
 
         public static IEnumerable<Type> ScanForTypes<T>()
         {
-            var assemblies = GetScanAssemblies();
-            return ScanForTypes<T>(assemblies);
+            try
+            {
+                var assemblies = GetScanAssemblies();
+                return ScanForTypes<T>(assemblies);
+            }
+            catch
+            {
+                return Enumerable.Empty<Type>();
+            }
+        }
+
+        public static IEnumerable<Type> ScanForSubTypes(Type type)
+        {
+            try
+            {
+                var assemblies = GetScanAssemblies();
+                var res = new List<Type>();
+
+                foreach (var assembly in assemblies)
+                {
+                    var assemblyTypes = assembly.DefinedTypes
+                        .Where(x => x.IsSubclassOf(type))
+                        .Select(x => x.AsType());
+
+                    res.AddRange(assemblyTypes);
+                }
+
+                return res;
+            }
+            catch
+            {
+                return Enumerable.Empty<Type>();
+            }
         }
 
         internal static IEnumerable<Type> ScanForTypes<T>(IEnumerable<Assembly> assemblies)

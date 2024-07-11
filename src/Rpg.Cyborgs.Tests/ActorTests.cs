@@ -40,7 +40,7 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(pc.Reactions, Is.EqualTo(7));
             Assert.That(pc.MeleeAttack, Is.EqualTo(-1));
 
-            Assert.That(pc.Actions, Is.EqualTo(1));
+            Assert.That(pc.ActionPoints, Is.EqualTo(1));
             Assert.That(pc.IsStateOn(nameof(VeryFast)), Is.False);
         }
 
@@ -50,8 +50,7 @@ namespace Rpg.Cyborgs.Tests
             var pc = new PlayerCharacter(ActorFactory.BennyTemplate);
             var graph = new RpgGraph(pc);
 
-            var actions = pc.GetActions();
-            Assert.That(actions.Count(), Is.EqualTo(6));
+            Assert.That(pc.Actions.Count(), Is.EqualTo(6));
         }
 
         [Test]
@@ -60,9 +59,8 @@ namespace Rpg.Cyborgs.Tests
             var pc = new PlayerCharacter(ActorFactory.BennyTemplate);
             var graph = new RpgGraph(pc);
 
-            var states = pc.GetStates();
-            Assert.That(states.Count(), Is.EqualTo(7));
-            Assert.That(states.Where(x => x.IsOn).Count(), Is.EqualTo(0));
+            Assert.That(pc.States.Count(), Is.EqualTo(7));
+            Assert.That(pc.States.Where(x => x.IsOn).Count(), Is.EqualTo(0));
         }
 
         [Test]
@@ -102,15 +100,15 @@ namespace Rpg.Cyborgs.Tests
             var pc = new PlayerCharacter(ActorFactory.BennyTemplate);
             var graph = new RpgGraph(pc);
 
-            Assert.That(pc.Actions, Is.EqualTo(1));
-            Assert.That(pc.CurrentActions, Is.EqualTo(1));
+            Assert.That(pc.ActionPoints, Is.EqualTo(1));
+            Assert.That(pc.CurrentActionPoints, Is.EqualTo(1));
             Assert.That(pc.IsStateOn(nameof(VeryFast)), Is.False);
 
             pc.AddMod(new PermanentMod(), x => x.Agility, 4);
             graph.Time.TriggerEvent();
 
-            Assert.That(pc.Actions, Is.EqualTo(2));
-            Assert.That(pc.CurrentActions, Is.EqualTo(2));
+            Assert.That(pc.ActionPoints, Is.EqualTo(2));
+            Assert.That(pc.CurrentActionPoints, Is.EqualTo(2));
             Assert.That(pc.IsStateOn(nameof(VeryFast)), Is.True);
         }
 

@@ -1,10 +1,9 @@
 using Rpg.Cms.Services;
 using Rpg.Cms.Services.Factories;
 using Rpg.Cms.Tests.Models;
+using Rpg.Cyborgs;
 using Rpg.ModObjects.Meta;
 using Rpg.ModObjects.Reflection;
-using Rpg.Sys;
-using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Strings;
 
 namespace Rpg.Cms.Tests
@@ -14,7 +13,7 @@ namespace Rpg.Cms.Tests
         [SetUp]
         public void Setup()
         {
-            RpgReflection.RegisterAssembly(typeof(MetaSystem).Assembly);
+            RpgReflection.RegisterAssembly(typeof(CyborgsSystem).Assembly);
         }
 
         [Test]

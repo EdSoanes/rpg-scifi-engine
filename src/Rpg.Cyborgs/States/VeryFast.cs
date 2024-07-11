@@ -18,7 +18,7 @@ namespace Rpg.Cyborgs.States
         protected override void OnFillStateSet(ModSet modSet, Actor owner)
         {
             base.OnFillStateSet(modSet, owner);
-            modSet.Add(new PermanentMod(), owner, x => x.Actions, 1);
+            modSet.Add(new PermanentMod(), owner, x => x.ActionPoints, 1);
         }
     }
 }

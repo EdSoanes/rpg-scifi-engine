@@ -1,6 +1,5 @@
 using Rpg.Cyborgs.Tests.Models;
 using Rpg.ModObjects;
-using Rpg.ModObjects.Meta;
 using Rpg.ModObjects.Reflection;
 
 namespace Rpg.Cyborgs.Tests

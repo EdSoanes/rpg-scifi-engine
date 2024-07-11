@@ -12,6 +12,8 @@ namespace Rpg.ModObjects.Tests.Models
     {
         public string Identifier { get => "TestSys"; }
 
+        public string[]? Namespaces { get; set; }
+
         public string Name { get => "Test System"; }
 
         public string Version { get => "0.1"; }

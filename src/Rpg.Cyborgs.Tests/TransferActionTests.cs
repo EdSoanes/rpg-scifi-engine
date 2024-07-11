@@ -40,7 +40,7 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(transfer, Is.Not.Null);
             Assert.That(_pc.Hands.Contains(_sword), Is.True);
             Assert.That(_room.Contents.Contains(_sword), Is.False);
-            Assert.That(_pc.CurrentActions, Is.EqualTo(1));
+            Assert.That(_pc.CurrentActionPoints, Is.EqualTo(1));
 
             transfer.AutoCompleteArgs["from"] = _pc.Hands;
             transfer.AutoCompleteArgs["to"] = (_graph.Context as Room)!.Contents;
@@ -48,13 +48,13 @@ namespace Rpg.Cyborgs.Tests
 
             Assert.That(_pc.Hands.Contains(_sword), Is.False);
             Assert.That(_room.Contents.Contains(_sword), Is.True);
-            Assert.That(_pc.CurrentActions, Is.EqualTo(1));
+            Assert.That(_pc.CurrentActionPoints, Is.EqualTo(1));
         }
 
         [Test]
         public void Benny_Drops_Sword_InsideTurn()
         {
-            Assert.That(_pc.CurrentActions, Is.EqualTo(1));
+            Assert.That(_pc.CurrentActionPoints, Is.EqualTo(1));
 
             _graph.Time.SetTime(TimePoints.Encounter(1));
 
@@ -63,13 +63,13 @@ namespace Rpg.Cyborgs.Tests
             transfer.AutoCompleteArgs["to"] = (_graph.Context as Room)!.Contents;
             transfer.AutoComplete();
 
-            Assert.That(_pc.CurrentActions, Is.EqualTo(0));
+            Assert.That(_pc.CurrentActionPoints, Is.EqualTo(0));
         }
 
         [Test]
         public void Benny_Tries_Two_Transfers_One_Turn()
         {
-            Assert.That(_pc.CurrentActions, Is.EqualTo(1));
+            Assert.That(_pc.CurrentActionPoints, Is.EqualTo(1));
 
             _graph.Time.SetTime(TimePoints.Encounter(1));
 
@@ -78,7 +78,7 @@ namespace Rpg.Cyborgs.Tests
             drop.AutoCompleteArgs["to"] = (_graph.Context as Room)!.Contents;
             drop.AutoComplete();
 
-            Assert.That(_pc.CurrentActions, Is.EqualTo(0));
+            Assert.That(_pc.CurrentActionPoints, Is.EqualTo(0));
 
             var pickup = _sword.CreateActionInstance(_pc, nameof(Transfer), 1)!;
             pickup.AutoCompleteArgs["from"] = (_graph.Context as Room)!.Contents;

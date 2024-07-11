@@ -10,6 +10,7 @@ namespace Rpg.ModObjects.Meta
     public interface IMetaSystem
     {
         string Identifier { get; }
+        string[]? Namespaces { get; set; }
         string Name { get; }
         string Version { get; }
         string Description { get; }
