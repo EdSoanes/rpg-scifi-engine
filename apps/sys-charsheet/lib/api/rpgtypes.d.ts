@@ -35,6 +35,13 @@ export interface paths {
                         "text/plain": components["schemas"]["Rpg.ModObjects.RpgGraphState"];
                     };
                 };
+                /** @description The resource is protected and requires an authentication token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -69,10 +76,320 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["Rpg.Cms.Models.RpgContent"][];
-                        "text/json": components["schemas"]["Rpg.Cms.Models.RpgContent"][];
-                        "text/plain": components["schemas"]["Rpg.Cms.Models.RpgContent"][];
+                        "application/json": components["schemas"]["RpgContent"][];
+                        "text/json": components["schemas"]["RpgContent"][];
+                        "text/plain": components["schemas"]["RpgContent"][];
                     };
+                };
+                /** @description The resource is protected and requires an authentication token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rpg/document-type-updates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Rpg.ModObjects.Meta.IMetaSystem"];
+                    };
+                };
+                /** @description The resource is protected and requires an authentication token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description The authenticated user do not have access to this resource */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rpg/document-types": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Rpg.ModObjects.Meta.IMetaSystem"];
+                    };
+                };
+                /** @description The resource is protected and requires an authentication token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description The authenticated user do not have access to this resource */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rpg/meta": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DocumentTypeResponseModel"][];
+                    };
+                };
+                /** @description The resource is protected and requires an authentication token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description The authenticated user do not have access to this resource */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rpg/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        /** @description The list of notifications produced during the request. */
+                        "Umb-Notifications"?: components["schemas"]["NotificationHeaderModel"][] | null;
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description The resource is protected and requires an authentication token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description The authenticated user do not have access to this resource */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rpg/sync/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    identifier: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        /** @description The list of notifications produced during the request. */
+                        "Umb-Notifications"?: components["schemas"]["NotificationHeaderModel"][] | null;
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description The resource is protected and requires an authentication token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description The authenticated user do not have access to this resource */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        /** @description The list of notifications produced during the request. */
+                        "Umb-Notifications"?: components["schemas"]["NotificationHeaderModel"][] | null;
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rpg/systems": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description The resource is protected and requires an authentication token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description The authenticated user do not have access to this resource */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
                 };
             };
         };
@@ -88,22 +405,95 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        "Rpg.Cms.Models.RpgContent": {
-            /** Format: uuid */
-            key: string;
-            system: string;
-            archetype: string;
-            name: string;
-        };
-        "Rpg.Cyborgs.Actor": {
-            readonly id: string;
-            archetype: string;
-            name: string;
-            readonly archetypes: string[];
-            expiry: components["schemas"]["Rpg.ModObjects.Time.LifecycleExpiry"];
-            readonly states: components["schemas"]["Rpg.ModObjects.States.State"][];
+        /** @enum {string} */
+        CompositionTypeModel: "Composition" | "Inheritance";
+        DocumentTypeCleanupModel: {
+            preventCleanup: boolean;
             /** Format: int32 */
-            readonly actions: number;
+            keepAllVersionsNewerThanDays?: number | null;
+            /** Format: int32 */
+            keepLatestVersionPerDayForDays?: number | null;
+        };
+        DocumentTypeCompositionModel: {
+            documentType: components["schemas"]["ReferenceByIdModel"];
+            compositionType: components["schemas"]["CompositionTypeModel"];
+        };
+        DocumentTypePropertyTypeContainerResponseModel: {
+            /** Format: uuid */
+            id: string;
+            parent: components["schemas"]["ReferenceByIdModel"];
+            name?: string | null;
+            type: string;
+            /** Format: int32 */
+            sortOrder: number;
+        };
+        DocumentTypePropertyTypeResponseModel: {
+            /** Format: uuid */
+            id: string;
+            container: components["schemas"]["ReferenceByIdModel"];
+            /** Format: int32 */
+            sortOrder: number;
+            alias: string;
+            name: string;
+            description?: string | null;
+            dataType: components["schemas"]["ReferenceByIdModel"];
+            variesByCulture: boolean;
+            variesBySegment: boolean;
+            validation: components["schemas"]["PropertyTypeValidationModel"];
+            appearance: components["schemas"]["PropertyTypeAppearanceModel"];
+        };
+        DocumentTypeResponseModel: {
+            alias: string;
+            name: string;
+            description?: string | null;
+            icon: string;
+            allowedAsRoot: boolean;
+            variesByCulture: boolean;
+            variesBySegment: boolean;
+            collection: components["schemas"]["ReferenceByIdModel"];
+            isElement: boolean;
+            properties: components["schemas"]["DocumentTypePropertyTypeResponseModel"][];
+            containers: components["schemas"]["DocumentTypePropertyTypeContainerResponseModel"][];
+            /** Format: uuid */
+            id: string;
+            allowedTemplates: components["schemas"]["ReferenceByIdModel"][];
+            defaultTemplate: components["schemas"]["ReferenceByIdModel"];
+            cleanup: components["schemas"]["DocumentTypeCleanupModel"];
+            allowedDocumentTypes: components["schemas"]["DocumentTypeSortModel"][];
+            compositions: components["schemas"]["DocumentTypeCompositionModel"][];
+        };
+        DocumentTypeSortModel: {
+            documentType: components["schemas"]["ReferenceByIdModel"];
+            /** Format: int32 */
+            sortOrder: number;
+        };
+        /** @enum {string} */
+        EventMessageTypeModel: "Default" | "Info" | "Error" | "Success" | "Warning";
+        NotificationHeaderModel: {
+            message: string;
+            category: string;
+            type: components["schemas"]["EventMessageTypeModel"];
+        };
+        PropertyTypeAppearanceModel: {
+            labelOnTop: boolean;
+        };
+        PropertyTypeValidationModel: {
+            mandatory: boolean;
+            mandatoryMessage?: string | null;
+            regEx?: string | null;
+            regExMessage?: string | null;
+        };
+        ReferenceByIdModel: {
+            /** Format: uuid */
+            id: string;
+        };
+        "Rpg.Cyborgs.Actions.ArmourCheck": components["schemas"]["Rpg.ModObjects.Actions.Actor.Action"];
+        "Rpg.Cyborgs.Actions.MeleeAttack": components["schemas"]["Rpg.ModObjects.Actions.MeleeWeapon.Action"];
+        "Rpg.Cyborgs.Actions.MeleeParry": components["schemas"]["Rpg.ModObjects.Actions.Actor.Action"];
+        "Rpg.Cyborgs.Actions.RangedAttack": components["schemas"]["Rpg.ModObjects.Actions.RangedWeapon.Action"];
+        "Rpg.Cyborgs.Actions.TakeDamage": components["schemas"]["Rpg.ModObjects.Actions.Actor.Action"];
+        "Rpg.Cyborgs.Actions.Transfer": components["schemas"]["Rpg.ModObjects.Actions.RpgEntity.Action"];
+        "Rpg.Cyborgs.Actor": {
             /** Format: int32 */
             readonly strength: number;
             /** Format: int32 */
@@ -155,10 +545,12 @@ export interface components {
             /** Format: int32 */
             readonly meleeAttack: number;
             /** Format: int32 */
-            readonly currentActions: number;
+            readonly actionPoints: number;
+            /** Format: int32 */
+            readonly currentActionPoints: number;
             hands: components["schemas"]["Rpg.ModObjects.RpgContainer"];
             wearing: components["schemas"]["Rpg.ModObjects.RpgContainer"];
-        };
+        } & components["schemas"]["Rpg.ModObjects.RpgEntity"];
         "Rpg.Cyborgs.Armour": {
             /** Format: int32 */
             readonly armourRating: number;
@@ -167,14 +559,8 @@ export interface components {
             /** Format: int32 */
             readonly defenceModifier: number;
         } & components["schemas"]["Rpg.ModObjects.RpgEntity"];
-        "Rpg.Cyborgs.BodyPart": {
-            readonly id: string;
-            archetype: string;
-            name: string;
-            readonly archetypes: string[];
-            expiry: components["schemas"]["Rpg.ModObjects.Time.LifecycleExpiry"];
-            entityId: string;
-        };
+        "Rpg.Cyborgs.Attributes.InjuryUIAttribute": components["schemas"]["Rpg.ModObjects.Meta.Props.MetaSelectAttribute"];
+        "Rpg.Cyborgs.BodyPart": components["schemas"]["Rpg.ModObjects.RpgComponent"];
         "Rpg.Cyborgs.MeleeWeapon": {
             damage: components["schemas"]["Rpg.ModObjects.Values.Dice"];
             /** Format: int32 */
@@ -186,36 +572,230 @@ export interface components {
             /** Format: int32 */
             readonly hitBonus: number;
         } & components["schemas"]["Rpg.ModObjects.RpgEntity"];
+        "Rpg.Cyborgs.Skills.Combat.Aim": components["schemas"]["Rpg.Cyborgs.Skills.Skill"];
+        "Rpg.Cyborgs.Skills.Movement.Run": components["schemas"]["Rpg.Cyborgs.Skills.Skill"];
+        "Rpg.Cyborgs.Skills.Skill": {
+            /** Format: int32 */
+            rating: number;
+            readonly isIntrinsic: boolean;
+        } & components["schemas"]["Rpg.ModObjects.Actions.Actor.Action"];
+        "Rpg.Cyborgs.States.Aiming": components["schemas"]["Rpg.ModObjects.States.Actor.State"];
+        "Rpg.Cyborgs.States.Exhausted": components["schemas"]["Rpg.ModObjects.States.Actor.State"];
+        "Rpg.Cyborgs.States.Firing": components["schemas"]["Rpg.ModObjects.States.RangedWeapon.State"];
+        "Rpg.Cyborgs.States.MeleeAttacked": components["schemas"]["Rpg.ModObjects.States.Actor.State"];
+        "Rpg.Cyborgs.States.MeleeAttacking": components["schemas"]["Rpg.ModObjects.States.Actor.State"];
+        "Rpg.Cyborgs.States.Moving": components["schemas"]["Rpg.ModObjects.States.Actor.State"];
+        "Rpg.Cyborgs.States.Parrying": components["schemas"]["Rpg.ModObjects.States.Actor.State"];
+        "Rpg.Cyborgs.States.VeryFast": components["schemas"]["Rpg.ModObjects.States.Actor.State"];
         "Rpg.ModObjects.Actions.Action": {
             readonly id: string;
             readonly name: string;
             readonly ownerId: string;
             readonly ownerArchetype: string;
+            onCanAct: components["schemas"]["Rpg.ModObjects.Reflection.Action.Boolean.RpgMethod"];
+            onCost: components["schemas"]["Rpg.ModObjects.Reflection.Action.ModSet.RpgMethod"];
+            onAct: components["schemas"]["Rpg.ModObjects.Reflection.Action.ActionModSet.RpgMethod"];
+            onOutcome: components["schemas"]["Rpg.ModObjects.Reflection.Action.ModSet[].RpgMethod"];
         };
+        "Rpg.ModObjects.Actions.Actor.Action": {
+            readonly id: string;
+            readonly name: string;
+            readonly ownerId: string;
+            readonly ownerArchetype: string;
+            onCanAct: components["schemas"]["Rpg.ModObjects.Reflection.Action.Boolean.RpgMethod"];
+            onCost: components["schemas"]["Rpg.ModObjects.Reflection.Action.ModSet.RpgMethod"];
+            onAct: components["schemas"]["Rpg.ModObjects.Reflection.Action.ActionModSet.RpgMethod"];
+            onOutcome: components["schemas"]["Rpg.ModObjects.Reflection.Action.ModSet[].RpgMethod"];
+        };
+        "Rpg.ModObjects.Actions.MeleeWeapon.Action": {
+            readonly id: string;
+            readonly name: string;
+            readonly ownerId: string;
+            readonly ownerArchetype: string;
+            onCanAct: components["schemas"]["Rpg.ModObjects.Reflection.Action.Boolean.RpgMethod"];
+            onCost: components["schemas"]["Rpg.ModObjects.Reflection.Action.ModSet.RpgMethod"];
+            onAct: components["schemas"]["Rpg.ModObjects.Reflection.Action.ActionModSet.RpgMethod"];
+            onOutcome: components["schemas"]["Rpg.ModObjects.Reflection.Action.ModSet[].RpgMethod"];
+        };
+        "Rpg.ModObjects.Actions.RangedWeapon.Action": {
+            readonly id: string;
+            readonly name: string;
+            readonly ownerId: string;
+            readonly ownerArchetype: string;
+            onCanAct: components["schemas"]["Rpg.ModObjects.Reflection.Action.Boolean.RpgMethod"];
+            onCost: components["schemas"]["Rpg.ModObjects.Reflection.Action.ModSet.RpgMethod"];
+            onAct: components["schemas"]["Rpg.ModObjects.Reflection.Action.ActionModSet.RpgMethod"];
+            onOutcome: components["schemas"]["Rpg.ModObjects.Reflection.Action.ModSet[].RpgMethod"];
+        };
+        "Rpg.ModObjects.Actions.RpgEntity.Action": {
+            readonly id: string;
+            readonly name: string;
+            readonly ownerId: string;
+            readonly ownerArchetype: string;
+            onCanAct: components["schemas"]["Rpg.ModObjects.Reflection.Action.Boolean.RpgMethod"];
+            onCost: components["schemas"]["Rpg.ModObjects.Reflection.Action.ModSet.RpgMethod"];
+            onAct: components["schemas"]["Rpg.ModObjects.Reflection.Action.ActionModSet.RpgMethod"];
+            onOutcome: components["schemas"]["Rpg.ModObjects.Reflection.Action.ModSet[].RpgMethod"];
+        };
+        "Rpg.ModObjects.Actions.TOwner.Action": components["schemas"]["Rpg.ModObjects.Actions.Action"];
         "Rpg.ModObjects.Lifecycles.ILifecycle": {
             expiry: components["schemas"]["Rpg.ModObjects.Time.LifecycleExpiry"];
         };
-        "Rpg.ModObjects.RpgContainer": {
-            readonly id: string;
-            archetype: string;
+        /** @enum {string} */
+        "Rpg.ModObjects.Meta.EditorType": "Int32" | "Text" | "RichText" | "Boolean" | "Select" | "CheckBoxList" | "Container" | "LongText";
+        "Rpg.ModObjects.Meta.IMetaSystem": {
+            readonly identifier: string;
+            namespaces?: string[] | null;
+            readonly name: string;
+            readonly version: string;
+            readonly description: string;
+            objects: (components["schemas"]["Rpg.ModObjects.Meta.MetaObj"] | components["schemas"]["Rpg.ModObjects.Meta.MetaContainer"])[];
+            actions: components["schemas"]["Rpg.ModObjects.Meta.MetaAction"][];
+            states: components["schemas"]["Rpg.ModObjects.Meta.MetaState"][];
+            propUIs: (components["schemas"]["Rpg.Cyborgs.Attributes.InjuryUIAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.AccelerationAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.ComponentAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.ContainerAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.DiceAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.IntegerAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.MetaSelectAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.MetersAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.MinZeroAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.PercentAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.RichTextAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.TextAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.ThresholdAttribute"])[];
+        };
+        "Rpg.ModObjects.Meta.MetaAction": {
+            readonly name: string;
+            readonly ownerArchetype: string;
+            readonly required: boolean;
+            readonly category?: string | null;
+            readonly subCategory?: string | null;
+            readonly nextActionHints?: string[] | null;
+        };
+        "Rpg.ModObjects.Meta.MetaContainer": {
             name: string;
+        } & components["schemas"]["Rpg.ModObjects.Meta.MetaObj"];
+        "Rpg.ModObjects.Meta.MetaObj": {
+            readonly archetype: string;
+            readonly qualifiedClassName?: string | null;
             readonly archetypes: string[];
-            expiry: components["schemas"]["Rpg.ModObjects.Time.LifecycleExpiry"];
+            readonly icon?: string | null;
+            props: components["schemas"]["Rpg.ModObjects.Meta.MetaProp"][];
+            readonly allowedAsRoot: boolean;
+            readonly allowedChildArchetypes: string[];
+            allowedActions: components["schemas"]["Rpg.ModObjects.Meta.MetaAction"][];
+            allowedStates: components["schemas"]["Rpg.ModObjects.Meta.MetaState"][];
+            containers: components["schemas"]["Rpg.ModObjects.Meta.MetaContainer"][];
+            readonly isElement: boolean;
+        };
+        "Rpg.ModObjects.Meta.MetaProp": {
+            prop: string;
+            readonly fullProp: string;
+            path: string[];
+            displayName: string;
+            dataTypeName: string;
+            editor: components["schemas"]["Rpg.ModObjects.Meta.EditorType"];
+            tab: string;
+            group: string;
+            ignore: boolean;
+        };
+        "Rpg.ModObjects.Meta.MetaState": {
+            readonly name: string;
+            readonly archetype: string;
+            readonly required: boolean;
+            readonly hidden: boolean;
+            readonly category?: string | null;
+            readonly subCategory?: string | null;
+        };
+        "Rpg.ModObjects.Meta.Props.AccelerationAttribute": components["schemas"]["Rpg.ModObjects.Meta.Props.IntegerAttribute"];
+        "Rpg.ModObjects.Meta.Props.ComponentAttribute": components["schemas"]["Rpg.ModObjects.Meta.Props.MetaPropAttribute"];
+        "Rpg.ModObjects.Meta.Props.ContainerAttribute": components["schemas"]["Rpg.ModObjects.Meta.Props.MetaPropAttribute"];
+        "Rpg.ModObjects.Meta.Props.DiceAttribute": components["schemas"]["Rpg.ModObjects.Meta.Props.MetaPropAttribute"];
+        "Rpg.ModObjects.Meta.Props.IntegerAttribute": {
+            readonly unit: string;
+            /** Format: int32 */
+            min: number;
+            /** Format: int32 */
+            max: number;
+        } & components["schemas"]["Rpg.ModObjects.Meta.Props.MetaPropAttribute"];
+        "Rpg.ModObjects.Meta.Props.MetaPropAttribute": {
+            readonly typeId: unknown;
+            dataTypeName: string;
+            editor: components["schemas"]["Rpg.ModObjects.Meta.EditorType"];
+            displayName?: string | null;
+            ignore: boolean;
+            tab: string;
+            group: string;
+        };
+        "Rpg.ModObjects.Meta.Props.MetaSelectAttribute": {
+            values: string[];
+        } & components["schemas"]["Rpg.ModObjects.Meta.Props.MinZeroAttribute"];
+        "Rpg.ModObjects.Meta.Props.MetersAttribute": components["schemas"]["Rpg.ModObjects.Meta.Props.IntegerAttribute"];
+        "Rpg.ModObjects.Meta.Props.MinZeroAttribute": components["schemas"]["Rpg.ModObjects.Meta.Props.IntegerAttribute"];
+        "Rpg.ModObjects.Meta.Props.PercentAttribute": components["schemas"]["Rpg.ModObjects.Meta.Props.IntegerAttribute"];
+        "Rpg.ModObjects.Meta.Props.RichTextAttribute": components["schemas"]["Rpg.ModObjects.Meta.Props.MetaPropAttribute"];
+        "Rpg.ModObjects.Meta.Props.TextAttribute": components["schemas"]["Rpg.ModObjects.Meta.Props.MetaPropAttribute"];
+        "Rpg.ModObjects.Meta.Props.ThresholdAttribute": components["schemas"]["Rpg.ModObjects.Meta.Props.IntegerAttribute"];
+        "Rpg.ModObjects.Reflection.Action.ActionModSet.RpgMethod": {
+            readonly className?: string | null;
+            methodName: string;
+            argSet: components["schemas"]["Rpg.ModObjects.Reflection.RpgArgSet"];
+            readonly fullName: string;
+            readonly isStatic: boolean;
+        };
+        "Rpg.ModObjects.Reflection.Action.Boolean.RpgMethod": {
+            readonly className?: string | null;
+            methodName: string;
+            argSet: components["schemas"]["Rpg.ModObjects.Reflection.RpgArgSet"];
+            readonly fullName: string;
+            readonly isStatic: boolean;
+        };
+        "Rpg.ModObjects.Reflection.Action.ModSet.RpgMethod": {
+            readonly className?: string | null;
+            methodName: string;
+            argSet: components["schemas"]["Rpg.ModObjects.Reflection.RpgArgSet"];
+            readonly fullName: string;
+            readonly isStatic: boolean;
+        };
+        "Rpg.ModObjects.Reflection.Action.ModSet[].RpgMethod": {
+            readonly className?: string | null;
+            methodName: string;
+            argSet: components["schemas"]["Rpg.ModObjects.Reflection.RpgArgSet"];
+            readonly fullName: string;
+            readonly isStatic: boolean;
+        };
+        "Rpg.ModObjects.Reflection.RpgArgSet": Record<string, never>;
+        "Rpg.ModObjects.RpgComponent": {
             entityId: string;
-        };
+        } & components["schemas"]["Rpg.ModObjects.RpgObject"];
+        "Rpg.ModObjects.RpgContainer": {
+            readonly contents: string[];
+        } & components["schemas"]["Rpg.ModObjects.RpgComponent"];
         "Rpg.ModObjects.RpgEntity": {
-            readonly id: string;
-            archetype: string;
-            name: string;
-            readonly archetypes: string[];
-            expiry: components["schemas"]["Rpg.ModObjects.Time.LifecycleExpiry"];
-            readonly states: components["schemas"]["Rpg.ModObjects.States.State"][];
-            readonly actions: components["schemas"]["Rpg.ModObjects.Actions.Action"][];
-        };
+            readonly states: (components["schemas"]["Rpg.Cyborgs.States.Aiming"] | components["schemas"]["Rpg.Cyborgs.States.Exhausted"] | components["schemas"]["Rpg.Cyborgs.States.Firing"] | components["schemas"]["Rpg.Cyborgs.States.MeleeAttacked"] | components["schemas"]["Rpg.Cyborgs.States.MeleeAttacking"] | components["schemas"]["Rpg.Cyborgs.States.Moving"] | components["schemas"]["Rpg.Cyborgs.States.Parrying"] | components["schemas"]["Rpg.Cyborgs.States.VeryFast"] | components["schemas"]["Rpg.ModObjects.States.T.State"])[];
+            readonly actions: (components["schemas"]["Rpg.Cyborgs.Skills.Skill"] | components["schemas"]["Rpg.Cyborgs.Skills.Movement.Run"] | components["schemas"]["Rpg.Cyborgs.Skills.Combat.Aim"] | components["schemas"]["Rpg.Cyborgs.Actions.ArmourCheck"] | components["schemas"]["Rpg.Cyborgs.Actions.MeleeAttack"] | components["schemas"]["Rpg.Cyborgs.Actions.MeleeParry"] | components["schemas"]["Rpg.Cyborgs.Actions.RangedAttack"] | components["schemas"]["Rpg.Cyborgs.Actions.TakeDamage"] | components["schemas"]["Rpg.Cyborgs.Actions.Transfer"] | components["schemas"]["Rpg.ModObjects.Actions.TOwner.Action"])[];
+        } & components["schemas"]["Rpg.ModObjects.RpgObject"];
         "Rpg.ModObjects.RpgGraphState": {
-            entities: (components["schemas"]["Rpg.Cyborgs.Armour"] | components["schemas"]["Rpg.Cyborgs.MeleeWeapon"] | components["schemas"]["Rpg.Cyborgs.PlayerCharacter"] | components["schemas"]["Rpg.Cyborgs.RangedWeapon"])[];
+            entities: (components["schemas"]["Rpg.Cyborgs.Actor"] | components["schemas"]["Rpg.Cyborgs.Armour"] | components["schemas"]["Rpg.Cyborgs.MeleeWeapon"] | components["schemas"]["Rpg.Cyborgs.PlayerCharacter"] | components["schemas"]["Rpg.Cyborgs.RangedWeapon"])[];
             contextId?: string | null;
             time: components["schemas"]["Rpg.ModObjects.Time.ITimeEngine"];
+        };
+        "Rpg.ModObjects.RpgObject": {
+            readonly id: string;
+            archetype: string;
+            name: string;
+            readonly archetypes: string[];
+            expiry: components["schemas"]["Rpg.ModObjects.Time.LifecycleExpiry"];
+        };
+        "Rpg.ModObjects.States.Actor.State": {
+            readonly id: string;
+            readonly name: string;
+            readonly ownerId?: string | null;
+            readonly ownerArchetype?: string | null;
+            lifecycle: components["schemas"]["Rpg.ModObjects.Lifecycles.ILifecycle"];
+            readonly isOn: boolean;
+            readonly isOnConditionally: boolean;
+            readonly isOnManually: boolean;
+        };
+        "Rpg.ModObjects.States.RangedWeapon.State": {
+            readonly id: string;
+            readonly name: string;
+            readonly ownerId?: string | null;
+            readonly ownerArchetype?: string | null;
+            lifecycle: components["schemas"]["Rpg.ModObjects.Lifecycles.ILifecycle"];
+            readonly isOn: boolean;
+            readonly isOnConditionally: boolean;
+            readonly isOnManually: boolean;
         };
         "Rpg.ModObjects.States.State": {
             readonly id: string;
@@ -227,6 +807,7 @@ export interface components {
             readonly isOnConditionally: boolean;
             readonly isOnManually: boolean;
         };
+        "Rpg.ModObjects.States.T.State": components["schemas"]["Rpg.ModObjects.States.State"];
         "Rpg.ModObjects.Time.ITimeEngine": {
             current: components["schemas"]["Rpg.ModObjects.Time.TimePoint"];
         };
@@ -239,6 +820,13 @@ export interface components {
         };
         "Rpg.ModObjects.Values.Dice": {
             readonly isConstant: boolean;
+        };
+        RpgContent: {
+            /** Format: uuid */
+            key: string;
+            system: string;
+            archetype: string;
+            name: string;
         };
     };
     responses: never;

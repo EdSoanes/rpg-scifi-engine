@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Rpg.Cyborgs.Attributes
 {
-    public class InjuryUIAttribute : MetaSelectAttribute
+    public class InjuryAttribute : MetaSelectAttribute
     {
-        public InjuryUIAttribute()
+        public InjuryAttribute()
             : base("None", "Flesh Wound", "Unusable", "Busted", "Mangled", "Severed/Eviscerated", "Obliterated")
         {
             Editor = EditorType.Select;
