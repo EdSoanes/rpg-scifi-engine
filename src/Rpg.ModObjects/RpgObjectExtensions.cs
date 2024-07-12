@@ -50,8 +50,11 @@ namespace Rpg.ModObjects
             entity.ActionStore.OnBeginningOfTime(graph, entity);
 
             var states = entity.CreateStates();
-            entity.StateStore.Add(states);
-            entity.StateStore.OnBeginningOfTime(graph, entity);
+            foreach (var state in states)
+            {
+                state.OnAdding(graph);
+                entity.States.Add(state.Name, state);
+            }
 
             return entity;
         }

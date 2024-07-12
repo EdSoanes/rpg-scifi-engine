@@ -10,13 +10,15 @@ namespace Rpg.ModObjects
 {
     public abstract class RpgEntity : RpgObject
     {
-        [JsonProperty] internal StateStore StateStore { get; private set; }
+        public Dictionary<string, State> States { get; init; }
+        //[JsonProperty] internal StateStore StateStore { get; private set; }
         [JsonProperty] internal ActionStore ActionStore { get; private set; }
 
         [JsonConstructor] protected RpgEntity()
             : base() 
         {
-            StateStore = new StateStore(Id);
+            States = new Dictionary<string, State>();
+            //StateStore = new StateStore(Id);
             ActionStore = new ActionStore(Id);
         }
 
@@ -26,22 +28,29 @@ namespace Rpg.ModObjects
             Name = name;
         }
 
-        public State[] States { get => StateStore.Get(); }
+        public State? GetState(string state)
+            => States.ContainsKey(state) ? States[state] : null;
+
+        public State? GetStateById(string id)
+            => States.Values.FirstOrDefault(x => x.Id == id);
 
         public bool IsStateOn(string state)
-            => StateStore[state]?.IsOn ?? false;
+            => GetState(state)?.IsOn ?? false;
 
         public bool SetStateOn(string state)
-            => StateStore[state]?.On() ?? false;
+            => GetState(state)?.On() ?? false;
 
         public bool SetStateOff(string state)
-            => StateStore[state]?.Off() ?? false;
+            => GetState(state)?.Off() ?? false;
 
-        public ModSet[] GetActiveConditionalStateSets(string stateName)
-            => Graph!.GetModSets(this, (x) => x.Name == stateName && x.Lifecycle is SyncedLifecycle && x.Expiry == LifecycleExpiry.Active);
+        public ModSet[] GetActiveConditionalStateInstances(string state)
+            => Graph!.GetModSets(this, (x) => x.Name == state && x.Lifecycle is SyncedLifecycle && x.Expiry == LifecycleExpiry.Active);
 
-        public ModSet[] GetActiveManualStateSets(string stateName)
-            => Graph!.GetModSets(this, (x) => x.Name == stateName && !(x.Lifecycle is SyncedLifecycle) && x.Expiry == LifecycleExpiry.Active);
+        public ModSet[] GetActiveManualStateInstances(string state)
+            => Graph!.GetModSets(this, (x) => x.Name == state && !(x.Lifecycle is SyncedLifecycle) && x.Expiry == LifecycleExpiry.Active);
+
+        public ModSet CreateStateInstance(string state, ILifecycle? lifecycle = null)
+            => GetState(state)!.CreateInstance(lifecycle ?? new TurnLifecycle());
 
         public Actions.Action? GetAction(string action)
             => ActionStore[action];
@@ -62,23 +71,18 @@ namespace Rpg.ModObjects
             return null;
         }
 
-        public State? GetState(string stateName)
-            => StateStore[stateName];
-
-        public ModSet CreateStateInstance(string stateName, ILifecycle? lifecycle = null)
-            => GetState(stateName)!.CreateInstance(lifecycle ?? new TurnLifecycle());
-
         public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
         {
             base.OnBeforeTime(graph, entity);
+            foreach (var state in States.Values)
+                state.OnAdding(graph);
 
             ActionStore.OnBeforeTime(graph, entity);
-            StateStore.OnBeforeTime(graph, entity);
         }
 
         public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime)
         {
-            StateStore.OnStartLifecycle(graph, currentTime);
+            OnStateStartLifecycle(graph, currentTime);
             var expiry = base.OnStartLifecycle(graph, currentTime);
             ActionStore.OnStartLifecycle(graph, currentTime);
 
@@ -87,11 +91,53 @@ namespace Rpg.ModObjects
 
         public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime)
         {
-            StateStore.OnUpdateLifecycle(graph, currentTime);
+            OnStateUpdateLifecycle(graph, currentTime);
             var expiry = base.OnUpdateLifecycle(graph, currentTime);
             ActionStore.OnUpdateLifecycle(graph, currentTime);
 
             return expiry;
+        }
+
+        private void OnStateStartLifecycle(RpgGraph graph, TimePoint currentTime)
+        {
+            foreach (var state in States.Values)
+            {
+                var stateExpiry = state.Lifecycle.OnStartLifecycle(graph, currentTime);
+                if (stateExpiry == LifecycleExpiry.Active)
+                {
+                    var stateSets = GetActiveConditionalStateInstances(state.Name);
+                    if (!stateSets.Any())
+                    {
+                        var stateModSet = state.CreateInstance();
+                        AddModSet(stateModSet);
+                    }
+                }
+            }
+        }
+
+        public void OnStateUpdateLifecycle(RpgGraph graph, TimePoint time)
+        {
+            base.OnUpdateLifecycle(graph, time);
+
+            foreach (var state in States.Values)
+            {
+                var stateExpiry = state.Lifecycle.OnUpdateLifecycle(graph, time);
+                var stateSets = GetActiveConditionalStateInstances(state.Name);
+
+                if (stateExpiry == LifecycleExpiry.Active)
+                {
+                    if (!stateSets.Any())
+                    {
+                        var stateModSet = state.CreateInstance();
+                        AddModSet(stateModSet);
+                    }
+                }
+                else
+                {
+                    foreach (var modSet in stateSets)
+                        graph.RemoveModSet(modSet.Id);
+                }
+            }
         }
     }
 }

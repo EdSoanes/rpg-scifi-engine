@@ -18,8 +18,8 @@ namespace Rpg.ModObjects.States
         [JsonProperty] public ILifecycle Lifecycle { get; set; }
 
         public bool IsOn { get => IsOnConditionally || IsOnManually; }
-        public bool IsOnConditionally { get => Graph?.GetEntity<RpgEntity>(OwnerId)!.GetActiveConditionalStateSets(Name).Any() ?? false; }
-        public bool IsOnManually { get => Graph?.GetEntity<RpgEntity>(OwnerId)!.GetActiveManualStateSets(Name).Any() ?? false; }
+        public bool IsOnConditionally { get => Graph?.GetEntity<RpgEntity>(OwnerId)!.GetActiveConditionalStateInstances(Name).Any() ?? false; }
+        public bool IsOnManually { get => Graph?.GetEntity<RpgEntity>(OwnerId)!.GetActiveManualStateInstances(Name).Any() ?? false; }
 
         [JsonConstructor] protected State() { }
 
@@ -71,7 +71,7 @@ namespace Rpg.ModObjects.States
             if (IsOnManually)
             {
                 var entity = Graph.GetEntity<RpgEntity>(OwnerId)!;
-                var stateSets = entity.GetActiveManualStateSets(Name);
+                var stateSets = entity.GetActiveManualStateInstances(Name);
 
                 foreach (var stateSet in stateSets)
                     entity.ModSetStore.Remove(stateSet.Id);

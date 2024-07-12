@@ -60,7 +60,7 @@ namespace Rpg.Cyborgs.Tests
             var graph = new RpgGraph(pc);
 
             Assert.That(pc.States.Count(), Is.EqualTo(7));
-            Assert.That(pc.States.Where(x => x.IsOn).Count(), Is.EqualTo(0));
+            Assert.That(pc.States.Values.Where(x => x.IsOn).Count(), Is.EqualTo(0));
         }
 
         [Test]

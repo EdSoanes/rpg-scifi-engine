@@ -7,30 +7,6 @@ namespace Rpg.ModObjects.States
         public StateStore(string entityId)
             : base(entityId) { }
 
-        public bool SetOn(string stateName)
-        {
-            var state = this[stateName];
-            if (state != null)
-            {
-                state.On();
-                return true;
-            }
-
-            return false;
-        }
-
-        public bool SetOff(string state)
-        {
-            var modState = Items[state];
-            if (modState != null)
-            {
-                modState.Off();
-                return true;
-            }
-
-            return false;
-        }
-
         public void Add(params State[] states)
         {
             foreach (var state in states)
@@ -53,7 +29,7 @@ namespace Rpg.ModObjects.States
                 if (stateExpiry == LifecycleExpiry.Active)
                 {
                     var entity = graph.GetEntity<RpgEntity>(state.OwnerId)!;
-                    var stateSets = entity.GetActiveConditionalStateSets(state.Name);
+                    var stateSets = entity.GetActiveConditionalStateInstances(state.Name);
                     if (!stateSets.Any())
                     {
                         var stateModSet = state.CreateInstance();
@@ -73,7 +49,7 @@ namespace Rpg.ModObjects.States
             {
                 var stateExpiry = state.Lifecycle.OnUpdateLifecycle(graph, time);
                 var entity = graph.GetEntity<RpgEntity>(state.OwnerId)!;
-                var stateSets = entity.GetActiveConditionalStateSets(state.Name);
+                var stateSets = entity.GetActiveConditionalStateInstances(state.Name);
 
                 if (stateExpiry == LifecycleExpiry.Active)
                 {

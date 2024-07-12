@@ -270,7 +270,7 @@ namespace Rpg.ModObjects
             {
                 if (rpgObj is RpgEntity entity)
                 {
-                    var state = entity.StateStore.Get().FirstOrDefault(x => x.Id == stateId);
+                    var state = entity.GetStateById(stateId);
                     if (state != null)
                         return state;
                 }
@@ -504,7 +504,7 @@ namespace Rpg.ModObjects
             UpdateProps();
 
             foreach (var entity in ObjectStore.Values.Where(x => x is RpgEntity).Cast<RpgEntity>())
-                entity.StateStore.OnUpdateLifecycle(this, Time.Current);
+                entity.OnStateUpdateLifecycle(this, Time.Current);
 
             UpdateProps();
         }

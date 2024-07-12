@@ -2,6 +2,7 @@
 using Rpg.Cms.Json;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta;
+using Rpg.ModObjects.States;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Services;
 
@@ -35,9 +36,9 @@ namespace Rpg.Cms.Services.Converter
             var target = JObject.FromObject(obj);
 
             target
-                .AddPropIfNotNull("id", obj.NewId())
-                .AddProp("name", source.Name)
-                .AddProp("archetype", type.Name);
+                .AddPropIfNotNull("Id", obj.NewId())
+                .AddProp("Name", source.Name)
+                .AddProp("Archetype", type.Name);
 
             var contentType = _contentTypeService.Get(source.ContentType.Key)!;
             foreach (var propType in contentType.PropertyTypes)
