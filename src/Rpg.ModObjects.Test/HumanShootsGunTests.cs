@@ -50,7 +50,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(initiator.MentalActionPoints.Current, Is.EqualTo(3));
 
             //Gun
-            Assert.That(gun.Actions.FirstOrDefault(x => x.Name == nameof(FireGunAction)), Is.Not.Null);
+            Assert.That(gun.GetAction(nameof(FireGunAction)), Is.Not.Null);
 
             graph.Time.SetTime(TimePoints.Encounter(1));
 

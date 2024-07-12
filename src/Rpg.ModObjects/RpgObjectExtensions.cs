@@ -46,8 +46,11 @@ namespace Rpg.ModObjects
             where T : RpgEntity
         {
             var actions = entity.CreateOwnerActions();
-            entity.ActionStore.Add(actions);
-            entity.ActionStore.OnBeginningOfTime(graph, entity);
+            foreach (var action in actions)
+            {
+                action.OnAdding(graph);
+                entity.Actions.Add(action.Name, action);
+            }
 
             var states = entity.CreateStates();
             foreach (var state in states)

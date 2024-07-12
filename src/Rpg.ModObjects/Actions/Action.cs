@@ -39,7 +39,7 @@ namespace Rpg.ModObjects.Actions
             Name = GetType().Name;
         }
 
-        public void OnBeforeTime(RpgGraph graph)
+        public void OnAdding(RpgGraph graph)
         {
             Graph = graph;
         }

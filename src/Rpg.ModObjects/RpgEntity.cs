@@ -11,15 +11,13 @@ namespace Rpg.ModObjects
     public abstract class RpgEntity : RpgObject
     {
         public Dictionary<string, State> States { get; init; }
-        //[JsonProperty] internal StateStore StateStore { get; private set; }
-        [JsonProperty] internal ActionStore ActionStore { get; private set; }
+        public Dictionary<string, Actions.Action> Actions { get; init; }
 
         [JsonConstructor] protected RpgEntity()
             : base() 
         {
             States = new Dictionary<string, State>();
-            //StateStore = new StateStore(Id);
-            ActionStore = new ActionStore(Id);
+            Actions = new Dictionary<string, Actions.Action>();
         }
 
         public RpgEntity(string name)
@@ -27,6 +25,8 @@ namespace Rpg.ModObjects
         {
             Name = name;
         }
+
+        #region States
 
         public State? GetState(string state)
             => States.ContainsKey(state) ? States[state] : null;
@@ -51,52 +51,6 @@ namespace Rpg.ModObjects
 
         public ModSet CreateStateInstance(string state, ILifecycle? lifecycle = null)
             => GetState(state)!.CreateInstance(lifecycle ?? new TurnLifecycle());
-
-        public Actions.Action? GetAction(string action)
-            => ActionStore[action];
-
-        public Actions.Action[] Actions { get => ActionStore.Get(); }
-
-        public ActionInstance? CreateActionInstance(RpgEntity initiator, string actionName, int actionNo)
-        {
-            var action = GetAction(actionName);
-            if (action != null)
-            {
-                var instance = new ActionInstance(this, initiator, action, actionNo);
-                instance.OnBeforeTime(Graph!);
-
-                return instance;
-            }
-
-            return null;
-        }
-
-        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
-        {
-            base.OnBeforeTime(graph, entity);
-            foreach (var state in States.Values)
-                state.OnAdding(graph);
-
-            ActionStore.OnBeforeTime(graph, entity);
-        }
-
-        public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime)
-        {
-            OnStateStartLifecycle(graph, currentTime);
-            var expiry = base.OnStartLifecycle(graph, currentTime);
-            ActionStore.OnStartLifecycle(graph, currentTime);
-
-            return expiry;
-        }
-
-        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime)
-        {
-            OnStateUpdateLifecycle(graph, currentTime);
-            var expiry = base.OnUpdateLifecycle(graph, currentTime);
-            ActionStore.OnUpdateLifecycle(graph, currentTime);
-
-            return expiry;
-        }
 
         private void OnStateStartLifecycle(RpgGraph graph, TimePoint currentTime)
         {
@@ -138,6 +92,57 @@ namespace Rpg.ModObjects
                         graph.RemoveModSet(modSet.Id);
                 }
             }
+        }
+
+        #endregion States
+
+        #region Actions
+
+        public Actions.Action? GetAction(string action)
+            => Actions.ContainsKey(action) ? Actions[action] : null;
+
+        public ActionInstance? CreateActionInstance(RpgEntity initiator, string actionName, int actionNo)
+        {
+            var action = GetAction(actionName);
+            if (action != null)
+            {
+                var instance = new ActionInstance(this, initiator, action, actionNo);
+                instance.OnBeforeTime(Graph!);
+
+                return instance;
+            }
+
+            return null;
+        }
+
+        #endregion Actions
+
+        #region ModSets
+
+        #endregion ModSets
+
+        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        {
+            base.OnBeforeTime(graph, entity);
+            foreach (var state in States.Values)
+                state.OnAdding(graph);
+
+            foreach (var action in Actions.Values)
+                action.OnAdding(graph);
+        }
+
+        public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime)
+        {
+            OnStateStartLifecycle(graph, currentTime);
+            var expiry = base.OnStartLifecycle(graph, currentTime);
+            return expiry;
+        }
+
+        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime)
+        {
+            OnStateUpdateLifecycle(graph, currentTime);
+            var expiry = base.OnUpdateLifecycle(graph, currentTime);
+            return expiry;
         }
     }
 }

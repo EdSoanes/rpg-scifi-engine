@@ -1,7 +1,5 @@
-﻿using Rpg.ModObjects.Actions;
-using Rpg.ModObjects.Mods;
+﻿using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
-using Rpg.ModObjects.States;
 using System.Collections;
 using System.Reflection;
 
@@ -12,9 +10,6 @@ namespace Rpg.ModObjects
 
         private static Type[] ExcludedPropertyTypes = new Type[]
         {
-            typeof(ModSetStore),
-            typeof(ActionStore),
-            typeof(StateStore),
             typeof(PropStore),
             typeof(RpgGraph),
             typeof(ModSet),

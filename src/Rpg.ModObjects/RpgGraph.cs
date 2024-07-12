@@ -238,11 +238,11 @@ namespace Rpg.ModObjects
 
         public ModSet[] GetModSets()
             => ObjectStore.Values
-                .SelectMany(x => x.ModSetStore.Get())
+                .SelectMany(x => x.ModSets.Values)
                 .ToArray();
 
         public ModSet[] GetModSets(RpgObject rpgObj, Func<ModSet, bool> filterFunc)
-            =>rpgObj.ModSetStore.Get()
+            => rpgObj.ModSets.Values
                 .Where(x => filterFunc(x))
                 .ToArray();
 
@@ -253,7 +253,7 @@ namespace Rpg.ModObjects
 
             foreach (var rpgObj in ObjectStore.Values)
             {
-                var modSet = rpgObj.ModSetStore[modSetId];
+                var modSet = rpgObj.GetModSet(modSetId);
                 if (modSet != null)
                     return modSet;
             }
@@ -284,10 +284,10 @@ namespace Rpg.ModObjects
         {
             foreach (var rpgObj in ObjectStore.Values)
             {
-                var modSet = rpgObj.ModSetStore[modSetId];
+                var modSet = rpgObj.GetModSet(modSetId);
                 if (modSet != null)
                 {
-                    rpgObj.ModSetStore.Remove(modSetId);
+                    rpgObj.RemoveModSet(modSetId);
                     return;
                 }
             }
@@ -295,16 +295,16 @@ namespace Rpg.ModObjects
 
         public void RemoveModSet(RpgObject rpgObj, string modSetId)
         {
-            var modSet = rpgObj.ModSetStore[modSetId];
+            var modSet = rpgObj.GetModSet(modSetId);
             if (modSet != null)
-                rpgObj.ModSetStore.Remove(modSet.Id);
+                rpgObj.RemoveModSet(modSet.Id);
         }
 
         public void RemoveModSetByName(RpgObject rpgObj, string name)
         {
-            var modSet = rpgObj.ModSetStore.Get(name);
+            var modSet = rpgObj.GetModSet(name);
             if (modSet != null)
-                rpgObj.ModSetStore.Remove(modSet.Id);
+                rpgObj.RemoveModSet(modSet.Id);
         }
 
         /// <summary>

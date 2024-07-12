@@ -74,7 +74,7 @@ namespace Rpg.ModObjects.States
                 var stateSets = entity.GetActiveManualStateInstances(Name);
 
                 foreach (var stateSet in stateSets)
-                    entity.ModSetStore.Remove(stateSet.Id);
+                    entity.RemoveModSet(stateSet.Id);
             }
 
             return true;

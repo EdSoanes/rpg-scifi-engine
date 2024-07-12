@@ -13,6 +13,8 @@ namespace Rpg.ModObjects
     {
         protected RpgGraph? Graph { get; private set; }
 
+        public Dictionary<string, ModSet> ModSets { get; init; }
+
         [JsonProperty]
         public string Id { get; private set; }
 
@@ -27,7 +29,7 @@ namespace Rpg.ModObjects
         [JsonProperty] public LifecycleExpiry Expiry { get; set; } = LifecycleExpiry.Pending;
 
         [JsonProperty] internal PropStore PropStore { get; private set; }
-        [JsonProperty] internal ModSetStore ModSetStore { get; private set; }
+        //[JsonProperty] internal ModSetStore ModSetStore { get; private set; }
 
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -39,15 +41,35 @@ namespace Rpg.ModObjects
             Name = GetType().Name;
             Archetypes = this.GetType().GetArchetypes();
 
+            ModSets = new Dictionary<string, ModSet>();
+
             PropStore = new PropStore(Id);
-            ModSetStore = new ModSetStore(Id);
+            //ModSetStore = new ModSetStore(Id);
         }
 
-        public void AddMods(params Mod[] mods)
-            => Graph!.AddMods(mods);
+        #region ModSets
+
+        public ModSet? GetModSet(string id)
+            => ModSets.ContainsKey(id) ? ModSets[id] : null;
 
         public bool AddModSet(ModSet modSet)
-            => ModSetStore.Add(modSet);
+        {
+            if (!string.IsNullOrEmpty(modSet.OwnerId) && modSet.OwnerId != Id)
+                throw new InvalidOperationException("ModSet.OwnerId is set but does not match the ModSetStore.EntityId");
+
+            if (!ModSets.ContainsKey(modSet.Id))
+            {
+                modSet.OnAdding(this);
+                ModSets.Add(modSet.Id, modSet);
+
+                Graph!.AddMods(modSet.Mods.ToArray());
+                modSet.Lifecycle.OnStartLifecycle(Graph!, Graph.Time.Current);
+
+                return true;
+            }
+
+            return false;
+        }
 
         public bool AddModSets(params ModSet[] modSets)
         {
@@ -56,6 +78,51 @@ namespace Rpg.ModObjects
 
             return true;
         }
+
+        public bool RemoveModSet(string modSetId)
+        {
+            var existing = GetModSet(modSetId);
+            if (existing != null)
+            {
+                existing.Lifecycle.SetExpired(Graph!.Time.Current);
+                Graph?.RemoveMods(existing.Mods.Where(x => x.Lifecycle is SyncedLifecycle).ToArray());
+
+                return ModSets.Remove(existing.Id);
+            }
+
+            return false;
+        }
+
+        private void OnStartModSetLifecycle(RpgGraph graph, TimePoint currentTime)
+        {
+            foreach (var modSet in ModSets.Values)
+            {
+                if (!modSet.Mods.Any())
+                    modSet.Mods.AddRange(graph.GetActiveMods(x => x.OwnerId == modSet.Id));
+
+                modSet.Lifecycle.OnStartLifecycle(graph, currentTime);
+            }
+        }
+
+        private void OnUpdateModSetLifecycle(RpgGraph graph, TimePoint currentTime)
+        {
+            var toRemove = new List<ModSet>();
+            foreach (var modSet in ModSets.Values)
+            {
+                modSet.Lifecycle.OnUpdateLifecycle(graph, currentTime);
+                if (modSet.Lifecycle.Expiry == LifecycleExpiry.Remove)
+                    toRemove.Add(modSet);
+            }
+
+            foreach (var remove in toRemove)
+                RemoveModSet(remove.Id);
+        }
+
+        #endregion ModSets
+
+        public void AddMods(params Mod[] mods)
+            => Graph!.AddMods(mods);
+
 
         public bool IsA(string type) 
             => Archetypes.Contains(type);
@@ -74,7 +141,6 @@ namespace Rpg.ModObjects
         {
             Graph = graph;
             PropStore.OnBeforeTime(graph, entity);
-            ModSetStore.OnBeforeTime(graph, entity);
         }
 
         public virtual void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
@@ -99,13 +165,11 @@ namespace Rpg.ModObjects
             OnLifecycleStarting();
 
             Expiry = LifecycleExpiry.Active;
-
-            ModSetStore.OnBeginningOfTime(graph, entity);
         }
 
         public virtual LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime)
         {
-            ModSetStore.OnStartLifecycle(graph, currentTime);
+            OnStartModSetLifecycle(graph, currentTime);
             PropStore.OnStartLifecycle(graph, currentTime);
 
             return Expiry;
@@ -113,7 +177,7 @@ namespace Rpg.ModObjects
 
         public virtual LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime)
         {
-            ModSetStore.OnUpdateLifecycle(graph, currentTime);
+            OnUpdateModSetLifecycle(graph, currentTime);
             PropStore.OnUpdateLifecycle(graph, currentTime);
 
             return Expiry;
