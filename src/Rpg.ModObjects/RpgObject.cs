@@ -29,7 +29,6 @@ namespace Rpg.ModObjects
         [JsonProperty] public LifecycleExpiry Expiry { get; set; } = LifecycleExpiry.Pending;
 
         [JsonProperty] internal PropStore PropStore { get; private set; }
-        //[JsonProperty] internal ModSetStore ModSetStore { get; private set; }
 
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -42,9 +41,7 @@ namespace Rpg.ModObjects
             Archetypes = this.GetType().GetArchetypes();
 
             ModSets = new Dictionary<string, ModSet>();
-
             PropStore = new PropStore(Id);
-            //ModSetStore = new ModSetStore(Id);
         }
 
         #region ModSets
