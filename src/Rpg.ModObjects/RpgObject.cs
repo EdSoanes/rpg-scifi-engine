@@ -13,20 +13,17 @@ namespace Rpg.ModObjects
     {
         protected RpgGraph? Graph { get; private set; }
 
-        public Dictionary<string, ModSet> ModSets { get; init; }
+        [JsonProperty] public Dictionary<string, ModSet> ModSets { get; private init; }
 
-        [JsonProperty]
-        public string Id { get; private set; }
+        [JsonProperty] public string Id { get; private init; }
 
-        [JsonProperty]
-        public string Archetype { get; set; }
+        [JsonProperty] public string Archetype { get; private init; }
 
-        [JsonProperty] 
-        public string Name { get; set; }
+        [JsonProperty] public string Name { get; protected init; }
 
-        [JsonProperty] public string[] Archetypes { get; private set; }
+        [JsonProperty] public string[] Archetypes { get; private init; }
 
-        [JsonProperty] public LifecycleExpiry Expiry { get; set; } = LifecycleExpiry.Pending;
+        [JsonProperty] public LifecycleExpiry Expiry { get; protected set; } = LifecycleExpiry.Pending;
 
         [JsonProperty] internal PropStore PropStore { get; private set; }
 
