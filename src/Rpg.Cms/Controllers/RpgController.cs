@@ -54,7 +54,8 @@ namespace Rpg.Cms.Controllers
                     Archetype = sys.GetArchetype(x.ContentType.Alias),
                 });
 
-            return Ok(res);
+            var json = RpgSerializer.Serialize(res);
+            return Content(json, "application/json");
         }
 
         [HttpGet("{system}/{archetype}/{id}")]

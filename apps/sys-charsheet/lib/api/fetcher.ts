@@ -3,19 +3,15 @@ import createClient from "openapi-fetch";
 import { paths } from "./rpgtypes";
 
 const client = createClient<paths>({
-  baseUrl: process.env.NEXT_PUBLIC_CRM_SERVICES_API,
+  baseUrl: process.env.RPG_API_HOST,
 });
 
-export const getPlayerCharacter = async (
-  system: string,
-  archetype: string,
-  id: string
-) => {
+export const getPlayerCharacter = async (id: string) => {
   const response = await client.GET("/api/v1/rpg/{system}/{archetype}/{id}", {
     params: {
       path: {
-        system: system,
-        archetype: archetype,
+        system: process.env.RPG_SYSTEM ?? "Cyborgs",
+        archetype: process.env.RPG_PC_ARCHETYPE ?? "PlayerCharacter",
         id: id,
       },
     },

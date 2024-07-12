@@ -1,10 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json.Serialization;
 
 namespace Rpg.ModObjects
 {
@@ -14,7 +9,8 @@ namespace Rpg.ModObjects
         {
             TypeNameHandling = TypeNameHandling.Auto,
             NullValueHandling = NullValueHandling.Include,
-            Formatting = Formatting.Indented
+            Formatting = Formatting.Indented,
+            ContractResolver = new CamelCasePropertyNamesContractResolver()
         };
 
         public static string Serialize(object obj)
