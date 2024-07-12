@@ -14,6 +14,7 @@ namespace Rpg.ModObjects
         protected RpgGraph? Graph { get; private set; }
 
         [JsonProperty] public Dictionary<string, ModSet> ModSets { get; private init; }
+        [JsonProperty] public Dictionary<string, Prop> Props {  get; private init; }
 
         [JsonProperty] public string Id { get; private init; }
 
@@ -25,7 +26,7 @@ namespace Rpg.ModObjects
 
         [JsonProperty] public LifecycleExpiry Expiry { get; protected set; } = LifecycleExpiry.Pending;
 
-        [JsonProperty] internal PropStore PropStore { get; private set; }
+        //[JsonProperty] internal PropStore PropStore { get; private set; }
 
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -38,7 +39,9 @@ namespace Rpg.ModObjects
             Archetypes = this.GetType().GetArchetypes();
 
             ModSets = new Dictionary<string, ModSet>();
-            PropStore = new PropStore(Id);
+            Props = new Dictionary<string, Prop>();
+
+            //PropStore = new PropStore(Id);
         }
 
         #region ModSets
@@ -114,9 +117,127 @@ namespace Rpg.ModObjects
 
         #endregion ModSets
 
-        public void AddMods(params Mod[] mods)
-            => Graph!.AddMods(mods);
+        #region Mods
 
+        public Prop? GetProp(string? prop, bool create = false)
+        {
+            if (string.IsNullOrEmpty(prop))
+                return null;
+
+            if (Props.ContainsKey(prop))
+                return Props[prop];
+
+            if (create)
+            {
+                var created = new Prop(Id, prop);
+                Props.Add(prop, created);
+
+                return created;
+            }
+
+            return null;
+        }
+
+        public Prop[] GetProps()
+            => Props.Values.ToArray();
+
+        public Mod? GetMod(string id)
+            => Props.Values
+                .SelectMany(x => x.Mods)
+                .FirstOrDefault(x => x.Id == id);
+
+        public Mod[] GetMods()
+            => Props.Values
+                .SelectMany(x => x.Mods)
+                .ToArray();
+
+        public Mod[] GetMods(string? prop, Func<Mod, bool>? filterFunc = null)
+            => GetProp(prop)?.Mods
+                .Where(x => filterFunc == null || filterFunc(x))
+                .ToArray() ?? Array.Empty<Mod>();
+
+        public Mod[] GetActiveMods()
+            => Props.Values
+                .SelectMany(x => x.GetActive())
+                .ToArray();
+
+        public Mod[] GetActiveMods(string? prop, Func<Mod, bool>? filterFunc = null)
+            => GetProp(prop)?.GetActive()
+                .Where(x => filterFunc == null || filterFunc(x))
+                .ToArray() ?? Array.Empty<Mod>();
+
+        public void AddMods(params Mod[] mods)
+        {
+            foreach (var modGroup in mods.GroupBy(x => x.EntityId))
+            {
+                if (modGroup.Key == Id)
+                {
+                    foreach (var mod in modGroup)
+                    {
+                        var prop = GetProp(mod.Prop, create: true)!;
+                        prop.Remove(mod);
+                        mod.OnAdding(Graph!, prop, Graph!.Time.Current);
+
+                        Graph!.OnPropUpdated(prop);
+                    }
+                }
+                else
+                    Graph!.AddMods([.. modGroup]);
+            }
+        }
+
+        public void RemoveMods(params Mod[] mods)
+        {
+            foreach (var modGroup in mods.GroupBy(x => x.EntityId))
+            {
+                if (modGroup.Key == Id)
+                {
+                    var toRemove = new List<Prop>();
+                    foreach (var mod in modGroup)
+                    {
+                        var prop = GetProp(mod.Prop);
+                        if (prop != null)
+                        {
+                            mod.OnRemoving(Graph!, prop);
+                            prop.Remove(mod);
+                            Graph!.OnPropUpdated(prop);
+
+                            if (!prop.Mods.Any())
+                                toRemove.Add(prop);
+                        }
+                    }
+
+                    foreach (var prop in toRemove)
+                        Props.Remove(prop.Prop);
+                }
+                else
+                    Graph!.RemoveMods([.. modGroup]);
+            }
+        }
+
+        private void OnUpdatePropsLifecycle(TimePoint currentTime)
+        {
+            var toRemove = new List<Mod>();
+            foreach (var prop in Props.Values)
+            {
+                foreach (var mod in prop.Mods)
+                {
+                    var oldExpiry = mod.Expiry;
+                    mod.OnUpdating(Graph!, prop, currentTime);
+                    var expiry = mod.Expiry;
+
+                    if (expiry == LifecycleExpiry.Remove)
+                        toRemove.Add(mod);
+
+                    if (expiry != oldExpiry)
+                        Graph!.OnPropUpdated(mod);
+                }
+            }
+
+            RemoveMods(toRemove.ToArray());
+        }
+
+        #endregion
 
         public bool IsA(string type) 
             => Archetypes.Contains(type);
@@ -134,12 +255,10 @@ namespace Rpg.ModObjects
         public virtual void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
         {
             Graph = graph;
-            PropStore.OnBeforeTime(graph, entity);
         }
 
         public virtual void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
         {
-            PropStore.OnBeginningOfTime(graph, entity);
             foreach (var propInfo in RpgReflection.ScanForModdableProperties(this))
             {
                 var val = this.PropertyValue(propInfo.Name, out var propExists);
@@ -164,15 +283,13 @@ namespace Rpg.ModObjects
         public virtual LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime)
         {
             OnStartModSetLifecycle(graph, currentTime);
-            PropStore.OnStartLifecycle(graph, currentTime);
-
             return Expiry;
         }
 
         public virtual LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime)
         {
             OnUpdateModSetLifecycle(graph, currentTime);
-            PropStore.OnUpdateLifecycle(graph, currentTime);
+            OnUpdatePropsLifecycle(currentTime);
 
             return Expiry;
         }

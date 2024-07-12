@@ -74,46 +74,35 @@ namespace Rpg.ModObjects
                 return GetModSet(id) as T;
 
             if (typeof(T).IsAssignableTo(typeof(Mod)))
-                return GetEntities().SelectMany(x => x.PropStore.GetMods()).FirstOrDefault(x => x.Id == id) as T;
+                return GetEntities().SelectMany(x => x.GetMods()).FirstOrDefault(x => x.Id == id) as T;
 
             return null;
         }
 
-        public Mod[] GetActiveMods(RpgObject? rpgObj, string prop)
-            => rpgObj?.PropStore.GetMods(prop, active: true) 
-                    ?? Array.Empty<Mod>();
+        public Mod[] GetActiveMods(RpgObject? rpgObj, string? prop, Func<Mod, bool>? filterFunc = null)
+            => rpgObj?.GetActiveMods(prop)
+                .Where(x => filterFunc == null || filterFunc(x))
+                .ToArray() ?? Array.Empty<Mod>();
 
-        public Mod[] GetActiveMods(PropRef? propRef)
-            => GetEntity(propRef?.EntityId)
-                ?.PropStore.GetMods(propRef!.Prop, active: true) 
-                    ?? Array.Empty<Mod>();
+        public Mod[] GetActiveMods(PropRef? propRef, Func<Mod, bool>? filterFunc = null)
+            => GetActiveMods(GetEntity(propRef?.EntityId), propRef?.Prop, filterFunc);
 
-        public Mod[] GetActiveMods()
+        public Mod[] GetActiveMods(Func<Mod, bool>? filterFunc = null)
             => ObjectStore.Values
-                .SelectMany(x => x.PropStore.GetMods(active: true))
-                .ToArray()
-                    ?? Array.Empty<Mod>();
+                .SelectMany(x => x.GetActiveMods())
+                .Where(x => filterFunc == null || filterFunc(x))
+                .ToArray();
 
-        public Mod[] GetActiveMods(Func<Mod, bool> filterFunc)
-            => ObjectStore.Values
-                .SelectMany(x => x.PropStore.GetMods(active: true))
-                .Where(x => filterFunc(x))
-                .ToArray()
-                    ?? Array.Empty<Mod>();
-
-        public Mod[] GetMods(PropRef? propRef, Func<Mod, bool> filterFunc)
+        public Mod[] GetMods(PropRef? propRef, Func<Mod, bool>? filterFunc = null)
             => GetEntity(propRef?.EntityId)
-                ?.PropStore.GetMods(propRef!.Prop, filterFunc) 
-                    ?? Array.Empty<Mod>();
-
-        public Mod[] GetActiveMods(RpgObject? rpgObj, string prop, Func<Mod, bool> filterFunc)
-            => rpgObj?.PropStore.GetMods(prop, (x) => x.Lifecycle.Expiry == LifecycleExpiry.Active && filterFunc(x)) 
-                ?? Array.Empty<Mod>();
+                ?.GetMods(propRef?.Prop)
+                .Where(x => filterFunc == null || filterFunc(x))
+                .ToArray() ?? Array.Empty<Mod>();
 
         public void AddMods(params Mod[] mods)
         {
             foreach (var modGroup in mods.GroupBy(x => x.EntityId))
-                GetEntity(modGroup.Key)?.PropStore.Add(modGroup.ToArray());
+                GetEntity(modGroup.Key)?.AddMods(modGroup.ToArray());
         }
 
         public void AddModSets(params ModSet[] modSets)
@@ -128,17 +117,8 @@ namespace Rpg.ModObjects
         public void RemoveMods(params Mod[] mods)
         {
             foreach (var modGroup in mods.GroupBy(x => x.EntityId))
-                GetEntity(modGroup.Key)?.PropStore.Remove(modGroup.ToArray());
+                GetEntity(modGroup.Key)?.RemoveMods(modGroup.ToArray());
         }
-
-        public Prop? GetModProp(PropRef? propRef, bool create = false)
-        {
-            var entity = GetEntity(propRef?.EntityId);
-            return entity?.PropStore.Get(propRef!.Prop, create);
-        }
-
-        public Prop[] GetModProps(RpgObject? rpgObj)
-            => rpgObj?.PropStore.Get() ?? Array.Empty<Prop>();
 
         public List<PropRef> GetPropsAffectedBy(PropRef propRef)
         {
@@ -148,7 +128,7 @@ namespace Rpg.ModObjects
             var propsAffectedBy = new List<PropRef>();
             foreach (var entity in GetEntities())
             {
-                var affectedBy = GetModProps(entity)
+                var affectedBy = entity.GetProps()
                     .Where(x => x.IsAffectedBy(propRef))
                     .Select(x => new PropRef(entity.Id, x.Prop))
                     .Distinct();
@@ -403,7 +383,7 @@ namespace Rpg.ModObjects
         public void OnPropsUpdated()
         {
             foreach (var obj in ObjectStore.Values)
-                foreach (var modProp in GetModProps(obj))
+                foreach (var modProp in obj.GetProps())
                     UpdatedProps.Merge(modProp);
         }
 

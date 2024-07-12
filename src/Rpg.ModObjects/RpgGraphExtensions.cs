@@ -10,7 +10,6 @@ namespace Rpg.ModObjects
 
         private static Type[] ExcludedPropertyTypes = new Type[]
         {
-            typeof(PropStore),
             typeof(RpgGraph),
             typeof(ModSet),
             typeof(Mod),

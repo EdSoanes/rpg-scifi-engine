@@ -17,7 +17,7 @@ namespace Rpg.ModObjects.Behaviors
 
         public override void OnAdding(RpgGraph graph, Prop modProp, Mod mod)
         {
-            var matchingMods = MatchingMods(graph, mod);
+            var matchingMods = MatchingMods<ExpiresOn>(graph, mod);
             var oldValue = graph.CalculateModsValue(matchingMods);
             var newValue = oldValue + graph.CalculateModValue(mod);
 
