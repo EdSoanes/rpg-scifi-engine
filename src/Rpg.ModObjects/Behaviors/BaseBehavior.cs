@@ -6,7 +6,7 @@ using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects.Behaviors
 {
-    public abstract class BaseBehavior : IBehavior
+    public abstract class BaseBehavior
     {
         [JsonIgnore] public ModType Type { get; protected set; } = ModType.Standard;
         [JsonIgnore] public ModScope Scope { get; internal set; } = ModScope.Standard;
