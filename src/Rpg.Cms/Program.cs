@@ -6,6 +6,9 @@ using Rpg.Cms.Services.Synchronizers;
 using Rpg.Cyborgs;
 using Rpg.ModObjects.Reflection;
 using Umbraco.Cms.Api.Common.OpenApi;
+using Umbraco.Cms.Web.Common.ApplicationBuilder;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +18,35 @@ builder.CreateUmbracoBuilder()
     .AddDeliveryApi()
     .AddComposers()
     .Build();
+
+builder.Services
+    .AddCors(options =>
+        options.AddDefaultPolicy(
+            policy =>
+            {
+                policy
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowAnyOrigin();
+            }))
+    .Configure<UmbracoPipelineOptions>(options =>
+        options.AddFilter(new UmbracoPipelineFilter("Cors", postRouting: app => app.UseCors())));
+
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+{
+    options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
+    options.SerializerSettings.NullValueHandling = NullValueHandling.Include;
+    options.SerializerSettings.Formatting = Formatting.Indented;
+    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver
+    {
+        NamingStrategy = new CamelCaseNamingStrategy
+        {
+            ProcessDictionaryKeys = false,
+            OverrideSpecifiedNames = true
+        }
+    };
+});
+
 
 builder.Services
     .ConfigureOptions<RpgSwaggerGenOptions>()

@@ -42,7 +42,7 @@ namespace Rpg.ModObjects
             }
         }
 
-        public string Serialize()
+        public RpgGraphState GetGraphState()
         {
             var state = new RpgGraphState
             {
@@ -51,7 +51,12 @@ namespace Rpg.ModObjects
                 Time = Time,
             };
 
-            var json = RpgSerializer.Serialize(state);
+            return state;
+        }
+
+        public string Serialize()
+        {
+            var json = RpgSerializer.Serialize(GetGraphState());
             return json;
         }
 

@@ -52,6 +52,63 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/rpg/{system}/{archetype}/{id}/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    system: string;
+                    archetype: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["RpgOperation`1"];
+                    "text/json": components["schemas"]["RpgOperation`1"];
+                    "application/*+json": components["schemas"]["RpgOperation`1"];
+                    "application/json-patch+json": components["schemas"]["RpgOperation`1"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        /** @description The list of notifications produced during the request. */
+                        "Umb-Notifications"?: components["schemas"]["NotificationHeaderModel"][] | null;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Rpg.ModObjects.RpgGraphState"];
+                        "text/json": components["schemas"]["Rpg.ModObjects.RpgGraphState"];
+                        "text/plain": components["schemas"]["Rpg.ModObjects.RpgGraphState"];
+                    };
+                };
+                /** @description The resource is protected and requires an authentication token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/rpg/{system}/entities": {
         parameters: {
             query?: never;
@@ -559,7 +616,7 @@ export interface components {
             /** Format: int32 */
             readonly defenceModifier: number;
         } & components["schemas"]["Rpg.ModObjects.RpgEntity"];
-        "Rpg.Cyborgs.Attributes.InjuryUIAttribute": components["schemas"]["Rpg.ModObjects.Meta.Props.MetaSelectAttribute"];
+        "Rpg.Cyborgs.Attributes.InjuryAttribute": components["schemas"]["Rpg.ModObjects.Meta.Props.MetaSelectAttribute"];
         "Rpg.Cyborgs.BodyPart": components["schemas"]["Rpg.ModObjects.RpgComponent"];
         "Rpg.Cyborgs.MeleeWeapon": {
             damage: components["schemas"]["Rpg.ModObjects.Values.Dice"];
@@ -597,6 +654,7 @@ export interface components {
             onAct: components["schemas"]["Rpg.ModObjects.Reflection.Action.ActionModSet.RpgMethod"];
             onOutcome: components["schemas"]["Rpg.ModObjects.Reflection.Action.ModSet[].RpgMethod"];
         };
+        "Rpg.ModObjects.Actions.ActionModSet": components["schemas"]["Rpg.ModObjects.Mods.ModSet"];
         "Rpg.ModObjects.Actions.Actor.Action": {
             readonly id: string;
             readonly name: string;
@@ -617,6 +675,7 @@ export interface components {
             onAct: components["schemas"]["Rpg.ModObjects.Reflection.Action.ActionModSet.RpgMethod"];
             onOutcome: components["schemas"]["Rpg.ModObjects.Reflection.Action.ModSet[].RpgMethod"];
         };
+        "Rpg.ModObjects.Actions.OutcomeModSet": components["schemas"]["Rpg.ModObjects.Mods.ModSet"];
         "Rpg.ModObjects.Actions.RangedWeapon.Action": {
             readonly id: string;
             readonly name: string;
@@ -638,6 +697,23 @@ export interface components {
             onOutcome: components["schemas"]["Rpg.ModObjects.Reflection.Action.ModSet[].RpgMethod"];
         };
         "Rpg.ModObjects.Actions.TOwner.Action": components["schemas"]["Rpg.ModObjects.Actions.Action"];
+        "Rpg.ModObjects.Behaviors.Add": components["schemas"]["Rpg.ModObjects.Behaviors.BaseBehavior"];
+        "Rpg.ModObjects.Behaviors.BaseBehavior": {
+            type: components["schemas"]["Rpg.ModObjects.Mods.ModType"];
+            scope: components["schemas"]["Rpg.ModObjects.Mods.ModScope"];
+            expiry: components["schemas"]["Rpg.ModObjects.Time.LifecycleExpiry"];
+        };
+        "Rpg.ModObjects.Behaviors.Combine": components["schemas"]["Rpg.ModObjects.Behaviors.BaseBehavior"];
+        "Rpg.ModObjects.Behaviors.ExpiresOn": {
+            value: components["schemas"]["Rpg.ModObjects.Values.Dice"];
+        } & components["schemas"]["Rpg.ModObjects.Behaviors.Combine"];
+        "Rpg.ModObjects.Behaviors.Replace": components["schemas"]["Rpg.ModObjects.Behaviors.BaseBehavior"];
+        "Rpg.ModObjects.Behaviors.Threshold": {
+            /** Format: int32 */
+            min: number;
+            /** Format: int32 */
+            max: number;
+        } & components["schemas"]["Rpg.ModObjects.Behaviors.BaseBehavior"];
         "Rpg.ModObjects.Lifecycles.ILifecycle": {
             expiry: components["schemas"]["Rpg.ModObjects.Time.LifecycleExpiry"];
         };
@@ -652,7 +728,7 @@ export interface components {
             objects: (components["schemas"]["Rpg.ModObjects.Meta.MetaObj"] | components["schemas"]["Rpg.ModObjects.Meta.MetaContainer"])[];
             actions: components["schemas"]["Rpg.ModObjects.Meta.MetaAction"][];
             states: components["schemas"]["Rpg.ModObjects.Meta.MetaState"][];
-            propUIs: (components["schemas"]["Rpg.Cyborgs.Attributes.InjuryUIAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.AccelerationAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.ComponentAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.ContainerAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.DiceAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.IntegerAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.MetaSelectAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.MetersAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.MinZeroAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.PercentAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.RichTextAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.TextAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.ThresholdAttribute"])[];
+            propUIs: (components["schemas"]["Rpg.Cyborgs.Attributes.InjuryAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.AccelerationAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.ComponentAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.ContainerAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.DiceAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.IntegerAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.MetaSelectAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.MetersAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.MinZeroAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.PercentAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.RichTextAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.TextAttribute"] | components["schemas"]["Rpg.ModObjects.Meta.Props.ThresholdAttribute"])[];
         };
         "Rpg.ModObjects.Meta.MetaAction": {
             readonly name: string;
@@ -726,6 +802,38 @@ export interface components {
         "Rpg.ModObjects.Meta.Props.RichTextAttribute": components["schemas"]["Rpg.ModObjects.Meta.Props.MetaPropAttribute"];
         "Rpg.ModObjects.Meta.Props.TextAttribute": components["schemas"]["Rpg.ModObjects.Meta.Props.MetaPropAttribute"];
         "Rpg.ModObjects.Meta.Props.ThresholdAttribute": components["schemas"]["Rpg.ModObjects.Meta.Props.IntegerAttribute"];
+        "Rpg.ModObjects.Mods.Mod": {
+            readonly id: string;
+            readonly ownerId?: string | null;
+            readonly name: string;
+            readonly sourcePropRef?: (components["schemas"]["Rpg.ModObjects.Props.PropRef"] | components["schemas"]["Rpg.ModObjects.Props.Prop"] | components["schemas"]["Rpg.ModObjects.Mods.Mod"]) | null;
+            sourceValue: components["schemas"]["Rpg.ModObjects.Values.Dice"];
+            readonly behavior: components["schemas"]["Rpg.ModObjects.Behaviors.Add"] | components["schemas"]["Rpg.ModObjects.Behaviors.Combine"] | components["schemas"]["Rpg.ModObjects.Behaviors.ExpiresOn"] | components["schemas"]["Rpg.ModObjects.Behaviors.Replace"] | components["schemas"]["Rpg.ModObjects.Behaviors.Threshold"];
+            lifecycle: components["schemas"]["Rpg.ModObjects.Lifecycles.ILifecycle"];
+            readonly isBaseInitMod: boolean;
+            readonly isBaseOverrideMod: boolean;
+            readonly isBaseMod: boolean;
+            expiry: components["schemas"]["Rpg.ModObjects.Time.LifecycleExpiry"];
+        } & components["schemas"]["Rpg.ModObjects.Props.PropRef"];
+        /** @enum {string} */
+        "Rpg.ModObjects.Mods.ModScope": "Standard" | "Entity" | "Components" | "Objects";
+        "Rpg.ModObjects.Mods.ModSet": {
+            readonly id: string;
+            readonly ownerId?: string | null;
+            name: string;
+            readonly mods: components["schemas"]["Rpg.ModObjects.Mods.Mod"][];
+            lifecycle: components["schemas"]["Rpg.ModObjects.Lifecycles.ILifecycle"];
+            expiry: components["schemas"]["Rpg.ModObjects.Time.LifecycleExpiry"];
+        };
+        /** @enum {string} */
+        "Rpg.ModObjects.Mods.ModType": "Initial" | "Base" | "Override" | "Standard" | "State" | "ForceState" | "Synced";
+        "Rpg.ModObjects.Props.Prop": {
+            readonly mods: components["schemas"]["Rpg.ModObjects.Mods.Mod"][];
+        } & components["schemas"]["Rpg.ModObjects.Props.PropRef"];
+        "Rpg.ModObjects.Props.PropRef": {
+            entityId: string;
+            prop: string;
+        };
         "Rpg.ModObjects.Reflection.Action.ActionModSet.RpgMethod": {
             readonly className?: string | null;
             methodName: string;
@@ -762,8 +870,12 @@ export interface components {
             readonly contents: string[];
         } & components["schemas"]["Rpg.ModObjects.RpgComponent"];
         "Rpg.ModObjects.RpgEntity": {
-            readonly states: (components["schemas"]["Rpg.Cyborgs.States.Aiming"] | components["schemas"]["Rpg.Cyborgs.States.Exhausted"] | components["schemas"]["Rpg.Cyborgs.States.Firing"] | components["schemas"]["Rpg.Cyborgs.States.MeleeAttacked"] | components["schemas"]["Rpg.Cyborgs.States.MeleeAttacking"] | components["schemas"]["Rpg.Cyborgs.States.Moving"] | components["schemas"]["Rpg.Cyborgs.States.Parrying"] | components["schemas"]["Rpg.Cyborgs.States.VeryFast"] | components["schemas"]["Rpg.ModObjects.States.T.State"])[];
-            readonly actions: (components["schemas"]["Rpg.Cyborgs.Skills.Skill"] | components["schemas"]["Rpg.Cyborgs.Skills.Movement.Run"] | components["schemas"]["Rpg.Cyborgs.Skills.Combat.Aim"] | components["schemas"]["Rpg.Cyborgs.Actions.ArmourCheck"] | components["schemas"]["Rpg.Cyborgs.Actions.MeleeAttack"] | components["schemas"]["Rpg.Cyborgs.Actions.MeleeParry"] | components["schemas"]["Rpg.Cyborgs.Actions.RangedAttack"] | components["schemas"]["Rpg.Cyborgs.Actions.TakeDamage"] | components["schemas"]["Rpg.Cyborgs.Actions.Transfer"] | components["schemas"]["Rpg.ModObjects.Actions.TOwner.Action"])[];
+            states: {
+                [key: string]: (components["schemas"]["Rpg.Cyborgs.States.Aiming"] | components["schemas"]["Rpg.Cyborgs.States.Exhausted"] | components["schemas"]["Rpg.Cyborgs.States.Firing"] | components["schemas"]["Rpg.Cyborgs.States.MeleeAttacked"] | components["schemas"]["Rpg.Cyborgs.States.MeleeAttacking"] | components["schemas"]["Rpg.Cyborgs.States.Moving"] | components["schemas"]["Rpg.Cyborgs.States.Parrying"] | components["schemas"]["Rpg.Cyborgs.States.VeryFast"] | components["schemas"]["Rpg.ModObjects.States.T.State"]) | undefined;
+            };
+            actions: {
+                [key: string]: (components["schemas"]["Rpg.Cyborgs.Skills.Skill"] | components["schemas"]["Rpg.Cyborgs.Skills.Movement.Run"] | components["schemas"]["Rpg.Cyborgs.Skills.Combat.Aim"] | components["schemas"]["Rpg.Cyborgs.Actions.ArmourCheck"] | components["schemas"]["Rpg.Cyborgs.Actions.MeleeAttack"] | components["schemas"]["Rpg.Cyborgs.Actions.MeleeParry"] | components["schemas"]["Rpg.Cyborgs.Actions.RangedAttack"] | components["schemas"]["Rpg.Cyborgs.Actions.TakeDamage"] | components["schemas"]["Rpg.Cyborgs.Actions.Transfer"] | components["schemas"]["Rpg.ModObjects.Actions.TOwner.Action"]) | undefined;
+            };
         } & components["schemas"]["Rpg.ModObjects.RpgObject"];
         "Rpg.ModObjects.RpgGraphState": {
             entities: (components["schemas"]["Rpg.Cyborgs.Actor"] | components["schemas"]["Rpg.Cyborgs.Armour"] | components["schemas"]["Rpg.Cyborgs.MeleeWeapon"] | components["schemas"]["Rpg.Cyborgs.PlayerCharacter"] | components["schemas"]["Rpg.Cyborgs.RangedWeapon"])[];
@@ -771,9 +883,15 @@ export interface components {
             time: components["schemas"]["Rpg.ModObjects.Time.ITimeEngine"];
         };
         "Rpg.ModObjects.RpgObject": {
+            readonly modSets: {
+                [key: string]: (components["schemas"]["Rpg.ModObjects.Mods.ModSet"] | components["schemas"]["Rpg.ModObjects.Actions.ActionModSet"] | components["schemas"]["Rpg.ModObjects.Actions.OutcomeModSet"]) | undefined;
+            };
+            readonly props: {
+                [key: string]: components["schemas"]["Rpg.ModObjects.Props.Prop"] | undefined;
+            };
             readonly id: string;
-            archetype: string;
-            name: string;
+            readonly archetype: string;
+            readonly name: string;
             readonly archetypes: string[];
             expiry: components["schemas"]["Rpg.ModObjects.Time.LifecycleExpiry"];
         };
@@ -827,6 +945,15 @@ export interface components {
             system: string;
             archetype: string;
             name: string;
+        };
+        "RpgOperation`1": {
+            graphState: components["schemas"]["Rpg.ModObjects.RpgGraphState"];
+            operation: components["schemas"]["SetState"];
+        };
+        SetState: {
+            entityId: string;
+            state: string;
+            on: boolean;
         };
     };
     responses: never;

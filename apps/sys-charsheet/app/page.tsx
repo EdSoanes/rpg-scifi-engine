@@ -1,27 +1,81 @@
-import { getPlayerCharacter } from "@/lib/api/fetcher";
-import { PlayerCharacter } from "@/lib/api/types";
+'use client'
 
-export default async function Home() {
-  const graphState = await getPlayerCharacter(
-    "badb499a-b215-45c8-adf1-0f0908f876f6"
-  );
+import { Button, ButtonGroup, Code } from '@chakra-ui/react'
+import { Atom, PrimitiveAtom, useAtom, useAtomValue } from "jotai";
+import { playerCharacterAtom, graphFetchAtom, graphStateAtom, stateAtomsAtom, actionAtomsAtom } from "@/lib/api/fetcher";
+import { Action, State } from '@/lib/api/types';
 
-  console.log("GRAPHSTATE", graphState.data);
-  const pc = !graphState.error
-    ? (graphState.data.entities.find(
-        (x) => x.id == graphState.data.contextId
-      ) as PlayerCharacter)
-    : null;
+const FetchGraphStateButton = () => {
+  const [,fetchGraphState] = useAtom(graphFetchAtom)
 
   return (
     <div>
-      {graphState.error ? (
-        <div>There was an error</div>
-      ) : (
-        <pre>
-          <code>{JSON.stringify(pc, undefined, 2)}</code>
-        </pre>
-      )}
+      <Button colorScheme='teal' variant='outline' onClick={fetchGraphState}>
+        Get Benny
+      </Button>
+    </div>
+  )
+}
+
+const StateButton = (
+  { 
+    stateAtom 
+  } : {
+    stateAtom: Atom<State>
+  }
+) => {
+  const [state, setState] = useAtom(stateAtom)
+  return (
+    <Button colorScheme='green'>
+      {state.name}
+    </Button>
+  )
+}
+
+const ActionButton = (
+  { 
+    actionAtom 
+  } : {
+    actionAtom: Atom<Action>
+  }
+) => {
+  const [action, setAction] = useAtom(actionAtom)
+  return (
+    <Button colorScheme='blue'>
+      {action.name}
+    </Button>
+  )
+}
+
+export default function Home() {
+  const playerCharacter = useAtomValue(playerCharacterAtom)
+  const [stateAtoms, stateDispatch] = useAtom(stateAtomsAtom)
+  const [actionAtoms, actionDispatch] = useAtom(actionAtomsAtom)
+
+  const graphState = useAtomValue(graphStateAtom)
+
+  return (
+    <div>
+      <h1>{playerCharacter?.name ?? 'Nobody'}</h1>
+      <FetchGraphStateButton/>
+      {playerCharacter && (
+        <div>
+          <ButtonGroup gap='4'>
+            {stateAtoms.map((state, i) =>
+              <StateButton key={i} stateAtom={state}/>
+            )}
+          </ButtonGroup>          
+          <ButtonGroup gap='4'>
+            {actionAtoms.map((action, i) =>
+              <ActionButton key={i} actionAtom={action}/>
+            )}
+          </ButtonGroup>
+
+    
+          <Code>
+            {JSON.stringify(graphState, undefined, 2)}
+          </Code>
+        </div>)}
     </div>
   );
 }

@@ -1,12 +1,17 @@
 ﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Rpg.Cms.Extensions;
 using Rpg.Cms.Models;
 using Rpg.Cms.Services;
 using Rpg.Cms.Services.Converter;
 using Rpg.ModObjects;
+using Rpg.ModObjects.Meta;
+using System.Security.AccessControl;
 using Umbraco.Cms.Api.Common.Attributes;
+using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Web.Common;
+using static Umbraco.Cms.Core.Constants;
 
 namespace Rpg.Cms.Controllers
 {
@@ -36,14 +41,13 @@ namespace Rpg.Cms.Controllers
             if (sys == null)
                 return NotFound($"System {system} not found");
 
-            var entityLibraryAlias = sys.GetDocumentTypeAlias("Entity Library");
-
-            var systemRoot = _umbracoHelper.ContentAtRoot().FirstOrDefault(x => x.ContentType.Alias == sys.Identifier);
-            var entityLibrary = systemRoot?.FirstChild(content => content.ContentType.Alias == entityLibraryAlias);
+            var entityLibrary = GetEntityLibrary(sys);
             if (entityLibrary == null)
-                return NotFound($"Could not find entity library {entityLibraryAlias}");
+                return NotFound($"Could not find entity library for system {system}");
 
-            var entities = entityLibrary.Descendants().Where(x => x.ContentType.Alias != entityLibraryAlias);
+            var entities = entityLibrary
+                .Descendants()
+                .Where(x => x.ContentType.Alias != entityLibrary.ContentType.Alias);
 
             var res = entities
                 .Select(x => new RpgContent
@@ -54,13 +58,33 @@ namespace Rpg.Cms.Controllers
                     Archetype = sys.GetArchetype(x.ContentType.Alias),
                 });
 
-            var json = RpgSerializer.Serialize(res);
-            return Content(json, "application/json");
+            return Ok(res);
         }
 
+        [EnableCors]
+        [HttpPost("{system}/{archetype}/{id}/state")]
+        [ProducesResponseType(typeof(RpgGraphState), StatusCodes.Status200OK)]
+        public async Task<IActionResult> StateState(string system, string archetype, string id, [FromBody]RpgOperation<SetState> setStateOperation)
+        {
+            var json = await Request.GetRawBodyStringAsync();
+            var op = RpgSerializer.Deserialize<RpgOperation<SetState>>(json);
+
+            var graph = new RpgGraph(op.GraphState);
+            var entity = graph.GetEntity<RpgEntity>(op.Operation.EntityId)!;
+            var stateChanged = op.Operation.On
+                ? entity.SetStateOn(op.Operation.State)
+                : entity.SetStateOff(op.Operation.State);
+
+            graph.Time.TriggerEvent();
+
+            var graphState = graph.GetGraphState();
+            return Ok(graphState);
+        }
+
+        [EnableCors]
         [HttpGet("{system}/{archetype}/{id}")]
         [ProducesResponseType(typeof(RpgGraphState), StatusCodes.Status200OK)]
-        public IActionResult Entity(string system, string archetype, Guid id)
+        public IActionResult Entity(string system, string archetype, string id)
         {
             var sys = _syncSessionFactory.GetSystem(system);
             if (sys == null)
@@ -70,15 +94,44 @@ namespace Rpg.Cms.Controllers
             if (type == null)
                 return BadRequest($"No .net type found for archetype {archetype} in system {system}");
 
-            var content = _umbracoHelper.Content(id);
-            if (!sys.IsContentForSystem(content))
-                return NotFound($"Entity of archetype {archetype} in system {system} not found");
+            var entityLibrary = GetEntityLibrary(sys);
+            if (entityLibrary == null)
+                return NotFound($"Could not find entity library for system {system}");
 
-            var entity = (_contentConverter.Convert(sys, type, content!) as RpgObject)!;
-            var graph = new RpgGraph(entity);
+            var alias = sys.GetDocumentTypeAlias(archetype);
+            var content = GetEntity(entityLibrary, alias, id);
+            if (content == null)
+                return NotFound($"Could not find entity {id} ({archetype}) for system {system}");
 
-            var graphStateJson = graph.Serialize();
-            return Content(graphStateJson, "application/json");
+            var entity = _contentConverter.Convert(sys, type, content!);
+            var graph = new RpgGraph(entity!);
+
+            var graphState = graph.GetGraphState();
+            return Ok(graphState);
+        }
+
+        private IPublishedContent? GetEntityLibrary(IMetaSystem system)
+        {
+            var entityLibraryAlias = system.GetDocumentTypeAlias("Entity Library");
+
+            var systemRoot = _umbracoHelper
+                .ContentAtRoot()
+                .FirstOrDefault(x => x.ContentType.Alias == system.Identifier);
+
+            var entityLibrary = systemRoot?.FirstChild(content => content.ContentType.Alias == entityLibraryAlias);
+            return entityLibrary;
+        }
+
+        private IPublishedContent? GetEntity(IPublishedContent entityLibrary, string alias, string identifier)
+        {
+            if (Guid.TryParse(identifier, out var key))
+                return _umbracoHelper.Content(key);
+
+            var entity = entityLibrary
+                .Descendants()
+                .FirstOrDefault(x => x.ContentType.Alias == alias);
+
+            return entity;
         }
     }
 }
