@@ -49,7 +49,7 @@ namespace Rpg.Cyborgs.Actions
 
             //If successful parry...
             if (diceRoll >= target)
-                damageSet.Outcome(owner, x => -x.Strength);
+                damageSet.Outcome(owner, x => -x.Strength.Value);
 
             return [parrying];
         }

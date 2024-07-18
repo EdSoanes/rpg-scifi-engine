@@ -19,18 +19,9 @@ builder.CreateUmbracoBuilder()
     .AddComposers()
     .Build();
 
-builder.Services
-    .AddCors(options =>
-        options.AddDefaultPolicy(
-            policy =>
-            {
-                policy
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowAnyOrigin();
-            }))
-    .Configure<UmbracoPipelineOptions>(options =>
-        options.AddFilter(new UmbracoPipelineFilter("Cors", postRouting: app => app.UseCors())));
+//builder.Services
+//    .AddCors(options => options.AddPolicy("any-origin", policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()))
+//    .Configure<UmbracoPipelineOptions>(options => options.AddFilter(new UmbracoPipelineFilter("Cors", postRouting: app => app.UseCors())));
 
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
@@ -86,6 +77,7 @@ app.UseUmbraco()
     {
         u.UseBackOfficeEndpoints();
         u.UseWebsiteEndpoints();
+        
     });
 
 await app.RunAsync();

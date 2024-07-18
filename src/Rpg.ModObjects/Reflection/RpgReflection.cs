@@ -191,6 +191,9 @@ namespace Rpg.ModObjects.Reflection
             if (propertyInfo.PropertyType == typeof(string))
                 return false;
 
+            if (propertyInfo.SetMethod == null)
+                return false;
+
             return propertyInfo.GetMethod != null
                 && (propertyInfo.GetMethod.IsPublic || propertyInfo.GetMethod.IsFamily);
         }

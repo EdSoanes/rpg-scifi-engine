@@ -112,9 +112,6 @@ namespace Rpg.ModObjects.Meta
             tab = (!string.IsNullOrEmpty(propUI.Tab) ? propUI.Tab : tab) ?? string.Empty;
             group = (!string.IsNullOrEmpty(propUI.Group) ? propUI.Group : group) ?? string.Empty;
 
-            var metaProp = new MetaProp(propInfo, propUI, propStack, tab, group);
-            metaProps.Add(metaProp);
-
             if (propUI is ComponentAttribute)
             {
                 propStack.Push(propInfo.Name);
@@ -123,6 +120,11 @@ namespace Rpg.ModObjects.Meta
                     Prop(metaProps, propStack, childPropInfo, tab, group);
 
                 propStack.Pop();
+            }
+            else
+            {
+                var metaProp = new MetaProp(propInfo, propUI, propStack, tab, group);
+                metaProps.Add(metaProp);
             }
         }
 

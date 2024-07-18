@@ -23,12 +23,12 @@ namespace Rpg.Cyborgs.Tests
             var graph = new RpgGraph(pc);
 
             Assert.That(pc.Name, Is.EqualTo("Benny"));
-            Assert.That(pc.Strength, Is.EqualTo(-1));
-            Assert.That(pc.Agility, Is.EqualTo(0));
-            Assert.That(pc.Health, Is.EqualTo(1));
-            Assert.That(pc.Brains, Is.EqualTo(1));
-            Assert.That(pc.Insight, Is.EqualTo(0));
-            Assert.That(pc.Charisma, Is.EqualTo(1));
+            Assert.That(pc.Strength.Value, Is.EqualTo(-1));
+            Assert.That(pc.Agility.Value, Is.EqualTo(0));
+            Assert.That(pc.Health.Value, Is.EqualTo(1));
+            Assert.That(pc.Brains.Value, Is.EqualTo(1));
+            Assert.That(pc.Insight.Value, Is.EqualTo(0));
+            Assert.That(pc.Charisma.Value, Is.EqualTo(1));
 
             Assert.That(pc.StaminaPoints, Is.EqualTo(14));
             Assert.That(pc.LifePoints, Is.EqualTo(5));

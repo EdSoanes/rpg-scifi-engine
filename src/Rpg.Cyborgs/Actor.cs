@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.Cyborgs.Components;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Mods;
@@ -9,28 +10,28 @@ namespace Rpg.Cyborgs
     public abstract class Actor : RpgEntity
     {
         [JsonProperty]
-        [Integer(Group = "Stats")]
-        public int Strength { get; protected set; }
+        [Component(Group = "Stats")]
+        public PropValue Strength { get; protected set; }
 
         [JsonProperty]
-        [Integer(Group = "Stats")]
-        public int Agility { get; protected set; }
+        [Component(Group = "Stats")]
+        public PropValue Agility { get; protected set; }
 
         [JsonProperty]
-        [Integer(Group = "Stats")]
-        public int Health { get; protected set; }
+        [Component(Group = "Stats")]
+        public PropValue Health { get; protected set; }
 
         [JsonProperty]
-        [Integer(Group = "Stats")]
-        public int Brains { get; protected set; }
+        [Component(Group = "Stats")]
+        public PropValue Brains { get; protected set; }
 
         [JsonProperty]
-        [Integer(Group = "Stats")]
-        public int Insight { get; protected set; }
+        [Component(Group = "Stats")]
+        public PropValue Insight { get; protected set; }
 
         [JsonProperty]
-        [Integer(Group = "Stats")]
-        public int Charisma { get; protected set; }
+        [Component(Group = "Stats")]
+        public PropValue Charisma { get; protected set; }
 
         [JsonProperty]
         [Threshold(Min = 1, Ignore = true)]
@@ -136,6 +137,13 @@ namespace Rpg.Cyborgs
 
         [JsonConstructor] protected Actor()
         {
+            Strength = new PropValue(Id, nameof(Strength));
+            Agility = new PropValue(Id, nameof(Agility));
+            Health = new PropValue(Id, nameof(Health));
+            Brains = new PropValue(Id, nameof(Brains));
+            Insight = new PropValue(Id, nameof(Insight));
+            Charisma = new PropValue(Id, nameof(Charisma));
+
             Hands ??= new RpgContainer(Id, nameof(Hands));
             Wearing ??= new RpgContainer(Id, nameof(Wearing));
 
@@ -155,27 +163,27 @@ namespace Rpg.Cyborgs
 
         protected override void OnLifecycleStarting()
         {
-            this.BaseMod(x => x.StaminaPoints, x => x.Health, () => CalculateStamina);
+            this.BaseMod(x => x.StaminaPoints, x => x.Health.Value, () => CalculateStamina);
             this.BaseMod(x => x.CurrentStaminaPoints, x => x.StaminaPoints);
 
-            this.BaseMod(x => x.LifePoints, x => x.Strength);
+            this.BaseMod(x => x.LifePoints, x => x.Strength.Value);
             this.BaseMod(x => x.CurrentLifePoints, x => x.LifePoints);
 
-            this.BaseMod(x => x.FocusPoints, x => x.Agility);
-            this.BaseMod(x => x.FocusPoints, x => x.Brains);
-            this.BaseMod(x => x.FocusPoints, x => x.Insight);
+            this.BaseMod(x => x.FocusPoints, x => x.Agility.Value);
+            this.BaseMod(x => x.FocusPoints, x => x.Brains.Value);
+            this.BaseMod(x => x.FocusPoints, x => x.Insight.Value);
             this.BaseMod(x => x.CurrentFocusPoints, x => x.FocusPoints);
 
-            this.BaseMod(x => x.Defence, x => x.Agility);
-            this.BaseMod(x => x.Reactions, x => x.Agility);
-            this.BaseMod(x => x.Reactions, x => x.Insight);
+            this.BaseMod(x => x.Defence, x => x.Agility.Value);
+            this.BaseMod(x => x.Reactions, x => x.Agility.Value);
+            this.BaseMod(x => x.Reactions, x => x.Insight.Value);
 
-            this.BaseMod(x => x.LuckPoints, x => x.Charisma);
+            this.BaseMod(x => x.LuckPoints, x => x.Charisma.Value);
             this.BaseMod(x => x.CurrentLuckPoints, x => x.LuckPoints);
 
             this.BaseMod(x => x.ParryDamageReduction, x => x.Strength);
-            this.BaseMod(x => x.RangedAttack, x => x.Agility);
-            this.BaseMod(x => x.MeleeAttack, x => x.Strength);
+            this.BaseMod(x => x.RangedAttack, x => x.Agility.Value);
+            this.BaseMod(x => x.MeleeAttack, x => x.Strength.Value);
 
             this.BaseMod(x => x.CurrentActionPoints, x => x.ActionPoints);
         }

@@ -1,17 +1,18 @@
-﻿using Rpg.ModObjects.Mods;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Props
 {
     public class PropDescription
     {
-        public RpgObject RootEntity { get; set; }
-        public RpgObject Entity { get; private set; }
+        [JsonIgnore] public RpgObject RootEntity { get; set; }
+        [JsonIgnore] public RpgObject Entity { get; private set; }
         public string Prop { get; private set; }
         public string Path { get; private set; }
 
-        public Dice InitialValue { get; private set; }
-        public Dice BaseValue { get; private set; }
+        [JsonIgnore] public Dice InitialValue { get; private set; }
+        [JsonIgnore] public Dice BaseValue { get; private set; }
         public Dice Value { get; private set; }
 
         public PropDescription(RpgGraph graph, RpgObject rootEntity, PropRef propRef)
@@ -21,8 +22,8 @@ namespace Rpg.ModObjects.Props
             Path = string.Join('.', rootEntity.PathTo(Entity));
             Prop = propRef.Prop;
 
-            InitialValue = graph.GetInitialPropValue(Entity, propRef.Prop) ?? Dice.Zero;
-            BaseValue = graph.GetBasePropValue(Entity, propRef.Prop) ?? Dice.Zero;
+            InitialValue = graph.CalculateInitialPropValue(Entity, propRef.Prop) ?? Dice.Zero;
+            BaseValue = graph.CalculateBasePropValue(Entity, propRef.Prop) ?? Dice.Zero;
             Value = graph.GetPropValue(Entity, propRef.Prop);
         }
 
@@ -59,7 +60,7 @@ namespace Rpg.ModObjects.Props
 
     public class ModDescription
     {
-        public PropDescription TargetProp { get; private set; }
+        [JsonIgnore] public PropDescription TargetProp { get; private set; }
         public PropDescription? SourceProp { get; private set; }
         public ModType ModType { get; private set; }
         public Dice SourceValue { get; private set; }
@@ -71,7 +72,7 @@ namespace Rpg.ModObjects.Props
         {
             TargetProp = targetProp;
             ModType = ModType.Override;
-            Value = graph.GetBasePropValue(TargetProp.Entity, TargetProp.Prop) ?? Dice.Zero;
+            Value = graph.CalculateBasePropValue(TargetProp.Entity, TargetProp.Prop) ?? Dice.Zero;
 
             Mods = baseMods
                 .Where(x => !x.IsBaseMod)

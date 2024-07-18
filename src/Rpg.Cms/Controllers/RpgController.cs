@@ -7,11 +7,10 @@ using Rpg.Cms.Services;
 using Rpg.Cms.Services.Converter;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta;
-using System.Security.AccessControl;
+using Rpg.ModObjects.Props;
 using Umbraco.Cms.Api.Common.Attributes;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Web.Common;
-using static Umbraco.Cms.Core.Constants;
 
 namespace Rpg.Cms.Controllers
 {
@@ -61,19 +60,17 @@ namespace Rpg.Cms.Controllers
             return Ok(res);
         }
 
-        [EnableCors]
-        [HttpPost("{system}/{archetype}/{id}/state")]
-        [ProducesResponseType(typeof(RpgGraphState), StatusCodes.Status200OK)]
-        public async Task<IActionResult> StateState(string system, string archetype, string id, [FromBody]RpgOperation<SetState> setStateOperation)
-        {
-            var json = await Request.GetRawBodyStringAsync();
-            var op = RpgSerializer.Deserialize<RpgOperation<SetState>>(json);
 
-            var graph = new RpgGraph(op.GraphState);
-            var entity = graph.GetEntity<RpgEntity>(op.Operation.EntityId)!;
-            var stateChanged = op.Operation.On
-                ? entity.SetStateOn(op.Operation.State)
-                : entity.SetStateOff(op.Operation.State);
+        //[EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
+        [HttpPost("{system}/state")]
+        [ProducesResponseType(typeof(RpgGraphState), StatusCodes.Status200OK)]
+        public IActionResult StateState(string system, RpgOperation<SetState> setStateOperation)
+        {
+            var graph = new RpgGraph(setStateOperation.GraphState);
+            var entity = graph.GetEntity<RpgEntity>(setStateOperation.Operation.EntityId)!;
+            var stateChanged = setStateOperation.Operation.On
+                ? entity.SetStateOn(setStateOperation.Operation.State)
+                : entity.SetStateOff(setStateOperation.Operation.State);
 
             graph.Time.TriggerEvent();
 
@@ -81,7 +78,23 @@ namespace Rpg.Cms.Controllers
             return Ok(graphState);
         }
 
-        [EnableCors]
+        [HttpPost("{system}/describe")]
+        [ProducesResponseType(typeof(ModObjectPropDescription), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult Describe(string system, RpgOperation<Describe> describeOperation)
+        {
+            var graph = new RpgGraph(describeOperation.GraphState);
+            graph.Time.TriggerEvent();
+
+            var entity = graph.GetEntity<RpgEntity>(describeOperation.Operation.EntityId)!;
+
+            var description = entity?.Describe(describeOperation.Operation.Prop);
+            if (description == null)
+                return BadRequest($"Desription for {describeOperation.Operation.EntityId}.{describeOperation.Operation.Prop} not found");
+
+            return Ok(description);
+        }
+
         [HttpGet("{system}/{archetype}/{id}")]
         [ProducesResponseType(typeof(RpgGraphState), StatusCodes.Status200OK)]
         public IActionResult Entity(string system, string archetype, string id)
@@ -107,7 +120,9 @@ namespace Rpg.Cms.Controllers
             var graph = new RpgGraph(entity!);
 
             var graphState = graph.GetGraphState();
-            return Ok(graphState);
+
+            var json = RpgSerializer.Serialize(graphState);
+            return Content(json, "application/json");
         }
 
         private IPublishedContent? GetEntityLibrary(IMetaSystem system)

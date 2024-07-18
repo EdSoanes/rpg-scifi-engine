@@ -237,7 +237,7 @@ namespace Rpg.ModObjects
         public bool IsA(string type) 
             => Archetypes.Contains(type);
 
-        internal ModObjectPropDescription Describe(string prop)
+        public ModObjectPropDescription Describe(string prop)
             => new ModObjectPropDescription(Graph!, this, prop);
 
         protected virtual void OnLifecycleStarting() { }

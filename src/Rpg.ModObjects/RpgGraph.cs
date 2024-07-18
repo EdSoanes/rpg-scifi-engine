@@ -330,19 +330,11 @@ namespace Rpg.ModObjects
             return ApplyThreshold(mods, dice);
         }
 
-        private Dice ApplyThreshold(Mod[] mods, Dice dice)
-        {
-            var threshold = mods.FirstOrDefault(x => x.Behavior is Threshold)?.Behavior as Threshold;
-            if (threshold != null && dice.IsConstant)
-            {
-                if (dice.Roll() < threshold.Min)
-                    dice = threshold.Min;
-                else if (dice.Roll() > threshold.Max)
-                    dice = threshold.Max;
-            }
+        public Dice? CalculateInitialPropValue(RpgObject? entity, string prop)
+            => CalculatePropValue(entity, prop, mod => mod.IsBaseInitMod);
 
-            return dice;
-        }
+        public Dice? CalculateBasePropValue(RpgObject? entity, string prop)
+            => CalculatePropValue(entity, prop, mod => mod.IsBaseMod || mod.IsBaseInitMod);
 
         public Dice CalculateModValue(Mod? mod)
         {
@@ -355,6 +347,20 @@ namespace Rpg.ModObjects
                 value = mod.SourceValueFunc.Execute(this, value);
 
             return value;
+        }
+
+        private Dice ApplyThreshold(Mod[] mods, Dice dice)
+        {
+            var threshold = mods.FirstOrDefault(x => x.Behavior is Threshold)?.Behavior as Threshold;
+            if (threshold != null && dice.IsConstant)
+            {
+                if (dice.Roll() < threshold.Min)
+                    dice = threshold.Min;
+                else if (dice.Roll() > threshold.Max)
+                    dice = threshold.Max;
+            }
+
+            return dice;
         }
 
         public Dice GetPropValue(RpgObject? entity, string? prop)
@@ -406,12 +412,6 @@ namespace Rpg.ModObjects
             if (oldValue == null || oldValue != newValue)
                 entity.PropertyValue(prop, newValue);
         }
-
-        public Dice? GetInitialPropValue(RpgObject? entity, string prop)
-            => CalculatePropValue(entity, prop, mod => mod.IsBaseInitMod);
-
-        public Dice? GetBasePropValue(RpgObject? entity, string prop)
-            => CalculatePropValue(entity, prop, mod => mod.IsBaseMod);
 
         private void UpdateProps()
         {
