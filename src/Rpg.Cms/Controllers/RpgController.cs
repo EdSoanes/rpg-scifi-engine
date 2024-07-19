@@ -78,22 +78,31 @@ namespace Rpg.Cms.Controllers
             return Ok(graphState);
         }
 
-        //[HttpPost("{system}/describe")]
-        //[ProducesResponseType(typeof(ModObjectPropDescription), StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //public IActionResult Describe(string system, RpgOperation<Describe> describeOperation)
-        //{
-        //    var graph = new RpgGraph(describeOperation.GraphState);
-        //    graph.Time.TriggerEvent();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// POST {system}/describe
+        /// </remarks>
+        /// <param name="system"></param>
+        /// <param name="describeOperation"></param>
+        /// <returns></returns>
+        [HttpPost("{system}/describe")]
+        [ProducesResponseType(typeof(PropDesc), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult Describe(string system, RpgOperation<Describe> describeOperation)
+        {
+            var graph = new RpgGraph(describeOperation.GraphState);
+            graph.Time.TriggerEvent();
 
-        //    var entity = graph.GetObject<RpgEntity>(describeOperation.Operation.EntityId)!;
+            var entity = graph.GetObject<RpgEntity>(describeOperation.Operation.EntityId)!;
 
-        //    var description = entity?.Describe(describeOperation.Operation.Prop);
-        //    if (description == null)
-        //        return BadRequest($"Desription for {describeOperation.Operation.EntityId}.{describeOperation.Operation.Prop} not found");
+            var description = entity.Describe(graph, describeOperation.Operation.Prop);
+            if (description == null)
+                return BadRequest($"Desription for {describeOperation.Operation.EntityId}.{describeOperation.Operation.Prop} not found");
 
-        //    return Ok(description);
-        //}
+            return Ok(description);
+        }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
         [HttpGet("{system}/{archetype}/{id}")]

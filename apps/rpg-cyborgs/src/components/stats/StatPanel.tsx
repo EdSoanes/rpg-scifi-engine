@@ -22,7 +22,7 @@ function StatPanel(props: StatPanelProps) {
   const dec = !eq && (propValue?.value ?? 0) < (propValue?.baseValue ?? 0)
 
   return (
-    <Stat m={4} p={4} border="1px" borderRadius={4}>
+    <Stat m={4} p={4} border="1px" borderRadius={4} borderColor={'lightgray'}>
       <StatLabel>{props.propNameAbbr}</StatLabel>
       <StatNumber>{propValue?.value ?? 0}</StatNumber>
       <StatHelpText>

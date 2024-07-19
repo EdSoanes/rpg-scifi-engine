@@ -1,11 +1,11 @@
 'use client'
 
 import { atom } from 'jotai'
-import { playerCharacterAtom } from '../../lib/rpg-api/fetcher'
 import { StatGroup } from '@chakra-ui/react'
 import React from 'react'
 import { PropValue } from '../../lib/rpg-api/types'
 import StatPanel from './StatPanel'
+import { playerCharacterAtom } from '../atoms/playerCharacter.atom'
 
 const strengthAtom = atom<PropValue | null>(
   (get) => get(playerCharacterAtom)?.strength ?? null

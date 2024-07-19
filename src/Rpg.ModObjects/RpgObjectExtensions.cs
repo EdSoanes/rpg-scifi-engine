@@ -2,12 +2,9 @@
 using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.States;
-using Rpg.ModObjects.Time.Lifecycles;
 using Rpg.ModObjects.Values;
-using System.Linq.Expressions;
 
 namespace Rpg.ModObjects
 {
@@ -19,12 +16,12 @@ namespace Rpg.ModObjects
         public static string NewId(this object obj)
             => $"{obj.GetType().Name}[{Nanoid.Generate(Alphabet, Size)}]";
 
-        public static ModObjectPropDescription Describe<TEntity, T1>(this TEntity entity, Expression<Func<TEntity, T1>> targetExpr)
-            where TEntity : RpgObject
-        {
-            var propRef = PropRef.CreatePropRef(entity, targetExpr);
-            return entity.Describe(propRef.Prop);
-        }
+        //public static ModObjectPropDescription Describe<TEntity, T1>(this TEntity entity, Expression<Func<TEntity, T1>> targetExpr)
+        //    where TEntity : RpgObject
+        //{
+        //    var propRef = PropRef.CreatePropRef(entity, targetExpr);
+        //    return entity.Describe(propRef.Prop);
+        //}
 
         public static T AddModSet<T>(this T entity, string name, System.Action<ModSet> addAction)
             where T : RpgObject

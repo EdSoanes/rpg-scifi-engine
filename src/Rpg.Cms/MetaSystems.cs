@@ -1,5 +1,4 @@
 ﻿using Rpg.ModObjects.Meta;
-using Umbraco.Cms.Core.Persistence;
 
 namespace Rpg.Cms
 {
@@ -15,7 +14,7 @@ namespace Rpg.Cms
                 if (type.Namespace == null)
                     return false;
 
-                var nspcs = Get().Where(x => x?.Namespaces != null).SelectMany(x => x.Namespaces!);
+                var nspcs = GetNamespaces();
                 foreach (var nspc in nspcs)
                 {
                     if (type.Namespace.StartsWith(nspc))
@@ -35,14 +34,14 @@ namespace Rpg.Cms
                 if (!string.IsNullOrEmpty(type.Namespace))
                     parts.Add(type.Namespace);
 
+                parts.Add(type.Name.Split('`').First());
                 if (type.IsGenericType)
                 {
                     foreach (var genType in type.GetGenericArguments())
                         parts.Add(genType.Name);
                 }
-                parts.Add(type.Name);
 
-                return string.Join('.', parts).Split('`').First();
+                return string.Join('.', parts);
             }
         }
 
@@ -71,6 +70,20 @@ namespace Rpg.Cms
         {
             lock (_lock)
                 return Get().FirstOrDefault(x => x.Objects.Any(o => o.QualifiedClassName == qualifiedClassName));
+        }
+
+        public static string[] GetNamespaces()
+        {
+            lock( _lock)
+            {
+                var nspcs = Get()
+                    .Where(x => x?.Namespaces != null)
+                    .SelectMany(x => x.Namespaces!)
+                    .ToList();
+                nspcs.Add(typeof(MetaSystems).Namespace!);
+
+                return nspcs.ToArray();
+            }
         }
     }
 }

@@ -15,6 +15,16 @@ namespace Rpg.ModObjects.Props
         [JsonIgnore] public Dice BaseValue { get; private set; }
         public Dice Value { get; private set; }
 
+        public ModDescription[] Mods { get; private set; } = new ModDescription[0];
+
+        public PropDescription(RpgGraph graph, RpgObject rootEntity, string prop)
+            : this(graph, rootEntity, new PropRef(rootEntity.Id, prop))
+        {
+            Mods = graph.GetActiveMods(Entity, prop)
+                .Select(x => new ModDescription(graph, rootEntity, x))
+                .ToArray();
+        }
+
         public PropDescription(RpgGraph graph, RpgObject rootEntity, PropRef propRef)
         {
             RootEntity = rootEntity;
@@ -42,19 +52,6 @@ namespace Rpg.ModObjects.Props
 
         public override string ToString()
             => $"{PropertyString()} = {Value}";
-    }
-
-    public class ModObjectPropDescription : PropDescription
-    {
-        public ModDescription[] Mods { get; private set; } = new ModDescription[0];
-
-        public ModObjectPropDescription(RpgGraph graph, RpgObject rootEntity, string prop)
-            : base(graph, rootEntity, new PropRef(rootEntity.Id, prop))
-        {
-            Mods = graph.GetActiveMods(Entity, prop)
-                .Select(x => new ModDescription(graph, rootEntity, x))
-                .ToArray();
-        }
     }
 
 

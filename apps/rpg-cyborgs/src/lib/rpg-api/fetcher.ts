@@ -1,67 +1,28 @@
-import createClient from 'openapi-fetch'
-
-import { paths } from './rpgtypes'
-import { PlayerCharacter, RpgGraphState, State, Action } from './types'
-import { atom } from 'jotai'
-import { splitAtom } from 'jotai/utils'
-
-export const playerCharacterAtom = atom<PlayerCharacter | null>((get) => {
-  const graphState = get(graphStateAtom)
-  return graphState?.entities.find(
-    (x) => x.id === graphState.contextId
-  ) as PlayerCharacter
-})
-
-const statesAtom = atom<State[]>((get) => {
-  const dict = get(playerCharacterAtom)?.states ?? {}
-  return Object.entries(dict).map((pair) => pair[1] as State)
-})
-
-const actionsAtom = atom<Action[]>((get) => {
-  const dict = get(playerCharacterAtom)?.actions ?? {}
-  const actions = Object.entries(dict).map((pair) => pair[1] as Action)
-
-  return actions
-})
-
-export const stateAtomsAtom = splitAtom(statesAtom)
-export const actionAtomsAtom = splitAtom(actionsAtom)
-export const graphStateAtom = atom<RpgGraphState | null>(null)
-
-export const graphFetchAtom = atom(null, async (get, set) => {
-  const graphState = await getGraphState('Benny')
-  set(graphStateAtom, graphState)
-})
-
-// const client = createClient<paths>({
-//   baseUrl: '',
-//   headers: {
-//     Accept: 'application/json',
-//     'Content-Type': 'application/json',
-//   },
-//   mode: 'cors',
-// })
-
-const client = createClient<paths>({
-  baseUrl: 'https://localhost:44349',
-  mode: 'cors',
-  headers: { Accept: 'application/json; charset=utf-8' },
-})
+import { Describe, PropDesc, RpgGraphState, SetState } from './types'
 
 export const getGraphState = async (
   id: string
 ): Promise<RpgGraphState | null> => {
-  const response = await client.GET('/api/v1/rpg/{system}/{archetype}/{id}', {
-    params: {
-      path: {
-        system: process.env.RPG_SYSTEM ?? 'Cyborgs',
-        archetype: process.env.RPG_PC_ARCHETYPE ?? 'PlayerCharacter',
-        id: id,
-      },
-    },
-  })
+  const response = await get(`Cyborgs/PlayerCharacter/${id}`)
 
-  return !response.error ? response.data : null
+  return (await response.json()) as RpgGraphState
+}
+
+export const getPropDesc = async (
+  entityId: string,
+  prop: string,
+  graphState: RpgGraphState
+): Promise<PropDesc | null> => {
+  const describe: Describe = {
+    graphState: graphState,
+    operation: {
+      entityId: entityId,
+      prop: prop,
+    },
+  }
+
+  const response = await post('Cyborgs/describe', describe)
+  return (await response.json()) as PropDesc
 }
 
 export const postSetState = async (
@@ -70,24 +31,40 @@ export const postSetState = async (
   on: boolean,
   graphState: RpgGraphState
 ): Promise<RpgGraphState | null> => {
-  const response = await fetch(
-    `https://localhost:44349/api/v1/rpg/Cyborgs/state`,
-    {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json; charset=utf-8',
-        'Content-Type': 'application/json; charset=utf-8',
-      },
-      body: JSON.stringify({
-        graphState: graphState!,
-        operation: {
-          entityId: entityId,
-          state: stateName,
-          on: on,
-        },
-      }),
-    }
-  )
+  const setState: SetState = {
+    graphState: graphState!,
+    operation: {
+      entityId: entityId,
+      state: stateName,
+      on: on,
+    },
+  }
 
+  const response = await post('Cyborgs/state', setState)
   return (await response.json()) as RpgGraphState
+}
+
+const get = async (path: string) => {
+  const response = await fetch(`https://localhost:44349/api/v1/rpg/${path}`, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json; charset=utf-8',
+      'Content-Type': 'application/json; charset=utf-8',
+    },
+  })
+
+  return response
+}
+
+const post = async (path: string, body?: unknown) => {
+  const response = await fetch(`https://localhost:44349/api/v1/rpg/${path}`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json; charset=utf-8',
+      'Content-Type': 'application/json; charset=utf-8',
+    },
+    body: body ? JSON.stringify(body) : null,
+  })
+
+  return response
 }

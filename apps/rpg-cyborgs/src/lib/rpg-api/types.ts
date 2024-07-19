@@ -6,8 +6,8 @@ export type RpgGraphState = Pick<
 >
 
 export type RpgContent = Pick<
-  components['schemas']['RpgContent'],
-  keyof components['schemas']['RpgContent']
+  components['schemas']['Rpg.Cms.Models.RpgContent'],
+  keyof components['schemas']['Rpg.Cms.Models.RpgContent']
 >
 
 export type PlayerCharacter = Pick<
@@ -25,9 +25,19 @@ export type Action = Pick<
   keyof components['schemas']['Rpg.ModObjects.Actions.Action']
 >
 
-export type SetStateOperation = Pick<
-  components['schemas']['RpgOperation`1'],
-  keyof components['schemas']['RpgOperation`1']
+export type SetState = Pick<
+  components['schemas']['Rpg.Cms.Models.RpgOperation.SetState'],
+  keyof components['schemas']['Rpg.Cms.Models.RpgOperation.SetState']
+>
+
+export type Describe = Pick<
+  components['schemas']['Rpg.Cms.Models.RpgOperation.Describe'],
+  keyof components['schemas']['Rpg.Cms.Models.RpgOperation.Describe']
+>
+
+export type PropDesc = Pick<
+  components['schemas']['Rpg.ModObjects.Props.PropDesc'],
+  keyof components['schemas']['Rpg.ModObjects.Props.PropDesc']
 >
 
 export type PropValue = Pick<

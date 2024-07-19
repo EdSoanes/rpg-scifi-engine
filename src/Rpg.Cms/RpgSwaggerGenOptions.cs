@@ -2,6 +2,7 @@
 using Microsoft.OpenApi.Models;
 using Rpg.ModObjects.Reflection;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Reflection;
 using Umbraco.Cms.Api.Common.OpenApi;
 using Umbraco.Cms.Api.Management.OpenApi;
 
@@ -27,6 +28,8 @@ namespace Rpg.Cms
     {
         public void Configure(SwaggerGenOptions options)
         {
+            var xmlDoc = Path.ChangeExtension(Assembly.GetExecutingAssembly().Location, "xml");
+            options.IncludeXmlComments(xmlDoc, true);
             options.SwaggerDoc("rpg", new OpenApiInfo { Title = "Rpg API v1", Version = "1.0" });
             options.OperationFilter<RpgBackOfficeSecurityRequirementsOperationFilter>();
             options.SelectSubTypesUsing(baseType =>

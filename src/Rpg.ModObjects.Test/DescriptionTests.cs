@@ -1,4 +1,5 @@
 ﻿using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Tests.Models;
 using System.Reflection;
@@ -19,10 +20,12 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new RpgGraph(entity);
 
-            var desc = entity.Describe(x => x.Melee);
+            var desc = entity.Describe(graph, "Melee");
             Assert.IsNotNull(desc);
 
-            Assert.That(desc.Entity, Is.SameAs(entity));
+            Assert.That(desc.EntityId, Is.EqualTo(entity.Id));
+            Assert.That(desc.EntityArchetype, Is.EqualTo(entity.Archetype));
+            Assert.That(desc.EntityName, Is.EqualTo(entity.Name));
             Assert.That(desc.Prop, Is.EqualTo("Melee"));
             Assert.That(desc.Value.Roll(), Is.EqualTo(4));
             Assert.That(desc.Mods.Count(), Is.EqualTo(2));
@@ -38,12 +41,12 @@ namespace Rpg.ModObjects.Tests
             var baseMod = baseMods.First();
             Assert.That(baseMod.SourceProp!.Prop, Is.EqualTo("Bonus"));
             Assert.That(baseMod.SourceProp!.Value.Roll(), Is.EqualTo(2));
-            Assert.That(baseMod.Mods.Count(), Is.EqualTo(2));
+            Assert.That(baseMod.SourceProp!.Mods.Count(), Is.EqualTo(2));
 
-            var scoreMod = baseMod.Mods.FirstOrDefault(x => x.SourceProp?.Prop == "Score");
+            var scoreMod = baseMod.SourceProp!.Mods.FirstOrDefault(x => x.SourceProp?.Prop == "Score");
             Assert.That(scoreMod.SourceProp!.Prop, Is.EqualTo("Score"));
             Assert.That(scoreMod.Value.Roll(), Is.EqualTo(2));
-            Assert.That(scoreMod.SourceValue.Roll(), Is.EqualTo(14));
+            Assert.That(scoreMod.SourceProp.Value.Roll(), Is.EqualTo(14));
 
         }
     }

@@ -241,8 +241,8 @@ namespace Rpg.ModObjects
         public bool IsA(string type) 
             => Archetypes.Contains(type);
 
-        public ModObjectPropDescription Describe(string prop)
-            => new ModObjectPropDescription(Graph!, this, prop);
+        //public ModObjectPropDescription Describe(string prop)
+        //    => new ModObjectPropDescription(Graph!, this, prop);
 
         protected virtual void OnLifecycleStarting() { }
         public virtual void OnUpdating(RpgGraph graph, TimePoint time) { }
