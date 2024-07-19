@@ -8,7 +8,7 @@ namespace Rpg.ModObjects.Reflection
     public class RpgArgSet
     {
         [JsonProperty] public RpgArg[] Args { get; private set; }
-        [JsonProperty] private Dictionary<string, object?> ArgValues { get; set; } = new Dictionary<string, object?>();
+        [JsonProperty] public Dictionary<string, object?> ArgValues { get; private set; } = new();
 
         public object? this[string key]
         {
