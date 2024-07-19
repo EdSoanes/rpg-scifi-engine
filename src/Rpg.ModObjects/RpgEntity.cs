@@ -124,6 +124,10 @@ namespace Rpg.ModObjects
         public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
         {
             base.OnBeforeTime(graph, entity);
+
+            foreach (var component in this.Traverse<RpgComponent, RpgEntity>())
+                component.SetEntityPropRef(Id, this.PathTo(component));
+
             foreach (var state in States.Values)
                 state.OnAdding(graph);
 

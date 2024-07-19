@@ -1,10 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects;
-using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Values;
-using Rpg.Sys.Attributes;
 
 namespace Rpg.Sys.Components.Values
 {
@@ -19,8 +17,8 @@ namespace Rpg.Sys.Components.Values
 
         [JsonConstructor] private ScoreBonusValue() { }
 
-        public ScoreBonusValue(string entityId, string name, int score) 
-            : base(entityId, name)
+        public ScoreBonusValue(string name, int score) 
+            : base(name)
         {
             Score = score;
         }

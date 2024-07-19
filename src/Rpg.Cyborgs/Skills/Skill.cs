@@ -14,14 +14,14 @@ namespace Rpg.Cyborgs.Skills
         {
             get
             {
-                var actor = Graph.GetEntity<Actor>(OwnerId)!;
+                var actor = Graph.GetObject<Actor>(OwnerId)!;
                 var rating = Graph.CalculatePropValue(new PropRef(OwnerId!, RatingProp)) ?? Dice.Zero;
 
                 return rating.Roll();
             }
             set
             {
-                var actor = Graph.GetEntity<Actor>(OwnerId)!;
+                var actor = Graph.GetObject<Actor>(OwnerId)!;
                 actor.InitMod(RatingProp, value);
             }
         }

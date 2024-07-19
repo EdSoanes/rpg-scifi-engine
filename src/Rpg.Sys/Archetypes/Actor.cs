@@ -26,9 +26,9 @@ namespace Rpg.Sys.Archetypes
         public Actor(ActorTemplate template)
             : base(template)
         {
-            Movement = new Movement(Id, nameof(Movement), template.Movement);
-            Actions = new ActionPoints(Id, nameof(Actions), template.Actions);
-            Stats = new StatPoints(Id, nameof(Stats), template.Stats);
+            Movement = new Movement(nameof(Movement), template.Movement);
+            Actions = new ActionPoints(nameof(Actions), template.Actions);
+            Stats = new StatPoints(nameof(Stats), template.Stats);
         }
 
         public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)

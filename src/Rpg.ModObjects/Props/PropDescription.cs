@@ -18,7 +18,7 @@ namespace Rpg.ModObjects.Props
         public PropDescription(RpgGraph graph, RpgObject rootEntity, PropRef propRef)
         {
             RootEntity = rootEntity;
-            Entity = graph.GetEntity(propRef.EntityId)!;
+            Entity = graph.GetObject(propRef.EntityId)!;
             Path = string.Join('.', rootEntity.PathTo(Entity));
             Prop = propRef.Prop;
 

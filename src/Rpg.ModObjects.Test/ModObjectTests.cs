@@ -20,7 +20,7 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new RpgGraph(entity);
 
-            Assert.That(graph.GetEntities().Count(), Is.EqualTo(3));
+            Assert.That(graph.GetObjects().Count(), Is.EqualTo(3));
             var mods = graph.GetActiveMods();
             Assert.That(mods.Count(), Is.EqualTo(11));
 

@@ -11,8 +11,8 @@ namespace Rpg.ModObjects.Tests.Models
 
         [JsonConstructor] private MaxCurrentValue() { }
 
-        public MaxCurrentValue(string entityId, string name, int max)
-            : base(entityId, name)
+        public MaxCurrentValue(string name, int max)
+            : base(name)
         {
             Max = max;
         }

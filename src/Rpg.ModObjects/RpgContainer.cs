@@ -11,9 +11,11 @@ namespace Rpg.ModObjects
         [JsonProperty] private string? _preAddedContents { get; set; }
 
         public event NotifyCollectionChangedEventHandler? CollectionChanged;
+        [JsonConstructor] public RpgContainer()
+            : base() { }
 
-        public RpgContainer(string entityId, string name)
-            : base(entityId, name)
+        public RpgContainer(string name)
+            : base(name)
         {
         }
 
@@ -22,7 +24,7 @@ namespace Rpg.ModObjects
         {
             if (Contains(entityId))
             {
-                var obj = Graph!.GetEntity<T>(entityId);
+                var obj = Graph!.GetObject<T>(entityId);
                 return obj;
             }
 
@@ -32,7 +34,7 @@ namespace Rpg.ModObjects
         public IEnumerable<T> Get<T>(Func<T, bool>? filterFunc = null)
             where T : RpgObject
                 => Contents
-                    .Select(x => Graph!.GetEntity<T>(x))
+                    .Select(x => Graph!.GetObject<T>(x))
                     .Where(x => x != null && (filterFunc?.Invoke(x) ?? true))
                     .Cast<T>();
 

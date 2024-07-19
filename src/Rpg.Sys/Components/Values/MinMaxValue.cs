@@ -21,20 +21,20 @@ namespace Rpg.Sys.Components.Values
 
         [JsonConstructor] protected MinMaxValue() { }
 
-        public MinMaxValue(string entityId, string name, int max)
-            : base(entityId, name)
+        public MinMaxValue(string name, int max)
+            : base(name)
         {
             Max = max;
         }
 
-        public MinMaxValue(string entityId, string name, int min, int max)
-            : this(entityId, name, max)
+        public MinMaxValue(string name, int min, int max)
+            : this(name, max)
         {
             Min = min;
         }
 
-        public MinMaxValue(string entityId, string name, int min, int max, int current)
-            : this(entityId, name, min, max)
+        public MinMaxValue(string name, int min, int max, int current)
+            : this(name, min, max)
         {
             Current = current;
         }

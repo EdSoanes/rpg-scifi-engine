@@ -18,8 +18,8 @@ namespace Rpg.ModObjects.States
         [JsonProperty] public ILifecycle Lifecycle { get; set; }
 
         public bool IsOn { get => IsOnConditionally || IsOnManually; }
-        public bool IsOnConditionally { get => Graph?.GetEntity<RpgEntity>(OwnerId)!.GetActiveConditionalStateInstances(Name).Any() ?? false; }
-        public bool IsOnManually { get => Graph?.GetEntity<RpgEntity>(OwnerId)!.GetActiveManualStateInstances(Name).Any() ?? false; }
+        public bool IsOnConditionally { get => Graph?.GetObject<RpgEntity>(OwnerId)!.GetActiveConditionalStateInstances(Name).Any() ?? false; }
+        public bool IsOnManually { get => Graph?.GetObject<RpgEntity>(OwnerId)!.GetActiveManualStateInstances(Name).Any() ?? false; }
 
         [JsonConstructor] protected State() { }
 
@@ -70,7 +70,7 @@ namespace Rpg.ModObjects.States
 
             if (IsOnManually)
             {
-                var entity = Graph.GetEntity<RpgEntity>(OwnerId)!;
+                var entity = Graph.GetObject<RpgEntity>(OwnerId)!;
                 var stateSets = entity.GetActiveManualStateInstances(Name);
 
                 foreach (var stateSet in stateSets)
@@ -97,7 +97,7 @@ namespace Rpg.ModObjects.States
 
         internal override void FillStateSet(ModSet modSet)
         {
-            var owner = Graph!.GetEntity<T>(OwnerId)!;
+            var owner = Graph!.GetObject<T>(OwnerId)!;
             OnFillStateSet(modSet, owner);
         }
 
@@ -106,7 +106,7 @@ namespace Rpg.ModObjects.States
 
         protected virtual LifecycleExpiry CalculateExpiry()
         {
-            var entity = Graph!.GetEntity<T>(OwnerId)!;
+            var entity = Graph!.GetObject<T>(OwnerId)!;
             return IsOnWhen(entity)
                 ? LifecycleExpiry.Active
                 : LifecycleExpiry.Expired;

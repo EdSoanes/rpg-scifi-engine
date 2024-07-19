@@ -6,18 +6,15 @@ namespace Rpg.Sys.Components
 {
     public class Health : RpgComponent
     {
-        [JsonProperty] public HealthValue Physical { get; private set; }
-        [JsonProperty] public HealthValue Mental { get; private set; }
-        [JsonProperty] public HealthValue Cyber { get; private set; }
+        [JsonProperty] public HealthValue Physical { get; private set; } = new HealthValue(nameof(Physical));
+        [JsonProperty] public HealthValue Mental { get; private set; } = new HealthValue(nameof(Mental));
+        [JsonProperty] public HealthValue Cyber { get; private set; } = new HealthValue(nameof(Cyber));
 
         [JsonConstructor] private Health() { }
 
-        public Health(string entityId, string name)
-            : base(entityId, name)
+        public Health(string name)
+            : base(name)
         {
-            Physical = new HealthValue(entityId, nameof(Physical));
-            Mental = new HealthValue(entityId, nameof(Mental));
-            Cyber = new HealthValue(entityId, nameof(Cyber));
         }
 
         public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)

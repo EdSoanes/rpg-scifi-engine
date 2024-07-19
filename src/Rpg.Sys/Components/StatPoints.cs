@@ -16,15 +16,15 @@ namespace Rpg.Sys.Components
 
         [JsonConstructor] private StatPoints() { }
 
-        public StatPoints(string entityId, string name, StatPointsTemplate template)
-            : base(entityId, name)
+        public StatPoints(string name, StatPointsTemplate template)
+            : base(name)
         {
-            Strength = new ScoreBonusValue(entityId, nameof(Strength), template.Strength);
-            Intelligence = new ScoreBonusValue(entityId, nameof(Intelligence), template.Intelligence);
-            Wisdom = new ScoreBonusValue(entityId, nameof(Wisdom), template.Wisdom);
-            Dexterity = new ScoreBonusValue(entityId, nameof(Dexterity), template.Dexterity);
-            Constitution = new ScoreBonusValue(entityId, nameof(Constitution), template.Constitution);
-            Charisma = new ScoreBonusValue(entityId, nameof(Charisma), template.Charisma);
+            Strength = new ScoreBonusValue(nameof(Strength), template.Strength);
+            Intelligence = new ScoreBonusValue(nameof(Intelligence), template.Intelligence);
+            Wisdom = new ScoreBonusValue(nameof(Wisdom), template.Wisdom);
+            Dexterity = new ScoreBonusValue(nameof(Dexterity), template.Dexterity);
+            Constitution = new ScoreBonusValue(nameof(Constitution), template.Constitution);
+            Charisma = new ScoreBonusValue(nameof(Charisma), template.Charisma);
         }
 
         public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)

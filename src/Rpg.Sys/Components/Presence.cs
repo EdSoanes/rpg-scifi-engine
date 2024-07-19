@@ -18,17 +18,17 @@ namespace Rpg.Sys.Components
 
         [JsonConstructor] private Presence() { }
 
-        public Presence(string entityId, string name, PresenceTemplate template)
-            : base(entityId, name)
+        public Presence(string name, PresenceTemplate template)
+            : base(name)
         {
             Size = template.Size;
             Weight = template.Weight;
-            Sound = new PresenceValue(entityId, nameof(Sound), template.SoundMax, template.SoundCurrent, template.SoundRadius);
-            Light = new PresenceValue(entityId, nameof(Light), template.LightMax, template.LightCurrent, template.LightRadius);
-            Heat = new PresenceValue(entityId, nameof(Heat), template.HeatMax, template.HeatCurrent, template.HeatRadius);
-            Chemical = new PresenceValue(entityId, nameof(Chemical), template.ChemicalMax, template.ChemicalCurrent, template.ChemicalRadius);
-            Radiation = new PresenceValue(entityId, nameof(Radiation), template.RadiationMax, template.RadiationCurrent, template.RadiationRadius);
-            Electromagnetic = new PresenceValue(entityId, nameof(Electromagnetic), template.ElectromagneticMax, template.ElectromagneticCurrent, template.ElectromagneticRadius);
+            Sound = new PresenceValue(nameof(Sound), template.SoundMax, template.SoundCurrent, template.SoundRadius);
+            Light = new PresenceValue(nameof(Light), template.LightMax, template.LightCurrent, template.LightRadius);
+            Heat = new PresenceValue(nameof(Heat), template.HeatMax, template.HeatCurrent, template.HeatRadius);
+            Chemical = new PresenceValue(nameof(Chemical), template.ChemicalMax, template.ChemicalCurrent, template.ChemicalRadius);
+            Radiation = new PresenceValue(nameof(Radiation), template.RadiationMax, template.RadiationCurrent, template.RadiationRadius);
+            Electromagnetic = new PresenceValue(nameof(Electromagnetic), template.ElectromagneticMax, template.ElectromagneticCurrent, template.ElectromagneticRadius);
         }
 
         public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)

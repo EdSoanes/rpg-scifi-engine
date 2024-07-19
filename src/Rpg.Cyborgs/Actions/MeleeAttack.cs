@@ -36,7 +36,7 @@ namespace Rpg.Cyborgs.Actions
             if (abilityScore != null)
                 modSet.DiceRoll(initiator, "Ability", abilityScore.Value * focusPoints + 1);
             else
-                modSet.DiceRoll(initiator, "MeleeAttack", initiator.MeleeAttack * focusPoints + 1);
+                modSet.DiceRoll(initiator, "MeleeAttack", initiator.MeleeAttack.Value * focusPoints + 1);
 
             return modSet;
         }

@@ -23,8 +23,14 @@ namespace Rpg.Cyborgs.Components
 
         [JsonConstructor] private PropValue() { }
 
-        public PropValue(string entityId, string name, int value = 0)
-            : base(entityId, name) 
+        public PropValue(int value = 0)
+            : base()
+        {
+            Value = value;
+        }
+
+        public PropValue(string name, int value = 0)
+            : base(name) 
         {
             Value = value;
         }

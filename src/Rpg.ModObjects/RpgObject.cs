@@ -20,7 +20,7 @@ namespace Rpg.ModObjects
 
         [JsonProperty] public string Archetype { get; private init; }
 
-        [JsonProperty] public string Name { get; protected init; }
+        [JsonProperty] public string Name { get; protected set; }
 
         [JsonProperty] public string[] Archetypes { get; private init; }
 
@@ -112,7 +112,7 @@ namespace Rpg.ModObjects
 
         #endregion ModSets
 
-        #region Mods
+        #region Props
 
         public Prop? GetProp(string? prop, bool create = false)
         {
@@ -135,6 +135,10 @@ namespace Rpg.ModObjects
 
         public Prop[] GetProps()
             => Props.Values.ToArray();
+
+        #endregion Props
+
+        #region Mods
 
         public Mod? GetMod(string id)
             => Props.Values

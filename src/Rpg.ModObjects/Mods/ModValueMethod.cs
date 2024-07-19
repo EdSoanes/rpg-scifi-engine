@@ -24,7 +24,7 @@ namespace Rpg.ModObjects.Mods
             if (IsStatic)
                 return Execute(args);
 
-            var entity = graph.GetEntity(EntityId);
+            var entity = graph.GetObject(EntityId);
             if (entity == null)
                 throw new InvalidOperationException($"Could not find entity {EntityId} for {nameof(ModValueMethod)}");
 

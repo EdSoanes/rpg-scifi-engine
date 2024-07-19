@@ -43,6 +43,33 @@ namespace Rpg.ModObjects
                 yield return entity;
         }
 
+        internal static IEnumerable<T> Traverse<T, TStop>(this object obj)
+            where T : RpgObject
+            where TStop : RpgObject
+        {
+            var component = obj as T;
+            if (component != null)
+                yield return component;
+
+            if (!IsExcludedType(obj.GetType()))
+            {
+                var propertyInfos = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                foreach (var propertyInfo in propertyInfos)
+                {
+                    var items = obj.GetPropertyObjects(propertyInfo, out var isEnumerable);
+                    foreach (var item in items.Where(x => x is not TStop))
+                    {
+                        var childComponents = item.Traverse<T, TStop>();
+                        foreach (var childComponent in childComponents)
+                            yield return childComponent;
+                    }
+                }
+            }
+
+            if (component != null)
+                yield return component;
+        }
+
         internal static void Merge(this List<PropRef> target, PropRef propRef)
         {
             if (!target.Any(x => x == propRef))
@@ -80,7 +107,10 @@ namespace Rpg.ModObjects
 
                 var children = obj.GetPropertyObjects(propertyInfo, out var isEnumerable)?.ToArray() ?? new object[0];
                 if (isEnumerable)
+                {
+                    propStack.Pop();
                     return false;
+                }
 
                 if (children.Count() == 1 && PathTo(propStack, children.First(), descendent))
                     return true;

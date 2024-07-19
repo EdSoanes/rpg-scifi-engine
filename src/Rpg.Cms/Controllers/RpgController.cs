@@ -32,6 +32,7 @@ namespace Rpg.Cms.Controllers
             _syncSessionFactory = syncSessionFactory;
         }
 
+        [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
         [HttpGet("{system}/entities")]
         [ProducesResponseType(typeof(RpgContent[]), StatusCodes.Status200OK)]
         public IActionResult Entities(string system)
@@ -60,14 +61,13 @@ namespace Rpg.Cms.Controllers
             return Ok(res);
         }
 
-
-        //[EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
+        [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
         [HttpPost("{system}/state")]
         [ProducesResponseType(typeof(RpgGraphState), StatusCodes.Status200OK)]
         public IActionResult StateState(string system, RpgOperation<SetState> setStateOperation)
         {
             var graph = new RpgGraph(setStateOperation.GraphState);
-            var entity = graph.GetEntity<RpgEntity>(setStateOperation.Operation.EntityId)!;
+            var entity = graph.GetObject<RpgEntity>(setStateOperation.Operation.EntityId)!;
             var stateChanged = setStateOperation.Operation.On
                 ? entity.SetStateOn(setStateOperation.Operation.State)
                 : entity.SetStateOff(setStateOperation.Operation.State);
@@ -78,23 +78,24 @@ namespace Rpg.Cms.Controllers
             return Ok(graphState);
         }
 
-        [HttpPost("{system}/describe")]
-        [ProducesResponseType(typeof(ModObjectPropDescription), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult Describe(string system, RpgOperation<Describe> describeOperation)
-        {
-            var graph = new RpgGraph(describeOperation.GraphState);
-            graph.Time.TriggerEvent();
+        //[HttpPost("{system}/describe")]
+        //[ProducesResponseType(typeof(ModObjectPropDescription), StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+        //public IActionResult Describe(string system, RpgOperation<Describe> describeOperation)
+        //{
+        //    var graph = new RpgGraph(describeOperation.GraphState);
+        //    graph.Time.TriggerEvent();
 
-            var entity = graph.GetEntity<RpgEntity>(describeOperation.Operation.EntityId)!;
+        //    var entity = graph.GetObject<RpgEntity>(describeOperation.Operation.EntityId)!;
 
-            var description = entity?.Describe(describeOperation.Operation.Prop);
-            if (description == null)
-                return BadRequest($"Desription for {describeOperation.Operation.EntityId}.{describeOperation.Operation.Prop} not found");
+        //    var description = entity?.Describe(describeOperation.Operation.Prop);
+        //    if (description == null)
+        //        return BadRequest($"Desription for {describeOperation.Operation.EntityId}.{describeOperation.Operation.Prop} not found");
 
-            return Ok(description);
-        }
+        //    return Ok(description);
+        //}
 
+        [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
         [HttpGet("{system}/{archetype}/{id}")]
         [ProducesResponseType(typeof(RpgGraphState), StatusCodes.Status200OK)]
         public IActionResult Entity(string system, string archetype, string id)

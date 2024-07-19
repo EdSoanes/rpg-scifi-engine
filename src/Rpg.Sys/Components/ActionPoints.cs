@@ -37,16 +37,16 @@ namespace Rpg.Sys.Components
 
         [JsonConstructor] private ActionPoints() { }
 
-        public ActionPoints(string entityId, string name, ActionPointsTemplate template)
-            : base(entityId, name)
+        public ActionPoints(string name, ActionPointsTemplate template)
+            : base(name)
         {
             Action = template.Action;
             Exertion = template.Exertion;
             Focus = template.Focus;
         }
 
-        public ActionPoints(string entityId, string name, int action, int exertion, int focus)
-            : base(entityId, name)
+        public ActionPoints(string name, int action, int exertion, int focus)
+            : base(name)
         {
             Action = action;
             Exertion = exertion;

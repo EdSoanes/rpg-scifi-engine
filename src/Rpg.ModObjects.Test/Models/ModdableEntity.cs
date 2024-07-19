@@ -13,8 +13,8 @@ namespace Rpg.ModObjects.Tests.Models
 
         public ModdableEntity()
         {
-            Strength = new ScoreBonusValue(Id, nameof(Strength), 14);
-            Damage = new DamageValue(Id, nameof(Damage), "d6", 10, 100);
+            Strength = new ScoreBonusValue(nameof(Strength), 14);
+            Damage = new DamageValue(nameof(Damage), "d6", 10, 100);
         }
 
         protected override void OnLifecycleStarting()

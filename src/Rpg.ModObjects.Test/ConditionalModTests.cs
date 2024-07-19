@@ -12,21 +12,21 @@ namespace Rpg.ModObjects.Tests
     public class EntityComponent1 : RpgComponent
     {
         public int Prop {  get; set; }
-        public EntityComponent1(string entityId, string name) : base(entityId, name) { }
+
+        public EntityComponent1(string name) 
+            : base(name) { }
     }
 
     public class Entity1 : RpgEntity
     {
         public int Prop { get; set; }
 
-        public EntityComponent1 Component1 { get; set; }
-        public EntityComponent1 Component2 { get; set; }
+        public EntityComponent1 Component1 { get; set; } = new EntityComponent1("Component1");
+        public EntityComponent1 Component2 { get; set; } = new EntityComponent1("Component2");
         public Entity2 Entity2 { get; set; }
 
         public Entity1()
         {
-            Component1 = new EntityComponent1(Id, "Component1");
-            Component2 = new EntityComponent1(Id, "Component2");
             Entity2 = new Entity2();
         }
     }

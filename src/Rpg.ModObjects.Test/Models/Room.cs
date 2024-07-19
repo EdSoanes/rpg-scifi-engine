@@ -13,7 +13,7 @@ namespace Rpg.ModObjects.Tests.Models
 
         public Room()
         {
-            Contents = new RpgContainer(Id, nameof(Room));
+            Contents = new RpgContainer(nameof(Room));
         }
     }
 }

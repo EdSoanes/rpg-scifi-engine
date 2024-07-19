@@ -15,8 +15,8 @@ namespace Rpg.ModObjects.Tests.Models
 
         [JsonConstructor] private ScoreBonusValue() { }
 
-        public ScoreBonusValue(string entityId, string name, int score) 
-            : base(entityId, name)
+        public ScoreBonusValue(string name, int score) 
+            : base(name)
         {
             Score = score;
         }

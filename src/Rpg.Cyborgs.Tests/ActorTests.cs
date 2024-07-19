@@ -35,10 +35,10 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(pc.FocusPoints, Is.EqualTo(1));
             Assert.That(pc.LuckPoints, Is.EqualTo(2));
 
-            Assert.That(pc.Defence, Is.EqualTo(7));
-            Assert.That(pc.ArmourRating, Is.EqualTo(6));
-            Assert.That(pc.Reactions, Is.EqualTo(7));
-            Assert.That(pc.MeleeAttack, Is.EqualTo(-1));
+            Assert.That(pc.Defence.Value, Is.EqualTo(7));
+            Assert.That(pc.ArmourRating.Value, Is.EqualTo(6));
+            Assert.That(pc.Reactions.Value, Is.EqualTo(7));
+            Assert.That(pc.MeleeAttack.Value, Is.EqualTo(-1));
 
             Assert.That(pc.ActionPoints, Is.EqualTo(1));
             Assert.That(pc.IsStateOn(nameof(VeryFast)), Is.False);
@@ -104,7 +104,7 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(pc.CurrentActionPoints, Is.EqualTo(1));
             Assert.That(pc.IsStateOn(nameof(VeryFast)), Is.False);
 
-            pc.AddMod(new PermanentMod(), x => x.Agility, 4);
+            pc.AddMod(new PermanentMod(), x => x.Agility.Value, 4);
             graph.Time.TriggerEvent();
 
             Assert.That(pc.ActionPoints, Is.EqualTo(2));

@@ -17,7 +17,7 @@ namespace Rpg.Cyborgs.Skills.Combat
         }
 
         public bool OnCanAct(Actor owner)
-            => !owner.IsStateOn(nameof(Aiming)) || owner.RangedAimBonus < 6;
+            => !owner.IsStateOn(nameof(Aiming)) || owner.RangedAimBonus.Value < 6;
 
         public ModSet OnCost(Actor owner, Actor initiator, int focusPoints)
         {

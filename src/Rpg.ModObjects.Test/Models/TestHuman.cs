@@ -34,14 +34,14 @@ namespace Rpg.ModObjects.Tests.Models
 
         public TestHuman()
         {
-            Strength = new ScoreBonusValue(Id,nameof(Strength), 14);
-            Intelligence = new ScoreBonusValue(Id,nameof(Intelligence), 10);
-            Dexterity = new ScoreBonusValue(Id,nameof(Dexterity), 17);
+            Strength = new ScoreBonusValue(nameof(Strength), 14);
+            Intelligence = new ScoreBonusValue(nameof(Intelligence), 10);
+            Dexterity = new ScoreBonusValue(nameof(Dexterity), 17);
 
-            MeleeDamage = new DamageValue(Id, nameof(MeleeDamage), "d6", 0, 0);
+            MeleeDamage = new DamageValue(nameof(MeleeDamage), "d6", 0, 0);
 
-            PhysicalActionPoints = new MaxCurrentValue(Id, nameof(PhysicalActionPoints), 3);
-            MentalActionPoints = new MaxCurrentValue(Id, nameof(MentalActionPoints), 3);
+            PhysicalActionPoints = new MaxCurrentValue(nameof(PhysicalActionPoints), 3);
+            MentalActionPoints = new MaxCurrentValue(nameof(MentalActionPoints), 3);
         }
 
         protected override void OnLifecycleStarting()

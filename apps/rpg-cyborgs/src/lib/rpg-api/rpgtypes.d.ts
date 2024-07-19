@@ -52,63 +52,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/rpg/{system}/{archetype}/{id}/test": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    system: string;
-                    archetype: string;
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["RpgOperation`1"];
-                    "text/json": components["schemas"]["RpgOperation`1"];
-                    "application/*+json": components["schemas"]["RpgOperation`1"];
-                    "application/json-patch+json": components["schemas"]["RpgOperation`1"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        /** @description The list of notifications produced during the request. */
-                        "Umb-Notifications"?: components["schemas"]["NotificationHeaderModel"][] | null;
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Rpg.ModObjects.RpgGraphState"];
-                        "text/json": components["schemas"]["Rpg.ModObjects.RpgGraphState"];
-                        "text/plain": components["schemas"]["Rpg.ModObjects.RpgGraphState"];
-                    };
-                };
-                /** @description The resource is protected and requires an authentication token */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/rpg/{system}/entities": {
         parameters: {
             query?: never;
@@ -621,39 +564,31 @@ export interface components {
             /** Format: int32 */
             readonly currentLuckPoints: number;
             /** Format: int32 */
-            readonly reactions: number;
-            /** Format: int32 */
             readonly staminaPoints: number;
             /** Format: int32 */
             readonly currentStaminaPoints: number;
+            /** Format: int32 */
+            readonly lifePoints: number;
+            /** Format: int32 */
+            readonly currentLifePoints: number;
+            /** Format: int32 */
+            readonly actionPoints: number;
+            /** Format: int32 */
+            readonly currentActionPoints: number;
             head: components["schemas"]["Rpg.Cyborgs.BodyPart"];
             torso: components["schemas"]["Rpg.Cyborgs.BodyPart"];
             leftArm: components["schemas"]["Rpg.Cyborgs.BodyPart"];
             rightArm: components["schemas"]["Rpg.Cyborgs.BodyPart"];
             leftLeg: components["schemas"]["Rpg.Cyborgs.BodyPart"];
             rightLeg: components["schemas"]["Rpg.Cyborgs.BodyPart"];
-            /** Format: int32 */
-            readonly lifePoints: number;
-            /** Format: int32 */
-            readonly currentLifePoints: number;
-            /** Format: int32 */
-            readonly defence: number;
-            /** Format: int32 */
-            readonly armourRating: number;
-            /** Format: int32 */
-            readonly unarmedDamageBonus: number;
-            /** Format: int32 */
-            readonly parryDamageReduction: number;
-            /** Format: int32 */
-            readonly rangedAttack: number;
-            /** Format: int32 */
-            readonly rangedAimBonus: number;
-            /** Format: int32 */
-            readonly meleeAttack: number;
-            /** Format: int32 */
-            readonly actionPoints: number;
-            /** Format: int32 */
-            readonly currentActionPoints: number;
+            reactions: components["schemas"]["Rpg.Cyborgs.Components.PropValue"];
+            defence: components["schemas"]["Rpg.Cyborgs.Components.PropValue"];
+            armourRating: components["schemas"]["Rpg.Cyborgs.Components.PropValue"];
+            unarmedDamageBonus: components["schemas"]["Rpg.Cyborgs.Components.PropValue"];
+            parryDamageReduction: components["schemas"]["Rpg.Cyborgs.Components.PropValue"];
+            rangedAttack: components["schemas"]["Rpg.Cyborgs.Components.PropValue"];
+            rangedAimBonus: components["schemas"]["Rpg.Cyborgs.Components.PropValue"];
+            meleeAttack: components["schemas"]["Rpg.Cyborgs.Components.PropValue"];
             hands: components["schemas"]["Rpg.ModObjects.RpgContainer"];
             wearing: components["schemas"]["Rpg.ModObjects.RpgContainer"];
         } & components["schemas"]["Rpg.ModObjects.RpgEntity"];
@@ -921,7 +856,7 @@ export interface components {
         };
         "Rpg.ModObjects.Reflection.RpgArgSet": Record<string, never>;
         "Rpg.ModObjects.RpgComponent": {
-            entityId: string;
+            readonly entityPropRef?: (components["schemas"]["Rpg.ModObjects.Props.PropRef"] | components["schemas"]["Rpg.ModObjects.Props.Prop"] | components["schemas"]["Rpg.ModObjects.Mods.Mod"]) | null;
         } & components["schemas"]["Rpg.ModObjects.RpgObject"];
         "Rpg.ModObjects.RpgContainer": {
             readonly contents: string[];

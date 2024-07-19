@@ -13,7 +13,7 @@ namespace Rpg.Cyborgs.States
             : base(owner) { }
 
         protected override bool IsOnWhen(Actor owner)
-            => owner.Reactions > 10;
+            => owner.Reactions.Value > 10;
 
         protected override void OnFillStateSet(ModSet modSet, Actor owner)
         {

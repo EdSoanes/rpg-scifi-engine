@@ -70,7 +70,7 @@ namespace Rpg.ModObjects
             where T : class
         {
             if (typeof(T).IsAssignableTo(typeof(RpgObject)))
-                return GetEntity(id) as T;
+                return GetObject(id) as T;
 
             if (typeof(T).IsAssignableTo(typeof(States.State)))
                 return GetState(id) as T;
@@ -79,7 +79,7 @@ namespace Rpg.ModObjects
                 return GetModSet(id) as T;
 
             if (typeof(T).IsAssignableTo(typeof(Mod)))
-                return GetEntities().SelectMany(x => x.GetMods()).FirstOrDefault(x => x.Id == id) as T;
+                return GetObjects().SelectMany(x => x.GetMods()).FirstOrDefault(x => x.Id == id) as T;
 
             return null;
         }
@@ -90,7 +90,7 @@ namespace Rpg.ModObjects
                 .ToArray() ?? Array.Empty<Mod>();
 
         public Mod[] GetActiveMods(PropRef? propRef, Func<Mod, bool>? filterFunc = null)
-            => GetActiveMods(GetEntity(propRef?.EntityId), propRef?.Prop, filterFunc);
+            => GetActiveMods(GetObject(propRef?.EntityId), propRef?.Prop, filterFunc);
 
         public Mod[] GetActiveMods(Func<Mod, bool>? filterFunc = null)
             => ObjectStore.Values
@@ -99,7 +99,7 @@ namespace Rpg.ModObjects
                 .ToArray();
 
         public Mod[] GetMods(PropRef? propRef, Func<Mod, bool>? filterFunc = null)
-            => GetEntity(propRef?.EntityId)
+            => GetObject(propRef?.EntityId)
                 ?.GetMods(propRef?.Prop)
                 .Where(x => filterFunc == null || filterFunc(x))
                 .ToArray() ?? Array.Empty<Mod>();
@@ -107,14 +107,14 @@ namespace Rpg.ModObjects
         public void AddMods(params Mod[] mods)
         {
             foreach (var modGroup in mods.GroupBy(x => x.EntityId))
-                GetEntity(modGroup.Key)?.AddMods(modGroup.ToArray());
+                GetObject(modGroup.Key)?.AddMods(modGroup.ToArray());
         }
 
         public void AddModSets(params ModSet[] modSets)
         {
             foreach (var modSet in modSets)
             {
-                var entity = GetEntity(modSet.OwnerId)!;
+                var entity = GetObject(modSet.OwnerId)!;
                 entity.AddModSet(modSet);
             }
         }
@@ -122,7 +122,7 @@ namespace Rpg.ModObjects
         public void RemoveMods(params Mod[] mods)
         {
             foreach (var modGroup in mods.GroupBy(x => x.EntityId))
-                GetEntity(modGroup.Key)?.RemoveMods(modGroup.ToArray());
+                GetObject(modGroup.Key)?.RemoveMods(modGroup.ToArray());
         }
 
         public List<PropRef> GetPropsAffectedBy(PropRef propRef)
@@ -131,7 +131,7 @@ namespace Rpg.ModObjects
             res.Merge(propRef);
 
             var propsAffectedBy = new List<PropRef>();
-            foreach (var entity in GetEntities())
+            foreach (var entity in GetObjects())
             {
                 var affectedBy = entity.GetProps()
                     .Where(x => x.IsAffectedBy(propRef))
@@ -178,21 +178,29 @@ namespace Rpg.ModObjects
             return false;
         }
 
-        public T? GetEntity<T>(string? entityId)
+        //public T? GetEntity<T>(string? objectId)
+        //    where T : RpgEntity
+        //{
+        //            => objectId != null && ObjectStore.ContainsKey(objectId)
+        //    ? ObjectStore[objectId] as T
+        //    : null;
+        //}
+
+        public T? GetObject<T>(string? objectId)
             where T : RpgObject
-                => entityId != null && ObjectStore.ContainsKey(entityId)
-                    ? ObjectStore[entityId] as T
+                => objectId != null && ObjectStore.ContainsKey(objectId)
+                    ? ObjectStore[objectId] as T
                     : null;
 
-        public RpgObject? GetEntity(string? entityId)
-            => entityId != null && ObjectStore.ContainsKey(entityId)
-                ? ObjectStore[entityId]
+        public RpgObject? GetObject(string? objectId)
+            => objectId != null && ObjectStore.ContainsKey(objectId)
+                ? ObjectStore[objectId]
                 : null;
 
-        public IEnumerable<RpgObject> GetEntities()
+        public IEnumerable<RpgObject> GetObjects()
             => ObjectStore.Values;
 
-        public IEnumerable<T> GetEntities<T>()
+        public IEnumerable<T> GetObjects<T>()
             where T : RpgObject
                 => ObjectStore.Values
                     .Where(x => x is T)
@@ -200,11 +208,11 @@ namespace Rpg.ModObjects
 
         public IEnumerable<RpgObject> GetScopedEntities(string rpgObjId, ModScope scope)
         {
-            var entity = GetEntity(rpgObjId);
+            var entity = GetObject(rpgObjId);
             if (entity is RpgComponent)
-                entity = GetEntity((entity as RpgComponent)!.EntityId);
+                entity = GetObject((entity as RpgComponent)!.EntityPropRef!.EntityId);
 
-            var all = ObjectStore.Values.Where(x => x.Id == entity!.Id || (x as RpgComponent)?.EntityId == entity!.Id);
+            var all = ObjectStore.Values.Where(x => x.Id == entity!.Id || (x as RpgComponent)?.EntityPropRef?.EntityId == entity!.Id);
             if (scope == ModScope.Objects)
                 return all.Where(x => x.Id != rpgObjId);
 
@@ -299,7 +307,7 @@ namespace Rpg.ModObjects
         /// <returns></returns>
         public Dice? CalculatePropValue(PropRef propRef, Func<Mod, bool>? filterFunc = null)
         {
-            var entity = GetEntity(propRef.EntityId);
+            var entity = GetObject(propRef.EntityId);
             return CalculatePropValue(entity, propRef.Prop, filterFunc);
         }
 
@@ -341,7 +349,7 @@ namespace Rpg.ModObjects
             if (mod == null)
                 return Dice.Zero;
 
-            Dice value = mod.SourceValue ?? GetPropValue(GetEntity(mod.SourcePropRef!.EntityId), mod.SourcePropRef.Prop);
+            Dice value = mod.SourceValue ?? GetPropValue(GetObject(mod.SourcePropRef!.EntityId), mod.SourcePropRef.Prop);
 
             if (mod.SourceValueFunc?.IsCalc ?? false)
                 value = mod.SourceValueFunc.Execute(this, value);
@@ -400,7 +408,7 @@ namespace Rpg.ModObjects
 
         public void SetPropValue(PropRef propRef)
         {
-            var entity = GetEntity(propRef.EntityId);
+            var entity = GetObject(propRef.EntityId);
             SetPropValue(entity, propRef.Prop);
         }
 

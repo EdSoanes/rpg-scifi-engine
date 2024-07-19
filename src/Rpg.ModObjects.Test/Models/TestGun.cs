@@ -25,8 +25,8 @@ namespace Rpg.ModObjects.Tests.Models
 
         public TestGun() 
         { 
-            Damage = new DamageValue(Id, nameof(Damage), "d6", 0, 0);
-            Ammo = new MaxCurrentValue(Id, nameof(Ammo), 10);
+            Damage = new DamageValue(nameof(Damage), "d6", 0, 0);
+            Ammo = new MaxCurrentValue(nameof(Ammo), 10);
         }
     }
 }

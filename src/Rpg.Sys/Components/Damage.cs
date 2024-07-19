@@ -21,16 +21,16 @@ namespace Rpg.Sys.Components
 
         [JsonConstructor] private Damage() { }
 
-        public Damage(string entityId, string name, DamageTemplate template)
-            : base(entityId, name)
+        public Damage(string name, DamageTemplate template)
+            : base(name)
         {
-            Kinetic = new DamageValue(entityId, nameof(Kinetic), template.Kinetic, template.KineticArmorPenetration, template.KineticRadius);
-            Heat = new DamageValue(entityId, nameof(Heat), template.Heat, template.HeatArmorPenetration, template.HeatRadius);
-            Energy = new DamageValue(entityId, nameof(Energy), template.Energy, template.EnergyArmorPenetration, template.EnergyRadius);
-            Chemical = new DamageValue(entityId, nameof(Chemical), template.Chemical, template.ChemicalArmorPenetration, template.ChemicalRadius);
-            Radiation = new DamageValue(entityId, nameof(Radiation), template.Radiation, template.RadiationArmorPenetration, template.RadiationRadius);
-            Cyber = new DamageValue(entityId, nameof(Cyber), template.Cyber, template.CyberArmorPenetration, template.CyberRadius);
-            Mental = new DamageValue(entityId, nameof(Mental), template.Mental, template.MentalArmorPenetration, template.MentalRadius);
+            Kinetic = new DamageValue(nameof(Kinetic), template.Kinetic, template.KineticArmorPenetration, template.KineticRadius);
+            Heat = new DamageValue(nameof(Heat), template.Heat, template.HeatArmorPenetration, template.HeatRadius);
+            Energy = new DamageValue(nameof(Energy), template.Energy, template.EnergyArmorPenetration, template.EnergyRadius);
+            Chemical = new DamageValue(nameof(Chemical), template.Chemical, template.ChemicalArmorPenetration, template.ChemicalRadius);
+            Radiation = new DamageValue(nameof(Radiation), template.Radiation, template.RadiationArmorPenetration, template.RadiationRadius);
+            Cyber = new DamageValue(nameof(Cyber), template.Cyber, template.CyberArmorPenetration, template.CyberRadius);
+            Mental = new DamageValue(nameof(Mental), template.Mental, template.MentalArmorPenetration, template.MentalRadius);
         }
 
         public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)

@@ -54,7 +54,7 @@ namespace Rpg.ModObjects.Lifecycles
 
         private TOwner GetOwner(RpgGraph graph)
         {
-            var entity = graph.GetEntity(OwnerId)!;
+            var entity = graph.GetObject(OwnerId)!;
             if (entity != null && entity.GetType() == typeof(TOwner))
                 return (entity as TOwner)!;
 

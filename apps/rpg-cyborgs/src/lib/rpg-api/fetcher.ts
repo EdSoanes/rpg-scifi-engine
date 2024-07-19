@@ -43,6 +43,7 @@ export const graphFetchAtom = atom(null, async (get, set) => {
 // })
 
 const client = createClient<paths>({
+  baseUrl: 'https://localhost:44349',
   mode: 'cors',
   headers: { Accept: 'application/json; charset=utf-8' },
 })
@@ -69,21 +70,24 @@ export const postSetState = async (
   on: boolean,
   graphState: RpgGraphState
 ): Promise<RpgGraphState | null> => {
-  const response = await fetch(`/api/v1/rpg/Cyborgs/state`, {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json; charset=utf-8',
-      'Content-Type': 'application/json; charset=utf-8',
-    },
-    body: JSON.stringify({
-      graphState: graphState!,
-      operation: {
-        entityId: entityId,
-        state: stateName,
-        on: on,
+  const response = await fetch(
+    `https://localhost:44349/api/v1/rpg/Cyborgs/state`,
+    {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json; charset=utf-8',
+        'Content-Type': 'application/json; charset=utf-8',
       },
-    }),
-  })
+      body: JSON.stringify({
+        graphState: graphState!,
+        operation: {
+          entityId: entityId,
+          state: stateName,
+          on: on,
+        },
+      }),
+    }
+  )
 
   return (await response.json()) as RpgGraphState
 }

@@ -11,12 +11,12 @@ namespace Rpg.Cyborgs
         public PlayerCharacter(PlayerCharacterTemplate template)
             : base(template.Name)
         {
-            Strength = new PropValue(Id, nameof(Strength), template.Strength);
-            Agility = new PropValue(Id, nameof(Agility), template.Agility);
-            Health = new PropValue(Id, nameof(Health), template.Health);
-            Brains = new PropValue(Id, nameof(Brains), template.Brains);
-            Insight = new PropValue(Id, nameof(Insight), template.Insight);
-            Charisma = new PropValue(Id, nameof(Charisma), template.Charisma);
+            Strength = new PropValue(template.Strength);
+            Agility = new PropValue(template.Agility);
+            Health = new PropValue(template.Health);
+            Brains = new PropValue(template.Brains);
+            Insight = new PropValue(template.Insight);
+            Charisma = new PropValue(template.Charisma);
         }
 
         protected override void OnLifecycleStarting()

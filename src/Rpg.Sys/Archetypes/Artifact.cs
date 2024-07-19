@@ -30,10 +30,10 @@ namespace Rpg.Sys.Archetypes
             if (!string.IsNullOrEmpty(template.Name))
                 Name = template.Name;
 
-            Presence = new Presence(Id, nameof(Presence), template.Presence);
-            Defenses = new Defenses(Id, nameof(Defenses), template.Defenses);
-            Damage = new Damage(Id, nameof(Damage), template.Damage);
-            Health = new Health(Id, nameof(Health));
+            Presence = new Presence(nameof(Presence), template.Presence);
+            Defenses = new Defenses(nameof(Defenses), template.Defenses);
+            Damage = new Damage(nameof(Damage), template.Damage);
+            Health = new Health(nameof(Health));
         }
 
         public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)

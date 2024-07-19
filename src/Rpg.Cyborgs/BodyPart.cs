@@ -7,10 +7,11 @@ namespace Rpg.Cyborgs
     {
         [JsonProperty] private List<string> Injuries {  get; set; } = new List<string>();
 
-        [JsonConstructor] private BodyPart() { }
+        [JsonConstructor] public BodyPart()
+            : base() { }
 
-        public BodyPart(string entityId, string name)
-            : base(entityId, name) { }
+        public BodyPart(string name)
+            : base(name) { }
 
         public void AddInjury(string injury)
             => Injuries.Add(injury);

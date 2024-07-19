@@ -1,31 +1,25 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Meta;
-using Rpg.ModObjects.Meta.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Rpg.ModObjects.Props;
 
 namespace Rpg.ModObjects
 {
     public abstract class RpgComponent : RpgObject
     {
-        [JsonProperty] 
-        public string EntityId { get; private set; }
+        [JsonProperty] public PropRef? EntityPropRef { get; private set; }
 
         [JsonConstructor] protected RpgComponent() { }
 
-        public RpgComponent(string entityId, string name)
+        public RpgComponent(string name)
         {
-            EntityId = entityId;
             Name = name;
         }
 
-        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        internal void SetEntityPropRef(string entityId, string[] path)
         {
-            base.OnBeforeTime(graph, entity);
-            EntityId ??= entity!.Id;
+            EntityPropRef = new PropRef(entityId, string.Join('.', path));
+            var altName = path.LastOrDefault();
+            if (!string.IsNullOrEmpty(altName) && (Name == GetType().Name || string.IsNullOrEmpty(Name)))
+                Name = altName;
         }
     }
 }

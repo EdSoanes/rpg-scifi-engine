@@ -16,8 +16,8 @@ namespace Rpg.Sys.Components.Values
 
         [JsonConstructor] private DefenseValue() { }
 
-        public DefenseValue(string entityId, string name, int value, int shielding)
-            : base(entityId, name)
+        public DefenseValue(string name, int value, int shielding)
+            : base(name)
         {
             Value = value;
             Shielding = shielding;

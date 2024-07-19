@@ -27,7 +27,7 @@ namespace Rpg.Cyborgs.Tests
 
             Assert.That(pc2, Is.Not.Null);
             Assert.That(graph2.Time.Current, Is.EqualTo(graph.Time.Current));
-            Assert.That(graph2.GetEntities().Count(), Is.EqualTo(graph.GetEntities().Count()));
+            Assert.That(graph2.GetObjects().Count(), Is.EqualTo(graph.GetObjects().Count()));
             Assert.That(graph2.GetActiveMods().Count(), Is.EqualTo(graph.GetActiveMods().Count()));
             Assert.That(graph2.GetModSets().Count(), Is.EqualTo(graph.GetModSets().Count()));
         }

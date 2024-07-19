@@ -20,8 +20,8 @@ namespace Rpg.ModObjects.Tests.Models
 
         [JsonConstructor] private DamageValue() { }
 
-        public DamageValue(string entityId, string name, Dice dice, int armorPenetration, int radius)
-            : base(entityId, name)
+        public DamageValue(string name, Dice dice, int armorPenetration, int radius)
+            : base(name)
         {
             Dice = dice;
             ArmorPenetration = armorPenetration;

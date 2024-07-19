@@ -14,7 +14,7 @@ namespace Rpg.ModObjects.Actions
             get
             {
                 if (_owner == null && Graph != null)
-                    _owner = Graph.GetEntity<RpgEntity>(OwnerId);
+                    _owner = Graph.GetObject<RpgEntity>(OwnerId);
 
                 return _owner;
             }
@@ -26,7 +26,7 @@ namespace Rpg.ModObjects.Actions
             get
             {
                 if (_initiator == null && Graph != null)
-                    _initiator = Graph.GetEntity<RpgEntity>(InitiatorId);
+                    _initiator = Graph.GetObject<RpgEntity>(InitiatorId);
 
                 return _initiator;
             }
@@ -93,22 +93,22 @@ namespace Rpg.ModObjects.Actions
             => new OutcomeModSet(InitiatorId, ActionName, ActionNo);
 
         public bool CanAct()
-            => Graph.GetEntity<RpgEntity>(OwnerId)!
+            => Graph.GetObject<RpgEntity>(OwnerId)!
                 .GetAction(ActionName)!
                 .CanAct(CanActArgs!);
 
         public ModSet Cost()
-            => Graph.GetEntity<RpgEntity>(OwnerId)!
+            => Graph.GetObject<RpgEntity>(OwnerId)!
                 .GetAction(ActionName)!
                 .Cost(CostArgs!);
 
         public ActionModSet Act()
-            => Graph.GetEntity<RpgEntity>(OwnerId)!
+            => Graph.GetObject<RpgEntity>(OwnerId)!
                 .GetAction(ActionName)!
                 .Act(ActArgs!);
 
         public ModSet[] Outcome()
-            => Graph.GetEntity<RpgEntity>(OwnerId)!
+            => Graph.GetObject<RpgEntity>(OwnerId)!
                 .GetAction(ActionName)!
                 .Outcome(OutcomeArgs!);
 
@@ -132,14 +132,14 @@ namespace Rpg.ModObjects.Actions
 
             CostArgs!.FillFrom(AutoCompleteArgs!);
             var costs = Cost();
-            var entity = Graph!.GetEntity(costs.OwnerId)!;
+            var entity = Graph!.GetObject(costs.OwnerId)!;
             entity.AddModSet(costs);
             Graph!.Time.TriggerEvent();
 
             ActArgs!.FillFrom(AutoCompleteArgs!);
             var actionModSet = Act();
             
-            var owner = Graph!.GetEntity(actionModSet.OwnerId)!;
+            var owner = Graph!.GetObject(actionModSet.OwnerId)!;
             owner.AddModSet(actionModSet);
             Graph!.Time.TriggerEvent();
 
@@ -147,7 +147,7 @@ namespace Rpg.ModObjects.Actions
             var outcomeSets = Outcome();
             foreach (var outcomeSet in outcomeSets)
             {
-                owner = Graph!.GetEntity(outcomeSet.OwnerId)!;
+                owner = Graph!.GetObject(outcomeSet.OwnerId)!;
                 owner.AddModSet(outcomeSet);
                 Graph!.Time.TriggerEvent();
             }

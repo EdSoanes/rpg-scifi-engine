@@ -1,13 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects;
-using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Meta.Props;
-using Rpg.Sys.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.Sys.Components.Values
 {
@@ -23,8 +16,8 @@ namespace Rpg.Sys.Components.Values
 
         [JsonConstructor] private HealthValue() { }
 
-        public HealthValue(string entityId, string name)
-            : base(entityId, name)
+        public HealthValue(string name)
+            : base(name)
         {
         }
     }
