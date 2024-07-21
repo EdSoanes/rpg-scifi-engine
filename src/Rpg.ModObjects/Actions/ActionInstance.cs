@@ -79,11 +79,11 @@ namespace Rpg.ModObjects.Actions
                 .Merge(ActArgs)
                 .Merge(OutcomeArgs);
 
-            CanActArgs.Fill(this, Owner, Initiator, ActionNo);
-            CostArgs.Fill(this, Owner, Initiator, ActionNo);
-            ActArgs.Fill(this, Owner, Initiator, ActionNo);
-            OutcomeArgs.Fill(this, Owner, Initiator, ActionNo);
-            AutoCompleteArgs.Fill(this, Owner, Initiator, ActionNo);
+            CanActArgs.SetArgValues(this, Owner, Initiator, ActionNo);
+            CostArgs.SetArgValues(this, Owner, Initiator, ActionNo);
+            ActArgs.SetArgValues(this, Owner, Initiator, ActionNo);
+            OutcomeArgs.SetArgValues(this, Owner, Initiator, ActionNo);
+            AutoCompleteArgs.SetArgValues(this, Owner, Initiator, ActionNo);
         }
 
         public ActionModSet CreateActionSet()

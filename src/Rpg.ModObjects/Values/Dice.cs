@@ -58,10 +58,16 @@ namespace Rpg.ModObjects.Values
             return dice;
         }
 
-        public static bool TryParse(string expr, out Dice dice)
+        public static bool TryParse(string? expr, out Dice dice)
         {
             try
             {
+                if (string.IsNullOrEmpty(expr))
+                {
+                    dice = Dice.Zero;
+                    return false;
+                }
+
                 dice = new Dice(expr);
                 return true;
             }

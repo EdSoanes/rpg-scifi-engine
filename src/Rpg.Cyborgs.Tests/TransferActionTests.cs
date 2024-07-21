@@ -42,8 +42,10 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(_room.Contents.Contains(_sword), Is.False);
             Assert.That(_pc.CurrentActionPoints, Is.EqualTo(1));
 
-            transfer.AutoCompleteArgs["from"] = _pc.Hands;
-            transfer.AutoCompleteArgs["to"] = (_graph.Context as Room)!.Contents;
+            transfer.AutoCompleteArgs!
+                .SetArg("from", _pc.Hands)
+                .SetArg("to", (_graph.Context as Room)!.Contents);
+
             transfer.AutoComplete();
 
             Assert.That(_pc.Hands.Contains(_sword), Is.False);
@@ -59,8 +61,11 @@ namespace Rpg.Cyborgs.Tests
             _graph.Time.SetTime(TimePoints.Encounter(1));
 
             var transfer = _sword.CreateActionInstance(_pc, nameof(Transfer), 0)!;
-            transfer.AutoCompleteArgs["from"] = _pc.Hands;
-            transfer.AutoCompleteArgs["to"] = (_graph.Context as Room)!.Contents;
+
+            transfer.AutoCompleteArgs!
+                .SetArg("from", _pc.Hands)
+                .SetArg("to", (_graph.Context as Room)!.Contents);
+
             transfer.AutoComplete();
 
             Assert.That(_pc.CurrentActionPoints, Is.EqualTo(0));
@@ -74,15 +79,20 @@ namespace Rpg.Cyborgs.Tests
             _graph.Time.SetTime(TimePoints.Encounter(1));
 
             var drop = _sword.CreateActionInstance(_pc, nameof(Transfer), 0)!;
-            drop.AutoCompleteArgs["from"] = _pc.Hands;
-            drop.AutoCompleteArgs["to"] = (_graph.Context as Room)!.Contents;
+
+            drop.AutoCompleteArgs!
+                .SetArg("from", _pc.Hands)
+                .SetArg("to", (_graph.Context as Room)!.Contents);
+
             drop.AutoComplete();
 
             Assert.That(_pc.CurrentActionPoints, Is.EqualTo(0));
 
             var pickup = _sword.CreateActionInstance(_pc, nameof(Transfer), 1)!;
-            pickup.AutoCompleteArgs["from"] = (_graph.Context as Room)!.Contents;
-            pickup.AutoCompleteArgs["to"] = _pc.Hands;
+
+            pickup.AutoCompleteArgs!
+                .SetArg("from", (_graph.Context as Room)!.Contents)
+                .SetArg("to", _pc.Hands);
 
             Assert.Throws<InvalidOperationException>(() => pickup.AutoComplete());
         }

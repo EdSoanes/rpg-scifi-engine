@@ -61,7 +61,7 @@ namespace Rpg.ModObjects.Tests
             initiator.AddModSet(costModSet);
             graph.Time.TriggerEvent();
 
-            fireInst.ActArgs["targetDefence"] = 1;
+            fireInst.SetArgValue("targetDefence", 1);
 
             var actionModSet = fireInst.Act();
             initiator.AddModSets(actionModSet);
@@ -70,8 +70,9 @@ namespace Rpg.ModObjects.Tests
             var diceRoll = actionModSet.DiceRoll(graph);
             Assert.That(diceRoll.ToString(), Is.EqualTo("1d20 + 2"));
 
-            fireInst.OutcomeArgs["diceRoll"] = 20;
-            fireInst.OutcomeArgs["target"] = 15;
+            fireInst.OutcomeArgs!
+                .SetArg("diceRoll", 20)
+                .SetArg("target", 15);
 
             var outcomeModSets = fireInst.Outcome();
             graph.AddModSets(outcomeModSets);
@@ -131,7 +132,8 @@ namespace Rpg.ModObjects.Tests
             initiator.AddModSet(costModSet);
             graph.Time.TriggerEvent();
 
-            fireInst.ActArgs["targetDefence"] = 1;
+            fireInst.ActArgs!
+                .SetArg("targetDefence", 1);
 
             var actionModSet = fireInst.Act();
             initiator.AddModSets(actionModSet);

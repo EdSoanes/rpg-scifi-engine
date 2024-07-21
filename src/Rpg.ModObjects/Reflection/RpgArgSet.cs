@@ -1,71 +1,73 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Actions;
-using Rpg.ModObjects.Values;
-using System;
 using System.Reflection;
 
 namespace Rpg.ModObjects.Reflection
 {
     public class RpgArgSet
     {
-        [JsonProperty] public RpgArg[] Args { get; private set; }
+        private static IRpgArgType[]? _argTypes;
+        private static IRpgArgType[] GetArgTypes()
+        {
+            if (_argTypes == null)
+            {
+                var types = RpgReflection.ScanForTypes<IRpgArgType>();
+                _argTypes = types
+                    .Where(x => !x.IsAbstract)
+                    .Select(x => Activator.CreateInstance(x) as IRpgArgType)
+                    .Where(x => x != null)
+                    .Cast<IRpgArgType>()
+                    .ToArray();
+            }
+
+            return _argTypes;
+        }
+
+        private static IRpgArgType? CreateArgType(ParameterInfo parameterInfo)
+        {
+            var res = GetArgTypes().FirstOrDefault(x => x.IsArgTypeFor(parameterInfo));
+            return res?.Clone(parameterInfo.ParameterType);
+        }
+
+        //private static IRpgArgType? CreateArgType(Type type)
+        //{
+        //    var res = GetArgTypes().FirstOrDefault(x => x.GetType(). == type);
+        //    return res?.Clone(parameterInfo.ParameterType);
+        //}
+
+        [JsonProperty] public Dictionary<string, IRpgArgType> Args { get; private set; } = new();
         [JsonIgnore] public Dictionary<string, object?> ArgValues { get; private set; } = new();
-
-        public object? this[string key]
-        {
-            get
-            {
-                return ArgValues.TryGetValue(key, out var val)
-                    ? val
-                    : null;
-            }
-            set
-            {
-                ValidateArgValue(key, value);
-
-                if (ArgValues.ContainsKey(key))
-                    ArgValues[key] = value;
-                else
-                    ArgValues.Add(key, value);
-            }
-        }
-
-        public RpgArg? this[int index]
-        {
-            get
-            {
-                return index < Args.Length
-                    ? Args[index]
-                    : null;
-            }
-        }
 
         [JsonConstructor] private RpgArgSet() { }
 
         public RpgArgSet(ParameterInfo[] parameterInfos)
         {
-            Args = parameterInfos.Select(x => new RpgArg(x)).ToArray();
+            foreach (var parameterInfo in parameterInfos)
+            {
+                var argType = CreateArgType(parameterInfo);
+                if (argType != null)
+                    Args.Add(parameterInfo.Name!, argType);
+            }
         }
 
-        public string[] ArgNames()
-            => Args.Select(x => x.Name).ToArray();
-
-        public int Count()
-            => Args.Length;
-
         public RpgArgSet Clone()
-            => new RpgArgSet
-            {
-                Args = Args.Select(x => x.Clone()).ToArray(),
-            };
-
-        public void ValidateArgValue(string arg, object? value)
         {
-            var modArgs = Args.Where(x => x.Name == arg);
-            if (modArgs.Count() != 1)
+            var argSet = new RpgArgSet();
+            foreach (var arg in Args)
+            {
+                var argType = arg.Value.Clone();
+                argSet.Args.Add(arg.Key, argType);
+            }
+
+            return argSet;
+        }
+
+        private void ValidateArgValue(string arg, object? value)
+        {
+            if (!Args.ContainsKey(arg))
                 throw new ArgumentException($"'{arg}' param does not exist");
 
-            var modArg = modArgs.Single();
+            var modArg = Args[arg];
             if (!modArg.IsNullable && value == null)
                 throw new ArgumentException($"'{arg}' param value is null");
 
@@ -85,65 +87,58 @@ namespace Rpg.ModObjects.Reflection
 
         public RpgArgSet Merge(RpgArgSet other)
         {
-            var args = Args.Select(x => x.Clone()).ToList();
-            foreach (var arg in other.Args)
+            var argSet = new RpgArgSet();
+
+            foreach (var key in Args.Keys)
             {
-                if (!args.Any(x => x.Name == arg.Name))
-                    args.Add(arg.Clone());
+                var arg = Args[key].Clone();
+                argSet.Args.Add(key, arg);
             }
 
-            return new RpgArgSet
+            foreach (var key in other.Args.Keys)
             {
-                Args = args.ToArray()
-            };
+                if (!argSet.Args.ContainsKey(key))
+                    argSet.Args.Add(key, other.Args[key].Clone());
+            }
+
+            return argSet;
         }
 
         public void FillFrom(RpgArgSet other)
         {
             foreach (var arg in other.ArgValues)
             {
-                if (HasArg(arg.Key) && this[arg.Key] == null)
-                    this[arg.Key] = arg.Value;
+                if (Args.ContainsKey(arg.Key) && (!ArgValues.ContainsKey(arg.Key) || ArgValues[arg.Key] == null))
+                    ArgValues[arg.Key] = arg.Value;
             }
         }
 
-        public void Fill(ActionInstance? actionInstance, RpgEntity? owner, RpgEntity? initiator, int? actionNo)
+        public void SetArgValues(ActionInstance? actionInstance, RpgEntity? owner, RpgEntity? initiator, int? actionNo)
         {
-            if (HasArg("actionInstance"))
-                this["actionInstance"] = actionInstance!;
-
-            if (HasArg("actionNo"))
-                this["actionNo"] = actionNo!.Value;
-
-            if (HasArg("initiator"))
-                this["initiator"] = initiator;
-
-            if (HasArg("owner"))
-                this["owner"] = owner;
+            SetArg("actionInstance", actionInstance);
+            SetArg("actionNo", actionNo!.Value);
+            SetArg("initiator", initiator);
+            SetArg("owner", owner);
         }
 
-        public RpgArgSet SetArg(string arg, object? value)
+        public RpgArgSet SetArg(string argName, object? value)
         {
-            if (HasArg(arg))
-                this[arg] = value;
+            if (Args.ContainsKey(argName))
+            {
+                ValidateArgValue(argName, value);
+                ArgValues[argName] = value;
+            }
 
             return this;
         }
 
         public RpgArgSet SetArgValue(string argName, string? value)
         {
-            if (HasArg(argName))
+            if (Args.ContainsKey(argName))
             {
-                var arg = Args.First(x => x.Name == argName);
-                object? res = arg.TypeName switch
-                {
-                    nameof(Int32) => value.ToInt32Arg(),
-                    nameof(Dice) => value.ToDiceArg(),
-                    _ => null
-                };
-
-                if (res != null)
-                    this[argName] = res;
+                var val = Args[argName].ToArgObject(value);
+                ValidateArgValue(argName, val);
+                ArgValues[argName] = value;
             }
 
             return this;
@@ -155,43 +150,17 @@ namespace Rpg.ModObjects.Reflection
                 SetArgValue(key, args[key]);
         }
 
-        public bool HasArg(string arg)
-            => Args.Any(x => x.Name == arg);
-
         public object?[] ToArgs()
         {
             var res = new List<object?>();
-            foreach (var arg in Args)
+            foreach (var arg in Args.Where(x => ArgValues.ContainsKey(x.Key)))
             {
-                var obj = this[arg.Name];
-                if (obj != null || arg.IsNullable)
+                var obj = ArgValues[arg.Key];
+                if (obj != null || arg.Value.IsNullable)
                     res.Add(obj);
             }
 
             return res.ToArray();
-        }
-    }
-
-    internal static class ArgTypeConverterExtensions
-    {
-        internal static int? ToInt32Arg(this string? val)
-        {
-            if (val == null)
-                return null;
-
-            return int.TryParse(val, out var i)
-                ? i
-                : null;
-        }
-
-        internal static Dice? ToDiceArg(this string? val)
-        {
-            if (string.IsNullOrEmpty(val))
-                return null;
-
-            return Dice.TryParse(val, out var dice)
-                ? dice
-                : null;
         }
     }
 }

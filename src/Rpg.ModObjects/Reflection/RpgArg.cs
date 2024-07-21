@@ -6,6 +6,8 @@ namespace Rpg.ModObjects.Reflection
     public class RpgArg
     {
         [JsonProperty] public string Name { get; private set; }
+        [JsonProperty] public IRpgArgType ArgType { get; private set; }
+
         [JsonProperty] public string TypeName { get; private set; }
         [JsonProperty] internal string QualifiedTypeName { get; private set; }
         [JsonProperty] public bool IsNullable { get; private set; }

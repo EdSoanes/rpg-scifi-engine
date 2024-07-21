@@ -1,7 +1,6 @@
 import { atom, useAtom } from 'jotai'
 import {
   Button,
-  Code,
   Drawer,
   DrawerBody,
   DrawerCloseButton,
@@ -13,36 +12,22 @@ import {
   Heading,
   Stack,
   StatGroup,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
   useDisclosure,
 } from '@chakra-ui/react'
 import React from 'react'
 import { splitAtom } from 'jotai/utils'
 import { playerCharacterActionsAtom } from '../atoms/playerCharacterActions.atom'
 import ActionButton from './ActionButton'
-import {
-  Action,
-  ActionInstance,
-  ModSet,
-  PropValue,
-} from '../../lib/rpg-api/types'
+import { Action, ActionInstance, PropValue } from '../../lib/rpg-api/types'
 import { playerCharacterAtom } from '../atoms/playerCharacter.atom'
 import { StatPanel } from '../stats'
-import {
-  getActionCost,
-  getActionInstance,
-  postModSet,
-} from '../../lib/rpg-api/fetcher'
+import { getActionInstance } from '../../lib/rpg-api/fetcher'
 import { graphStateAtom } from '../atoms/graphState.atom'
+import ActionInstancePanel from './ActionInstancePanel'
 
 const actionAtomsAtom = splitAtom(playerCharacterActionsAtom)
 const selectedActionAtom = atom<Action | null>(null)
 const actionInstanceAtom = atom<ActionInstance | null>(null)
-const actionCostAtom = atom<ModSet | null>(null)
 
 const reactionsAtom = atom<PropValue | null>(
   (get) => get(playerCharacterAtom)?.reactions ?? null
@@ -79,7 +64,6 @@ function ActionsBlock() {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [selectedAction, setSelectedAction] = useAtom(selectedActionAtom)
   const [actionInstance, setActionInstance] = useAtom(actionInstanceAtom)
-  const [actionCost, setActionCost] = useAtom(actionCostAtom)
 
   const [playerCharacter] = useAtom(playerCharacterAtom)
   const [graphState, setGraphState] = useAtom(graphStateAtom)
@@ -96,27 +80,7 @@ function ActionsBlock() {
 
       setSelectedAction(action)
       setActionInstance(res)
-
-      if (res) {
-        const cost = await getActionCost(
-          res.ownerId,
-          res.initiatorId,
-          res.actionName,
-          res.actionNo,
-          graphState!
-        )
-
-        setActionCost(cost)
-      }
-
       onOpen()
-    }
-  }
-
-  const onCostButtonClicked = async () => {
-    if (actionCost) {
-      const res = await postModSet(actionCost, graphState!)
-      setGraphState(res)
     }
   }
 
@@ -166,22 +130,7 @@ function ActionsBlock() {
           <DrawerHeader>{selectedAction?.name ?? '-'}</DrawerHeader>
 
           <DrawerBody>
-            <Tabs>
-              <TabList>
-                <Tab>Cost</Tab>
-                <Tab>Instance</Tab>
-              </TabList>
-
-              <TabPanels>
-                <TabPanel>
-                  <Code>{JSON.stringify(actionCost, null, 2)}</Code>
-                  <Button onClick={onCostButtonClicked}>Act!</Button>
-                </TabPanel>
-                <TabPanel>
-                  <Code>{JSON.stringify(actionInstance, null, 2)}</Code>
-                </TabPanel>
-              </TabPanels>
-            </Tabs>
+            <ActionInstancePanel actionInstanceAtom={actionInstanceAtom} />
           </DrawerBody>
 
           <DrawerFooter>

@@ -35,8 +35,8 @@ namespace Rpg.ModObjects.Tests
             Assert.That(method.ClassName, Is.Null);
 
             var argSet = method.CreateArgSet();
-            Assert.That(argSet.Count(), Is.EqualTo(1));
-            Assert.That(argSet.ArgNames, Does.Contain("dice"));
+            Assert.That(argSet.Args.Count(), Is.EqualTo(1));
+            Assert.That(argSet.Args.Keys, Does.Contain("dice"));
 
             var json = JsonConvert.SerializeObject(method, JsonSettings)!;
             var method2 = JsonConvert.DeserializeObject<RpgMethod<ScoreBonusValue, Dice>>(json, JsonSettings)!;
@@ -45,8 +45,8 @@ namespace Rpg.ModObjects.Tests
             Assert.That(method2.ClassName, Is.Null);
 
             var argSet2 = method2.CreateArgSet();
-            Assert.That(argSet2.Count(), Is.EqualTo(1));
-            Assert.That(argSet2.ArgNames, Does.Contain("dice"));
+            Assert.That(argSet2.Args.Count(), Is.EqualTo(1));
+            Assert.That(argSet2.Args.Keys, Does.Contain("dice"));
         }
 
 

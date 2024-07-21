@@ -79,3 +79,13 @@ export type OutcomeModSet = Pick<
   components['schemas']['Rpg.ModObjects.Actions.OutcomeModSet'],
   keyof components['schemas']['Rpg.ModObjects.Actions.OutcomeModSet']
 >
+
+export type RpgArg = Pick<
+  components['schemas']['Rpg.ModObjects.Reflection.RpgArg'],
+  keyof components['schemas']['Rpg.ModObjects.Reflection.RpgArg']
+>
+
+export type RpgArgSet = Pick<
+  components['schemas']['Rpg.ModObjects.Reflection.RpgArgSet'],
+  keyof components['schemas']['Rpg.ModObjects.Reflection.RpgArgSet']
+>

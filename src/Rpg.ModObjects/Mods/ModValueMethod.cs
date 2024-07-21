@@ -19,7 +19,8 @@ namespace Rpg.ModObjects.Mods
         public Dice Execute(RpgGraph graph, Dice dice)
         {
             var args = CreateArgSet();
-            args[args.ArgNames().First()] = dice;
+            var arg = args.Args.Keys.First();
+            args.SetArg(arg, dice);
 
             if (IsStatic)
                 return Execute(args);
