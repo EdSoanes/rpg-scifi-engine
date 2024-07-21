@@ -66,10 +66,10 @@ namespace Rpg.Cms
             }
         }
 
-        public static IMetaSystem? Get(string qualifiedClassName)
+        public static IMetaSystem? Get(string identifier)
         {
             lock (_lock)
-                return Get().FirstOrDefault(x => x.Objects.Any(o => o.QualifiedClassName == qualifiedClassName));
+                return Get().FirstOrDefault(x => x.Identifier == identifier);
         }
 
         public static string[] GetNamespaces()

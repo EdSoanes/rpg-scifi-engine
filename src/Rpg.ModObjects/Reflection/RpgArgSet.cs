@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Values;
 using System;
 using System.Reflection;
 
@@ -8,7 +9,7 @@ namespace Rpg.ModObjects.Reflection
     public class RpgArgSet
     {
         [JsonProperty] public RpgArg[] Args { get; private set; }
-        [JsonProperty] public Dictionary<string, object?> ArgValues { get; private set; } = new();
+        [JsonIgnore] public Dictionary<string, object?> ArgValues { get; private set; } = new();
 
         public object? this[string key]
         {
@@ -129,6 +130,31 @@ namespace Rpg.ModObjects.Reflection
             return this;
         }
 
+        public RpgArgSet SetArgValue(string argName, string? value)
+        {
+            if (HasArg(argName))
+            {
+                var arg = Args.First(x => x.Name == argName);
+                object? res = arg.TypeName switch
+                {
+                    nameof(Int32) => value.ToInt32Arg(),
+                    nameof(Dice) => value.ToDiceArg(),
+                    _ => null
+                };
+
+                if (res != null)
+                    this[argName] = res;
+            }
+
+            return this;
+        }
+
+        public void SetArgValues(Dictionary<string, string?> args)
+        {
+            foreach (var key in args.Keys)
+                SetArgValue(key, args[key]);
+        }
+
         public bool HasArg(string arg)
             => Args.Any(x => x.Name == arg);
 
@@ -143,6 +169,29 @@ namespace Rpg.ModObjects.Reflection
             }
 
             return res.ToArray();
+        }
+    }
+
+    internal static class ArgTypeConverterExtensions
+    {
+        internal static int? ToInt32Arg(this string? val)
+        {
+            if (val == null)
+                return null;
+
+            return int.TryParse(val, out var i)
+                ? i
+                : null;
+        }
+
+        internal static Dice? ToDiceArg(this string? val)
+        {
+            if (string.IsNullOrEmpty(val))
+                return null;
+
+            return Dice.TryParse(val, out var dice)
+                ? dice
+                : null;
         }
     }
 }

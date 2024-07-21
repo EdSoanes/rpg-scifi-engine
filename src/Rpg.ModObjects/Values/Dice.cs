@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Time;
 using System.Text;
 
 namespace Rpg.ModObjects.Values
@@ -55,6 +56,20 @@ namespace Rpg.ModObjects.Values
                 node.Multiplier = node.Multiplier < 0 ? 0 : -1;
 
             return dice;
+        }
+
+        public static bool TryParse(string expr, out Dice dice)
+        {
+            try
+            {
+                dice = new Dice(expr);
+                return true;
+            }
+            catch 
+            {
+                dice = Dice.Zero;
+                return false;
+            }
         }
 
         public static Dice Sum(IEnumerable<Dice> dice)

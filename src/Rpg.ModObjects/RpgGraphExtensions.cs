@@ -82,6 +82,20 @@ namespace Rpg.ModObjects
                 target.Merge(a);
         }
 
+        internal static (RpgObject?, string?) FromPath(this RpgObject? rootEntity, string propPath)
+        {
+            if (rootEntity == null)
+                return (null, null);
+
+            var parts = propPath.Split('.');
+            var path = string.Join(".", parts.Take(parts.Length - 1));
+            var prop = parts.Last();
+
+            return !string.IsNullOrEmpty(path)
+                ? (rootEntity.PropertyValue<RpgObject>(path), prop)
+                : (rootEntity, prop);
+        }
+
         internal static string[] PathTo(this object obj, object? descendent)
         {
             var propStack = new Stack<string>();

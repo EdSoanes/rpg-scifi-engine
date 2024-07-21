@@ -1,14 +1,17 @@
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 using Rpg.Cms;
+using Rpg.Cms.Controllers.Services;
 using Rpg.Cms.Services;
 using Rpg.Cms.Services.Converter;
 using Rpg.Cms.Services.Factories;
 using Rpg.Cms.Services.Synchronizers;
 using Rpg.Cyborgs;
+using Rpg.ModObjects;
 using Rpg.ModObjects.Reflection;
 using Umbraco.Cms.Api.Common.OpenApi;
-using Umbraco.Cms.Web.Common.ApplicationBuilder;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -19,23 +22,18 @@ builder.CreateUmbracoBuilder()
     .AddComposers()
     .Build();
 
-//builder.Services
-//    .AddCors(options => options.AddPolicy("any-origin", policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()))
-//    .Configure<UmbracoPipelineOptions>(options => options.AddFilter(new UmbracoPipelineFilter("Cors", postRouting: app => app.UseCors())));
-
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
-    options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
-    options.SerializerSettings.NullValueHandling = NullValueHandling.Include;
-    options.SerializerSettings.Formatting = Formatting.Indented;
-    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver
-    {
-        NamingStrategy = new CamelCaseNamingStrategy
-        {
-            ProcessDictionaryKeys = false,
-            OverrideSpecifiedNames = true
-        }
-    };
+    var settings = RpgSerializer.JsonSerializerSettings;
+
+    options.SerializerSettings.TypeNameHandling = settings.TypeNameHandling;
+    options.SerializerSettings.NullValueHandling = settings.NullValueHandling;
+    options.SerializerSettings.Formatting = settings.Formatting;
+    options.SerializerSettings.ContractResolver = settings.ContractResolver;
+    
+    options.SerializerSettings.Converters.Clear();
+    foreach (var converter in settings.Converters)
+        options.SerializerSettings.Converters.Add(converter);
 });
 
 
@@ -53,7 +51,9 @@ builder.Services
     .AddTransient<IDataTypeFolderSynchronizer, DataTypeFolderSynchronizer>()
     .AddTransient<DocTypeModelFactory>()
     .AddTransient<DataTypeModelFactory>()
-    .AddSingleton<ContentConverter>();
+    .AddSingleton<ContentConverter>()
+    .AddTransient<IContentFactory, ContentFactory>()
+    .AddTransient<IGraphFactory, GraphFactory>();
 
 foreach (var propConverterType in RpgReflection.ScanForTypes<IPropConverter>())
 {

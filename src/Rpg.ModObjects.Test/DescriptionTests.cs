@@ -1,8 +1,6 @@
 ﻿using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Tests.Models;
-using System.Reflection;
 
 namespace Rpg.ModObjects.Tests
 {
@@ -20,7 +18,7 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new RpgGraph(entity);
 
-            var desc = entity.Describe(graph, "Melee");
+            var desc = entity.Describe("Melee");
             Assert.IsNotNull(desc);
 
             Assert.That(desc.EntityId, Is.EqualTo(entity.Id));

@@ -39,6 +39,7 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(pc.ArmourRating.Value, Is.EqualTo(6));
             Assert.That(pc.Reactions.Value, Is.EqualTo(7));
             Assert.That(pc.MeleeAttack.Value, Is.EqualTo(-1));
+            Assert.That(pc.RangedAttack.Value, Is.EqualTo(0));
 
             Assert.That(pc.ActionPoints, Is.EqualTo(1));
             Assert.That(pc.IsStateOn(nameof(VeryFast)), Is.False);

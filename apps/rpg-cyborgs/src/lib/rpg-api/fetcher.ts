@@ -1,4 +1,14 @@
-import { Describe, PropDesc, RpgGraphState, SetState } from './types'
+import {
+  Act,
+  ActionInstance,
+  AddModSet,
+  CreateActionInstance,
+  Describe,
+  ModSet,
+  PropDesc,
+  RpgGraphState,
+  SetState,
+} from './types'
 
 export const getGraphState = async (
   id: string
@@ -23,6 +33,62 @@ export const getPropDesc = async (
 
   const response = await post('Cyborgs/describe', describe)
   return (await response.json()) as PropDesc
+}
+
+export const getActionInstance = async (
+  ownerId: string,
+  initiatorId: string,
+  actionName: string,
+  actionNo: number,
+  graphState: RpgGraphState
+): Promise<ActionInstance | null> => {
+  const op: CreateActionInstance = {
+    graphState: graphState,
+    operation: {
+      ownerId,
+      initiatorId,
+      actionName,
+      actionNo,
+    },
+  }
+
+  const response = await post('Cyborgs/actioninstance/create', op)
+  return (await response.json()) as ActionInstance
+}
+
+export const getActionCost = async (
+  ownerId: string,
+  initiatorId: string,
+  actionName: string,
+  actionNo: number,
+  graphState: RpgGraphState
+): Promise<ModSet | null> => {
+  const op: Act = {
+    graphState: graphState,
+    operation: {
+      ownerId,
+      initiatorId,
+      actionName,
+      actionNo,
+      argValues: {},
+    },
+  }
+
+  const response = await post('Cyborgs/actioninstance/cost', op)
+  return response.status === 200 ? ((await response.json()) as ModSet) : null
+}
+
+export const postModSet = async (
+  modSet: ModSet,
+  graphState: RpgGraphState
+): Promise<RpgGraphState | null> => {
+  const op: AddModSet = {
+    graphState: graphState!,
+    operation: modSet,
+  }
+
+  const response = await post('Cyborgs/modSet', op)
+  return (await response.json()) as RpgGraphState
 }
 
 export const postSetState = async (

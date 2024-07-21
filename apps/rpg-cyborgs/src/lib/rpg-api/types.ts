@@ -44,3 +44,38 @@ export type PropValue = Pick<
   components['schemas']['Rpg.Cyborgs.Components.PropValue'],
   keyof components['schemas']['Rpg.Cyborgs.Components.PropValue']
 >
+
+export type ActionInstance = Pick<
+  components['schemas']['Rpg.ModObjects.Actions.ActionInstance'],
+  keyof components['schemas']['Rpg.ModObjects.Actions.ActionInstance']
+>
+
+export type CreateActionInstance = Pick<
+  components['schemas']['Rpg.Cms.Models.RpgOperation.CreateActionInstance'],
+  keyof components['schemas']['Rpg.Cms.Models.RpgOperation.CreateActionInstance']
+>
+
+export type AddModSet = Pick<
+  components['schemas']['Rpg.Cms.Models.RpgOperation.ModSet'],
+  keyof components['schemas']['Rpg.Cms.Models.RpgOperation.ModSet']
+>
+
+export type Act = Pick<
+  components['schemas']['Rpg.Cms.Models.RpgOperation.Act'],
+  keyof components['schemas']['Rpg.Cms.Models.RpgOperation.Act']
+>
+
+export type ModSet = Pick<
+  components['schemas']['Rpg.ModObjects.Mods.ModSet'],
+  keyof components['schemas']['Rpg.ModObjects.Mods.ModSet']
+>
+
+export type ActionModSet = Pick<
+  components['schemas']['Rpg.ModObjects.Actions.ActionModSet'],
+  keyof components['schemas']['Rpg.ModObjects.Actions.ActionModSet']
+>
+
+export type OutcomeModSet = Pick<
+  components['schemas']['Rpg.ModObjects.Actions.OutcomeModSet'],
+  keyof components['schemas']['Rpg.ModObjects.Actions.OutcomeModSet']
+>

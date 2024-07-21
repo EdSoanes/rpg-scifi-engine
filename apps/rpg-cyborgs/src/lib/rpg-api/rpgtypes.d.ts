@@ -52,6 +52,235 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/rpg/{system}/actioninstance/act": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    system: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["Rpg.Cms.Models.RpgOperation.Act"];
+                    "text/json": components["schemas"]["Rpg.Cms.Models.RpgOperation.Act"];
+                    "application/*+json": components["schemas"]["Rpg.Cms.Models.RpgOperation.Act"];
+                    "application/json-patch+json": components["schemas"]["Rpg.Cms.Models.RpgOperation.Act"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        /** @description The list of notifications produced during the request. */
+                        "Umb-Notifications"?: components["schemas"]["NotificationHeaderModel"][] | null;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Rpg.ModObjects.Actions.ActionModSet"];
+                        "text/json": components["schemas"]["Rpg.ModObjects.Actions.ActionModSet"];
+                        "text/plain": components["schemas"]["Rpg.ModObjects.Actions.ActionModSet"];
+                    };
+                };
+                /** @description The resource is protected and requires an authentication token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rpg/{system}/actioninstance/cost": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    system: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["Rpg.Cms.Models.RpgOperation.Act"];
+                    "text/json": components["schemas"]["Rpg.Cms.Models.RpgOperation.Act"];
+                    "application/*+json": components["schemas"]["Rpg.Cms.Models.RpgOperation.Act"];
+                    "application/json-patch+json": components["schemas"]["Rpg.Cms.Models.RpgOperation.Act"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        /** @description The list of notifications produced during the request. */
+                        "Umb-Notifications"?: components["schemas"]["NotificationHeaderModel"][] | null;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Rpg.ModObjects.Mods.ModSet"] | components["schemas"]["Rpg.ModObjects.Actions.ActionModSet"] | components["schemas"]["Rpg.ModObjects.Actions.OutcomeModSet"];
+                        "text/json": components["schemas"]["Rpg.ModObjects.Mods.ModSet"] | components["schemas"]["Rpg.ModObjects.Actions.ActionModSet"] | components["schemas"]["Rpg.ModObjects.Actions.OutcomeModSet"];
+                        "text/plain": components["schemas"]["Rpg.ModObjects.Mods.ModSet"] | components["schemas"]["Rpg.ModObjects.Actions.ActionModSet"] | components["schemas"]["Rpg.ModObjects.Actions.OutcomeModSet"];
+                    };
+                };
+                /** @description The resource is protected and requires an authentication token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        /** @description The list of notifications produced during the request. */
+                        "Umb-Notifications"?: components["schemas"]["NotificationHeaderModel"][] | null;
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rpg/{system}/actioninstance/create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    system: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["Rpg.Cms.Models.RpgOperation.CreateActionInstance"];
+                    "text/json": components["schemas"]["Rpg.Cms.Models.RpgOperation.CreateActionInstance"];
+                    "application/*+json": components["schemas"]["Rpg.Cms.Models.RpgOperation.CreateActionInstance"];
+                    "application/json-patch+json": components["schemas"]["Rpg.Cms.Models.RpgOperation.CreateActionInstance"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        /** @description The list of notifications produced during the request. */
+                        "Umb-Notifications"?: components["schemas"]["NotificationHeaderModel"][] | null;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Rpg.ModObjects.Actions.ActionInstance"];
+                        "text/json": components["schemas"]["Rpg.ModObjects.Actions.ActionInstance"];
+                        "text/plain": components["schemas"]["Rpg.ModObjects.Actions.ActionInstance"];
+                    };
+                };
+                /** @description The resource is protected and requires an authentication token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rpg/{system}/actioninstance/outcome": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    system: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["Rpg.Cms.Models.RpgOperation.Act"];
+                    "text/json": components["schemas"]["Rpg.Cms.Models.RpgOperation.Act"];
+                    "application/*+json": components["schemas"]["Rpg.Cms.Models.RpgOperation.Act"];
+                    "application/json-patch+json": components["schemas"]["Rpg.Cms.Models.RpgOperation.Act"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        /** @description The list of notifications produced during the request. */
+                        "Umb-Notifications"?: components["schemas"]["NotificationHeaderModel"][] | null;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": (components["schemas"]["Rpg.ModObjects.Mods.ModSet"] | components["schemas"]["Rpg.ModObjects.Actions.ActionModSet"] | components["schemas"]["Rpg.ModObjects.Actions.OutcomeModSet"])[];
+                        "text/json": (components["schemas"]["Rpg.ModObjects.Mods.ModSet"] | components["schemas"]["Rpg.ModObjects.Actions.ActionModSet"] | components["schemas"]["Rpg.ModObjects.Actions.OutcomeModSet"])[];
+                        "text/plain": (components["schemas"]["Rpg.ModObjects.Mods.ModSet"] | components["schemas"]["Rpg.ModObjects.Actions.ActionModSet"] | components["schemas"]["Rpg.ModObjects.Actions.OutcomeModSet"])[];
+                    };
+                };
+                /** @description The resource is protected and requires an authentication token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/rpg/{system}/describe": {
         parameters: {
             query?: never;
@@ -157,6 +386,61 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rpg/{system}/modset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    system: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["Rpg.Cms.Models.RpgOperation.ModSet"];
+                    "text/json": components["schemas"]["Rpg.Cms.Models.RpgOperation.ModSet"];
+                    "application/*+json": components["schemas"]["Rpg.Cms.Models.RpgOperation.ModSet"];
+                    "application/json-patch+json": components["schemas"]["Rpg.Cms.Models.RpgOperation.ModSet"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        /** @description The list of notifications produced during the request. */
+                        "Umb-Notifications"?: components["schemas"]["NotificationHeaderModel"][] | null;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Rpg.ModObjects.RpgGraphState"];
+                        "text/json": components["schemas"]["Rpg.ModObjects.RpgGraphState"];
+                        "text/plain": components["schemas"]["Rpg.ModObjects.RpgGraphState"];
+                    };
+                };
+                /** @description The resource is protected and requires an authentication token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -607,6 +891,23 @@ export interface components {
             /** Format: uuid */
             id: string;
         };
+        "Rpg.Cms.Models.Act": {
+            ownerId: string;
+            initiatorId: string;
+            actionName: string;
+            /** Format: int32 */
+            actionNo: number;
+            argValues: {
+                [key: string]: (string | null) | undefined;
+            };
+        };
+        "Rpg.Cms.Models.CreateActionInstance": {
+            ownerId: string;
+            initiatorId: string;
+            actionName: string;
+            /** Format: int32 */
+            actionNo: number;
+        };
         "Rpg.Cms.Models.Describe": {
             entityId: string;
             prop: string;
@@ -618,9 +919,21 @@ export interface components {
             archetype: string;
             name: string;
         };
+        "Rpg.Cms.Models.RpgOperation.Act": {
+            graphState: components["schemas"]["Rpg.ModObjects.RpgGraphState"];
+            operation: components["schemas"]["Rpg.Cms.Models.Act"];
+        };
+        "Rpg.Cms.Models.RpgOperation.CreateActionInstance": {
+            graphState: components["schemas"]["Rpg.ModObjects.RpgGraphState"];
+            operation: components["schemas"]["Rpg.Cms.Models.CreateActionInstance"];
+        };
         "Rpg.Cms.Models.RpgOperation.Describe": {
             graphState: components["schemas"]["Rpg.ModObjects.RpgGraphState"];
             operation: components["schemas"]["Rpg.Cms.Models.Describe"];
+        };
+        "Rpg.Cms.Models.RpgOperation.ModSet": {
+            graphState: components["schemas"]["Rpg.ModObjects.RpgGraphState"];
+            operation: components["schemas"]["Rpg.ModObjects.Mods.ModSet"] | components["schemas"]["Rpg.ModObjects.Actions.ActionModSet"] | components["schemas"]["Rpg.ModObjects.Actions.OutcomeModSet"];
         };
         "Rpg.Cms.Models.RpgOperation.SetState": {
             graphState: components["schemas"]["Rpg.ModObjects.RpgGraphState"];
@@ -776,6 +1089,18 @@ export interface components {
             onOutcome: components["schemas"]["Rpg.ModObjects.Reflection.RpgMethod.Action.ModSet[]"];
         };
         "Rpg.ModObjects.Actions.Action.TOwner": components["schemas"]["Rpg.ModObjects.Actions.Action"];
+        "Rpg.ModObjects.Actions.ActionInstance": {
+            readonly ownerId: string;
+            readonly initiatorId: string;
+            readonly actionName: string;
+            /** Format: int32 */
+            actionNo: number;
+            canActArgs: components["schemas"]["Rpg.ModObjects.Reflection.RpgArgSet"];
+            costArgs: components["schemas"]["Rpg.ModObjects.Reflection.RpgArgSet"];
+            actArgs: components["schemas"]["Rpg.ModObjects.Reflection.RpgArgSet"];
+            outcomeArgs: components["schemas"]["Rpg.ModObjects.Reflection.RpgArgSet"];
+            autoCompleteArgs: components["schemas"]["Rpg.ModObjects.Reflection.RpgArgSet"];
+        };
         "Rpg.ModObjects.Actions.ActionModSet": components["schemas"]["Rpg.ModObjects.Mods.ModSet"];
         "Rpg.ModObjects.Actions.OutcomeModSet": components["schemas"]["Rpg.ModObjects.Mods.ModSet"];
         "Rpg.ModObjects.Behaviors.Add": components["schemas"]["Rpg.ModObjects.Behaviors.BaseBehavior"];
@@ -911,6 +1236,7 @@ export interface components {
         "Rpg.ModObjects.Props.ModDesc": {
             sourceProp: components["schemas"]["Rpg.ModObjects.Props.PropDesc"];
             modType: components["schemas"]["Rpg.ModObjects.Mods.ModType"];
+            behavior: string;
             sourceValue: components["schemas"]["Rpg.ModObjects.Values.Dice"];
             value: components["schemas"]["Rpg.ModObjects.Values.Dice"];
             valueFunction?: string | null;
@@ -919,18 +1245,33 @@ export interface components {
             readonly mods: components["schemas"]["Rpg.ModObjects.Mods.Mod"][];
         } & components["schemas"]["Rpg.ModObjects.Props.PropRef"];
         "Rpg.ModObjects.Props.PropDesc": {
+            rootEntityId: string;
+            rootEntityName: string;
+            rootEntityArchetype: string;
+            rootProp: string;
             entityId: string;
             entityName: string;
             entityArchetype: string;
             prop: string;
             value: components["schemas"]["Rpg.ModObjects.Values.Dice"];
+            baseValue: components["schemas"]["Rpg.ModObjects.Values.Dice"];
             mods: components["schemas"]["Rpg.ModObjects.Props.ModDesc"][];
         };
         "Rpg.ModObjects.Props.PropRef": {
             entityId: string;
             prop: string;
         };
-        "Rpg.ModObjects.Reflection.RpgArgSet": Record<string, never>;
+        "Rpg.ModObjects.Reflection.RpgArg": {
+            readonly name: string;
+            readonly typeName: string;
+            readonly isNullable: boolean;
+        };
+        "Rpg.ModObjects.Reflection.RpgArgSet": {
+            readonly args: components["schemas"]["Rpg.ModObjects.Reflection.RpgArg"][];
+            readonly argValues: {
+                [key: string]: unknown;
+            };
+        };
         "Rpg.ModObjects.Reflection.RpgMethod.Action.ActionModSet": {
             readonly className?: string | null;
             methodName: string;

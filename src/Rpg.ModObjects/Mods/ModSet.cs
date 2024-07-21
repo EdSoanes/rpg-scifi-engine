@@ -14,7 +14,7 @@ namespace Rpg.ModObjects.Mods
 
         [JsonProperty] public string Name { get; set; }
 
-        [JsonIgnore] public List<Mod> Mods { get; private set; } = new List<Mod>();
+        [JsonProperty] public List<Mod> Mods { get; private set; } = new List<Mod>();
         [JsonProperty] public ILifecycle Lifecycle { get; protected set; }
 
         public LifecycleExpiry Expiry { get => Lifecycle.Expiry; protected set { } }

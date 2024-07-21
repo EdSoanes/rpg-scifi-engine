@@ -19,9 +19,10 @@ namespace Rpg.Cyborgs.Skills.Combat
         public bool OnCanAct(Actor owner)
             => !owner.IsStateOn(nameof(Aiming)) || owner.RangedAimBonus.Value < 6;
 
-        public ModSet OnCost(Actor owner, Actor initiator, int focusPoints)
+        public ModSet OnCost(Actor owner, Actor initiator)
         {
-            return new ModSet(owner.Id, new TurnLifecycle());
+            return new ModSet(owner.Id, new TurnLifecycle())
+                .Add(initiator, x => x.ActionPoints, -1);
         }
 
         public ActionModSet OnAct(ActionInstance actionInstance)

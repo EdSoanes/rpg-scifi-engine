@@ -54,7 +54,7 @@ namespace Rpg.Cms.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Systems()
         {
-            var systems = _syncSessionFactory.GetSystems();
+            var systems = MetaSystems.Get();
             var json = RpgSerializer.Serialize(systems);
 
             return Content(json, "application/json");
@@ -67,7 +67,7 @@ namespace Rpg.Cms.Controllers
         {
             var userKey = CurrentUserKey(_backOfficeSecurityAccessor);
 
-            var systems = _syncSessionFactory.GetSystems();
+            var systems = MetaSystems.Get();
             foreach (var system in systems)
             {
                 var session = _syncSessionFactory.CreateSession(userKey, system);
@@ -87,9 +87,7 @@ namespace Rpg.Cms.Controllers
         {
             var userKey = CurrentUserKey(_backOfficeSecurityAccessor);
 
-            var system = _syncSessionFactory.GetSystems()
-                .FirstOrDefault(x => x.Identifier == identifier);
-
+            var system = MetaSystems.Get(identifier);
             if (system == null)
                 return NotFound();
 

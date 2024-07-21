@@ -49,11 +49,11 @@ namespace Rpg.ModObjects.Actions
         [JsonProperty] public string ActionName { get; protected set; }
         [JsonProperty] public int ActionNo { get; protected set; }
 
-        [JsonIgnore] public RpgArgSet? CanActArgs {  get; protected set; }
-        [JsonIgnore] public RpgArgSet? CostArgs { get; protected set; }
-        [JsonIgnore] public RpgArgSet? ActArgs { get; protected set; }
-        [JsonIgnore] public RpgArgSet? OutcomeArgs { get; protected set; }
-        [JsonIgnore] public RpgArgSet? AutoCompleteArgs { get; protected set; }
+        [JsonProperty] public RpgArgSet? CanActArgs {  get; protected set; }
+        [JsonProperty] public RpgArgSet? CostArgs { get; protected set; }
+        [JsonProperty] public RpgArgSet? ActArgs { get; protected set; }
+        [JsonProperty] public RpgArgSet? OutcomeArgs { get; protected set; }
+        [JsonProperty] public RpgArgSet? AutoCompleteArgs { get; protected set; }
 
         public ActionInstance(RpgEntity owner, RpgEntity initiator, Action action, int actionNo)
         {
@@ -112,13 +112,22 @@ namespace Rpg.ModObjects.Actions
                 .GetAction(ActionName)!
                 .Outcome(OutcomeArgs!);
 
-        public void SetArg(string arg, object? value)
+        public void SetArgValue(string arg, object? value)
         {
             CanActArgs!.SetArg(arg, value);
             CostArgs!.SetArg(arg, value);
             ActArgs!.SetArg(arg, value);
             OutcomeArgs!.SetArg(arg, value);
             AutoCompleteArgs!.SetArg(arg, value);
+        }
+
+        public void SetArgValues(Dictionary<string, string?> argValues)
+        {
+            CanActArgs!.SetArgValues(argValues);
+            CostArgs!.SetArgValues(argValues);
+            ActArgs!.SetArgValues(argValues);
+            OutcomeArgs!.SetArgValues(argValues);
+            AutoCompleteArgs!.SetArgValues(argValues);
         }
 
         public void AutoComplete()

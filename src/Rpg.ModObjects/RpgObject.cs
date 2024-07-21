@@ -114,6 +114,37 @@ namespace Rpg.ModObjects
 
         #region Props
 
+        public PropDesc? Describe(string propPath)
+        {
+            var exists = false;
+            var (entity, prop) = this.FromPath(propPath);
+            if (entity == null || prop == null)
+                return null;
+
+            var propDesc = new PropDesc
+            {
+                RootEntityId = Id,
+                RootEntityArchetype = Archetype,
+                RootEntityName = Name,
+                RootProp = propPath,
+
+                EntityId = entity!.Id,
+                EntityArchetype = entity.Archetype,
+                EntityName = entity.Name,
+                Prop = prop,
+
+                Value = Graph!.CalculatePropValue(entity, prop) ?? Dice.Zero,
+                BaseValue = Graph!.CalculateBasePropValue(entity, prop) ?? Dice.Zero
+            };
+
+            propDesc.Mods = entity.GetActiveMods(prop)
+                .Select(x => x.Describe(Graph!))
+                .Where(x => x != null)
+                .Cast<ModDesc>()
+                .ToList();
+
+            return propDesc;
+        }
         public Prop? GetProp(string? prop, bool create = false)
         {
             if (string.IsNullOrEmpty(prop))

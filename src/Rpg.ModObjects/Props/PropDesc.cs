@@ -10,52 +10,83 @@ namespace Rpg.ModObjects.Props
 {
     public class PropDesc
     {
+        public string RootEntityId { get; set; }
+        public string RootEntityName { get; set; }  
+        public string RootEntityArchetype { get; set; }
+        public string RootProp { get; set; }
+
         public string EntityId { get; set; }
         public string EntityName { get; set; }
         public string EntityArchetype { get; set; }
 
         public string Prop { get; set; }
         public Dice Value { get; set; }
+        public Dice BaseValue { get; set; }
 
         public List<ModDesc> Mods { get; set; } = new();
+
+        public override string ToString()
+        {
+            return $"{Value} <= {RootEntityArchetype}.{RootProp}";
+        }
     }
 
     public class ModDesc
     {
         public PropDesc? SourceProp { get; set; }
         public ModType ModType { get; set; }
+        public string Behavior { get; set; }
         public Dice? SourceValue { get; set; }
         public Dice Value { get; set; }
         public string? ValueFunction { get; set; }
+
+        public override string ToString()
+        {
+            var src = SourceProp != null
+                ? $"{SourceProp.RootEntityName}.{SourceProp.RootProp}"
+                : SourceValue?.ToString();
+
+            var type = Behavior == "Threshold" ? Behavior : ModType.ToString();
+            return $"{Value} <= ({type}) {src}";
+        }
     }
 
     public static class PropDescExtensions
     {
-        public static PropDesc? Describe(this RpgObject? rpgObject, RpgGraph graph, string prop)
-        {
-            var exists = false;
-            rpgObject?.PropertyValue(prop, out exists);
+        //public static PropDesc? Describe(this RpgObject? rootObject, RpgGraph graph, string propPath)
+        //{
+        //    var exists = false;
+        //    var (entity, prop) = rootObject.FromPath(propPath);
+        //    if (entity == null || prop == null)
+        //        return null;
 
-            if (rpgObject == null || !exists)
-                return null;
+        //    var propVal = entity?.PropertyValue(prop, out exists);
 
-            var propDesc = new PropDesc
-            {
-                EntityId = rpgObject.Id,
-                EntityArchetype = rpgObject.Archetype,
-                EntityName = rpgObject.Name,
-                Prop = prop,
-                Value = graph.CalculatePropValue(rpgObject, prop) ?? Dice.Zero
-            };
 
-            propDesc.Mods = rpgObject.GetActiveMods(prop)
-                .Select(x => x.Describe(graph))
-                .Where(x => x != null)
-                .Cast<ModDesc>()
-                .ToList();
+        //    var propDesc = new PropDesc
+        //    {
+        //        RootEntityId = rootObject!.Id,
+        //        RootEntityArchetype = rootObject.Archetype,
+        //        RootEntityName = rootObject.Name,
+        //        RootProp = propPath,
 
-            return propDesc;
-        }
+        //        EntityId = entity!.Id,
+        //        EntityArchetype = entity.Archetype,
+        //        EntityName = entity.Name,
+        //        Prop = prop,
+
+        //        Value = graph.CalculatePropValue(entity, prop) ?? Dice.Zero,
+        //        BaseValue = graph.CalculateBasePropValue(entity, prop) ?? Dice.Zero
+        //    };
+
+        //    propDesc.Mods = entity.GetActiveMods(prop)
+        //        .Select(x => x.Describe(graph))
+        //        .Where(x => x != null)
+        //        .Cast<ModDesc>()
+        //        .ToList();
+
+        //    return propDesc;
+        //}
 
         public static ModDesc? Describe(this Mod? mod, RpgGraph graph)
         {
@@ -66,6 +97,7 @@ namespace Rpg.ModObjects.Props
             var modDesc = new ModDesc
             {
                 ModType = mod.Behavior.Type,
+                Behavior = mod.Behavior.GetType().Name,
                 Value = value,
                 ValueFunction = mod.SourceValueFunc?.FullName,
                 SourceValue = mod.SourceValue,
@@ -73,7 +105,7 @@ namespace Rpg.ModObjects.Props
 
             var sourceEntity = graph.GetObject(mod.SourcePropRef?.EntityId);
             if (sourceEntity != null)
-                modDesc.SourceProp = sourceEntity.Describe(graph, mod.SourcePropRef!.Prop);
+                modDesc.SourceProp = sourceEntity.Describe(mod.SourcePropRef!.Prop);
 
             return modDesc;
         }

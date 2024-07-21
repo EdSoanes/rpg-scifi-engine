@@ -1,16 +1,13 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Rpg.Cms.Extensions;
+using Rpg.Cms.Controllers.Services;
 using Rpg.Cms.Models;
-using Rpg.Cms.Services;
-using Rpg.Cms.Services.Converter;
 using Rpg.ModObjects;
-using Rpg.ModObjects.Meta;
+using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
 using Umbraco.Cms.Api.Common.Attributes;
-using Umbraco.Cms.Core.Models.PublishedContent;
-using Umbraco.Cms.Web.Common;
 
 namespace Rpg.Cms.Controllers
 {
@@ -21,56 +18,123 @@ namespace Rpg.Cms.Controllers
     [ApiExplorerSettings(GroupName = "Entities")]
     public class RpgController : Controller
     {
-        private readonly ContentConverter _contentConverter;
-        private readonly UmbracoHelper _umbracoHelper;
-        private readonly SyncSessionFactory _syncSessionFactory;
+        private readonly IGraphFactory _graphFactory;
+        private readonly IContentFactory _contentFactory;
 
-        public RpgController(ContentConverter contentConverter, UmbracoHelper umbracoHelper, SyncSessionFactory syncSessionFactory) 
+        public RpgController(IGraphFactory graphFactory, IContentFactory contentFactory) 
         {
-            _contentConverter = contentConverter;
-            _umbracoHelper = umbracoHelper;
-            _syncSessionFactory = syncSessionFactory;
+            _graphFactory = graphFactory;
+            _contentFactory = contentFactory;
         }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
         [HttpGet("{system}/entities")]
         [ProducesResponseType(typeof(RpgContent[]), StatusCodes.Status200OK)]
-        public IActionResult Entities(string system)
+        public IActionResult ListEntities(string system)
         {
-            var sys = _syncSessionFactory.GetSystem(system);
-            if (sys == null)
-                return NotFound($"System {system} not found");
+            var items = _contentFactory.ListEntities(system);
+            return Ok(items);
+        }
 
-            var entityLibrary = GetEntityLibrary(sys);
-            if (entityLibrary == null)
-                return NotFound($"Could not find entity library for system {system}");
+        [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
+        [HttpGet("{system}/{archetype}/{id}")]
+        [ProducesResponseType(typeof(RpgGraphState), StatusCodes.Status200OK)]
+        public IActionResult CreateGraphState(string system, string archetype, string id)
+        {
+            var graphState = _graphFactory.CreateGraphState(system, archetype, id);
+            return Ok(graphState);
+        }
 
-            var entities = entityLibrary
-                .Descendants()
-                .Where(x => x.ContentType.Alias != entityLibrary.ContentType.Alias);
+        [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
+        [HttpPost("{system}/actioninstance/create")]
+        [ProducesResponseType(typeof(ActionInstance), StatusCodes.Status200OK)]
+        public IActionResult GetActionInstance(string system, RpgOperation<CreateActionInstance> op)
+        {
+            var graph = _graphFactory.HydrateGraph(system, op.GraphState);
 
-            var res = entities
-                .Select(x => new RpgContent
-                {
-                    Key = x.Key,
-                    Name = x.Name,
-                    System = sys.Identifier,
-                    Archetype = sys.GetArchetype(x.ContentType.Alias),
-                });
+            var owner = graph.GetObject<RpgEntity>(op.Operation.OwnerId)!;
+            var initiator = graph.GetObject<RpgEntity>(op.Operation.InitiatorId)!;
 
-            return Ok(res);
+            var instance = owner.CreateActionInstance(initiator, op.Operation.ActionName, op.Operation.ActionNo);
+
+            return Ok(instance);
+        }
+
+        [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
+        [HttpPost("{system}/modset")]
+        [ProducesResponseType(typeof(RpgGraphState), StatusCodes.Status200OK)]
+        public IActionResult AddModSet(string system, RpgOperation<ModSet> op)
+        {
+            var graph = _graphFactory.HydrateGraph(system, op.GraphState);
+
+            var owner = graph.GetObject<RpgEntity>(op.Operation.OwnerId)!;
+            owner.AddModSet(op.Operation);
+            graph.Time.TriggerEvent();
+
+            var graphState = graph.GetGraphState();
+            return Ok(graphState);
+        }
+
+        [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
+        [HttpPost("{system}/actioninstance/cost")]
+        [ProducesResponseType(typeof(ModSet), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public IActionResult Cost(string system, RpgOperation<Act> op)
+        {
+            var graph = _graphFactory.HydrateGraph(system, op.GraphState);
+
+            var owner = graph.GetObject<RpgEntity>(op.Operation.OwnerId)!;
+            var initiator = graph.GetObject<RpgEntity>(op.Operation.InitiatorId)!;
+
+            var instance = owner.CreateActionInstance(initiator, op.Operation.ActionName, op.Operation.ActionNo)!;
+            instance.SetArgValues(op.Operation.ArgValues);
+
+            return instance.CanAct()
+                ? Ok(instance.Cost())
+                : Forbid();
+        }
+
+        [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
+        [HttpPost("{system}/actioninstance/act")]
+        [ProducesResponseType(typeof(ActionModSet), StatusCodes.Status200OK)]
+        public IActionResult Act(string system, RpgOperation<Act> op)
+        {
+            var graph = _graphFactory.HydrateGraph(system, op.GraphState);
+
+            var owner = graph.GetObject<RpgEntity>(op.Operation.OwnerId)!;
+            var initiator = graph.GetObject<RpgEntity>(op.Operation.InitiatorId)!;
+
+            var instance = owner.CreateActionInstance(initiator, op.Operation.ActionName, op.Operation.ActionNo)!;
+            instance.SetArgValues(op.Operation.ArgValues);
+            return Ok(instance.Act());
+        }
+
+        [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
+        [HttpPost("{system}/actioninstance/outcome")]
+        [ProducesResponseType(typeof(ModSet[]), StatusCodes.Status200OK)]
+        public IActionResult Outcome(string system, RpgOperation<Act> op)
+        {
+            var graph = _graphFactory.HydrateGraph(system, op.GraphState);
+
+            var owner = graph.GetObject<RpgEntity>(op.Operation.OwnerId)!;
+            var initiator = graph.GetObject<RpgEntity>(op.Operation.InitiatorId)!;
+
+            var instance = owner.CreateActionInstance(initiator, op.Operation.ActionName, op.Operation.ActionNo)!;
+            instance.SetArgValues(op.Operation.ArgValues);
+            return Ok(instance.Outcome());
         }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
         [HttpPost("{system}/state")]
         [ProducesResponseType(typeof(RpgGraphState), StatusCodes.Status200OK)]
-        public IActionResult StateState(string system, RpgOperation<SetState> setStateOperation)
+        public IActionResult StateState(string system, RpgOperation<SetState> op)
         {
-            var graph = new RpgGraph(setStateOperation.GraphState);
-            var entity = graph.GetObject<RpgEntity>(setStateOperation.Operation.EntityId)!;
-            var stateChanged = setStateOperation.Operation.On
-                ? entity.SetStateOn(setStateOperation.Operation.State)
-                : entity.SetStateOff(setStateOperation.Operation.State);
+            var graph = _graphFactory.HydrateGraph(system, op.GraphState);
+
+            var entity = graph.GetObject<RpgEntity>(op.Operation.EntityId)!;
+            var stateChanged = op.Operation.On
+                ? entity.SetStateOn(op.Operation.State)
+                : entity.SetStateOff(op.Operation.State);
 
             graph.Time.TriggerEvent();
 
@@ -85,78 +149,21 @@ namespace Rpg.Cms.Controllers
         /// POST {system}/describe
         /// </remarks>
         /// <param name="system"></param>
-        /// <param name="describeOperation"></param>
+        /// <param name="op"></param>
         /// <returns></returns>
         [HttpPost("{system}/describe")]
         [ProducesResponseType(typeof(PropDesc), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult Describe(string system, RpgOperation<Describe> describeOperation)
+        public IActionResult Describe(string system, RpgOperation<Describe> op)
         {
-            var graph = new RpgGraph(describeOperation.GraphState);
-            graph.Time.TriggerEvent();
+            var graph = _graphFactory.HydrateGraph(system, op.GraphState);
+            var entity = graph.GetObject<RpgEntity>(op.Operation.EntityId)!;
 
-            var entity = graph.GetObject<RpgEntity>(describeOperation.Operation.EntityId)!;
-
-            var description = entity.Describe(graph, describeOperation.Operation.Prop);
+            var description = entity.Describe(op.Operation.Prop);
             if (description == null)
-                return BadRequest($"Desription for {describeOperation.Operation.EntityId}.{describeOperation.Operation.Prop} not found");
+                return BadRequest($"Desription for {op.Operation.EntityId}.{op.Operation.Prop} not found");
 
             return Ok(description);
-        }
-
-        [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
-        [HttpGet("{system}/{archetype}/{id}")]
-        [ProducesResponseType(typeof(RpgGraphState), StatusCodes.Status200OK)]
-        public IActionResult Entity(string system, string archetype, string id)
-        {
-            var sys = _syncSessionFactory.GetSystem(system);
-            if (sys == null)
-                return NotFound($"System {system} not found");
-
-            var type = sys.GetMetaObjectType(archetype);
-            if (type == null)
-                return BadRequest($"No .net type found for archetype {archetype} in system {system}");
-
-            var entityLibrary = GetEntityLibrary(sys);
-            if (entityLibrary == null)
-                return NotFound($"Could not find entity library for system {system}");
-
-            var alias = sys.GetDocumentTypeAlias(archetype);
-            var content = GetEntity(entityLibrary, alias, id);
-            if (content == null)
-                return NotFound($"Could not find entity {id} ({archetype}) for system {system}");
-
-            var entity = _contentConverter.Convert(sys, type, content!);
-            var graph = new RpgGraph(entity!);
-
-            var graphState = graph.GetGraphState();
-
-            var json = RpgSerializer.Serialize(graphState);
-            return Content(json, "application/json");
-        }
-
-        private IPublishedContent? GetEntityLibrary(IMetaSystem system)
-        {
-            var entityLibraryAlias = system.GetDocumentTypeAlias("Entity Library");
-
-            var systemRoot = _umbracoHelper
-                .ContentAtRoot()
-                .FirstOrDefault(x => x.ContentType.Alias == system.Identifier);
-
-            var entityLibrary = systemRoot?.FirstChild(content => content.ContentType.Alias == entityLibraryAlias);
-            return entityLibrary;
-        }
-
-        private IPublishedContent? GetEntity(IPublishedContent entityLibrary, string alias, string identifier)
-        {
-            if (Guid.TryParse(identifier, out var key))
-                return _umbracoHelper.Content(key);
-
-            var entity = entityLibrary
-                .Descendants()
-                .FirstOrDefault(x => x.ContentType.Alias == alias);
-
-            return entity;
         }
     }
 }

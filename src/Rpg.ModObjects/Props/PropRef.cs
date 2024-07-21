@@ -43,12 +43,8 @@ namespace Rpg.ModObjects.Props
 
         public static PropRef CreatePropRef(RpgObject rootEntity, string propPath)
         {
-            var parts = propPath.Split('.');
-            var path = string.Join(".", parts.Take(parts.Length - 1));
-            var prop = parts.Last();
-
-            var entity = rootEntity.PropertyValue<RpgObject>(path);
-            var locator = entity != null
+            var (entity, prop) = rootEntity.FromPath(propPath);
+            var locator = entity != null && prop != null
                 ? new PropRef(entity.Id, prop)
                 : new PropRef(rootEntity.Id, propPath);
 
