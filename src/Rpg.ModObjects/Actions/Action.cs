@@ -24,12 +24,7 @@ namespace Rpg.ModObjects.Actions
 
             Id = this.NewId();
             Name = type.Name;
-            OwnerArchetype = type.OwnerArchetype() ?? nameof(RpgEntity);
-
-            OnCanAct = new RpgMethod<Action, bool>(this, nameof(OnCanAct));
-            OnCost = new RpgMethod<Action, ModSet>(this, nameof(OnCost));
-            OnAct = new RpgMethod<Action, ActionModSet>(this, nameof(OnAct));
-            OnOutcome = new RpgMethod<Action, ModSet[]>(this, nameof(OnOutcome));
+            OwnerArchetype = GetOwnerArchetype(type) ?? nameof(RpgEntity);
         }
 
         public Action(RpgEntity owner)
@@ -42,6 +37,10 @@ namespace Rpg.ModObjects.Actions
         public void OnAdding(RpgGraph graph)
         {
             Graph = graph;
+            OnCanAct = graph.MethodFactory.Create<Action, bool>(this, nameof(OnCanAct))!;
+            OnCost = graph.MethodFactory.Create<Action, ModSet>(this, nameof(OnCost))!;
+            OnAct = graph.MethodFactory.Create<Action, ActionModSet>(this, nameof(OnAct))!;
+            OnOutcome = graph.MethodFactory.Create<Action, ModSet[]>(this, nameof(OnOutcome))!;
         }
 
         public RpgArgSet CanActArgs()
@@ -67,6 +66,62 @@ namespace Rpg.ModObjects.Actions
 
         public ModSet[] Outcome(RpgArgSet args)
             => OnOutcome.Execute(this, args);
+
+        public static Action[] CreateOwnerActions(RpgObject entity)
+        {
+            var actions = new List<Action>();
+
+            var types = RpgReflection.ScanForTypes<Action>()
+                .Where(x => IsOwnerActionType(entity, x));
+
+            foreach (var type in types)
+            {
+
+                var action = (Action)Activator.CreateInstance(type, [entity])!;
+                if (entity.IsA(action.OwnerArchetype!))
+                    actions.Add(action);
+            }
+
+            return actions.ToArray();
+        }
+
+        private static bool IsOwnerActionType(RpgObject entity, Type? actionType)
+        {
+            while (actionType != null)
+            {
+                if (actionType.IsGenericType)
+                {
+                    var genericTypes = actionType.GetGenericArguments();
+                    if (genericTypes.Length == 1 && entity.GetType().IsAssignableTo(genericTypes[0]))
+                        return true;
+                }
+
+                actionType = actionType.BaseType;
+            }
+
+            return false;
+        }
+
+        private static string? GetOwnerArchetype(Type? actionType)
+        {
+            if (actionType != null && actionType.IsAssignableTo(typeof(Actions.Action)))
+            {
+                while (actionType != null)
+                {
+                    if (actionType.IsGenericType)
+                    {
+                        var genericTypes = actionType.GetGenericArguments();
+                        if (genericTypes.Length == 1)
+                            return genericTypes[0].Name;
+                    }
+
+                    actionType = actionType.BaseType;
+                }
+            }
+
+            return null;
+        }
+
     }
 
     public abstract class Action<TOwner> : Action

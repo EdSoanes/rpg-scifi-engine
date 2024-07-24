@@ -23,10 +23,5 @@ namespace Rpg.Cyborgs
             Damage = template.Damage;
             HitBonus = template.HitBonus;
         }
-        protected override void OnLifecycleStarting()
-        {
-            base.OnLifecycleStarting();
-            this.InitActionsAndStates(Graph!);
-        }
     }
 }

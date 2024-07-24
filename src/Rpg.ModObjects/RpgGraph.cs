@@ -15,6 +15,7 @@ namespace Rpg.ModObjects
         [JsonProperty] public RpgObject Context { get; private set; }
         [JsonProperty] protected Dictionary<string, RpgObject> ObjectStore { get; set; } = new Dictionary<string, RpgObject>();
         [JsonProperty] public ITimeEngine Time { get; private set; }
+        public RpgMethodFactory MethodFactory { get; private init; } = new();
 
         public RpgGraph(RpgObject context)
         {
@@ -351,8 +352,14 @@ namespace Rpg.ModObjects
 
             Dice value = mod.SourceValue ?? GetPropValue(GetObject(mod.SourcePropRef!.EntityId), mod.SourcePropRef.Prop);
 
-            if (mod.SourceValueFunc?.IsCalc ?? false)
-                value = mod.SourceValueFunc.Execute(this, value);
+            if (mod.SourceValueFunc != null)
+            {
+                var argSet = mod.SourceValueFunc
+                    .CreateArgSet()
+                    .Set(0, value);
+                
+                value = mod.SourceValueFunc.Execute(argSet);
+            }
 
             return value;
         }

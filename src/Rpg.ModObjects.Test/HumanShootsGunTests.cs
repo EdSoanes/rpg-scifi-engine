@@ -71,8 +71,8 @@ namespace Rpg.ModObjects.Tests
             Assert.That(diceRoll.ToString(), Is.EqualTo("1d20 + 2"));
 
             fireInst.OutcomeArgs!
-                .SetArg("diceRoll", 20)
-                .SetArg("target", 15);
+                .Set("diceRoll", 20)
+                .Set("target", 15);
 
             var outcomeModSets = fireInst.Outcome();
             graph.AddModSets(outcomeModSets);
@@ -133,7 +133,7 @@ namespace Rpg.ModObjects.Tests
             graph.Time.TriggerEvent();
 
             fireInst.ActArgs!
-                .SetArg("targetDefence", 1);
+                .Set("targetDefence", 1);
 
             var actionModSet = fireInst.Act();
             initiator.AddModSets(actionModSet);

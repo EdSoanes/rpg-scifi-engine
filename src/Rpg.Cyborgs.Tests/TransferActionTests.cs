@@ -43,8 +43,8 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(_pc.CurrentActionPoints, Is.EqualTo(1));
 
             transfer.AutoCompleteArgs!
-                .SetArg("from", _pc.Hands)
-                .SetArg("to", (_graph.Context as Room)!.Contents);
+                .Set("from", _pc.Hands)
+                .Set("to", (_graph.Context as Room)!.Contents);
 
             transfer.AutoComplete();
 
@@ -63,8 +63,8 @@ namespace Rpg.Cyborgs.Tests
             var transfer = _sword.CreateActionInstance(_pc, nameof(Transfer), 0)!;
 
             transfer.AutoCompleteArgs!
-                .SetArg("from", _pc.Hands)
-                .SetArg("to", (_graph.Context as Room)!.Contents);
+                .Set("from", _pc.Hands)
+                .Set("to", (_graph.Context as Room)!.Contents);
 
             transfer.AutoComplete();
 
@@ -81,8 +81,8 @@ namespace Rpg.Cyborgs.Tests
             var drop = _sword.CreateActionInstance(_pc, nameof(Transfer), 0)!;
 
             drop.AutoCompleteArgs!
-                .SetArg("from", _pc.Hands)
-                .SetArg("to", (_graph.Context as Room)!.Contents);
+                .Set("from", _pc.Hands)
+                .Set("to", (_graph.Context as Room)!.Contents);
 
             drop.AutoComplete();
 
@@ -91,8 +91,8 @@ namespace Rpg.Cyborgs.Tests
             var pickup = _sword.CreateActionInstance(_pc, nameof(Transfer), 1)!;
 
             pickup.AutoCompleteArgs!
-                .SetArg("from", (_graph.Context as Room)!.Contents)
-                .SetArg("to", _pc.Hands);
+                .Set("from", (_graph.Context as Room)!.Contents)
+                .Set("to", _pc.Hands);
 
             Assert.Throws<InvalidOperationException>(() => pickup.AutoComplete());
         }

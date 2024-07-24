@@ -1,66 +1,14 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Actions;
-using System.Reflection;
 
 namespace Rpg.ModObjects.Reflection
 {
     public class RpgArgSet
     {
-        private static IRpgArgType[]? _argTypes;
-        private static IRpgArgType[] GetArgTypes()
-        {
-            if (_argTypes == null)
-            {
-                var types = RpgReflection.ScanForTypes<IRpgArgType>();
-                _argTypes = types
-                    .Where(x => !x.IsAbstract)
-                    .Select(x => Activator.CreateInstance(x) as IRpgArgType)
-                    .Where(x => x != null)
-                    .Cast<IRpgArgType>()
-                    .ToArray();
-            }
+        [JsonProperty] public Dictionary<string, RpgArg> Args { get; private set; } = new();
+        [JsonProperty] public Dictionary<string, object?> ArgValues { get; private set; } = new();
 
-            return _argTypes;
-        }
-
-        private static IRpgArgType? CreateArgType(ParameterInfo parameterInfo)
-        {
-            var res = GetArgTypes().FirstOrDefault(x => x.IsArgTypeFor(parameterInfo));
-            return res?.Clone(parameterInfo.ParameterType);
-        }
-
-        //private static IRpgArgType? CreateArgType(Type type)
-        //{
-        //    var res = GetArgTypes().FirstOrDefault(x => x.GetType(). == type);
-        //    return res?.Clone(parameterInfo.ParameterType);
-        //}
-
-        [JsonProperty] public Dictionary<string, IRpgArgType> Args { get; private set; } = new();
-        [JsonIgnore] public Dictionary<string, object?> ArgValues { get; private set; } = new();
-
-        [JsonConstructor] private RpgArgSet() { }
-
-        public RpgArgSet(ParameterInfo[] parameterInfos)
-        {
-            foreach (var parameterInfo in parameterInfos)
-            {
-                var argType = CreateArgType(parameterInfo);
-                if (argType != null)
-                    Args.Add(parameterInfo.Name!, argType);
-            }
-        }
-
-        public RpgArgSet Clone()
-        {
-            var argSet = new RpgArgSet();
-            foreach (var arg in Args)
-            {
-                var argType = arg.Value.Clone();
-                argSet.Args.Add(arg.Key, argType);
-            }
-
-            return argSet;
-        }
+        public RpgArgSet() { }
 
         private void ValidateArgValue(string arg, object? value)
         {
@@ -89,39 +37,47 @@ namespace Rpg.ModObjects.Reflection
         {
             var argSet = new RpgArgSet();
 
-            foreach (var key in Args.Keys)
+            foreach (var key in ArgValues.Keys)
             {
-                var arg = Args[key].Clone();
-                argSet.Args.Add(key, arg);
+                var val = ArgValues[key];
+                argSet.ArgValues.Add(key, val);
             }
 
-            foreach (var key in other.Args.Keys)
-            {
-                if (!argSet.Args.ContainsKey(key))
-                    argSet.Args.Add(key, other.Args[key].Clone());
-            }
-
+            argSet.FillFrom(other);
             return argSet;
         }
 
         public void FillFrom(RpgArgSet other)
         {
-            foreach (var arg in other.ArgValues)
+            foreach (var key in other.ArgValues.Keys)
             {
-                if (Args.ContainsKey(arg.Key) && (!ArgValues.ContainsKey(arg.Key) || ArgValues[arg.Key] == null))
-                    ArgValues[arg.Key] = arg.Value;
+                var val = other.ArgValues[key];
+                if (!ArgValues.ContainsKey(key) || ArgValues[key] == null)
+                    ArgValues.Add(key, val);
             }
         }
 
-        public void SetArgValues(ActionInstance? actionInstance, RpgEntity? owner, RpgEntity? initiator, int? actionNo)
+        public void Set(ActionInstance? actionInstance, RpgEntity? owner, RpgEntity? initiator, int? actionNo)
         {
-            SetArg("actionInstance", actionInstance);
-            SetArg("actionNo", actionNo!.Value);
-            SetArg("initiator", initiator);
-            SetArg("owner", owner);
+            Set("actionInstance", actionInstance);
+            Set("actionNo", actionNo!.Value);
+            Set("initiator", initiator);
+            Set("owner", owner);
         }
 
-        public RpgArgSet SetArg(string argName, object? value)
+        public RpgArgSet Set(int idx, object? value)
+        {
+            if (Args.Count() < idx && idx >= 0)
+            {
+                var argName = Args.Keys.ToArray()[idx];
+                ValidateArgValue(argName, value);
+                ArgValues[argName] = value;
+            }
+
+            return this;
+        }
+
+        public RpgArgSet Set(string argName, object? value)
         {
             if (Args.ContainsKey(argName))
             {
@@ -132,7 +88,7 @@ namespace Rpg.ModObjects.Reflection
             return this;
         }
 
-        public RpgArgSet SetArgValue(string argName, string? value)
+        public RpgArgSet SetStr(string argName, string? value)
         {
             if (Args.ContainsKey(argName))
             {
@@ -144,10 +100,10 @@ namespace Rpg.ModObjects.Reflection
             return this;
         }
 
-        public void SetArgValues(Dictionary<string, string?> args)
+        public void Set(Dictionary<string, string?> args)
         {
             foreach (var key in args.Keys)
-                SetArgValue(key, args[key]);
+                SetStr(key, args[key]);
         }
 
         public object?[] ToArgs()

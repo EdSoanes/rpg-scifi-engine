@@ -45,7 +45,7 @@ namespace Rpg.Cyborgs.Tests
             _graph.Time.SetTime(TimePoints.BeginningOfEncounter);
             Assert.That(_graph.Time.Current, Is.EqualTo(TimePoints.Encounter(1)));
 
-            attack.CostArgs!.SetArg("focusPoints", 0);
+            attack.CostArgs!.Set("focusPoints", 0);
             var cost = attack.Cost();
 
             Assert.That(_pc.CurrentActionPoints, Is.EqualTo(1));
@@ -55,8 +55,8 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(_pc.CurrentActionPoints, Is.EqualTo(0));
 
             attack.ActArgs!
-                .SetArg("focusPoints", 0)
-                .SetArg("targetDefence", 12);
+                .Set("focusPoints", 0)
+                .Set("targetDefence", 12);
 
             var actionModSet = attack.Act();
             _pc.AddModSets(actionModSet);

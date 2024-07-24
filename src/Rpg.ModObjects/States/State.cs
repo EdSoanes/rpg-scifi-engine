@@ -41,7 +41,7 @@ namespace Rpg.ModObjects.States
 
         internal abstract void FillStateSet(ModSet modSet);
 
-        internal void OnAdding(RpgGraph graph)
+        internal virtual void OnAdding(RpgGraph graph)
         {
             Graph = graph;
         }
@@ -79,6 +79,40 @@ namespace Rpg.ModObjects.States
 
             return true;
         }
+
+        public static State[] CreateOwnerStates(RpgEntity entity)
+        {
+            var states = new List<State>();
+
+            var types = RpgReflection.ScanForTypes<State>()
+                .Where(x => IsOwnerStateType(entity, x));
+
+            foreach (var type in types)
+            {
+                var state = (State)Activator.CreateInstance(type, [entity])!;
+                if (entity.IsA(state.OwnerArchetype!))
+                    states.Add(state);
+            }
+
+            return states.ToArray();
+        }
+
+        private static bool IsOwnerStateType(RpgEntity entity, Type? stateType)
+        {
+            while (stateType != null)
+            {
+                if (stateType.IsGenericType)
+                {
+                    var genericTypes = stateType.GetGenericArguments();
+                    if (genericTypes.Length == 1 && entity.GetType().IsAssignableTo(genericTypes[0]))
+                        return true;
+                }
+
+                stateType = stateType.BaseType;
+            }
+
+            return false;
+        }
     }
 
     public abstract class State<T> : State
@@ -89,7 +123,14 @@ namespace Rpg.ModObjects.States
         public State(T owner)
             : base(owner)
         {
-            Lifecycle = new ConditionalLifecycle<State<T>>(Id, new RpgMethod<State<T>, LifecycleExpiry>(this, nameof(CalculateExpiry)));
+        }
+
+        internal override void OnAdding(RpgGraph graph)
+        {
+            base.OnAdding(graph);
+
+            var conditionalMethod = graph.MethodFactory.Create<State<T>, LifecycleExpiry>(this, nameof(CalculateExpiry))!;
+            Lifecycle = new ConditionalLifecycle<State<T>>(Id, conditionalMethod);
         }
 
         protected virtual bool IsOnWhen(T owner)

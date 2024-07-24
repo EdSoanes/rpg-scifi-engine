@@ -22,7 +22,7 @@ namespace Rpg.ModObjects.Behaviors
                 modProp.Remove(oldMod);
 
             //Don't add if the source is a Value without a ValueFunction and the Value = null
-            if (mod.SourcePropRef != null || mod.SourceValue != null || (mod.SourceValueFunc?.IsCalc ?? false))
+            if (mod.SourcePropRef != null || mod.SourceValue != null || mod.SourceValueFunc != null)
             {
                 modProp.Add(mod);
                 OnScoping(graph, modProp, mod);

@@ -3,9 +3,11 @@ using Rpg.ModObjects.Behaviors;
 using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Mods.Templates;
 using Rpg.ModObjects.Props;
+using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 
 namespace Rpg.ModObjects.Mods
 {
@@ -17,7 +19,7 @@ namespace Rpg.ModObjects.Mods
 
         [JsonProperty] public PropRef? SourcePropRef { get; protected set; }
         [JsonProperty] public Dice? SourceValue { get; protected set; }
-        [JsonProperty] internal ModValueMethod? SourceValueFunc { get; private set; }
+        [JsonProperty] internal RpgMethod<RpgObject, Dice>? SourceValueFunc { get; private set; }
 
         [JsonProperty] public BaseBehavior Behavior { get; protected set; }
         [JsonProperty] public ILifecycle Lifecycle { get; protected set; }
@@ -70,7 +72,7 @@ namespace Rpg.ModObjects.Mods
         public override string ToString()
         {
             var src = $"{SourcePropRef}{SourceValue}";
-            src = (SourceValueFunc?.IsCalc ?? false)
+            src = SourceValueFunc != null
                 ? $"{SourceValueFunc.MethodName}({src})"
                 : src;
 
@@ -83,10 +85,7 @@ namespace Rpg.ModObjects.Mods
             SourceValue = value;
             SourcePropRef = null;
             if (valueFunc != null)
-            {
-                SourceValueFunc = new ModValueMethod();
-                SourceValueFunc.Set(valueFunc);
-            }
+                SourceValueFunc = RpgMethodFactory.Create<RpgObject, Dice, Dice>(valueFunc);
         }
     }
 }

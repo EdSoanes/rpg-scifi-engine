@@ -79,11 +79,11 @@ namespace Rpg.ModObjects.Actions
                 .Merge(ActArgs)
                 .Merge(OutcomeArgs);
 
-            CanActArgs.SetArgValues(this, Owner, Initiator, ActionNo);
-            CostArgs.SetArgValues(this, Owner, Initiator, ActionNo);
-            ActArgs.SetArgValues(this, Owner, Initiator, ActionNo);
-            OutcomeArgs.SetArgValues(this, Owner, Initiator, ActionNo);
-            AutoCompleteArgs.SetArgValues(this, Owner, Initiator, ActionNo);
+            CanActArgs.Set(this, Owner, Initiator, ActionNo);
+            CostArgs.Set(this, Owner, Initiator, ActionNo);
+            ActArgs.Set(this, Owner, Initiator, ActionNo);
+            OutcomeArgs.Set(this, Owner, Initiator, ActionNo);
+            AutoCompleteArgs.Set(this, Owner, Initiator, ActionNo);
         }
 
         public ActionModSet CreateActionSet()
@@ -114,20 +114,20 @@ namespace Rpg.ModObjects.Actions
 
         public void SetArgValue(string arg, object? value)
         {
-            CanActArgs!.SetArg(arg, value);
-            CostArgs!.SetArg(arg, value);
-            ActArgs!.SetArg(arg, value);
-            OutcomeArgs!.SetArg(arg, value);
-            AutoCompleteArgs!.SetArg(arg, value);
+            CanActArgs!.Set(arg, value);
+            CostArgs!.Set(arg, value);
+            ActArgs!.Set(arg, value);
+            OutcomeArgs!.Set(arg, value);
+            AutoCompleteArgs!.Set(arg, value);
         }
 
         public void SetArgValues(Dictionary<string, string?> argValues)
         {
-            CanActArgs!.SetArgValues(argValues);
-            CostArgs!.SetArgValues(argValues);
-            ActArgs!.SetArgValues(argValues);
-            OutcomeArgs!.SetArgValues(argValues);
-            AutoCompleteArgs!.SetArgValues(argValues);
+            CanActArgs!.Set(argValues);
+            CostArgs!.Set(argValues);
+            ActArgs!.Set(argValues);
+            OutcomeArgs!.Set(argValues);
+            AutoCompleteArgs!.Set(argValues);
         }
 
         public void AutoComplete()

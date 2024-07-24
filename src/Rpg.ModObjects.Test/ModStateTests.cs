@@ -11,12 +11,6 @@ namespace Rpg.ModObjects.Tests
     {
         public int Value { get; protected set; } = 4;
         public int BuffedValue { get; protected set; }
-
-        protected override void OnLifecycleStarting()
-        {
-            base.OnLifecycleStarting();
-            this.InitActionsAndStates(Graph!);
-        }
     }
 
     public class Buff : State<StateEntity>

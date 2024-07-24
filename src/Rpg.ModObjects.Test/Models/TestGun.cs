@@ -18,11 +18,6 @@ namespace Rpg.ModObjects.Tests.Models
         public DamageValue Damage { get; private set; }
         public MaxCurrentValue Ammo { get; private set; }
 
-        protected override void OnLifecycleStarting()
-        {
-            this.InitActionsAndStates(Graph!);
-        }
-
         public TestGun() 
         { 
             Damage = new DamageValue(nameof(Damage), "d6", 0, 0);

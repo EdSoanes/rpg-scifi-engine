@@ -21,8 +21,7 @@ namespace Rpg.ModObjects.Tests.Models
         {
             this
                 .BaseMod(x => x.Melee, x => x.Strength.Bonus)
-                .BaseMod(x => x.Damage.Dice, x => x.Strength.Bonus)
-                .InitActionsAndStates(Graph!);
+                .BaseMod(x => x.Damage.Dice, x => x.Strength.Bonus);
         }
     }
 }

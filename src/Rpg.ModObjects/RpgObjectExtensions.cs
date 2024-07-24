@@ -39,26 +39,6 @@ namespace Rpg.ModObjects
             return entity;
         }
 
-        public static T InitActionsAndStates<T>(this T entity, RpgGraph graph)
-            where T : RpgEntity
-        {
-            var actions = entity.CreateOwnerActions();
-            foreach (var action in actions)
-            {
-                action.OnAdding(graph);
-                entity.Actions.Add(action.Name, action);
-            }
-
-            var states = entity.CreateStates();
-            foreach (var state in states)
-            {
-                state.OnAdding(graph);
-                entity.States.Add(state.Name, state);
-            }
-
-            return entity;
-        }
-
         internal static object? PropertyValue(this object? entity, string path, out bool propExists)
         {
             var propInfo = RpgReflection.ScanForProperty(entity, path, out var pathEntity);

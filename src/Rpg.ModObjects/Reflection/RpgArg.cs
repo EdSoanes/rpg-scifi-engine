@@ -1,18 +1,19 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Values;
 using System.Reflection;
 
 namespace Rpg.ModObjects.Reflection
 {
-    public class RpgArg
+    public abstract class RpgArg
     {
-        [JsonProperty] public string Name { get; private set; }
-        [JsonProperty] public IRpgArgType ArgType { get; private set; }
+        [JsonProperty] public string Name { get; internal set; }
+        [JsonProperty] public string TypeName { get; internal set; }
+        [JsonProperty] public string QualifiedTypeName { get; internal set; }
+        [JsonProperty] public bool IsNullable { get; internal set; }
 
-        [JsonProperty] public string TypeName { get; private set; }
-        [JsonProperty] internal string QualifiedTypeName { get; private set; }
-        [JsonProperty] public bool IsNullable { get; private set; }
-
-        [JsonConstructor] private RpgArg() { }
+        public abstract bool IsValid(object? value);
+        public abstract string? ToArgString(object? value);
+        public abstract object? ToArgObject(string? value);
 
         internal RpgArg(ParameterInfo parameterInfo)
         {
@@ -21,14 +22,5 @@ namespace Rpg.ModObjects.Reflection
             QualifiedTypeName = parameterInfo.ParameterType.AssemblyQualifiedName!;
             IsNullable = Nullable.GetUnderlyingType(parameterInfo.ParameterType) != null;
         }
-
-        public RpgArg Clone()
-            => new RpgArg
-            {
-                Name = Name,
-                TypeName = TypeName,
-                QualifiedTypeName = QualifiedTypeName,
-                IsNullable = IsNullable
-            };
     }
 }

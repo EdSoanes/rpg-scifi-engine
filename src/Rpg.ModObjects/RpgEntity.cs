@@ -135,6 +135,24 @@ namespace Rpg.ModObjects
                 action.OnAdding(graph);
         }
 
+        public override void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
+        {
+            base.OnBeginningOfTime(graph, entity);
+            var actions = ModObjects.Actions.Action.CreateOwnerActions(this);
+            foreach (var action in actions)
+            {
+                action.OnAdding(graph);
+                Actions.Add(action.Name, action);
+            }
+
+            var states = State.CreateOwnerStates(this);
+            foreach (var state in states)
+            {
+                state.OnAdding(graph);
+                States.Add(state.Name, state);
+            }
+        }
+
         public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime)
         {
             OnStateStartLifecycle(graph, currentTime);

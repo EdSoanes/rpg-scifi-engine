@@ -18,11 +18,5 @@ namespace Rpg.Cyborgs
             Insight = new PropValue(template.Insight);
             Charisma = new PropValue(template.Charisma);
         }
-
-        protected override void OnLifecycleStarting()
-        {
-            base.OnLifecycleStarting();
-            this.InitActionsAndStates(Graph!);
-        }
     }
 }
