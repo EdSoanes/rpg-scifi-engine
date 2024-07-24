@@ -44,16 +44,7 @@ namespace Rpg.ModObjects.Reflection
             var methodInfo = (MethodInfo)methodInfoExpression.Value!;
 
             if (methodInfo.IsStatic)
-            {
-                var staticMethod = new RpgMethod<TOwner, TReturn>
-                {
-                    ClassName = methodInfo.DeclaringType!.Name,
-                    MethodName = methodInfo.Name,
-                    Args = CreateArgs(methodInfo.GetParameters())
-                };
-
-                return staticMethod;
-            }
+                return CreateMethod<TOwner, TReturn>(methodInfo, null);
 
             TOwner? entity;
             var memberExpression = methodCallExpression.Arguments?.Last() as MemberExpression;
@@ -69,31 +60,18 @@ namespace Rpg.ModObjects.Reflection
                 entity = constantExpression?.Value as TOwner;
             }
 
-            var rpgMethod = new RpgMethod<TOwner, TReturn>
-            {
-                MethodName = methodInfo.Name,
-                Args = CreateArgs(methodInfo.GetParameters())
-            };
-
-            return rpgMethod;
+            return CreateMethod<TOwner, TReturn>(methodInfo, entity);
         }
 
-        public RpgMethod<TOwner, TReturn>? Create<TOwner, TReturn>(TOwner obj, string methodName)
+        public static RpgMethod<TOwner, TReturn>? Create<TOwner, TReturn>(TOwner obj, string methodName)
             where TOwner : class
         {
             var type = obj.GetType();
             var methodInfo = RpgReflection.ScanForMethod<TReturn>(type, methodName);
             if (methodInfo == null)
                 return null;
-
-            var rpgMethod = new RpgMethod<TOwner, TReturn>
-            {
-                MethodName = methodName,
-                ClassName = methodInfo.IsStatic ? type.Name : null,
-                Args = CreateArgs(methodInfo.GetParameters())
-            };
-
-            return rpgMethod;
+            
+            return CreateMethod<TOwner, TReturn>(methodInfo, obj);
         }
 
         private static RpgArg[] CreateArgs(ParameterInfo[] parameters)
@@ -111,6 +89,28 @@ namespace Rpg.ModObjects.Reflection
         {
             var factory = GetArgFactories().FirstOrDefault(x => x.CanCreate(parameterInfo));
             return factory?.Create(parameterInfo);
+        }
+
+        private static RpgMethod<TOwner, TReturn> CreateMethod<TOwner, TReturn>(MethodInfo methodInfo, object? entity)
+            where TOwner : class
+        {
+            var rpgMethod = new RpgMethod<TOwner, TReturn>
+            {
+                EntityId = (entity as RpgObject)?.Id,
+                ClassName = methodInfo.IsStatic ? methodInfo.DeclaringType!.Name : null,
+                MethodName = methodInfo.Name,
+                ReturnIsNullable = methodInfo.ReturnType != null ? Nullable.GetUnderlyingType(methodInfo.ReturnType) != null : false,
+                Args = CreateArgs(methodInfo.GetParameters())
+            };
+
+            var returnType = methodInfo.ReturnType != null
+                ? Nullable.GetUnderlyingType(methodInfo.ReturnType) ?? methodInfo.ReturnType
+                : null;
+
+            rpgMethod.ReturnTypeName = returnType?.Name;
+            rpgMethod.ReturnQualifiedTypeName = returnType?.AssemblyQualifiedName;
+            
+            return rpgMethod;
         }
     }
 }

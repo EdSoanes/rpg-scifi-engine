@@ -1,12 +1,7 @@
-﻿using Rpg.ModObjects.Meta;
+﻿using Rpg.ModObjects.Lifecycles;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Values;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Tests
 {
@@ -14,20 +9,18 @@ namespace Rpg.ModObjects.Tests
     {
         public int GetInt(int i) { return i; }
         public int GetIntNullable(int? i) { return i ?? 0; }
-
         public Dice GetDice(Dice dice) { return dice; }
+        public ModSet GetObject(RpgObject obj) { return new ModSet("owner-id", new PermanentLifecycle()); }
 
     }
 
     public class MethodTests
     {
-        private RpgMethodFactory _methodFactory;
         private TestMethodClass _testMethodClass;
 
         [SetUp]
         public void Setup()
         {
-            _methodFactory = new RpgMethodFactory();
             _testMethodClass = new TestMethodClass();
             RpgReflection.RegisterAssembly(this.GetType().Assembly);
         }
@@ -37,39 +30,44 @@ namespace Rpg.ModObjects.Tests
         public void Method_GetInt_EnsureMethodModel()
         {
 
-            var method = _methodFactory.Create<TestMethodClass, int>(_testMethodClass, nameof(TestMethodClass.GetInt));
+            var method = RpgMethodFactory.Create<TestMethodClass, int>(_testMethodClass, nameof(TestMethodClass.GetInt));
             Assert.That(method, Is.Not.Null);
             Assert.That(method.MethodName, Is.EqualTo(nameof(TestMethodClass.GetInt)));
             Assert.That(method.ClassName, Is.Null);
+            Assert.That(method.ReturnTypeName, Is.EqualTo(nameof(Int32)));
             Assert.That(method.Args.Count(), Is.EqualTo(1));
             Assert.That(method.Args[0].Name, Is.EqualTo("i"));
-            Assert.That(method.Args[0].TypeName, Is.EqualTo("Int32"));
+            Assert.That(method.Args[0].TypeName, Is.EqualTo(nameof(Int32)));
             Assert.That(method.Args[0].IsNullable, Is.EqualTo(false));
         }
+
         [Test]
         public void Method_GetIntNullable_EnsureMethodModel()
         {
 
-            var method = _methodFactory.Create<TestMethodClass, int>(_testMethodClass, nameof(TestMethodClass.GetIntNullable));
+            var method = RpgMethodFactory.Create<TestMethodClass, int>(_testMethodClass, nameof(TestMethodClass.GetIntNullable));
             Assert.That(method, Is.Not.Null);
             Assert.That(method.MethodName, Is.EqualTo(nameof(TestMethodClass.GetIntNullable)));
             Assert.That(method.ClassName, Is.Null);
+            Assert.That(method.ReturnTypeName, Is.EqualTo(nameof(Int32)));
             Assert.That(method.Args.Count(), Is.EqualTo(1));
             Assert.That(method.Args[0].Name, Is.EqualTo("i"));
-            Assert.That(method.Args[0].TypeName, Is.EqualTo("Int32"));
+            Assert.That(method.Args[0].TypeName, Is.EqualTo(nameof(Int32)));
             Assert.That(method.Args[0].IsNullable, Is.EqualTo(true));
         }
 
-
         [Test]
-        public void MetaGraph_Serialize_EnsureValues()
+        public void Method_GetObject_EnsureMethodModel()
         {
-            var meta = new MetaGraph();
-            var system = meta.Build();
-
-            var json = RpgSerializer.Serialize(system);
-
-            Assert.That(json, Is.Not.Null);
+            var method = RpgMethodFactory.Create<TestMethodClass, ModSet>(_testMethodClass, nameof(TestMethodClass.GetObject));
+            Assert.That(method, Is.Not.Null);
+            Assert.That(method.MethodName, Is.EqualTo(nameof(TestMethodClass.GetObject)));
+            Assert.That(method.ClassName, Is.Null);
+            Assert.That(method.ReturnTypeName, Is.EqualTo(nameof(ModSet)));
+            Assert.That(method.Args.Count(), Is.EqualTo(1));
+            Assert.That(method.Args[0].Name, Is.EqualTo("obj"));
+            Assert.That(method.Args[0].TypeName, Is.EqualTo("RpgObject"));
+            Assert.That(method.Args[0].IsNullable, Is.EqualTo(false));
         }
     }
 }

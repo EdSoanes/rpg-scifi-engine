@@ -28,7 +28,7 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new RpgGraph(entity);
 
-            var method = graph.MethodFactory.Create<ScoreBonusValue, Dice>(entity.Strength, nameof(ScoreBonusValue.CalculateStatBonus));
+            var method = RpgMethodFactory.Create<ScoreBonusValue, Dice>(entity.Strength, nameof(ScoreBonusValue.CalculateStatBonus));
 
             Assert.That(method, Is.Not.Null);
             Assert.That(method.MethodName, Is.EqualTo(nameof(ScoreBonusValue.CalculateStatBonus)));
@@ -56,7 +56,7 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new RpgGraph(entity);
 
-            var method = graph.MethodFactory.Create<ScoreBonusValue, Dice>(entity.Strength, nameof(ScoreBonusValue.CalculateStatBonus));
+            var method = RpgMethodFactory.Create<ScoreBonusValue, Dice>(entity.Strength, nameof(ScoreBonusValue.CalculateStatBonus));
 
             var baseMod = new PermanentMod()
                 .SetProps(entity.Strength, x => x.Bonus, 2, () => DiceCalculations.CalculateStatBonus)

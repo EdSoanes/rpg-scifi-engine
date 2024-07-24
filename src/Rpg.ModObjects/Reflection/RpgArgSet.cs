@@ -36,14 +36,17 @@ namespace Rpg.ModObjects.Reflection
         public RpgArgSet Merge(RpgArgSet other)
         {
             var argSet = new RpgArgSet();
+            foreach (var key in Args.Keys)
+                argSet.Args.Add(key, Args[key]);
 
-            foreach (var key in ArgValues.Keys)
-            {
-                var val = ArgValues[key];
-                argSet.ArgValues.Add(key, val);
-            }
+            argSet.FillFrom(this);
+
+            foreach (var key in other.Args.Keys)
+                if (!argSet.Args.ContainsKey(key))
+                    argSet.Args.Add(key, other.Args[key]);
 
             argSet.FillFrom(other);
+
             return argSet;
         }
 
@@ -52,8 +55,10 @@ namespace Rpg.ModObjects.Reflection
             foreach (var key in other.ArgValues.Keys)
             {
                 var val = other.ArgValues[key];
-                if (!ArgValues.ContainsKey(key) || ArgValues[key] == null)
+                if (!ArgValues.ContainsKey(key))
                     ArgValues.Add(key, val);
+                else if (ArgValues[key] == null)
+                    ArgValues[key] = val;
             }
         }
 
@@ -63,11 +68,12 @@ namespace Rpg.ModObjects.Reflection
             Set("actionNo", actionNo!.Value);
             Set("initiator", initiator);
             Set("owner", owner);
+            Set("owner", owner);
         }
 
         public RpgArgSet Set(int idx, object? value)
         {
-            if (Args.Count() < idx && idx >= 0)
+            if (idx >= 0 && idx < Args.Count())
             {
                 var argName = Args.Keys.ToArray()[idx];
                 ValidateArgValue(argName, value);

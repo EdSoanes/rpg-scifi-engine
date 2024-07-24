@@ -15,12 +15,14 @@ namespace Rpg.ModObjects.Reflection
         public abstract string? ToArgString(object? value);
         public abstract object? ToArgObject(string? value);
 
+        [JsonConstructor] protected RpgArg() { }
+
         internal RpgArg(ParameterInfo parameterInfo)
         {
             Name = parameterInfo.Name!;
-            TypeName = parameterInfo.ParameterType.Name!;
-            QualifiedTypeName = parameterInfo.ParameterType.AssemblyQualifiedName!;
             IsNullable = Nullable.GetUnderlyingType(parameterInfo.ParameterType) != null;
+            TypeName = !IsNullable ? parameterInfo.ParameterType.Name! : parameterInfo.ParameterType.GetGenericArguments().First().Name;
+            QualifiedTypeName = parameterInfo.ParameterType.AssemblyQualifiedName!;
         }
     }
 }

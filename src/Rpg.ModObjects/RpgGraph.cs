@@ -15,7 +15,6 @@ namespace Rpg.ModObjects
         [JsonProperty] public RpgObject Context { get; private set; }
         [JsonProperty] protected Dictionary<string, RpgObject> ObjectStore { get; set; } = new Dictionary<string, RpgObject>();
         [JsonProperty] public ITimeEngine Time { get; private set; }
-        public RpgMethodFactory MethodFactory { get; private init; } = new();
 
         public RpgGraph(RpgObject context)
         {
@@ -357,8 +356,11 @@ namespace Rpg.ModObjects
                 var argSet = mod.SourceValueFunc
                     .CreateArgSet()
                     .Set(0, value);
-                
-                value = mod.SourceValueFunc.Execute(argSet);
+
+                var entity = GetObject(mod.SourceValueFunc.EntityId);
+                value = entity != null
+                    ? mod.SourceValueFunc.Execute(entity, argSet)
+                    : mod.SourceValueFunc.Execute(argSet);
             }
 
             return value;

@@ -129,7 +129,7 @@ namespace Rpg.ModObjects.States
         {
             base.OnAdding(graph);
 
-            var conditionalMethod = graph.MethodFactory.Create<State<T>, LifecycleExpiry>(this, nameof(CalculateExpiry))!;
+            var conditionalMethod = RpgMethodFactory.Create<State<T>, LifecycleExpiry>(this, nameof(CalculateExpiry))!;
             Lifecycle = new ConditionalLifecycle<State<T>>(Id, conditionalMethod);
         }
 

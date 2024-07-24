@@ -11,7 +11,7 @@ namespace Rpg.ModObjects.Reflection.ArgFactories
     public class DiceArgFactory : IRpgArgFactory
     {
         public bool CanCreate(ParameterInfo parameterInfo)
-            => parameterInfo.ParameterType == typeof(Dice);
+            => parameterInfo.ParameterType == typeof(Dice) || Nullable.GetUnderlyingType(parameterInfo.ParameterType) == typeof(Dice);
 
         public RpgArg Create(ParameterInfo parameterInfo)
         {

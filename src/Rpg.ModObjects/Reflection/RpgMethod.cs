@@ -10,6 +10,10 @@ namespace Rpg.ModObjects.Reflection
         [JsonProperty] public string? EntityId { get; internal set; }
         [JsonProperty] public string? ClassName { get; internal set; }
         [JsonProperty] public string MethodName { get; internal set; }
+        [JsonProperty] public string? ReturnTypeName { get; internal set; }
+        [JsonProperty] public string? ReturnQualifiedTypeName { get; internal set; }
+        [JsonProperty] public bool ReturnIsNullable { get; internal set; }
+
         [JsonProperty] public RpgArg[] Args { get; internal set; } = Array.Empty<RpgArg>();
 
         public RpgMethod() { }

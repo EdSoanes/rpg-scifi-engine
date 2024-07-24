@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Values;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Values;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,8 @@ namespace Rpg.ModObjects.Reflection.ArgFactories
 {
     public class IntegerArg : RpgArg
     {
+        [JsonConstructor] private IntegerArg() { }
+
         public IntegerArg(ParameterInfo parameterInfo)
             : base(parameterInfo)
         { }

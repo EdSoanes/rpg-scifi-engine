@@ -37,10 +37,10 @@ namespace Rpg.ModObjects.Actions
         public void OnAdding(RpgGraph graph)
         {
             Graph = graph;
-            OnCanAct = graph.MethodFactory.Create<Action, bool>(this, nameof(OnCanAct))!;
-            OnCost = graph.MethodFactory.Create<Action, ModSet>(this, nameof(OnCost))!;
-            OnAct = graph.MethodFactory.Create<Action, ActionModSet>(this, nameof(OnAct))!;
-            OnOutcome = graph.MethodFactory.Create<Action, ModSet[]>(this, nameof(OnOutcome))!;
+            OnCanAct = RpgMethodFactory.Create<Action, bool>(this, nameof(OnCanAct))!;
+            OnCost = RpgMethodFactory.Create<Action, ModSet>(this, nameof(OnCost))!;
+            OnAct = RpgMethodFactory.Create<Action, ActionModSet>(this, nameof(OnAct))!;
+            OnOutcome = RpgMethodFactory.Create<Action, ModSet[]>(this, nameof(OnOutcome))!;
         }
 
         public RpgArgSet CanActArgs()
