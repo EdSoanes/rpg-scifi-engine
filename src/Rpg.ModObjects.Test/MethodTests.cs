@@ -7,7 +7,7 @@ namespace Rpg.ModObjects.Tests
 {
     internal class TestMethodClass
     {
-        public int GetInt(int i) { return i; }
+        public int GetInt(int i) { return i * 2; }
         public int GetIntNullable(int? i) { return i ?? 0; }
         public Dice GetDice(Dice dice) { return dice; }
         public ModSet GetObject(RpgObject obj) { return new ModSet("owner-id", new PermanentLifecycle()); }
@@ -25,7 +25,6 @@ namespace Rpg.ModObjects.Tests
             RpgReflection.RegisterAssembly(this.GetType().Assembly);
         }
 
-
         [Test]
         public void Method_GetInt_EnsureMethodModel()
         {
@@ -39,6 +38,17 @@ namespace Rpg.ModObjects.Tests
             Assert.That(method.Args[0].Name, Is.EqualTo("i"));
             Assert.That(method.Args[0].TypeName, Is.EqualTo(nameof(Int32)));
             Assert.That(method.Args[0].IsNullable, Is.EqualTo(false));
+        }
+
+        [Test]
+        public void Method_ExecuteGetInt_EnsureMethodModel()
+        {
+
+            var method = RpgMethodFactory.Create<TestMethodClass, int>(_testMethodClass, nameof(TestMethodClass.GetInt))!;
+            var argSet = method.CreateArgSet().Set(0, 2);
+            var res = method.Execute(_testMethodClass, argSet);
+
+            Assert.That(res, Is.EqualTo(4));
         }
 
         [Test]

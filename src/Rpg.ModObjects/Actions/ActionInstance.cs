@@ -93,22 +93,22 @@ namespace Rpg.ModObjects.Actions
             => new OutcomeModSet(InitiatorId, ActionName, ActionNo);
 
         public bool CanAct()
-            => Graph.GetObject<RpgEntity>(OwnerId)!
+            => Graph!.GetObject<RpgEntity>(OwnerId)!
                 .GetAction(ActionName)!
                 .CanAct(CanActArgs!);
 
         public ModSet Cost()
-            => Graph.GetObject<RpgEntity>(OwnerId)!
+            => Graph!.GetObject<RpgEntity>(OwnerId)!
                 .GetAction(ActionName)!
                 .Cost(CostArgs!);
 
         public ActionModSet Act()
-            => Graph.GetObject<RpgEntity>(OwnerId)!
+            => Graph!.GetObject<RpgEntity>(OwnerId)!
                 .GetAction(ActionName)!
                 .Act(ActArgs!);
 
         public ModSet[] Outcome()
-            => Graph.GetObject<RpgEntity>(OwnerId)!
+            => Graph!.GetObject<RpgEntity>(OwnerId)!
                 .GetAction(ActionName)!
                 .Outcome(OutcomeArgs!);
 

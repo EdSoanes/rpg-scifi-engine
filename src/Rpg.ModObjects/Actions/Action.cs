@@ -76,7 +76,6 @@ namespace Rpg.ModObjects.Actions
 
             foreach (var type in types)
             {
-
                 var action = (Action)Activator.CreateInstance(type, [entity])!;
                 if (entity.IsA(action.OwnerArchetype!))
                     actions.Add(action);
