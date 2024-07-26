@@ -23,7 +23,7 @@ namespace Rpg.Cyborgs.Actions
             => true;
 
         public ModSet OnCost(int actionNo, Actor owner)
-            => new ModSet(new TurnLifecycle());
+            => new ModSet(owner.Id, new TurnLifecycle(), "Cost");
 
         public ActionModSet OnAct(ActionInstance actionInstance, Actor owner, int damage)
         {

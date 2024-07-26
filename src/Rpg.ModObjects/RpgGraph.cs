@@ -119,6 +119,30 @@ namespace Rpg.ModObjects
             }
         }
 
+        public void EnableMods(params Mod[] mods)
+        {
+            foreach (var modGroup in mods.GroupBy(x => x.EntityId))
+                GetObject(modGroup.Key)?.EnableMods(modGroup.ToArray());
+        }
+
+        public void DisableMods(params Mod[] mods)
+        {
+            foreach (var modGroup in mods.GroupBy(x => x.EntityId))
+                GetObject(modGroup.Key)?.DisableMods(modGroup.ToArray());
+        }
+
+        public void ApplyMods(params Mod[] mods)
+        {
+            foreach (var modGroup in mods.GroupBy(x => x.EntityId))
+                GetObject(modGroup.Key)?.ApplyMods(modGroup.ToArray());
+        }
+
+        public void UnapplyMods(params Mod[] mods)
+        {
+            foreach (var modGroup in mods.GroupBy(x => x.EntityId))
+                GetObject(modGroup.Key)?.UnapplyMods(modGroup.ToArray());
+        }
+
         public void RemoveMods(params Mod[] mods)
         {
             foreach (var modGroup in mods.GroupBy(x => x.EntityId))

@@ -20,7 +20,7 @@ namespace Rpg.ModObjects.Tests.Actions
 
         public ModSet OnCost(TestGun owner, TestHuman initiator)
         {
-            return new ModSet(initiator.Id, new TurnLifecycle())
+            return new ModSet(initiator.Id, new TurnLifecycle(), "Cost")
                 .Add(initiator, x => x.PhysicalActionPoints.Current, -1);
         }
 

@@ -51,10 +51,9 @@ namespace Rpg.ModObjects
 
             if (!ModSets.ContainsKey(modSet.Id))
             {
-                modSet.OnAdding(this);
                 ModSets.Add(modSet.Id, modSet);
+                modSet.OnBeforeTime(Graph!, this);
 
-                Graph!.AddMods(modSet.Mods.ToArray());
                 modSet.Lifecycle.OnStartLifecycle(Graph!, Graph.Time.Current);
 
                 return true;
@@ -213,6 +212,74 @@ namespace Rpg.ModObjects
                 }
                 else
                     Graph!.AddMods([.. modGroup]);
+            }
+        }
+
+        public void EnableMods(params Mod[] mods)
+        {
+            foreach (var modGroup in mods.GroupBy(x => x.EntityId))
+            {
+                if (modGroup.Key == Id)
+                {
+                    foreach (var mod in modGroup.Where(x => x.IsDisabled && Props.ContainsKey(x.Prop)))
+                    {
+                        mod.Enable();
+                        Graph!.OnPropUpdated(mod);
+                    }
+                }
+                else
+                    Graph!.EnableMods([.. modGroup]);
+            }
+        }
+
+        public void DisableMods(params Mod[] mods)
+        {
+            foreach (var modGroup in mods.GroupBy(x => x.EntityId))
+            {
+                if (modGroup.Key == Id)
+                {
+                    foreach (var mod in modGroup.Where(x => !x.IsDisabled && Props.ContainsKey(x.Prop)))
+                    {
+                        mod.Disable();
+                        Graph!.OnPropUpdated(mod);
+                    }
+                }
+                else
+                    Graph!.DisableMods([.. modGroup]);
+            }
+        }
+
+        public void ApplyMods(params Mod[] mods)
+        {
+            foreach (var modGroup in mods.GroupBy(x => x.EntityId))
+            {
+                if (modGroup.Key == Id)
+                {
+                    foreach (var mod in modGroup.Where(x => !x.IsApplied && Props.ContainsKey(x.Prop)))
+                    {
+                        mod.Apply();
+                        Graph!.OnPropUpdated(mod);
+                    }
+                }
+                else
+                    Graph!.EnableMods([.. modGroup]);
+            }
+        }
+
+        public void UnapplyMods(params Mod[] mods)
+        {
+            foreach (var modGroup in mods.GroupBy(x => x.EntityId))
+            {
+                if (modGroup.Key == Id)
+                {
+                    foreach (var mod in modGroup.Where(x => x.IsApplied && Props.ContainsKey(x.Prop)))
+                    {
+                        mod.Unapply();
+                        Graph!.OnPropUpdated(mod);
+                    }
+                }
+                else
+                    Graph!.DisableMods([.. modGroup]);
             }
         }
 

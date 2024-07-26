@@ -105,6 +105,94 @@ namespace Rpg.ModObjects.Tests
         }
 
         [Test]
+        public void AddModSet_UnapplyAndApplyModSet_VerifyValues()
+        {
+            var entity = new ModdableEntity();
+            var graph = new RpgGraph(entity);
+
+            Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
+            Assert.That(entity.Health, Is.EqualTo(10));
+            Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(10));
+            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(11));
+
+            entity.AddModSet("test", modSet =>
+            {
+                modSet
+                    .Add(entity, x => x.Melee, 1)
+                    .Add(entity, x => x.Health, 1)
+                    .Add(entity, x => x.Damage.ArmorPenetration, 1);
+            });
+
+            graph.Time.TriggerEvent();
+
+            Assert.That(entity.Melee.Roll(), Is.EqualTo(5));
+            Assert.That(entity.Health, Is.EqualTo(11));
+            Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(11));
+            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(14));
+
+            var modSet = graph.GetModSets(entity, (x) => x.Name == "test").First();
+            modSet.Unapply();
+            graph.Time.TriggerEvent();
+
+            Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
+            Assert.That(entity.Health, Is.EqualTo(10));
+            Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(10));
+            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(11));
+
+            modSet.Apply();
+            graph.Time.TriggerEvent();
+
+            Assert.That(entity.Melee.Roll(), Is.EqualTo(5));
+            Assert.That(entity.Health, Is.EqualTo(11));
+            Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(11));
+            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(14));
+        }
+
+        [Test]
+        public void AddModSet_DisableAndEnableModSet_VerifyValues()
+        {
+            var entity = new ModdableEntity();
+            var graph = new RpgGraph(entity);
+
+            Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
+            Assert.That(entity.Health, Is.EqualTo(10));
+            Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(10));
+            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(11));
+
+            entity.AddModSet("test", modSet =>
+            {
+                modSet
+                    .Add(entity, x => x.Melee, 1)
+                    .Add(entity, x => x.Health, 1)
+                    .Add(entity, x => x.Damage.ArmorPenetration, 1);
+            });
+
+            graph.Time.TriggerEvent();
+
+            Assert.That(entity.Melee.Roll(), Is.EqualTo(5));
+            Assert.That(entity.Health, Is.EqualTo(11));
+            Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(11));
+            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(14));
+
+            var modSet = graph.GetModSets(entity, (x) => x.Name == "test").First();
+            modSet.Disable();
+            graph.Time.TriggerEvent();
+
+            Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
+            Assert.That(entity.Health, Is.EqualTo(10));
+            Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(10));
+            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(11));
+
+            modSet.Enable();
+            graph.Time.TriggerEvent();
+
+            Assert.That(entity.Melee.Roll(), Is.EqualTo(5));
+            Assert.That(entity.Health, Is.EqualTo(11));
+            Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(11));
+            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(14));
+        }
+
+        [Test]
         public void AddModSet_RemoveModSet_VerifyValues()
         {
             var entity = new ModdableEntity();

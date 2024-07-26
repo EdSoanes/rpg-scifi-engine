@@ -21,7 +21,7 @@ namespace Rpg.Cyborgs.Skills.Combat
 
         public ModSet OnCost(Actor owner, Actor initiator)
         {
-            return new ModSet(owner.Id, new TurnLifecycle())
+            return new ModSet(owner.Id, new TurnLifecycle(), "Cost")
                 .Add(initiator, x => x.ActionPoints, -1);
         }
 

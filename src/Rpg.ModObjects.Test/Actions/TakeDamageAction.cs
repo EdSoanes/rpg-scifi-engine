@@ -20,7 +20,7 @@ namespace Rpg.ModObjects.Tests.Actions
             => true;
 
         public ModSet OnCost(TestHuman owner)
-            => new ModSet(owner.Id, new TurnLifecycle());
+            => new ModSet(owner.Id, new TurnLifecycle(), "Cost");
 
         public ActionModSet OnAct(ActionInstance actionInstance, TestHuman owner, int damage)
         {

@@ -18,11 +18,11 @@ namespace Rpg.ModObjects.Props
         {
             if (Mods.Any(x => x.IsBaseOverrideMod))
                 return Mods
-                    .Where(x => x.Expiry == LifecycleExpiry.Active && (x.IsBaseOverrideMod || x.Behavior is Threshold))
+                    .Where(x => x.IsActive && (x.IsBaseOverrideMod || x.Behavior is Threshold))
                     .ToArray();
 
             return Mods
-                    .Where(x => x.Expiry == LifecycleExpiry.Active)
+                    .Where(x => x.IsActive)
                     .ToArray();
         }
 

@@ -21,7 +21,7 @@ namespace Rpg.Cyborgs.Actions
 
         public ModSet OnCost(Actor owner, int luckPoints)
         {
-            return new ModSet(owner.Id, new TurnLifecycle())
+            return new ModSet(owner.Id, new TurnLifecycle(), "Cost")
                 .Add(owner, x => x.CurrentLuckPoints, -luckPoints);
         }
 

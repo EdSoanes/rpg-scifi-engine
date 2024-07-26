@@ -1,72 +1,17 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Mods.Templates;
-using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
 
 namespace Rpg.ModObjects.Mods
 {
-    public class ModSet
+    public class ModSet : ModSetBase
     {
-        [JsonProperty] public string Id { get; private set; }
-        [JsonProperty] public string? OwnerId { get; private set; }
-
-        [JsonProperty] public string Name { get; set; }
-
-        [JsonProperty] public List<Mod> Mods { get; private set; } = new List<Mod>();
-        [JsonProperty] public ILifecycle Lifecycle { get; protected set; }
-
-        public LifecycleExpiry Expiry { get => Lifecycle.Expiry; protected set { } }
-
         [JsonConstructor] protected ModSet() { }
 
-        protected ModSet(string ownerId, string? name = null) 
-        {
-            Id = this.NewId();
-            Name = name ?? GetType().Name;
-            OwnerId = ownerId;
-        }
-
-        public ModSet(ILifecycle lifecycle, string? name = null)
-        {
-            Id = this.NewId();
-            Lifecycle = lifecycle;
-            Name = name ?? GetType().Name;
-        }
-
-        public ModSet(string ownerId, ILifecycle lifecycle, string? name = null)
-        {
-            Id = this.NewId();
-            Lifecycle = lifecycle;
-            Name = name ?? GetType().Name;
-            OwnerId = ownerId;
-        }
-
-        public ModSet SetOwner(RpgObject? owner)
-        {
-            OwnerId = owner?.Id;
-            return this;
-        }
-
-        public ModSet AddMods(params Mod[] mods)
-        {
-            foreach (var mod in mods)
-            {
-                mod.OwnerId = Id;
-                Mods.Add(mod);
-            }
-
-            return this;
-        }
-
-        public virtual void SetExpired(TimePoint currentTime) 
-            => Lifecycle.SetExpired(currentTime);
-
-        public void OnAdding(RpgObject? entity = null)
-        {
-            OwnerId ??= entity?.Id;
-        }
+        public ModSet(string ownerId, ILifecycle lifecycle, string name)
+            : base(ownerId, lifecycle, name) { }
     }
 
     public static class ModSetExtensions

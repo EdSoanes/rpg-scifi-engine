@@ -10,7 +10,7 @@ namespace Rpg.ModObjects.Tests
         public int GetInt(int i) { return i * 2; }
         public int GetIntNullable(int? i) { return i ?? 0; }
         public Dice GetDice(Dice dice) { return dice; }
-        public ModSet GetObject(RpgObject obj) { return new ModSet("owner-id", new PermanentLifecycle()); }
+        public ModSet GetObject(RpgObject obj) { return new ModSet("owner-id", new PermanentLifecycle(), "ModSet"); }
 
     }
 

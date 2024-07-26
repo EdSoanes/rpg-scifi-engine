@@ -7,7 +7,6 @@ using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
 
 namespace Rpg.ModObjects.Mods
 {
@@ -26,6 +25,10 @@ namespace Rpg.ModObjects.Mods
         [JsonIgnore] public bool IsBaseInitMod { get => Behavior.Type == ModType.Initial; }
         [JsonIgnore] public bool IsBaseOverrideMod { get => Behavior.Type == ModType.Override; }
         [JsonIgnore] public bool IsBaseMod { get => Behavior.Type == ModType.Base; }
+
+        [JsonProperty] public bool IsApplied { get; private set; } = true;
+        [JsonProperty] public bool IsDisabled { get; private set; }
+        public bool IsActive { get => Expiry == LifecycleExpiry.Active && IsApplied && !IsDisabled; }
 
         [JsonIgnore] public LifecycleExpiry Expiry { get => (int)Lifecycle.Expiry > (int)Behavior.Expiry ? Lifecycle.Expiry : Behavior.Expiry; }
 
@@ -51,6 +54,18 @@ namespace Rpg.ModObjects.Mods
         {
             OwnerId = ownerId;
         }
+
+        public void Apply()
+            => IsApplied = true;
+
+        public void Unapply()
+            => IsApplied = false;
+
+        public void Enable()
+            => IsDisabled = false;
+
+        public void Disable()
+            => IsDisabled = true;
 
         public void OnAdding(RpgGraph graph, Prop modProp, Time.TimePoint time)
         {

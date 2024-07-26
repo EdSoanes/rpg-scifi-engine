@@ -21,7 +21,7 @@ namespace Rpg.Cyborgs.Skills.Movement
 
         public ModSet OnCost(Actor owner, int focusPoints)
         {
-            return new ModSet(owner.Id, new TurnLifecycle())
+            return new ModSet(owner.Id, new TurnLifecycle(), "Cost")
                 .Add(owner, x => x.CurrentFocusPoints, -focusPoints)
                 .Add(owner, x => x.CurrentActionPoints, -1);
         }
