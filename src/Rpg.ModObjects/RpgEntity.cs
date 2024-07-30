@@ -101,20 +101,6 @@ namespace Rpg.ModObjects
         public Actions.Action? GetAction(string action)
             => Actions.ContainsKey(action) ? Actions[action] : null;
 
-        public ActionInstance? CreateActionInstance(RpgEntity initiator, string actionName, int actionNo)
-        {
-            var action = GetAction(actionName);
-            if (action != null)
-            {
-                var instance = new ActionInstance(this, initiator, action, actionNo);
-                instance.OnBeforeTime(Graph!);
-
-                return instance;
-            }
-
-            return null;
-        }
-
         #endregion Actions
 
         #region ModSets

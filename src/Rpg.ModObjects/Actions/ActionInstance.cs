@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Reflection;
 
 namespace Rpg.ModObjects.Actions
@@ -9,7 +8,7 @@ namespace Rpg.ModObjects.Actions
         private RpgGraph? Graph { get; set; }
 
         private RpgEntity? _owner;
-        private RpgEntity? Owner 
+        [JsonIgnore] public RpgEntity? Owner 
         { 
             get
             {
@@ -20,20 +19,8 @@ namespace Rpg.ModObjects.Actions
             }
         }
 
-        private RpgEntity? _initiator;
-        private RpgEntity? Initiator
-        {
-            get
-            {
-                if (_initiator == null && Graph != null)
-                    _initiator = Graph.GetObject<RpgEntity>(InitiatorId);
-
-                return _initiator;
-            }
-        }
-
         private Action? _action;
-        private Action? Action
+        [JsonIgnore] public Action? Action
         {
             get
             {
@@ -45,7 +32,7 @@ namespace Rpg.ModObjects.Actions
         }
 
         [JsonProperty] public string OwnerId { get; protected set; }
-        [JsonProperty] public string InitiatorId { get; protected set; }
+        //[JsonProperty] public string InitiatorId { get; protected set; }
         [JsonProperty] public string ActionName { get; protected set; }
         [JsonProperty] public int ActionNo { get; protected set; }
 
@@ -55,22 +42,13 @@ namespace Rpg.ModObjects.Actions
         [JsonProperty] public RpgArgSet? OutcomeArgs { get; protected set; }
         [JsonProperty] public RpgArgSet? AutoCompleteArgs { get; protected set; }
 
-        public ActionInstance(RpgEntity owner, RpgEntity initiator, Action action, int actionNo)
+        public ActionInstance(RpgEntity owner, Action action, int actionNo)
         {
             ActionName = action.Name;
             ActionNo = actionNo;
             OwnerId = owner.Id;
-            InitiatorId = initiator.Id;
-        }
 
-        public void OnBeforeTime(RpgGraph graph)
-        {
-            Graph = graph;
-
-            if (Action == null)
-                throw new InvalidOperationException("ActionInstance OnBeforeTime could not find Action");
-
-            CanActArgs = Action.CanActArgs();
+            CanActArgs = Action!.CanActArgs();
             CostArgs = Action.CostArgs();
             ActArgs = Action.ActArgs();
             OutcomeArgs = Action.OutcomeArgs();
@@ -78,88 +56,6 @@ namespace Rpg.ModObjects.Actions
                 .Merge(CostArgs)
                 .Merge(ActArgs)
                 .Merge(OutcomeArgs);
-
-            CanActArgs.Set(this, Owner, Initiator, ActionNo);
-            CostArgs.Set(this, Owner, Initiator, ActionNo);
-            ActArgs.Set(this, Owner, Initiator, ActionNo);
-            OutcomeArgs.Set(this, Owner, Initiator, ActionNo);
-            AutoCompleteArgs.Set(this, Owner, Initiator, ActionNo);
-        }
-
-        public ActionModSet CreateActionSet()
-            => new ActionModSet(InitiatorId, ActionName, ActionNo);
-
-        public OutcomeModSet CreateOutcomeSet()
-            => new OutcomeModSet(InitiatorId, ActionName, ActionNo);
-
-        public bool CanAct()
-            => Graph!.GetObject<RpgEntity>(OwnerId)!
-                .GetAction(ActionName)!
-                .CanAct(CanActArgs!);
-
-        public ModSet Cost()
-            => Graph!.GetObject<RpgEntity>(OwnerId)!
-                .GetAction(ActionName)!
-                .Cost(CostArgs!);
-
-        public ActionModSet Act()
-            => Graph!.GetObject<RpgEntity>(OwnerId)!
-                .GetAction(ActionName)!
-                .Act(ActArgs!);
-
-        public ModSet[] Outcome()
-            => Graph!.GetObject<RpgEntity>(OwnerId)!
-                .GetAction(ActionName)!
-                .Outcome(OutcomeArgs!);
-
-        public void SetArgValue(string arg, object? value)
-        {
-            CanActArgs!.Set(arg, value);
-            CostArgs!.Set(arg, value);
-            ActArgs!.Set(arg, value);
-            OutcomeArgs!.Set(arg, value);
-            AutoCompleteArgs!.Set(arg, value);
-        }
-
-        public void SetArgValues(Dictionary<string, string?> argValues)
-        {
-            CanActArgs!.Set(argValues);
-            CostArgs!.Set(argValues);
-            ActArgs!.Set(argValues);
-            OutcomeArgs!.Set(argValues);
-            AutoCompleteArgs!.Set(argValues);
-        }
-
-        public void AutoComplete()
-        {
-            if (CanActArgs == null)
-                OnBeforeTime(Graph!);
-
-            CanActArgs!.FillFrom(AutoCompleteArgs!);
-            if (!CanAct())
-                throw new InvalidOperationException("Cannot AutoComplete");
-
-            CostArgs!.FillFrom(AutoCompleteArgs!);
-            var costs = Cost();
-            var entity = Graph!.GetObject(costs.OwnerId)!;
-            entity.AddModSet(costs);
-            Graph!.Time.TriggerEvent();
-
-            ActArgs!.FillFrom(AutoCompleteArgs!);
-            var actionModSet = Act();
-            
-            var owner = Graph!.GetObject(actionModSet.OwnerId)!;
-            owner.AddModSet(actionModSet);
-            Graph!.Time.TriggerEvent();
-
-            OutcomeArgs!.FillFrom(AutoCompleteArgs!);
-            var outcomeSets = Outcome();
-            foreach (var outcomeSet in outcomeSets)
-            {
-                owner = Graph!.GetObject(outcomeSet.OwnerId)!;
-                owner.AddModSet(outcomeSet);
-                Graph!.Time.TriggerEvent();
-            }
         }
     }
 }

@@ -12,10 +12,10 @@ namespace Rpg.ModObjects.Mods.Templates
     {
         public string OwnerId { get; private set; }
 
-        public SyncedMod(string ownerId)
+        public SyncedMod(string ownerId, ModType modType = ModType.Standard)
         {
             OwnerId = ownerId;
-            Behavior = new Add(ModType.Standard);
+            Behavior = new Add(modType);
             Lifecycle = new SyncedLifecycle(ownerId);
         }
 

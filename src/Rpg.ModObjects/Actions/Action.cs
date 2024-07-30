@@ -14,9 +14,11 @@ namespace Rpg.ModObjects.Actions
         [JsonProperty] public string OwnerArchetype { get; private set; }
 
         [JsonProperty] public RpgMethod<Action, bool> OnCanAct { get; private set; }
-        [JsonProperty] public RpgMethod<Action, ModSet> OnCost { get; private set; }
-        [JsonProperty] public RpgMethod<Action, ActionModSet> OnAct { get; private set; }
-        [JsonProperty] public RpgMethod<Action, ModSet[]> OnOutcome { get; private set; }
+        [JsonProperty] public RpgMethod<Action, bool> OnCost { get; private set; }
+        [JsonProperty] public RpgMethod<Action, bool> OnAct { get; private set; }
+        [JsonProperty] public RpgMethod<Action, bool> OnOutcome { get; private set; }
+
+        [JsonProperty] public string[] CanPerformAfter { get; protected set; }
 
         [JsonConstructor] protected Action()
         {
@@ -38,9 +40,9 @@ namespace Rpg.ModObjects.Actions
         {
             Graph = graph;
             OnCanAct = RpgMethodFactory.Create<Action, bool>(this, nameof(OnCanAct))!;
-            OnCost = RpgMethodFactory.Create<Action, ModSet>(this, nameof(OnCost))!;
-            OnAct = RpgMethodFactory.Create<Action, ActionModSet>(this, nameof(OnAct))!;
-            OnOutcome = RpgMethodFactory.Create<Action, ModSet[]>(this, nameof(OnOutcome))!;
+            OnCost = RpgMethodFactory.Create<Action, bool>(this, nameof(OnCost))!;
+            OnAct = RpgMethodFactory.Create<Action, bool>(this, nameof(OnAct))!;
+            OnOutcome = RpgMethodFactory.Create<Action, bool>(this, nameof(OnOutcome))!;
         }
 
         public RpgArgSet CanActArgs()
@@ -52,19 +54,19 @@ namespace Rpg.ModObjects.Actions
         public bool CanAct(RpgArgSet argSet)
             => OnCanAct.Execute(this, argSet);
 
-        public ModSet Cost(RpgArgSet argSet)
+        public bool Cost(RpgArgSet argSet)
             => OnCost.Execute(this, argSet);
 
         public RpgArgSet ActArgs() 
             => OnAct.CreateArgSet();
 
-        public ActionModSet Act(RpgArgSet args)
+        public bool Act(RpgArgSet args)
             => OnAct.Execute(this, args);
 
         public RpgArgSet OutcomeArgs() 
             => OnOutcome.CreateArgSet();
 
-        public ModSet[] Outcome(RpgArgSet args)
+        public bool Outcome(RpgArgSet args)
             => OnOutcome.Execute(this, args);
 
         public static Action[] CreateOwnerActions(RpgObject entity)

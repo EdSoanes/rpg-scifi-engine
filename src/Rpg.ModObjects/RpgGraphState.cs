@@ -9,7 +9,7 @@ namespace Rpg.ModObjects
 {
     public class RpgGraphState
     {
-        public List<RpgEntity> Entities { get; set; } = new();
+        public List<RpgObject> Entities { get; set; } = new();
         public string? ContextId { get; set; }
         public ITimeEngine? Time {  get; set; }
     }

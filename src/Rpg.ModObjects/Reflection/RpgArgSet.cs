@@ -62,12 +62,10 @@ namespace Rpg.ModObjects.Reflection
             }
         }
 
-        public void Set(ActionInstance? actionInstance, RpgEntity? owner, RpgEntity? initiator, int? actionNo)
+        public void Set(RpgActivity? activity, RpgEntity? owner, RpgEntity? initiator)
         {
-            Set("actionInstance", actionInstance);
-            Set("actionNo", actionNo!.Value);
+            Set("activity", activity);
             Set("initiator", initiator);
-            Set("owner", owner);
             Set("owner", owner);
         }
 

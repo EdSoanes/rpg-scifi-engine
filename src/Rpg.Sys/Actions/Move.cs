@@ -5,6 +5,7 @@ using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time.Lifecycles;
 using Rpg.Sys.Archetypes;
+using Rpg.Sys.States;
 
 namespace Rpg.Sys.Actions
 {
@@ -19,24 +20,32 @@ namespace Rpg.Sys.Actions
         public bool OnCanAct(Actor owner)
             => true;
 
-        public ModSet OnCost(Actor owner, int distance)
+        public bool OnCost(RpgActivity activity, Actor owner, int distance)
         {
             var movementCost = CalculateMoveCost(owner, distance);
-            return new ModSet(owner.Id, new TurnLifecycle(), "Cost")
+
+            activity
+                .AddMod("distance", "distance", distance)
+                .AddMod("movementCost", "movementCost", movementCost);
+
+            activity.OutcomeSet
                 .Add(owner, x => x.Actions.Action, -movementCost);
+
+            return true;
         }
 
-        public ActionModSet OnAct(ActionInstance actionInstance)
-            => actionInstance.CreateActionSet();
+        public bool OnAct(RpgActivity activity)
+            => true;
 
-        public ModSet[] OnOutcome(Actor owner, int distance)
+        public bool OnOutcome(RpgActivity activity, Actor owner, int distance)
         {
-            var moveSet = new ModSet(owner.Id, new TurnLifecycle(), "Cost")
+            activity.OutcomeSet
                 .Add(owner, x => x.Movement.Speed.Current, distance);
 
-            var moving = owner.GetState(nameof(Move))!.CreateInstance(new TurnLifecycle());
+            var moving = owner.CreateStateInstance(nameof(Moving));
+            activity.OutcomeSets.Add(moving);
 
-            return [moveSet, moving];
+            return true;
         }
 
         private int CalculateMoveCost(Actor actor, int distance)

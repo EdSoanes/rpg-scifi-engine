@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace Rpg.ModObjects.Tests
 {
-    public class ModCmdTests
+    public class ActionTests
     {
         [SetUp]
         public void Setup()
@@ -19,6 +19,8 @@ namespace Rpg.ModObjects.Tests
         {
             var entity = new ModdableEntity();
             var graph = new RpgGraph(entity);
+            //var activity = new RpgActivity(graph, entity, 0);
+            //graph.AddEntity(activity);
 
             Assert.That(entity.Actions.Count(), Is.EqualTo(1));
 

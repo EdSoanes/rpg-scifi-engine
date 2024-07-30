@@ -47,7 +47,7 @@ namespace Rpg.ModObjects
             var state = new RpgGraphState
             {
                 ContextId = Context.Id,
-                Entities = ObjectStore.Values.Where(x => x is RpgEntity).Cast<RpgEntity>().ToList(),
+                Entities = ObjectStore.Values.Where(x => x is RpgEntity || x is RpgActivity).ToList(),
                 Time = Time,
             };
 
@@ -263,7 +263,7 @@ namespace Rpg.ModObjects
                 .Where(x => filterFunc(x))
                 .ToArray();
 
-        public ModSet? GetModSet(string? modSetId)
+        public ModSetBase? GetModSet(string? modSetId)
         {
             if (modSetId == null) 
                 return null;

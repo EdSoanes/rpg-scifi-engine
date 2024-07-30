@@ -54,33 +54,43 @@ namespace Rpg.ModObjects.Tests
 
             graph.Time.SetTime(TimePoints.Encounter(1));
 
-            var fireInst = gun.CreateActionInstance(initiator, nameof(FireGunAction), 0);
+            var activity = new RpgActivity(initiator, 0);
+            graph.AddEntity(activity);
+
+            activity.CreateActionInstance(gun, nameof(FireGunAction));
+            var fireInst = activity.ActionInstance;
             Assert.That(fireInst, Is.Not.Null);
 
-            var costModSet = fireInst.Cost();
-            initiator.AddModSet(costModSet);
-            graph.Time.TriggerEvent();
+            activity.Cost();
+            Assert.That(activity.OutcomeSet.Mods.Count(), Is.EqualTo(1));
 
-            fireInst.SetArgValue("targetDefence", 1);
+            activity.SetArgValue("targetDefence", 1);
+            activity.Act();
 
-            var actionModSet = fireInst.Act();
-            initiator.AddModSets(actionModSet);
-            graph.Time.TriggerEvent();
+            var diceRoll = graph.CalculatePropValue(activity, "diceRoll");
+            var target = graph.CalculatePropValue(activity, "target");
 
-            var diceRoll = actionModSet.DiceRoll(graph);
+            Assert.That(activity.GetMods().Count(), Is.EqualTo(4));
+            Assert.That(activity.OutcomeSet.Mods.Count(), Is.EqualTo(1));
             Assert.That(diceRoll.ToString(), Is.EqualTo("1d20 + 2"));
+            Assert.That(target.ToString(), Is.EqualTo("11"));
 
-            fireInst.OutcomeArgs!
-                .Set("diceRoll", 20)
-                .Set("target", 15);
+            activity
+                .SetArgValue("diceRoll", 20)
+                .SetArgValue("target", 15);
 
-            var outcomeModSets = fireInst.Outcome();
-            graph.AddModSets(outcomeModSets);
+            activity.Outcome();
+
+            diceRoll = graph.CalculatePropValue(activity, "diceRoll");
+            target = graph.CalculatePropValue(activity, "target");
+            Assert.That(diceRoll.ToString(), Is.EqualTo("20"));
+            Assert.That(target.ToString(), Is.EqualTo("15"));
+
+            graph.AddModSets([.. activity.OutcomeSets]);
             graph.Time.TriggerEvent();
 
             Assert.That(gun.IsStateOn(nameof(GunFiring)), Is.True);
-
-            var outcome = fireInst.Outcome;
+            Assert.That(gun.Ammo.Current, Is.EqualTo(gun.Ammo.Max - 1));
         }
 
         [Test]
@@ -100,12 +110,11 @@ namespace Rpg.ModObjects.Tests
 
             Assert.That(initiator.PhysicalActionPoints.Current, Is.EqualTo(5));
 
-            var fireInst = gun.CreateActionInstance(initiator, nameof(FireGunAction), 0)!;
+            var activity = new RpgActivity(initiator, 0);
+            activity.CreateActionInstance(gun, nameof(FireGunAction));
 
-            var costModSet = fireInst.Cost();
-            initiator.AddModSet(costModSet);
-            graph.Time.TriggerEvent();
-
+            activity.Cost();
+            graph.AddModSets([.. activity.OutcomeSets]);
             Assert.That(initiator.PhysicalActionPoints.Current, Is.EqualTo(4));
         }
 
@@ -126,21 +135,18 @@ namespace Rpg.ModObjects.Tests
 
             Assert.That(initiator.PhysicalActionPoints.Current, Is.EqualTo(5));
 
-            var fireInst = gun.CreateActionInstance(initiator, nameof(FireGunAction), 0)!;
+            var activity = new RpgActivity(initiator, 0);
+            activity.CreateActionInstance(gun, nameof(FireGunAction));
 
-            var costModSet = fireInst.Cost();
-            initiator.AddModSet(costModSet);
-            graph.Time.TriggerEvent();
+            activity.Cost();
+            activity.SetArgValue("targetDefence", 1);
+            activity.Act();
 
-            fireInst.ActArgs!
-                .Set("targetDefence", 1);
+            Assert.That(graph.CalculatePropValue(activity, "diceRoll")!.ToString(), Is.EqualTo("1d20 + 2"));
+            Assert.That(graph.CalculatePropValue(activity, "target")!.ToString(), Is.EqualTo("11"));
 
-            var actionModSet = fireInst.Act();
-            initiator.AddModSets(actionModSet);
-            graph.Time.TriggerEvent();
-
-            Assert.That(actionModSet.DiceRoll(graph).ToString(), Is.EqualTo("1d20 + 2"));
-            Assert.That(actionModSet.Target(graph).ToString(), Is.EqualTo("11"));
+            graph.AddModSets([.. activity.OutcomeSets]);
+            Assert.That(initiator.PhysicalActionPoints.Current, Is.EqualTo(4));
         }
 
         [Test]

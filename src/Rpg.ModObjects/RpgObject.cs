@@ -41,8 +41,11 @@ namespace Rpg.ModObjects
 
         #region ModSets
 
-        public ModSet? GetModSet(string id)
+        public ModSetBase? GetModSet(string id)
             => ModSets.ContainsKey(id) ? ModSets[id] : null;
+
+        public ModSetBase? GetModSetByName(string name)
+            => ModSets.Values.FirstOrDefault(x => x.Name == name);
 
         public bool AddModSet(ModSet modSet)
         {
@@ -144,6 +147,7 @@ namespace Rpg.ModObjects
 
             return propDesc;
         }
+
         public Prop? GetProp(string? prop, bool create = false)
         {
             if (string.IsNullOrEmpty(prop))

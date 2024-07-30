@@ -16,9 +16,9 @@ namespace Rpg.ModObjects.Meta
         [JsonProperty] public string? SubCategory { get; private set; }
         [JsonProperty] public string[]? NextActionHints { get; private set; }
 
-        [JsonProperty] private RpgMethod<Actions.Action, ModSet> OnCost { get; set; }
-        [JsonProperty] private RpgMethod<Actions.Action, ActionModSet> OnAct { get; set; }
-        [JsonProperty] private RpgMethod<Actions.Action, ModSet[]> OnOutcome { get; set; }
+        [JsonProperty] private RpgMethod<Actions.Action, bool> OnCost { get; set; }
+        [JsonProperty] private RpgMethod<Actions.Action, bool> OnAct { get; set; }
+        [JsonProperty] private RpgMethod<Actions.Action, bool> OnOutcome { get; set; }
 
         [JsonConstructor] private MetaAction() { }
 
