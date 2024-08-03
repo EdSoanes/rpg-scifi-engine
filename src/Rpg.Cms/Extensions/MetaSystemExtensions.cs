@@ -36,8 +36,8 @@ namespace Rpg.Cms.Extensions
             var metaObj = system.Objects.FirstOrDefault(x => x.Archetype == archetype);
             if (metaObj != null)
                 return !string.IsNullOrEmpty(metaObj.QualifiedClassName)
-                    ? RpgReflection.ScanForType(metaObj.QualifiedClassName)
-                    : RpgReflection.ScanForTypeByName(metaObj.Archetype);
+                    ? RpgTypeScan.ForType(metaObj.QualifiedClassName)
+                    : RpgTypeScan.ForTypeByName(metaObj.Archetype);
 
             return null;
         }

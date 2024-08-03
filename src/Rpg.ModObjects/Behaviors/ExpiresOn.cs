@@ -18,10 +18,12 @@ namespace Rpg.ModObjects.Behaviors
         public override void OnAdding(RpgGraph graph, Prop modProp, Mod mod)
         {
             var matchingMods = MatchingMods<ExpiresOn>(graph, mod);
-            var oldValue = graph.CalculateModsValue(matchingMods);
-            var newValue = oldValue + graph.CalculateModValue(mod);
+            var value = Dice.Add(
+                graph.CalculateModsValue(matchingMods),
+                graph.CalculateModValue(mod)
+            );
 
-            mod.SetSource(newValue);
+            mod.SetSource(value);
 
             foreach (var matchingMod in matchingMods)
                 modProp.Remove(matchingMod);

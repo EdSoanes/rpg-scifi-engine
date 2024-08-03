@@ -18,21 +18,23 @@ namespace Rpg.Cyborgs.Actions
         public bool OnCanAct(RpgEntity owner, Actor initiator, RpgContainer from, RpgContainer to)
             => initiator.CurrentActionPoints > 0 && from.Contains(owner);
 
-        public ModSet OnCost(int actionNo, RpgEntity owner, Actor initiator, RpgContainer from, RpgContainer to)
+        public bool OnCost(RpgActivity activity, Actor initiator)
         {
-            return new ModSet(initiator.Id, new TurnLifecycle(), "Cost")
+            activity.OutcomeSet
                 .Add(initiator, x => x.CurrentActionPoints, -1);
+
+            return true;
         }
 
-        public ActionModSet OnAct(ActionInstance actionInstance, RpgEntity owner, Actor initiator, RpgContainer from, RpgContainer to)
-            => actionInstance.CreateActionSet();
+        public bool OnAct(RpgActivity activity)
+            => true;
 
-        public ModSet[] OnOutcome(RpgEntity owner, RpgContainer from, RpgContainer to)
+        public bool OnOutcome(RpgEntity owner, RpgContainer from, RpgContainer to)
         {
             from.Remove(owner);
             to.Add(owner);
 
-            return Array.Empty<ModSet>();
+            return true;
         }
     }
 }

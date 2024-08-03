@@ -4,18 +4,6 @@ using Newtonsoft.Json.Serialization;
 
 namespace Rpg.ModObjects
 {
-    public class RpgCamelCasePropertyNamesContractResolver : CamelCasePropertyNamesContractResolver
-    {
-        public RpgCamelCasePropertyNamesContractResolver()
-        {
-            NamingStrategy = new CamelCaseNamingStrategy
-            {
-                ProcessDictionaryKeys = false,
-                OverrideSpecifiedNames = true
-            };
-        }
-    }
-
     public class RpgSerializer
     {
         private static JsonSerializerSettings? _jsonSerializerSettings = null;

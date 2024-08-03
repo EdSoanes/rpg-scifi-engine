@@ -98,7 +98,7 @@ namespace Rpg.ModObjects.Props
             {
                 ModType = mod.Behavior.Type,
                 Behavior = mod.Behavior.GetType().Name,
-                Value = value,
+                Value = value ?? Dice.Zero,
                 ValueFunction = mod.SourceValueFunc?.FullName,
                 SourceValue = mod.SourceValue,
             };

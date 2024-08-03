@@ -84,7 +84,7 @@ namespace Rpg.ModObjects.States
         {
             var states = new List<State>();
 
-            var types = RpgReflection.ScanForTypes<State>()
+            var types = RpgTypeScan.ForTypes<State>()
                 .Where(x => IsOwnerStateType(entity, x));
 
             foreach (var type in types)
@@ -129,7 +129,7 @@ namespace Rpg.ModObjects.States
         {
             base.OnAdding(graph);
 
-            var conditionalMethod = RpgMethodFactory.Create<State<T>, LifecycleExpiry>(this, nameof(CalculateExpiry))!;
+            var conditionalMethod = RpgMethod.Create<State<T>, LifecycleExpiry>(this, nameof(CalculateExpiry))!;
             Lifecycle = new ConditionalLifecycle<State<T>>(Id, conditionalMethod);
         }
 

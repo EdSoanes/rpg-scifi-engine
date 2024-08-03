@@ -18,7 +18,7 @@ namespace Rpg.ModObjects
 
         public RpgGraph(RpgObject context)
         {
-            RpgReflection.RegisterAssembly(GetType().Assembly);
+            RpgTypeScan.RegisterAssembly(GetType().Assembly);
 
             Context = context;
 
@@ -29,7 +29,7 @@ namespace Rpg.ModObjects
 
         public RpgGraph(RpgGraphState state)
         {
-            RpgReflection.RegisterAssembly(GetType().Assembly);
+            RpgTypeScan.RegisterAssembly(GetType().Assembly);
 
             Context = state.Entities.First(x => x.Id == state.ContextId);
             Time = state.Time!;
@@ -54,17 +54,17 @@ namespace Rpg.ModObjects
             return state;
         }
 
-        public string Serialize()
-        {
-            var json = RpgSerializer.Serialize(GetGraphState());
-            return json;
-        }
+        //public string Serialize()
+        //{
+        //    var json = RpgSerializer.Serialize(GetGraphState());
+        //    return json;
+        //}
 
-        public static RpgGraph Deserialize(string stateJson)
-        {
-            var state = RpgSerializer.Deserialize<RpgGraphState>(stateJson);
-            return new RpgGraph(state);
-        }
+        //public static RpgGraph Deserialize(string stateJson)
+        //{
+        //    var state = RpgSerializer.Deserialize<RpgGraphState>(stateJson);
+        //    return new RpgGraph(state);
+        //}
 
         public T? Locate<T>(string? id)
             where T : class
@@ -181,6 +181,7 @@ namespace Rpg.ModObjects
                 ObjectStore.Add(entity.Id, entity);
                 if (Time.Current != TimePoints.BeforeTime)
                 {
+                    entity.OnBeforeTime(this);
                     entity.OnBeginningOfTime(this);
                     entity.OnStartLifecycle(this, Time.Current);
                 }
@@ -353,13 +354,21 @@ namespace Rpg.ModObjects
             return dice;
         }
 
-        public Dice CalculateModsValue(Mod[] mods)
+        public Dice? CalculateModsValue(Mod[] mods)
         {
-            var dice = Dice.Zero;
-            foreach (var mod in mods.Where(x => !(x.Behavior is Threshold)))
-                dice += CalculateModValue(mod);
+            var selectedMods = mods.Where(x => !(x.Behavior is Threshold));
+            if (!selectedMods.Any())
+                return null;
 
-            return ApplyThreshold(mods, dice);
+            Dice? dice = null;
+            foreach (var mod in selectedMods)
+            {
+                var val = CalculateModValue(mod);
+                if (val != null)
+                    dice = dice != null ? dice.Value + val.Value : val;
+            }
+
+            return dice != null ? ApplyThreshold(mods, dice!.Value) : null;
         }
 
         public Dice? CalculateInitialPropValue(RpgObject? entity, string prop)
@@ -368,23 +377,22 @@ namespace Rpg.ModObjects
         public Dice? CalculateBasePropValue(RpgObject? entity, string prop)
             => CalculatePropValue(entity, prop, mod => mod.IsBaseMod || mod.IsBaseInitMod);
 
-        public Dice CalculateModValue(Mod? mod)
+        public Dice? CalculateModValue(Mod? mod)
         {
             if (mod == null)
-                return Dice.Zero;
+                return null;
 
-            Dice value = mod.SourceValue ?? GetPropValue(GetObject(mod.SourcePropRef!.EntityId), mod.SourcePropRef.Prop);
+            Dice? value = mod.SourceValue ?? GetPropValue(GetObject(mod.SourcePropRef!.EntityId), mod.SourcePropRef.Prop);
 
-            if (mod.SourceValueFunc != null)
+            if (value != null && mod.SourceValueFunc != null)
             {
-                var argSet = mod.SourceValueFunc
-                    .CreateArgSet()
-                    .Set(0, value);
+                var args = new Dictionary<string, object?>();
+                args.Add(mod.SourceValueFunc.Args.First().Name, value);
 
                 var entity = GetObject(mod.SourceValueFunc.EntityId);
                 value = entity != null
-                    ? mod.SourceValueFunc.Execute(entity, argSet)
-                    : mod.SourceValueFunc.Execute(argSet);
+                    ? mod.SourceValueFunc.Execute(entity, args)
+                    : mod.SourceValueFunc.Execute(args);
             }
 
             return value;
@@ -404,10 +412,10 @@ namespace Rpg.ModObjects
             return dice;
         }
 
-        public Dice GetPropValue(RpgObject? entity, string? prop)
+        public Dice? GetPropValue(RpgObject? entity, string? prop)
         {
             if (entity == null || string.IsNullOrEmpty(prop))
-                return Dice.Zero;
+                return null;
 
             var val = entity.PropertyValue(prop, out var propExists);
             if (propExists && val != null)
@@ -426,7 +434,7 @@ namespace Rpg.ModObjects
                 return dice;
             }
 
-            return Dice.Zero;
+            return null;
         }
 
         public void OnPropUpdated(PropRef propRef)

@@ -10,7 +10,7 @@ namespace Rpg.Cyborgs.Tests
         [SetUp]
         public void Setup()
         {
-            RpgReflection.RegisterAssembly(typeof(CyborgsSystem).Assembly);
+            RpgTypeScan.RegisterAssembly(typeof(CyborgsSystem).Assembly);
         }
 
         [Test]

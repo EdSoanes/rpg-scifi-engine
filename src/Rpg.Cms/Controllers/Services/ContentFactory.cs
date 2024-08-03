@@ -1,8 +1,9 @@
 ﻿using Rpg.Cms.Extensions;
-using Rpg.Cms.Models;
 using Rpg.Cms.Services.Converter;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta;
+using Rpg.ModObjects.Server;
+using Rpg.ModObjects.Server.Services;
 using System.Net;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Web.Common;
@@ -44,7 +45,7 @@ namespace Rpg.Cms.Controllers.Services
             return res;
         }
 
-        public RpgEntity GetEntity(string systemIdentifier, string archetype, string id)
+        public RpgEntity CreateEntity(string systemIdentifier, string archetype, string contentId)
         {
             var system = MetaSystems.Get(systemIdentifier);
             if (system == null)
@@ -57,9 +58,9 @@ namespace Rpg.Cms.Controllers.Services
                 throw new HttpRequestException($"No .net type found for archetype {archetype} in system {systemIdentifier}", null, HttpStatusCode.BadRequest);
 
             var alias = system.GetDocumentTypeAlias(archetype);
-            var content = GetEntity(entityLibrary, alias, id);
+            var content = GetEntity(entityLibrary, alias, contentId);
             if (content == null)
-                throw new HttpRequestException($"Could not find entity {id} ({archetype}) for system {systemIdentifier}", null, HttpStatusCode.BadRequest);
+                throw new HttpRequestException($"Could not find entity {contentId} ({archetype}) for system {systemIdentifier}", null, HttpStatusCode.BadRequest);
 
             var entity = _contentConverter.Convert(system, type, content)!;
             return entity;

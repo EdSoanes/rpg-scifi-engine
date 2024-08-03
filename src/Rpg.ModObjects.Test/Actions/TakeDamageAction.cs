@@ -4,7 +4,6 @@ using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Templates;
 using Rpg.ModObjects.Tests.Models;
-using Rpg.ModObjects.Time.Lifecycles;
 
 namespace Rpg.ModObjects.Tests.Actions
 {
@@ -16,24 +15,29 @@ namespace Rpg.ModObjects.Tests.Actions
         public TakeDamageAction(TestHuman owner)
             : base(owner) { }
 
-        public bool OnCanAct(TestHuman owner)
+        public bool OnCanAct(RpgActivity activity, TestHuman owner)
             => true;
 
-        public ModSet OnCost(TestHuman owner)
-            => new ModSet(owner.Id, new TurnLifecycle(), "Cost");
+        public bool OnCost(RpgActivity activity, TestHuman owner)
+            => true;
 
-        public ActionModSet OnAct(ActionInstance actionInstance, TestHuman owner, int damage)
+        public bool OnAct(RpgActivity activity, TestHuman owner, int damage)
         {
-            return actionInstance.CreateActionSet();
+            activity
+                .ActivityMod("damage", "Damage", damage);
+
+            return true;
         }
 
-        public ModSet[] OnOutcome(ActionInstance actionInstance, TestHuman owner, int damage)
+        public bool OnOutcome(RpgActivity activity, TestHuman owner, int damage)
         {
-            var outcome = actionInstance
-                .CreateOutcomeSet()
+            activity
+                .ActivityResultMod("damage", "Result", damage);
+
+            activity.OutcomeSet
                 .Add(new PermanentMod(), owner, x => x.Health, -damage);
 
-            return [outcome];
+            return true;
         }
     }
 }

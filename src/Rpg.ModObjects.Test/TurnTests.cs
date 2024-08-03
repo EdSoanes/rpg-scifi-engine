@@ -12,7 +12,7 @@ namespace Rpg.ModObjects.Tests
         [SetUp]
         public void Setup()
         {
-            RpgReflection.RegisterAssembly(this.GetType().Assembly);
+            RpgTypeScan.RegisterAssembly(this.GetType().Assembly);
         }
 
         [Test]

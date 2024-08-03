@@ -79,7 +79,7 @@ namespace Rpg.ModObjects.Mods.Templates
             TargetPropRef = PropRef.CreatePropRef(target, targetProp);
             SourcePropRef = PropRef.CreatePropRef(target, sourceExpr);
             if (valueFunc != null)
-                SourceValueFunc = RpgMethodFactory.Create<RpgObject, Dice, Dice>(valueFunc);
+                SourceValueFunc = RpgMethod.Create<RpgObject, Dice, Dice>(valueFunc);
 
             return this;
         }
@@ -90,7 +90,7 @@ namespace Rpg.ModObjects.Mods.Templates
             TargetPropRef = PropRef.CreatePropRef(target, targetProp);
             SourceValue = value;
             if (valueFunc != null)
-                SourceValueFunc = RpgMethodFactory.Create<RpgObject, Dice, Dice>(valueFunc);
+                SourceValueFunc = RpgMethod.Create<RpgObject, Dice, Dice>(valueFunc);
 
             return this;
         }
@@ -101,7 +101,7 @@ namespace Rpg.ModObjects.Mods.Templates
             TargetPropRef = PropRef.CreatePropRef(target, targetExpr);
             SourceValue = value;
             if (valueFunc != null)
-                SourceValueFunc = RpgMethodFactory.Create<RpgObject, Dice, Dice>(valueFunc);
+                SourceValueFunc = RpgMethod.Create<RpgObject, Dice, Dice>(valueFunc);
 
             return this;
         }
@@ -113,7 +113,7 @@ namespace Rpg.ModObjects.Mods.Templates
             TargetPropRef = PropRef.CreatePropRef(target, targetExpr);
             SourcePropRef = PropRef.CreatePropRef(source, sourceExpr);
             if (valueFunc != null)
-                SourceValueFunc = RpgMethodFactory.Create<RpgObject, Dice, Dice>(valueFunc);
+                SourceValueFunc = RpgMethod.Create<RpgObject, Dice, Dice>(valueFunc);
 
             return this;
         }

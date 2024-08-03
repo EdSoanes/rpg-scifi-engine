@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Rpg.Cyborgs\Rpg.Cyborgs.csproj" />
+    <ProjectReference Include="..\Rpg.ModObjects.Server\Rpg.ModObjects.Server.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
@@ -34,9 +35,9 @@ namespace Rpg.ModObjects.Lifecycles
             if (owner == null)
                 new InvalidOperationException($"{nameof(ConditionalLifecycle<TOwner>)}.{nameof(GetOwner)} could not find owner");
 
-            var argSet = OnStartConditional.CreateArgSet();
+            var args = new Dictionary<string, object?>();
+            Expiry = OnStartConditional.Execute(owner!, args);
 
-            Expiry = OnStartConditional.Execute(owner!, argSet);
             return Expiry;
         }
 
@@ -46,9 +47,9 @@ namespace Rpg.ModObjects.Lifecycles
             if (owner == null)
                 new InvalidOperationException($"{nameof(ConditionalLifecycle<TOwner>)}.{nameof(GetOwner)} could not find owner");
 
-            var argSet = OnUpdateConditional.CreateArgSet();
+            var args = new Dictionary<string, object?>();
+            Expiry = OnUpdateConditional.Execute(owner!, args);
 
-            Expiry = OnUpdateConditional.Execute(owner!, argSet);
             return Expiry;
         }
 

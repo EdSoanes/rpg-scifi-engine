@@ -25,8 +25,8 @@ namespace Rpg.Sys.Actions
             var movementCost = CalculateMoveCost(owner, distance);
 
             activity
-                .AddMod("distance", "distance", distance)
-                .AddMod("movementCost", "movementCost", movementCost);
+                .ActivityMod("distance", "distance", distance)
+                .ActivityMod("movementCost", "movementCost", movementCost);
 
             activity.OutcomeSet
                 .Add(owner, x => x.Actions.Action, -movementCost);

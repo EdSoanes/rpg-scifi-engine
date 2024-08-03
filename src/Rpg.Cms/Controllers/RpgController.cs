@@ -1,12 +1,12 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Rpg.Cms.Controllers.Services;
-using Rpg.Cms.Models;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
+using Rpg.ModObjects.Server;
+using Rpg.ModObjects.Server.Ops;
 using Umbraco.Cms.Api.Common.Attributes;
 
 namespace Rpg.Cms.Controllers
@@ -18,21 +18,19 @@ namespace Rpg.Cms.Controllers
     [ApiExplorerSettings(GroupName = "Entities")]
     public class RpgController : Controller
     {
-        private readonly IGraphFactory _graphFactory;
-        private readonly IContentFactory _contentFactory;
+        private readonly IRpgSessionlessServer _sessionlessServer;
 
-        public RpgController(IGraphFactory graphFactory, IContentFactory contentFactory) 
+        public RpgController(IRpgSessionlessServer sessionlessServer) 
         {
-            _graphFactory = graphFactory;
-            _contentFactory = contentFactory;
+            _sessionlessServer = sessionlessServer;
         }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
         [HttpGet("{system}/entities")]
-        [ProducesResponseType(typeof(RpgContent[]), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ModObjects.Server.RpgContent[]), StatusCodes.Status200OK)]
         public IActionResult ListEntities(string system)
         {
-            var items = _contentFactory.ListEntities(system);
+            var items = _sessionlessServer.ListEntities(system);
             return Ok(items);
         }
 
@@ -41,129 +39,62 @@ namespace Rpg.Cms.Controllers
         [ProducesResponseType(typeof(RpgGraphState), StatusCodes.Status200OK)]
         public IActionResult CreateGraphState(string system, string archetype, string id)
         {
-            var graphState = _graphFactory.CreateGraphState(system, archetype, id);
+            var graphState = _sessionlessServer.CreateGraphState(system, archetype, id);
             return Ok(graphState);
-        }
-
-        [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
-        [HttpPost("{system}/actioninstance/create")]
-        [ProducesResponseType(typeof(ActionInstance), StatusCodes.Status200OK)]
-        public IActionResult GetActionInstance(string system, RpgOperation<CreateActionInstance> op)
-        {
-            var graph = _graphFactory.HydrateGraph(system, op.GraphState);
-
-            var owner = graph.GetObject<RpgEntity>(op.Operation.OwnerId)!;
-            var initiator = graph.GetObject<RpgEntity>(op.Operation.InitiatorId)!;
-
-            var instance = owner.CreateActionInstance(initiator, op.Operation.ActionName, op.Operation.ActionNo);
-
-            return Ok(instance);
         }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
         [HttpPost("{system}/modset")]
         [ProducesResponseType(typeof(RpgGraphState), StatusCodes.Status200OK)]
-        public IActionResult AddModSet(string system, RpgOperation<ModSet> op)
+        public IActionResult AddModSet(string system, RpgRequest<ModSet> request)
         {
-            var graph = _graphFactory.HydrateGraph(system, op.GraphState);
-
-            var owner = graph.GetObject<RpgEntity>(op.Operation.OwnerId)!;
-            owner.AddModSet(op.Operation);
-            graph.Time.TriggerEvent();
-
-            var graphState = graph.GetGraphState();
-            return Ok(graphState);
+            var response = _sessionlessServer.ApplyModSet(system, request);
+            return Ok(response);
         }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
-        [HttpPost("{system}/actioninstance/cost")]
-        [ProducesResponseType(typeof(ModSet), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public IActionResult Cost(string system, RpgOperation<Act> op)
+        [HttpPost("{system}/activity/create")]
+        [ProducesResponseType(typeof(ActionInstance), StatusCodes.Status200OK)]
+        public IActionResult ActivityCreate(string system, RpgRequest<ActivityCreate> request)
         {
-            var graph = _graphFactory.HydrateGraph(system, op.GraphState);
-
-            var owner = graph.GetObject<RpgEntity>(op.Operation.OwnerId)!;
-            var initiator = graph.GetObject<RpgEntity>(op.Operation.InitiatorId)!;
-
-            var instance = owner.CreateActionInstance(initiator, op.Operation.ActionName, op.Operation.ActionNo)!;
-            instance.SetArgValues(op.Operation.ArgValues);
-
-            return instance.CanAct()
-                ? Ok(instance.Cost())
-                : Forbid();
+            var response = _sessionlessServer.ActivityCreate(system, request);
+            return Ok(response);
         }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
-        [HttpPost("{system}/actioninstance/act")]
+        [HttpPost("{system}/activity/act")]
         [ProducesResponseType(typeof(ActionModSet), StatusCodes.Status200OK)]
-        public IActionResult Act(string system, RpgOperation<Act> op)
+        public IActionResult ActivityAct(string system, RpgRequest<ActivityAct> request)
         {
-            var graph = _graphFactory.HydrateGraph(system, op.GraphState);
-
-            var owner = graph.GetObject<RpgEntity>(op.Operation.OwnerId)!;
-            var initiator = graph.GetObject<RpgEntity>(op.Operation.InitiatorId)!;
-
-            var instance = owner.CreateActionInstance(initiator, op.Operation.ActionName, op.Operation.ActionNo)!;
-            instance.SetArgValues(op.Operation.ArgValues);
-            return Ok(instance.Act());
+            var response = _sessionlessServer.ActivityAct(system, request);
+            return Ok(response);
         }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
-        [HttpPost("{system}/actioninstance/outcome")]
+        [HttpPost("{system}/activity/outcome")]
         [ProducesResponseType(typeof(ModSet[]), StatusCodes.Status200OK)]
-        public IActionResult Outcome(string system, RpgOperation<Act> op)
+        public IActionResult ActivityOutcome(string system, RpgRequest<ActivityOutcome> request)
         {
-            var graph = _graphFactory.HydrateGraph(system, op.GraphState);
-
-            var owner = graph.GetObject<RpgEntity>(op.Operation.OwnerId)!;
-            var initiator = graph.GetObject<RpgEntity>(op.Operation.InitiatorId)!;
-
-            var instance = owner.CreateActionInstance(initiator, op.Operation.ActionName, op.Operation.ActionNo)!;
-            instance.SetArgValues(op.Operation.ArgValues);
-            return Ok(instance.Outcome());
+            var response = _sessionlessServer.ActivityOutcome(system, request);
+            return Ok(response);
         }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
         [HttpPost("{system}/state")]
         [ProducesResponseType(typeof(RpgGraphState), StatusCodes.Status200OK)]
-        public IActionResult StateState(string system, RpgOperation<SetState> op)
+        public IActionResult StateState(string system, RpgRequest<SetState> request)
         {
-            var graph = _graphFactory.HydrateGraph(system, op.GraphState);
-
-            var entity = graph.GetObject<RpgEntity>(op.Operation.EntityId)!;
-            var stateChanged = op.Operation.On
-                ? entity.SetStateOn(op.Operation.State)
-                : entity.SetStateOff(op.Operation.State);
-
-            graph.Time.TriggerEvent();
-
-            var graphState = graph.GetGraphState();
-            return Ok(graphState);
+            var response = _sessionlessServer.SetState(system, request);
+            return Ok(response);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <remarks>
-        /// POST {system}/describe
-        /// </remarks>
-        /// <param name="system"></param>
-        /// <param name="op"></param>
-        /// <returns></returns>
         [HttpPost("{system}/describe")]
         [ProducesResponseType(typeof(PropDesc), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult Describe(string system, RpgOperation<Describe> op)
+        public IActionResult Describe(string system, RpgRequest<Describe> request)
         {
-            var graph = _graphFactory.HydrateGraph(system, op.GraphState);
-            var entity = graph.GetObject<RpgEntity>(op.Operation.EntityId)!;
-
-            var description = entity.Describe(op.Operation.Prop);
-            if (description == null)
-                return BadRequest($"Desription for {op.Operation.EntityId}.{op.Operation.Prop} not found");
-
-            return Ok(description);
+            var response = _sessionlessServer.Describe(system, request);
+            return Ok(response);
         }
     }
 }

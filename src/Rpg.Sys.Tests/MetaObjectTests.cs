@@ -10,7 +10,7 @@ namespace Rpg.Sys.Tests
         [SetUp]
         public void Setup()
         {
-            RpgReflection.RegisterAssembly(typeof(MetaSystem).Assembly);
+            RpgTypeScan.RegisterAssembly(typeof(MetaSystem).Assembly);
         }
 
         [Test]

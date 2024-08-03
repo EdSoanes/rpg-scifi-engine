@@ -19,7 +19,7 @@ namespace Rpg.ModObjects.Tests
         [SetUp]
         public void Setup()
         {
-            RpgReflection.RegisterAssembly(this.GetType().Assembly);
+            RpgTypeScan.RegisterAssembly(this.GetType().Assembly);
         }
 
         [Test]
@@ -28,15 +28,14 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new RpgGraph(entity);
 
-            var method = RpgMethodFactory.Create<ScoreBonusValue, Dice>(entity.Strength, nameof(ScoreBonusValue.CalculateStatBonus));
+            var method = RpgMethod.Create<ScoreBonusValue, Dice>(entity.Strength, nameof(ScoreBonusValue.CalculateStatBonus));
 
             Assert.That(method, Is.Not.Null);
             Assert.That(method.MethodName, Is.EqualTo(nameof(ScoreBonusValue.CalculateStatBonus)));
             Assert.That(method.ClassName, Is.Null);
 
-            var argSet = method.CreateArgSet();
-            Assert.That(argSet.Args.Count(), Is.EqualTo(1));
-            Assert.That(argSet.Args.Keys, Does.Contain("dice"));
+            Assert.That(method.Args.Count(), Is.EqualTo(1));
+            Assert.That(method.Args.First().Name, Is.EqualTo("dice"));
 
             var json = JsonConvert.SerializeObject(method, JsonSettings)!;
             var method2 = JsonConvert.DeserializeObject<RpgMethod<ScoreBonusValue, Dice>>(json, JsonSettings)!;
@@ -44,9 +43,8 @@ namespace Rpg.ModObjects.Tests
             Assert.That(method2.MethodName, Is.EqualTo(nameof(ScoreBonusValue.CalculateStatBonus)));
             Assert.That(method2.ClassName, Is.Null);
 
-            var argSet2 = method2.CreateArgSet();
-            Assert.That(argSet2.Args.Count(), Is.EqualTo(1));
-            Assert.That(argSet2.Args.Keys, Does.Contain("dice"));
+            Assert.That(method2.Args.Count(), Is.EqualTo(1));
+            Assert.That(method2.Args.First().Name, Is.EqualTo("dice"));
         }
 
 
@@ -56,7 +54,7 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new RpgGraph(entity);
 
-            var method = RpgMethodFactory.Create<ScoreBonusValue, Dice>(entity.Strength, nameof(ScoreBonusValue.CalculateStatBonus));
+            var method = RpgMethod.Create<ScoreBonusValue, Dice>(entity.Strength, nameof(ScoreBonusValue.CalculateStatBonus));
 
             var baseMod = new PermanentMod()
                 .SetProps(entity.Strength, x => x.Bonus, 2, () => DiceCalculations.CalculateStatBonus)

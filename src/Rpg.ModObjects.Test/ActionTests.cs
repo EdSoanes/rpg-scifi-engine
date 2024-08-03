@@ -11,7 +11,7 @@ namespace Rpg.ModObjects.Tests
         [SetUp]
         public void Setup()
         {
-            RpgReflection.RegisterAssembly(this.GetType().Assembly);
+            RpgTypeScan.RegisterAssembly(this.GetType().Assembly);
         }
 
         [Test]
@@ -30,45 +30,37 @@ namespace Rpg.ModObjects.Tests
             Assert.That(testAction.OwnerId, Is.EqualTo(entity.Id));
 
             //Cost
-            var costArgSet = testAction.CostArgs();
-            Assert.That(costArgSet, Is.Not.Null);
-            Assert.That(costArgSet.Args.Count(), Is.EqualTo(2));
-            Assert.That(costArgSet.Args.ContainsKey("owner"), Is.True);
-            Assert.That(costArgSet.Args["owner"].TypeName, Is.EqualTo(nameof(ModdableEntity)));
-            Assert.That(costArgSet.Args.ContainsKey("initiator"), Is.True);
-            Assert.That(costArgSet.Args["initiator"].TypeName, Is.EqualTo(nameof(TestHuman)));
-            Assert.That(costArgSet.Args.Keys, Does.Contain("owner"));
-            Assert.That(costArgSet.Args.Keys, Does.Contain("initiator"));
+            var costArgs = testAction.OnCost.Args;
+            Assert.That(costArgs, Is.Not.Null);
+            Assert.That(costArgs.Count(), Is.EqualTo(3));
+            Assert.That(costArgs.FirstOrDefault(x => x.Name == "owner"), Is.Not.Null);
+            Assert.That(costArgs.First(x => x.Name == "owner").TypeName, Is.EqualTo(nameof(ModdableEntity)));
+            Assert.That(costArgs.FirstOrDefault(x => x.Name == "initiator"), Is.Not.Null);
+            Assert.That(costArgs.First(x => x.Name == "initiator").TypeName, Is.EqualTo(nameof(TestHuman)));
 
             //Act
-            var actArgSet = testAction.ActArgs();
-            Assert.That(actArgSet, Is.Not.Null);
-            Assert.That(actArgSet.Args.Count(), Is.EqualTo(4));
-            Assert.That(actArgSet.Args.ContainsKey("actionInstance"), Is.True);
-            Assert.That(actArgSet.Args["actionInstance"].TypeName, Is.EqualTo(nameof(ActionInstance)));
-            Assert.That(actArgSet.Args.ContainsKey("owner"), Is.True);
-            Assert.That(actArgSet.Args["owner"].TypeName, Is.EqualTo(nameof(ModdableEntity)));
-            Assert.That(actArgSet.Args.ContainsKey("initiator"), Is.True);
-            Assert.That(actArgSet.Args["initiator"].TypeName, Is.EqualTo(nameof(TestHuman)));
-            Assert.That(actArgSet.Args.ContainsKey("target"), Is.True);
-            Assert.That(actArgSet.Args["target"].TypeName, Is.EqualTo(nameof(Int32)));
-            Assert.That(actArgSet.Args.Keys, Does.Contain("owner"));
-            Assert.That(actArgSet.Args.Keys, Does.Contain("initiator"));
-            Assert.That(actArgSet.Args.Keys, Does.Contain("target"));
+            var actArgs = testAction.OnAct.Args;
+            Assert.That(actArgs, Is.Not.Null);
+            Assert.That(actArgs.Count(), Is.EqualTo(4));
+            Assert.That(actArgs.FirstOrDefault(x => x.Name == "activity"), Is.Not.Null);
+            Assert.That(actArgs.First(x => x.Name == "activity").TypeName, Is.EqualTo(nameof(RpgActivity)));
+            Assert.That(actArgs.FirstOrDefault(x => x.Name == "owner"), Is.Not.Null);
+            Assert.That(actArgs.First(x => x.Name == "owner").TypeName, Is.EqualTo(nameof(ModdableEntity)));
+            Assert.That(actArgs.FirstOrDefault(x => x.Name == "initiator"), Is.Not.Null);
+            Assert.That(actArgs.First(x => x.Name == "initiator").TypeName, Is.EqualTo(nameof(TestHuman)));
+            Assert.That(actArgs.FirstOrDefault(x => x.Name == "target"), Is.Not.Null);
+            Assert.That(actArgs.First(x => x.Name == "target").TypeName, Is.EqualTo(nameof(Int32)));
 
             //Outcome
-            var outcomeArgs = testAction.OutcomeArgs();
+            var outcomeArgs = testAction.OnOutcome.Args;
             Assert.That(outcomeArgs, Is.Not.Null);
-            Assert.That(outcomeArgs.Args.Count(), Is.EqualTo(3));
-            Assert.That(actArgSet.Args.ContainsKey("owner"), Is.True);
-            Assert.That(actArgSet.Args["owner"].TypeName, Is.EqualTo(nameof(ModdableEntity)));
-            Assert.That(actArgSet.Args.ContainsKey("initiator"), Is.True);
-            Assert.That(actArgSet.Args["initiator"].TypeName, Is.EqualTo(nameof(TestHuman)));
-            Assert.That(outcomeArgs.Args.ContainsKey("diceRoll"), Is.True);
-            Assert.That(outcomeArgs.Args["diceRoll"].TypeName, Is.EqualTo(nameof(Int32)));
-            Assert.That(outcomeArgs.Args.Keys, Does.Contain("owner"));
-            Assert.That(outcomeArgs.Args.Keys, Does.Contain("initiator"));
-            Assert.That(outcomeArgs.Args.Keys, Does.Contain("diceRoll"));
+            Assert.That(outcomeArgs.Count(), Is.EqualTo(4));
+            Assert.That(outcomeArgs.FirstOrDefault(x => x.Name == "owner"), Is.Not.Null);
+            Assert.That(outcomeArgs.First(x => x.Name == "owner").TypeName, Is.EqualTo(nameof(ModdableEntity)));
+            Assert.That(outcomeArgs.FirstOrDefault(x => x.Name == "initiator"), Is.Not.Null);
+            Assert.That(outcomeArgs.First(x => x.Name == "initiator").TypeName, Is.EqualTo(nameof(TestHuman)));
+            Assert.That(outcomeArgs.FirstOrDefault(x => x.Name == "diceRoll"), Is.Not.Null);
+            Assert.That(outcomeArgs.First(x => x.Name == "diceRoll").TypeName, Is.EqualTo(nameof(Int32)));
         }
     }
 }

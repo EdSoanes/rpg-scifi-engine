@@ -1,8 +1,10 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Cyborgs.States;
+using Rpg.ModObjects;
 using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time.Lifecycles;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Rpg.Cyborgs.Skills.Combat
 {
@@ -19,22 +21,26 @@ namespace Rpg.Cyborgs.Skills.Combat
         public bool OnCanAct(Actor owner)
             => !owner.IsStateOn(nameof(Aiming)) || owner.RangedAimBonus.Value < 6;
 
-        public ModSet OnCost(Actor owner, Actor initiator)
+        public bool OnCost(RpgActivity activity, Actor owner, Actor initiator)
         {
-            return new ModSet(owner.Id, new TurnLifecycle(), "Cost")
+            activity.OutcomeSet
                 .Add(initiator, x => x.ActionPoints, -1);
+
+            return true;
         }
 
-        public ActionModSet OnAct(ActionInstance actionInstance)
-        {
-            var modSet = actionInstance.CreateActionSet();
-            return modSet;
-        }
+        public bool OnAct(RpgActivity activity)
+            => true;
 
-        public ModSet[] OnOutcome(Actor owner)
+        public bool OnOutcome(RpgActivity activity, Actor owner)
         {
+            activity.OutcomeSet
+                .Add(owner, x => x.RangedAimBonus, 2);
+
             var aiming = owner.CreateStateInstance(nameof(Aiming));
-            return [aiming];
+            activity.OutcomeSets.Add(aiming);
+
+            return true;
         }
     }
 }

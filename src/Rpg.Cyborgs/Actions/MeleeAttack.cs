@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Cyborgs.States;
-using Rpg.ModObjects.Actions;
+using Rpg.ModObjects;
 using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Time.Lifecycles;
+using Rpg.ModObjects.Values;
 
 namespace Rpg.Cyborgs.Actions
 {
@@ -15,41 +15,48 @@ namespace Rpg.Cyborgs.Actions
         {
         }
 
-        public bool OnCanAct(MeleeWeapon owner, Actor initiator)
+        public bool OnCanAct(RpgActivity activity, MeleeWeapon owner, Actor initiator)
             => initiator.Hands.Contains(owner) && initiator.CurrentActionPoints > 0;
 
-        public ModSet OnCost(Actor initiator, int focusPoints)
+        public bool OnCost(RpgActivity activity, Actor initiator)
         {
-            return new ModSet(initiator.Id, new TurnLifecycle(), "Cost")
-                .Add(initiator, x => x.CurrentFocusPoints, -focusPoints)
+            activity.OutcomeSet
                 .Add(initiator, x => x.CurrentActionPoints, -1);
+
+            return true;
         }
 
-        public ActionModSet OnAct(ActionInstance actionInstance, MeleeWeapon owner, Actor initiator, int targetDefence, int focusPoints, int? abilityScore)
+        public bool OnAct(RpgActivity activity, MeleeWeapon owner, Actor initiator, int targetDefence, int focusPoints, int? abilityScore)
         {
-            var modSet = actionInstance
-                .CreateActionSet()
-                .DiceRoll(initiator, "Base", "2d6")
-                .DiceRoll(initiator, owner, x => x.HitBonus)
-                .Target(initiator, "Base", targetDefence);
+            if (focusPoints > 0)
+                activity.OutcomeSet
+                    .Add(initiator, x => x.CurrentFocusPoints, -focusPoints);
+
+            activity
+                .ActionMod("diceRoll", "Base", "2d6")
+                .ActionMod("diceRoll", owner, x => x.HitBonus)
+                .ActionMod("target", "Base", targetDefence);
+
+            var score = (abilityScore ?? initiator.MeleeAttack.Value) * (focusPoints + 1);
 
             if (abilityScore != null)
-                modSet.DiceRoll(initiator, "Ability", abilityScore.Value * focusPoints + 1);
+                activity.ActionMod("diceRoll", "Ability", score);
             else
-                modSet.DiceRoll(initiator, "MeleeAttack", initiator.MeleeAttack.Value * focusPoints + 1);
+                activity.ActionMod("diceRoll", "MeleeAttack.Value", score);
 
-            return modSet;
+            return true;
         }
 
-        public ModSet[] OnOutcome(ActionInstance actionInstance, MeleeWeapon owner, Actor initiator, int diceRoll, int targetDefence)
+        public bool OnOutcome(RpgActivity activity, MeleeWeapon owner, Actor initiator, int diceRoll, int target)
         {
-            var meleeAttacking = owner.CreateStateInstance(nameof(MeleeAttacking));
-            var damage = actionInstance
-                .CreateOutcomeSet()
-                .Outcome(initiator, owner, x => x.Damage)
-                .Outcome(initiator, x => x.Strength);
+            activity
+                .ActivityMod("damage", owner, x => x.Damage)
+                .ActivityMod("damage", initiator, x => x.Strength.Value);
 
-            return [meleeAttacking, damage];
+            var meleeAttacking = initiator.CreateStateInstance(nameof(MeleeAttacking));
+            activity.OutcomeSets.Add(meleeAttacking);
+
+            return true;
         }
     }
 }

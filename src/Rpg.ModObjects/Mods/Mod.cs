@@ -95,12 +95,12 @@ namespace Rpg.ModObjects.Mods
             return mod;
         }
 
-        public void SetSource(Dice value, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+        public void SetSource(Dice? value, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
         {
             SourceValue = value;
             SourcePropRef = null;
-            if (valueFunc != null)
-                SourceValueFunc = RpgMethodFactory.Create<RpgObject, Dice, Dice>(valueFunc);
+            if (value != null && valueFunc != null)
+                SourceValueFunc = RpgMethod.Create<RpgObject, Dice, Dice>(valueFunc);
         }
     }
 }

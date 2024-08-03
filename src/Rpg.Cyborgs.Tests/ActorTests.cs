@@ -13,7 +13,7 @@ namespace Rpg.Cyborgs.Tests
         [SetUp]
         public void Setup()
         {
-            RpgReflection.RegisterAssembly(typeof(CyborgsSystem).Assembly);
+            RpgTypeScan.RegisterAssembly(typeof(CyborgsSystem).Assembly);
         }
 
         [Test]
@@ -60,7 +60,7 @@ namespace Rpg.Cyborgs.Tests
             var pc = new PlayerCharacter(ActorFactory.BennyTemplate);
             var graph = new RpgGraph(pc);
 
-            Assert.That(pc.States.Count(), Is.EqualTo(7));
+            Assert.That(pc.States.Count(), Is.EqualTo(8));
             Assert.That(pc.States.Values.Where(x => x.IsOn).Count(), Is.EqualTo(0));
         }
 

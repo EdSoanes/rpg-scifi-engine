@@ -35,7 +35,7 @@ namespace Rpg.Cms
             options.SelectSubTypesUsing(baseType =>
             {
                 return MetaSystems.IsMetaSystemType(baseType)
-                    ? RpgReflection.ScanForSubTypes(baseType)
+                    ? RpgTypeScan.ForSubTypes(baseType)
                     : Array.Empty<Type>();
             });
         }

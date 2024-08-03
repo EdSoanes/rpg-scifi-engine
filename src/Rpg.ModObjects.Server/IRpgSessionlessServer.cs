@@ -1,0 +1,20 @@
+﻿using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Props;
+using Rpg.ModObjects.Server.Ops;
+
+namespace Rpg.ModObjects.Server
+{
+    public interface IRpgSessionlessServer
+    {
+        RpgResponse<RpgActivity> ActivityAct(string system, RpgRequest<ActivityAct> request);
+        RpgResponse<RpgActivity> ActivityAutoComplete(string system, RpgRequest<ActivityAutoComplete> request);
+        RpgResponse<RpgActivity> ActivityComplete(string system, RpgRequest<ActivityComplete> request);
+        RpgResponse<RpgActivity> ActivityCreate(string system, RpgRequest<ActivityCreate> request);
+        RpgResponse<RpgActivity> ActivityOutcome(string system, RpgRequest<ActivityOutcome> request);
+        RpgResponse<bool> ApplyModSet(string system, RpgRequest<ModSet> request);
+        RpgResponse<string> CreateGraphState(string system, string archetype, string id);
+        RpgResponse<PropDesc> Describe(string system, RpgRequest<Describe> request);
+        RpgContent[] ListEntities(string system);
+        RpgResponse<string> SetState(string system, RpgRequest<SetState> request);
+    }
+}

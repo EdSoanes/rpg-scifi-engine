@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Reflection;
 
 namespace Rpg.ModObjects.Actions
@@ -39,41 +38,50 @@ namespace Rpg.ModObjects.Actions
         public void OnAdding(RpgGraph graph)
         {
             Graph = graph;
-            OnCanAct = RpgMethodFactory.Create<Action, bool>(this, nameof(OnCanAct))!;
-            OnCost = RpgMethodFactory.Create<Action, bool>(this, nameof(OnCost))!;
-            OnAct = RpgMethodFactory.Create<Action, bool>(this, nameof(OnAct))!;
-            OnOutcome = RpgMethodFactory.Create<Action, bool>(this, nameof(OnOutcome))!;
+            OnCanAct = RpgMethod.Create<Action, bool>(this, nameof(OnCanAct))!;
+            OnCost = RpgMethod.Create<Action, bool>(this, nameof(OnCost))!;
+            OnAct = RpgMethod.Create<Action, bool>(this, nameof(OnAct))!;
+            OnOutcome = RpgMethod.Create<Action, bool>(this, nameof(OnOutcome))!;
         }
 
-        public RpgArgSet CanActArgs()
-            => OnCanAct.CreateArgSet();
+        //public RpgArgSet CanActArgs()
+        //    => OnCanAct.CreateArgSet();
 
-        public RpgArgSet CostArgs()
-            => OnCost.CreateArgSet();
+        //public RpgArgSet CostArgs()
+        //    => OnCost.CreateArgSet();
 
-        public bool CanAct(RpgArgSet argSet)
-            => OnCanAct.Execute(this, argSet);
+        //public bool CanAct(RpgArgSet argSet)
+        //    => OnCanAct.Execute(this, argSet);
 
-        public bool Cost(RpgArgSet argSet)
-            => OnCost.Execute(this, argSet);
+        public bool CanAct(Dictionary<string, object?> args)
+            => OnCanAct.Execute(this, args);
 
-        public RpgArgSet ActArgs() 
-            => OnAct.CreateArgSet();
+        public bool Cost(Dictionary<string, object?> args)
+            => OnCost.Execute(this, args);
 
-        public bool Act(RpgArgSet args)
+        //public RpgArgSet ActArgs() 
+        //    => OnAct.CreateArgSet();
+
+        //public bool Act(RpgArgSet args)
+        //    => OnAct.Execute(this, args);
+
+        public bool Act(Dictionary<string, object?> args)
             => OnAct.Execute(this, args);
 
-        public RpgArgSet OutcomeArgs() 
-            => OnOutcome.CreateArgSet();
+        //public RpgArgSet OutcomeArgs() 
+        //    => OnOutcome.CreateArgSet();
 
-        public bool Outcome(RpgArgSet args)
+        //public bool Outcome(RpgArgSet args)
+        //    => OnOutcome.Execute(this, args);
+
+        public bool Outcome(Dictionary<string, object?> args)
             => OnOutcome.Execute(this, args);
 
         public static Action[] CreateOwnerActions(RpgObject entity)
         {
             var actions = new List<Action>();
 
-            var types = RpgReflection.ScanForTypes<Action>()
+            var types = RpgTypeScan.ForTypes<Action>()
                 .Where(x => IsOwnerActionType(entity, x));
 
             foreach (var type in types)

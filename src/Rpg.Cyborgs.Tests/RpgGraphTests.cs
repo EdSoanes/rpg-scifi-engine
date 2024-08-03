@@ -9,7 +9,7 @@ namespace Rpg.Cyborgs.Tests
         [SetUp]
         public void Setup()
         {
-            RpgReflection.RegisterAssembly(typeof(CyborgsSystem).Assembly);
+            RpgTypeScan.RegisterAssembly(typeof(CyborgsSystem).Assembly);
         }
 
         [Test]
@@ -20,9 +20,11 @@ namespace Rpg.Cyborgs.Tests
             pc.Hands.Add(sword);
 
             var graph = new RpgGraph(pc);
-            var json = graph.Serialize();
+            var json = RpgSerializer.Serialize(graph.GetGraphState());
 
-            var graph2 = RpgGraph.Deserialize(json);
+            var graphState2 = RpgSerializer.Deserialize<RpgGraphState>(json);
+            var graph2 = new RpgGraph(graphState2);
+
             var pc2 = graph2.Context as PlayerCharacter;
 
             Assert.That(pc2, Is.Not.Null);

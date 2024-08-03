@@ -22,14 +22,14 @@ namespace Rpg.ModObjects.Tests
         public void Setup()
         {
             _testMethodClass = new TestMethodClass();
-            RpgReflection.RegisterAssembly(this.GetType().Assembly);
+            RpgTypeScan.RegisterAssembly(this.GetType().Assembly);
         }
 
         [Test]
         public void Method_GetInt_EnsureMethodModel()
         {
 
-            var method = RpgMethodFactory.Create<TestMethodClass, int>(_testMethodClass, nameof(TestMethodClass.GetInt));
+            var method = RpgMethod.Create<TestMethodClass, int>(_testMethodClass, nameof(TestMethodClass.GetInt));
             Assert.That(method, Is.Not.Null);
             Assert.That(method.MethodName, Is.EqualTo(nameof(TestMethodClass.GetInt)));
             Assert.That(method.ClassName, Is.Null);
@@ -44,9 +44,10 @@ namespace Rpg.ModObjects.Tests
         public void Method_ExecuteGetInt_EnsureMethodModel()
         {
 
-            var method = RpgMethodFactory.Create<TestMethodClass, int>(_testMethodClass, nameof(TestMethodClass.GetInt))!;
-            var argSet = method.CreateArgSet().Set(0, 2);
-            var res = method.Execute(_testMethodClass, argSet);
+            var method = RpgMethod.Create<TestMethodClass, int>(_testMethodClass, nameof(TestMethodClass.GetInt))!;
+            var args = new Dictionary<string, object?>();
+            args.Add(method.Args.First().Name, 2);
+            var res = method.Execute(_testMethodClass, args);
 
             Assert.That(res, Is.EqualTo(4));
         }
@@ -55,7 +56,7 @@ namespace Rpg.ModObjects.Tests
         public void Method_GetIntNullable_EnsureMethodModel()
         {
 
-            var method = RpgMethodFactory.Create<TestMethodClass, int>(_testMethodClass, nameof(TestMethodClass.GetIntNullable));
+            var method = RpgMethod.Create<TestMethodClass, int>(_testMethodClass, nameof(TestMethodClass.GetIntNullable));
             Assert.That(method, Is.Not.Null);
             Assert.That(method.MethodName, Is.EqualTo(nameof(TestMethodClass.GetIntNullable)));
             Assert.That(method.ClassName, Is.Null);
@@ -69,7 +70,7 @@ namespace Rpg.ModObjects.Tests
         [Test]
         public void Method_GetObject_EnsureMethodModel()
         {
-            var method = RpgMethodFactory.Create<TestMethodClass, ModSet>(_testMethodClass, nameof(TestMethodClass.GetObject));
+            var method = RpgMethod.Create<TestMethodClass, ModSet>(_testMethodClass, nameof(TestMethodClass.GetObject));
             Assert.That(method, Is.Not.Null);
             Assert.That(method.MethodName, Is.EqualTo(nameof(TestMethodClass.GetObject)));
             Assert.That(method.ClassName, Is.Null);

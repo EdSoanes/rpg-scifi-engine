@@ -1,12 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects;
-using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Behaviors;
-using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Templates;
-using Rpg.ModObjects.Time;
-using Rpg.ModObjects.Time.Lifecycles;
+using Rpg.ModObjects.Values;
 
 namespace Rpg.Cyborgs.Actions
 {
@@ -19,46 +16,48 @@ namespace Rpg.Cyborgs.Actions
         {
         }
 
-        public bool OnCanAct(Actor owner)
+        public bool OnCanAct(RpgActivity activity, Actor owner)
+            => (activity.GetActivityProp("damage") ?? Dice.Zero) != Dice.Zero;
+
+        public bool OnCost(RpgActivity activity, Actor owner)
             => true;
 
-        public ModSet OnCost(int actionNo, Actor owner)
-            => new ModSet(owner.Id, new TurnLifecycle(), "Cost");
-
-        public ActionModSet OnAct(ActionInstance actionInstance, Actor owner, int damage)
+        public bool OnAct(RpgActivity activity, Actor owner, int damage)
         {
-            var staminaDamage = owner.CurrentStaminaPoints >= damage
+            var staminaInjury = owner.CurrentStaminaPoints >= damage
                 ? damage
                 : owner.CurrentStaminaPoints;
 
-            var lifeDamage = staminaDamage < damage
-                ? damage - staminaDamage
+            var lifeInjury = staminaInjury < damage
+                ? damage - staminaInjury
                 : 0;
 
-            var damageSet = actionInstance.CreateActionSet();
+            if (staminaInjury > 0)
+                activity
+                    .OutcomeSet.Add(new PermanentMod().SetBehavior(new Combine()), owner, x => x.CurrentStaminaPoints, -staminaInjury);
 
-            if (staminaDamage > 0)
-                damageSet.Add(new PermanentMod().SetBehavior(new Combine()), owner, x => x.CurrentStaminaPoints, -staminaDamage);
+            if (lifeInjury > 0)
+                activity
+                    .OutcomeSet.Add(new PermanentMod().SetBehavior(new Combine()), owner, x => x.CurrentLifePoints, -staminaInjury);
 
-            if (lifeDamage > 0)
+            if (lifeInjury < 0)
             {
-                damageSet
-                    .Add(new PermanentMod().SetBehavior(new Combine()), owner, x => x.CurrentLifePoints, -lifeDamage)
-                    .DiceRoll(owner, "Base", "2d6")
-                    .DiceRoll(owner, "CurrentLifePoints", owner.CurrentLifePoints - lifeDamage);
+                var currentLifePoints = owner.CurrentLifePoints - lifeInjury;
+                activity
+                    .ActionMod("injuryRoll", "Base", "2d6")
+                    .ActionMod("injuryRoll", "LifeInjury", -currentLifePoints);
             }
 
-            return damageSet;
+            return lifeInjury > 0;
         }
 
-        public ModSet[] OnOutcome(ActionInstance actionInstance, Actor owner, int injuryRoll, int injuryLocationRoll, int locationType)
+        public bool OnOutcome(RpgActivity activity, Actor owner, int injuryRoll, int injuryLocationRoll, int locationType)
         {
             var bodyPart = GetLocation(owner, injuryLocationRoll, locationType);
-            var actionSet = actionInstance.CreateActionSet();
 
             //Add injuries to body part...
 
-            return [actionSet];
+            return true;
         }
 
         private RpgComponent GetLocation(Actor owner, int injuryLocationRoll, int locationType)

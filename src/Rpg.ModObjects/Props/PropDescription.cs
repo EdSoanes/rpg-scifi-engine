@@ -34,7 +34,7 @@ namespace Rpg.ModObjects.Props
 
             InitialValue = graph.CalculateInitialPropValue(Entity, propRef.Prop) ?? Dice.Zero;
             BaseValue = graph.CalculateBasePropValue(Entity, propRef.Prop) ?? Dice.Zero;
-            Value = graph.GetPropValue(Entity, propRef.Prop);
+            Value = graph.GetPropValue(Entity, propRef.Prop) ?? Dice.Zero;
         }
 
         public string PropertyString()
@@ -81,7 +81,7 @@ namespace Rpg.ModObjects.Props
         {
             TargetProp = new PropDescription(graph, rootEntity, mod);
             ModType = mod.Behavior.Type;
-            Value = graph.CalculateModValue(mod);
+            Value = graph.CalculateModValue(mod) ?? Dice.Zero;
             ValueFunction = mod.SourceValueFunc?.FullName;
 
             var sourcePropRef = mod.SourcePropRef;

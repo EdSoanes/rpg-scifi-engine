@@ -1,12 +1,7 @@
-﻿using Rpg.Cyborgs.Tests.Models;
-using Rpg.ModObjects.Reflection;
+﻿using Rpg.Cyborgs.Actions;
+using Rpg.Cyborgs.Tests.Models;
 using Rpg.ModObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Rpg.Cyborgs.Actions;
+using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
 
 namespace Rpg.Cyborgs.Tests
@@ -21,7 +16,7 @@ namespace Rpg.Cyborgs.Tests
         [SetUp]
         public void Setup()
         {
-            RpgReflection.RegisterAssembly(typeof(CyborgsSystem).Assembly);
+            RpgTypeScan.RegisterAssembly(typeof(CyborgsSystem).Assembly);
 
             _sword = new MeleeWeapon(WeaponFactory.SwordTemplate);
             _pc = new PlayerCharacter(ActorFactory.BennyTemplate);
@@ -36,17 +31,19 @@ namespace Rpg.Cyborgs.Tests
         [Test]
         public void Benny_Drops_Sword_OutsideTurn()
         {
-            var transfer = _sword.CreateActionInstance(_pc, nameof(Transfer), 0);
-            Assert.That(transfer, Is.Not.Null);
+            var activity = new RpgActivity(_pc, 0);
+            _graph.AddEntity(activity);
+
+            activity.CreateActionInstance(_sword, nameof(Transfer));
+            Assert.That(activity.ActionInstance, Is.Not.Null);
             Assert.That(_pc.Hands.Contains(_sword), Is.True);
             Assert.That(_room.Contents.Contains(_sword), Is.False);
             Assert.That(_pc.CurrentActionPoints, Is.EqualTo(1));
 
-            transfer.AutoCompleteArgs!
-                .Set("from", _pc.Hands)
-                .Set("to", (_graph.Context as Room)!.Contents);
-
-            transfer.AutoComplete();
+            activity
+                .SetAll("from", _pc.Hands)
+                .SetAll("to", (_graph.Context as Room)!.Contents)
+                .AutoComplete();
 
             Assert.That(_pc.Hands.Contains(_sword), Is.False);
             Assert.That(_room.Contents.Contains(_sword), Is.True);
@@ -60,13 +57,15 @@ namespace Rpg.Cyborgs.Tests
 
             _graph.Time.SetTime(TimePoints.Encounter(1));
 
-            var transfer = _sword.CreateActionInstance(_pc, nameof(Transfer), 0)!;
+            var activity = new RpgActivity(_pc, 0);
+            _graph.AddEntity(activity);
 
-            transfer.AutoCompleteArgs!
-                .Set("from", _pc.Hands)
-                .Set("to", (_graph.Context as Room)!.Contents);
+            activity.CreateActionInstance(_sword, nameof(Transfer));
 
-            transfer.AutoComplete();
+            activity
+                .SetAll("from", _pc.Hands)
+                .SetAll("to", (_graph.Context as Room)!.Contents)
+                .AutoComplete();
 
             Assert.That(_pc.CurrentActionPoints, Is.EqualTo(0));
         }
@@ -78,23 +77,28 @@ namespace Rpg.Cyborgs.Tests
 
             _graph.Time.SetTime(TimePoints.Encounter(1));
 
-            var drop = _sword.CreateActionInstance(_pc, nameof(Transfer), 0)!;
+            var dropActivity = new RpgActivity(_pc, 0);
+            _graph.AddEntity(dropActivity);
 
-            drop.AutoCompleteArgs!
-                .Set("from", _pc.Hands)
-                .Set("to", (_graph.Context as Room)!.Contents);
+            dropActivity.CreateActionInstance(_sword, nameof(Transfer));
 
-            drop.AutoComplete();
+            dropActivity
+                .SetAll("from", _pc.Hands)
+                .SetAll("to", (_graph.Context as Room)!.Contents)
+                .AutoComplete();
 
             Assert.That(_pc.CurrentActionPoints, Is.EqualTo(0));
 
-            var pickup = _sword.CreateActionInstance(_pc, nameof(Transfer), 1)!;
+            var pickupActivity = new RpgActivity(_pc, 0);
+            _graph.AddEntity(pickupActivity);
 
-            pickup.AutoCompleteArgs!
-                .Set("from", (_graph.Context as Room)!.Contents)
-                .Set("to", _pc.Hands);
+            pickupActivity.CreateActionInstance(_sword, nameof(Transfer));
 
-            Assert.Throws<InvalidOperationException>(() => pickup.AutoComplete());
+            pickupActivity
+                .SetAll("from", (_graph.Context as Room)!.Contents)
+                .SetAll("to", _pc.Hands);
+
+            Assert.Throws<InvalidOperationException>(() => pickupActivity.AutoComplete());
         }
     }
 }

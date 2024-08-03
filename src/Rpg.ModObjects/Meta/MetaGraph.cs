@@ -21,19 +21,19 @@ namespace Rpg.ModObjects.Meta
         {
             var systemAssemblies = DiscoverSystemAssemblies(system);
 
-            var propUIs = RpgReflection.ScanForTypes<MetaPropAttribute>(systemAssemblies)
+            var propUIs = RpgTypeScan.ForTypes<MetaPropAttribute>(systemAssemblies)
                 .Select(x => (MetaPropAttribute)Activator.CreateInstance(x)!)
                 .ToArray();
 
-            var actions = RpgReflection.ScanForTypes<Actions.Action>(systemAssemblies)
+            var actions = RpgTypeScan.ForTypes<Actions.Action>(systemAssemblies)
                 .Select(x => new MetaAction(x))
                 .ToArray();
 
-            var states = RpgReflection.ScanForTypes<States.State>(systemAssemblies)
+            var states = RpgTypeScan.ForTypes<States.State>(systemAssemblies)
                 .Select(x => new MetaState(x))
                 .ToArray();
 
-            var objectTypes = RpgReflection.ScanForTypes<RpgEntity>(systemAssemblies);
+            var objectTypes = RpgTypeScan.ForTypes<RpgEntity>(systemAssemblies);
             var res = objectTypes
                 .Select(x => Object(x, actions, states))
                 .ToArray();
@@ -142,7 +142,7 @@ namespace Rpg.ModObjects.Meta
         {
             var types = new List<Type>();
 
-            foreach (var assembly in RpgReflection.GetScanAssemblies())
+            foreach (var assembly in RpgTypeScan.GetScanAssemblies())
             {
                 var assTypes = RpgReflection.GetLoadableTypes(assembly)
                     .Where(x => x != typeof(IMetaSystem) && x.IsAssignableTo(typeof(IMetaSystem)))

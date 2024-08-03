@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time;
 using System.Text;
 
@@ -26,6 +27,7 @@ namespace Rpg.ModObjects.Values
         
         public Dice() { } 
         public Dice(string? expr) => Expr = expr ?? "0";
+        public Dice(int val) => Expr = val.ToString();
 
         public static implicit operator string(Dice d) => d.ToString();
         public static implicit operator Dice(string? expr) => new Dice(expr);
@@ -58,6 +60,9 @@ namespace Rpg.ModObjects.Values
             return dice;
         }
 
+        public static bool TryParse(object? obj, out Dice dice)
+            => TryParse(obj?.ToString(), out dice);
+
         public static bool TryParse(string? expr, out Dice dice)
         {
             try
@@ -85,6 +90,17 @@ namespace Rpg.ModObjects.Values
                 res += d;
 
             return res;
+        }
+
+        public static Dice? Add(Dice? d1, Dice? d2)
+        {
+            if (d1 != null && d2 != null)
+                return d1.Value + d2.Value;
+
+            if (d1 == null && d2 == null)
+                return null;
+
+            return d1 ?? d2;
         }
 
         public override string ToString()

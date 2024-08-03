@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Templates;
 using Rpg.ModObjects.Tests.Models;
@@ -28,10 +27,10 @@ namespace Rpg.ModObjects.Tests.Actions
         public bool OnAct(RpgActivity activity, TestHuman initiator, int targetDefence)
         {
             activity
-                .AddMod("diceRoll", "Base", "1d20")
-                .AddMod("diceRoll", initiator, x => x.MissileAttack)
-                .AddMod("target", "Base", 10)
-                .AddMod("target", "targetDefence", targetDefence);
+                .ActionMod("diceRoll", "Base", "1d20")
+                .ActionMod("diceRoll", initiator, x => x.MissileAttack)
+                .ActionMod("target", "Base", 10)
+                .ActionMod("target", "targetDefence", targetDefence);
 
             return true;
         }
@@ -39,8 +38,8 @@ namespace Rpg.ModObjects.Tests.Actions
         public bool OnOutcome(RpgActivity activity, TestGun owner, TestHuman initiator, int diceRoll, int target)
         {
             activity
-                .AddMod("damage", owner, x => x.Damage.Dice)
-                .AddMod("damage", initiator, x => x.Dexterity.Bonus);
+                .ActivityMod("damage", owner, x => x.Damage.Dice)
+                .ActivityMod("damage", initiator, x => x.Dexterity.Bonus);
             
             activity.OutcomeSet
                 .Add(new PermanentMod(), owner, x => x.Ammo.Current, -1);

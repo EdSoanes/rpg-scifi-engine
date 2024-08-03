@@ -10,7 +10,7 @@ namespace Rpg.ModObjects.Tests
         [SetUp]
         public void Setup()
         {
-            RpgReflection.RegisterAssembly(this.GetType().Assembly);
+            RpgTypeScan.RegisterAssembly(this.GetType().Assembly);
         }
 
         [Test] 
@@ -22,7 +22,7 @@ namespace Rpg.ModObjects.Tests
             entity.AddMod(new PermanentMod(), "VirtualProp", 1);
             graph.Time.TriggerEvent();
 
-            Assert.That(graph.GetPropValue(entity, "VirtualProp").Roll(), Is.EqualTo(1));
+            Assert.That(graph.GetPropValue(entity, "VirtualProp")?.Roll(), Is.EqualTo(1));
         }
     }
 }
