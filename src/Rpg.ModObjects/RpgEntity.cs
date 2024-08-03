@@ -57,13 +57,6 @@ namespace Rpg.ModObjects
                 action.OnAdding(graph);
                 Actions.Add(action.Name, action);
             }
-
-            var states = State.CreateOwnerStates(this);
-            foreach (var state in states)
-            {
-                state.OnAdding(graph);
-                States.Add(state.Name, state);
-            }
         }
 
         public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime)

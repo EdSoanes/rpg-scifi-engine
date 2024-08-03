@@ -80,7 +80,7 @@ namespace Rpg.ModObjects.States
             return true;
         }
 
-        public static State[] CreateOwnerStates(RpgEntity entity)
+        public static State[] CreateOwnerStates(RpgObject entity)
         {
             var states = new List<State>();
 
@@ -97,7 +97,7 @@ namespace Rpg.ModObjects.States
             return states.ToArray();
         }
 
-        private static bool IsOwnerStateType(RpgEntity entity, Type? stateType)
+        private static bool IsOwnerStateType(RpgObject entity, Type? stateType)
         {
             while (stateType != null)
             {

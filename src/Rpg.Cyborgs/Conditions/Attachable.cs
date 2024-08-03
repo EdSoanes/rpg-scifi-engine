@@ -1,9 +1,8 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.States;
 
-namespace Rpg.Cyborgs.States
+namespace Rpg.Cyborgs.Conditions
 {
-    public class Attachable : State<BodyPart>
+    public class Attachable : Condition<BodyPart>
     {
         [JsonConstructor] private Attachable() { }
 

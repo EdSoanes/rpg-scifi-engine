@@ -1,9 +1,8 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.States;
 
-namespace Rpg.Cyborgs.States
+namespace Rpg.Cyborgs.Conditions
 {
-    public class Unusable : State<BodyPart>
+    public class Unusable : Condition<BodyPart>
     {
         [JsonConstructor] private Unusable() { }
 

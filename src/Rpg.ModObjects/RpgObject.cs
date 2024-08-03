@@ -455,6 +455,13 @@ namespace Rpg.ModObjects
 
             OnLifecycleStarting();
 
+            var states = State.CreateOwnerStates(this);
+            foreach (var state in states)
+            {
+                state.OnAdding(graph);
+                States.Add(state.Name, state);
+            }
+
             Expiry = LifecycleExpiry.Active;
         }
 

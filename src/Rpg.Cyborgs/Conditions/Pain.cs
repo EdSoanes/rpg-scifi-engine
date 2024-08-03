@@ -1,9 +1,8 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.States;
 
-namespace Rpg.Cyborgs.States
+namespace Rpg.Cyborgs.Conditions
 {
-    public class Pain : State<BodyPart>
+    public class Pain : Condition<BodyPart>
     {
         [JsonConstructor] private Pain() { }
 
