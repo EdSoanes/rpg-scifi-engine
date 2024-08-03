@@ -3,6 +3,7 @@ using Rpg.ModObjects;
 using Rpg.ModObjects.Behaviors;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Templates;
+using Rpg.ModObjects.Reflection.Attributes;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.Cyborgs.Actions
@@ -45,22 +46,26 @@ namespace Rpg.Cyborgs.Actions
                 var currentLifePoints = owner.CurrentLifePoints - lifeInjury;
                 activity
                     .ActionMod("injuryRoll", "Base", "2d6")
-                    .ActionMod("injuryRoll", "LifeInjury", -currentLifePoints);
+                    .ActionMod("injuryRoll", "LifeInjury", -currentLifePoints)
+                    .ActionMod("injuryLocationRoll", "Base", "1d6");
             }
 
             return lifeInjury > 0;
         }
 
+        [ArgSelect(Arg = "locationType", Enum = typeof(InjuryLocationType))]
         public bool OnOutcome(RpgActivity activity, Actor owner, int injuryRoll, int injuryLocationRoll, int locationType)
         {
             var bodyPart = GetLocation(owner, injuryLocationRoll, locationType);
+            var injurySeverity = GetInjurySeverity(injuryRoll);
 
-            //Add injuries to body part...
+            activity.OutcomeSet
+                .Add(bodyPart, x => x.InjurySeverity, injurySeverity);
 
             return true;
         }
 
-        private RpgComponent GetLocation(Actor owner, int injuryLocationRoll, int locationType)
+        private BodyPart GetLocation(Actor owner, int injuryLocationRoll, int locationType)
         {
             //random
             if (locationType == 0)
@@ -100,5 +105,16 @@ namespace Rpg.Cyborgs.Actions
 
             return owner.Torso;
         }
+
+        private int GetInjurySeverity(int injuryRoll)
+            => injuryRoll switch
+            {
+                <= 2 => 6,
+                <= 4 => 5,
+                <= 7 => 4,
+                <= 10 => 3,
+                <= 12 => 2,
+                _ => 1
+            };
     }
 }

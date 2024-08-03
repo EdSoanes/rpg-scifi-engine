@@ -116,7 +116,7 @@ namespace Rpg.ModObjects.States
     }
 
     public abstract class State<T> : State
-        where T : RpgEntity
+        where T : RpgObject
     {
         [JsonConstructor] protected State() { }
 

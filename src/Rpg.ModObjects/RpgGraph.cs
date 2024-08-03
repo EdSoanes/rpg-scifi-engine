@@ -533,12 +533,18 @@ namespace Rpg.ModObjects
         private void OnTimeUpdates()
         {
             foreach (var entity in ObjectStore.Values)
+            {
+                entity.OnUpdateStateLifecycle(this, Time.Current);
                 entity.OnUpdateLifecycle(this, Time.Current);
+            }
 
             UpdateProps();
 
-            foreach (var entity in ObjectStore.Values.Where(x => x is RpgEntity).Cast<RpgEntity>())
-                entity.OnStateUpdateLifecycle(this, Time.Current);
+            foreach (var entity in ObjectStore.Values)
+            {
+                if (entity.OnUpdateStateLifecycle(this, Time.Current))
+                    entity.OnUpdateLifecycle(this, Time.Current);
+            }
 
             UpdateProps();
         }

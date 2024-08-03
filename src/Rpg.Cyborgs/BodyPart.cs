@@ -1,31 +1,33 @@
 ﻿using Newtonsoft.Json;
+using Rpg.Cyborgs.Attributes;
 using Rpg.ModObjects;
+using Rpg.ModObjects.Time;
 
 namespace Rpg.Cyborgs
 {
     public class BodyPart : RpgComponent
     {
-        [JsonProperty] private List<string> Injuries {  get; set; } = new List<string>();
+        [Injury]
+        [JsonIgnore] public int InjurySeverity { get; protected set; }
+        [JsonProperty] public int[] Injuries { get; private set; } = Array.Empty<int>();
+
+        [JsonProperty] public BodyPartType BodyPartType { get; protected set; }
 
         [JsonConstructor] public BodyPart()
             : base() { }
 
-        public BodyPart(string name)
-            : base(name) { }
+        public BodyPart(string name, BodyPartType bodyPartType)
+            : base(name) 
+        {
+            BodyPartType = bodyPartType;
+        }
 
-        public void AddInjury(string injury)
-            => Injuries.Add(injury);
+        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime)
+        {
+            var expiry = base.OnUpdateLifecycle(graph, currentTime);
+            Injuries = GetActiveMods(nameof(InjurySeverity)).Select(x => Graph!.CalculateModValue(x)?.Roll() ?? 0).ToArray();
 
-        public void RemoveInjury(string injury)
-            => Injuries.Remove(injury);
-
-        public bool HasInjury(string injury)
-            => Injuries.Contains(injury);
-
-        public bool HasInjuries()
-            => Injuries.Any();
-
-        public void RemoveAllInjuries()
-            => Injuries.Clear();
+            return expiry;
+        }
     }
 }
