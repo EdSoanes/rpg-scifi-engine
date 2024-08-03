@@ -30,7 +30,7 @@ namespace Rpg.ModObjects.Tests.Actions
         public bool OnOutcome(RpgActivity activity, ModdableEntity owner, TestHuman initiator, int diceRoll)
         {
             var testing = owner.CreateStateInstance(nameof(Testing))!;
-            activity.OutcomeSets.Add(testing);
+            activity.OutputSets.Add(testing);
 
             return true;
         }

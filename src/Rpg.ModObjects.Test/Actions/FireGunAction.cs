@@ -45,7 +45,7 @@ namespace Rpg.ModObjects.Tests.Actions
                 .Add(new PermanentMod(), owner, x => x.Ammo.Current, -1);
 
             var firing = owner.CreateStateInstance(nameof(GunFiring))!;
-            activity.OutcomeSets.Add(firing);
+            activity.OutputSets.Add(firing);
 
             return true;
         }

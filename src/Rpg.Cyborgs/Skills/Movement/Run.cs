@@ -22,7 +22,7 @@ namespace Rpg.Cyborgs.Skills.Movement
 
         public bool OnCost(RpgActivity activity, Actor owner)
         {
-            activity.OutcomeSet
+            activity.CostSet
                 .Add(owner, x => x.CurrentActionPoints, -1);
 
             return true;
@@ -34,7 +34,7 @@ namespace Rpg.Cyborgs.Skills.Movement
         public bool OnOutcome(RpgActivity activity, Actor owner)
         {
             var moving = owner.GetState(nameof(Moving))!.CreateInstance(new TurnLifecycle());
-            activity.OutcomeSets.Add(moving);
+            activity.OutputSets.Add(moving);
 
             return true;
         }

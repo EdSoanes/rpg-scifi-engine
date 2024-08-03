@@ -19,7 +19,7 @@ namespace Rpg.Cyborgs.Actions
 
         public bool OnCost(RpgActivity activity, Actor initiator)
         {
-            activity.OutcomeSet
+            activity.CostSet
                 .Add(initiator, x => x.CurrentActionPoints, -1);
 
             return true;
@@ -50,7 +50,7 @@ namespace Rpg.Cyborgs.Actions
                 .ActivityMod("damage", owner, x => x.Damage);
 
             var rangedAttacking = owner.CreateStateInstance(nameof(RangedAttacking));
-            activity.OutcomeSets.Add(rangedAttacking);
+            activity.OutputSets.Add(rangedAttacking);
 
             return true;
         }

@@ -30,11 +30,11 @@ namespace Rpg.ModObjects
         [JsonProperty] public List<ActionInstance> ActionInstances { get; private set; } = new();
         public ActionInstance? ActionInstance { get => ActionInstances.LastOrDefault(); }
 
-        [JsonProperty] public List<ModSet> OutcomeSets { get; init; } = new();
+        [JsonProperty] public List<ModSet> OutputSets { get; init; } = new();
         private string OutcomeSetName { get => $"{Name}/OutcomeSet"; }
-        public ModSet OutcomeSet { get => OutcomeSets.First(x => x.Name == OutcomeSetName); }
-        private string OutputSetName { get => $"{Name}/OutputSet"; }
-        public ModSet OutputSet { get => OutcomeSets.First(x => x.Name == OutputSetName); }
+        public ModSet OutcomeSet { get => OutputSets.First(x => x.Name == OutcomeSetName); }
+        private string CostSetName { get => $"{Name}/CostSet"; }
+        public ModSet CostSet { get => OutputSets.First(x => x.Name == CostSetName); }
 
         [JsonConstructor]
         protected RpgActivity()
@@ -235,8 +235,11 @@ namespace Rpg.ModObjects
         public Dictionary<string, object?> GetCostArgs()
             => CreateArgs(ActionInstance!.CostArgs);
 
-        public bool Cost()
-            => ActionInstance!.Action!.Cost(GetCostArgs());
+        public ModSet Cost()
+        {
+            ActionInstance!.Action!.Cost(GetCostArgs());
+            return CostSet;
+        }
 
         public RpgActivity SetCostArg(string arg, object? value)
         {
@@ -275,8 +278,13 @@ namespace Rpg.ModObjects
         public Dictionary<string, object?> GetOutcomeArgs()
             => CreateArgs(ActionInstance!.OutcomeArgs);
 
-        public bool Outcome()
-            => ActionInstance!.Action!.Outcome(GetOutcomeArgs());
+        public ModSet[] Outcome()
+        {
+            ActionInstance!.Action!.Outcome(GetOutcomeArgs());
+            return OutputSets
+                .Where(x => x.Name != CostSetName)
+                .ToArray();
+        }
 
         public RpgActivity SetOutcomeArg(string arg, object? value)
         {
@@ -298,6 +306,9 @@ namespace Rpg.ModObjects
                 throw new InvalidOperationException("Cannot AutoComplete");
 
             Cost();
+            Graph!.AddModSets(CostSet);
+            Graph!.Time.TriggerEvent();
+
             Act();
             Outcome();
             Complete();
@@ -327,7 +338,7 @@ namespace Rpg.ModObjects
 
         public void Complete()
         {
-            Graph!.AddModSets([.. OutcomeSets]);
+            Graph!.AddModSets([.. OutputSets.Where(x => x.Name != CostSetName)]);
             Graph!.Time.TriggerEvent();
         }
 
@@ -344,17 +355,17 @@ namespace Rpg.ModObjects
                 outcomeSet.OnBeforeTime(graph);
                 outcomeSet.Unapply();
 
-                OutcomeSets.Add(outcomeSet);
+                OutputSets.Add(outcomeSet);
             }
 
-            var outputSet = GetModSetByName(OutputSetName) as ModSet;
-            if (outputSet == null)
+            var costSet = GetModSetByName(CostSetName) as ModSet;
+            if (costSet == null)
             {
-                outputSet = new ModSet(InitiatorId, new TurnLifecycle(), OutputSetName);
-                outputSet.OnBeforeTime(graph);
-                outputSet.Unapply();
+                costSet = new ModSet(InitiatorId, new TurnLifecycle(), CostSetName);
+                costSet.OnBeforeTime(graph);
+                costSet.Unapply();
 
-                OutcomeSets.Add(outputSet);
+                OutputSets.Add(costSet);
             }
         }
 

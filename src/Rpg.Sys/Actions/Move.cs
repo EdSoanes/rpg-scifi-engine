@@ -43,7 +43,7 @@ namespace Rpg.Sys.Actions
                 .Add(owner, x => x.Movement.Speed.Current, distance);
 
             var moving = owner.CreateStateInstance(nameof(Moving));
-            activity.OutcomeSets.Add(moving);
+            activity.OutputSets.Add(moving);
 
             return true;
         }

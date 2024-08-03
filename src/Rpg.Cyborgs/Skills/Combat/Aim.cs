@@ -23,8 +23,8 @@ namespace Rpg.Cyborgs.Skills.Combat
 
         public bool OnCost(RpgActivity activity, Actor owner, Actor initiator)
         {
-            activity.OutcomeSet
-                .Add(initiator, x => x.ActionPoints, -1);
+            activity.CostSet
+                .Add(initiator, x => x.CurrentActionPoints, -1);
 
             return true;
         }
@@ -38,7 +38,7 @@ namespace Rpg.Cyborgs.Skills.Combat
                 .Add(owner, x => x.RangedAimBonus, 2);
 
             var aiming = owner.CreateStateInstance(nameof(Aiming));
-            activity.OutcomeSets.Add(aiming);
+            activity.OutputSets.Add(aiming);
 
             return true;
         }

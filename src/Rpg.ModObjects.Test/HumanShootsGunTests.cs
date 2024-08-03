@@ -87,7 +87,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(diceRoll.ToString(), Is.EqualTo("20"));
             Assert.That(target.ToString(), Is.EqualTo("15"));
 
-            graph.AddModSets([.. activity.OutcomeSets]);
+            graph.AddModSets([.. activity.OutputSets]);
             graph.Time.TriggerEvent();
 
             Assert.That(gun.IsStateOn(nameof(GunFiring)), Is.True);
@@ -117,7 +117,7 @@ namespace Rpg.ModObjects.Tests
             activity.CreateActionInstance(gun, nameof(FireGunAction));
 
             activity.Cost();
-            graph.AddModSets([.. activity.OutcomeSets]);
+            graph.AddModSets([.. activity.OutputSets]);
             graph.Time.TriggerEvent();
 
             Assert.That(initiator.PhysicalActionPoints.Current, Is.EqualTo(4));

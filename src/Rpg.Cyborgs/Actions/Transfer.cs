@@ -20,7 +20,7 @@ namespace Rpg.Cyborgs.Actions
 
         public bool OnCost(RpgActivity activity, Actor initiator)
         {
-            activity.OutcomeSet
+            activity.CostSet
                 .Add(initiator, x => x.CurrentActionPoints, -1);
 
             return true;

@@ -23,7 +23,7 @@ namespace Rpg.Cyborgs.Actions
 
         public bool OnCost(RpgActivity activity, Actor owner, Actor initiator)
         {
-            activity.OutcomeSet
+            activity.CostSet
                 .Add(new TurnMod(1, 1), initiator, x => x.CurrentActionPoints, -1);
 
             return true;
@@ -61,7 +61,7 @@ namespace Rpg.Cyborgs.Actions
                 activity.ActivityMod("damage", "Parry", -reduction);
 
             var parrying = owner.CreateStateInstance(nameof(Parrying), new TurnLifecycle(1, 1));
-            activity.OutcomeSets.Add(parrying);
+            activity.OutputSets.Add(parrying);
 
             return true;
         }
