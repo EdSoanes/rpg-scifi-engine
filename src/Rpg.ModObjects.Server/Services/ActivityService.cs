@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Server.Ops;
+﻿using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Server.Ops;
 
 namespace Rpg.ModObjects.Server.Services
 {
@@ -11,7 +12,7 @@ namespace Rpg.ModObjects.Server.Services
             _graphService = graphService;
         }
 
-        public RpgActivity Create(RpgGraph graph, ActivityCreate createActivity)
+        public Activity Create(RpgGraph graph, ActivityCreate createActivity)
         {
             var initiator = graph.GetObject<RpgEntity>(createActivity.InitiatorId);
 
@@ -25,10 +26,7 @@ namespace Rpg.ModObjects.Server.Services
             if (owner == null)
                 throw new InvalidOperationException($"Could not find owner with Id {createActivity.OwnerId} in hydrated graph");
 
-            var activity = new RpgActivity(initiator, 0);
-            graph.AddEntity(activity);
-
-            activity.CreateActionInstance(owner, createActivity.Action);
+            var activity = graph.CreateActivity(initiator, owner, createActivity.Action);
             if (activity.ActionInstance == null)
                 throw new InvalidOperationException($"Could not find action {createActivity.Action} for owner {createActivity.OwnerId}");
 
@@ -37,21 +35,21 @@ namespace Rpg.ModObjects.Server.Services
             return activity;
         }
 
-        public RpgActivity Act(RpgGraph graph, ActivityAct activityAct)
+        public Activity Act(RpgGraph graph, ActivityAct activityAct)
             => RunActivityStep(graph, activityAct.ActivityId, (activity) => activity.Act());
 
-        public RpgActivity Outcome(RpgGraph graph, ActivityOutcome activityOutcome)
+        public Activity Outcome(RpgGraph graph, ActivityOutcome activityOutcome)
             => RunActivityStep(graph, activityOutcome.ActivityId, (activity) => activity.Outcome());
 
-        public RpgActivity AutoComplete(RpgGraph graph, ActivityAutoComplete activityAutoComplete)
+        public Activity AutoComplete(RpgGraph graph, ActivityAutoComplete activityAutoComplete)
             => RunActivityStep(graph, activityAutoComplete.ActivityId, (activity) => activity.AutoComplete());
 
-        public RpgActivity Complete(RpgGraph graph, ActivityComplete activityComplete)
+        public Activity Complete(RpgGraph graph, ActivityComplete activityComplete)
             => RunActivityStep(graph, activityComplete.ActivityId, (activity) => activity.Complete());
 
-        private RpgActivity RunActivityStep(RpgGraph graph, string activityId, Action<RpgActivity> runStep)
+        private Activity RunActivityStep(RpgGraph graph, string activityId, System.Action<Activity> runStep)
         {
-            var activity = graph.GetObject<RpgActivity>(activityId);
+            var activity = graph.GetObject<Activity>(activityId);
 
             if (activity == null)
                 throw new InvalidOperationException($"Could not find activity with Id {activityId} in hydrated graph");

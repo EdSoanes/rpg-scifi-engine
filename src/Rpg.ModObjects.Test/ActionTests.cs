@@ -43,7 +43,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(actArgs, Is.Not.Null);
             Assert.That(actArgs.Count(), Is.EqualTo(4));
             Assert.That(actArgs.FirstOrDefault(x => x.Name == "activity"), Is.Not.Null);
-            Assert.That(actArgs.First(x => x.Name == "activity").TypeName, Is.EqualTo(nameof(RpgActivity)));
+            Assert.That(actArgs.First(x => x.Name == "activity").TypeName, Is.EqualTo(nameof(Activity)));
             Assert.That(actArgs.FirstOrDefault(x => x.Name == "owner"), Is.Not.Null);
             Assert.That(actArgs.First(x => x.Name == "owner").TypeName, Is.EqualTo(nameof(ModdableEntity)));
             Assert.That(actArgs.FirstOrDefault(x => x.Name == "initiator"), Is.Not.Null);

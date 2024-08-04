@@ -1,6 +1,7 @@
 ﻿using Rpg.Cyborgs.Actions;
 using Rpg.Cyborgs.Tests.Models;
 using Rpg.ModObjects;
+using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
@@ -40,10 +41,7 @@ namespace Rpg.Cyborgs.Tests
         [Test]
         public void PlayerCharacter_CarryingSword_Attack()
         {
-            var activity = new RpgActivity(_pc, 0);
-            _graph.AddEntity(activity);
-
-            activity.CreateActionInstance(_sword, nameof(MeleeAttack));
+            var activity = _graph.CreateActivity(_pc, _sword, nameof(MeleeAttack));
             var attack = activity.ActionInstance;
 
             _graph.Time.SetTime(TimePoints.BeginningOfEncounter);
@@ -62,15 +60,15 @@ namespace Rpg.Cyborgs.Tests
                 .SetActArg("targetDefence", 12)
                 .Act();
 
-            Assert.That(activity.GetActionProp("diceRoll")?.ToString(), Is.EqualTo("2d6"));
-            Assert.That(activity.GetActionProp("target")?.ToString(), Is.EqualTo("12"));
+            Assert.That(activity.GetActivityProp("diceRoll")?.ToString(), Is.EqualTo("2d6"));
+            Assert.That(activity.GetActivityProp("target")?.ToString(), Is.EqualTo("12"));
 
             activity
-                .ActionResultMod("diceRoll", "Result", 14)
-                .ActionResultMod("target", "Result", 12);
+                .ActivityResultMod("diceRoll", "Result", 14)
+                .ActivityResultMod("target", "Result", 12);
 
-            Assert.That(activity.GetActionProp("diceRoll")?.ToString(), Is.EqualTo("14"));
-            Assert.That(activity.GetActionProp("target")?.ToString(), Is.EqualTo("12"));
+            Assert.That(activity.GetActivityProp("diceRoll")?.ToString(), Is.EqualTo("14"));
+            Assert.That(activity.GetActivityProp("target")?.ToString(), Is.EqualTo("12"));
             
             activity.Outcome();
             Assert.That(activity.GetActivityProp("damage")?.ToString(), Is.EqualTo("1d6 - 1"));

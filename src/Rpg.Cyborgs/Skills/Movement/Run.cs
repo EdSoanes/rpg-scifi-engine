@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Cyborgs.States;
-using Rpg.ModObjects;
 using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time.Lifecycles;
@@ -20,7 +19,7 @@ namespace Rpg.Cyborgs.Skills.Movement
         public bool OnCanAct(Actor owner)
             => owner.CurrentActionPoints > 0;
 
-        public bool OnCost(RpgActivity activity, Actor owner)
+        public bool OnCost(Activity activity, Actor owner)
         {
             activity.CostSet
                 .Add(owner, x => x.CurrentActionPoints, -1);
@@ -31,7 +30,7 @@ namespace Rpg.Cyborgs.Skills.Movement
         public bool OnAct(ActionInstance actionInstance, Actor owner)
             => true;
 
-        public bool OnOutcome(RpgActivity activity, Actor owner)
+        public bool OnOutcome(Activity activity, Actor owner)
         {
             var moving = owner.GetState(nameof(Moving))!.CreateInstance(new TurnLifecycle());
             activity.OutputSets.Add(moving);

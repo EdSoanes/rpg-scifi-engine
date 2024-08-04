@@ -15,13 +15,13 @@ namespace Rpg.ModObjects.Tests.Actions
         public TakeDamageAction(TestHuman owner)
             : base(owner) { }
 
-        public bool OnCanAct(RpgActivity activity, TestHuman owner)
+        public bool OnCanAct(Activity activity, TestHuman owner)
             => true;
 
-        public bool OnCost(RpgActivity activity, TestHuman owner)
+        public bool OnCost(Activity activity, TestHuman owner)
             => true;
 
-        public bool OnAct(RpgActivity activity, TestHuman owner, int damage)
+        public bool OnAct(Activity activity, TestHuman owner, int damage)
         {
             activity
                 .ActivityMod("damage", "Damage", damage);
@@ -29,7 +29,7 @@ namespace Rpg.ModObjects.Tests.Actions
             return true;
         }
 
-        public bool OnOutcome(RpgActivity activity, TestHuman owner, int damage)
+        public bool OnOutcome(Activity activity, TestHuman owner, int damage)
         {
             activity
                 .ActivityResultMod("damage", "Result", damage);

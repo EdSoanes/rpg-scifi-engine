@@ -18,7 +18,7 @@ namespace Rpg.Cyborgs.Actions
         public bool OnCanAct(RpgEntity owner, Actor initiator, RpgContainer from, RpgContainer to)
             => initiator.CurrentActionPoints > 0 && from.Contains(owner);
 
-        public bool OnCost(RpgActivity activity, Actor initiator)
+        public bool OnCost(Activity activity, Actor initiator)
         {
             activity.CostSet
                 .Add(initiator, x => x.CurrentActionPoints, -1);
@@ -26,7 +26,7 @@ namespace Rpg.Cyborgs.Actions
             return true;
         }
 
-        public bool OnAct(RpgActivity activity)
+        public bool OnAct(Activity activity)
             => true;
 
         public bool OnOutcome(RpgEntity owner, RpgContainer from, RpgContainer to)

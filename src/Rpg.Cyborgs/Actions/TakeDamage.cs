@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects;
+using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Behaviors;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Templates;
@@ -17,13 +17,13 @@ namespace Rpg.Cyborgs.Actions
         {
         }
 
-        public bool OnCanAct(RpgActivity activity, Actor owner)
+        public bool OnCanAct(Activity activity, Actor owner)
             => (activity.GetActivityProp("damage") ?? Dice.Zero) != Dice.Zero;
 
-        public bool OnCost(RpgActivity activity, Actor owner)
+        public bool OnCost(Activity activity, Actor owner)
             => true;
 
-        public bool OnAct(RpgActivity activity, Actor owner, int damage)
+        public bool OnAct(Activity activity, Actor owner, int damage)
         {
             var staminaInjury = owner.CurrentStaminaPoints >= damage
                 ? damage
@@ -45,16 +45,16 @@ namespace Rpg.Cyborgs.Actions
             {
                 var currentLifePoints = owner.CurrentLifePoints - lifeInjury;
                 activity
-                    .ActionMod("injuryRoll", "Base", "2d6")
-                    .ActionMod("injuryRoll", "LifeInjury", -currentLifePoints)
-                    .ActionMod("injuryLocationRoll", "Base", "1d6");
+                    .ActivityMod("injuryRoll", "Base", "2d6")
+                    .ActivityMod("injuryRoll", "LifeInjury", -currentLifePoints)
+                    .ActivityMod("injuryLocationRoll", "Base", "1d6");
             }
 
             return lifeInjury > 0;
         }
 
         [ArgSelect(Arg = "locationType", Enum = typeof(InjuryLocationType))]
-        public bool OnOutcome(RpgActivity activity, Actor owner, int injuryRoll, int injuryLocationRoll, int locationType)
+        public bool OnOutcome(Activity activity, Actor owner, int injuryRoll, int injuryLocationRoll, int locationType)
         {
             var bodyPart = GetLocation(owner, injuryLocationRoll, locationType);
             var injurySeverity = GetInjurySeverity(injuryRoll);

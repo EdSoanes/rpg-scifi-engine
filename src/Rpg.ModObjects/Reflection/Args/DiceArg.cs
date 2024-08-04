@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Values;
 using System.Reflection;
+using System.Windows.Markup;
 
 namespace Rpg.ModObjects.Reflection.Args
 {
@@ -16,14 +17,22 @@ namespace Rpg.ModObjects.Reflection.Args
             => Dice.TryParse(value?.ToString(), out Dice _);
 
         public override string? ToArgString(RpgGraph graph, object? value)
-            => ToArgValue(graph, value)?.ToString();
+            => ToOutput(graph, value)?.ToString();
 
-        public override object? ToArgObject(RpgGraph graph, string? value)
-            => ToArgValue(graph, value);
+        public override object? FromInput(RpgGraph graph, object? value)
+            => Convert(graph, value);
 
-        public override object? ToArgValue(RpgGraph graph, object? value)
-            => Dice.TryParse(value?.ToString(), out Dice result)
-                ? (object?)result
-                : null;
+        public override object? ToOutput(RpgGraph graph, object? value)
+            => Convert(graph, value);
+
+        private Dice? Convert(RpgGraph graph, object? value)
+        {
+            if (value == null) return null;
+            if (value is Dice dice) return dice;
+            if (Dice.TryParse(value?.ToString(), out Dice result)) return result;
+
+            throw new ArgumentException($"value {value} invalid");
+
+        }
     }
 }

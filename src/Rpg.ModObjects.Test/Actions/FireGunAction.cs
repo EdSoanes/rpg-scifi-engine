@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Templates;
 using Rpg.ModObjects.Tests.Models;
@@ -16,7 +17,7 @@ namespace Rpg.ModObjects.Tests.Actions
         public bool OnCanAct(TestGun owner, TestHuman initiator)
             => !owner.IsStateOn(nameof(AmmoEmptyState));
 
-        public bool OnCost(RpgActivity activity, TestGun owner, TestHuman initiator)
+        public bool OnCost(Activity activity, TestGun owner, TestHuman initiator)
         {
             activity.OutcomeSet
                 .Add(initiator, x => x.PhysicalActionPoints.Current, -1);
@@ -24,18 +25,18 @@ namespace Rpg.ModObjects.Tests.Actions
             return true;
         }
 
-        public bool OnAct(RpgActivity activity, TestHuman initiator, int targetDefence)
+        public bool OnAct(Activity activity, TestHuman initiator, int targetDefence)
         {
             activity
-                .ActionMod("diceRoll", "Base", "1d20")
-                .ActionMod("diceRoll", initiator, x => x.MissileAttack)
-                .ActionMod("target", "Base", 10)
-                .ActionMod("target", "targetDefence", targetDefence);
+                .ActivityMod("diceRoll", "Base", "1d20")
+                .ActivityMod("diceRoll", initiator, x => x.MissileAttack)
+                .ActivityMod("target", "Base", 10)
+                .ActivityMod("target", "targetDefence", targetDefence);
 
             return true;
         }
 
-        public bool OnOutcome(RpgActivity activity, TestGun owner, TestHuman initiator, int diceRoll, int target)
+        public bool OnOutcome(Activity activity, TestGun owner, TestHuman initiator, int diceRoll, int target)
         {
             activity
                 .ActivityMod("damage", owner, x => x.Damage.Dice)

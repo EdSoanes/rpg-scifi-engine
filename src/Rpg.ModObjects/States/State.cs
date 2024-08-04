@@ -12,14 +12,14 @@ namespace Rpg.ModObjects.States
 
         [JsonProperty] public string Id { get; private set; }
         [JsonProperty] public string Name { get; protected set; }
-        [JsonProperty] public string? OwnerId { get; private set; }
+        [JsonProperty] public string OwnerId { get; private init; }
         [JsonProperty] public string? OwnerArchetype { get; private set; }
 
         [JsonProperty] public ILifecycle Lifecycle { get; set; }
 
         public bool IsOn { get => IsOnConditionally || IsOnManually; }
-        public bool IsOnConditionally { get => Graph?.GetObject<RpgEntity>(OwnerId)!.GetActiveConditionalStateInstances(Name).Any() ?? false; }
-        public bool IsOnManually { get => Graph?.GetObject<RpgEntity>(OwnerId)!.GetActiveManualStateInstances(Name).Any() ?? false; }
+        public bool IsOnConditionally { get => Graph?.GetObject(OwnerId)!.GetActiveConditionalStateInstances(Name).Any() ?? false; }
+        public bool IsOnManually { get => Graph?.GetObject(OwnerId)!.GetActiveManualStateInstances(Name).Any() ?? false; }
 
         [JsonConstructor] protected State() { }
 
@@ -70,7 +70,7 @@ namespace Rpg.ModObjects.States
 
             if (IsOnManually)
             {
-                var entity = Graph.GetObject<RpgEntity>(OwnerId)!;
+                var entity = Graph.GetObject(OwnerId)!;
                 var stateSets = entity.GetActiveManualStateInstances(Name);
 
                 foreach (var stateSet in stateSets)

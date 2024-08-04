@@ -12,8 +12,8 @@ namespace Rpg.ModObjects.Reflection.Args
 
         public abstract bool IsValid(string argName, object? value);
         public abstract string? ToArgString(RpgGraph graph, object? value);
-        public abstract object? ToArgObject(RpgGraph graph, string? value);
-        public abstract object? ToArgValue(RpgGraph graph, object? value);
+        public abstract object? FromInput(RpgGraph graph, object? value);
+        public abstract object? ToOutput(RpgGraph graph, object? value);
 
         [JsonConstructor] protected RpgArg() { }
 

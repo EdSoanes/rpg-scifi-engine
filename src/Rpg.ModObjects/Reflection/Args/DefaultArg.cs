@@ -17,10 +17,22 @@ namespace Rpg.ModObjects.Reflection.Args
         public override string? ToArgString(RpgGraph graph, object? value)
             => value?.ToString();
 
-        public override object? ToArgObject(RpgGraph graph, string? value)
-            => null;
+        public override object? FromInput(RpgGraph graph, object? value)
+        {
+            if (value == null) return null;
+            if (RpgMethodArgs.PrimitiveArgTypes.Contains(value?.GetType())) return value;
 
-        public override object? ToArgValue(RpgGraph graph, object? value)
-            => value;
+            throw new ArgumentException($"value {value} invalid");
+
+        }
+
+        public override object? ToOutput(RpgGraph graph, object? value)
+        {
+            if (value == null) return null;
+            if (RpgMethodArgs.PrimitiveArgTypes.Contains(value?.GetType())) return value;
+
+            throw new ArgumentException($"value {value} invalid");
+
+        }
     }
 }

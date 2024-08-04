@@ -84,53 +84,63 @@ namespace Rpg.ModObjects.Actions
 
         public object? SetCanAct(string arg, object? value)
         {
-            var val = ToArgObject(Action!.OnCanAct.Args, arg, value);
-            if (val != null)
-                CanActArgs[arg] = val;
+            var canActArg = Action!.OnCanAct.Args.FirstOrDefault(x => x.Name == arg);
+            if (canActArg != null)
+            {
 
-            Debug.WriteLine($"SetCanAct {arg} = {val}");
-            return val;
+                var val = canActArg.FromInput(Graph!, value);
+                if (val != null)
+                    CanActArgs[arg] = val;
+
+                return val;
+            }
+
+            return null;
         }
 
         public object? SetCost(string arg, object? value)
         {
-            var val = ToArgObject(Action!.OnCost.Args, arg, value);
-            if (val != null)
-                CostArgs[arg] = val;
+            var costArg = Action!.OnCost.Args.FirstOrDefault(x => x.Name == arg);
+            if (costArg != null)
+            {
+                var val = costArg.FromInput(Graph!, value);
+                if (val != null)
+                    CostArgs[arg] = val;
 
-            Debug.WriteLine($"SetCost {arg} = {val}");
-            return val;
+                return val;
+            }
+
+            return null;
         }
 
         public object? SetAct(string arg, object? value)
         {
-            var val = ToArgObject(Action!.OnAct.Args, arg, value);
-            if (val != null)
-                ActArgs[arg] = val;
+            var actArg = Action!.OnAct.Args.FirstOrDefault(x => x.Name == arg);
+            if (actArg != null)
+            {
+                var val = actArg.FromInput(Graph!, value);
+                if (val != null)
+                    ActArgs[arg] = val;
 
-            Debug.WriteLine($"SetAct {arg} = {val}");
-            return val;
+                return val;
+            }
+
+            return null;
         }
 
         public object? SetOutcome(string arg, object? value)
         {
-            var val = ToArgObject(Action!.OnOutcome.Args, arg, value);
-            if (val != null)
-                OutcomeArgs[arg] = val;
+            var outcomeArg = Action!.OnOutcome.Args.First(x => x.Name == arg);
+            if (outcomeArg != null)
+            {
+                var val = outcomeArg.FromInput(Graph!, value);
+                if (val != null)
+                    OutcomeArgs[arg] = val;
 
-            Debug.WriteLine($"SetOutcome {arg} = {val}");
-            return val;
-        }
+                return val;
+            }
 
-        private object? ToArgObject(RpgArg[] args, string arg, object? value)
-        {
-            var rpgArg = args.FirstOrDefault(x => x.Name == arg);
-            if (rpgArg == null)
-                return null;
-
-            return value is string str
-                ? rpgArg.ToArgObject(Graph!, str)
-                : rpgArg.ToArgValue(Graph!, value);
+            return null;
         }
     }
 }

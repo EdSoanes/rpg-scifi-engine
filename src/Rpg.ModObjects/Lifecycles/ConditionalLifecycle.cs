@@ -33,7 +33,7 @@ namespace Rpg.ModObjects.Lifecycles
         {
             var owner = graph.Locate<TOwner>(OwnerId);
             if (owner == null)
-                new InvalidOperationException($"{nameof(ConditionalLifecycle<TOwner>)}.{nameof(GetOwner)} could not find owner");
+                throw new InvalidOperationException($"{nameof(ConditionalLifecycle<TOwner>)}.{nameof(GetOwner)} could not find owner");
 
             var args = new Dictionary<string, object?>();
             Expiry = OnStartConditional.Execute(owner!, args);
@@ -45,7 +45,7 @@ namespace Rpg.ModObjects.Lifecycles
         {
             var owner = graph.Locate<TOwner>(OwnerId);
             if (owner == null)
-                new InvalidOperationException($"{nameof(ConditionalLifecycle<TOwner>)}.{nameof(GetOwner)} could not find owner");
+                throw new InvalidOperationException($"{nameof(ConditionalLifecycle<TOwner>)}.{nameof(GetOwner)} could not find owner");
 
             var args = new Dictionary<string, object?>();
             Expiry = OnUpdateConditional.Execute(owner!, args);

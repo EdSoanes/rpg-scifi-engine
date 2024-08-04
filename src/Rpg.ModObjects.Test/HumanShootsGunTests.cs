@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Reflection;
+﻿using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Tests.Actions;
 using Rpg.ModObjects.Tests.Models;
 using Rpg.ModObjects.Tests.States;
@@ -54,10 +55,7 @@ namespace Rpg.ModObjects.Tests
 
             graph.Time.SetTime(TimePoints.Encounter(1));
 
-            var activity = new RpgActivity(initiator, 0);
-            graph.AddEntity(activity);
-
-            activity.CreateActionInstance(gun, nameof(FireGunAction));
+            var activity = graph.CreateActivity(initiator, gun, nameof(FireGunAction));
             var fireInst = activity.ActionInstance;
             Assert.That(fireInst, Is.Not.Null);
 
@@ -68,8 +66,8 @@ namespace Rpg.ModObjects.Tests
                 .SetActArg("targetDefence", 1)
                 .Act();
 
-            var diceRoll = activity.GetActionProp("diceRoll");
-            var target = activity.GetActionProp("target");
+            var diceRoll = activity.GetActivityProp("diceRoll");
+            var target = activity.GetActivityProp("target");
 
             Assert.That(activity.GetMods().Count(), Is.EqualTo(7));
             Assert.That(activity.OutcomeSet.Mods.Count(), Is.EqualTo(1));
@@ -81,8 +79,8 @@ namespace Rpg.ModObjects.Tests
                 .SetOutcomeArg("target", 15)
                 .Outcome();
 
-            diceRoll = activity.GetActionProp("diceRoll");
-            target = activity.GetActionProp("target");
+            diceRoll = activity.GetActivityProp("diceRoll");
+            target = activity.GetActivityProp("target");
 
             Assert.That(diceRoll.ToString(), Is.EqualTo("20"));
             Assert.That(target.ToString(), Is.EqualTo("15"));
@@ -111,10 +109,7 @@ namespace Rpg.ModObjects.Tests
 
             Assert.That(initiator.PhysicalActionPoints.Current, Is.EqualTo(5));
 
-            var activity = new RpgActivity(initiator, 0);
-            graph.AddEntity(activity);
-
-            activity.CreateActionInstance(gun, nameof(FireGunAction));
+            var activity = graph.CreateActivity(initiator, gun, nameof(FireGunAction));
 
             activity.Cost();
             graph.AddModSets([.. activity.OutputSets]);
@@ -140,18 +135,15 @@ namespace Rpg.ModObjects.Tests
 
             Assert.That(initiator.PhysicalActionPoints.Current, Is.EqualTo(5));
 
-            var activity = new RpgActivity(initiator, 0);
-            graph.AddEntity(activity);
-
-            activity.CreateActionInstance(gun, nameof(FireGunAction));
+            var activity = graph.CreateActivity(initiator, gun, nameof(FireGunAction));
 
             activity.Cost();
             activity
                 .SetActArg("targetDefence", 1)
                 .Act();
 
-            Assert.That(activity.GetActionProp("diceRoll")!.ToString(), Is.EqualTo("1d20 + 2"));
-            Assert.That(activity.GetActionProp("target")!.ToString(), Is.EqualTo("11"));
+            Assert.That(activity.GetActivityProp("diceRoll")!.ToString(), Is.EqualTo("1d20 + 2"));
+            Assert.That(activity.GetActivityProp("target")!.ToString(), Is.EqualTo("11"));
 
             activity.Complete();
 

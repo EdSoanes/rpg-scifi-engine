@@ -12,7 +12,7 @@ namespace Rpg.Cyborgs.Tests
         }
 
         [Test]
-        public void MetaGraph_Build_EnsureValues()
+        public void TakeDamageGroup_CreateActivity_EnsureInstances()
         {
             var meta = new MetaGraph();
             var system = meta.Build();

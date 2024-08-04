@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Cyborgs.States;
-using Rpg.ModObjects;
+using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Values;
 
@@ -15,10 +15,10 @@ namespace Rpg.Cyborgs.Actions
         {
         }
 
-        public bool OnCanAct(RpgActivity activity, MeleeWeapon owner, Actor initiator)
+        public bool OnCanAct(Activity activity, MeleeWeapon owner, Actor initiator)
             => initiator.Hands.Contains(owner) && initiator.CurrentActionPoints > 0;
 
-        public bool OnCost(RpgActivity activity, Actor initiator)
+        public bool OnCost(Activity activity, Actor initiator)
         {
             activity.CostSet
                 .Add(initiator, x => x.CurrentActionPoints, -1);
@@ -26,28 +26,28 @@ namespace Rpg.Cyborgs.Actions
             return true;
         }
 
-        public bool OnAct(RpgActivity activity, MeleeWeapon owner, Actor initiator, int targetDefence, int focusPoints, int? abilityScore)
+        public bool OnAct(Activity activity, MeleeWeapon owner, Actor initiator, int targetDefence, int focusPoints, int? abilityScore)
         {
             if (focusPoints > 0)
                 activity.OutcomeSet
                     .Add(initiator, x => x.CurrentFocusPoints, -focusPoints);
 
             activity
-                .ActionMod("diceRoll", "Base", "2d6")
-                .ActionMod("diceRoll", owner, x => x.HitBonus)
-                .ActionMod("target", "Base", targetDefence);
+                .ActivityMod("diceRoll", "Base", "2d6")
+                .ActivityMod("diceRoll", owner, x => x.HitBonus)
+                .ActivityMod("target", "Base", targetDefence);
 
             var score = (abilityScore ?? initiator.MeleeAttack.Value) * (focusPoints + 1);
 
             if (abilityScore != null)
-                activity.ActionMod("diceRoll", "Ability", score);
+                activity.ActivityMod("diceRoll", "Ability", score);
             else
-                activity.ActionMod("diceRoll", "MeleeAttack.Value", score);
+                activity.ActivityMod("diceRoll", "MeleeAttack.Value", score);
 
             return true;
         }
 
-        public bool OnOutcome(RpgActivity activity, MeleeWeapon owner, Actor initiator, int diceRoll, int target)
+        public bool OnOutcome(Activity activity, MeleeWeapon owner, Actor initiator, int diceRoll, int target)
         {
             activity
                 .ActivityMod("damage", owner, x => x.Damage)

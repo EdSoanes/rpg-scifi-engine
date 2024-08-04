@@ -1,10 +1,13 @@
 ﻿using Rpg.ModObjects.Reflection.Args;
+using Rpg.ModObjects.Values;
 using System.Reflection;
 
 namespace Rpg.ModObjects.Reflection
 {
     public static class RpgMethodArgs
     {
+        public static Type[] PrimitiveArgTypes => [typeof(int), typeof(Dice), typeof(string)];
+
         private static IRpgArgFactory[]? _argFactories;
         private static IRpgArgFactory[] GetArgFactories()
         {

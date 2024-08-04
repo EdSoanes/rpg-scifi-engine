@@ -30,17 +30,26 @@ namespace Rpg.ModObjects.Reflection.Args
                 ? (value as RpgObject)?.Id
                 : null;
 
-        public override object? ToArgObject(RpgGraph graph, string? value)
+        public override object? FromInput(RpgGraph graph, object? value)
         {
-            var obj = graph.GetObject(value);
-            return ValidType(obj)
-                ? obj
+            if (value is string id)
+            {
+                var res = graph.GetObject(id);
+                if (ValidType(res))
+                    return res;
+
+                throw new ArgumentException($"value {value} invalid");
+
+            }
+
+            return ValidType(value)
+                ? value
                 : null;
         }
 
-        public override object? ToArgValue(RpgGraph graph, object? value)
+        public override object? ToOutput(RpgGraph graph, object? value)
             => ValidType(value)
-                ? value
+                ? (value as RpgObject)!.Id
                 : null;
 
         private bool ValidType(object? value)

@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Mods;
+﻿using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Server.Ops;
 using Rpg.ModObjects.Server.Services;
@@ -67,60 +68,60 @@ namespace Rpg.ModObjects.Server
             };
         }
 
-        public RpgResponse<RpgActivity> ActivityCreate(string system, RpgRequest<ActivityCreate> request)
+        public RpgResponse<Activity> ActivityCreate(string system, RpgRequest<ActivityCreate> request)
         {
             var graph = _graphService.HydrateGraph(system, request.GraphState);
             var activity = _activityService.Create(graph, request.Op);
 
-            return new RpgResponse<RpgActivity>
+            return new RpgResponse<Activity>
             {
                 GraphState = _graphService.DehydrateGraph(graph),
                 Data = activity
             };
         }
 
-        public RpgResponse<RpgActivity> ActivityAct(string system, RpgRequest<ActivityAct> request)
+        public RpgResponse<Activity> ActivityAct(string system, RpgRequest<ActivityAct> request)
         {
             var graph = _graphService.HydrateGraph(system, request.GraphState);
             var activity = _activityService.Act(graph, request.Op);
 
-            return new RpgResponse<RpgActivity>
+            return new RpgResponse<Activity>
             {
                 GraphState = _graphService.DehydrateGraph(graph),
                 Data = activity
             };
         }
 
-        public RpgResponse<RpgActivity> ActivityOutcome(string system, RpgRequest<ActivityOutcome> request)
+        public RpgResponse<Activity> ActivityOutcome(string system, RpgRequest<ActivityOutcome> request)
         {
             var graph = _graphService.HydrateGraph(system, request.GraphState);
             var activity = _activityService.Outcome(graph, request.Op);
 
-            return new RpgResponse<RpgActivity>
+            return new RpgResponse<Activity>
             {
                 GraphState = _graphService.DehydrateGraph(graph),
                 Data = activity
             };
         }
 
-        public RpgResponse<RpgActivity> ActivityAutoComplete(string system, RpgRequest<ActivityAutoComplete> request)
+        public RpgResponse<Activity> ActivityAutoComplete(string system, RpgRequest<ActivityAutoComplete> request)
         {
             var graph = _graphService.HydrateGraph(system, request.GraphState);
             var activity = _activityService.AutoComplete(graph, request.Op);
 
-            return new RpgResponse<RpgActivity>
+            return new RpgResponse<Activity>
             {
                 GraphState = _graphService.DehydrateGraph(graph),
                 Data = activity
             };
         }
 
-        public RpgResponse<RpgActivity> ActivityComplete(string system, RpgRequest<ActivityComplete> request)
+        public RpgResponse<Activity> ActivityComplete(string system, RpgRequest<ActivityComplete> request)
         {
             var graph = _graphService.HydrateGraph(system, request.GraphState);
             var activity = _activityService.Complete(graph, request.Op);
 
-            return new RpgResponse<RpgActivity>
+            return new RpgResponse<Activity>
             {
                 GraphState = _graphService.DehydrateGraph(graph),
                 Data = activity
