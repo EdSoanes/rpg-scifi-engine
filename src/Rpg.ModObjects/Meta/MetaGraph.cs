@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Data;
 using System.Reflection;
+using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Reflection;
 
@@ -29,6 +30,10 @@ namespace Rpg.ModObjects.Meta
                 .Select(x => new MetaAction(x))
                 .ToArray();
 
+            var actionGroups = RpgTypeScan.ForTypes<ActionGroup>(systemAssemblies)
+                .Select(x => (ActionGroup)Activator.CreateInstance(x)!)
+                .ToArray();
+
             var states = RpgTypeScan.ForTypes<States.State>(systemAssemblies)
                 .Select(x => new MetaState(x))
                 .ToArray();
@@ -40,6 +45,7 @@ namespace Rpg.ModObjects.Meta
 
             system.Objects = res;
             system.Actions = actions;
+            system.ActionGroups = actionGroups;
             system.States = states;
             system.PropUIs = propUIs;
             system.Namespaces = Namespaces(objectTypes);

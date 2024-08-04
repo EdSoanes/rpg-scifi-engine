@@ -68,10 +68,25 @@ namespace Rpg.ModObjects.Server
             };
         }
 
+        public ActionGroup[] ActivityActionGroups(string system)
+            => _activityService.GetActionGroups(system);
+
         public RpgResponse<Activity> ActivityCreate(string system, RpgRequest<ActivityCreate> request)
         {
             var graph = _graphService.HydrateGraph(system, request.GraphState);
             var activity = _activityService.Create(graph, request.Op);
+
+            return new RpgResponse<Activity>
+            {
+                GraphState = _graphService.DehydrateGraph(graph),
+                Data = activity
+            };
+        }
+
+        public RpgResponse<Activity> ActivityCreate(string system, RpgRequest<ActivityCreateByGroup> request)
+        {
+            var graph = _graphService.HydrateGraph(system, request.GraphState);
+            var activity = _activityService.Create(system, graph, request.Op);
 
             return new RpgResponse<Activity>
             {

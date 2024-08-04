@@ -101,21 +101,22 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(target, Is.InstanceOf<Int32>());
             Assert.That((int)target, Is.EqualTo(11));
 
-            //activity.SetActionInstance(nameof(TakeDamage));
+            outcomeArgs.Values["diceRoll"] = 11;
+            activity.SetOutcomeArgs(outcomeArgs.Values);
+            activity.Outcome();
 
-            //activity.Cost();
+            var damage = activity.GetActivityProp("damage")?.Roll() ?? 0;
+            Assert.That(damage, Is.EqualTo(9));
 
-            //var actArgs = activity.GetActArgs();
-            //actArgs.Values["damage"] = 10;
+            activity.SetActionInstance(nameof(TakeDamage));
 
-            //activity.SetActArgs(actArgs.Values);
+            activity.Cost();
+            var doOutcome = activity.Act();
+            Assert.That(doOutcome, Is.False);
 
-            //var doOutcome = activity.Act();
-            //Assert.That(doOutcome, Is.False);
+            activity.Complete();
 
-            //activity.Complete();
-
-            //Assert.That(_pc.CurrentStaminaPoints, Is.EqualTo(4));
+            Assert.That(_pc.CurrentStaminaPoints, Is.EqualTo(5));
         }
     }
 }

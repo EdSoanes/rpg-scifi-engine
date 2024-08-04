@@ -7,15 +7,17 @@ namespace Rpg.ModObjects.Server
 {
     public interface IRpgSessionlessServer
     {
+        RpgContent[] ListEntities(string system);
+        RpgResponse<string> CreateGraphState(string system, string archetype, string id);
+        RpgResponse<Activity> ActivityCreate(string system, RpgRequest<ActivityCreate> request);
+        RpgResponse<Activity> ActivityCreate(string system, RpgRequest<ActivityCreateByGroup> request);
+
         RpgResponse<Activity> ActivityAct(string system, RpgRequest<ActivityAct> request);
         RpgResponse<Activity> ActivityAutoComplete(string system, RpgRequest<ActivityAutoComplete> request);
         RpgResponse<Activity> ActivityComplete(string system, RpgRequest<ActivityComplete> request);
-        RpgResponse<Activity> ActivityCreate(string system, RpgRequest<ActivityCreate> request);
         RpgResponse<Activity> ActivityOutcome(string system, RpgRequest<ActivityOutcome> request);
         RpgResponse<bool> ApplyModSet(string system, RpgRequest<ModSet> request);
-        RpgResponse<string> CreateGraphState(string system, string archetype, string id);
         RpgResponse<PropDesc> Describe(string system, RpgRequest<Describe> request);
-        RpgContent[] ListEntities(string system);
         RpgResponse<string> SetState(string system, RpgRequest<SetState> request);
     }
 }

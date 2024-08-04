@@ -1,60 +1,55 @@
 import {
-  Act,
-  ActionInstance,
-  ActionModSet,
-  AddModSet,
-  CreateActionInstance,
-  Describe,
-  ModSet,
-  PropDesc,
-  RpgGraphState,
-  SetState,
-} from './types'
+  ActivityCreateRequest,
+  ActivityResponse,
+  CreateGraphStateResponse,
+  DescribeRequest,
+  DescribeResponse,
+} from './server-types'
+
+import { ActionInstance, ActionModSet, ModSet, RpgGraphState } from './types'
 
 export const getGraphState = async (
   id: string
-): Promise<RpgGraphState | null> => {
+): Promise<CreateGraphStateResponse | null> => {
   const response = await get(`Cyborgs/PlayerCharacter/${id}`)
 
-  return (await response.json()) as RpgGraphState
+  return (await response.json()) as CreateGraphStateResponse
 }
 
 export const getPropDesc = async (
   entityId: string,
   prop: string,
   graphState: RpgGraphState
-): Promise<PropDesc | null> => {
-  const describe: Describe = {
+): Promise<DescribeResponse | null> => {
+  const describe: DescribeRequest = {
     graphState: graphState,
-    operation: {
+    op: {
       entityId: entityId,
       prop: prop,
     },
   }
 
   const response = await post('Cyborgs/describe', describe)
-  return (await response.json()) as PropDesc
+  return (await response.json()) as DescribeResponse
 }
 
 export const getActionInstance = async (
   ownerId: string,
   initiatorId: string,
-  actionName: string,
-  actionNo: number,
+  action: string,
   graphState: RpgGraphState
-): Promise<ActionInstance | null> => {
-  const op: CreateActionInstance = {
+): Promise<ActivityResponse | null> => {
+  const op: ActivityCreateRequest = {
     graphState: graphState,
-    operation: {
+    op: {
       ownerId,
       initiatorId,
-      actionName,
-      actionNo,
+      action,
     },
   }
 
-  const response = await post('Cyborgs/actioninstance/create', op)
-  return (await response.json()) as ActionInstance
+  const response = await post('Cyborgs/activity/create', op)
+  return (await response.json()) as ActivityResponse
 }
 
 export const getActionCost = async (

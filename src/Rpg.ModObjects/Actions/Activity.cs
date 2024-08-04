@@ -109,7 +109,11 @@ namespace Rpg.ModObjects.Actions
             if (Dice.TryParse(val, out var dice))
             {
                 if (HasActivityProp(prop))
-                    ActivityResultMod(prop, "arg", dice);
+                {
+                    var existing = GetActivityProp(prop);
+                    if (existing != dice)
+                        ActivityResultMod(prop, "arg", dice);
+                }
                 else
                     this.InitMod(prop, dice);
             }
@@ -344,6 +348,13 @@ namespace Rpg.ModObjects.Actions
         }
 
         public void SetOutcomeArgs(Dictionary<string, string?> argValues)
+        {
+            var args = ActionInstance!.Action!.OnOutcome.Args;
+            foreach (var argName in argValues.Keys)
+                SetOutcomeArg(argName, argValues[argName]);
+        }
+
+        public void SetOutcomeArgs(Dictionary<string, object?> argValues)
         {
             var args = ActionInstance!.Action!.OnOutcome.Args;
             foreach (var argName in argValues.Keys)

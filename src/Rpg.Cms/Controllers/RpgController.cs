@@ -27,7 +27,7 @@ namespace Rpg.Cms.Controllers
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
         [HttpGet("{system}/entities")]
-        [ProducesResponseType(typeof(ModObjects.Server.RpgContent[]), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(RpgContent[]), StatusCodes.Status200OK)]
         public IActionResult ListEntities(string system)
         {
             var items = _sessionlessServer.ListEntities(system);
@@ -36,7 +36,7 @@ namespace Rpg.Cms.Controllers
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
         [HttpGet("{system}/{archetype}/{id}")]
-        [ProducesResponseType(typeof(RpgGraphState), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(RpgResponse<string>), StatusCodes.Status200OK)]
         public IActionResult CreateGraphState(string system, string archetype, string id)
         {
             var graphState = _sessionlessServer.CreateGraphState(system, archetype, id);
@@ -45,7 +45,7 @@ namespace Rpg.Cms.Controllers
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
         [HttpPost("{system}/modset")]
-        [ProducesResponseType(typeof(RpgGraphState), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(RpgResponse<bool>), StatusCodes.Status200OK)]
         public IActionResult AddModSet(string system, RpgRequest<ModSet> request)
         {
             var response = _sessionlessServer.ApplyModSet(system, request);
@@ -54,7 +54,7 @@ namespace Rpg.Cms.Controllers
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
         [HttpPost("{system}/activity/create")]
-        [ProducesResponseType(typeof(ActionInstance), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(RpgResponse<Activity>), StatusCodes.Status200OK)]
         public IActionResult ActivityCreate(string system, RpgRequest<ActivityCreate> request)
         {
             var response = _sessionlessServer.ActivityCreate(system, request);
@@ -62,8 +62,17 @@ namespace Rpg.Cms.Controllers
         }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
+        [HttpPost("{system}/activity/createbygroup")]
+        [ProducesResponseType(typeof(RpgResponse<Activity>), StatusCodes.Status200OK)]
+        public IActionResult ActivityCreateByGroup(string system, RpgRequest<ActivityCreateByGroup> request)
+        {
+            var response = _sessionlessServer.ActivityCreate(system, request);
+            return Ok(response);
+        }
+
+        [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
         [HttpPost("{system}/activity/act")]
-        [ProducesResponseType(typeof(ActionModSet), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(RpgResponse<Activity>), StatusCodes.Status200OK)]
         public IActionResult ActivityAct(string system, RpgRequest<ActivityAct> request)
         {
             var response = _sessionlessServer.ActivityAct(system, request);
@@ -72,7 +81,7 @@ namespace Rpg.Cms.Controllers
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
         [HttpPost("{system}/activity/outcome")]
-        [ProducesResponseType(typeof(ModSet[]), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(RpgResponse<Activity>), StatusCodes.Status200OK)]
         public IActionResult ActivityOutcome(string system, RpgRequest<ActivityOutcome> request)
         {
             var response = _sessionlessServer.ActivityOutcome(system, request);
@@ -81,7 +90,7 @@ namespace Rpg.Cms.Controllers
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
         [HttpPost("{system}/state")]
-        [ProducesResponseType(typeof(RpgGraphState), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(RpgResponse<string>), StatusCodes.Status200OK)]
         public IActionResult StateState(string system, RpgRequest<SetState> request)
         {
             var response = _sessionlessServer.SetState(system, request);
@@ -89,7 +98,7 @@ namespace Rpg.Cms.Controllers
         }
 
         [HttpPost("{system}/describe")]
-        [ProducesResponseType(typeof(PropDesc), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(RpgResponse<PropDesc>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult Describe(string system, RpgRequest<Describe> request)
         {

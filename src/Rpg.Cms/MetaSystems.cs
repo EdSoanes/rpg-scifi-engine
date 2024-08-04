@@ -38,7 +38,7 @@ namespace Rpg.Cms
                 if (type.IsGenericType)
                 {
                     foreach (var genType in type.GetGenericArguments())
-                        parts.Add(genType.Name);
+                        parts.Add(MetaSystemTypeName(genType));
                 }
 
                 return string.Join('.', parts);

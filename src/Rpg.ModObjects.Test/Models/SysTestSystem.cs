@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Meta;
+﻿using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Meta;
 using Rpg.ModObjects.Meta.Props;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,7 @@ namespace Rpg.ModObjects.Tests.Models
 
         public MetaAction[] Actions { get; set; } = Array.Empty<MetaAction>();
 
+        public ActionGroup[] ActionGroups { get; set; } = Array.Empty<ActionGroup>();
         public MetaState[] States { get; set; } = Array.Empty<MetaState>();
 
         public MetaPropAttribute[] PropUIs { get; set; } = Array.Empty<MetaPropAttribute>();

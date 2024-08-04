@@ -52,19 +52,21 @@ namespace Rpg.Cyborgs.Actions
 
         public bool OnOutcome(Activity activity, Actor owner, int diceRoll, int target, int damage)
         {
-            activity
-                .ActivityResultMod("diceRoll", "Result", diceRoll)
-                .ActivityResultMod("target", "Result", target);
-
-            var reduction = owner.Strength.Value > 0
-                ? owner.Strength.Value
-                : 0;
-
             if (diceRoll >= target)
-                activity.ActivityMod("damage", "Parry", -reduction);
+            {
+                var reduction = owner.Strength.Value > 0
+                    ? owner.Strength.Value
+                    : 0;
 
-            var parrying = owner.CreateStateInstance(nameof(Parrying), new TurnLifecycle(1, 1));
-            activity.OutputSets.Add(parrying);
+                if (reduction <= 0)
+                    reduction = 1;
+
+                if (diceRoll >= target)
+                    activity.ActivityMod("damage", "Parry", -reduction);
+
+                var parrying = owner.CreateStateInstance(nameof(Parrying), new TurnLifecycle(1, 1));
+                activity.OutputSets.Add(parrying);
+            }
 
             return true;
         }

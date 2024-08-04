@@ -5,11 +5,6 @@ export type RpgGraphState = Pick<
   keyof components['schemas']['Rpg.ModObjects.RpgGraphState']
 >
 
-export type RpgContent = Pick<
-  components['schemas']['Rpg.Cms.Models.RpgContent'],
-  keyof components['schemas']['Rpg.Cms.Models.RpgContent']
->
-
 export type PlayerCharacter = Pick<
   components['schemas']['Rpg.Cyborgs.PlayerCharacter'],
   keyof components['schemas']['Rpg.Cyborgs.PlayerCharacter']
@@ -25,16 +20,6 @@ export type Action = Pick<
   keyof components['schemas']['Rpg.ModObjects.Actions.Action']
 >
 
-export type SetState = Pick<
-  components['schemas']['Rpg.Cms.Models.RpgOperation.SetState'],
-  keyof components['schemas']['Rpg.Cms.Models.RpgOperation.SetState']
->
-
-export type Describe = Pick<
-  components['schemas']['Rpg.Cms.Models.RpgOperation.Describe'],
-  keyof components['schemas']['Rpg.Cms.Models.RpgOperation.Describe']
->
-
 export type PropDesc = Pick<
   components['schemas']['Rpg.ModObjects.Props.PropDesc'],
   keyof components['schemas']['Rpg.ModObjects.Props.PropDesc']
@@ -48,21 +33,6 @@ export type PropValue = Pick<
 export type ActionInstance = Pick<
   components['schemas']['Rpg.ModObjects.Actions.ActionInstance'],
   keyof components['schemas']['Rpg.ModObjects.Actions.ActionInstance']
->
-
-export type CreateActionInstance = Pick<
-  components['schemas']['Rpg.Cms.Models.RpgOperation.CreateActionInstance'],
-  keyof components['schemas']['Rpg.Cms.Models.RpgOperation.CreateActionInstance']
->
-
-export type AddModSet = Pick<
-  components['schemas']['Rpg.Cms.Models.RpgOperation.ModSet'],
-  keyof components['schemas']['Rpg.Cms.Models.RpgOperation.ModSet']
->
-
-export type Act = Pick<
-  components['schemas']['Rpg.Cms.Models.RpgOperation.Act'],
-  keyof components['schemas']['Rpg.Cms.Models.RpgOperation.Act']
 >
 
 export type ModSet = Pick<
@@ -81,11 +51,6 @@ export type OutcomeModSet = Pick<
 >
 
 export type RpgArg = Pick<
-  components['schemas']['Rpg.ModObjects.Reflection.RpgArg'],
-  keyof components['schemas']['Rpg.ModObjects.Reflection.RpgArg']
->
-
-export type RpgArgSet = Pick<
-  components['schemas']['Rpg.ModObjects.Reflection.RpgArgSet'],
-  keyof components['schemas']['Rpg.ModObjects.Reflection.RpgArgSet']
+  components['schemas']['Rpg.ModObjects.Reflection.Args.RpgArg'],
+  keyof components['schemas']['Rpg.ModObjects.Reflection.Args.RpgArg']
 >

@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Meta;
+﻿using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Meta;
 using Rpg.ModObjects.Meta.Props;
 
 namespace Rpg.Cyborgs
@@ -18,6 +19,8 @@ namespace Rpg.Cyborgs
         public MetaObj[] Objects { get; set; } = Array.Empty<MetaObj>();
 
         public MetaAction[] Actions { get; set; } = Array.Empty<MetaAction>();
+
+        public ActionGroup[] ActionGroups { get; set; } = Array.Empty<ActionGroup>();
 
         public MetaState[] States { get; set; } = Array.Empty<MetaState>();
 

@@ -1,4 +1,5 @@
 ﻿using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Meta;
 using Rpg.ModObjects.Server.Ops;
 
 namespace Rpg.ModObjects.Server.Services
@@ -11,6 +12,9 @@ namespace Rpg.ModObjects.Server.Services
         {
             _graphService = graphService;
         }
+
+        public ActionGroup[] GetActionGroups(string systemIdentifier)
+            => MetaSystems.Get(systemIdentifier)!.ActionGroups;
 
         public Activity Create(RpgGraph graph, ActivityCreate createActivity)
         {
@@ -29,6 +33,33 @@ namespace Rpg.ModObjects.Server.Services
             var activity = graph.CreateActivity(initiator, owner, createActivity.Action);
             if (activity.ActionInstance == null)
                 throw new InvalidOperationException($"Could not find action {createActivity.Action} for owner {createActivity.OwnerId}");
+
+            activity.Cost();
+
+            return activity;
+        }
+
+        public Activity Create(string systemIdentifier, RpgGraph graph, ActivityCreateByGroup createActivity)
+        {
+            var initiator = graph.GetObject<RpgEntity>(createActivity.InitiatorId);
+
+            if (initiator == null)
+                throw new InvalidOperationException($"Could not find initiator with Id {createActivity.InitiatorId} in hydrated graph");
+
+            var owner = createActivity.OwnerId == createActivity.InitiatorId
+                ? initiator
+                : graph.GetObject<RpgEntity>(createActivity.OwnerId);
+
+            if (owner == null)
+                throw new InvalidOperationException($"Could not find owner with Id {createActivity.OwnerId} in hydrated graph");
+
+            var actionGroup = GetActionGroups(systemIdentifier).FirstOrDefault(x => x.Name == createActivity.ActionGroup);
+            if (actionGroup == null)
+                throw new InvalidOperationException($"Could not find action group {createActivity.ActionGroup}");
+
+            var activity = graph.CreateActivity(initiator, actionGroup);
+            if (activity.ActionInstance == null)
+                throw new InvalidOperationException($"Could not create instance for action group {createActivity.ActionGroup} for owner {createActivity.OwnerId}");
 
             activity.Cost();
 
