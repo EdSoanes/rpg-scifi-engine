@@ -1,0 +1,46 @@
+Time Events
+	Length (Turn, Min, Hour, Day, etc)
+	Count (1, 2, 3...)
+
+If Count == 0
+	History not kept
+	
+If Count > 0
+	If Turn time then all Lifecycles have
+	
+		Start Time (Turn + Count)
+		End Time (Turn + Count)
+		
+	If not Turn Time then all Lifecycles have
+		End Time = Remove on next Time Passing Event e.g. One Hour
+
+
+TimeEventType
+	Beginning
+	TimePassing
+	Turn (Begins, 1, 2, 3, ..., Ends)
+	Ending
+	
+TimePassing
+	OneMinutePasses
+	OneHourPasses
+	OneDayPasses (+OneHourPasses +OneMinutePasses)
+	
+	Lifecycle TimePassingLifecycle
+	Lifecycle TurnLifecycle
+Time events
+	TimeBegins
+	
+	
+	TurnTimeBegins
+	Turn (1, 2, 3, etc)
+	TurnTimeEnds
+
+Tur
+
+EndOfTime
+
+
+Turn Time
+Passing Time
+

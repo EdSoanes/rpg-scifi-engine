@@ -109,15 +109,27 @@ namespace Rpg.ModObjects.Time
 
         public event NotifyTemporalEventHandler? OnTemporalEvent;
 
+        public void TriggerEvent()
+            => TriggerEvent(Current);
+
         public void TriggerEvent(PointInTime pointInTime)
         {
             Current = pointInTime;
             OnTemporalEvent?.Invoke(this, new TemporalEventArgs(Current));
         }
 
+        public void TriggerEvent(PointInTimeType type, int count = 0)
+        {
+            Current = new PointInTime(type, count);
+            OnTemporalEvent?.Invoke(this, new TemporalEventArgs(Current));
+        }
+
+        public void Transition(PointInTimeType type, int count = 0)
+            => Transition(new PointInTime(type, count));
+
         public void Transition(PointInTime to)
         {
-            if (Current == to)
+            if (to == Current)
                 return;
 
             if (!Current.IsEncounterTime && !to.IsEncounterTime && to < Current)
@@ -128,28 +140,67 @@ namespace Rpg.ModObjects.Time
 
             if (Current.Type == PointInTimeType.BeforeTime)
             {
-                Current = new PointInTime(PointInTimeType.TimeBegins);
-                TriggerEvent(Current);
+                TriggerEvent(PointInTimeType.BeforeTime);
+                TriggerEvent(PointInTimeType.TimeBegins);
                 Transition(to);
+                return;
             }
 
             if (Current.Type == PointInTimeType.TimeBegins)
             {
-                Current = new PointInTime(PointInTimeType.TimePassing);
-                TriggerEvent(Current); 
+                TriggerEvent(PointInTimeType.TimePassing);
                 Transition(to);
+                return;
             }
 
-            if (Current.Type == PointInTimeType.TimePassing && to.IsEncounterTime)
+            if (!to.IsEncounterTime)
             {
-                Current = new PointInTime(PointInTimeType.EncounterBegins);
-                TriggerEvent(Current);
-
-                Current = new PointInTime(PointInTimeType.Turn, 1);
-                TriggerEvent(Current);
-                Transition(to);
+                TriggerEvent(to);
+                if (to.Type != PointInTimeType.TimeEnds && to.Type != PointInTimeType.TimePassing)
+                    TriggerEvent(PointInTimeType.TimePassing);
+                return;
             }
 
+            if (to.Type == PointInTimeType.EncounterBegins)
+            {
+                if (Current.Type == PointInTimeType.Turn)
+                    TriggerEvent(PointInTimeType.EncounterEnds);
+
+                if (Current.Type == PointInTimeType.EncounterEnds)
+                    TriggerEvent(PointInTimeType.TimePassing);
+
+                TriggerEvent(PointInTimeType.EncounterBegins);
+
+                return;
+            }
+
+            if (to.Type == PointInTimeType.Turn)
+            {
+                if (Current.Type == PointInTimeType.EncounterEnds)
+                    TriggerEvent(PointInTimeType.TimePassing);
+
+                if (Current.Type == PointInTimeType.TimePassing)
+                    TriggerEvent(PointInTimeType.EncounterBegins);
+
+                if (Current.Type == PointInTimeType.EncounterBegins || Current.Type == PointInTimeType.Turn)
+                    TriggerEvent(PointInTimeType.Turn, to.Count);
+
+                return;
+            }
+
+            if (to.Type == PointInTimeType.EncounterEnds)
+            {
+                if (Current.Type == PointInTimeType.TimePassing)
+                    TriggerEvent(PointInTimeType.EncounterBegins);
+
+                if (Current.Type == PointInTimeType.EncounterBegins || Current.Type == PointInTimeType.Turn)
+                    TriggerEvent(PointInTimeType.EncounterEnds);
+
+                if (Current.Type == PointInTimeType.EncounterEnds)
+                    TriggerEvent(PointInTimeType.TimePassing);
+
+                return;
+            }
         }
 
         public void Transition(PointInTime to, PointInTime from)
