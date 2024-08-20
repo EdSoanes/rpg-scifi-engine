@@ -1,237 +1,237 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Mods.Templates;
-using Rpg.ModObjects.Time.Templates;
+﻿//using Newtonsoft.Json;
+//using Rpg.ModObjects.Mods.Templates;
+//using Rpg.ModObjects.Time.Templates;
 
-namespace Rpg.ModObjects.Time
-{
-    public partial class TimePoints
-    {
-        public static TimePoint BeforeEncounter = new TimePoint(nameof(BeforeEncounter), -1);
-        public static TimePoint BeginningOfEncounter = new TimePoint(nameof(BeginningOfEncounter), 0);
-        public static TimePoint Encounter(int turn)
-        {
-            if (turn < 1)
-                turn = 1;
+//namespace Rpg.ModObjects.Time
+//{
+//    public partial class TimePoints
+//    {
+//        public static TimePoint BeforeEncounter = new TimePoint(nameof(BeforeEncounter), -1);
+//        public static TimePoint BeginningOfEncounter = new TimePoint(nameof(BeginningOfEncounter), 0);
+//        public static TimePoint Encounter(int turn)
+//        {
+//            if (turn < 1)
+//                turn = 1;
 
-            if (turn >= EndOfEncounter.Tick)
-                turn = EndOfEncounter.Tick - 1;
+//            if (turn >= EndOfEncounter.Tick)
+//                turn = EndOfEncounter.Tick - 1;
 
-            return new TimePoint(nameof(Encounter), turn);
-        }
+//            return new TimePoint(nameof(Encounter), turn);
+//        }
 
-        public static TimePoint EndOfEncounter = new TimePoint(nameof(EndOfEncounter), int.MaxValue - 1);
-    }
+//        public static TimePoint EndOfEncounter = new TimePoint(nameof(EndOfEncounter), int.MaxValue - 1);
+//    }
 
-    public class TurnBasedTimeEngine : ITimeEngine
-    {
-        [JsonProperty] public TimePoint Current { get; private set; }
+//    public class TurnBasedTimeEngine : ITimeEngine
+//    {
+//        [JsonProperty] public TimePoint Current { get; private set; }
 
-        public TurnBasedTimeEngine()
-        {
-            Current = TimePoints.BeforeTime;
-        }
+//        public TurnBasedTimeEngine()
+//        {
+//            Current = TimePoints.BeforeTime;
+//        }
 
-        public event NotifyTimeEventHandler? OnTimeEvent;
+//        public event NotifyTimeEventHandler? OnTimeEvent;
 
-        public void TriggerEvent()
-            => OnTimeEvent?.Invoke(this, new NotifyTimeEventEventArgs(Current));
+//        public void TriggerEvent()
+//            => OnTimeEvent?.Invoke(this, new NotifyTimeEventEventArgs(Current));
 
-        public ModTemplate Create(string timeType = "turn")
-        {
-            ModTemplate template = timeType switch
-            {
-                "encounter" => new EncounterMod(),
-                _ => new TurnMod()
-            };
+//        public ModTemplate Create(string timeType = "turn")
+//        {
+//            ModTemplate template = timeType switch
+//            {
+//                "encounter" => new EncounterMod(),
+//                _ => new TurnMod()
+//            };
 
-            return template;
-        }
+//            return template;
+//        }
 
-        public TimePoint CalculateStartTime(TimePoint delay)
-        {
-            if (delay == TimePoints.Empty || delay.Type == nameof(TimePoints.Encounter))
-                return TimePoints.Encounter(Current.Tick + delay.Tick);
+//        public TimePoint CalculateStartTime(TimePoint delay)
+//        {
+//            if (delay == TimePoints.Empty || delay.Type == nameof(TimePoints.Encounter))
+//                return TimePoints.Encounter(Current.Tick + delay.Tick);
 
-            return delay;
-        }
+//            return delay;
+//        }
 
-        public TimePoint CalculateEndTime(TimePoint startTime, TimePoint duration)
-        {
-            if (duration.Type != nameof(TimePoints.Encounter))
-                return duration;
+//        public TimePoint CalculateEndTime(TimePoint startTime, TimePoint duration)
+//        {
+//            if (duration.Type != nameof(TimePoints.Encounter))
+//                return duration;
 
-            return TimePoints.Encounter(startTime.Tick + duration.Tick - 1);
-        }
+//            return TimePoints.Encounter(startTime.Tick + duration.Tick - 1);
+//        }
 
-        public LifecycleExpiry CalculateExpiry(TimePoint startTime, TimePoint endTime)
-        {
-            if (startTime == TimePoints.BeginningOfTime && endTime == TimePoints.EndOfTime)
-                return LifecycleExpiry.Active;
+//        public LifecycleExpiry CalculateExpiry(TimePoint startTime, TimePoint endTime)
+//        {
+//            if (startTime == TimePoints.BeginningOfTime && endTime == TimePoints.EndOfTime)
+//                return LifecycleExpiry.Active;
 
-            if (Current.Type == nameof(TimePoints.Encounter))
-            {
-                if (endTime.Tick < Current.Tick)
-                    return LifecycleExpiry.Expired;
+//            if (Current.Type == nameof(TimePoints.Encounter))
+//            {
+//                if (endTime.Tick < Current.Tick)
+//                    return LifecycleExpiry.Expired;
 
-                if (startTime.Tick > Current.Tick)
-                    return LifecycleExpiry.Pending;
+//                if (startTime.Tick > Current.Tick)
+//                    return LifecycleExpiry.Pending;
 
-                return LifecycleExpiry.Active;
-            }
+//                return LifecycleExpiry.Active;
+//            }
 
-            if (endTime <= Current)
-                return LifecycleExpiry.Remove;
+//            if (endTime <= Current)
+//                return LifecycleExpiry.Remove;
 
-            if (startTime > Current)
-                return LifecycleExpiry.Pending;
+//            if (startTime > Current)
+//                return LifecycleExpiry.Pending;
 
-            return LifecycleExpiry.Active;
-        }
+//            return LifecycleExpiry.Active;
+//        }
 
-        public void Begin()
-        {
-            if (Current == TimePoints.BeforeTime)
-            {
-                TriggerEvent();
+//        public void Begin()
+//        {
+//            if (Current == TimePoints.BeforeTime)
+//            {
+//                TriggerEvent();
 
-                Current = TimePoints.BeginningOfTime;
-                TriggerEvent();
+//                Current = TimePoints.BeginningOfTime;
+//                TriggerEvent();
 
-                Current = TimePoints.BeforeEncounter;
-            }
-        }
+//                Current = TimePoints.BeforeEncounter;
+//            }
+//        }
         
-        public bool IncreaseTick()
-        {
-            if (Current.Type != nameof(TimePoints.Encounter))
-                return false;
+//        public bool IncreaseTick()
+//        {
+//            if (Current.Type != nameof(TimePoints.Encounter))
+//                return false;
 
-            Current = TimePoints.Encounter(Current.Tick + 1);
-            TriggerEvent();
+//            Current = TimePoints.Encounter(Current.Tick + 1);
+//            TriggerEvent();
 
-            return true;
-        }
+//            return true;
+//        }
 
-        public bool DecreaseTick()
-        {
-            if (Current.Type != nameof(TimePoints.Encounter) || Current.Tick <= 1)
-                return false;
+//        public bool DecreaseTick()
+//        {
+//            if (Current.Type != nameof(TimePoints.Encounter) || Current.Tick <= 1)
+//                return false;
 
-            Current = TimePoints.Encounter(Current.Tick - 1);
-            TriggerEvent();
+//            Current = TimePoints.Encounter(Current.Tick - 1);
+//            TriggerEvent();
 
-            return true;
-        }
+//            return true;
+//        }
 
-        public bool SetTick(int tick)
-        {
-            if (Current.Type != nameof(TimePoints.Encounter) || tick < 1 || tick >= TimePoints.EndOfEncounter.Tick)
-                return false;
+//        public bool SetTick(int tick)
+//        {
+//            if (Current.Type != nameof(TimePoints.Encounter) || tick < 1 || tick >= TimePoints.EndOfEncounter.Tick)
+//                return false;
 
-            Current = TimePoints.Encounter(tick);
-            TriggerEvent();
+//            Current = TimePoints.Encounter(tick);
+//            TriggerEvent();
 
-            return true;
-        }
+//            return true;
+//        }
 
-        public void SetTime(TimePoint timePoint)
-        {
-            if (Current == timePoint)
-                return;
+//        public void SetTime(TimePoint timePoint)
+//        {
+//            if (Current == timePoint)
+//                return;
 
-            if (Current.Type == nameof(TimePoints.Encounter))
-            {
-                if (timePoint == TimePoints.EndOfEncounter)
-                {
-                    Current = TimePoints.EndOfEncounter;
-                    TriggerEvent();
+//            if (Current.Type == nameof(TimePoints.Encounter))
+//            {
+//                if (timePoint == TimePoints.EndOfEncounter)
+//                {
+//                    Current = TimePoints.EndOfEncounter;
+//                    TriggerEvent();
 
-                    return;
-                }
+//                    return;
+//                }
 
-                if (timePoint == TimePoints.BeginningOfEncounter)
-                {
-                    Current = TimePoints.EndOfEncounter;
-                    TriggerEvent();
+//                if (timePoint == TimePoints.BeginningOfEncounter)
+//                {
+//                    Current = TimePoints.EndOfEncounter;
+//                    TriggerEvent();
 
-                    Current = TimePoints.BeginningOfEncounter;
-                    TriggerEvent();
+//                    Current = TimePoints.BeginningOfEncounter;
+//                    TriggerEvent();
 
-                    return;
-                }
+//                    return;
+//                }
 
-                if (timePoint == TimePoints.BeginningOfEncounter)
-                {
-                    Current = TimePoints.BeginningOfEncounter;
-                    TriggerEvent();
-                }
+//                if (timePoint == TimePoints.BeginningOfEncounter)
+//                {
+//                    Current = TimePoints.BeginningOfEncounter;
+//                    TriggerEvent();
+//                }
 
 
-                if (timePoint.Type == nameof(TimePoints.Encounter))
-                {
-                    Current = timePoint;
-                    TriggerEvent();
-                    return;
-                }
+//                if (timePoint.Type == nameof(TimePoints.Encounter))
+//                {
+//                    Current = timePoint;
+//                    TriggerEvent();
+//                    return;
+//                }
 
-                return;
-            }
+//                return;
+//            }
 
-            if (timePoint != TimePoints.BeforeTime && timePoint != TimePoints.BeginningOfTime && timePoint != TimePoints.EndOfTime)
-            {
-                Current = timePoint;
-                TriggerEvent();
+//            if (timePoint != TimePoints.BeforeTime && timePoint != TimePoints.BeginningOfTime && timePoint != TimePoints.EndOfTime)
+//            {
+//                Current = timePoint;
+//                TriggerEvent();
 
-                if (timePoint == TimePoints.BeginningOfEncounter)
-                {
-                    Current = TimePoints.Encounter(1);
-                    TriggerEvent();
-                }
-            }
-        }
+//                if (timePoint == TimePoints.BeginningOfEncounter)
+//                {
+//                    Current = TimePoints.Encounter(1);
+//                    TriggerEvent();
+//                }
+//            }
+//        }
 
-        //public void NewEncounter()
-        //{
-        //    if (Current.Type == nameof(TimePoints.Encounter))
-        //        EndEncounter();
+//        //public void NewEncounter()
+//        //{
+//        //    if (Current.Type == nameof(TimePoints.Encounter))
+//        //        EndEncounter();
 
-        //    if (Current != TimePoints.BeginningOfEncounter)
-        //    {
-        //        Current = TimePoints.BeginningOfEncounter;
-        //        TriggerEvent();
-        //    }
+//        //    if (Current != TimePoints.BeginningOfEncounter)
+//        //    {
+//        //        Current = TimePoints.BeginningOfEncounter;
+//        //        TriggerEvent();
+//        //    }
 
-        //    NewTurn();
-        //}
+//        //    NewTurn();
+//        //}
 
-        //public void EndEncounter()
-        //{
-        //    Current = TimePoints.EndOfEncounter;
-        //    TriggerEvent();
-        //}
+//        //public void EndEncounter()
+//        //{
+//        //    Current = TimePoints.EndOfEncounter;
+//        //    TriggerEvent();
+//        //}
 
-        //public void NewTurn()
-        //{
-        //    Current = TimePoints.Encounter(Current.Tick + 1);
-        //    TriggerEvent();
-        //}
+//        //public void NewTurn()
+//        //{
+//        //    Current = TimePoints.Encounter(Current.Tick + 1);
+//        //    TriggerEvent();
+//        //}
 
-        //public void PrevTurn()
-        //{
-        //    if (Current.Tick > 1)
-        //    {
-        //        Current = TimePoints.Encounter(Current.Tick - 1);
-        //        TriggerEvent();
-        //    }
-        //}
+//        //public void PrevTurn()
+//        //{
+//        //    if (Current.Tick > 1)
+//        //    {
+//        //        Current = TimePoints.Encounter(Current.Tick - 1);
+//        //        TriggerEvent();
+//        //    }
+//        //}
 
-        //public void SetTurn(int turn)
-        //{
-        //    if (Current.Type == nameof(TimePoints.Encounter) && turn > 0 && turn < TimePoints.EndOfEncounter.Tick)
-        //    {
-        //        Current = TimePoints.Encounter(turn);
-        //        TriggerEvent();
-        //    }
-        //}
-    }
-}
+//        //public void SetTurn(int turn)
+//        //{
+//        //    if (Current.Type == nameof(TimePoints.Encounter) && turn > 0 && turn < TimePoints.EndOfEncounter.Tick)
+//        //    {
+//        //        Current = TimePoints.Encounter(turn);
+//        //        TriggerEvent();
+//        //    }
+//        //}
+//    }
+//}

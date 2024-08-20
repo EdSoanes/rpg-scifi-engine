@@ -12,11 +12,11 @@ namespace Rpg.ModObjects.Lifecycles
     {
         LifecycleExpiry Expiry { get; }
 
-        void SetExpired(TimePoint currentTime);
+        void SetExpired(PointInTime currentTime);
 
         void OnBeforeTime(RpgGraph graph, RpgObject? entity = null);
-        void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null);
-        LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime);
-        LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime);
+        void OnTimeBegins(RpgGraph graph, RpgObject? entity = null);
+        LifecycleExpiry OnStartLifecycle(RpgGraph graph, PointInTime currentTime);
+        LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, PointInTime currentTime);
     }
 }

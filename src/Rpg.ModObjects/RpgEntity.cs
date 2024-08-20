@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.States;
 using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects
@@ -48,9 +47,9 @@ namespace Rpg.ModObjects
             }
         }
 
-        public override void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
+        public override void OnTimeBegins(RpgGraph graph, RpgObject? entity = null)
         {
-            base.OnBeginningOfTime(graph, entity);
+            base.OnTimeBegins(graph, entity);
             var actions = ModObjects.Actions.Action.CreateOwnerActions(this);
             foreach (var action in actions)
             {
@@ -59,13 +58,13 @@ namespace Rpg.ModObjects
             }
         }
 
-        public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime)
+        public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, PointInTime currentTime)
         {
             var expiry = base.OnStartLifecycle(graph, currentTime);
             return expiry;
         }
 
-        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime)
+        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, PointInTime currentTime)
         {
             var expiry = base.OnUpdateLifecycle(graph, currentTime);
             return expiry;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -32,6 +33,23 @@ namespace Rpg.ModObjects.Time
         Day,
 
         TimeEnds
+    }
+
+    public struct SpanOfTime
+    {
+        public PointInTime Start { get; init; }
+        public PointInTime End { get; init; }
+
+        public LifecycleExpiry GetExpiry(PointInTime now)
+        {
+            if (Start > now)
+                return LifecycleExpiry.Pending;
+
+            if (Start <= now && End >= now)
+                return LifecycleExpiry.Active;
+
+            return LifecycleExpiry.Expired;
+        }
     }
 
     public struct PointInTime
@@ -80,27 +98,7 @@ namespace Rpg.ModObjects.Time
 
     public class Temporal
     {
-        public enum TimeType
-        {
-            Passing,
-            Ticking
-        }
-
-        public enum TimePassing
-        {
-            Turn,
-            Minute,
-            Hour,
-            Day,
-        }
-
-        public enum EncounterEvent
-        {
-            Begins = 0,
-            Ends = int.MaxValue,
-        }
-
-        public PointInTime Current { get; private set; } = new PointInTime(PointInTimeType.BeforeTime);
+        [JsonProperty] public PointInTime Current { get; private set; } = new PointInTime(PointInTimeType.BeforeTime);
 
         public Temporal()
         {
@@ -200,161 +198,6 @@ namespace Rpg.ModObjects.Time
                     TriggerEvent(PointInTimeType.TimePassing);
 
                 return;
-            }
-        }
-
-        public void Transition(PointInTime to, PointInTime from)
-        {
-            switch (from.Type)
-            {
-                case PointInTimeType.BeforeTime: FromBeforeTime(from, to); break;
-                case PointInTimeType.TimeBegins: FromTimeBegins(from,to); break;
-                case PointInTimeType.TimePassing: FromTimeBegun(from, to); break;
-                default:
-                    throw new InvalidOperationException($"Cannot transition from '{from}' to '{to}'");
-            };
-        }
-
-        public void FromBeforeTime(PointInTime from, PointInTime to)
-        {
-            switch (to.Type)
-            {
-                case PointInTimeType.BeforeTime:
-                    break;
-                case PointInTimeType.TimeBegins:
-                    TriggerEvent(new PointInTime(PointInTimeType.TimeBegins));
-                    break;
-                case PointInTimeType.TimePassing:
-                    TriggerEvent(new PointInTime(PointInTimeType.TimeBegins));
-                    TriggerEvent(new PointInTime(PointInTimeType.TimePassing));
-                    break;
-                case PointInTimeType.EncounterBegins:
-                    TriggerEvent(new PointInTime(PointInTimeType.TimeBegins));
-                    TriggerEvent(new PointInTime(PointInTimeType.TimePassing));
-                    TriggerEvent(new PointInTime(PointInTimeType.EncounterBegins));
-                    TriggerEvent(new PointInTime(PointInTimeType.Turn, 1));
-                    break;
-                case PointInTimeType.EncounterEnds:
-                    TriggerEvent(new PointInTime(PointInTimeType.TimeBegins));
-                    TriggerEvent(new PointInTime(PointInTimeType.TimePassing));
-                    TriggerEvent(new PointInTime(PointInTimeType.EncounterBegins));
-                    TriggerEvent(new PointInTime(PointInTimeType.Turn, 1));
-                    TriggerEvent(new PointInTime(PointInTimeType.EncounterEnds));
-                    TriggerEvent(new PointInTime(PointInTimeType.TimePassing));
-                    break;
-                case PointInTimeType.TimeEnds:
-                    TriggerEvent(new PointInTime(PointInTimeType.TimeBegins));
-                    TriggerEvent(new PointInTime(PointInTimeType.TimePassing));
-                    TriggerEvent(new PointInTime(PointInTimeType.TimeEnds));
-                    break;
-                default:
-                    throw new InvalidOperationException($"Cannot transition from '{from}' to '{to}'");
-            }
-        }
-
-        public void FromTimeBegins(PointInTime from, PointInTime to)
-        {
-            switch (to.Type)
-            {
-                case PointInTimeType.TimePassing:
-                    TriggerEvent(new PointInTime(PointInTimeType.TimeBegins));
-                    TriggerEvent(new PointInTime(PointInTimeType.TimePassing));
-                    break;
-                case PointInTimeType.EncounterBegins:
-                    TriggerEvent(new PointInTime(PointInTimeType.TimeBegins));
-                    TriggerEvent(new PointInTime(PointInTimeType.TimePassing));
-                    TriggerEvent(new PointInTime(PointInTimeType.EncounterBegins));
-                    TriggerEvent(new PointInTime(PointInTimeType.Turn, 1));
-                    break;
-                case PointInTimeType.EncounterEnds:
-                    TriggerEvent(new PointInTime(PointInTimeType.TimeBegins));
-                    TriggerEvent(new PointInTime(PointInTimeType.TimePassing));
-                    TriggerEvent(new PointInTime(PointInTimeType.EncounterBegins));
-                    TriggerEvent(new PointInTime(PointInTimeType.Turn, 1));
-                    TriggerEvent(new PointInTime(PointInTimeType.EncounterEnds));
-                    TriggerEvent(new PointInTime(PointInTimeType.TimePassing));
-                    break;
-                case PointInTimeType.TimeEnds:
-                    TriggerEvent(new PointInTime(PointInTimeType.TimeBegins));
-                    TriggerEvent(new PointInTime(PointInTimeType.TimePassing));
-                    TriggerEvent(new PointInTime(PointInTimeType.TimeEnds));
-                    break;
-                default:
-                    throw new InvalidOperationException($"Cannot transition from '{from}' to '{to}'");
-            }
-        }
-
-        public void FromTimeBegun(PointInTime from, PointInTime to)
-        {
-            switch (to.Type)
-            {
-                case PointInTimeType.EncounterBegins:
-                    TriggerEvent(new PointInTime(PointInTimeType.EncounterBegins));
-                    TriggerEvent(new PointInTime(PointInTimeType.Turn, 1));
-                    break;
-                case PointInTimeType.EncounterEnds:
-                    TriggerEvent(new PointInTime(PointInTimeType.EncounterBegins));
-                    TriggerEvent(new PointInTime(PointInTimeType.Turn, 1));
-                    TriggerEvent(new PointInTime(PointInTimeType.EncounterEnds));
-                    TriggerEvent(new PointInTime(PointInTimeType.TimePassing));
-                    break;
-                case PointInTimeType.Turn:
-
-                    break;
-                case PointInTimeType.TimeEnds:
-                    TriggerEvent(new PointInTime(PointInTimeType.TimeEnds));
-                    break;
-                default:
-                    throw new InvalidOperationException($"Cannot transition from '{from}' to '{to}'");
-            }
-        }
-
-        public void FromEncounterBegins(PointInTime from, PointInTime to)
-        {
-            switch (to.Type)
-            {
-                case PointInTimeType.EncounterEnds:
-                    TriggerEvent(new PointInTime(PointInTimeType.TimeBegins));
-                    TriggerEvent(new PointInTime(PointInTimeType.TimePassing));
-                    TriggerEvent(new PointInTime(PointInTimeType.EncounterBegins));
-                    TriggerEvent(new PointInTime(PointInTimeType.Turn, 1));
-                    TriggerEvent(new PointInTime(PointInTimeType.EncounterEnds));
-                    TriggerEvent(new PointInTime(PointInTimeType.TimePassing));
-                    break;
-                case PointInTimeType.TimeEnds:
-                    TriggerEvent(new PointInTime(PointInTimeType.TimeBegins));
-                    TriggerEvent(new PointInTime(PointInTimeType.TimePassing));
-                    TriggerEvent(new PointInTime(PointInTimeType.TimeEnds));
-                    break;
-                default:
-                    throw new InvalidOperationException($"Cannot transition from '{from}' to '{to}'");
-            }
-        }
-
-        public void FromTurn(PointInTime from, PointInTime to)
-        {
-            switch (to.Type)
-            {
-                case PointInTimeType.EncounterBegins:
-                    TriggerEvent(new PointInTime(PointInTimeType.EncounterEnds));
-                    TriggerEvent(new PointInTime(PointInTimeType.TimePassing));
-                    TriggerEvent(new PointInTime(PointInTimeType.EncounterBegins));
-                    TriggerEvent(new PointInTime(PointInTimeType.Turn, 1));
-                    break;
-                case PointInTimeType.Turn:
-                    TriggerEvent(new PointInTime(PointInTimeType.Turn, to.Count));
-                    break;
-                case PointInTimeType.EncounterEnds:
-                    TriggerEvent(new PointInTime(PointInTimeType.EncounterEnds));
-                    TriggerEvent(new PointInTime(PointInTimeType.TimePassing));
-                    break;
-                case PointInTimeType.TimeEnds:
-                    TriggerEvent(new PointInTime(PointInTimeType.EncounterEnds));
-                    TriggerEvent(new PointInTime(PointInTimeType.TimePassing));
-                    TriggerEvent(new PointInTime(PointInTimeType.TimeEnds));
-                    break;
-                default:
-                    throw new InvalidOperationException($"Cannot transition from '{from}' to '{to}'");
             }
         }
     }

@@ -15,7 +15,7 @@ namespace Rpg.ModObjects
 
         [JsonProperty] public RpgObject Context { get; private set; }
         [JsonProperty] protected Dictionary<string, RpgObject> ObjectStore { get; set; } = new Dictionary<string, RpgObject>();
-        [JsonProperty] public ITimeEngine Time { get; private set; }
+        [JsonProperty] public Temporal Time { get; init; } = new Temporal();
 
         public RpgGraph(RpgObject context)
         {
@@ -23,9 +23,8 @@ namespace Rpg.ModObjects
 
             Context = context;
 
-            Time = new TurnBasedTimeEngine();
-            Time.OnTimeEvent += OnTimeEvent;
-            Time.Begin();
+            Time.OnTemporalEvent += OnTemporalEvent;
+            Time.Transition(PointInTimeType.TimePassing);
         }
 
         public RpgGraph(RpgGraphState state)
@@ -34,7 +33,7 @@ namespace Rpg.ModObjects
 
             Context = state.Entities.First(x => x.Id == state.ContextId);
             Time = state.Time!;
-            Time.OnTimeEvent += OnTimeEvent;
+            Time.OnTemporalEvent += OnTemporalEvent;
 
             foreach (var entity in state.Entities.SelectMany(x => x.Traverse()))
             {
@@ -168,10 +167,10 @@ namespace Rpg.ModObjects
             if (!ObjectStore.ContainsKey(entity.Id))
             {
                 ObjectStore.Add(entity.Id, entity);
-                if (Time.Current != TimePoints.BeforeTime)
+                if (Time.Current.Type != PointInTimeType.BeforeTime)
                 {
                     entity.OnBeforeTime(this);
-                    entity.OnBeginningOfTime(this);
+                    entity.OnTimeBegins(this);
                     entity.OnStartLifecycle(this, Time.Current);
                 }
 
@@ -487,21 +486,36 @@ namespace Rpg.ModObjects
                 SetPropValue(propRef);
         }
 
-        private void OnTimeEvent(object? obj, NotifyTimeEventEventArgs args)
+        private void OnTemporalEvent(object? sender, TemporalEventArgs e)
         {
-            switch (args.Time.Type)
+            switch (e.Time.Type)
             {
-                case nameof(TimePoints.BeforeTime):
+                case PointInTimeType.BeforeTime:
                     OnBeforeTime();
                     break;
-                case nameof(TimePoints.BeginningOfTime): 
-                    OnBeginningOfTime(); 
+                case PointInTimeType.TimeBegins:
+                    OnTimeBegins();
                     break;
                 default:
                     OnTimeUpdates();
                     break;
             }
         }
+        //private void OnTimeEvent(object? obj, NotifyTimeEventEventArgs args)
+        //{
+        //    switch (args.Time.Type)
+        //    {
+        //        case nameof(TimePoints.BeforeTime):
+        //            OnBeforeTime();
+        //            break;
+        //        case nameof(TimePoints.BeginningOfTime): 
+        //            OnBeginningOfTime(); 
+        //            break;
+        //        default:
+        //            OnTimeUpdates();
+        //            break;
+        //    }
+        //}
 
         private void OnBeforeTime()
         {
@@ -514,12 +528,12 @@ namespace Rpg.ModObjects
             }
         }
 
-        private void OnBeginningOfTime()
+        private void OnTimeBegins()
         {
             var created = new List<RpgObject>();
             foreach (var entity in ObjectStore.Values.Where(x => x.Expiry == LifecycleExpiry.Pending))
             {
-                entity.OnBeginningOfTime(this, entity);
+                entity.OnTimeBegins(this, entity);
                 created.Add(entity);
             }
 

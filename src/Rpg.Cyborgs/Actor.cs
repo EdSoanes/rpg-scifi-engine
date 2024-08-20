@@ -173,9 +173,9 @@ namespace Rpg.Cyborgs
         public Dice CalculateStamina(Dice health)
             => health.Roll() * 2;
 
-        public override void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
+        public override void OnTimeBegins(RpgGraph graph, RpgObject? entity = null)
         {
-            base.OnBeginningOfTime(graph, entity);
+            base.OnTimeBegins(graph, entity);
         }
     }
 }

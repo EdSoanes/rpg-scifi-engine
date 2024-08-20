@@ -84,7 +84,7 @@ namespace Rpg.ModObjects
             EntityId = entity!.Id;
         }
 
-        public virtual void OnBeginningOfTime(RpgGraph graph, RpgObject? entity = null)
+        public virtual void OnTimeBegins(RpgGraph graph, RpgObject? entity = null)
         {
             Expiry = LifecycleExpiry.Active;
         }
