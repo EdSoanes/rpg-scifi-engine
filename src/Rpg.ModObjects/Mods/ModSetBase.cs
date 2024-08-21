@@ -34,6 +34,7 @@ namespace Rpg.ModObjects.Mods
         {
             Graph = graph;
             OwnerId ??= entity?.Id;
+            Lifecycle.OnBeforeTime(graph);
 
             Graph!.AddMods([.. Mods]);
         }

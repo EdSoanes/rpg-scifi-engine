@@ -198,5 +198,41 @@ namespace Rpg.ModObjects.Tests
 
             Assert.Throws<InvalidOperationException>(() => temporal.Transition(new PointInTime(PointInTimeType.BeforeTime)));
         }
+
+        [Test]
+        public void SpanOfTime_Encounter_TimePassing_Pending()
+        {
+            var span = new SpanOfTime(PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds);
+            var expiry = span.GetExpiry(new PointInTime(PointInTimeType.TimePassing));
+
+            Assert.That(expiry, Is.EqualTo(LifecycleExpiry.Pending));
+        }
+
+        public void SpanOfTime_Encounter_EncounterBegins_Active()
+        {
+            var span = new SpanOfTime(PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds);
+            var expiry = span.GetExpiry(new PointInTime(PointInTimeType.EncounterBegins));
+
+            Assert.That(expiry, Is.EqualTo(LifecycleExpiry.Active));
+        }
+
+        [Test]
+        public void SpanOfTime_Encounter_Turn1_Active()
+        {
+            var span = new SpanOfTime(PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds);
+            var expiry = span.GetExpiry(new PointInTime(PointInTimeType.EncounterBegins));
+
+            Assert.That(expiry, Is.EqualTo(LifecycleExpiry.Active));
+        }
+
+        [Test]
+        public void SpanOfTime_Encounter_EncounterEnds_Active()
+        {
+            var span = new SpanOfTime(PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds);
+            var expiry = span.GetExpiry(new PointInTime(PointInTimeType.EncounterEnds));
+
+            Assert.That(expiry, Is.EqualTo(LifecycleExpiry.Expired));
+        }
+
     }
 }

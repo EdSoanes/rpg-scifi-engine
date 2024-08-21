@@ -29,9 +29,9 @@ namespace Rpg.ModObjects.Lifecycles
             : this(entityId, conditional, conditional)
         { }
 
-        public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime)
+        public override LifecycleExpiry OnStartLifecycle()
         {
-            var owner = graph.Locate<TOwner>(OwnerId);
+            var owner = Graph.Locate<TOwner>(OwnerId);
             if (owner == null)
                 throw new InvalidOperationException($"{nameof(ConditionalLifecycle<TOwner>)}.{nameof(GetOwner)} could not find owner");
 
@@ -41,9 +41,9 @@ namespace Rpg.ModObjects.Lifecycles
             return Expiry;
         }
 
-        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime)
+        public override LifecycleExpiry OnUpdateLifecycle()
         {
-            var owner = graph.Locate<TOwner>(OwnerId);
+            var owner = Graph.Locate<TOwner>(OwnerId);
             if (owner == null)
                 throw new InvalidOperationException($"{nameof(ConditionalLifecycle<TOwner>)}.{nameof(GetOwner)} could not find owner");
 

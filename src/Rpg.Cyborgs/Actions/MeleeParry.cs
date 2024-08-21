@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Cyborgs.States;
 using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Time.Lifecycles;
 using Rpg.ModObjects.Time.Templates;
 using Rpg.ModObjects.Values;
 

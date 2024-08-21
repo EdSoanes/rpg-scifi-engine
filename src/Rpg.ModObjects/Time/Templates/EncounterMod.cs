@@ -14,10 +14,7 @@ namespace Rpg.ModObjects.Time.Templates
     {
         public EncounterMod()
         {
-            Lifecycle = new TimeLifecycle(
-                TimePoints.Empty,
-                TimePoints.EndOfEncounter);
-
+            Lifecycle = new TimeLifecycle(PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds);
             Behavior = new Add(ModType.Standard);
         }
     }

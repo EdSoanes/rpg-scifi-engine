@@ -53,7 +53,7 @@ namespace Rpg.ModObjects.Tests
             //Gun
             Assert.That(gun.GetAction(nameof(FireGunAction)), Is.Not.Null);
 
-            graph.Time.SetTime(TimePoints.Encounter(1));
+            graph.Time.Transition(PointInTimeType.Turn, 1);
 
             var activity = graph.CreateActivity(initiator, gun, nameof(FireGunAction));
             var fireInst = activity.ActionInstance;
@@ -105,7 +105,7 @@ namespace Rpg.ModObjects.Tests
             location.Contents.Add(gun);
 
             var graph = new RpgGraph(location);
-            graph.Time.SetTime(TimePoints.BeginningOfEncounter);
+            graph.Time.Transition(PointInTimeType.Turn);
 
             Assert.That(initiator.PhysicalActionPoints.Current, Is.EqualTo(5));
 
@@ -131,7 +131,7 @@ namespace Rpg.ModObjects.Tests
             location.Contents.Add(gun);
 
             var graph = new RpgGraph(location);
-            graph.Time.SetTime(TimePoints.BeginningOfEncounter);
+            graph.Time.Transition(PointInTimeType.Turn);
 
             Assert.That(initiator.PhysicalActionPoints.Current, Is.EqualTo(5));
 
@@ -163,7 +163,7 @@ namespace Rpg.ModObjects.Tests
             location.Contents.Add(gun);
 
             var graph = new RpgGraph(location);
-            graph.Time.SetTime(TimePoints.BeginningOfEncounter);
+            graph.Time.Transition(PointInTimeType.Turn);
 
             ////Get the gun command and the args needed to execute it
             //var shootCmd = gun.GetCommand(nameof(TestGun.Shoot))!;

@@ -11,6 +11,6 @@ namespace Rpg.ModObjects
     {
         public List<RpgObject> Entities { get; set; } = new();
         public string? ContextId { get; set; }
-        public ITimeEngine? Time {  get; set; }
+        public Temporal? Time {  get; set; }
     }
 }

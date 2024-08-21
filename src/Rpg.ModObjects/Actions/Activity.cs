@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Templates;
 using Rpg.ModObjects.Reflection.Args;
 using Rpg.ModObjects.Time;
-using Rpg.ModObjects.Time.Lifecycles;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
 
@@ -25,7 +25,7 @@ namespace Rpg.ModObjects.Actions
         }
 
         [JsonProperty] public string InitiatorId { get; private set; }
-        [JsonProperty] public TimePoint Time { get; private set; }
+        [JsonProperty] public PointInTime Time { get; private set; }
         [JsonProperty] public int ActivityNo { get; private set; }
         [JsonProperty] public int NextActionNo { get; private set; }
         [JsonProperty] public List<ActionInstance> ActionInstances { get; private set; } = new();
@@ -412,7 +412,7 @@ namespace Rpg.ModObjects.Actions
         {
             base.OnBeforeTime(graph, entity);
             Time = graph.Time.Current;
-            Name = $"{InitiatorId}/{Time.Type}/{Time.Tick}/{ActivityNo}";
+            Name = $"{InitiatorId}/{Time.Type}/{Time.Count}/{ActivityNo}";
 
             var outcomeSet = GetModSetByName(OutcomeSetName) as ModSet;
             if (outcomeSet == null)

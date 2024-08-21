@@ -170,8 +170,8 @@ namespace Rpg.ModObjects
                 if (Time.Current.Type != PointInTimeType.BeforeTime)
                 {
                     entity.OnBeforeTime(this);
-                    entity.OnTimeBegins(this);
-                    entity.OnStartLifecycle(this, Time.Current);
+                    entity.OnTimeBegins();
+                    entity.OnStartLifecycle();
                 }
 
                 return true;
@@ -533,7 +533,7 @@ namespace Rpg.ModObjects
             var created = new List<RpgObject>();
             foreach (var entity in ObjectStore.Values.Where(x => x.Expiry == LifecycleExpiry.Pending))
             {
-                entity.OnTimeBegins(this, entity);
+                entity.OnTimeBegins();
                 created.Add(entity);
             }
 
@@ -543,7 +543,7 @@ namespace Rpg.ModObjects
                 UpdateProps();
             
                 foreach (var entity in created)
-                    entity.OnStartLifecycle(this, Time.Current);
+                    entity.OnStartLifecycle();
             }
 
             OnPropsUpdated();
@@ -554,16 +554,16 @@ namespace Rpg.ModObjects
         {
             foreach (var entity in ObjectStore.Values)
             {
-                entity.OnUpdateStateLifecycle(this, Time.Current);
-                entity.OnUpdateLifecycle(this, Time.Current);
+                entity.OnUpdateStateLifecycle();
+                entity.OnUpdateLifecycle();
             }
 
             UpdateProps();
 
             foreach (var entity in ObjectStore.Values)
             {
-                if (entity.OnUpdateStateLifecycle(this, Time.Current))
-                    entity.OnUpdateLifecycle(this, Time.Current);
+                if (entity.OnUpdateStateLifecycle())
+                    entity.OnUpdateLifecycle();
             }
 
             UpdateProps();

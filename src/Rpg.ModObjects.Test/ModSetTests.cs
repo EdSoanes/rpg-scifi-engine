@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Mods;
+﻿using Rpg.ModObjects.Lifecycles;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Templates;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Tests.Models;
@@ -63,7 +64,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(14));
 
             var modSet = graph.GetModSets(entity, (x) => x.Name == "test").First();
-            modSet.Lifecycle.SetExpired(graph.Time.Current);
+            modSet.Lifecycle.SetExpired();
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
@@ -95,7 +96,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(14));
 
             var modSet = graph.GetModSets(entity, (x) => x.Name == "test").First();
-            modSet.Lifecycle.SetExpired(graph.Time.Current);
+            modSet.Lifecycle.SetExpired();
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(5));
@@ -234,9 +235,9 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new RpgGraph(entity);
 
-            graph.Time.SetTime(TimePoints.BeginningOfEncounter);
+            graph.Time.Transition(PointInTimeType.Turn);
 
-            entity.AddModSet("name", graph.Time.Create("encounter").Lifecycle, modSet =>
+            entity.AddModSet("name", new TimeLifecycle(PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds), modSet =>
             {
                 modSet
                     .Add(entity, x => x.Melee, 1)
@@ -254,7 +255,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Health, Is.EqualTo(11));
             Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(11));
 
-            graph.Time.SetTime(TimePoints.EndOfEncounter);
+            graph.Time.Transition(PointInTimeType.EncounterEnds);
             graph.Time.TriggerEvent();
 
             Assert.That(graph.GetModSets().Count(), Is.EqualTo(0));

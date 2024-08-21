@@ -53,7 +53,7 @@ namespace Rpg.Cyborgs.Tests
         {
             Assert.That(_pc.CurrentActionPoints, Is.EqualTo(1));
 
-            _graph.Time.SetTime(TimePoints.Encounter(1));
+            _graph.Time.Transition(PointInTimeType.EncounterBegins);
 
             _graph.CreateActivity(_pc, _sword, nameof(Transfer))
                 .SetAll("from", _pc.Hands)
@@ -68,7 +68,7 @@ namespace Rpg.Cyborgs.Tests
         {
             Assert.That(_pc.CurrentActionPoints, Is.EqualTo(1));
 
-            _graph.Time.SetTime(TimePoints.Encounter(1));
+            _graph.Time.Transition(PointInTimeType.EncounterBegins);
 
             _graph.CreateActivity(_pc, _sword, nameof(Transfer))
                 .SetAll("from", _pc.Hands)

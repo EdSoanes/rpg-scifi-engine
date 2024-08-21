@@ -131,6 +131,8 @@ namespace Rpg.ModObjects.States
 
             var conditionalMethod = RpgMethod.Create<State<T>, LifecycleExpiry>(this, nameof(CalculateExpiry))!;
             Lifecycle = new ConditionalLifecycle<State<T>>(Id, conditionalMethod);
+            Lifecycle.OnBeforeTime(graph);
+            Lifecycle.OnTimeBegins();
         }
 
         protected virtual bool IsOnWhen(T owner)

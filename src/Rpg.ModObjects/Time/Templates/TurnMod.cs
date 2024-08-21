@@ -19,10 +19,7 @@ namespace Rpg.ModObjects.Time.Templates
 
         public TurnMod(int delay, int duration)
         {
-            Lifecycle = new TimeLifecycle(
-                delay == 0 ? TimePoints.Empty : TimePoints.Encounter(delay),
-                TimePoints.Encounter(duration));
-
+            Lifecycle = new TurnLifecycle(delay, duration);
             Behavior = new Add(ModType.Standard);
         }
     }

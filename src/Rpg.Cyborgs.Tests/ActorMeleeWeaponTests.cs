@@ -44,8 +44,8 @@ namespace Rpg.Cyborgs.Tests
             var activity = _graph.CreateActivity(_pc, _sword, nameof(MeleeAttack));
             var attack = activity.ActionInstance;
 
-            _graph.Time.SetTime(TimePoints.BeginningOfEncounter);
-            Assert.That(_graph.Time.Current, Is.EqualTo(TimePoints.Encounter(1)));
+            _graph.Time.Transition(PointInTimeType.EncounterBegins);
+            Assert.That(_graph.Time.Current, Is.EqualTo(new PointInTime(PointInTimeType.Turn, 1)));
 
             var costs = activity.Cost();
             Assert.That(costs.Mods.Count(), Is.EqualTo(1));

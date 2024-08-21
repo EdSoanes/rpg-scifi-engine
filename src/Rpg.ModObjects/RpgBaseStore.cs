@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Lifecycles;
-using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time;
 using System.Collections.Specialized;
 
@@ -76,7 +75,7 @@ namespace Rpg.ModObjects
         public bool Contains(TVal val)
             => Items.Values.Contains(val);
 
-        public virtual void SetExpired(TimePoint currentTime) { }
+        public virtual void SetExpired() { }
 
         public virtual void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
         {
@@ -84,17 +83,17 @@ namespace Rpg.ModObjects
             EntityId = entity!.Id;
         }
 
-        public virtual void OnTimeBegins(RpgGraph graph, RpgObject? entity = null)
+        public virtual void OnTimeBegins()
         {
             Expiry = LifecycleExpiry.Active;
         }
 
-        public virtual LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint time)
+        public virtual LifecycleExpiry OnStartLifecycle()
         {
             return Expiry;
         }
 
-        public virtual LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint time)
+        public virtual LifecycleExpiry OnUpdateLifecycle()
         {
             return Expiry;
         }

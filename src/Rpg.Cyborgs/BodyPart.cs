@@ -22,9 +22,9 @@ namespace Rpg.Cyborgs
             BodyPartType = bodyPartType;
         }
 
-        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime)
+        public override LifecycleExpiry OnUpdateLifecycle()
         {
-            var expiry = base.OnUpdateLifecycle(graph, currentTime);
+            var expiry = base.OnUpdateLifecycle();
             Injuries = GetActiveMods(nameof(InjurySeverity)).Select(x => Graph!.CalculateModValue(x)?.Roll() ?? 0).ToArray();
 
             return expiry;

@@ -6,36 +6,39 @@ namespace Rpg.ModObjects.Lifecycles
 {
     public abstract class BaseLifecycle : ILifecycle
     {
+        protected RpgGraph Graph { get; private set; }
+
+        [JsonProperty] public SpanOfTime Lifespan { get; protected set; } = new SpanOfTime();
         [JsonProperty] public PointInTime? ExpiredTime { get; protected set; }
-        [JsonProperty] public PointInTime StartTime { get; protected set; }
-        [JsonProperty] public PointInTime EndTime { get; protected set; }
-        [JsonProperty] public PointInTime CreatedTime { get; protected set; }
 
         [JsonProperty] public LifecycleExpiry Expiry { get; protected set; } = LifecycleExpiry.Pending;
 
-        public void SetExpired(PointInTime currentTime)
+        public void SetExpired()
         {
-            ExpiredTime ??= new PointInTime(currentTime.Type, currentTime.Tick - 1);
+            ExpiredTime ??= Graph.Time.Current;
         }
 
         public void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+            => Graph = graph;
+
+        public virtual void OnTimeBegins()
         { }
 
-        public virtual void OnTimeBegins(RpgGraph graph, RpgObject? entity = null)
-        { }
-
-        public virtual LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint time)
+        public virtual LifecycleExpiry OnStartLifecycle()
         {
-            StartTime = TimePoints.BeginningOfTime;
-            EndTime = TimePoints.EndOfTime;
+            Expiry = ExpiredTime != null && ExpiredTime <= Graph.Time.Current
+                ? LifecycleExpiry.Expired
+                : Lifespan.GetExpiry(Graph!.Time.Current);
 
-            Expiry = graph.Time.CalculateExpiry(StartTime, EndTime);
             return Expiry;
         }
 
-        public virtual LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint time)
+        public virtual LifecycleExpiry OnUpdateLifecycle()
         {
-            Expiry = graph.Time.CalculateExpiry(StartTime, ExpiredTime ?? EndTime);
+            Expiry = ExpiredTime != null && ExpiredTime <= Graph.Time.Current
+                ? LifecycleExpiry.Expired
+                : Lifespan.GetExpiry(Graph!.Time.Current);
+
             return Expiry;
         }
     }

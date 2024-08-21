@@ -35,20 +35,47 @@ namespace Rpg.ModObjects.Time
         TimeEnds
     }
 
-    public struct SpanOfTime
+    public class SpanOfTime
     {
-        public PointInTime Start { get; init; }
-        public PointInTime End { get; init; }
+        [JsonProperty] public PointInTime Start { get; init; }
+        [JsonProperty] public PointInTime End { get; init; }
+        public bool Infinity { get => Start.Type <= PointInTimeType.TimeBegins && End.Type == PointInTimeType.TimeEnds; }
+
+        [JsonConstructor] public SpanOfTime()
+            : this(
+                new PointInTime(PointInTimeType.TimeBegins),
+                new PointInTime(PointInTimeType.TimeEnds))
+        { }
+
+        public SpanOfTime(PointInTimeType start, PointInTimeType end)
+            : this(
+                new PointInTime(start),
+                new PointInTime(end))
+        { }
+
+        public SpanOfTime(int startTurn, int duration)
+            : this(
+                  new PointInTime(PointInTimeType.Turn, startTurn),
+                  new PointInTime(PointInTimeType.Turn, startTurn + duration))
+        { }
+
+        public SpanOfTime(PointInTime start, PointInTime end)
+        {
+            Start = start;
+            End = end;
+        }
 
         public LifecycleExpiry GetExpiry(PointInTime now)
         {
             if (Start > now)
                 return LifecycleExpiry.Pending;
 
-            if (Start <= now && End >= now)
+            if (Start <= now && End > now)
                 return LifecycleExpiry.Active;
 
-            return LifecycleExpiry.Expired;
+            return now.IsEncounterTime
+                ? LifecycleExpiry.Expired
+                : LifecycleExpiry.Remove;
         }
     }
 
@@ -123,7 +150,7 @@ namespace Rpg.ModObjects.Time
         }
 
         public void Transition(PointInTimeType type, int count = 0)
-            => Transition(new PointInTime(type, count));
+            => Transition(new PointInTime(type, type == PointInTimeType.Turn ? Math.Max(count, 1) : count));
 
         public void Transition(PointInTime to)
         {

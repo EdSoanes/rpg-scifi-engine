@@ -16,56 +16,56 @@ namespace Rpg.ModObjects.Lifecycles
             OwnerId = ownerId;
         }
 
-        public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint currentTime)
+        public override LifecycleExpiry OnStartLifecycle()
         {
-            var state = graph.Locate<State>(OwnerId);
+            var state = Graph.Locate<State>(OwnerId);
             if (state != null)
             {
-                Expiry = state.Lifecycle.OnStartLifecycle(graph, currentTime);
+                Expiry = state.Lifecycle.OnStartLifecycle();
                 return Expiry;
             }
 
-            var modSet = graph.Locate<ModSet>(OwnerId);
+            var modSet = Graph.Locate<ModSet>(OwnerId);
             if (modSet != null)
             {
-                Expiry = modSet.Lifecycle.OnStartLifecycle(graph, currentTime);
+                Expiry = modSet.Lifecycle.OnStartLifecycle();
                 return Expiry;
             }
 
-            var ownerMod = graph.Locate<Mod>(OwnerId);
+            var ownerMod = Graph.Locate<Mod>(OwnerId);
             if (ownerMod != null)
             {
-                Expiry = ownerMod.Lifecycle.OnStartLifecycle(graph, currentTime);
+                Expiry = ownerMod.Lifecycle.OnStartLifecycle();
                 return Expiry;
             }
 
-            return base.OnStartLifecycle(graph, currentTime);
+            return base.OnStartLifecycle();
         }
 
-        public override LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, TimePoint currentTime)
+        public override LifecycleExpiry OnUpdateLifecycle()
         {
-            var state = graph.Locate<State>(OwnerId);
+            var state = Graph.Locate<State>(OwnerId);
             if (state != null)
             {
-                Expiry = state.Lifecycle.OnUpdateLifecycle(graph, currentTime);
+                Expiry = state.Lifecycle.OnUpdateLifecycle();
                 return Expiry;
             }
 
-            var modSet = graph.Locate<ModSet>(OwnerId);
+            var modSet = Graph.Locate<ModSet>(OwnerId);
             if (modSet != null)
             {
-                Expiry = modSet.Lifecycle.OnUpdateLifecycle(graph, currentTime);
+                Expiry = modSet.Lifecycle.OnUpdateLifecycle();
                 return Expiry;
             }
 
-            var ownerMod = graph.Locate<Mod>(OwnerId);
+            var ownerMod = Graph.Locate<Mod>(OwnerId);
             if (ownerMod != null)
             {
-                Expiry = ownerMod.Lifecycle.OnUpdateLifecycle(graph, currentTime);
+                Expiry = ownerMod.Lifecycle.OnUpdateLifecycle();
                 return Expiry;
             }
 
-            return base.OnUpdateLifecycle(graph, currentTime);
+            return base.OnUpdateLifecycle();
         }
     }
 }

@@ -6,27 +6,15 @@ namespace Rpg.ModObjects.Lifecycles
 {
     public class TimeLifecycle : BaseLifecycle
     {
-        [JsonProperty] public TimePoint Delay { get; private set; } = TimePoints.Empty;
-        [JsonProperty] public TimePoint Duration { get; private set; } = TimePoints.EndOfTime;
+        public TimeLifecycle() { }
 
-        public TimeLifecycle(TimePoint duration)
-        {
-            Duration = duration;
-        }
+        public TimeLifecycle(PointInTimeType start, PointInTimeType end)
+            => Lifespan = new SpanOfTime(start, end);
 
-        public TimeLifecycle(TimePoint delay, TimePoint duration)
-        {
-            Delay = delay;
-            Duration = duration;
-        }
+        public TimeLifecycle(int startTurn, int duration)
+            => Lifespan = new SpanOfTime(startTurn, duration);
 
-        public override LifecycleExpiry OnStartLifecycle(RpgGraph graph, TimePoint time)
-        {
-            StartTime = graph.Time.CalculateStartTime(Delay);
-            EndTime = graph.Time.CalculateEndTime(StartTime, Duration);
-            Expiry = graph.Time.CalculateExpiry(StartTime, ExpiredTime ?? EndTime);
-
-            return Expiry;
-        }
+        public TimeLifecycle(PointInTime start, PointInTime end)
+            => Lifespan = new SpanOfTime(start, end);
     }
 }

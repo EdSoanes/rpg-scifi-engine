@@ -2,8 +2,6 @@
 using Rpg.Cyborgs.States;
 using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Time.Lifecycles;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Rpg.Cyborgs.Skills.Combat
 {

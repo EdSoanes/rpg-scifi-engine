@@ -67,15 +67,17 @@ namespace Rpg.ModObjects.Mods
         public void Disable()
             => IsDisabled = true;
 
-        public void OnAdding(RpgGraph graph, Prop modProp, PointInTime time)
+        public void OnAdding(RpgGraph graph, Prop modProp)
         {
-            Lifecycle.OnStartLifecycle(graph, time);
+            Lifecycle.OnBeforeTime(graph);
+            Lifecycle.OnTimeBegins();
+            Lifecycle.OnStartLifecycle();
             Behavior.OnAdding(graph, modProp, this);
         }
 
-        public void OnUpdating(RpgGraph graph, Prop modProp, PointInTime time)
+        public void OnUpdating(RpgGraph graph, Prop modProp)
         {
-            Lifecycle.OnUpdateLifecycle(graph, time);
+            Lifecycle.OnUpdateLifecycle();
             Behavior.OnUpdating(graph, modProp, this);
         }
 

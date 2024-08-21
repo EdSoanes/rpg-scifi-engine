@@ -5,7 +5,6 @@ using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.States;
 using Rpg.ModObjects.Time;
-using Rpg.ModObjects.Time.Lifecycles;
 using Rpg.ModObjects.Values;
 using System.ComponentModel;
 
@@ -61,7 +60,7 @@ namespace Rpg.ModObjects
                 ModSets.Add(modSet.Id, modSet);
                 modSet.OnBeforeTime(Graph!, this);
 
-                modSet.Lifecycle.OnStartLifecycle(Graph!, Graph.Time.Current);
+                modSet.Lifecycle.OnStartLifecycle();
 
                 return true;
             }
@@ -82,7 +81,7 @@ namespace Rpg.ModObjects
             var existing = GetModSet(modSetId);
             if (existing != null)
             {
-                existing.Lifecycle.SetExpired(Graph!.Time.Current);
+                existing.Lifecycle.SetExpired();
                 Graph?.RemoveMods(existing.Mods.Where(x => x.Lifecycle is SyncedLifecycle).ToArray());
 
                 return ModSets.Remove(existing.Id);
@@ -91,24 +90,24 @@ namespace Rpg.ModObjects
             return false;
         }
 
-        private void OnStartModSetLifecycle(RpgGraph graph, PointInTime currentTime)
+        private void OnStartModSetLifecycle()
         {
             foreach (var modSet in ModSets.Values)
             {
                 if (!modSet.Mods.Any())
-                    modSet.Mods.AddRange(graph.GetActiveMods(x => x.OwnerId == modSet.Id));
+                    modSet.Mods.AddRange(Graph!.GetActiveMods(x => x.OwnerId == modSet.Id));
 
-                modSet.Lifecycle.OnStartLifecycle(graph, currentTime);
+                modSet.Lifecycle.OnStartLifecycle();
             }
         }
 
-        private void OnUpdateModSetLifecycle(RpgGraph graph, PointInTime currentTime)
+        private void OnUpdateModSetLifecycle()
         {
             var toRemove = new List<ModSet>();
             foreach (var modSet in ModSets.Values)
             {
-                modSet.Lifecycle.OnUpdateLifecycle(graph, currentTime);
-                if (modSet.Lifecycle.Expiry == LifecycleExpiry.Remove)
+               var expiry = modSet.Lifecycle.OnUpdateLifecycle();
+                if (expiry == LifecycleExpiry.Remove)
                     toRemove.Add(modSet);
             }
 
@@ -213,7 +212,7 @@ namespace Rpg.ModObjects
                     {
                         var prop = GetProp(mod.Prop, create: true)!;
                         prop.Remove(mod);
-                        mod.OnAdding(Graph!, prop, Graph!.Time.Current);
+                        mod.OnAdding(Graph!, prop);
 
                         Graph!.OnPropUpdated(prop);
                     }
@@ -320,7 +319,7 @@ namespace Rpg.ModObjects
             }
         }
 
-        private void OnUpdatePropsLifecycle(PointInTime currentTime)
+        private void OnUpdatePropsLifecycle()
         {
             var toRemove = new List<Mod>();
             foreach (var prop in Props.Values)
@@ -328,7 +327,7 @@ namespace Rpg.ModObjects
                 foreach (var mod in prop.Mods)
                 {
                     var oldExpiry = mod.Expiry;
-                    mod.OnUpdating(Graph!, prop, currentTime);
+                    mod.OnUpdating(Graph!, prop);
                     var expiry = mod.Expiry;
 
                     if (expiry == LifecycleExpiry.Remove)
@@ -370,11 +369,11 @@ namespace Rpg.ModObjects
         public ModSet CreateStateInstance(string state, ILifecycle? lifecycle = null)
             => GetState(state)!.CreateInstance(lifecycle ?? new TurnLifecycle());
 
-        private void OnStartStateLifecycle(RpgGraph graph, PointInTime currentTime)
+        private void OnStartStateLifecycle()
         {
             foreach (var state in States.Values)
             {
-                var stateExpiry = state.Lifecycle.OnStartLifecycle(graph, currentTime);
+                var stateExpiry = state.Lifecycle.OnStartLifecycle();
                 if (stateExpiry == LifecycleExpiry.Active)
                 {
                     var stateSets = GetActiveConditionalStateInstances(state.Name);
@@ -387,13 +386,13 @@ namespace Rpg.ModObjects
             }
         }
 
-        public bool OnUpdateStateLifecycle(RpgGraph graph, PointInTime time)
+        public bool OnUpdateStateLifecycle()
         {
             var updated = false;
 
             foreach (var state in States.Values)
             {
-                var stateExpiry = state.Lifecycle.OnUpdateLifecycle(graph, time);
+                var stateExpiry = state.Lifecycle.OnUpdateLifecycle();
                 var activeConditionalSets = GetActiveConditionalStateInstances(state.Name);
 
                 if (stateExpiry == LifecycleExpiry.Active)
@@ -409,7 +408,7 @@ namespace Rpg.ModObjects
                 {
                     foreach (var modSet in activeConditionalSets)
                     {
-                        graph.RemoveModSet(modSet.Id);
+                        Graph!.RemoveModSet(modSet.Id);
                         updated = true;
                     }
                 }
@@ -426,16 +425,19 @@ namespace Rpg.ModObjects
         protected virtual void OnLifecycleStarting() { }
         public virtual void OnUpdating(RpgGraph graph, PointInTime time) { }
 
-        public void SetExpired(PointInTime currentTime)
+        public void SetExpired()
         {
         }
 
         public virtual void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
         {
             Graph = graph;
+            foreach (var prop in Props.Values)
+                foreach (var mod in prop.Mods)
+                    mod.OnAdding(graph, prop);
         }
 
-        public virtual void OnTimeBegins(RpgGraph graph, RpgObject? entity = null)
+        public virtual void OnTimeBegins()
         {
             foreach (var propInfo in RpgReflection.ScanForModdableProperties(this))
             {
@@ -458,25 +460,25 @@ namespace Rpg.ModObjects
             var states = State.CreateOwnerStates(this);
             foreach (var state in states)
             {
-                state.OnAdding(graph);
+                state.OnAdding(Graph);
                 States.Add(state.Name, state);
             }
 
             Expiry = LifecycleExpiry.Active;
         }
 
-        public virtual LifecycleExpiry OnStartLifecycle(RpgGraph graph, PointInTime currentTime)
+        public virtual LifecycleExpiry OnStartLifecycle()
         {
-            OnStartModSetLifecycle(graph, currentTime);
-            OnStartStateLifecycle(graph, currentTime);
+            OnStartModSetLifecycle();
+            OnStartStateLifecycle();
 
             return Expiry;
         }
 
-        public virtual LifecycleExpiry OnUpdateLifecycle(RpgGraph graph, PointInTime currentTime)
+        public virtual LifecycleExpiry OnUpdateLifecycle()
         {
-            OnUpdateModSetLifecycle(graph, currentTime);
-            OnUpdatePropsLifecycle(currentTime);
+            OnUpdateModSetLifecycle();
+            OnUpdatePropsLifecycle();
 
             return Expiry;
         }

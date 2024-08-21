@@ -80,7 +80,7 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(exhausted.IsOnManually, Is.True);
             Assert.That(exhausted.IsOnConditionally, Is.False);
 
-            graph.Time.SetTime(TimePoints.Encounter(4));
+            graph.Time.Transition(PointInTimeType.Turn, 4);
             graph.Time.TriggerEvent();
 
             Assert.That(exhausted.IsOn, Is.True);
