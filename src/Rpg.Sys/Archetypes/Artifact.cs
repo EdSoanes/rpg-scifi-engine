@@ -36,13 +36,13 @@ namespace Rpg.Sys.Archetypes
             Health = new Health(nameof(Health));
         }
 
-        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
-            base.OnBeforeTime(graph, this);
-            Damage.OnBeforeTime(graph, this);
-            Defenses.OnBeforeTime(graph, this);
-            Presence.OnBeforeTime(graph, this);
-            Health.OnBeforeTime(graph, this);
+            base.OnCreating(graph, this);
+            Damage.OnCreating(graph, this);
+            Defenses.OnCreating(graph, this);
+            Presence.OnCreating(graph, this);
+            Health.OnCreating(graph, this);
         }
     }
 }

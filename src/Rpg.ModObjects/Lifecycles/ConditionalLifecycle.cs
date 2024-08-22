@@ -29,6 +29,11 @@ namespace Rpg.ModObjects.Lifecycles
             : this(entityId, conditional, conditional)
         { }
 
+        public override void OnRestoring(RpgGraph graph)
+        {
+            base.OnRestoring(graph);
+
+        }
         public override LifecycleExpiry OnStartLifecycle()
         {
             var owner = Graph.Locate<TOwner>(OwnerId);

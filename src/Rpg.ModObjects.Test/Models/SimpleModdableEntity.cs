@@ -14,8 +14,9 @@ namespace Rpg.ModObjects.Tests.Models
             Bonus = bonus;
         }
 
-        protected override void OnLifecycleStarting()
+        public override void OnTimeBegins()
         {
+            base.OnTimeBegins();
             this.BaseMod(x => x.Score, x => x.Bonus);
         }
     }

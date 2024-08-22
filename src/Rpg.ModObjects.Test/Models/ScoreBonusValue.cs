@@ -21,8 +21,9 @@ namespace Rpg.ModObjects.Tests.Models
             Score = score;
         }
 
-        protected override void OnLifecycleStarting()
+        public override void OnTimeBegins()
         {
+            base.OnTimeBegins();
             this.BaseMod(x => x.Bonus, x => x.Score, () => CalculateStatBonus);
         }
 

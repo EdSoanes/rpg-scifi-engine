@@ -3,6 +3,7 @@ using Rpg.Cyborgs.Components;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.Cyborgs
@@ -143,8 +144,10 @@ namespace Rpg.Cyborgs
             Name = name;
         }
 
-        protected override void OnLifecycleStarting()
+        public override void OnTimeBegins()
         {
+            base.OnTimeBegins();
+
             this.BaseMod(x => x.StaminaPoints, x => x.Health.Value, () => CalculateStamina);
             this.BaseMod(x => x.CurrentStaminaPoints, x => x.StaminaPoints);
 

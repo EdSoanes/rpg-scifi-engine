@@ -39,8 +39,9 @@ namespace Rpg.Sys.Components.Values
             Current = current;
         }
 
-        protected override void OnLifecycleStarting()
+        public override void OnTimeBegins()
         {
+            base.OnTimeBegins();
             this.BaseMod(x => x.Current, x => x.Max);
         }
     }

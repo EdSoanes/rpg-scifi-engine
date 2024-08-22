@@ -14,7 +14,8 @@ namespace Rpg.ModObjects.Lifecycles
 
         void SetExpired();
 
-        void OnBeforeTime(RpgGraph graph, RpgObject? entity = null);
+        void OnCreating(RpgGraph graph, RpgObject? entity = null);
+        void OnRestoring(RpgGraph graph);
         void OnTimeBegins();
         LifecycleExpiry OnStartLifecycle();
         LifecycleExpiry OnUpdateLifecycle();

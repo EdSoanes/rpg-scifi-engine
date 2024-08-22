@@ -2,6 +2,7 @@
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System;
 using System.Collections.Generic;
@@ -22,9 +23,8 @@ namespace Rpg.Cyborgs
         [JsonProperty]
         public int DefenceModifier { get; protected set; }
 
-        protected override void OnLifecycleStarting()
+        public override void OnTimeBegins()
         {
-            base.OnLifecycleStarting();
             this.BaseMod(x => x.CurrentArmourRating, x => x.ArmourRating);
         }
     }

@@ -76,15 +76,15 @@ namespace Rpg.ModObjects
         protected void CallCollectionChanged(NotifyCollectionChangedAction action)
             => CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(action));
 
-        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
             foreach (var preAdded in GetPreAddedContents())
             {
-                preAdded.OnBeforeTime(graph, preAdded);
+                preAdded.OnCreating(graph, preAdded);
                 graph.AddEntity(preAdded);
             }
 
-            base.OnBeforeTime(graph, entity);
+            base.OnCreating(graph, entity);
         }
 
         private IEnumerable<RpgObject> GetPreAddedContents()

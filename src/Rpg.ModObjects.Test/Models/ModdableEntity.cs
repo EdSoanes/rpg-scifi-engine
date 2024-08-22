@@ -17,11 +17,13 @@ namespace Rpg.ModObjects.Tests.Models
             Damage = new DamageValue(nameof(Damage), "d6", 10, 100);
         }
 
-        protected override void OnLifecycleStarting()
+        public override void OnTimeBegins()
         {
+            base.OnTimeBegins();
             this
                 .BaseMod(x => x.Melee, x => x.Strength.Bonus)
                 .BaseMod(x => x.Damage.Dice, x => x.Strength.Bonus);
+
         }
     }
 }

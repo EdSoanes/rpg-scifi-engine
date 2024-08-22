@@ -181,10 +181,12 @@ namespace Rpg.ModObjects.Tests
 
             temporal.Transition(PointInTimeType.EncounterBegins);
 
-            Assert.That(events.Count, Is.EqualTo(3));
+            Assert.That(events.Count, Is.EqualTo(4));
             Assert.That(events[0].Type, Is.EqualTo(PointInTimeType.EncounterEnds));
             Assert.That(events[1].Type, Is.EqualTo(PointInTimeType.TimePassing));
             Assert.That(events[2].Type, Is.EqualTo(PointInTimeType.EncounterBegins));
+            Assert.That(events[3].Type, Is.EqualTo(PointInTimeType.Turn));
+            Assert.That(events[3].Count, Is.EqualTo(1));
         }
 
         [Test]

@@ -27,15 +27,15 @@ namespace Rpg.Sys.Components
             Charisma = new ScoreBonusValue(nameof(Charisma), template.Charisma);
         }
 
-        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
-            base.OnBeforeTime(graph, entity);
-            Strength.OnBeforeTime(graph, entity);
-            Intelligence.OnBeforeTime(graph, entity);
-            Wisdom.OnBeforeTime(graph, entity);
-            Dexterity.OnBeforeTime(graph, entity);
-            Constitution.OnBeforeTime(graph, entity);
-            Charisma.OnBeforeTime(graph, entity);
+            base.OnCreating(graph, entity);
+            Strength.OnCreating(graph, entity);
+            Intelligence.OnCreating(graph, entity);
+            Wisdom.OnCreating(graph, entity);
+            Dexterity.OnCreating(graph, entity);
+            Constitution.OnCreating(graph, entity);
+            Charisma.OnCreating(graph, entity);
         }
     }
 }

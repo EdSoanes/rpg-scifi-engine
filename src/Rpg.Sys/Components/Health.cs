@@ -17,12 +17,12 @@ namespace Rpg.Sys.Components
         {
         }
 
-        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
-            base.OnBeforeTime(graph, entity);
-            Physical.OnBeforeTime(graph, entity);
-            Cyber.OnBeforeTime(graph, entity);
-            Mental.OnBeforeTime(graph, entity);
+            base.OnCreating(graph, entity);
+            Physical.OnCreating(graph, entity);
+            Cyber.OnCreating(graph, entity);
+            Mental.OnCreating(graph, entity);
         }
     }
 }

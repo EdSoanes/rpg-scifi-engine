@@ -67,7 +67,7 @@ namespace Rpg.ModObjects.Props
         public bool Clean(RpgGraph graph)
         {
             var toRemove = Mods
-                .Where(x => x.Expiry == LifecycleExpiry.Remove)
+                .Where(x => x.Expiry == LifecycleExpiry.Destroyed)
                 .ToArray();
 
             if (toRemove.Any())

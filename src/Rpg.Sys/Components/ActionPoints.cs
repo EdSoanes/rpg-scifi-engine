@@ -53,17 +53,17 @@ namespace Rpg.Sys.Components
             Focus = focus;
         }
 
-        protected override void OnLifecycleStarting()
+        public override void OnTimeBegins()
         {
-            base.OnLifecycleStarting();
+            base.OnTimeBegins();
             this.BaseMod(x => x.CurrentAction, x => x.Action)
                 .BaseMod(x => x.CurrentExertion, x => x.Exertion)
                 .BaseMod(x => x.CurrentFocus, x => x.Focus);
         }
 
-        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
-            base.OnBeforeTime(graph, entity);
+            base.OnCreating(graph, entity);
         }
     }
 }

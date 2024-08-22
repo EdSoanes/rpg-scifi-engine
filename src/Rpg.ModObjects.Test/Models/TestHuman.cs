@@ -44,8 +44,9 @@ namespace Rpg.ModObjects.Tests.Models
             MentalActionPoints = new MaxCurrentValue(nameof(MentalActionPoints), 3);
         }
 
-        protected override void OnLifecycleStarting()
+        public override void OnTimeBegins()
         {
+            base.OnTimeBegins();
             this
                 .BaseMod(x => x.MeleeAttack, x => x.Strength.Bonus)
                 .BaseMod(x => x.MeleeDamage.Dice, x => x.Strength.Bonus)

@@ -75,7 +75,7 @@ namespace Rpg.ModObjects.Time
 
             return now.IsEncounterTime
                 ? LifecycleExpiry.Expired
-                : LifecycleExpiry.Remove;
+                : LifecycleExpiry.Destroyed;
         }
     }
 
@@ -195,7 +195,7 @@ namespace Rpg.ModObjects.Time
                     TriggerEvent(PointInTimeType.TimePassing);
 
                 TriggerEvent(PointInTimeType.EncounterBegins);
-
+                TriggerEvent(PointInTimeType.Turn, 1);
                 return;
             }
 

@@ -69,7 +69,7 @@ namespace Rpg.ModObjects.Mods
 
         public void OnAdding(RpgGraph graph, Prop modProp)
         {
-            Lifecycle.OnBeforeTime(graph);
+            Lifecycle.OnCreating(graph);
             Lifecycle.OnTimeBegins();
             Lifecycle.OnStartLifecycle();
             Behavior.OnAdding(graph, modProp, this);

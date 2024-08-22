@@ -76,10 +76,13 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new RpgGraph(entity);
 
-            var json = RpgSerializer.Serialize(entity);
+            var json = RpgSerializer.Serialize(graph.GetGraphState());
 
-            var entity2 = RpgSerializer.Deserialize<ModdableEntity>(json)!;
-            var graph2 = new RpgGraph(entity2);
+            var graphState = RpgSerializer.Deserialize<RpgGraphState>(json)!;
+            var graph2 = new RpgGraph(graphState);
+            graph2.Time.TriggerEvent();
+
+            var entity2 = graph2.Context as ModdableEntity;
 
             Assert.That(entity2, Is.Not.Null);
 

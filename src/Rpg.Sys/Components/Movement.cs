@@ -28,10 +28,10 @@ namespace Rpg.Sys.Components
             Deceleration = deceleration;
         }
 
-        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
-            base.OnBeforeTime(graph, entity);
-            Speed.OnBeforeTime(graph, entity);
+            base.OnCreating(graph, entity);
+            Speed.OnCreating(graph, entity);
         }
     }
 }

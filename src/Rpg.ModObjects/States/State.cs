@@ -123,15 +123,14 @@ namespace Rpg.ModObjects.States
         public State(T owner)
             : base(owner)
         {
+            var conditionalMethod = RpgMethod.Create<State<T>, LifecycleExpiry>(this, nameof(CalculateExpiry))!;
+            Lifecycle = new ConditionalLifecycle<State<T>>(Id, conditionalMethod);
         }
 
         internal override void OnAdding(RpgGraph graph)
         {
             base.OnAdding(graph);
-
-            var conditionalMethod = RpgMethod.Create<State<T>, LifecycleExpiry>(this, nameof(CalculateExpiry))!;
-            Lifecycle = new ConditionalLifecycle<State<T>>(Id, conditionalMethod);
-            Lifecycle.OnBeforeTime(graph);
+            Lifecycle.OnCreating(graph);
             Lifecycle.OnTimeBegins();
         }
 

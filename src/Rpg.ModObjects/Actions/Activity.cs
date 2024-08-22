@@ -408,9 +408,9 @@ namespace Rpg.ModObjects.Actions
             Graph!.Time.TriggerEvent();
         }
 
-        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
-            base.OnBeforeTime(graph, entity);
+            base.OnCreating(graph, entity);
             Time = graph.Time.Current;
             Name = $"{InitiatorId}/{Time.Type}/{Time.Count}/{ActivityNo}";
 

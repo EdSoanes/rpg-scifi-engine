@@ -8,17 +8,16 @@
 
   <ItemGroup>
     <Compile Remove="Description\**" />
+    <Compile Remove="Time\Lifecycles\**" />
     <EmbeddedResource Remove="Description\**" />
+    <EmbeddedResource Remove="Time\Lifecycles\**" />
     <None Remove="Description\**" />
+    <None Remove="Time\Lifecycles\**" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Nanoid" Version="3.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Time\Lifecycles\" />
   </ItemGroup>
 
 </Project>

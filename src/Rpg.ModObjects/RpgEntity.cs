@@ -30,11 +30,11 @@ namespace Rpg.ModObjects
 
         #endregion ModSets
 
-        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
             if (Graph == null)
             { 
-                base.OnBeforeTime(graph, entity);
+                base.OnCreating(graph, entity);
 
                 foreach (var component in this.Traverse<RpgComponent, RpgEntity>())
                     component.SetEntityPropRef(Id, this.PathTo(component));

@@ -23,8 +23,9 @@ namespace Rpg.Sys.Components.Values
             Score = score;
         }
 
-        protected override void OnLifecycleStarting()
+        public override void OnTimeBegins()
         {
+            base.OnTimeBegins();
             this.BaseMod(x => x.Bonus, x => x.Score, () => CalculateStatBonus);
         }
 

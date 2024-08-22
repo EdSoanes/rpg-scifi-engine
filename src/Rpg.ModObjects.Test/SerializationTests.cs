@@ -16,10 +16,35 @@ namespace Rpg.ModObjects.Tests
             Formatting = Formatting.Indented
         };
 
+        private class DiceObj : RpgEntity
+        {
+            [JsonProperty] public Dice Dice { get; protected set; } = 2;
+            public DiceObj(Dice dice)
+                => Dice = dice;
+        }
+
         [SetUp]
         public void Setup()
         {
             RpgTypeScan.RegisterAssembly(this.GetType().Assembly);
+        }
+
+
+
+        [Test]
+        public void DiceWithDefault_Serialize_EnsureValues()
+        {
+            var obj = new DiceObj(new Dice("2+2"));
+
+            var graph = new RpgGraph(obj);
+
+            var json = RpgSerializer.Serialize(graph.GetGraphState());
+
+            var graphState = RpgSerializer.Deserialize<RpgGraphState>(json)!;
+            var graph2 = new RpgGraph(graphState);
+            var obj2 = graph2.Context as DiceObj;
+
+            Assert.That(obj2.Dice.Roll(), Is.EqualTo(4));
         }
 
         [Test]

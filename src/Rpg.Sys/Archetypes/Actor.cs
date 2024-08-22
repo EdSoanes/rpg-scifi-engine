@@ -31,16 +31,17 @@ namespace Rpg.Sys.Archetypes
             Stats = new StatPoints(nameof(Stats), template.Stats);
         }
 
-        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
-            base.OnBeforeTime(graph, this);
-            Movement.OnBeforeTime(graph, this);
-            Actions.OnBeforeTime(graph, this);
-            Stats.OnBeforeTime(graph, this);
+            base.OnCreating(graph, this);
+            Movement.OnCreating(graph, this);
+            Actions.OnCreating(graph, this);
+            Stats.OnCreating(graph, this);
         }
 
-        protected override void OnLifecycleStarting()
+        public override void OnTimeBegins()
         {
+            base.OnTimeBegins();
             this.BaseMod(x => x.Actions.Exertion, x => x.Stats.Strength.Bonus);
             this.BaseMod(x => x.Actions.Action, x => x.Stats.Dexterity.Bonus);
             this.BaseMod(x => x.Actions.Focus, x => x.Stats.Intelligence.Bonus);

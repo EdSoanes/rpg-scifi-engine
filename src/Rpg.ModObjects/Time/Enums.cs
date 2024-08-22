@@ -8,9 +8,10 @@ namespace Rpg.ModObjects.Time
 {
     public enum LifecycleExpiry
     {
+        Unset,
         Pending,
         Active,
         Expired,
-        Remove
+        Destroyed
     }
 }

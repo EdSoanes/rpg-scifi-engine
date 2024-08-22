@@ -45,7 +45,8 @@ namespace Rpg.Cyborgs.Tests
             var attack = activity.ActionInstance;
 
             _graph.Time.Transition(PointInTimeType.EncounterBegins);
-            Assert.That(_graph.Time.Current, Is.EqualTo(new PointInTime(PointInTimeType.Turn, 1)));
+            Assert.That(_graph.Time.Current.Type, Is.EqualTo(PointInTimeType.Turn));
+            Assert.That(_graph.Time.Current.Count, Is.EqualTo(1));
 
             var costs = activity.Cost();
             Assert.That(costs.Mods.Count(), Is.EqualTo(1));

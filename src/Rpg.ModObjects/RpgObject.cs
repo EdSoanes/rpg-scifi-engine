@@ -10,10 +10,8 @@ using System.ComponentModel;
 
 namespace Rpg.ModObjects
 {
-    public abstract class RpgObject : INotifyPropertyChanged, ILifecycle
+    public abstract class RpgObject : RpgLifecycleObject, INotifyPropertyChanged
     {
-        protected RpgGraph? Graph { get; private set; }
-
         [JsonProperty] public Dictionary<string, ModSet> ModSets { get; private init; }
         [JsonProperty] public Dictionary<string, Prop> Props {  get; private init; }
         [JsonProperty] public Dictionary<string, State> States { get; private init; }
@@ -107,7 +105,7 @@ namespace Rpg.ModObjects
             foreach (var modSet in ModSets.Values)
             {
                var expiry = modSet.Lifecycle.OnUpdateLifecycle();
-                if (expiry == LifecycleExpiry.Remove)
+                if (expiry == LifecycleExpiry.Destroyed)
                     toRemove.Add(modSet);
             }
 
@@ -330,7 +328,7 @@ namespace Rpg.ModObjects
                     mod.OnUpdating(Graph!, prop);
                     var expiry = mod.Expiry;
 
-                    if (expiry == LifecycleExpiry.Remove)
+                    if (expiry == LifecycleExpiry.Destroyed)
                         toRemove.Add(mod);
 
                     if (expiry != oldExpiry)
@@ -422,22 +420,19 @@ namespace Rpg.ModObjects
         public bool IsA(string type) 
             => Archetypes.Contains(type);
 
-        protected virtual void OnLifecycleStarting() { }
-        public virtual void OnUpdating(RpgGraph graph, PointInTime time) { }
-
-        public void SetExpired()
+        public override void OnRestoring(RpgGraph graph)
         {
-        }
+            base.OnRestoring(graph);
 
-        public virtual void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
-        {
-            Graph = graph;
+            foreach (var state in States.Values)
+                state.Lifecycle.OnRestoring(Graph);
+
             foreach (var prop in Props.Values)
                 foreach (var mod in prop.Mods)
-                    mod.OnAdding(graph, prop);
+                    mod.Lifecycle.OnRestoring(graph);
         }
 
-        public virtual void OnTimeBegins()
+        public override void OnTimeBegins()
         {
             foreach (var propInfo in RpgReflection.ScanForModdableProperties(this))
             {
@@ -455,8 +450,6 @@ namespace Rpg.ModObjects
                 }
             }
 
-            OnLifecycleStarting();
-
             var states = State.CreateOwnerStates(this);
             foreach (var state in states)
             {
@@ -467,8 +460,12 @@ namespace Rpg.ModObjects
             Expiry = LifecycleExpiry.Active;
         }
 
+        
         public virtual LifecycleExpiry OnStartLifecycle()
         {
+            foreach (var mod in GetMods())
+                mod.Lifecycle.OnStartLifecycle();
+
             OnStartModSetLifecycle();
             OnStartStateLifecycle();
 

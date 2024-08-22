@@ -17,8 +17,9 @@ namespace Rpg.ModObjects.Tests.Models
             Max = max;
         }
 
-        protected override void OnLifecycleStarting()
+        public override void OnTimeBegins()
         {
+            base.OnTimeBegins();
             this.BaseMod(x => x.Current, x => x.Max);
         }
     }

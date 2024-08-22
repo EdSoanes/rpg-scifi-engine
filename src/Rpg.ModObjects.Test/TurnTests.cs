@@ -89,14 +89,15 @@ namespace Rpg.ModObjects.Tests
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
 
-            graph.Time.Transition(PointInTimeType.Turn);
+            graph.Time.Transition(PointInTimeType.EncounterBegins);
 
             entity.AddMod(new TurnMod(), x => x.Melee, 2);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(6));
 
-            graph.Time.Transition(PointInTimeType.Turn);
+            graph.Time.Transition(PointInTimeType.EncounterEnds);
+            graph.Time.Transition(PointInTimeType.EncounterBegins);
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(modCount));

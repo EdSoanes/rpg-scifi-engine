@@ -31,15 +31,15 @@ namespace Rpg.Sys.Components
             Electromagnetic = new PresenceValue(nameof(Electromagnetic), template.ElectromagneticMax, template.ElectromagneticCurrent, template.ElectromagneticRadius);
         }
 
-        public override void OnBeforeTime(RpgGraph graph, RpgObject? entity = null)
+        public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
-            base.OnBeforeTime(graph, entity);
-            Sound.OnBeforeTime(graph, entity);
-            Heat.OnBeforeTime(graph, entity);
-            Light.OnBeforeTime(graph, entity);
-            Chemical.OnBeforeTime(graph, entity);
-            Radiation.OnBeforeTime(graph, entity);
-            Electromagnetic.OnBeforeTime(graph, entity);
+            base.OnCreating(graph, entity);
+            Sound.OnCreating(graph, entity);
+            Heat.OnCreating(graph, entity);
+            Light.OnCreating(graph, entity);
+            Chemical.OnCreating(graph, entity);
+            Radiation.OnCreating(graph, entity);
+            Electromagnetic.OnCreating(graph, entity);
         }
     }
 }
