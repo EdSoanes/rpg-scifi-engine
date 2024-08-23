@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Mods.Templates;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Tests.Models;
 using Rpg.ModObjects.Values;
@@ -81,9 +81,8 @@ namespace Rpg.ModObjects.Tests
 
             var method = RpgMethod.Create<ScoreBonusValue, Dice>(entity.Strength, nameof(ScoreBonusValue.CalculateStatBonus));
 
-            var baseMod = new PermanentMod()
-                .SetProps(entity.Strength, x => x.Bonus, 2, () => DiceCalculations.CalculateStatBonus)
-                .Create();
+            var baseMod = new Permanent()
+                .Set(entity.Strength, x => x.Bonus, 2, () => DiceCalculations.CalculateStatBonus);
 
             Assert.That(baseMod, Is.Not.Null);
             Assert.That(baseMod.Name, Is.EqualTo(nameof(ScoreBonusValue.Bonus)));

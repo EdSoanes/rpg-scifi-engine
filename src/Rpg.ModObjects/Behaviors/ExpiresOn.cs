@@ -23,7 +23,7 @@ namespace Rpg.ModObjects.Behaviors
                 graph.CalculateModValue(mod)
             );
 
-            mod.SetSource(value);
+            mod.Set(value);
 
             foreach (var matchingMod in matchingMods)
                 modProp.Remove(matchingMod);

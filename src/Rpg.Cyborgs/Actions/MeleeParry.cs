@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Cyborgs.States;
 using Rpg.ModObjects.Actions;
-using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Time.Templates;
+using Rpg.ModObjects.Mods.Mods;
+using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.Cyborgs.Actions
@@ -24,7 +24,7 @@ namespace Rpg.Cyborgs.Actions
         public bool OnCost(Activity activity, Actor owner, Actor initiator)
         {
             activity.CostSet
-                .Add(new TurnMod(1, 1), initiator, x => x.CurrentActionPoints, -1);
+                .Add(new Turn(1, 1), initiator, x => x.CurrentActionPoints, -1);
 
             return true;
         }
@@ -64,7 +64,7 @@ namespace Rpg.Cyborgs.Actions
                 if (diceRoll >= target)
                     activity.ActivityMod("damage", "Parry", -reduction);
 
-                var parrying = owner.CreateStateInstance(nameof(Parrying), new TurnLifecycle(1, 1));
+                var parrying = owner.CreateStateInstance(nameof(Parrying), new SpanOfTime(1, 1));
                 activity.OutputSets.Add(parrying);
             }
 

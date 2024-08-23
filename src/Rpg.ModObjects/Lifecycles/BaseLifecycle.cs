@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Time;
+﻿//using Newtonsoft.Json;
+//using Rpg.ModObjects.Mods;
+//using Rpg.ModObjects.Time;
 
-namespace Rpg.ModObjects.Lifecycles
-{
-    public abstract class BaseLifecycle : RpgLifecycleObject
-    {
-    }
-}
+//namespace Rpg.ModObjects.Lifecycles
+//{
+//    public abstract class BaseLifecycle : RpgLifecycleObject
+//    {
+//    }
+//}

@@ -1,7 +1,6 @@
-﻿using Rpg.ModObjects.Behaviors;
-using Rpg.ModObjects.Meta.Props;
+﻿using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Mods.Templates;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Reflection;
 
 namespace Rpg.ModObjects.Tests
@@ -38,12 +37,14 @@ namespace Rpg.ModObjects.Tests
             Assert.That(mods.Count(), Is.EqualTo(2));
             Assert.That(mods.All(x => x.IsBaseInitMod), Is.True);
 
-            var thresholdMod = mods.FirstOrDefault(x => x.Behavior is Threshold);
+            var thresholdMod = mods.FirstOrDefault(x => x is Threshold);
             Assert.That(thresholdMod, Is.Not.Null);
 
-            var threshold = thresholdMod.Behavior as Threshold;
+            var threshold = thresholdMod as Threshold;
             Assert.That(threshold, Is.Not.Null);
-            Assert.That(threshold.Min, Is.EqualTo(1));
+            var behavior = threshold.Behavior as Behaviors.Threshold;
+            Assert.That(behavior, Is.Not.Null);
+            Assert.That(behavior.Min, Is.EqualTo(1));
         }
 
         [Test]
@@ -56,9 +57,11 @@ namespace Rpg.ModObjects.Tests
                 .GetActiveMods(entity, nameof(ThresholdEntity.MinValue))
                 .First(x => x.Behavior is Threshold);
 
-            var threshold = thresholdMod.Behavior as Threshold;
+            var threshold = thresholdMod as Threshold;
             Assert.That(threshold, Is.Not.Null);
-            Assert.That(threshold.Min, Is.EqualTo(1));
+            var behavior = threshold.Behavior as Behaviors.Threshold;
+            Assert.That(behavior, Is.Not.Null);
+            Assert.That(behavior.Min, Is.EqualTo(1));
         }
 
         [Test]
@@ -68,7 +71,7 @@ namespace Rpg.ModObjects.Tests
             var graph = new RpgGraph(entity);
 
             Assert.That(entity.MinValue, Is.EqualTo(2));
-            entity.AddMod(new PermanentMod(), x => x.MinValue, -200);
+            entity.AddMod(new Permanent(), x => x.MinValue, -200);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.MinValue, Is.EqualTo(1));
@@ -81,7 +84,7 @@ namespace Rpg.ModObjects.Tests
             var graph = new RpgGraph(entity);
 
             Assert.That(entity.MaxValue, Is.EqualTo(2));
-            entity.AddMod(new PermanentMod(), x => x.MaxValue, 200);
+            entity.AddMod(new Permanent(), x => x.MaxValue, 200);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.MaxValue, Is.EqualTo(10));
@@ -94,7 +97,7 @@ namespace Rpg.ModObjects.Tests
             var graph = new RpgGraph(entity);
 
             Assert.That(entity.MaxValue, Is.EqualTo(2));
-            entity.AddMod(new PermanentMod(), x => x.MaxValue, 7);
+            entity.AddMod(new Permanent(), x => x.MaxValue, 7);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.MaxValue, Is.EqualTo(9));

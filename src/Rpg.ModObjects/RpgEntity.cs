@@ -7,8 +7,9 @@ namespace Rpg.ModObjects
     {
         public Dictionary<string, Actions.Action> Actions { get; init; }
 
-        [JsonConstructor] protected RpgEntity()
-            : base() 
+        [JsonConstructor]
+        protected RpgEntity()
+            : base()
         {
             Actions = new Dictionary<string, Actions.Action>();
         }
@@ -32,24 +33,8 @@ namespace Rpg.ModObjects
 
         public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
-            if (Graph == null)
-            { 
-                base.OnCreating(graph, entity);
+            base.OnCreating(graph, entity);
 
-                foreach (var component in this.Traverse<RpgComponent, RpgEntity>())
-                    component.SetEntityPropRef(Id, this.PathTo(component));
-
-                foreach (var state in States.Values)
-                    state.OnAdding(graph);
-
-                foreach (var action in Actions.Values)
-                    action.OnAdding(graph);
-            }
-        }
-
-        public override void OnTimeBegins()
-        {
-            base.OnTimeBegins();
             var actions = ModObjects.Actions.Action.CreateOwnerActions(this);
             foreach (var action in actions)
             {
@@ -57,5 +42,15 @@ namespace Rpg.ModObjects
                 Actions.Add(action.Name, action);
             }
         }
+
+        public override void OnRestoring(RpgGraph graph)
+        {
+            base.OnRestoring(graph);
+
+            foreach (var action in Actions.Values)
+                action.OnAdding(Graph);
+        }
     }
 }
+
+

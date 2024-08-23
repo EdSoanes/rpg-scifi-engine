@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects.Tests.Models
@@ -20,7 +21,7 @@ namespace Rpg.ModObjects.Tests.Models
         public override void OnTimeBegins()
         {
             base.OnTimeBegins();
-            this.BaseMod(x => x.Current, x => x.Max);
+            this.AddMod(new Base(), x => x.Current, x => x.Max);
         }
     }
 }

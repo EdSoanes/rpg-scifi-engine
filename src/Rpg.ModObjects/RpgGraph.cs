@@ -54,22 +54,16 @@ namespace Rpg.ModObjects
             return state;
         }
 
-        public T? Locate<T>(string? id)
-            where T : class
+        public RpgLifecycleObject? GetLifecycleObject(string? id)
         {
-            if (typeof(T).IsAssignableTo(typeof(RpgObject)))
-                return GetObject(id) as T;
+            var res = GetObject(id) as RpgLifecycleObject
+                ?? GetState(id) as RpgLifecycleObject
+                ?? GetModSet(id) as RpgLifecycleObject
+                ?? GetObjects()
+                    .SelectMany(x => x.GetMods())
+                    .FirstOrDefault(x => x.Id == id);
 
-            if (typeof(T).IsAssignableTo(typeof(States.State)))
-                return GetState(id) as T;
-
-            if (typeof(T).IsAssignableTo(typeof(ModSet)))
-                return GetModSet(id) as T;
-
-            if (typeof(T).IsAssignableTo(typeof(Mod)))
-                return GetObjects().SelectMany(x => x.GetMods()).FirstOrDefault(x => x.Id == id) as T;
-
-            return null;
+            return res;
         }
 
         public Mod[] GetActiveMods(RpgObject? rpgObj, string? prop, Func<Mod, bool>? filterFunc = null)
@@ -166,10 +160,10 @@ namespace Rpg.ModObjects
         {
             if (!ObjectStore.ContainsKey(entity.Id))
             {
+                entity.OnCreating(this);
                 ObjectStore.Add(entity.Id, entity);
                 if (Time.Current.Type != PointInTimeType.BeforeTime)
                 {
-                    entity.OnCreating(this);
                     entity.OnTimeBegins();
                     entity.OnStartLifecycle();
                 }
@@ -273,7 +267,7 @@ namespace Rpg.ModObjects
                 .Where(x => filterFunc(x))
                 .ToArray();
 
-        public ModSetBase? GetModSet(string? modSetId)
+        public ModSet? GetModSet(string? modSetId)
         {
             if (modSetId == null) 
                 return null;
@@ -464,7 +458,7 @@ namespace Rpg.ModObjects
             var newValue = CalculatePropValue(entity, prop);
 
             if (oldValue == null || oldValue != newValue)
-                entity.PropertyValue(prop, newValue);
+                entity.PropertyValue(prop, newValue ?? Dice.Zero);
         }
 
         private void UpdateProps()
@@ -507,29 +501,20 @@ namespace Rpg.ModObjects
             ObjectStore.Clear();
 
             foreach (var entity in Context.Traverse())
-            {
-                entity.OnCreating(this, entity);
                 AddEntity(entity);
-            }
+            
         }
 
         private void OnTimeBegins()
         {
-            var created = new List<RpgObject>();
-            foreach (var entity in ObjectStore.Values.Where(x => x.Expiry == LifecycleExpiry.Pending))
-            {
-                entity.OnTimeBegins();
-                created.Add(entity);
-            }
+            foreach (var obj in ObjectStore.Values.Where(x => x.Expiry == LifecycleExpiry.Unset))
+                obj.OnTimeBegins();
 
-            if (created.Any())
-            {
-                OnPropsUpdated();
-                UpdateProps();
-            
-                foreach (var entity in created)
-                    entity.OnStartLifecycle();
-            }
+            foreach (var obj in ObjectStore.Values.Where(x => x.Expiry == LifecycleExpiry.Unset))
+                obj.OnStartLifecycle();
+
+            OnPropsUpdated();
+            UpdateProps();
 
             OnPropsUpdated();
             UpdateProps();

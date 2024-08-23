@@ -1,5 +1,5 @@
 ﻿using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Mods.Templates;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Tests.Models;
 
@@ -19,7 +19,7 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new RpgGraph(entity);
 
-            entity.AddMod(new PermanentMod(), "VirtualProp", 1);
+            entity.AddMod(new Permanent(), "VirtualProp", 1);
             graph.Time.TriggerEvent();
 
             Assert.That(graph.GetPropValue(entity, "VirtualProp")?.Roll(), Is.EqualTo(1));

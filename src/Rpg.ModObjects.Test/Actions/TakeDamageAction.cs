@@ -2,7 +2,7 @@
 using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Mods.Templates;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Tests.Models;
 
 namespace Rpg.ModObjects.Tests.Actions
@@ -35,7 +35,7 @@ namespace Rpg.ModObjects.Tests.Actions
                 .ActivityResultMod("damage", "Result", damage);
 
             activity.OutcomeSet
-                .Add(new PermanentMod(), owner, x => x.Health, -damage);
+                .Add(new Permanent(), owner, x => x.Health, -damage);
 
             return true;
         }

@@ -3,6 +3,7 @@ using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Tests.Models;
 using Rpg.ModObjects.Tests.States;
+using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects.Tests.Actions
 {
@@ -30,7 +31,7 @@ namespace Rpg.ModObjects.Tests.Actions
 
         public bool OnOutcome(Activity activity, ModdableEntity owner, TestHuman initiator, int diceRoll)
         {
-            var testing = owner.CreateStateInstance(nameof(Testing))!;
+            var testing = owner.CreateStateInstance(nameof(Testing), new SpanOfTime(0, 1))!;
             activity.OutputSets.Add(testing);
 
             return true;

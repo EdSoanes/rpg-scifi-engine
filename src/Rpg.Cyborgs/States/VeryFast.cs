@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Mods.Templates;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.States;
 
 namespace Rpg.Cyborgs.States
@@ -18,7 +18,7 @@ namespace Rpg.Cyborgs.States
         protected override void OnFillStateSet(ModSet modSet, Actor owner)
         {
             base.OnFillStateSet(modSet, owner);
-            modSet.Add(new PermanentMod(), owner, x => x.ActionPoints, 1);
+            modSet.Add(new Permanent(), owner, x => x.ActionPoints, 1);
         }
     }
 }

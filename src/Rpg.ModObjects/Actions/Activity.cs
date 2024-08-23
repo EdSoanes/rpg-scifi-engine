@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Mods.Templates;
+using Rpg.ModObjects.Mods.Mods;
+using Rpg.ModObjects.Mods.ModSets;
 using Rpg.ModObjects.Reflection.Args;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
@@ -115,7 +115,7 @@ namespace Rpg.ModObjects.Actions
                         ActivityResultMod(prop, "arg", dice);
                 }
                 else
-                    this.InitMod(prop, dice);
+                    AddMods(new Initial(Id, prop, dice));
             }
         }
 
@@ -127,10 +127,9 @@ namespace Rpg.ModObjects.Actions
 
         public Activity ActivityMod(string targetProp, string modName, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
         {
-            var mod = new BaseMod()
+            var mod = new Base()
                 .SetName(modName)
-                .SetProps(this, targetProp, dice, valueCalc)
-                .Create();
+                .Set(this, targetProp, dice, valueCalc);
 
             AddMods(mod);
 
@@ -140,9 +139,8 @@ namespace Rpg.ModObjects.Actions
         public Activity ActivityMod<TSource, TSourceValue>(string targetProp, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TSource : RpgObject
         {
-            var mod = new BaseMod()
-                .SetProps(this, targetProp, source, sourceExpr, valueCalc)
-                .Create();
+            var mod = new Base()
+                .Set(this, targetProp, source, sourceExpr, valueCalc);
 
             AddMods(mod);
 
@@ -151,10 +149,9 @@ namespace Rpg.ModObjects.Actions
 
         public Activity ActivityResultMod(string targetProp, string modName, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
         {
-            var mod = new OverrideMod()
+            var mod = new Override()
                 .SetName(modName)
-                .SetProps(this, targetProp, dice, valueCalc)
-                .Create();
+                .Set(this, targetProp, dice, valueCalc);
 
             AddMods(mod);
 
@@ -164,9 +161,8 @@ namespace Rpg.ModObjects.Actions
         public Activity ActivityResultMod<TSource, TSourceValue>(string targetProp, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TSource : RpgObject
         {
-            var mod = new OverrideMod()
-                .SetProps(this, targetProp, source, sourceExpr, valueCalc)
-                .Create();
+            var mod = new Override()
+                .Set(this, targetProp, source, sourceExpr, valueCalc);
 
             AddMods(mod);
 
@@ -417,8 +413,8 @@ namespace Rpg.ModObjects.Actions
             var outcomeSet = GetModSetByName(OutcomeSetName) as ModSet;
             if (outcomeSet == null)
             {
-                outcomeSet = new ModSet(InitiatorId, new TurnLifecycle(), OutcomeSetName);
-                outcomeSet.OnBeforeTime(graph);
+                outcomeSet = new TurnModSet(InitiatorId, OutcomeSetName);
+                outcomeSet.OnCreating(graph);
                 outcomeSet.Unapply();
 
                 OutputSets.Add(outcomeSet);
@@ -427,8 +423,8 @@ namespace Rpg.ModObjects.Actions
             var costSet = GetModSetByName(CostSetName) as ModSet;
             if (costSet == null)
             {
-                costSet = new ModSet(InitiatorId, new TurnLifecycle(), CostSetName);
-                costSet.OnBeforeTime(graph);
+                costSet = new TurnModSet(InitiatorId, CostSetName);
+                costSet.OnCreating(graph);
                 costSet.Unapply();
 
                 OutputSets.Add(costSet);

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Tests.Models
@@ -24,7 +25,7 @@ namespace Rpg.ModObjects.Tests.Models
         public override void OnTimeBegins()
         {
             base.OnTimeBegins();
-            this.BaseMod(x => x.Bonus, x => x.Score, () => CalculateStatBonus);
+            this.AddMod(new Base(), x => x.Bonus, x => x.Score, () => CalculateStatBonus);
         }
 
         public Dice CalculateStatBonus(Dice dice) => (int)Math.Floor((double)(dice.Roll() - 10) / 2);

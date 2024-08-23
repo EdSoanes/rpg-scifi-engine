@@ -1,5 +1,5 @@
 ﻿using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Mods.Templates;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.States;
 using Rpg.ModObjects.Tests.Models;
@@ -44,7 +44,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));
 
-            var mod = entity.AddMod(new PermanentMod(), x => x.Melee, 6);
+            var mod = entity.AddMod(new Permanent(), x => x.Melee, 6);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.IsStateOn(nameof(BuffState)), Is.True);
@@ -58,7 +58,7 @@ namespace Rpg.ModObjects.Tests
             var entity = new StateEntity();
             var graph = new RpgGraph(entity);
 
-            entity.AddMod(new PermanentMod("mymod"), x => x.Value, 6);
+            entity.AddMod(new Permanent().SetName("mymod"), x => x.Value, 6);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Value, Is.EqualTo(10));
@@ -81,7 +81,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));
 
-            entity.AddMod(new PermanentMod(), x => x.Melee, -4);
+            entity.AddMod(new Permanent(), x => x.Melee, -4);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(0));

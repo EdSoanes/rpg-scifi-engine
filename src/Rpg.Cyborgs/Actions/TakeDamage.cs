@@ -2,7 +2,7 @@
 using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Behaviors;
 using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Mods.Templates;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Reflection.Attributes;
 using Rpg.ModObjects.Values;
 
@@ -35,11 +35,11 @@ namespace Rpg.Cyborgs.Actions
 
             if (staminaInjury > 0)
                 activity
-                    .OutcomeSet.Add(new PermanentMod().SetBehavior(new Combine()), owner, x => x.CurrentStaminaPoints, -staminaInjury);
+                    .OutcomeSet.Add(new Permanent(new Combine()), owner, x => x.CurrentStaminaPoints, -staminaInjury);
 
             if (lifeInjury > 0)
                 activity
-                    .OutcomeSet.Add(new PermanentMod().SetBehavior(new Combine()), owner, x => x.CurrentLifePoints, -staminaInjury);
+                    .OutcomeSet.Add(new Permanent(new Combine()), owner, x => x.CurrentLifePoints, -staminaInjury);
 
             if (lifeInjury < 0)
             {

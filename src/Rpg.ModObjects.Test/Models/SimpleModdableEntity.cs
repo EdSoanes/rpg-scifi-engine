@@ -1,4 +1,5 @@
 ﻿using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects.Tests.Models
@@ -17,7 +18,7 @@ namespace Rpg.ModObjects.Tests.Models
         public override void OnTimeBegins()
         {
             base.OnTimeBegins();
-            this.BaseMod(x => x.Score, x => x.Bonus);
+            this.AddMod(new Base(), x => x.Score, x => x.Bonus);
         }
     }
 }

@@ -2,6 +2,7 @@
 using Rpg.Cyborgs.States;
 using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Time;
 
 namespace Rpg.Cyborgs.Actions
 {
@@ -49,7 +50,7 @@ namespace Rpg.Cyborgs.Actions
             activity
                 .ActivityMod("damage", owner, x => x.Damage);
 
-            var rangedAttacking = owner.CreateStateInstance(nameof(RangedAttacking));
+            var rangedAttacking = owner.CreateStateInstance(nameof(RangedAttacking), new SpanOfTime(0, 1));
             activity.OutputSets.Add(rangedAttacking);
 
             return true;

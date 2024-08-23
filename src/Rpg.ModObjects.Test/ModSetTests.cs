@@ -1,6 +1,6 @@
-﻿using Rpg.ModObjects.Lifecycles;
-using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Mods.Templates;
+﻿using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Mods.Mods;
+using Rpg.ModObjects.Mods.ModSets;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Tests.Models;
 using Rpg.ModObjects.Time;
@@ -64,7 +64,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(14));
 
             var modSet = graph.GetModSets(entity, (x) => x.Name == "test").First();
-            modSet.Lifecycle.SetExpired();
+            modSet.SetExpired();
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
@@ -85,7 +85,7 @@ namespace Rpg.ModObjects.Tests
                 modSet
                     .Add(entity, x => x.Health, 1)
                     .Add(entity, x => x.Damage.ArmorPenetration, 1)
-                    .Add(new PermanentMod(), entity, x => x.Melee, 1);
+                    .Add(new Permanent(), entity, x => x.Melee, 1);
             });
 
             graph.Time.TriggerEvent();
@@ -96,7 +96,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(14));
 
             var modSet = graph.GetModSets(entity, (x) => x.Name == "test").First();
-            modSet.Lifecycle.SetExpired();
+            modSet.SetExpired();
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Melee.Roll(), Is.EqualTo(5));
@@ -237,13 +237,12 @@ namespace Rpg.ModObjects.Tests
 
             graph.Time.Transition(PointInTimeType.Turn);
 
-            entity.AddModSet("name", new TimeLifecycle(PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds), modSet =>
-            {
-                modSet
-                    .Add(entity, x => x.Melee, 1)
-                    .Add(entity, x => x.Health, 1)
-                    .Add(entity, x => x.Damage.ArmorPenetration, 1);
-            });
+            var modSet = new TimedModSet("name", entity.Id, new SpanOfTime(PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds))
+                .Add(entity, x => x.Melee, 1)
+                .Add(entity, x => x.Health, 1)
+                .Add(entity, x => x.Damage.ArmorPenetration, 1);
+
+            entity.AddModSet(modSet);
 
             graph.Time.TriggerEvent();
 

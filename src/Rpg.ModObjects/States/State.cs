@@ -1,39 +1,39 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Mods.ModSets;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects.States
 {
-    public abstract class State
+    public abstract class State : RpgLifecycleObject
     {
-        protected RpgGraph Graph { get; set; }
-
         [JsonProperty] public string Id { get; private set; }
         [JsonProperty] public string Name { get; protected set; }
         [JsonProperty] public string OwnerId { get; private init; }
         [JsonProperty] public string? OwnerArchetype { get; private set; }
-
-        [JsonProperty] public ILifecycle Lifecycle { get; set; }
+        [JsonProperty] protected SpanOfTime? ManualLifespan { get; set; }
 
         public bool IsOn { get => IsOnConditionally || IsOnManually; }
         public bool IsOnConditionally { get => Graph?.GetObject(OwnerId)!.GetActiveConditionalStateInstances(Name).Any() ?? false; }
-        public bool IsOnManually { get => Graph?.GetObject(OwnerId)!.GetActiveManualStateInstances(Name).Any() ?? false; }
+        public bool IsOnManually { get => ManualLifespan != null; }
 
         [JsonConstructor] protected State() { }
 
         protected State(RpgObject owner)
         {
             Id = this.NewId();
-            Name = GetType().Name;
+            Name = this.GetType().Name;
             OwnerId = owner.Id;
             OwnerArchetype = owner.Archetype;
         }
 
-        public ModSet CreateInstance(ILifecycle? lifecycle = null)
+        public ModSet CreateInstance(SpanOfTime? spanOfTime = null)
         {
-            var modSet = new ModSet(OwnerId!, lifecycle ?? new SyncedLifecycle(Id), Name);
+            ModSet modSet = spanOfTime != null
+                ? new TimedModSet(OwnerId, Name, spanOfTime!)
+                : new SyncedModSet(OwnerId!, Id, Name);
+
             FillStateSet(modSet);
 
             return modSet;
@@ -41,42 +41,15 @@ namespace Rpg.ModObjects.States
 
         internal abstract void FillStateSet(ModSet modSet);
 
-        internal virtual void OnAdding(RpgGraph graph)
-        {
-            Graph = graph;
-        }
-
         public bool On()
-            => On(new PermanentLifecycle());
-
-        public bool On(ILifecycle lifecycle)
         {
-            if (Graph == null)
-                return false;
-            
-            if (!IsOnManually)
-            {
-                var stateSet = CreateInstance(new PermanentLifecycle());
-                Graph.AddModSets(stateSet);
-            }
-
+            ManualLifespan ??= new SpanOfTime();
             return true;
         }
 
         public bool Off()
         {
-            if (Graph == null)
-                return false;
-
-            if (IsOnManually)
-            {
-                var entity = Graph.GetObject(OwnerId)!;
-                var stateSets = entity.GetActiveManualStateInstances(Name);
-
-                foreach (var stateSet in stateSets)
-                    entity.RemoveModSet(stateSet.Id);
-            }
-
+            ManualLifespan = null;
             return true;
         }
 
@@ -123,15 +96,6 @@ namespace Rpg.ModObjects.States
         public State(T owner)
             : base(owner)
         {
-            var conditionalMethod = RpgMethod.Create<State<T>, LifecycleExpiry>(this, nameof(CalculateExpiry))!;
-            Lifecycle = new ConditionalLifecycle<State<T>>(Id, conditionalMethod);
-        }
-
-        internal override void OnAdding(RpgGraph graph)
-        {
-            base.OnAdding(graph);
-            Lifecycle.OnCreating(graph);
-            Lifecycle.OnTimeBegins();
         }
 
         protected virtual bool IsOnWhen(T owner)
@@ -146,12 +110,28 @@ namespace Rpg.ModObjects.States
         protected virtual void OnFillStateSet(ModSet modSet, T owner)
         { }
 
+        public override LifecycleExpiry OnStartLifecycle()
+        {
+            Lifespan.SetStartTime(Graph.Time.Current);
+            return CalculateExpiry();
+        }
+
+        public override LifecycleExpiry OnUpdateLifecycle()
+            => CalculateExpiry();
+
         protected virtual LifecycleExpiry CalculateExpiry()
         {
-            var entity = Graph!.GetObject<T>(OwnerId)!;
-            return IsOnWhen(entity)
-                ? LifecycleExpiry.Active
-                : LifecycleExpiry.Expired;
+            var expiry = ManualLifespan?.GetExpiry(Graph.Time.Current) ?? LifecycleExpiry.Unset;
+            if (expiry == LifecycleExpiry.Unset)
+            {
+                var owner = Graph!.GetObject<T>(OwnerId)!;
+                expiry = IsOnWhen(owner)
+                    ? LifecycleExpiry.Active
+                    : LifecycleExpiry.Expired;
+            }
+
+            Expiry = expiry != LifecycleExpiry.Unset ? expiry : LifecycleExpiry.Expired;
+            return Expiry;
         }
     }
 }

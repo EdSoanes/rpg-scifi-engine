@@ -33,15 +33,15 @@ namespace Rpg.ModObjects.Actions
         {
             OwnerId = owner.Id;
             Name = GetType().Name;
+            OnCanAct = RpgMethod.Create<Action, bool>(this, nameof(OnCanAct))!;
+            OnCost = RpgMethod.Create<Action, bool>(this, nameof(OnCost))!;
+            OnAct = RpgMethod.Create<Action, bool>(this, nameof(OnAct))!;
+            OnOutcome = RpgMethod.Create<Action, bool>(this, nameof(OnOutcome))!;
         }
 
         public void OnAdding(RpgGraph graph)
         {
             Graph = graph;
-            OnCanAct = RpgMethod.Create<Action, bool>(this, nameof(OnCanAct))!;
-            OnCost = RpgMethod.Create<Action, bool>(this, nameof(OnCost))!;
-            OnAct = RpgMethod.Create<Action, bool>(this, nameof(OnAct))!;
-            OnOutcome = RpgMethod.Create<Action, bool>(this, nameof(OnOutcome))!;
         }
 
         //public RpgArgSet CanActArgs()

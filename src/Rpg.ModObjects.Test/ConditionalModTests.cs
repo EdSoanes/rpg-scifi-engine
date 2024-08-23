@@ -1,11 +1,5 @@
 ﻿using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Mods.Templates;
-using Rpg.ModObjects.Time;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Rpg.ModObjects.Mods.Mods;
 
 namespace Rpg.ModObjects.Tests
 {
@@ -49,7 +43,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Component2.Prop, Is.EqualTo(0));
             Assert.That(entity.Entity2.Prop, Is.EqualTo(0));
 
-            entity.AddMod(new PermanentMod().SetScope(ModScope.Components), x => x.Component2.Prop, 1);
+            entity.AddMod(new Permanent(ModScope.Components), x => x.Component2.Prop, 1);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Prop, Is.EqualTo(0));

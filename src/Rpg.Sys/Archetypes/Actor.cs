@@ -2,6 +2,7 @@
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Values;
 using Rpg.Sys.Components;
 
@@ -42,13 +43,13 @@ namespace Rpg.Sys.Archetypes
         public override void OnTimeBegins()
         {
             base.OnTimeBegins();
-            this.BaseMod(x => x.Actions.Exertion, x => x.Stats.Strength.Bonus);
-            this.BaseMod(x => x.Actions.Action, x => x.Stats.Dexterity.Bonus);
-            this.BaseMod(x => x.Actions.Focus, x => x.Stats.Intelligence.Bonus);
+            this.AddMod(new Base(), x => x.Actions.Exertion, x => x.Stats.Strength.Bonus);
+            this.AddMod(new Base(), x => x.Actions.Action, x => x.Stats.Dexterity.Bonus);
+            this.AddMod(new Base(), x => x.Actions.Focus, x => x.Stats.Intelligence.Bonus);
 
-            this.BaseMod(x => x.Movement.Speed.Max, x => x.Stats.Dexterity.Bonus);
-            this.BaseMod(x => x.Movement.Speed.Max, x => x.Presence.Weight, () => DiceCalculations.WeightSpeedBonus);
-            this.BaseMod(x => x.Movement.Speed.Max, x => x.Stats.Strength.Bonus);
+            this.AddMod(new Base(), x => x.Movement.Speed.Max, x => x.Stats.Dexterity.Bonus);
+            this.AddMod(new Base(), x => x.Movement.Speed.Max, x => x.Presence.Weight, () => DiceCalculations.WeightSpeedBonus);
+            this.AddMod(new Base(), x => x.Movement.Speed.Max, x => x.Stats.Strength.Bonus);
         }
 
         //public virtual ActionBase Move(int distance)

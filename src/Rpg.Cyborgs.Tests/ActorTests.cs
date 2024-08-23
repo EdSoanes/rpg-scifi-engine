@@ -2,7 +2,7 @@
 using Rpg.Cyborgs.Tests.Models;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Mods.Templates;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
 
@@ -105,7 +105,7 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(pc.CurrentActionPoints, Is.EqualTo(1));
             Assert.That(pc.IsStateOn(nameof(VeryFast)), Is.False);
 
-            pc.AddMod(new PermanentMod(), x => x.Agility.Value, 4);
+            pc.AddMod(new Permanent(), x => x.Agility.Value, 4);
             graph.Time.TriggerEvent();
 
             Assert.That(pc.ActionPoints, Is.EqualTo(2));

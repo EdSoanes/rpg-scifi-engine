@@ -2,6 +2,7 @@
 using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Time;
 using Rpg.Sys.Archetypes;
 using Rpg.Sys.States;
 
@@ -40,7 +41,7 @@ namespace Rpg.Sys.Actions
             activity.OutcomeSet
                 .Add(owner, x => x.Movement.Speed.Current, distance);
 
-            var moving = owner.CreateStateInstance(nameof(Moving));
+            var moving = owner.CreateStateInstance(nameof(Moving), new SpanOfTime(0, 1));
             activity.OutputSets.Add(moving);
 
             return true;

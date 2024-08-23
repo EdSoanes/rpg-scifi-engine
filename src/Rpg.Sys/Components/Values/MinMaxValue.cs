@@ -2,6 +2,7 @@
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Mods.Mods;
 
 namespace Rpg.Sys.Components.Values
 {
@@ -42,7 +43,7 @@ namespace Rpg.Sys.Components.Values
         public override void OnTimeBegins()
         {
             base.OnTimeBegins();
-            this.BaseMod(x => x.Current, x => x.Max);
+            this.AddMod(new Base(), x => x.Current, x => x.Max);
         }
     }
 }

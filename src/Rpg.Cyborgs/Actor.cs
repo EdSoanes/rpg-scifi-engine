@@ -3,7 +3,7 @@ using Rpg.Cyborgs.Components;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Time;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.Cyborgs
@@ -148,29 +148,29 @@ namespace Rpg.Cyborgs
         {
             base.OnTimeBegins();
 
-            this.BaseMod(x => x.StaminaPoints, x => x.Health.Value, () => CalculateStamina);
-            this.BaseMod(x => x.CurrentStaminaPoints, x => x.StaminaPoints);
+            this.AddMod(new Base(), x => x.StaminaPoints, x => x.Health.Value, () => CalculateStamina);
+            this.AddMod(new Base(), x => x.CurrentStaminaPoints, x => x.StaminaPoints);
 
-            this.BaseMod(x => x.LifePoints, x => x.Strength.Value);
-            this.BaseMod(x => x.CurrentLifePoints, x => x.LifePoints);
+            this.AddMod(new Base(), x => x.LifePoints, x => x.Strength.Value);
+            this.AddMod(new Base(), x => x.CurrentLifePoints, x => x.LifePoints);
 
-            this.BaseMod(x => x.FocusPoints, x => x.Agility.Value);
-            this.BaseMod(x => x.FocusPoints, x => x.Brains.Value);
-            this.BaseMod(x => x.FocusPoints, x => x.Insight.Value);
-            this.BaseMod(x => x.CurrentFocusPoints, x => x.FocusPoints);
+            this.AddMod(new Base(), x => x.FocusPoints, x => x.Agility.Value);
+            this.AddMod(new Base(), x => x.FocusPoints, x => x.Brains.Value);
+            this.AddMod(new Base(), x => x.FocusPoints, x => x.Insight.Value);
+            this.AddMod(new Base(), x => x.CurrentFocusPoints, x => x.FocusPoints);
 
-            this.BaseMod(x => x.LuckPoints, x => x.Charisma.Value);
-            this.BaseMod(x => x.CurrentLuckPoints, x => x.LuckPoints);
+            this.AddMod(new Base(), x => x.LuckPoints, x => x.Charisma.Value);
+            this.AddMod(new Base(), x => x.CurrentLuckPoints, x => x.LuckPoints);
 
-            this.BaseMod(x => x.CurrentActionPoints, x => x.ActionPoints);
+            this.AddMod(new Base(), x => x.CurrentActionPoints, x => x.ActionPoints);
 
-            this.BaseMod(x => x.Defence.Value, x => x.Agility.Value);
-            this.BaseMod(x => x.Reactions.Value, x => x.Agility.Value);
-            this.BaseMod(x => x.Reactions.Value, x => x.Insight.Value);
+            this.AddMod(new Base(), x => x.Defence.Value, x => x.Agility.Value);
+            this.AddMod(new Base(), x => x.Reactions.Value, x => x.Agility.Value);
+            this.AddMod(new Base(), x => x.Reactions.Value, x => x.Insight.Value);
 
-            this.BaseMod(x => x.ParryDamageReduction.Value, x => x.Strength.Value);
-            this.BaseMod(x => x.RangedAttack.Value, x => x.Agility.Value);
-            this.BaseMod(x => x.MeleeAttack.Value, x => x.Strength.Value);
+            this.AddMod(new Base(), x => x.ParryDamageReduction.Value, x => x.Strength.Value);
+            this.AddMod(new Base(), x => x.RangedAttack.Value, x => x.Agility.Value);
+            this.AddMod(new Base(), x => x.MeleeAttack.Value, x => x.Strength.Value);
         }
 
         public Dice CalculateStamina(Dice health)

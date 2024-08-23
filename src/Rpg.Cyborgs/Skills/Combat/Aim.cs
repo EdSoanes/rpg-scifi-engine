@@ -2,6 +2,7 @@
 using Rpg.Cyborgs.States;
 using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Time;
 
 namespace Rpg.Cyborgs.Skills.Combat
 {
@@ -34,7 +35,7 @@ namespace Rpg.Cyborgs.Skills.Combat
             activity.OutcomeSet
                 .Add(owner, x => x.RangedAimBonus, 2);
 
-            var aiming = owner.CreateStateInstance(nameof(Aiming));
+            var aiming = owner.CreateStateInstance(nameof(Aiming), new SpanOfTime(0, 1));
             activity.OutputSets.Add(aiming);
 
             return true;

@@ -1,4 +1,5 @@
 ﻿using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System;
@@ -48,11 +49,11 @@ namespace Rpg.ModObjects.Tests.Models
         {
             base.OnTimeBegins();
             this
-                .BaseMod(x => x.MeleeAttack, x => x.Strength.Bonus)
-                .BaseMod(x => x.MeleeDamage.Dice, x => x.Strength.Bonus)
-                .BaseMod(x => x.MissileAttack, x => x.Intelligence.Bonus)
-                .BaseMod(x => x.PhysicalActionPoints.Max, x => x.Strength.Bonus)
-                .BaseMod(x => x.MentalActionPoints.Max, x => x.Intelligence.Bonus);
+                .AddMod(new Base(), x => x.MeleeAttack, x => x.Strength.Bonus)
+                .AddMod(new Base(), x => x.MeleeDamage.Dice, x => x.Strength.Bonus)
+                .AddMod(new Base(), x => x.MissileAttack, x => x.Intelligence.Bonus)
+                .AddMod(new Base(), x => x.PhysicalActionPoints.Max, x => x.Strength.Bonus)
+                .AddMod(new Base(), x => x.MentalActionPoints.Max, x => x.Intelligence.Bonus);
         }
     }
 }

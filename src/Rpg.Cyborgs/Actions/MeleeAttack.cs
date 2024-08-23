@@ -2,6 +2,7 @@
 using Rpg.Cyborgs.States;
 using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.Cyborgs.Actions
@@ -53,7 +54,7 @@ namespace Rpg.Cyborgs.Actions
                 .ActivityMod("damage", owner, x => x.Damage)
                 .ActivityMod("damage", initiator, x => x.Strength.Value);
 
-            var meleeAttacking = initiator.CreateStateInstance(nameof(MeleeAttacking));
+            var meleeAttacking = initiator.CreateStateInstance(nameof(MeleeAttacking), new SpanOfTime(0, 1));
             activity.OutputSets.Add(meleeAttacking);
 
             return true;

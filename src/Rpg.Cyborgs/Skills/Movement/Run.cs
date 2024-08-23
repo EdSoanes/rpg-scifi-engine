@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Cyborgs.States;
 using Rpg.ModObjects.Actions;
-using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Time;
 
 namespace Rpg.Cyborgs.Skills.Movement
 {
@@ -32,7 +32,7 @@ namespace Rpg.Cyborgs.Skills.Movement
 
         public bool OnOutcome(Activity activity, Actor owner)
         {
-            var moving = owner.GetState(nameof(Moving))!.CreateInstance(new TurnLifecycle());
+            var moving = owner.GetState(nameof(Moving))!.CreateInstance(new SpanOfTime(0, 1));
             activity.OutputSets.Add(moving);
 
             return true;

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Mods.Templates;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Time;
 
@@ -27,9 +27,8 @@ namespace Rpg.ModObjects.Behaviors
                 var entities = graph.GetScopedEntities(mod.EntityId, Scope);
                 foreach (var entity in entities)
                 {
-                    var syncedMod = new SyncedMod(mod.Id)
-                        .SetProps(new PropRef(entity.Id, mod.Prop), mod)
-                        .Create(mod.Name);
+                    var syncedMod = new Synced(mod.Id)
+                        .Set(new PropRef(entity.Id, mod.Prop), mod);
 
                     graph.AddMods(syncedMod);
                 }
@@ -41,11 +40,11 @@ namespace Rpg.ModObjects.Behaviors
             OnScoping(graph, modProp, mod);
         }
 
-        public virtual bool OnRemoving(RpgGraph graph, Prop modProp, Mod mod)
-        {
-            //TODO: Handle scope here...
-            return false;
-        }
+        //public virtual bool OnRemoving(RpgGraph graph, Prop modProp, Mod mod)
+        //{
+        //    //TODO: Handle scope here...
+        //    return false;
+        //}
 
         public BaseBehavior Clone<T>(ModScope scope = ModScope.Standard)
             where T : BaseBehavior

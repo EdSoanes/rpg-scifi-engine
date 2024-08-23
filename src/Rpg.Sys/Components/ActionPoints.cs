@@ -2,6 +2,7 @@
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.Sys.Components.Values;
 using System;
 using System.Collections.Generic;
@@ -56,9 +57,10 @@ namespace Rpg.Sys.Components
         public override void OnTimeBegins()
         {
             base.OnTimeBegins();
-            this.BaseMod(x => x.CurrentAction, x => x.Action)
-                .BaseMod(x => x.CurrentExertion, x => x.Exertion)
-                .BaseMod(x => x.CurrentFocus, x => x.Focus);
+            this
+                .AddMod(new Base(), x => x.CurrentAction, x => x.Action)
+                .AddMod(new Base(), x => x.CurrentExertion, x => x.Exertion)
+                .AddMod(new Base(), x => x.CurrentFocus, x => x.Focus);
         }
 
         public override void OnCreating(RpgGraph graph, RpgObject? entity = null)

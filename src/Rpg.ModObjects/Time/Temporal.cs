@@ -37,8 +37,10 @@ namespace Rpg.ModObjects.Time
 
     public class SpanOfTime
     {
-        [JsonProperty] public PointInTime Start { get; init; }
-        [JsonProperty] public PointInTime End { get; init; }
+        [JsonProperty] private bool Started { get; set; }
+        [JsonProperty] public PointInTime Start { get; private set; }
+        [JsonProperty] public PointInTime End { get; private set; }
+
         public bool Infinity { get => Start.Type <= PointInTimeType.TimeBegins && End.Type == PointInTimeType.TimeEnds; }
 
         [JsonConstructor] public SpanOfTime()
@@ -63,6 +65,20 @@ namespace Rpg.ModObjects.Time
         {
             Start = start;
             End = end;
+        }
+
+        public void SetStartTime(PointInTime now)
+        {
+            if (!Started)
+            {
+                if (Start.Type == PointInTimeType.Turn)
+                    Start = new PointInTime(Start.Type, Start.Count + now.Count);
+
+                if (End.Type == PointInTimeType.Turn)
+                    End = new PointInTime(End.Type, End.Count + now.Count);
+
+                Started = true;
+            }
         }
 
         public LifecycleExpiry GetExpiry(PointInTime now)

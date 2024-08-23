@@ -2,6 +2,7 @@
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System;
@@ -25,7 +26,7 @@ namespace Rpg.Cyborgs
 
         public override void OnTimeBegins()
         {
-            this.BaseMod(x => x.CurrentArmourRating, x => x.ArmourRating);
+            this.AddMod(new Base(), x => x.CurrentArmourRating, x => x.ArmourRating);
         }
     }
 }

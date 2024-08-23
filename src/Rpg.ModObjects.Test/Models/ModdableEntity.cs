@@ -1,4 +1,5 @@
 ﻿using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Tests.Models
@@ -21,8 +22,8 @@ namespace Rpg.ModObjects.Tests.Models
         {
             base.OnTimeBegins();
             this
-                .BaseMod(x => x.Melee, x => x.Strength.Bonus)
-                .BaseMod(x => x.Damage.Dice, x => x.Strength.Bonus);
+                .AddMod(new Base(), x => x.Melee, x => x.Strength.Bonus)
+                .AddMod(new Base(), x => x.Damage.Dice, x => x.Strength.Bonus);
 
         }
     }

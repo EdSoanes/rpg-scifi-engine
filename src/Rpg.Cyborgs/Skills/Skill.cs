@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Values;
 
@@ -22,7 +23,7 @@ namespace Rpg.Cyborgs.Skills
             set
             {
                 var actor = Graph.GetObject<Actor>(OwnerId)!;
-                actor.InitMod(RatingProp, value);
+                actor.AddMods(new Initial(actor.Id, RatingProp, value));
             }
         }
 

@@ -1,10 +1,9 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Lifecycles;
 using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects
 {
-    public class RpgLifecycleObject : ILifecycle
+    public class RpgLifecycleObject
     {
         protected RpgGraph Graph { get; private set; }
         [JsonProperty] protected SpanOfTime Lifespan { get; set; } = new SpanOfTime();
@@ -14,12 +13,20 @@ namespace Rpg.ModObjects
 
         public virtual void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
-            Graph = graph;
+            if (graph == null)
+                throw new InvalidOperationException("Cannot set RpgLifecycleObject.OnCreating.Graph to null");
+
+            if (Graph == null)
+                Graph = graph;
         }
 
         public virtual void OnRestoring(RpgGraph graph)
         {
-            Graph = graph;
+            if (graph == null)
+                throw new InvalidOperationException("Cannot set RpgLifecycleObject.OnRestoring.Graph to null");
+
+            if (Graph == null)
+                Graph = graph;
         }
 
         public virtual void OnTimeBegins()
@@ -28,6 +35,7 @@ namespace Rpg.ModObjects
 
         public virtual LifecycleExpiry OnStartLifecycle()
         {
+            Lifespan.SetStartTime(Graph.Time.Current);
             Expiry = ExpiredTime != null && ExpiredTime <= Graph.Time.Current
                 ? LifecycleExpiry.Expired
                 : Lifespan.GetExpiry(Graph!.Time.Current);

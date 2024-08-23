@@ -1,108 +1,56 @@
-﻿using Rpg.ModObjects.Behaviors;
-using Rpg.ModObjects.Mods.Templates;
+﻿using Newtonsoft.Json.Linq;
+using Rpg.ModObjects.Props;
+using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Values;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Mods
 {
     public static class Extensions
     {
-        public static void InitMod<TTarget>(this TTarget entity, string targetProp, Dice dice)
+        public static TTarget AddMod<TTarget>(this TTarget target, Mod mod, string targetProp, Dice value, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TTarget : RpgObject
         {
-            var mod = new InitialMod()
-                .SetProps(entity.Id, targetProp, dice)
-                .Create();
-
-            entity.AddMods(mod);
+            mod.Set(target, targetProp, value, valueFunc);
+            target.AddMods(mod);
+            return target;
         }
 
-        public static void ThresholdMod<TTarget>(this TTarget entity, string targetProp, int min, int max)
+        public static TTarget AddMod<TTarget>(this TTarget target, Mod mod, PropRef targetPropRef, Dice value)
+            where TTarget : RpgObject
+                => target.AddMod(mod, targetPropRef.Prop, value);
+
+        public static TTarget AddMod<TTarget, TSourceValue>(this TTarget target, Mod mod, string targetProp, Expression<Func<TTarget, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TTarget : RpgObject
         {
-            var mod = new InitialMod()
-                .SetBehavior(new Threshold(min, max))
-                .SetProps(entity.Id, targetProp, Dice.Zero)
-                .Create();
-
-            entity.AddMods(mod);
+            mod.Set(target, targetProp, sourceExpr, valueFunc);
+            target.AddMods(mod);
+            return target;
         }
 
-        public static TTarget BaseMod<TTarget, TTargetValue>(this TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+        public static TTarget AddMod<TTarget, TTargetValue>(this TTarget target, Mod mod, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TTarget : RpgObject
         {
-            var mod = new BaseMod()
-                .SetProps(entity, targetExpr, dice, valueFunc)
-                .Create();
-            
-            entity.AddMods(mod);
-
-            return entity;
+            mod.Set(target, targetExpr, dice, valueFunc);
+            target.AddMods(mod);
+            return target;
         }
 
-        public static TTarget BaseMod<TTarget, TTargetValue, TSourceValue>(this TTarget entity, Expression<Func<TTarget, TTargetValue>> targetExpr, Expression<Func<TTarget, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+        public static TTarget AddMod<TTarget, TTargetVal, TSourceVal>(this TTarget target, Mod mod, Expression<Func<TTarget, TTargetVal>> targetExpr, Expression<Func<TTarget, TSourceVal>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TTarget : RpgObject
         {
-            var mod = new BaseMod()
-                .SetProps(entity, targetExpr, entity, sourceExpr, valueFunc)
-                .Create();
-
-            entity.AddMods(mod);
-
-            return entity;
+            mod.Set(target, targetExpr, target, sourceExpr, valueFunc);
+            target.AddMods(mod);
+            return target;
         }
 
-        public static TTarget AddMod<TTarget>(this TTarget entity, ModTemplate template, string targetProp, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+        public static TTarget AddMod<TTarget, TTargetVal, TSource, TSourceVal>(this TTarget target, Mod mod, Expression<Func<TTarget, TTargetVal>> targetExpr, TSource source, Expression<Func<TSource, TSourceVal>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TTarget : RpgObject
+            where TSource : RpgObject
         {
-            var mod = template
-                .SetProps(entity, targetProp, dice, valueFunc)
-                .Create();
-
-            entity.AddMods(mod);
-
-            return entity;
-        }
-
-        public static TTarget AddMod<TTarget, TSourceValue>(this TTarget entity, ModTemplate template, string targetProp, Expression<Func<TTarget, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-            where TTarget : RpgObject
-        {
-            var mod = template
-                .SetProps(entity, targetProp, sourceExpr, valueFunc)
-                .Create();
-
-            entity.AddMods(mod);
-
-            return entity;
-        }
-
-        public static TTarget AddMod<TTarget, TTargetValue>(this TTarget entity, ModTemplate template, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-            where TTarget : RpgObject
-        {
-            var mod =  template
-                .SetProps(entity, targetExpr, dice, valueFunc)
-                .Create();
-
-            entity.AddMods(mod);
-
-            return entity;
-        }
-
-        public static TTarget AddMod<TTarget, TTargetValue, TSourceValue>(this TTarget entity, ModTemplate template, Expression<Func<TTarget, TTargetValue>> targetExpr, Expression<Func<TTarget, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-            where TTarget : RpgObject
-        {
-            var mod = template
-                .SetProps(entity, targetExpr, entity, sourceExpr, valueFunc)
-                .Create();
-
-            entity.AddMods(mod);
-
-            return entity;
+            mod.Set(target, targetExpr, source, sourceExpr, valueFunc);
+            target.AddMods(mod);
+            return target;
         }
     }
 }

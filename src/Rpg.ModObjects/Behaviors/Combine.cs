@@ -14,7 +14,7 @@ namespace Rpg.ModObjects.Behaviors
                 graph.CalculateModValue(mod)
             );
 
-            mod.SetSource(value);
+            mod.Set(value);
 
             foreach (var matchingMod in matchingMods)
                 prop.Remove(matchingMod);
@@ -28,6 +28,6 @@ namespace Rpg.ModObjects.Behaviors
 
         protected Mod[] MatchingMods<T>(RpgGraph graph, Mod mod)
             where T : BaseBehavior
-                => graph.GetMods(mod, x => x.Behavior is T && x.Behavior.Type == mod.Behavior.Type && x.Name == mod.Name);
+                => graph.GetMods(mod.TargetPropRef, x => x.Behavior is T && x.Behavior.Type == mod.Behavior.Type && x.Name == mod.Name);
     }
 }

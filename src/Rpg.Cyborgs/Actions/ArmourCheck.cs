@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Mods.Templates;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.Cyborgs.Actions
@@ -57,13 +57,13 @@ namespace Rpg.Cyborgs.Actions
                     activity
                         .ActivityMod("damage", "ArmourCheck", damage)
                         .OutcomeSet
-                            .Add(new PermanentMod(), armour, x => x.CurrentArmourRating, -2);
+                            .Add(new Permanent(), armour, x => x.CurrentArmourRating, -2);
 
                 else if (success1)
                     activity
                         .ActivityMod("damage", "ArmourCheck", Convert.ToInt32(Math.Ceiling((double)damage / 2)))
                         .OutcomeSet
-                            .Add(new PermanentMod(), armour, x => x.CurrentArmourRating, -1);
+                            .Add(new Permanent(), armour, x => x.CurrentArmourRating, -1);
             }
 
             return true;

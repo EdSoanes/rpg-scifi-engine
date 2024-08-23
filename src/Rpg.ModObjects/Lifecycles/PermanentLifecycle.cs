@@ -1,6 +1,6 @@
-﻿namespace Rpg.ModObjects.Lifecycles
-{
-    public class PermanentLifecycle : BaseLifecycle
-    {
-    }
-}
+﻿//namespace Rpg.ModObjects.Lifecycles
+//{
+//    public class PermanentLifecycle : BaseLifecycle
+//    {
+//    }
+//}

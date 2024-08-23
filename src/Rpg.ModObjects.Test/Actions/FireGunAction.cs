@@ -1,9 +1,10 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Mods.Templates;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Tests.Models;
 using Rpg.ModObjects.Tests.States;
+using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects.Tests.Actions
 {
@@ -43,9 +44,9 @@ namespace Rpg.ModObjects.Tests.Actions
                 .ActivityMod("damage", initiator, x => x.Dexterity.Bonus);
             
             activity.OutcomeSet
-                .Add(new PermanentMod(), owner, x => x.Ammo.Current, -1);
+                .Add(new Permanent(), owner, x => x.Ammo.Current, -1);
 
-            var firing = owner.CreateStateInstance(nameof(GunFiring))!;
+            var firing = owner.CreateStateInstance(nameof(GunFiring), new SpanOfTime(0, 1))!;
             activity.OutputSets.Add(firing);
 
             return true;

@@ -1,5 +1,4 @@
-﻿using Rpg.ModObjects.Lifecycles;
-using Rpg.ModObjects.Mods;
+﻿using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Values;
 
@@ -10,7 +9,7 @@ namespace Rpg.ModObjects.Tests
         public int GetInt(int i) { return i * 2; }
         public int GetIntNullable(int? i) { return i ?? 0; }
         public Dice GetDice(Dice dice) { return dice; }
-        public ModSet GetObject(RpgObject obj) { return new ModSet("owner-id", new PermanentLifecycle(), "ModSet"); }
+        public ModSet GetObject(RpgObject obj) { return new ModSet("owner-id", "ModSet"); }
 
     }
 
