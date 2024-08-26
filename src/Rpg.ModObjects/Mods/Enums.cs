@@ -9,9 +9,9 @@ namespace Rpg.ModObjects.Mods
     public enum ModScope
     {
         Standard,
-        Entity,
-        Components,
-        Objects
+        ParentEntity,
+        ChildComponents,
+        ChildObjects
     }
 
     public enum ModMerging

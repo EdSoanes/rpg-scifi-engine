@@ -15,7 +15,8 @@ namespace Rpg.ModObjects.Mods
         [JsonProperty] public bool IsDisabled { get; private set; }
         public bool IsActive { get => IsApplied && !IsDisabled; }
 
-        [JsonProperty] public List<Mod> Mods { get; private set; } = new List<Mod>();
+        [JsonIgnore] public List<Mod> Mods { get; private set; } = new List<Mod>();
+        [JsonProperty] private List<string> _modIds { get; init; } = new();
 
         [JsonConstructor] protected ModSet() { }
 
@@ -24,6 +25,16 @@ namespace Rpg.ModObjects.Mods
             Id = this.NewId();
             Name = name ?? this.GetType().Name;
             OwnerId = ownerId;
+        }
+
+        public override void SetExpired()
+        {
+            base.SetExpired();
+            foreach (var mod in Mods.Where(x => x is Synced && !x.IsExpired))
+            {
+                mod.SetExpired();
+                Graph.OnPropUpdated(mod.TargetPropRef);
+            }
         }
 
         public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
@@ -35,17 +46,18 @@ namespace Rpg.ModObjects.Mods
         public override void OnRestoring(RpgGraph graph)
         {
             base.OnRestoring(graph);
-            Graph!.AddMods([.. Mods]);
+            Mods = Graph.GetMods(mod => _modIds.Contains(mod.Id)).ToList();
         }
 
         public void AddMods(params Mod[] mods)
         {
             foreach (var mod in mods)
             {
+                if (!_modIds.Contains(mod.Id))
+                    _modIds.Add(mod.Id);
+
                 if (!Mods.Any(x => x.Id == mod.Id))
                 {
-                    mod.OwnerId = Id;
-
                     if (IsApplied) mod.Apply();
                     else mod.Unapply();
 
@@ -65,10 +77,10 @@ namespace Rpg.ModObjects.Mods
         public void Unapply()
             => Graph!.UnapplyMods([.. Mods]);
 
-        public void Enable()
+        public void UserEnabled()
             => Graph!.EnableMods([.. Mods]);
 
-        public void Disable()
+        public void UserDisabled()
             => Graph!.DisableMods([.. Mods]);
     }
 

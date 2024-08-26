@@ -80,7 +80,7 @@ namespace Rpg.ModObjects.Tests
 
             var graphState = RpgSerializer.Deserialize<RpgGraphState>(json)!;
             var graph2 = new RpgGraph(graphState);
-            graph2.Time.TriggerEvent();
+
 
             var entity2 = graph2.Context as ModdableEntity;
 

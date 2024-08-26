@@ -37,9 +37,10 @@ namespace Rpg.ModObjects.Server
             var graph = _graphService.HydrateGraph(system, request.GraphState);
 
             var entity = graph.GetObject<RpgEntity>(request.Op.EntityId)!;
-            var stateChanged = request.Op.On
-                ? entity.SetStateOn(request.Op.State)
-                : entity.SetStateOff(request.Op.State);
+            if (request.Op.On)
+                entity.SetStateOn(request.Op.State);
+            else
+                entity.SetStateOff(request.Op.State);
 
             graph.Time.TriggerEvent();
 

@@ -1,5 +1,6 @@
 using Rpg.Cyborgs.Tests.Models;
 using Rpg.ModObjects;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
 
@@ -31,8 +32,8 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(propDesc.Prop, Is.EqualTo("Value"));
 
             Assert.That(propDesc.Mods.Count(), Is.EqualTo(2));
-            Assert.That(propDesc.Mods.Count(x => x.ModType == ModObjects.Mods.ModType.Initial), Is.EqualTo(1));
-            Assert.That(propDesc.Mods.Count(x => x.ModType == ModObjects.Mods.ModType.Base), Is.EqualTo(1));
+            Assert.That(propDesc.Mods.Count(x => x.ModType == nameof(Initial) || x.ModType == nameof(Threshold)), Is.EqualTo(1));
+            Assert.That(propDesc.Mods.Count(x => x.ModType == nameof(Base)), Is.EqualTo(1));
         }
 
         [Test]
@@ -53,8 +54,8 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(propDesc.Prop, Is.EqualTo("FocusPoints"));
 
             Assert.That(propDesc.Mods.Count(), Is.EqualTo(5));
-            Assert.That(propDesc.Mods.Count(x => x.ModType == ModObjects.Mods.ModType.Initial), Is.EqualTo(2));
-            Assert.That(propDesc.Mods.Count(x => x.ModType == ModObjects.Mods.ModType.Base), Is.EqualTo(3));
+            Assert.That(propDesc.Mods.Count(x => x.ModType == nameof(Initial) || x.ModType == nameof(Threshold)), Is.EqualTo(2));
+            Assert.That(propDesc.Mods.Count(x => x.ModType == nameof(Base)), Is.EqualTo(3));
         }
     }
 }

@@ -1,7 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Props;
-using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Behaviors
 {
@@ -15,7 +13,6 @@ namespace Rpg.ModObjects.Behaviors
         public Threshold(int min, int max)
             : base()
         {
-            Type = ModType.Initial;
             Min = min;
             Max = max;
         }

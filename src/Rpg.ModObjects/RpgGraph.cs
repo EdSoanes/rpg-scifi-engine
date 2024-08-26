@@ -32,14 +32,17 @@ namespace Rpg.ModObjects
             RpgTypeScan.RegisterAssembly(GetType().Assembly);
 
             Context = (RpgEntity)state.Entities.First(x => x.Id == state.ContextId);
-            Time = state.Time!;
-            Time.OnTemporalEvent += OnTemporalEvent;
 
             foreach (var entity in state.Entities.SelectMany(x => x.Traverse()))
                 ObjectStore.Add(entity.Id, entity);
 
             foreach (var entity in ObjectStore.Values)
                 entity.OnRestoring(this);
+
+            Time = state.Time!;
+            Time.OnTemporalEvent += OnTemporalEvent;
+            OnPropsUpdated();
+            Time.TriggerEvent();
         }
 
         public RpgGraphState GetGraphState()
@@ -85,6 +88,12 @@ namespace Rpg.ModObjects
                 ?.GetMods(propRef?.Prop)
                 .Where(x => filterFunc == null || filterFunc(x))
                 .ToArray() ?? Array.Empty<Mod>();
+
+        public Mod[] GetMods(Func<Mod, bool>? filterFunc = null)
+            => ObjectStore.Values
+                .SelectMany(x => x.GetMods())
+                .Where(x => filterFunc == null || filterFunc(x))
+                .ToArray();
 
         public void AddMods(params Mod[] mods)
         {
@@ -233,28 +242,34 @@ namespace Rpg.ModObjects
             where T : RpgObject
                 => ObjectStore.Values
                     .Where(x => x is T)
-                    .Cast<T>();      
+                    .Cast<T>();
 
-        public IEnumerable<RpgObject> GetScopedEntities(string rpgObjId, ModScope scope)
+        public IEnumerable<RpgObject> GetObjectsByScope(string rpgObjId, ModScope scope)
         {
-            var entity = GetObject(rpgObjId);
-            if (entity is RpgComponent)
-                entity = GetObject((entity as RpgComponent)!.EntityPropRef!.EntityId);
+            var rpgObj = GetObject(rpgObjId)!;
+            if (scope == ModScope.Standard)
+                return rpgObj != null
+                    ? [rpgObj]
+                    : [];
 
-            var all = ObjectStore.Values.Where(x => x.Id == entity!.Id || (x as RpgComponent)?.EntityPropRef?.EntityId == entity!.Id);
-            if (scope == ModScope.Objects)
-                return all.Where(x => x.Id != rpgObjId);
-
-            if (scope == ModScope.Components)
+            if (scope == ModScope.ParentEntity)
             {
-                var components = all
-                    .Where(x => x is RpgComponent && x.Id != rpgObjId)
-                    .Cast<RpgComponent>();
-
-                return components;
+                var parent = GetObject(rpgObj.ParentRef?.EntityId);
+                return parent != null
+                    ? [parent]
+                    : [];
             }
 
-            return all.Where(x => x.Id == rpgObjId);
+            if (rpgObj is RpgEntity entity)
+            {
+                var children = ObjectStore.Values.Where(x => x.ParentRef?.EntityId == rpgObj.Id);
+                if (scope == ModScope.ChildComponents)
+                    return children.Where(x => x is RpgComponent);
+
+                return children;
+            }
+
+            return [];
         }
 
         public ModSet[] GetModSets()
@@ -262,10 +277,32 @@ namespace Rpg.ModObjects
                 .SelectMany(x => x.ModSets.Values)
                 .ToArray();
 
-        public ModSet[] GetModSets(RpgObject rpgObj, Func<ModSet, bool> filterFunc)
-            => rpgObj.ModSets.Values
-                .Where(x => filterFunc(x))
-                .ToArray();
+        public T[] GetModSets<T>()
+            where T : ModSet
+                => GetModSets()
+                    .Where(x => x is T)
+                    .Cast<T>()
+                    .ToArray();
+
+        public ModSet[] GetModSets(string rpgObjId, Func<ModSet, bool> filterFunc)
+            => GetModSets(GetObject(rpgObjId), filterFunc);
+
+        public ModSet[] GetModSets(RpgObject? rpgObj, Func<ModSet, bool> filterFunc)
+                => rpgObj?.ModSets.Values
+                    .Where(x => filterFunc(x))
+                    .ToArray() ?? [];
+
+        public T[] GetModSets<T>(string rpgObjId, Func<T, bool> filterFunc)
+            where T : ModSet
+                => GetModSets(GetObject(rpgObjId), filterFunc);
+
+        public T[] GetModSets<T>(RpgObject? rpgObj, Func<T, bool> filterFunc)
+            where T : ModSet
+                => rpgObj?.ModSets.Values
+                    .Where(x => x is T)
+                    .Cast<T>()
+                    .Where(x => filterFunc(x))
+                    .ToArray() ?? [];
 
         public ModSet? GetModSet(string? modSetId)
         {
@@ -308,6 +345,21 @@ namespace Rpg.ModObjects
                     return;
                 }
             }
+        }
+
+        public void RemoveModSet(string rpgObjId, string modSetId)
+        {
+            var rpgObj = GetObject(rpgObjId);
+            var modSet = rpgObj?.GetModSet(modSetId);
+            if (modSet != null)
+                rpgObj!.RemoveModSet(modSet.Id);
+        }
+
+        public void RemoveModSet(string rpgObjId, ModSet modSet)
+        {
+            var rpgObj = GetObject(rpgObjId);
+            if (rpgObj != null)
+                rpgObj!.RemoveModSet(modSet.Id);
         }
 
         public void RemoveModSet(RpgObject rpgObj, string modSetId)

@@ -1,58 +1,99 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Time;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.ModObjects
 {
-    public sealed class RpgObjRef
+    public sealed class RpgObjRef<T>
+        where T : class
     {
         [JsonProperty] public SpanOfTime Lifespan { get; set; }
-        [JsonProperty] public string EntityId { get; set; }
+        [JsonProperty] public T Obj { get; set; }
 
         [JsonConstructor] RpgObjRef() { }
 
-        public RpgObjRef(string entityId, PointInTime start, PointInTime end)
+        public RpgObjRef(T obj, SpanOfTime lifespan)
         {
-            EntityId = entityId;
-            Lifespan = new SpanOfTime(start, end);
+            Obj = obj;
+            Lifespan = lifespan;
         }
+        public RpgObjRef(T obj, PointInTime start, PointInTime end)
+            : this(obj, new SpanOfTime(start, end))
+                => Obj = obj;
     }
 
-    public sealed class RpgRef : RpgLifecycleObject
+    public sealed class RpgRef<T> : RpgLifecycleObject
+        where T : class
     {
-        [JsonProperty] private List<RpgObjRef> Refs { get; set; } = new();
+        [JsonProperty] private List<RpgObjRef<T>> Refs { get; set; } = new();
 
-        public string? EntityId
+        public static implicit operator RpgRef<T>(T obj) => new RpgRef<T>(obj);
+
+        public RpgRef() { }
+
+        public RpgRef(T obj)
         {
-            get
-            {
-                var entityRef = Refs.FirstOrDefault(x => x.Lifespan.GetExpiry(Graph.Time.Current) == LifecycleExpiry.Active);
-                return entityRef?.EntityId;
-            }
-            set
-            {
-                if (!string.IsNullOrEmpty(value) && EntityId != value)
-                {
-                    var last = Refs.LastOrDefault();
-                    if (last != null)
-                        last.Lifespan = new SpanOfTime(last.Lifespan.Start, Graph.Time.Current);
-
-                    Refs.Add(new RpgObjRef(value, Graph.Time.Current, new PointInTime(PointInTimeType.TimeEnds)));
-                }
-            }
+            Set(obj);
         }
 
-        [JsonConstructor] private RpgRef() { }
-
-        public RpgRef(RpgGraph graph, string entityId)
+        public RpgRef(RpgGraph graph)
         {
             OnCreating(graph);
             OnTimeBegins();
-            EntityId = entityId;
+        }
+
+        public RpgRef(RpgGraph graph, T obj)
+        {
+            OnCreating(graph);
+            OnTimeBegins();
+            Set(obj);
+        }
+
+        public T? Get()
+            => Refs.LastOrDefault(x => x.Lifespan.GetExpiry(Graph.Time.Current) == LifecycleExpiry.Active)?.Obj;
+
+        public void Set(T? obj, SpanOfTime? spanOfTime = null)
+        {
+            if (Graph != null)
+            {
+                if (spanOfTime != null)
+                    spanOfTime.SetStartTime(Graph.Time.Current);
+                else
+                    spanOfTime = new SpanOfTime(Graph.Time.Current, PointInTimeType.TimeEnds);
+
+                (obj as SpanOfTime)?.SetStartTime(Graph.Time.Current);
+            }
+
+            foreach (var existing in Refs.Where(x => x.Lifespan.End.Type == PointInTimeType.TimeEnds))
+                existing.Lifespan = new SpanOfTime(existing.Lifespan.Start, Graph.Time.Current);
+
+            if (obj != null && Get() != obj)
+                Refs.Add(new RpgObjRef<T>(obj, spanOfTime));
+        }
+
+        protected override void CalculateExpiry()
+        {
+            var idx = Refs.FindIndex(x => x.Lifespan.GetExpiry(Graph.Time.Current) == LifecycleExpiry.Active);
+            if (idx >= 0)
+            {
+                Expiry = LifecycleExpiry.Active;
+                return;
+            }
+
+            if (Refs.Count() == 0)
+            {
+                Expiry = LifecycleExpiry.Unset;
+                return;
+            }
+
+            if (Refs.Any(x => x.Lifespan.Start > Graph.Time.Current))
+            {
+                Expiry = LifecycleExpiry.Pending;
+                return;
+            }
+
+            Expiry = Graph.Time.Current.IsEncounterTime
+                ? LifecycleExpiry.Expired
+                : LifecycleExpiry.Destroyed;
         }
 
         public override LifecycleExpiry OnUpdateLifecycle()

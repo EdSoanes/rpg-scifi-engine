@@ -11,11 +11,11 @@ namespace Rpg.ModObjects.Mods.Mods
             : base()
         { }
 
-        public Synced(string ownerId, ModType modType = ModType.Standard)
+        public Synced(string ownerId)
             : base()
         {
             OwnerId = ownerId;
-            Behavior = new Add(modType);
+            Behavior = new Add();
         }
 
         public override LifecycleExpiry OnStartLifecycle()

@@ -1,4 +1,5 @@
 ﻿using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Tests.Models;
 
@@ -28,12 +29,12 @@ namespace Rpg.ModObjects.Tests
             Assert.That(desc.Value.Roll(), Is.EqualTo(4));
             Assert.That(desc.Mods.Count(), Is.EqualTo(2));
 
-            var initialMod = desc.Mods.FirstOrDefault(x => x.ModType == ModType.Initial);
+            var initialMod = desc.Mods.FirstOrDefault(x => x.ModType == nameof(Initial));
 
             Assert.That(initialMod, Is.Not.Null);
             Assert.That(initialMod.Value.Roll(), Is.EqualTo(2));
 
-            var baseMods = desc.Mods.Where(x => x.ModType == ModType.Base);
+            var baseMods = desc.Mods.Where(x => x.ModType == nameof(Base));
             Assert.That(baseMods.Count(), Is.EqualTo(1));
 
             var baseMod = baseMods.First();

@@ -12,29 +12,41 @@ namespace Rpg.ModObjects.Tests
             RpgTypeScan.RegisterAssembly(this.GetType().Assembly);
         }
 
+        [Test]
+        public void CreateEmptyRef_Unset()
+        {
+            var entity = new SimpleModdableEntity(10, 1);
+            var graph = new RpgGraph(entity);
+
+            Assert.That(entity.Ref.Get(), Is.Null);
+            Assert.That(entity.Ref.Expiry, Is.EqualTo(LifecycleExpiry.Unset));
+        }
+
         [Test] 
         public void CreatePermanentRef_Ok()
         {
-            var graph = new RpgGraph(new SimpleModdableEntity(10, 1));
-            var objRef = new RpgRef(graph, "1234");
+            var entity = new SimpleModdableEntity(10, 1);
+            var graph = new RpgGraph(entity);
 
-            Assert.That(objRef.EntityId, Is.EqualTo("1234"));
+            entity.Ref.Set("1234");
+
+            Assert.That(entity.Ref.Get(), Is.EqualTo("1234"));
 
             graph.Time.Transition(PointInTimeType.TimePassing);
-            Assert.That(objRef.EntityId, Is.EqualTo("1234"));
+            Assert.That(entity.Ref.Get(), Is.EqualTo("1234"));
 
             graph.Time.Transition(PointInTimeType.Turn, 2);
-            Assert.That(objRef.EntityId, Is.EqualTo("1234"));
+            Assert.That(entity.Ref.Get(), Is.EqualTo("1234"));
 
-            objRef.EntityId = "5678";
-            Assert.That(objRef.EntityId, Is.EqualTo("5678"));
+            entity.Ref.Set("5678");
+
+            Assert.That(entity.Ref.Get(), Is.EqualTo("5678"));
 
             graph.Time.Transition(PointInTimeType.Turn, 1);
-            Assert.That(objRef.EntityId, Is.EqualTo("1234"));
+            Assert.That(entity.Ref.Get(), Is.EqualTo("1234"));
 
             graph.Time.Transition(PointInTimeType.Turn, 1000);
-            Assert.That(objRef.EntityId, Is.EqualTo("5678"));
-
+            Assert.That(entity.Ref.Get(), Is.EqualTo("5678"));
         }
     }
 }

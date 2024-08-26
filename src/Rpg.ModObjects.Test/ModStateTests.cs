@@ -1,5 +1,6 @@
 ﻿using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
+using Rpg.ModObjects.Mods.ModSets;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.States;
 using Rpg.ModObjects.Tests.Models;
@@ -22,7 +23,7 @@ namespace Rpg.ModObjects.Tests
         protected override bool IsOnWhen(StateEntity owner)
             => owner.Value >= 10;
 
-        protected override void OnFillStateSet(ModSet modSet, StateEntity owner)
+        protected override void OnFillStateSet(StateModSet modSet, StateEntity owner)
             => modSet.Add(owner, x => x.BuffedValue, 10);
     }
 

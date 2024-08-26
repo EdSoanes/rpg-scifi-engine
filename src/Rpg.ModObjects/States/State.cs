@@ -12,11 +12,12 @@ namespace Rpg.ModObjects.States
         [JsonProperty] public string Name { get; protected set; }
         [JsonProperty] public string OwnerId { get; private init; }
         [JsonProperty] public string? OwnerArchetype { get; private set; }
-        [JsonProperty] protected SpanOfTime? ManualLifespan { get; set; }
+        [JsonProperty] protected RpgRef<SpanOfTime> ActiveTimeSpans { get; set; } = new();
 
-        public bool IsOn { get => IsOnConditionally || IsOnManually; }
-        public bool IsOnConditionally { get => Graph?.GetObject(OwnerId)!.GetActiveConditionalStateInstances(Name).Any() ?? false; }
-        public bool IsOnManually { get => ManualLifespan != null; }
+        public bool IsOn { get => OnByTimePeriod || OnByUserAction || OnByCondition; }
+        public bool OnByTimePeriod { get => ActiveTimeSpans.Expiry == LifecycleExpiry.Active; }
+        public bool OnByUserAction { get; private set; }
+        public bool OnByCondition { get; protected set; }
 
         [JsonConstructor] protected State() { }
 
@@ -28,30 +29,34 @@ namespace Rpg.ModObjects.States
             OwnerArchetype = owner.Archetype;
         }
 
-        public ModSet CreateInstance(SpanOfTime? spanOfTime = null)
+        public StateModSet CreateInstance(SpanOfTime? spanOfTime = null)
         {
-            ModSet modSet = spanOfTime != null
-                ? new TimedModSet(OwnerId, Name, spanOfTime!)
-                : new SyncedModSet(OwnerId!, Id, Name);
+            if (spanOfTime != null)
+                ActiveTimeSpans.Set(spanOfTime, spanOfTime);
+            else
+                ActiveTimeSpans.Set(null);
 
-            FillStateSet(modSet);
+            var instance = GetInstance();
+            if (instance == null)
+            {
+                instance = new StateModSet(OwnerId, Name);
+                instance.Update(OnByUserAction, Expiry);
+                FillStateSet(instance);
+            }
 
-            return modSet;
+            return instance;
         }
 
-        internal abstract void FillStateSet(ModSet modSet);
+        public StateModSet? GetInstance()
+            => Graph?.GetModSets<StateModSet>(OwnerId, (x) => x.StateName == Name && x.Expiry == LifecycleExpiry.Active).FirstOrDefault();
 
-        public bool On()
-        {
-            ManualLifespan ??= new SpanOfTime();
-            return true;
-        }
+        internal abstract void FillStateSet(StateModSet modSet);
 
-        public bool Off()
-        {
-            ManualLifespan = null;
-            return true;
-        }
+        public void On()
+            => OnByUserAction = true;
+
+        public void Off()
+            => OnByUserAction = false;
 
         public static State[] CreateOwnerStates(RpgObject entity)
         {
@@ -69,6 +74,50 @@ namespace Rpg.ModObjects.States
 
             return states.ToArray();
         }
+
+        public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
+        {
+            base.OnCreating(graph, entity);
+            ActiveTimeSpans.OnCreating(graph, entity);
+        }
+
+        public override void OnRestoring(RpgGraph graph)
+        {
+            base.OnRestoring(graph);
+            ActiveTimeSpans.OnRestoring(graph);
+        }
+
+        public override LifecycleExpiry OnStartLifecycle()
+        {
+            ActiveTimeSpans.OnStartLifecycle();
+            CalculateExpiry();
+
+            if (Expiry == LifecycleExpiry.Active)
+            {
+                var instance = CreateInstance();
+                Graph.AddModSets(instance);
+            }
+
+            return Expiry;
+        }
+
+        public override LifecycleExpiry OnUpdateLifecycle()
+        {
+            ActiveTimeSpans.OnUpdateLifecycle();
+            CalculateExpiry();
+
+            var instance = GetInstance();
+            if (instance != null)
+                instance.Update(OnByUserAction, Expiry);
+            else if (Expiry == LifecycleExpiry.Active)
+            {
+                instance = CreateInstance();
+                Graph.AddModSets(instance);
+            }
+
+            return Expiry;
+        }
+
 
         private static bool IsOwnerStateType(RpgObject entity, Type? stateType)
         {
@@ -101,37 +150,34 @@ namespace Rpg.ModObjects.States
         protected virtual bool IsOnWhen(T owner)
             => false;
 
-        internal override void FillStateSet(ModSet modSet)
+        internal override void FillStateSet(StateModSet modSet)
         {
             var owner = Graph!.GetObject<T>(OwnerId)!;
             OnFillStateSet(modSet, owner);
         }
 
-        protected virtual void OnFillStateSet(ModSet modSet, T owner)
+        protected virtual void OnFillStateSet(StateModSet modSet, T owner)
         { }
 
-        public override LifecycleExpiry OnStartLifecycle()
+        protected override void CalculateExpiry()
         {
-            Lifespan.SetStartTime(Graph.Time.Current);
-            return CalculateExpiry();
-        }
+            var expiry = OnByUserAction
+                ? LifecycleExpiry.Active
+                : ActiveTimeSpans.Expiry;
 
-        public override LifecycleExpiry OnUpdateLifecycle()
-            => CalculateExpiry();
-
-        protected virtual LifecycleExpiry CalculateExpiry()
-        {
-            var expiry = ManualLifespan?.GetExpiry(Graph.Time.Current) ?? LifecycleExpiry.Unset;
-            if (expiry == LifecycleExpiry.Unset)
+            if (expiry != LifecycleExpiry.Active)
             {
                 var owner = Graph!.GetObject<T>(OwnerId)!;
-                expiry = IsOnWhen(owner)
+                OnByCondition = IsOnWhen(owner);
+                expiry = OnByCondition
                     ? LifecycleExpiry.Active
                     : LifecycleExpiry.Expired;
             }
 
-            Expiry = expiry != LifecycleExpiry.Unset ? expiry : LifecycleExpiry.Expired;
-            return Expiry;
+            if (expiry == LifecycleExpiry.Expired && !Graph.Time.Current.IsEncounterTime)
+                expiry = LifecycleExpiry.Destroyed;
+
+            Expiry = expiry;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Mods;
+﻿using Newtonsoft.Json.Linq;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Values;
 
@@ -8,7 +9,7 @@ namespace Rpg.ModObjects.Behaviors
     {
         public override void OnAdding(RpgGraph graph, Prop prop, Mod mod)
         {
-            var matchingMods = MatchingMods<Combine>(graph, mod);
+            var matchingMods = GetMatchingMods<ExpiresOn>(graph, mod);
             var value = Dice.Add(
                 graph.CalculateModsValue(matchingMods),
                 graph.CalculateModValue(mod)
@@ -17,17 +18,12 @@ namespace Rpg.ModObjects.Behaviors
             mod.Set(value);
 
             foreach (var matchingMod in matchingMods)
-                prop.Remove(matchingMod);
-
-            if (mod.SourceValue != null && mod.SourceValue != Dice.Zero)
             {
-                prop.Add(mod);
-                OnScoping(graph, prop, mod);
+                prop.Remove(matchingMod);
+                RemoveScopedMods(graph, matchingMod);
             }
-        }
 
-        protected Mod[] MatchingMods<T>(RpgGraph graph, Mod mod)
-            where T : BaseBehavior
-                => graph.GetMods(mod.TargetPropRef, x => x.Behavior is T && x.Behavior.Type == mod.Behavior.Type && x.Name == mod.Name);
+            base.OnAdding(graph, prop, mod);
+        }
     }
 }

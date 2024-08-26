@@ -36,26 +36,35 @@ namespace Rpg.ModObjects
         public virtual LifecycleExpiry OnStartLifecycle()
         {
             Lifespan.SetStartTime(Graph.Time.Current);
-            Expiry = ExpiredTime != null && ExpiredTime <= Graph.Time.Current
-                ? LifecycleExpiry.Expired
-                : Lifespan.GetExpiry(Graph!.Time.Current);
- 
+            CalculateExpiry();
             return Expiry;
         }
 
         public virtual LifecycleExpiry OnUpdateLifecycle()
         {
-            Expiry = ExpiredTime != null && ExpiredTime <= Graph.Time.Current
-                ? LifecycleExpiry.Expired
-                : Lifespan.GetExpiry(Graph!.Time.Current);
-
+            CalculateExpiry();
             return Expiry;
         }
 
         public virtual void SetExpired()
         {
             ExpiredTime = Graph.Time.Current;
+            CalculateExpiry();
             Expiry = Lifespan.GetExpiry(Graph.Time.Current);
+        }
+
+        protected virtual void CalculateExpiry()
+        {
+            if (ExpiredTime != null)
+                Expiry = new SpanOfTime(
+                    new PointInTime(PointInTimeType.BeforeTime),
+                    ExpiredTime.Value
+                ).GetExpiry(Graph.Time.Current);
+            else
+                Expiry = Lifespan.GetExpiry(Graph!.Time.Current);
+
+            if (Expiry == LifecycleExpiry.Expired && !Graph.Time.Current.IsEncounterTime)
+                Expiry = LifecycleExpiry.Destroyed;
         }
     }
 }

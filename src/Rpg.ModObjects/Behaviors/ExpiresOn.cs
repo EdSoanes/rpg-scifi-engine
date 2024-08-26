@@ -5,7 +5,7 @@ using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Behaviors
 {
-    public class ExpiresOn : Combine
+    public class ExpiresOn : BaseBehavior
     {
         [JsonProperty] public Dice Value { get; private set; }
 
@@ -17,21 +17,25 @@ namespace Rpg.ModObjects.Behaviors
 
         public override void OnAdding(RpgGraph graph, Prop modProp, Mod mod)
         {
-            var matchingMods = MatchingMods<ExpiresOn>(graph, mod);
+            var matchingMods = GetMatchingMods<ExpiresOn>(graph, mod);
             var value = Dice.Add(
                 graph.CalculateModsValue(matchingMods),
                 graph.CalculateModValue(mod)
             );
 
-            mod.Set(value);
+            mod.Set(Value == value ? null : value);
 
             foreach (var matchingMod in matchingMods)
+            {
                 modProp.Remove(matchingMod);
+                RemoveScopedMods(graph, matchingMod);
+            }
 
+            base.OnAdding(graph, modProp, mod);
             if (mod.SourceValue != null && mod.SourceValue != Value)
             {
                 modProp.Add(mod);
-                OnScoping(graph, modProp, mod);
+                CreateScopedMods(graph, mod);
             }
         }
     }

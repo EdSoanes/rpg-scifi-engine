@@ -9,7 +9,7 @@ namespace Rpg.ModObjects.Mods.Mods
         [JsonConstructor] protected Initial()
             : base()
         {
-            Behavior = new Replace(ModType.Initial);
+            Behavior = new Replace();
         }
 
         public Initial(string entityId, string prop, Dice sourceValue)

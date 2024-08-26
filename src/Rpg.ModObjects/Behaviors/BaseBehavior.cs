@@ -8,53 +8,65 @@ namespace Rpg.ModObjects.Behaviors
 {
     public abstract class BaseBehavior
     {
-        [JsonIgnore] public ModType Type { get; protected set; } = ModType.Standard;
         [JsonIgnore] public ModScope Scope { get; internal set; } = ModScope.Standard;
         [JsonIgnore] public LifecycleExpiry Expiry { get; private set; } = LifecycleExpiry.Active;
 
         public virtual void OnAdding(RpgGraph graph, Prop modProp, Mod mod)
         {
-            if (!modProp.Contains(mod))
+            //Don't add if the source is a Value without a ValueFunction and the Value = null
+            if (mod.SourcePropRef != null || mod.SourceValue != null || mod.SourceValueFunc != null)
                 modProp.Add(mod);
 
-            OnScoping(graph, modProp, mod);
+            var scopedMods = CreateScopedMods(graph, mod);
+            if (scopedMods.Any())
+                graph.AddMods(scopedMods);
         }
 
-        public virtual void OnScoping(RpgGraph graph, Prop modProp, Mod mod)
+        public virtual void OnUpdating(RpgGraph graph, Mod mod)
         {
+            var scopedMods = CreateScopedMods(graph, mod);
+            if (scopedMods.Any())
+                graph.AddMods(scopedMods);
+        }
+
+        protected virtual Mod[] CreateScopedMods(RpgGraph graph, Mod mod)
+        {
+            var scopedMods = new List<Mod>();
             if (Scope != ModScope.Standard)
             {
-                var entities = graph.GetScopedEntities(mod.EntityId, Scope);
-                foreach (var entity in entities)
+                var entities = graph.GetObjectsByScope(mod.EntityId, Scope);
+                foreach (var entity in entities.Where(x => x.Props.ContainsKey(mod.Prop)))
                 {
-                    var syncedMod = new Synced(mod.Id)
-                        .Set(new PropRef(entity.Id, mod.Prop), mod);
+                    if (!entity.GetMods(mod.Prop, x => x.OwnerId == mod.Id).Any())
+                    {
+                        var syncedMod = new Synced(mod.Id)
+                            .Set(new PropRef(entity.Id, mod.Prop), mod);
 
-                    graph.AddMods(syncedMod);
+                        scopedMods.Add(syncedMod);
+                    }
                 }
             }
+
+            return scopedMods.ToArray();
         }
 
-        public virtual void OnUpdating(RpgGraph graph, Prop modProp, Mod mod)
-        {
-            OnScoping(graph, modProp, mod);
-        }
-
-        //public virtual bool OnRemoving(RpgGraph graph, Prop modProp, Mod mod)
-        //{
-        //    //TODO: Handle scope here...
-        //    return false;
-        //}
-
-        public BaseBehavior Clone<T>(ModScope scope = ModScope.Standard)
+        protected Mod[] GetMatchingMods<T>(RpgGraph graph, Mod mod)
             where T : BaseBehavior
+                => graph.GetMods(mod.TargetPropRef, x => x.Behavior is T && x.GetType() == mod.GetType() && x.Name == mod.Name);
+
+        protected virtual void RemoveScopedMods(RpgGraph graph, Mod mod)
         {
-            var behavior = Activator.CreateInstance<T>();
-
-            behavior.Scope = scope;
-            behavior.Type = Type;
-
-            return behavior;
+            var scopedMods = new List<Mod>();
+            if (Scope != ModScope.Standard)
+            {
+                var entities = graph.GetObjectsByScope(mod.EntityId, Scope);
+                foreach (var entity in entities.Where(x => x.Props.ContainsKey(mod.Prop)))
+                {
+                    var existing = entity.GetMods(mod.Prop, x => x.OwnerId == mod.Id);
+                    if (existing.Any())
+                        entity.RemoveMods(existing);
+                }
+            }
         }
     }
 }

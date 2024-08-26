@@ -13,17 +13,6 @@ namespace Rpg.ModObjects
         public static string NewId(this object obj)
             => $"{obj.GetType().Name}[{Nanoid.Generate(Alphabet, Size)}]";
 
-        public static T AddModSet<T>(this T entity, string name, System.Action<ModSet> addAction)
-            where T : RpgObject
-        {
-            var modSet = new ModSet(entity.Id, name);
-
-            addAction.Invoke(modSet);
-            entity.AddModSet(modSet);
-
-            return entity;
-        }
-
         internal static object? PropertyValue(this object? entity, string path, out bool propExists)
         {
             var propInfo = RpgReflection.ScanForProperty(entity, path, out var pathEntity);

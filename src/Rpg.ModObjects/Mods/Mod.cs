@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Behaviors;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
@@ -10,7 +11,7 @@ namespace Rpg.ModObjects.Mods
 {
     public abstract class Mod : RpgLifecycleObject
     {
-        [JsonProperty] public string Id { get; protected set; }
+        [JsonProperty] public string Id { get; init; }
         [JsonProperty] public string? OwnerId { get; internal set; }
         [JsonProperty] public string EntityId { get; internal set; }
         [JsonProperty] public string Prop { get; internal set; }
@@ -23,18 +24,20 @@ namespace Rpg.ModObjects.Mods
         [JsonProperty] public Dice? SourceValue { get; internal set; }
         [JsonProperty] internal RpgMethod<RpgObject, Dice>? SourceValueFunc { get; set; }
         
-        [JsonIgnore] public bool IsBaseInitMod { get => Behavior.Type == ModType.Initial; }
-        [JsonIgnore] public bool IsBaseOverrideMod { get => Behavior.Type == ModType.Override; }
-        [JsonIgnore] public bool IsBaseMod { get => Behavior.Type == ModType.Base; }
+        [JsonIgnore] public bool IsBaseInitMod { get => this is Initial || this is Mods.Threshold; }
+        [JsonIgnore] public bool IsBaseOverrideMod { get => this is Override; }
+        [JsonIgnore] public bool IsBaseMod { get => this is Base; }
 
         [JsonProperty] public bool IsApplied { get; private set; } = true;
         [JsonProperty] public bool IsDisabled { get; private set; }
-        public bool IsActive { get => Expiry == LifecycleExpiry.Active && IsApplied && !IsDisabled; }
+        [JsonIgnore] public bool IsActive { get => Expiry == LifecycleExpiry.Active && Behavior.Scope == ModScope.Standard && IsApplied && !IsDisabled; }
+        [JsonIgnore] public bool IsPending { get => Expiry == LifecycleExpiry.Pending && Behavior.Scope == ModScope.Standard && IsApplied && !IsDisabled; }
+        [JsonIgnore] public bool IsExpired { get => (Expiry == LifecycleExpiry.Destroyed || Expiry == LifecycleExpiry.Expired) && IsApplied && !IsDisabled; }
 
         [JsonConstructor] protected Mod() 
         {
             Id = this.NewId();
-            Behavior = new Add(ModType.Standard);
+            Behavior = new Add();
         }
 
         public void Apply()
@@ -49,6 +52,27 @@ namespace Rpg.ModObjects.Mods
         public void Disable()
             => IsDisabled = true;
 
+        public override LifecycleExpiry OnStartLifecycle()
+        {
+            var oldExpiry = Expiry;
+            base.OnStartLifecycle();
+            if (oldExpiry != Expiry)
+                Graph.OnPropUpdated(TargetPropRef);
+
+            return Expiry;
+        }
+
+        public override LifecycleExpiry OnUpdateLifecycle()
+        {
+            var oldExpiry = Expiry;
+            base.OnUpdateLifecycle();
+            Behavior.OnUpdating(Graph, this);
+            if (oldExpiry != Expiry)
+                Graph.OnPropUpdated(TargetPropRef);
+
+            return Expiry;
+        }
+
         public override string ToString()
         {
             var src = $"{SourcePropRef}{SourceValue}";
@@ -56,7 +80,7 @@ namespace Rpg.ModObjects.Mods
                 ? $"{SourceValueFunc.MethodName}({src})"
                 : src;
 
-            var mod = $"({Behavior.Type}) {EntityId}.{Prop} <= {src}";
+            var mod = $"({this.GetType().Name}) {EntityId}.{Prop} <= {src}";
             return mod;
         }
 
@@ -84,6 +108,9 @@ namespace Rpg.ModObjects.Mods
             if (valueFunc != null)
                 SourceValueFunc = RpgMethod.Create<RpgObject, Dice, Dice>(valueFunc);
 
+            if (string.IsNullOrEmpty(Name))
+                Name = targetPropRef.Prop;
+
             return this;
         }
 
@@ -94,6 +121,9 @@ namespace Rpg.ModObjects.Mods
             SourceValue = dice;
             if (valueFunc != null)
                 SourceValueFunc = RpgMethod.Create<RpgObject, Dice, Dice>(valueFunc);
+
+            if (string.IsNullOrEmpty(Name))
+                Name = targetPropRef.Prop;
 
             return this;
         }

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Props
@@ -59,7 +60,7 @@ namespace Rpg.ModObjects.Props
     {
         [JsonIgnore] public PropDescription TargetProp { get; private set; }
         public PropDescription? SourceProp { get; private set; }
-        public ModType ModType { get; private set; }
+        public string ModType { get; private set; }
         public Dice SourceValue { get; private set; }
         public Dice Value { get; private set; }
         public string? ValueFunction { get; private set; }
@@ -68,7 +69,7 @@ namespace Rpg.ModObjects.Props
         public ModDescription(RpgGraph graph, RpgObject rootEntity, PropDescription targetProp, Mod[] baseMods)
         {
             TargetProp = targetProp;
-            ModType = ModType.Override;
+            ModType = nameof(Override);
             Value = graph.CalculateBasePropValue(TargetProp.Entity, TargetProp.Prop) ?? Dice.Zero;
 
             Mods = baseMods
@@ -80,7 +81,7 @@ namespace Rpg.ModObjects.Props
         public ModDescription(RpgGraph graph, RpgObject rootEntity, Mod mod)
         {
             TargetProp = new PropDescription(graph, rootEntity, mod.TargetPropRef);
-            ModType = mod.Behavior.Type;
+            ModType = mod.GetType().Name;
             Value = graph.CalculateModValue(mod) ?? Dice.Zero;
             ValueFunction = mod.SourceValueFunc?.FullName;
 
@@ -113,7 +114,7 @@ namespace Rpg.ModObjects.Props
 
         public override string ToString()
         {
-            var res = $"[{ModType}] {(ModType == ModType.Initial ? TargetProp.InitialValue : Value)}";
+            var res = $"[{ModType}] {(ModType == nameof(Initial) ? TargetProp.InitialValue : Value)}";
             if (!string.IsNullOrEmpty(ValueFunction))
                 res += $" ({ValueFunction} {SourceValue})";
 

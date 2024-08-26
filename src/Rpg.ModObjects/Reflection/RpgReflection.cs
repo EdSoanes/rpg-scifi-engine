@@ -1,4 +1,5 @@
 ﻿using Rpg.ModObjects.Meta.Props;
+using Rpg.ModObjects.Values;
 using System.Reflection;
 
 namespace Rpg.ModObjects.Reflection
@@ -30,6 +31,14 @@ namespace Rpg.ModObjects.Reflection
                 .Where(IsModdableProperty)
                 .ToArray();
         }
+
+        internal static PropertyInfo[] ScanForChildProperties(this RpgObject context)
+        {
+            return context.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(IsChildProperty)
+                .ToArray();
+        }
+
 
         internal static (int?, int?) GetPropertyThresholds(this PropertyInfo propInfo)
         {
@@ -113,7 +122,15 @@ namespace Rpg.ModObjects.Reflection
                 && (propertyInfo.GetMethod.IsPublic || propertyInfo.GetMethod.IsFamily);
         }
 
-        
+        private static bool IsChildProperty(this PropertyInfo? propertyInfo)
+        {
+            if (propertyInfo == null)
+                return false;
+
+            return propertyInfo.PropertyType.IsAssignableTo(typeof(RpgObject))
+                || Nullable.GetUnderlyingType(propertyInfo.PropertyType) == typeof(RpgObject);
+
+        }
 
         internal static IEnumerable<Type> GetLoadableTypes(Assembly assembly)
         {

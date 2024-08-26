@@ -225,13 +225,85 @@ namespace Rpg.ModObjects.Tests
         }
 
         [Test]
-        public void SpanOfTime_Encounter_EncounterEnds_Active()
+        public void SpanOfTime_Encounter_EncounterEnds_Destroyed()
         {
             var span = new SpanOfTime(PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds);
             var expiry = span.GetExpiry(new PointInTime(PointInTimeType.EncounterEnds));
 
+            Assert.That(expiry, Is.EqualTo(LifecycleExpiry.Destroyed));
+        }
+
+
+        [Test]
+        public void SpanOfTime_TwoTurns_OnTurnThree_Expired()
+        {
+            var span = new SpanOfTime(new PointInTime(PointInTimeType.Turn, 1), new PointInTime(PointInTimeType.Turn, 3));
+            var expiry = span.GetExpiry(new PointInTime(PointInTimeType.Turn, 3));
+
             Assert.That(expiry, Is.EqualTo(LifecycleExpiry.Expired));
         }
 
+        [Test]
+        public void SpanOfTime_Encounter_OverlapsWith_TimePassingEncounterBegins_False()
+        {
+            var span1 = new SpanOfTime(PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds);
+            var span2 = new SpanOfTime(PointInTimeType.TimePassing, PointInTimeType.EncounterBegins);
+
+            Assert.That(span2.OverlapsWith(span1), Is.False);
+        }
+
+        [Test]
+        public void SpanOfTime_Encounter_OverlapsWith_TimePassingTurn1_False()
+        {
+            var span1 = new SpanOfTime(PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds);
+            var span2 = new SpanOfTime(PointInTimeType.TimePassing, 1);
+
+            Assert.That(span2.OverlapsWith(span1), Is.True);
+        }
+
+        [Test]
+        public void SpanOfTime_Encounter_OverlapsWith_Turn_True()
+        {
+            var span1 = new SpanOfTime(PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds);
+            var span2 = new SpanOfTime(1, 2);
+
+            Assert.That(span2.OverlapsWith(span1), Is.True);
+        }
+
+        [Test]
+        public void SpanOfTime_Turn1_OverlapsWith_Turn2_False()
+        {
+            var span1 = new SpanOfTime(1, 1);
+            var span2 = new SpanOfTime(2, 1);
+
+            Assert.That(span2.OverlapsWith(span1), Is.False);
+        }
+
+        [Test]
+        public void PointInTime_Turn1_LessThan_Turn2()
+        {
+            var p1 = new PointInTime(1);
+            var p2 = new PointInTime(2);
+
+            Assert.That(p1 < p2, Is.True);
+        }
+
+        [Test]
+        public void PointInTime_Turn2_GreaterThan_Turn1()
+        {
+            var p1 = new PointInTime(1);
+            var p2 = new PointInTime(2);
+
+            Assert.That(p2 > p1, Is.True);
+        }
+
+        [Test]
+        public void PointInTime_Turn1_Equals_Turn1()
+        {
+            var p1 = new PointInTime(1);
+            var p2 = new PointInTime(1);
+
+            Assert.That(p1 == p2, Is.True);
+        }
     }
 }

@@ -77,22 +77,22 @@ namespace Rpg.Cyborgs.Tests
             graph.Time.TriggerEvent();
 
             Assert.That(exhausted.IsOn, Is.True);
-            Assert.That(exhausted.IsOnManually, Is.True);
-            Assert.That(exhausted.IsOnConditionally, Is.False);
+            Assert.That(exhausted.OnByUserAction, Is.True);
+            Assert.That(exhausted.OnByTimePeriod, Is.False);
 
             graph.Time.Transition(PointInTimeType.Turn, 4);
             graph.Time.TriggerEvent();
 
             Assert.That(exhausted.IsOn, Is.True);
-            Assert.That(exhausted.IsOnManually, Is.True);
-            Assert.That(exhausted.IsOnConditionally, Is.False);
+            Assert.That(exhausted.OnByUserAction, Is.True);
+            Assert.That(exhausted.OnByTimePeriod, Is.False);
 
             exhausted.Off();
             graph.Time.TriggerEvent();
 
             Assert.That(exhausted.IsOn, Is.False);
-            Assert.That(exhausted.IsOnManually, Is.False);
-            Assert.That(exhausted.IsOnConditionally, Is.False);
+            Assert.That(exhausted.OnByUserAction, Is.False);
+            Assert.That(exhausted.OnByTimePeriod, Is.False);
         }
 
         [Test]

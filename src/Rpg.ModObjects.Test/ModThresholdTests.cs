@@ -53,12 +53,12 @@ namespace Rpg.ModObjects.Tests
             var entity = new ThresholdEntity();
             var graph = new RpgGraph(entity);
 
-            var thresholdMod = graph
+            var threshold = graph
                 .GetActiveMods(entity, nameof(ThresholdEntity.MinValue))
-                .First(x => x.Behavior is Threshold);
+                .FirstOrDefault(x => x is Threshold) as Threshold;
 
-            var threshold = thresholdMod as Threshold;
             Assert.That(threshold, Is.Not.Null);
+
             var behavior = threshold.Behavior as Behaviors.Threshold;
             Assert.That(behavior, Is.Not.Null);
             Assert.That(behavior.Min, Is.EqualTo(1));

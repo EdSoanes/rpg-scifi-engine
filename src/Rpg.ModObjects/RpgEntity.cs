@@ -39,7 +39,8 @@ namespace Rpg.ModObjects
             foreach (var action in actions)
             {
                 action.OnAdding(Graph!);
-                Actions.Add(action.Name, action);
+                if (!Actions.ContainsKey(action.Name))
+                    Actions.Add(action.Name, action);
             }
         }
 

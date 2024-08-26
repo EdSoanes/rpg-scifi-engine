@@ -55,6 +55,23 @@ namespace Rpg.ModObjects.Time
                 new PointInTime(end))
         { }
 
+        public SpanOfTime(PointInTimeType start, int endTurn)
+            : this(
+                new PointInTime(start),
+                new PointInTime(endTurn))
+        { }
+
+        public SpanOfTime(PointInTime start, PointInTimeType end)
+            : this(
+                start,
+                new PointInTime(end))
+        { }
+
+        public SpanOfTime(PointInTime start, int endTurn)
+            : this(
+                start,
+                new PointInTime(endTurn))
+        { }
         public SpanOfTime(int startTurn, int duration)
             : this(
                   new PointInTime(PointInTimeType.Turn, startTurn),
@@ -65,6 +82,17 @@ namespace Rpg.ModObjects.Time
         {
             Start = start;
             End = end;
+        }
+
+        public bool OverlapsWith(SpanOfTime other)
+        {
+            if (Start <= other.Start && End > other.Start)
+                return true;
+
+            if (other.Start <= Start && other.End > Start)
+                return true;
+
+            return false;
         }
 
         public void SetStartTime(PointInTime now)
@@ -83,6 +111,9 @@ namespace Rpg.ModObjects.Time
 
         public LifecycleExpiry GetExpiry(PointInTime now)
         {
+            if (Start.Type == PointInTimeType.Turn && End.Type == PointInTimeType.Turn && !now.IsEncounterTime)
+                return LifecycleExpiry.Expired;
+
             if (Start > now)
                 return LifecycleExpiry.Pending;
 
@@ -92,6 +123,11 @@ namespace Rpg.ModObjects.Time
             return now.IsEncounterTime
                 ? LifecycleExpiry.Expired
                 : LifecycleExpiry.Destroyed;
+        }
+
+        public override string ToString()
+        {
+            return $"{Start} => {End}";
         }
     }
 
@@ -105,13 +141,17 @@ namespace Rpg.ModObjects.Time
             Type = type;
         }
 
+        public PointInTime(int count)
+            : this(PointInTimeType.Turn, count)
+        { }
+
         public PointInTime(PointInTimeType type, int count)
             : this(type)
         {
             Count = count;
         }
 
-        public bool IsEncounterTime { get => Type == PointInTimeType.Turn || Type == PointInTimeType.EncounterBegins || Type == PointInTimeType.EncounterEnds; }
+        public bool IsEncounterTime { get => Type == PointInTimeType.Turn || Type == PointInTimeType.EncounterBegins; }
 
         public static bool operator ==(PointInTime d1, PointInTime d2) => d1.Type == d2.Type && d1.Count == d2.Count;
         public static bool operator !=(PointInTime d1, PointInTime d2) => d1.Type != d2.Type || d1.Count != d2.Count;
@@ -119,8 +159,8 @@ namespace Rpg.ModObjects.Time
         public static bool operator >(PointInTime d1, PointInTime d2) => d1.Type > d2.Type || (d1.Type == d2.Type && d1.Count > d2.Count);
         public static bool operator <(PointInTime d1, PointInTime d2) => d1.Type < d2.Type || (d1.Type == d2.Type && d1.Count < d2.Count);
 
-        public static bool operator >=(PointInTime d1, PointInTime d2) => d1.Type >= d2.Type || (d1.Type == d2.Type && d1.Count >= d2.Count);
-        public static bool operator <=(PointInTime d1, PointInTime d2) => d1.Type <= d2.Type || (d1.Type == d2.Type && d1.Count <= d2.Count);
+        public static bool operator >=(PointInTime d1, PointInTime d2) => d1.Type > d2.Type || (d1.Type == d2.Type && d1.Count >= d2.Count);
+        public static bool operator <=(PointInTime d1, PointInTime d2) => d1.Type < d2.Type || (d1.Type == d2.Type && d1.Count <= d2.Count);
 
         public override bool Equals(object? obj)
         {
@@ -136,6 +176,11 @@ namespace Rpg.ModObjects.Time
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return Type == PointInTimeType.Turn ? Count.ToString() : Type.ToString();
         }
     }
 
@@ -194,7 +239,7 @@ namespace Rpg.ModObjects.Time
                 return;
             }
 
-            if (!to.IsEncounterTime)
+            if (!to.IsEncounterTime && to.Type != PointInTimeType.EncounterEnds)
             {
                 TriggerEvent(to);
                 if (to.Type != PointInTimeType.TimeEnds && to.Type != PointInTimeType.TimePassing)

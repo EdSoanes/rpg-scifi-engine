@@ -87,8 +87,8 @@ namespace Rpg.ModObjects.Tests
             Assert.That(baseMod, Is.Not.Null);
             Assert.That(baseMod.Name, Is.EqualTo(nameof(ScoreBonusValue.Bonus)));
 
-            var json = JsonConvert.SerializeObject(baseMod, JsonSettings)!;
-            var baseMod2 = JsonConvert.DeserializeObject<Mod>(json, JsonSettings)!;
+            var json = RpgSerializer.Serialize(baseMod)!;
+            var baseMod2 = RpgSerializer.Deserialize<Permanent>(json)!;
 
             Assert.That(baseMod2, Is.Not.Null);
             Assert.That(baseMod2.Name, Is.EqualTo(nameof(ScoreBonusValue.Bonus)));

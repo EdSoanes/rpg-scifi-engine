@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Mods.ModSets;
@@ -18,6 +19,7 @@ namespace Rpg.ModObjects
         [JsonProperty] public Dictionary<string, State> States { get; private init; }
 
         [JsonProperty] public string Id { get; private init; }
+        [JsonProperty] public PropRef? ParentRef { get; private set; }
 
         [JsonProperty] public string Archetype { get; private init; }
 
@@ -37,6 +39,43 @@ namespace Rpg.ModObjects
             ModSets = new Dictionary<string, ModSet>();
             Props = new Dictionary<string, Prop>();
             States = new Dictionary<string, State>();
+        }
+
+        private void SetParent(RpgObject? parent)
+        {
+            if (parent == null)
+                ParentRef = null;
+            else
+            {
+                var path = parent.PathTo(this);
+                ParentRef = new PropRef(parent.Id, string.Join('.', path));
+                Name ??= path.LastOrDefault() ?? GetType().Name;
+            }
+        }
+
+        protected T? SetAsChild<T>(T? newChild, T? oldChild)
+            where T : RpgObject
+        {
+            if (oldChild?.ParentRef?.EntityId == Id)
+                oldChild.SetParent(null);
+
+            if (newChild != null)
+            {
+                newChild.SetParent(this);
+                if (Graph != null && Graph.GetObject(newChild.Id) == null)
+                    Graph.AddEntity(newChild);
+            }
+
+            return newChild;
+        }
+
+        private void SetAsChildren()
+        {
+            foreach (var propertyInfo in this.ScanForChildProperties())
+            {
+                var child = propertyInfo.GetValue(this) as RpgObject;
+                child?.SetParent(this);
+            }
         }
 
         #region ModSets
@@ -357,17 +396,11 @@ namespace Rpg.ModObjects
         public bool IsStateOn(string state)
             => GetState(state)?.IsOn ?? false;
 
-        public bool SetStateOn(string state)
-            => GetState(state)?.On() ?? false;
+        public void SetStateOn(string state)
+            => GetState(state)?.On();
 
-        public bool SetStateOff(string state)
-            => GetState(state)?.Off() ?? false;
-
-        public ModSet[] GetActiveConditionalStateInstances(string state)
-            => Graph!.GetModSets(this, (x) => x.Name == state && x is SyncedModSet && x.Expiry == LifecycleExpiry.Active);
-
-        public ModSet[] GetActiveManualStateInstances(string state)
-            => Graph!.GetModSets(this, (x) => x.Name == state && !(x is SyncedModSet) && x.Expiry == LifecycleExpiry.Active);
+        public void SetStateOff(string state)
+            => GetState(state)?.Off();
 
         public ModSet CreateStateInstance(string state, SpanOfTime? spanOfTime = null)
             => GetState(state)!.CreateInstance(spanOfTime);
@@ -375,46 +408,17 @@ namespace Rpg.ModObjects
         private void OnStartStateLifecycle()
         {
             foreach (var state in States.Values)
-            {
-                var stateExpiry = state.OnStartLifecycle();
-                if (stateExpiry == LifecycleExpiry.Active)
-                {
-                    var stateSets = GetActiveConditionalStateInstances(state.Name);
-                    if (!stateSets.Any())
-                    {
-                        var stateModSet = state.CreateInstance();
-                        AddModSet(stateModSet);
-                    }
-                }
-            }
+                state.OnStartLifecycle();
         }
 
         public bool OnUpdateStateLifecycle()
         {
             var updated = false;
-
             foreach (var state in States.Values)
             {
-                var stateExpiry = state.OnUpdateLifecycle();
-                var activeConditionalSets = GetActiveConditionalStateInstances(state.Name);
-
-                if (stateExpiry == LifecycleExpiry.Active)
-                {
-                    if (!activeConditionalSets.Any())
-                    {
-                        var stateModSet = state.CreateInstance();
-                        AddModSet(stateModSet);
-                        updated = true;
-                    }
-                }
-                else
-                {
-                    foreach (var modSet in activeConditionalSets)
-                    {
-                        Graph!.RemoveModSet(modSet.Id);
-                        updated = true;
-                    }
-                }
+                var oldExpiry = state.Expiry;
+                var newExpiry = state.OnUpdateLifecycle();
+                updated |= oldExpiry != newExpiry;
             }
 
             return updated;
@@ -427,6 +431,8 @@ namespace Rpg.ModObjects
 
         public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
+            SetAsChildren();
+
             base.OnCreating(graph, entity);
 
             ModSets.Clear();
@@ -450,9 +456,6 @@ namespace Rpg.ModObjects
                         AddMods(new Threshold(Id, propInfo.Name, min ?? int.MinValue, max ?? int.MaxValue));
                 }
             }
-
-            foreach (var component in this.Traverse<RpgComponent, RpgEntity>())
-                component.SetEntityPropRef(Id, this.PathTo(component));
 
             var states = State.CreateOwnerStates(this);
             foreach (var state in states)

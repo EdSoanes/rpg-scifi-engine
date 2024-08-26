@@ -34,7 +34,7 @@ namespace Rpg.ModObjects.Props
     public class ModDesc
     {
         public PropDesc? SourceProp { get; set; }
-        public ModType ModType { get; set; }
+        public string ModType { get; set; }
         public string Behavior { get; set; }
         public Dice? SourceValue { get; set; }
         public Dice Value { get; set; }
@@ -46,7 +46,7 @@ namespace Rpg.ModObjects.Props
                 ? $"{SourceProp.RootEntityName}.{SourceProp.RootProp}"
                 : SourceValue?.ToString();
 
-            var type = Behavior == "Threshold" ? Behavior : ModType.ToString();
+            var type = Behavior == "Threshold" ? Behavior : ModType;
             return $"{Value} <= ({type}) {src}";
         }
     }
@@ -96,7 +96,7 @@ namespace Rpg.ModObjects.Props
             var value = graph.CalculateModValue(mod);
             var modDesc = new ModDesc
             {
-                ModType = mod.Behavior.Type,
+                ModType = mod.GetType().Name,
                 Behavior = mod.Behavior.GetType().Name,
                 Value = value ?? Dice.Zero,
                 ValueFunction = mod.SourceValueFunc?.FullName,
