@@ -49,22 +49,22 @@ namespace Rpg.ModObjects
         }
 
         public T? Get()
-            => Refs.LastOrDefault(x => x.Lifespan.GetExpiry(Graph.Time.Current) == LifecycleExpiry.Active)?.Obj;
+            => Refs.LastOrDefault(x => x.Lifespan.GetExpiry(Graph.Time.Now) == LifecycleExpiry.Active)?.Obj;
 
         public void Set(T? obj, SpanOfTime? spanOfTime = null)
         {
             if (Graph != null)
             {
                 if (spanOfTime != null)
-                    spanOfTime.SetStartTime(Graph.Time.Current);
+                    spanOfTime.SetStartTime(Graph.Time.Now);
                 else
-                    spanOfTime = new SpanOfTime(Graph.Time.Current, PointInTimeType.TimeEnds);
+                    spanOfTime = new SpanOfTime(Graph.Time.Now, PointInTimeType.TimeEnds);
 
-                (obj as SpanOfTime)?.SetStartTime(Graph.Time.Current);
+                (obj as SpanOfTime)?.SetStartTime(Graph.Time.Now);
             }
 
             foreach (var existing in Refs.Where(x => x.Lifespan.End.Type == PointInTimeType.TimeEnds))
-                existing.Lifespan = new SpanOfTime(existing.Lifespan.Start, Graph.Time.Current);
+                existing.Lifespan = new SpanOfTime(existing.Lifespan.Start, Graph.Time.Now);
 
             if (obj != null && Get() != obj)
                 Refs.Add(new RpgObjRef<T>(obj, spanOfTime));
@@ -72,7 +72,7 @@ namespace Rpg.ModObjects
 
         protected override void CalculateExpiry()
         {
-            var idx = Refs.FindIndex(x => x.Lifespan.GetExpiry(Graph.Time.Current) == LifecycleExpiry.Active);
+            var idx = Refs.FindIndex(x => x.Lifespan.GetExpiry(Graph.Time.Now) == LifecycleExpiry.Active);
             if (idx >= 0)
             {
                 Expiry = LifecycleExpiry.Active;
@@ -85,13 +85,13 @@ namespace Rpg.ModObjects
                 return;
             }
 
-            if (Refs.Any(x => x.Lifespan.Start > Graph.Time.Current))
+            if (Refs.Any(x => x.Lifespan.Start > Graph.Time.Now))
             {
                 Expiry = LifecycleExpiry.Pending;
                 return;
             }
 
-            Expiry = Graph.Time.Current.IsEncounterTime
+            Expiry = Graph.Time.Now.IsEncounterTime
                 ? LifecycleExpiry.Expired
                 : LifecycleExpiry.Destroyed;
         }
@@ -99,11 +99,11 @@ namespace Rpg.ModObjects
         public override LifecycleExpiry OnUpdateLifecycle()
         {
             base.OnUpdateLifecycle();
-            if (!Graph.Time.Current.IsEncounterTime)
+            if (!Graph.Time.Now.IsEncounterTime)
             {
                 Refs = Refs.Where(x =>
                 {
-                    var expiry = x.Lifespan.GetExpiry(Graph.Time.Current);
+                    var expiry = x.Lifespan.GetExpiry(Graph.Time.Now);
                     return expiry != LifecycleExpiry.Expired && expiry != LifecycleExpiry.Destroyed;
                 })
                 .ToList();

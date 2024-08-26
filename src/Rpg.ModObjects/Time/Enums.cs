@@ -14,4 +14,20 @@ namespace Rpg.ModObjects.Time
         Expired,
         Destroyed
     }
+
+    public enum PointInTimeType
+    {
+        BeforeTime,
+        TimeBegins,
+        TimePassing,
+
+        EncounterBegins,
+        Turn, //Count
+        EncounterEnds,
+        Minute,
+        Hour,
+        Day,
+
+        TimeEnds
+    }
 }

@@ -174,7 +174,7 @@ namespace Rpg.ModObjects.States
                     : LifecycleExpiry.Expired;
             }
 
-            if (expiry == LifecycleExpiry.Expired && !Graph.Time.Current.IsEncounterTime)
+            if (expiry == LifecycleExpiry.Expired && !Graph.Time.Now.IsEncounterTime)
                 expiry = LifecycleExpiry.Destroyed;
 
             Expiry = expiry;

@@ -96,7 +96,7 @@ namespace Rpg.ModObjects
                 modSet.OnCreating(Graph!, this);
                 ModSets.Add(modSet.Id, modSet);
 
-                if (Graph.Time.Current.Type != PointInTimeType.BeforeTime)
+                if (Graph.Time.Now.Type != PointInTimeType.BeforeTime)
                 {
                     modSet.OnTimeBegins();
                     modSet.OnStartLifecycle();
@@ -255,7 +255,7 @@ namespace Rpg.ModObjects
                         mod.OnTimeBegins();
                         mod.Behavior.OnAdding(Graph, prop, mod);
 
-                        if (Graph.Time.Current.Type != PointInTimeType.BeforeTime)
+                        if (Graph.Time.Now.Type != PointInTimeType.BeforeTime)
                             mod.OnStartLifecycle();
 
                         Graph!.OnPropUpdated(prop);

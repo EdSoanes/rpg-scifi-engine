@@ -28,7 +28,7 @@ namespace Rpg.Cyborgs.Tests
             var pc2 = graph2.Context as PlayerCharacter;
 
             Assert.That(pc2, Is.Not.Null);
-            Assert.That(graph2.Time.Current, Is.EqualTo(graph.Time.Current));
+            Assert.That(graph2.Time.Now, Is.EqualTo(graph.Time.Now));
             Assert.That(graph2.GetObjects().Count(), Is.EqualTo(graph.GetObjects().Count()));
             Assert.That(graph2.GetActiveMods().Count(), Is.EqualTo(graph.GetActiveMods().Count()));
             Assert.That(graph2.GetModSets().Count(), Is.EqualTo(graph.GetModSets().Count()));

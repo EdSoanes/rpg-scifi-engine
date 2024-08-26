@@ -171,7 +171,7 @@ namespace Rpg.ModObjects
             {
                 entity.OnCreating(this);
                 ObjectStore.Add(entity.Id, entity);
-                if (Time.Current.Type != PointInTimeType.BeforeTime)
+                if (Time.Now.Type != PointInTimeType.BeforeTime)
                 {
                     entity.OnTimeBegins();
                     entity.OnStartLifecycle();
@@ -187,7 +187,7 @@ namespace Rpg.ModObjects
             where T : RpgEntity
         {
             var activityNo = GetObjects<Activity>()
-                .Where(x => x.InitiatorId == initiator.Id && x.Time == Time.Current)
+                .Where(x => x.InitiatorId == initiator.Id && x.Time == Time.Now)
                 .Count();
 
             var activity = new Activity(initiator, activityNo);
@@ -202,7 +202,7 @@ namespace Rpg.ModObjects
             where T : RpgEntity
         {
             var activityNo = GetObjects<Activity>()
-                .Where(x => x.InitiatorId == initiator.Id && x.Time == Time.Current)
+                .Where(x => x.InitiatorId == initiator.Id && x.Time == Time.Now)
                 .Count();
 
             var activity = new Activity(initiator, activityNo);

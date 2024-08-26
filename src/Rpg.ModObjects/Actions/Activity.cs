@@ -407,7 +407,7 @@ namespace Rpg.ModObjects.Actions
         public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
             base.OnCreating(graph, entity);
-            Time = graph.Time.Current;
+            Time = graph.Time.Now;
             Name = $"{InitiatorId}/{Time.Type}/{Time.Count}/{ActivityNo}";
 
             var outcomeSet = GetModSetByName(OutcomeSetName) as ModSet;

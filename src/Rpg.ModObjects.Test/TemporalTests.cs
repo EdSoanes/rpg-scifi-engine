@@ -16,7 +16,7 @@ namespace Rpg.ModObjects.Tests
         {
             var temporal = new Temporal();
             Assert.That(temporal, Is.Not.Null);
-            Assert.That(temporal.Current.Type, Is.EqualTo(PointInTimeType.BeforeTime));
+            Assert.That(temporal.Now.Type, Is.EqualTo(PointInTimeType.BeforeTime));
 
             var events = new List<PointInTime>();
             temporal.OnTemporalEvent += (obj, e) => events.Add(e.Time);

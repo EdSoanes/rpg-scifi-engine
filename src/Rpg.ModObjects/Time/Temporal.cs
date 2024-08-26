@@ -1,213 +1,29 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Time
 {
-    public class TemporalEventArgs : EventArgs
-    {
-        public PointInTime Time { get; private set; }
-
-        public TemporalEventArgs(PointInTime time)
-        {
-            Time = time;
-        }
-    }
-
-    public delegate void NotifyTemporalEventHandler(object? sender, TemporalEventArgs e);
-
-    public enum PointInTimeType
-    {
-        BeforeTime,
-        TimeBegins,
-        TimePassing,
-
-        EncounterBegins,
-        Turn, //Count
-        EncounterEnds,
-        Minute,
-        Hour,
-        Day,
-
-        TimeEnds
-    }
-
-    public class SpanOfTime
-    {
-        [JsonProperty] private bool Started { get; set; }
-        [JsonProperty] public PointInTime Start { get; private set; }
-        [JsonProperty] public PointInTime End { get; private set; }
-
-        public bool Infinity { get => Start.Type <= PointInTimeType.TimeBegins && End.Type == PointInTimeType.TimeEnds; }
-
-        [JsonConstructor] public SpanOfTime()
-            : this(
-                new PointInTime(PointInTimeType.TimeBegins),
-                new PointInTime(PointInTimeType.TimeEnds))
-        { }
-
-        public SpanOfTime(PointInTimeType start, PointInTimeType end)
-            : this(
-                new PointInTime(start),
-                new PointInTime(end))
-        { }
-
-        public SpanOfTime(PointInTimeType start, int endTurn)
-            : this(
-                new PointInTime(start),
-                new PointInTime(endTurn))
-        { }
-
-        public SpanOfTime(PointInTime start, PointInTimeType end)
-            : this(
-                start,
-                new PointInTime(end))
-        { }
-
-        public SpanOfTime(PointInTime start, int endTurn)
-            : this(
-                start,
-                new PointInTime(endTurn))
-        { }
-        public SpanOfTime(int startTurn, int duration)
-            : this(
-                  new PointInTime(PointInTimeType.Turn, startTurn),
-                  new PointInTime(PointInTimeType.Turn, startTurn + duration))
-        { }
-
-        public SpanOfTime(PointInTime start, PointInTime end)
-        {
-            Start = start;
-            End = end;
-        }
-
-        public bool OverlapsWith(SpanOfTime other)
-        {
-            if (Start <= other.Start && End > other.Start)
-                return true;
-
-            if (other.Start <= Start && other.End > Start)
-                return true;
-
-            return false;
-        }
-
-        public void SetStartTime(PointInTime now)
-        {
-            if (!Started)
-            {
-                if (Start.Type == PointInTimeType.Turn)
-                    Start = new PointInTime(Start.Type, Start.Count + now.Count);
-
-                if (End.Type == PointInTimeType.Turn)
-                    End = new PointInTime(End.Type, End.Count + now.Count);
-
-                Started = true;
-            }
-        }
-
-        public LifecycleExpiry GetExpiry(PointInTime now)
-        {
-            if (Start.Type == PointInTimeType.Turn && End.Type == PointInTimeType.Turn && !now.IsEncounterTime)
-                return LifecycleExpiry.Expired;
-
-            if (Start > now)
-                return LifecycleExpiry.Pending;
-
-            if (Start <= now && End > now)
-                return LifecycleExpiry.Active;
-
-            return now.IsEncounterTime
-                ? LifecycleExpiry.Expired
-                : LifecycleExpiry.Destroyed;
-        }
-
-        public override string ToString()
-        {
-            return $"{Start} => {End}";
-        }
-    }
-
-    public struct PointInTime
-    {
-        public PointInTimeType Type { get; set; } = PointInTimeType.BeforeTime;
-        public int Count { get; set; } = 0;
-
-        public PointInTime(PointInTimeType type)
-        {
-            Type = type;
-        }
-
-        public PointInTime(int count)
-            : this(PointInTimeType.Turn, count)
-        { }
-
-        public PointInTime(PointInTimeType type, int count)
-            : this(type)
-        {
-            Count = count;
-        }
-
-        public bool IsEncounterTime { get => Type == PointInTimeType.Turn || Type == PointInTimeType.EncounterBegins; }
-
-        public static bool operator ==(PointInTime d1, PointInTime d2) => d1.Type == d2.Type && d1.Count == d2.Count;
-        public static bool operator !=(PointInTime d1, PointInTime d2) => d1.Type != d2.Type || d1.Count != d2.Count;
-
-        public static bool operator >(PointInTime d1, PointInTime d2) => d1.Type > d2.Type || (d1.Type == d2.Type && d1.Count > d2.Count);
-        public static bool operator <(PointInTime d1, PointInTime d2) => d1.Type < d2.Type || (d1.Type == d2.Type && d1.Count < d2.Count);
-
-        public static bool operator >=(PointInTime d1, PointInTime d2) => d1.Type > d2.Type || (d1.Type == d2.Type && d1.Count >= d2.Count);
-        public static bool operator <=(PointInTime d1, PointInTime d2) => d1.Type < d2.Type || (d1.Type == d2.Type && d1.Count <= d2.Count);
-
-        public override bool Equals(object? obj)
-        {
-            if (obj == null)
-                return false;
-
-            if (obj is PointInTime tp)
-                return tp.Type == Type && tp.Count == Count;
-
-            return false;
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-
-        public override string ToString()
-        {
-            return Type == PointInTimeType.Turn ? Count.ToString() : Type.ToString();
-        }
-    }
-
     public class Temporal
     {
-        [JsonProperty] public PointInTime Current { get; private set; } = new PointInTime(PointInTimeType.BeforeTime);
+        [JsonProperty] public PointInTime Now { get; private set; } = new PointInTime(PointInTimeType.BeforeTime);
 
         public Temporal()
-        {
-
-        }
+        { }
 
         public event NotifyTemporalEventHandler? OnTemporalEvent;
 
         public void TriggerEvent()
-            => TriggerEvent(Current);
+            => TriggerEvent(Now);
 
         public void TriggerEvent(PointInTime pointInTime)
         {
-            Current = pointInTime;
-            OnTemporalEvent?.Invoke(this, new TemporalEventArgs(Current));
+            Now = pointInTime;
+            OnTemporalEvent?.Invoke(this, new TemporalEventArgs(Now));
         }
 
         public void TriggerEvent(PointInTimeType type, int count = 0)
         {
-            Current = new PointInTime(type, count);
-            OnTemporalEvent?.Invoke(this, new TemporalEventArgs(Current));
+            Now = new PointInTime(type, count);
+            OnTemporalEvent?.Invoke(this, new TemporalEventArgs(Now));
         }
 
         public void Transition(PointInTimeType type, int count = 0)
@@ -215,16 +31,16 @@ namespace Rpg.ModObjects.Time
 
         public void Transition(PointInTime to)
         {
-            if (to == Current)
+            if (to == Now)
                 return;
 
-            if (!Current.IsEncounterTime && !to.IsEncounterTime && to < Current)
-                throw new InvalidOperationException($"Cannot transition from '{Current}' to '{to}'");
+            if (!Now.IsEncounterTime && !to.IsEncounterTime && to < Now)
+                throw new InvalidOperationException($"Cannot transition from '{Now}' to '{to}'");
 
-            if (Current.IsEncounterTime && to.Type < PointInTimeType.TimePassing)
-                throw new InvalidOperationException($"Cannot transition from '{Current}' to '{to}'");
+            if (Now.IsEncounterTime && to.Type < PointInTimeType.TimePassing)
+                throw new InvalidOperationException($"Cannot transition from '{Now}' to '{to}'");
 
-            if (Current.Type == PointInTimeType.BeforeTime)
+            if (Now.Type == PointInTimeType.BeforeTime)
             {
                 TriggerEvent(PointInTimeType.BeforeTime);
                 TriggerEvent(PointInTimeType.TimeBegins);
@@ -232,7 +48,7 @@ namespace Rpg.ModObjects.Time
                 return;
             }
 
-            if (Current.Type == PointInTimeType.TimeBegins)
+            if (Now.Type == PointInTimeType.TimeBegins)
             {
                 TriggerEvent(PointInTimeType.TimePassing);
                 Transition(to);
@@ -249,10 +65,10 @@ namespace Rpg.ModObjects.Time
 
             if (to.Type == PointInTimeType.EncounterBegins)
             {
-                if (Current.Type == PointInTimeType.Turn)
+                if (Now.Type == PointInTimeType.Turn)
                     TriggerEvent(PointInTimeType.EncounterEnds);
 
-                if (Current.Type == PointInTimeType.EncounterEnds)
+                if (Now.Type == PointInTimeType.EncounterEnds)
                     TriggerEvent(PointInTimeType.TimePassing);
 
                 TriggerEvent(PointInTimeType.EncounterBegins);
@@ -262,13 +78,13 @@ namespace Rpg.ModObjects.Time
 
             if (to.Type == PointInTimeType.Turn)
             {
-                if (Current.Type == PointInTimeType.EncounterEnds)
+                if (Now.Type == PointInTimeType.EncounterEnds)
                     TriggerEvent(PointInTimeType.TimePassing);
 
-                if (Current.Type == PointInTimeType.TimePassing)
+                if (Now.Type == PointInTimeType.TimePassing)
                     TriggerEvent(PointInTimeType.EncounterBegins);
 
-                if (Current.Type == PointInTimeType.EncounterBegins || Current.Type == PointInTimeType.Turn)
+                if (Now.Type == PointInTimeType.EncounterBegins || Now.Type == PointInTimeType.Turn)
                     TriggerEvent(PointInTimeType.Turn, to.Count);
 
                 return;
@@ -276,13 +92,13 @@ namespace Rpg.ModObjects.Time
 
             if (to.Type == PointInTimeType.EncounterEnds)
             {
-                if (Current.Type == PointInTimeType.TimePassing)
+                if (Now.Type == PointInTimeType.TimePassing)
                     TriggerEvent(PointInTimeType.EncounterBegins);
 
-                if (Current.Type == PointInTimeType.EncounterBegins || Current.Type == PointInTimeType.Turn)
+                if (Now.Type == PointInTimeType.EncounterBegins || Now.Type == PointInTimeType.Turn)
                     TriggerEvent(PointInTimeType.EncounterEnds);
 
-                if (Current.Type == PointInTimeType.EncounterEnds)
+                if (Now.Type == PointInTimeType.EncounterEnds)
                     TriggerEvent(PointInTimeType.TimePassing);
 
                 return;
