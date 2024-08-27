@@ -1,4 +1,6 @@
-﻿namespace Rpg.ModObjects.Time
+﻿using Rpg.ModObjects.Values;
+
+namespace Rpg.ModObjects.Time
 {
     public struct PointInTime
     {
@@ -21,6 +23,9 @@
         }
 
         public bool IsEncounterTime { get => Type == PointInTimeType.Turn || Type == PointInTimeType.EncounterBegins; }
+
+        public static implicit operator PointInTime(PointInTimeType type) => new PointInTime(type);
+        public static implicit operator PointInTime(int count) => new PointInTime(count);
 
         public static bool operator ==(PointInTime d1, PointInTime d2) => d1.Type == d2.Type && d1.Count == d2.Count;
         public static bool operator !=(PointInTime d1, PointInTime d2) => d1.Type != d2.Type || d1.Count != d2.Count;

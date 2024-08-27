@@ -202,7 +202,7 @@ namespace Rpg.ModObjects.Tests
         public void SpanOfTime_Encounter_TimePassing_Pending()
         {
             var span = new SpanOfTime(PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds);
-            var expiry = span.GetExpiry(new PointInTime(PointInTimeType.TimePassing));
+            var expiry = span.GetExpiry(PointInTimeType.TimePassing);
 
             Assert.That(expiry, Is.EqualTo(LifecycleExpiry.Pending));
         }
@@ -210,7 +210,7 @@ namespace Rpg.ModObjects.Tests
         public void SpanOfTime_Encounter_EncounterBegins_Active()
         {
             var span = new SpanOfTime(PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds);
-            var expiry = span.GetExpiry(new PointInTime(PointInTimeType.EncounterBegins));
+            var expiry = span.GetExpiry(PointInTimeType.EncounterBegins);
 
             Assert.That(expiry, Is.EqualTo(LifecycleExpiry.Active));
         }
@@ -219,7 +219,7 @@ namespace Rpg.ModObjects.Tests
         public void SpanOfTime_Encounter_Turn1_Active()
         {
             var span = new SpanOfTime(PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds);
-            var expiry = span.GetExpiry(new PointInTime(PointInTimeType.EncounterBegins));
+            var expiry = span.GetExpiry(PointInTimeType.EncounterBegins);
 
             Assert.That(expiry, Is.EqualTo(LifecycleExpiry.Active));
         }
@@ -228,7 +228,7 @@ namespace Rpg.ModObjects.Tests
         public void SpanOfTime_Encounter_EncounterEnds_Destroyed()
         {
             var span = new SpanOfTime(PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds);
-            var expiry = span.GetExpiry(new PointInTime(PointInTimeType.EncounterEnds));
+            var expiry = span.GetExpiry(PointInTimeType.EncounterEnds);
 
             Assert.That(expiry, Is.EqualTo(LifecycleExpiry.Destroyed));
         }

@@ -56,10 +56,7 @@ namespace Rpg.ModObjects
         protected virtual void CalculateExpiry()
         {
             if (ExpiredTime != null)
-                Expiry = new SpanOfTime(
-                    new PointInTime(PointInTimeType.BeforeTime),
-                    ExpiredTime.Value
-                ).GetExpiry(Graph.Time.Now);
+                Expiry = new SpanOfTime(PointInTimeType.BeforeTime, ExpiredTime.Value).GetExpiry(Graph.Time.Now);
             else
                 Expiry = Lifespan.GetExpiry(Graph!.Time.Now);
 

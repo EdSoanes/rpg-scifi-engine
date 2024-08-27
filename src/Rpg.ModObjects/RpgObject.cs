@@ -1,8 +1,6 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
-using Rpg.ModObjects.Mods.ModSets;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.States;
@@ -19,7 +17,7 @@ namespace Rpg.ModObjects
         [JsonProperty] public Dictionary<string, State> States { get; private init; }
 
         [JsonProperty] public string Id { get; private init; }
-        [JsonProperty] public PropRef? ParentRef { get; private set; }
+        [JsonProperty] public RpgRef<PropRef> ParentRef { get; init; } = new();
 
         [JsonProperty] public string Archetype { get; private init; }
 
@@ -44,11 +42,11 @@ namespace Rpg.ModObjects
         private void SetParent(RpgObject? parent)
         {
             if (parent == null)
-                ParentRef = null;
+                ParentRef.Set(null);
             else
             {
                 var path = parent.PathTo(this);
-                ParentRef = new PropRef(parent.Id, string.Join('.', path));
+                ParentRef.Set(new PropRef(parent.Id, string.Join('.', path)));
                 Name ??= path.LastOrDefault() ?? GetType().Name;
             }
         }
@@ -56,7 +54,8 @@ namespace Rpg.ModObjects
         protected T? SetAsChild<T>(T? newChild, T? oldChild)
             where T : RpgObject
         {
-            if (oldChild?.ParentRef?.EntityId == Id)
+            var path = this.PathTo(newChild);
+            if (oldChild?.ParentRef?.Get()?.EntityId == Id)
                 oldChild.SetParent(null);
 
             if (newChild != null)
@@ -431,6 +430,7 @@ namespace Rpg.ModObjects
 
         public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
+            ParentRef.OnCreating(graph, entity);
             SetAsChildren();
 
             base.OnCreating(graph, entity);
@@ -467,6 +467,7 @@ namespace Rpg.ModObjects
 
         public override void OnRestoring(RpgGraph graph)
         {
+            ParentRef.OnRestoring(graph);
             base.OnRestoring(graph);
 
             foreach (var state in States.Values)
@@ -479,6 +480,8 @@ namespace Rpg.ModObjects
 
         public override LifecycleExpiry OnStartLifecycle()
         {
+            ParentRef.OnStartLifecycle();
+
             base.OnStartLifecycle();
             foreach (var mod in GetMods())
                 mod.OnStartLifecycle();
@@ -491,6 +494,7 @@ namespace Rpg.ModObjects
 
         public override LifecycleExpiry OnUpdateLifecycle()
         {
+            ParentRef.OnUpdateLifecycle();
             base.OnUpdateLifecycle();
             foreach (var mod in GetMods())
                 mod.OnUpdateLifecycle();

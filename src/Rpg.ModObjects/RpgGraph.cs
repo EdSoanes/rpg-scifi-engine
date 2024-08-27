@@ -254,7 +254,7 @@ namespace Rpg.ModObjects
 
             if (scope == ModScope.ParentEntity)
             {
-                var parent = GetObject(rpgObj.ParentRef?.EntityId);
+                var parent = GetObject(rpgObj.ParentRef?.Get()?.EntityId);
                 return parent != null
                     ? [parent]
                     : [];
@@ -262,7 +262,7 @@ namespace Rpg.ModObjects
 
             if (rpgObj is RpgEntity entity)
             {
-                var children = ObjectStore.Values.Where(x => x.ParentRef?.EntityId == rpgObj.Id);
+                var children = ObjectStore.Values.Where(x => x.ParentRef?.Get()?.EntityId == rpgObj.Id);
                 if (scope == ModScope.ChildComponents)
                     return children.Where(x => x is RpgComponent);
 

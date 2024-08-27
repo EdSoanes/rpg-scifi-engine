@@ -20,7 +20,7 @@ namespace Rpg.ModObjects.Tests
             var graph = new RpgGraph(entity);
 
             var desc = entity.Describe("Melee");
-            Assert.IsNotNull(desc);
+            Assert.That(desc, Is.Not.Null);
 
             Assert.That(desc.EntityId, Is.EqualTo(entity.Id));
             Assert.That(desc.EntityArchetype, Is.EqualTo(entity.Archetype));

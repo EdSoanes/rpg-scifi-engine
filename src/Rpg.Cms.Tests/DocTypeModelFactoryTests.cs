@@ -27,7 +27,7 @@ namespace Rpg.Cms.Tests
             var models = dataTypeConverter.CreateModels(session, new TestDataTypeRootFolder());
             session.DataTypes = TestDataType.Convert(models);
 
-            Assert.IsNotNull(session.DataTypes);
+            Assert.That(session.DataTypes, Is.Not.Null);
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace Rpg.Cms.Tests
             var obj = session.System.Objects.First();
             var res = converter.CreateModel(session, obj);
 
-            Assert.IsNotNull(res);
+            Assert.That(res, Is.Not.Null);
         }
 
         [Test]
