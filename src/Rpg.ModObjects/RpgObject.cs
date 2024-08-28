@@ -431,7 +431,6 @@ namespace Rpg.ModObjects
         public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
             ParentRef.OnCreating(graph, entity);
-            SetAsChildren();
 
             base.OnCreating(graph, entity);
 
@@ -476,6 +475,12 @@ namespace Rpg.ModObjects
             foreach (var prop in Props.Values)
                 foreach (var mod in prop.Mods)
                     mod.OnRestoring(graph);
+        }
+
+        public override void OnTimeBegins()
+        {
+            SetAsChildren();
+            base.OnTimeBegins();
         }
 
         public override LifecycleExpiry OnStartLifecycle()

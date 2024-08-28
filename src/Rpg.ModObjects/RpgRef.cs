@@ -67,7 +67,7 @@ namespace Rpg.ModObjects
                 existing.Lifespan = new SpanOfTime(existing.Lifespan.Start, Graph.Time.Now);
 
             if (obj != null && Get() != obj)
-                Refs.Add(new RpgObjRef<T>(obj, spanOfTime));
+                Refs.Add(new RpgObjRef<T>(obj, spanOfTime ?? new SpanOfTime()));
         }
 
         protected override void CalculateExpiry()
