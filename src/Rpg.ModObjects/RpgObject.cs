@@ -3,6 +3,7 @@ using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
+using Rpg.ModObjects.Refs;
 using Rpg.ModObjects.States;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;

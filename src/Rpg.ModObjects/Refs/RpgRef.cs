@@ -1,29 +1,29 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Time;
 
-namespace Rpg.ModObjects
+namespace Rpg.ModObjects.Refs
 {
-    public sealed class RpgObjRef<T>
+    public abstract class RpgRef<T> : RpgLifecycleObject
         where T : class
     {
-        [JsonProperty] public SpanOfTime Lifespan { get; set; }
-        [JsonProperty] public T Obj { get; set; }
-
-        [JsonConstructor] RpgObjRef() { }
-
-        public RpgObjRef(T obj, SpanOfTime lifespan)
+        protected class RpgObjRef<T>
+            where T : class
         {
-            Obj = obj;
-            Lifespan = lifespan;
-        }
-        public RpgObjRef(T obj, PointInTime start, PointInTime end)
-            : this(obj, new SpanOfTime(start, end))
-                => Obj = obj;
-    }
+            [JsonProperty] public SpanOfTime Lifespan { get; set; }
+            [JsonProperty] internal T Obj { get; set; }
 
-    public sealed class RpgRef<T> : RpgLifecycleObject
-        where T : class
-    {
+            [JsonConstructor] RpgObjRef() { }
+
+            public RpgObjRef(T obj, SpanOfTime lifespan)
+            {
+                Obj = obj;
+                Lifespan = lifespan;
+            }
+            public RpgObjRef(T obj, PointInTime start, PointInTime end)
+                : this(obj, new SpanOfTime(start, end))
+                    => Obj = obj;
+        }
+
         [JsonProperty] private List<RpgObjRef<T>> Refs { get; set; } = new();
 
         public static implicit operator RpgRef<T>(T obj) => new RpgRef<T>(obj);
@@ -48,10 +48,10 @@ namespace Rpg.ModObjects
             Set(obj);
         }
 
-        public T? Get()
+        protected T? Get()
             => Refs.LastOrDefault(x => x.Lifespan.GetExpiry(Graph.Time.Now) == LifecycleExpiry.Active)?.Obj;
 
-        public void Set(T? obj, SpanOfTime? spanOfTime = null)
+        protected void Set(T? obj, SpanOfTime? spanOfTime = null)
         {
             if (Graph != null)
             {

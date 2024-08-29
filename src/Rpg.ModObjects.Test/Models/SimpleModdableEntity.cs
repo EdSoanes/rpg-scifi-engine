@@ -1,5 +1,6 @@
 ﻿using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
+using Rpg.ModObjects.Refs;
 using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects.Tests.Models

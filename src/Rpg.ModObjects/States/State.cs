@@ -2,6 +2,7 @@
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.ModSets;
 using Rpg.ModObjects.Reflection;
+using Rpg.ModObjects.Refs;
 using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects.States
