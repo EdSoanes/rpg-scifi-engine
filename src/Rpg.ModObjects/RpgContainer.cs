@@ -53,7 +53,7 @@ namespace Rpg.ModObjects
                 PreAddedContents.Add(obj);
             else
             {
-                Graph.AddEntity(obj);
+                Graph.AddObject(obj);
                 Contents.Add(obj.Id);
             }
 
@@ -81,7 +81,7 @@ namespace Rpg.ModObjects
             foreach (var preAdded in GetPreAddedContents())
             {
                 preAdded.OnCreating(graph, preAdded);
-                graph.AddEntity(preAdded);
+                graph.AddObject(preAdded);
             }
 
             base.OnCreating(graph, entity);

@@ -4,6 +4,7 @@ using Rpg.ModObjects.Behaviors;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
+using Rpg.ModObjects.Refs;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 
@@ -14,7 +15,9 @@ namespace Rpg.ModObjects
         private List<PropRef> UpdatedProps = new List<PropRef>();
 
         [JsonProperty] public RpgEntity Context { get; private set; }
-        [JsonProperty] protected Dictionary<string, RpgObject> ObjectStore { get; set; } = new Dictionary<string, RpgObject>();
+        [JsonProperty] protected Dictionary<string, RpgObject> ObjectStore { get; set; } = new();
+        [JsonProperty] protected Dictionary<string, List<RpgObjectRef<RpgObject>>> ObjectRefs { get; set; } = new();
+
         [JsonProperty] public Temporal Time { get; init; } = new Temporal();
 
         public RpgGraph(RpgEntity context)
@@ -165,7 +168,7 @@ namespace Rpg.ModObjects
             return res;
         }
 
-        public bool AddEntity(RpgObject entity)
+        public bool AddObject(RpgObject entity)
         {
             if (!ObjectStore.ContainsKey(entity.Id))
             {
@@ -182,7 +185,6 @@ namespace Rpg.ModObjects
 
             return false;
         }
-
         public Activity CreateActivity<T>(T initiator, ActionGroup actionGroup)
             where T : RpgEntity
         {
@@ -191,7 +193,7 @@ namespace Rpg.ModObjects
                 .Count();
 
             var activity = new Activity(initiator, activityNo);
-            AddEntity(activity);
+            AddObject(activity);
 
             activity.Init(actionGroup);
 
@@ -206,7 +208,7 @@ namespace Rpg.ModObjects
                 .Count();
 
             var activity = new Activity(initiator, activityNo);
-            AddEntity(activity);
+            AddObject(activity);
 
             activity.Init(owner, actionName);
 
@@ -553,7 +555,7 @@ namespace Rpg.ModObjects
             ObjectStore.Clear();
 
             foreach (var entity in Context.Traverse())
-                AddEntity(entity);
+                AddObject(entity);
             
         }
 

@@ -63,7 +63,7 @@ namespace Rpg.ModObjects
             {
                 newChild.SetParent(this);
                 if (Graph != null && Graph.GetObject(newChild.Id) == null)
-                    Graph.AddEntity(newChild);
+                    Graph.AddObject(newChild);
             }
 
             return newChild;

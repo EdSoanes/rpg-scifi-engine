@@ -1,5 +1,6 @@
 ﻿using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
+using Rpg.ModObjects.Refs;
 
 namespace Rpg.ModObjects.Tests
 {
@@ -17,7 +18,7 @@ namespace Rpg.ModObjects.Tests
 
         public ScopedComponent ChildComponent1 { get; set; } = new ScopedComponent("ChildComponent1");
 
-        private ScopedComponent? _childComponent2;
+        private RpgObjectRef<ScopedComponent> _childComponent2 = new RpgObjectRef<ScopedComponent>(RelationshipType.Child);
         public ScopedComponent? ChildComponent2
         {
             get => _childComponent2;

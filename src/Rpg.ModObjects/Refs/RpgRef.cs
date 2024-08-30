@@ -48,10 +48,10 @@ namespace Rpg.ModObjects.Refs
             Set(obj);
         }
 
-        protected T? Get()
+        public virtual T? Get()
             => Refs.LastOrDefault(x => x.Lifespan.GetExpiry(Graph.Time.Now) == LifecycleExpiry.Active)?.Obj;
 
-        protected void Set(T? obj, SpanOfTime? spanOfTime = null)
+        public virtual void Set(T? obj, SpanOfTime? spanOfTime = null)
         {
             if (Graph != null)
             {
