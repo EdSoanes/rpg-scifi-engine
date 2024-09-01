@@ -25,9 +25,9 @@ namespace Rpg.ModObjects.Mods.ModSets
         }
 
         public override LifecycleExpiry OnStartLifecycle()
-            => Expiry;
+            => Graph.GetState(OwnerId, StateName)!.Expiry;
 
         public override LifecycleExpiry OnUpdateLifecycle()
-            => Expiry;
+            => Graph.GetState(OwnerId, StateName)!.Expiry;
     }
 }

@@ -221,11 +221,27 @@ namespace Rpg.ModObjects.Props
         {
             var expiry = base.OnUpdateLifecycle();
 
+            var modsToRemove = new List<Mod>();
             foreach (var mod in Mods)
-                mod.OnUpdateLifecycle();
+            {
+                var modExpiry = mod.OnUpdateLifecycle();
+                if (modExpiry == LifecycleExpiry.Destroyed)
+                    modsToRemove.Add(mod);
+            }
 
+            foreach (var mod in modsToRemove)
+                Remove(mod);
+
+            var refsToRemove = new List<PropObjRef<string>>();
             foreach (var objRef in Refs)
-                objRef.OnUpdateLifecycle();
+            {
+                var refExpiry = objRef.OnUpdateLifecycle();
+                if (refExpiry == LifecycleExpiry.Destroyed)
+                    refsToRemove.Add(objRef);
+            }
+
+            foreach (var objRef in refsToRemove)
+                Refs.Remove(objRef);
 
             return expiry;
         }

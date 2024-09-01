@@ -78,22 +78,22 @@ namespace Rpg.Cyborgs
 
 
         [JsonProperty]
-        public BodyPart Head { get; protected set; } = new BodyPart();
+        public BodyPart Head { get; protected set; } = new BodyPart(nameof(Head), BodyPartType.Head);
 
         [JsonProperty]
-        public BodyPart Torso { get; protected set; } = new BodyPart();
+        public BodyPart Torso { get; protected set; } = new BodyPart(nameof(Torso), BodyPartType.Torso);
 
         [JsonProperty]
-        public BodyPart LeftArm { get; protected set; } = new BodyPart();
+        public BodyPart LeftArm { get; protected set; } = new BodyPart(nameof(LeftArm), BodyPartType.Limb);
 
         [JsonProperty]
-        public BodyPart RightArm { get; protected set; } = new BodyPart();
+        public BodyPart RightArm { get; protected set; } = new BodyPart(nameof(RightArm), BodyPartType.Limb);
 
         [JsonProperty]
-        public BodyPart LeftLeg { get; protected set; } = new BodyPart();
+        public BodyPart LeftLeg { get; protected set; } = new BodyPart(nameof(LeftLeg), BodyPartType.Limb);
 
         [JsonProperty]
-        public BodyPart RightLeg { get; protected set; } = new BodyPart();
+        public BodyPart RightLeg { get; protected set; } = new BodyPart(nameof(RightLeg), BodyPartType.Limb);
 
 
         [JsonProperty]
@@ -131,11 +131,11 @@ namespace Rpg.Cyborgs
 
         [JsonProperty]
         [Container(Tab = "Gear")]
-        public RpgContainer Hands { get; protected set; } = new RpgContainer();
+        public RpgContainer Hands { get; protected set; } = new RpgContainer(nameof(Hands));
 
         [JsonProperty]
         [Container(Tab = "Gear")]
-        public RpgContainer Wearing { get; protected set; } = new RpgContainer();
+        public RpgContainer Wearing { get; protected set; } = new RpgContainer(nameof(Wearing));
 
         [JsonConstructor] protected Actor() { }
 

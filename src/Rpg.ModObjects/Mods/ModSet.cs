@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Mods.Mods;
+using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
 
@@ -47,6 +48,14 @@ namespace Rpg.ModObjects.Mods
         {
             base.OnRestoring(graph);
             Mods = Graph.GetMods(mod => _modIds.Contains(mod.Id)).ToList();
+        }
+
+        public override LifecycleExpiry OnStartLifecycle()
+        {
+            if (!Mods.Any())
+                Mods.AddRange(Graph!.GetActiveMods(x => x.OwnerId == Id));
+
+            return base.OnStartLifecycle();
         }
 
         public void AddMods(params Mod[] mods)

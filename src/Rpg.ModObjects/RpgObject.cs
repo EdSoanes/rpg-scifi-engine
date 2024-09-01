@@ -90,31 +90,6 @@ namespace Rpg.ModObjects
             return false;
         }
 
-        private void OnStartModSetLifecycle()
-        {
-            foreach (var modSet in ModSets.Values)
-            {
-                if (!modSet.Mods.Any())
-                    modSet.Mods.AddRange(Graph!.GetActiveMods(x => x.OwnerId == modSet.Id));
-
-                modSet.OnStartLifecycle();
-            }
-        }
-
-        private void OnUpdateModSetLifecycle()
-        {
-            var toRemove = new List<ModSet>();
-            foreach (var modSet in ModSets.Values)
-            {
-                var expiry = modSet.OnUpdateLifecycle();
-                if (expiry == LifecycleExpiry.Destroyed)
-                    toRemove.Add(modSet);
-            }
-
-            foreach (var remove in toRemove)
-                RemoveModSet(remove.Id);
-        }
-
         #endregion ModSets
 
         #region Props
@@ -329,27 +304,6 @@ namespace Rpg.ModObjects
             }
         }
 
-        private void OnUpdatePropsLifecycle()
-        {
-            var toRemove = new List<Mod>();
-            foreach (var prop in Props.Values)
-            {
-                foreach (var mod in prop.Mods)
-                {
-                    var oldExpiry = mod.Expiry;
-                    var expiry = mod.OnUpdateLifecycle();
-
-                    if (expiry == LifecycleExpiry.Destroyed)
-                        toRemove.Add(mod);
-
-                    if (expiry != oldExpiry)
-                        Graph!.OnPropUpdated(mod.TargetPropRef);
-                }
-            }
-
-            RemoveMods(toRemove.ToArray());
-        }
-
         #endregion
 
         #region Refs
@@ -449,12 +403,6 @@ namespace Rpg.ModObjects
         public ModSet CreateStateInstance(string state, SpanOfTime? spanOfTime = null)
             => GetState(state)!.CreateInstance(spanOfTime);
 
-        private void OnStartStateLifecycle()
-        {
-            foreach (var state in States.Values)
-                state.OnStartLifecycle();
-        }
-
         public bool OnUpdateStateLifecycle()
         {
             var updated = false;
@@ -497,20 +445,25 @@ namespace Rpg.ModObjects
             foreach (var state in States.Values)
                 state.OnRestoring(graph);
 
+            foreach (var modSet in ModSets.Values)
+                modSet.OnRestoring(graph);
+
             foreach (var prop in Props.Values)
-                foreach (var mod in prop.Mods)
-                    mod.OnRestoring(graph);
+                prop.OnRestoring(graph);
         }
 
         public override LifecycleExpiry OnStartLifecycle()
         {
             base.OnStartLifecycle();
 
+            foreach (var state in States.Values)
+                state.OnStartLifecycle();
+
+            foreach (var modSet in ModSets.Values)
+                modSet.OnStartLifecycle();
+
             foreach (var prop in Props.Values)
                 prop.OnStartLifecycle();
-
-            OnStartModSetLifecycle();
-            OnStartStateLifecycle();
 
             return Expiry;
         }
@@ -519,11 +472,21 @@ namespace Rpg.ModObjects
         {
             base.OnUpdateLifecycle();
 
+            OnUpdateStateLifecycle();
+
+            var modSetsToRemove = new List<ModSet>();
+            foreach (var modSet in ModSets.Values)
+            {
+                var expiry = modSet.OnUpdateLifecycle();
+                if (expiry == LifecycleExpiry.Destroyed)
+                    modSetsToRemove.Add(modSet);
+            }
+
+            foreach (var remove in modSetsToRemove)
+                RemoveModSet(remove.Id);
+
             foreach (var prop in Props.Values)
                 prop.OnUpdateLifecycle();
-
-            OnUpdateModSetLifecycle();
-            OnUpdatePropsLifecycle();
 
             return Expiry;
         }

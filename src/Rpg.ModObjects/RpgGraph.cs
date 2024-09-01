@@ -342,6 +342,9 @@ namespace Rpg.ModObjects
             return null;
         }
 
+        public States.State? GetState(string? entityId, string stateName)
+            => GetObject(entityId)?.GetState(stateName);
+
         public void RemoveModSet(string modSetId)
         {
             foreach (var rpgObj in ObjectStore.Values)

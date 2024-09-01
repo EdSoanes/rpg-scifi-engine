@@ -24,7 +24,9 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Health, Is.EqualTo(10));
             Assert.That(entity.Damage.ArmorPenetration, Is.EqualTo(10));
-            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(11));
+
+            var activeMods = graph.GetActiveMods();
+            Assert.That(activeMods.Count(), Is.EqualTo(11));
 
             entity.AddModSet(new ModSet(entity.Id, "name")
                 .Add(entity, x => x.Melee, 1)

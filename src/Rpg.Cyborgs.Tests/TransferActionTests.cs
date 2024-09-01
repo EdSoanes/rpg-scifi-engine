@@ -49,11 +49,11 @@ namespace Rpg.Cyborgs.Tests
         }
 
         [Test]
-        public void Benny_Drops_Sword_InsideTurn()
+        public void Benny_Drops_Sword_OnTurn2()
         {
             Assert.That(_pc.CurrentActionPoints, Is.EqualTo(1));
 
-            _graph.Time.Transition(PointInTimeType.EncounterBegins);
+            _graph.Time.Transition(2);
 
             _graph.CreateActivity(_pc, _sword, nameof(Transfer))
                 .SetAll("from", _pc.Hands)
@@ -61,6 +61,29 @@ namespace Rpg.Cyborgs.Tests
                 .AutoComplete();
 
             Assert.That(_pc.CurrentActionPoints, Is.EqualTo(0));
+            Assert.That(_pc.Hands.Contains(_sword), Is.False);
+            Assert.That(_room.Contents.Contains(_sword), Is.True);
+        }
+
+        [Test]
+        public void Benny_Drops_Sword_OnTurn2_RevertToTurn1()
+        {
+            Assert.That(_pc.CurrentActionPoints, Is.EqualTo(1));
+
+            _graph.Time.Transition(2);
+
+            _graph.CreateActivity(_pc, _sword, nameof(Transfer))
+                .SetAll("from", _pc.Hands)
+                .SetAll("to", (_graph.Context as Room)!.Contents)
+                .AutoComplete();
+
+            Assert.That(_pc.CurrentActionPoints, Is.EqualTo(0));
+
+            _graph.Time.Transition(1);
+
+            Assert.That(_pc.Hands.Contains(_sword), Is.True);
+            Assert.That(_room.Contents.Contains(_sword), Is.False);
+            Assert.That(_pc.CurrentActionPoints, Is.EqualTo(1));
         }
 
         [Test]

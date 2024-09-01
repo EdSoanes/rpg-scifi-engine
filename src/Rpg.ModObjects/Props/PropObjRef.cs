@@ -61,7 +61,7 @@ namespace Rpg.ModObjects.Props
             if (lifespan != null)
                 lifespan.SetStartTime(Graph.Time.Now);
             else 
-                lifespan = new SpanOfTime(Graph?.Time.Now ?? PointInTimeType.TimeBegins, PointInTimeType.TimeEnds);
+                lifespan = new SpanOfTime(Graph?.Time.Now ?? PointInTimeType.TimeBegins, PointInTimeType.TimeEnds, true);
 
             return lifespan;
         }
@@ -115,11 +115,11 @@ namespace Rpg.ModObjects.Props
 
         public override LifecycleExpiry OnUpdateLifecycle()
         {
-            base.OnUpdateLifecycle();
             var now = Graph.Time.Now;
             if (!now.IsEncounterTime)
                 Refs = GetConsolidatedRefs();
 
+            CalculateExpiry();
             return Expiry;
         }
 

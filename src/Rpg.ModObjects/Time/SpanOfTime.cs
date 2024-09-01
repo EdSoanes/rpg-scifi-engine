@@ -23,10 +23,11 @@ namespace Rpg.ModObjects.Time
                   new PointInTime(PointInTimeType.Turn, startTurn + duration))
         { }
 
-        public SpanOfTime(PointInTime start, PointInTime end)
+        public SpanOfTime(PointInTime start, PointInTime end, bool started = false)
         {
             Start = start;
             End = end;
+            Started = started;
         }
 
         public bool OverlapsWith(SpanOfTime other)

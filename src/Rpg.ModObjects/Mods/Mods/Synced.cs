@@ -20,19 +20,25 @@ namespace Rpg.ModObjects.Mods.Mods
 
         public override LifecycleExpiry OnStartLifecycle()
         {
-            base.OnStartLifecycle();
-            return GetOwnerExpiry();
+            var oldExpiry = Expiry;
+            Expiry = GetOwnerExpiry();
+            if (oldExpiry != Expiry)
+                Graph.OnPropUpdated(TargetPropRef);
+            return Expiry;
         }
 
         public override LifecycleExpiry OnUpdateLifecycle()
         {
-            base.OnUpdateLifecycle();
-            return GetOwnerExpiry();
+            var oldExpiry = Expiry;
+            Expiry = GetOwnerExpiry();
+            if (oldExpiry != Expiry)
+                Graph.OnPropUpdated(TargetPropRef);
+            return Expiry;
         }
 
         private LifecycleExpiry GetOwnerExpiry()
         {
-            var expiry = Graph.GetLifecycleObject(OwnerId)?.Expiry ?? Expiry;
+            var expiry = Graph.GetLifecycleObject(OwnerId)?.Expiry ?? LifecycleExpiry.Destroyed;
             return expiry;
         }
     }

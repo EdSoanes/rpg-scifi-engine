@@ -16,7 +16,7 @@ namespace Rpg.ModObjects.States
         [JsonProperty] protected PropObjRef<SpanOfTime> ActiveTimeSpans { get; set; } = new();
 
         public bool IsOn { get => OnByTimePeriod || OnByUserAction || OnByCondition; }
-        public bool OnByTimePeriod { get => ActiveTimeSpans.Expiry == LifecycleExpiry.Active; }
+        public bool OnByTimePeriod { get => (ActiveTimeSpans.Get()?.GetExpiry(Graph?.Time.Now ?? PointInTimeType.BeforeTime) ?? LifecycleExpiry.Unset) == LifecycleExpiry.Active; }
         public bool OnByUserAction { get; private set; }
         public bool OnByCondition { get; protected set; }
 
@@ -170,9 +170,8 @@ namespace Rpg.ModObjects.States
             {
                 var owner = Graph!.GetObject<T>(OwnerId)!;
                 OnByCondition = IsOnWhen(owner);
-                expiry = OnByCondition
-                    ? LifecycleExpiry.Active
-                    : LifecycleExpiry.Expired;
+                if (OnByCondition)
+                    expiry = LifecycleExpiry.Active;
             }
 
             if (expiry == LifecycleExpiry.Expired && !Graph.Time.Now.IsEncounterTime)
