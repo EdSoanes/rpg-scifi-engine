@@ -17,29 +17,6 @@ namespace Rpg.ModObjects.Time
                 new PointInTime(PointInTimeType.TimeEnds))
         { }
 
-        //public SpanOfTime(PointInTimeType start, PointInTimeType end)
-        //    : this(
-        //        new PointInTime(start),
-        //        new PointInTime(end))
-        //{ }
-
-        //public SpanOfTime(PointInTimeType start, int endTurn)
-        //    : this(
-        //        new PointInTime(start),
-        //        new PointInTime(endTurn))
-        //{ }
-
-        //public SpanOfTime(PointInTime start, PointInTimeType end)
-        //    : this(
-        //        start,
-        //        new PointInTime(end))
-        //{ }
-
-        //public SpanOfTime(PointInTime start, int endTurn)
-        //    : this(
-        //        start,
-        //        new PointInTime(endTurn))
-        //{ }
         public SpanOfTime(int startTurn, int duration)
             : this(
                   new PointInTime(PointInTimeType.Turn, startTurn),

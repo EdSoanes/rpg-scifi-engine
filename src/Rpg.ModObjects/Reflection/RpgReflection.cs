@@ -39,7 +39,6 @@ namespace Rpg.ModObjects.Reflection
                 .ToArray();
         }
 
-
         internal static (int?, int?) GetPropertyThresholds(this PropertyInfo propInfo)
         {
             if (propInfo.PropertyType == typeof(int))

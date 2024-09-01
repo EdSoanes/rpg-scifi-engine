@@ -3,7 +3,6 @@ using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
-using Rpg.ModObjects.Refs;
 using Rpg.ModObjects.States;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
@@ -14,11 +13,10 @@ namespace Rpg.ModObjects
     public abstract class RpgObject : RpgLifecycleObject, INotifyPropertyChanged
     {
         [JsonProperty] public Dictionary<string, ModSet> ModSets { get; private init; }
-        [JsonProperty] public Dictionary<string, Prop> Props {  get; private init; }
+        [JsonProperty] public Dictionary<string, Prop> Props { get; private init; }
         [JsonProperty] public Dictionary<string, State> States { get; private init; }
 
         [JsonProperty] public string Id { get; private init; }
-        [JsonProperty] public RpgRef<PropRef> ParentRef { get; init; } = new();
 
         [JsonProperty] public string Archetype { get; private init; }
 
@@ -38,44 +36,6 @@ namespace Rpg.ModObjects
             ModSets = new Dictionary<string, ModSet>();
             Props = new Dictionary<string, Prop>();
             States = new Dictionary<string, State>();
-        }
-
-        private void SetParent(RpgObject? parent)
-        {
-            if (parent == null)
-                ParentRef.Set(null);
-            else
-            {
-                var path = parent.PathTo(this);
-                ParentRef.Set(new PropRef(parent.Id, string.Join('.', path)));
-                Name ??= path.LastOrDefault() ?? GetType().Name;
-            }
-        }
-
-        protected T? SetAsChild<T>(T? newChild, T? oldChild)
-            where T : RpgObject
-        {
-            var path = this.PathTo(newChild);
-            if (oldChild?.ParentRef?.Get()?.EntityId == Id)
-                oldChild.SetParent(null);
-
-            if (newChild != null)
-            {
-                newChild.SetParent(this);
-                if (Graph != null && Graph.GetObject(newChild.Id) == null)
-                    Graph.AddObject(newChild);
-            }
-
-            return newChild;
-        }
-
-        private void SetAsChildren()
-        {
-            foreach (var propertyInfo in this.ScanForChildProperties())
-            {
-                var child = propertyInfo.GetValue(this) as RpgObject;
-                child?.SetParent(this);
-            }
         }
 
         #region ModSets
@@ -146,7 +106,7 @@ namespace Rpg.ModObjects
             var toRemove = new List<ModSet>();
             foreach (var modSet in ModSets.Values)
             {
-               var expiry = modSet.OnUpdateLifecycle();
+                var expiry = modSet.OnUpdateLifecycle();
                 if (expiry == LifecycleExpiry.Destroyed)
                     toRemove.Add(modSet);
             }
@@ -191,7 +151,7 @@ namespace Rpg.ModObjects
             return propDesc;
         }
 
-        public Prop? GetProp(string? prop, bool create = false)
+        public Prop? GetProp(string? prop, RefType refType = RefType.Value, bool create = false)
         {
             if (string.IsNullOrEmpty(prop))
                 return null;
@@ -201,7 +161,14 @@ namespace Rpg.ModObjects
 
             if (create)
             {
-                var created = new Prop(Id, prop);
+                var created = new Prop(Id, prop, refType);
+                if (Graph != null)
+                {
+                    created.OnCreating(Graph, this);
+                    created.OnTimeBegins();
+                    created.OnStartLifecycle();
+                }
+
                 Props.Add(prop, created);
 
                 return created;
@@ -258,7 +225,7 @@ namespace Rpg.ModObjects
                         if (Graph.Time.Now.Type != PointInTimeType.BeforeTime)
                             mod.OnStartLifecycle();
 
-                        Graph!.OnPropUpdated(prop);
+                        Graph!.OnPropUpdated(new PropRef(prop.EntityId, prop.Name));
                     }
                 }
                 else
@@ -347,7 +314,7 @@ namespace Rpg.ModObjects
                         if (prop != null)
                         {
                             prop.Remove(mod);
-                            Graph!.OnPropUpdated(prop);
+                            Graph!.OnPropUpdated(new PropRef(prop.EntityId, prop.Name));
 
                             if (!prop.Mods.Any())
                                 toRemove.Add(prop);
@@ -355,7 +322,7 @@ namespace Rpg.ModObjects
                     }
 
                     foreach (var prop in toRemove)
-                        Props.Remove(prop.Prop);
+                        Props.Remove(prop.Name);
                 }
                 else
                     Graph!.RemoveMods([.. modGroup]);
@@ -384,6 +351,83 @@ namespace Rpg.ModObjects
         }
 
         #endregion
+
+        #region Refs
+
+        public RpgObject? GetParentObject()
+            => Graph?.GetParentObject(this);
+
+        public bool IsParentObjectTo(RpgObject childObject)
+            => IsParentObjectTo(childObject.Id);
+
+        public bool IsParentObjectTo(string childObjectId)
+            => Props.Values.Any(x => x.IsParentObjectTo(childObjectId));
+
+        public T? GetChildObject<T>(string propName)
+            where T : RpgObject
+                => GetProp(propName)?.GetChildObject<T>();
+
+        public RpgObject[] GetChildObjects()
+        {
+            var res = new List<RpgObject>();
+            foreach (var prop in GetProps().Where(x => x.RefType == RefType.Child || x.RefType == RefType.Children))
+            {
+                if (prop.RefType == RefType.Child)
+                {
+                    var child = prop.GetChildObject<RpgObject>();
+                    if (child != null)
+                        res.Add(child);
+                }
+                else
+                {
+                    res.AddRange(prop.GetChildObjects());
+                }
+            }    
+
+            return res.ToArray();
+        }
+
+        public RpgObject[] GetChildObjects(string propName)
+        {
+            var res = new List<RpgObject>();
+            var prop = GetProp(propName, RefType.Children, true);
+            if (prop?.RefType != RefType.Children)
+                throw new InvalidOperationException($"Prop {propName} not found or not RelType == RelType.Children");
+
+            return prop.GetChildObjects();
+        }
+
+        public void AddChildObject(string propName, RpgObject rpgObj)
+        {
+            var prop = GetProp(propName, RefType.Children, true)!;
+            prop.AddRef(rpgObj);
+        }
+
+        public void SetChildObject(string propName, RpgObject? rpgObj)
+        {
+            var prop = GetProp(propName, RefType.Child, true);
+            if (rpgObj == null)
+            {
+                var existing = GetChildObject<RpgObject>(propName);
+                if (existing != null)
+                    prop!.RemoveRef(existing);
+            }
+            else
+            {
+                if (Graph != null && Graph.GetObject(rpgObj.Id) == null)
+                    Graph.AddObject(rpgObj);
+
+                prop!.AddRef(rpgObj);
+            }
+        }
+
+        public void RemoveChildObject(string propName, RpgObject rpgObj)
+        {
+            var prop = GetProp(propName, RefType.Children, true)!;
+            prop.RemoveRef(rpgObj);
+        }
+
+        #endregion Refs
 
         #region States
 
@@ -431,31 +475,9 @@ namespace Rpg.ModObjects
 
         public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
-            ParentRef.OnCreating(graph, entity);
-
             base.OnCreating(graph, entity);
 
-            ModSets.Clear();
-            Props.Clear();
-            States.Clear();
-
-            foreach (var propInfo in RpgReflection.ScanForModdableProperties(this))
-            {
-                var val = this.PropertyValue(propInfo.Name, out var propExists);
-                if (val != null)
-                {
-                    if (Graph == null)
-                        throw new InvalidOperationException("Graph is null");
-                    if (val is Dice dice)
-                        AddMods(new Initial(Id, propInfo.Name, dice));
-                    else if (val is int i)
-                        AddMods(new Initial(Id, propInfo.Name, i));
-
-                    var (min, max) = propInfo.GetPropertyThresholds();
-                    if (min != null || max != null)
-                        AddMods(new Threshold(Id, propInfo.Name, min ?? int.MinValue, max ?? int.MaxValue));
-                }
-            }
+            OnCreatingProperties();
 
             var states = State.CreateOwnerStates(this);
             foreach (var state in states)
@@ -467,30 +489,25 @@ namespace Rpg.ModObjects
 
         public override void OnRestoring(RpgGraph graph)
         {
-            ParentRef.OnRestoring(graph);
             base.OnRestoring(graph);
 
+            foreach (var prop in Props.Values)
+                prop.OnRestoring(graph);
+
             foreach (var state in States.Values)
-                state.OnRestoring(Graph);
+                state.OnRestoring(graph);
 
             foreach (var prop in Props.Values)
                 foreach (var mod in prop.Mods)
                     mod.OnRestoring(graph);
         }
 
-        public override void OnTimeBegins()
-        {
-            SetAsChildren();
-            base.OnTimeBegins();
-        }
-
         public override LifecycleExpiry OnStartLifecycle()
         {
-            ParentRef.OnStartLifecycle();
-
             base.OnStartLifecycle();
-            foreach (var mod in GetMods())
-                mod.OnStartLifecycle();
+
+            foreach (var prop in Props.Values)
+                prop.OnStartLifecycle();
 
             OnStartModSetLifecycle();
             OnStartStateLifecycle();
@@ -500,15 +517,41 @@ namespace Rpg.ModObjects
 
         public override LifecycleExpiry OnUpdateLifecycle()
         {
-            ParentRef.OnUpdateLifecycle();
             base.OnUpdateLifecycle();
-            foreach (var mod in GetMods())
-                mod.OnUpdateLifecycle();
+
+            foreach (var prop in Props.Values)
+                prop.OnUpdateLifecycle();
 
             OnUpdateModSetLifecycle();
             OnUpdatePropsLifecycle();
 
             return Expiry;
+        }
+
+        private void OnCreatingProperties()
+        {
+            if (Graph == null)
+                throw new InvalidOperationException("Graph is null");
+
+            foreach (var prop in Props.Values)
+                prop.OnCreating(Graph, this);
+
+            foreach (var propInfo in RpgReflection.ScanForModdableProperties(this))
+            {
+                var val = this.PropertyValue(propInfo.Name, out var propExists);
+                if (val != null)
+                {
+
+                    if (val is Dice dice)
+                        AddMods(new Initial(Id, propInfo.Name, dice));
+                    else if (val is int i)
+                        AddMods(new Initial(Id, propInfo.Name, i));
+
+                    var (min, max) = propInfo.GetPropertyThresholds();
+                    if (min != null || max != null)
+                        AddMods(new Threshold(Id, propInfo.Name, min ?? int.MinValue, max ?? int.MaxValue));
+                }
+            }
         }
     }
 }

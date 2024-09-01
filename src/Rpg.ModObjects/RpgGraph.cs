@@ -4,7 +4,6 @@ using Rpg.ModObjects.Behaviors;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
-using Rpg.ModObjects.Refs;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 
@@ -16,7 +15,6 @@ namespace Rpg.ModObjects
 
         [JsonProperty] public RpgEntity Context { get; private set; }
         [JsonProperty] protected Dictionary<string, RpgObject> ObjectStore { get; set; } = new();
-        [JsonProperty] protected Dictionary<string, List<RpgObjectRef<RpgObject>>> ObjectRefs { get; set; } = new();
 
         [JsonProperty] public Temporal Time { get; init; } = new Temporal();
 
@@ -153,7 +151,7 @@ namespace Rpg.ModObjects
             {
                 var affectedBy = entity.GetProps()
                     .Where(x => x.IsAffectedBy(propRef))
-                    .Select(x => new PropRef(entity.Id, x.Prop))
+                    .Select(x => new PropRef(entity.Id, x.Name))
                     .Distinct();
 
                 res.Merge(affectedBy);
@@ -232,6 +230,19 @@ namespace Rpg.ModObjects
                     ? ObjectStore[objectId] as T
                     : null;
 
+        public RpgObject? GetParentObject(RpgObject childObject)
+            => GetParentObject(childObject.Id);
+
+        public RpgObject? GetParentObject(string childObjectId)
+        {
+            foreach (var obj in ObjectStore.Values.Where(x => x.Id != childObjectId))
+            {
+                if (obj.IsParentObjectTo(childObjectId))
+                    return obj; 
+            }
+
+            return null;
+        }
         public RpgObject? GetObject(string? objectId)
             => objectId != null && ObjectStore.ContainsKey(objectId)
                 ? ObjectStore[objectId]
@@ -256,22 +267,17 @@ namespace Rpg.ModObjects
 
             if (scope == ModScope.ParentEntity)
             {
-                var parent = GetObject(rpgObj.ParentRef?.Get()?.EntityId);
+                var parent = rpgObj.GetParentObject();
                 return parent != null
                     ? [parent]
                     : [];
             }
 
-            if (rpgObj is RpgEntity entity)
-            {
-                var children = ObjectStore.Values.Where(x => x.ParentRef?.Get()?.EntityId == rpgObj.Id);
-                if (scope == ModScope.ChildComponents)
-                    return children.Where(x => x is RpgComponent);
-
-                return children;
-            }
-
-            return [];
+            //Children...
+            var children = rpgObj.GetChildObjects();
+            return scope == ModScope.ChildObjects
+                ? children
+                : children.Where(x => x is RpgComponent).ToArray();
         }
 
         public ModSet[] GetModSets()
@@ -496,8 +502,8 @@ namespace Rpg.ModObjects
         public void OnPropsUpdated()
         {
             foreach (var obj in ObjectStore.Values)
-                foreach (var modProp in obj.GetProps())
-                    UpdatedProps.Merge(modProp);
+                foreach (var prop in obj.GetProps())
+                    UpdatedProps.Merge(new PropRef(prop.EntityId, prop.Name));
         }
 
         public void SetPropValue(PropRef propRef)
@@ -552,11 +558,8 @@ namespace Rpg.ModObjects
 
         private void OnBeforeTime()
         {
-            ObjectStore.Clear();
-
             foreach (var entity in Context.Traverse())
                 AddObject(entity);
-            
         }
 
         private void OnTimeBegins()

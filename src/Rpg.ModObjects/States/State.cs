@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.ModSets;
+using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
-using Rpg.ModObjects.Refs;
 using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects.States
@@ -13,7 +13,7 @@ namespace Rpg.ModObjects.States
         [JsonProperty] public string Name { get; protected set; }
         [JsonProperty] public string OwnerId { get; private init; }
         [JsonProperty] public string? OwnerArchetype { get; private set; }
-        [JsonProperty] protected RpgRef<SpanOfTime> ActiveTimeSpans { get; set; } = new();
+        [JsonProperty] protected PropObjRef<SpanOfTime> ActiveTimeSpans { get; set; } = new();
 
         public bool IsOn { get => OnByTimePeriod || OnByUserAction || OnByCondition; }
         public bool OnByTimePeriod { get => ActiveTimeSpans.Expiry == LifecycleExpiry.Active; }

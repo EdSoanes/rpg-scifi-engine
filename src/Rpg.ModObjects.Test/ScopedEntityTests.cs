@@ -1,6 +1,5 @@
 ﻿using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
-using Rpg.ModObjects.Refs;
 
 namespace Rpg.ModObjects.Tests
 {
@@ -16,25 +15,28 @@ namespace Rpg.ModObjects.Tests
     {
         public int Prop { get; set; }
 
-        public ScopedComponent ChildComponent1 { get; set; } = new ScopedComponent("ChildComponent1");
-
-        private RpgObjectRef<ScopedComponent> _childComponent2 = new RpgObjectRef<ScopedComponent>(RelationshipType.Child);
-        public ScopedComponent? ChildComponent2
+        public ScopedComponent ChildComponent1
         {
-            get => _childComponent2;
-            set => _childComponent2 = SetAsChild(value, _childComponent2);
+            get => GetChildObject<ScopedComponent>(nameof(ChildComponent1))!;
+            set => SetChildObject(nameof(ChildComponent1), value);
         }
 
-        private ChildEntity? _childEntity;
+        public ScopedComponent? ChildComponent2
+        {
+            get => GetChildObject<ScopedComponent>(nameof(ChildComponent2));
+            set => SetChildObject(nameof(ChildComponent2), value);
+        }
+
         public ChildEntity? ChildEntity
         {
-            get => _childEntity;
-            set => _childEntity = SetAsChild(value, _childEntity);
+            get => GetChildObject<ChildEntity>(nameof(ChildEntity));
+            set => SetChildObject(nameof(ChildEntity), value);
         }
 
         public ScopedEntity()
         {
             Name = "ScopedEntity";
+            ChildComponent1 = new ScopedComponent("ChildComponent1");
             ChildEntity = new ChildEntity("ChildEntity");
         }
     }
@@ -122,6 +124,7 @@ namespace Rpg.ModObjects.Tests
         public void ScopedEntity_GetParentObject()
         {
             var entity = new ScopedEntity();
+
             var graph = new RpgGraph(entity);
 
             var parent = graph.GetObjectsByScope(entity.ChildComponent1.Id, ModScope.ParentEntity).ToArray();

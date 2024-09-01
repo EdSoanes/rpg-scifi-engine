@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Reflection;
 using System.Linq.Expressions;
 
 namespace Rpg.ModObjects.Props
@@ -8,6 +7,7 @@ namespace Rpg.ModObjects.Props
     {
         [JsonProperty] public string EntityId { get; protected set; }
         [JsonProperty] public string Prop { get; protected set; }
+        [JsonProperty] public RefType RefType { get; protected set; } = RefType.Value;
 
         [JsonConstructor] protected PropRef() { }
 

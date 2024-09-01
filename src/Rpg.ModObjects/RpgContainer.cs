@@ -4,11 +4,8 @@ using System.Collections.Specialized;
 namespace Rpg.ModObjects
 {
     public class RpgContainer : RpgComponent
-    { 
-        [JsonProperty] public List<string> Contents { get; private set; } = new List<string>();
-
-        [JsonProperty] private List<RpgObject> PreAddedContents { get; set; } = new();
-        [JsonProperty] private string? _preAddedContents { get; set; }
+    {
+        [JsonProperty] public RpgObject[] Contents { get => GetChildObjects(nameof(Contents)); }
 
         public event NotifyCollectionChangedEventHandler? CollectionChanged;
         [JsonConstructor] public RpgContainer()
@@ -19,44 +16,29 @@ namespace Rpg.ModObjects
         {
         }
 
-        public T? GetById<T>(string entityId)
+        public T? Get<T>(string entityId)
             where T : RpgObject
-        {
-            if (Contains(entityId))
-            {
-                var obj = Graph!.GetObject<T>(entityId);
-                return obj;
-            }
-
-            return null;
-        }
+                => GetChildObjects(nameof(Contents))
+                    .FirstOrDefault(x => x.Id == entityId) as T;
 
         public IEnumerable<T> Get<T>(Func<T, bool>? filterFunc = null)
             where T : RpgObject
-                => Contents
-                    .Select(x => Graph!.GetObject<T>(x))
-                    .Where(x => x != null && (filterFunc?.Invoke(x) ?? true))
+                => GetChildObjects(nameof(Contents))
+                    .Where(x => (x is T e) && (filterFunc?.Invoke(e) ?? true))
                     .Cast<T>();
 
         public bool Contains(RpgEntity obj)
             => Contains(obj.Id);
 
         public bool Contains(string entityId)
-            => Contents.Contains(entityId);
+            => GetProp(nameof(Contents))?.Contains(entityId) ?? false;
 
         public bool Add(RpgEntity obj)
         {
             if (Contains(obj))
                 return false;
 
-            if (Graph == null)
-                PreAddedContents.Add(obj);
-            else
-            {
-                Graph.AddObject(obj);
-                Contents.Add(obj.Id);
-            }
-
+            AddChildObject(nameof(Contents), obj);
             CallCollectionChanged(NotifyCollectionChangedAction.Add);
 
             return true;
@@ -67,7 +49,7 @@ namespace Rpg.ModObjects
             if (!Contains(obj))
                 return false;
 
-            Contents.Remove(obj.Id);
+            RemoveChildObject(nameof(Contents), obj);
             CallCollectionChanged(NotifyCollectionChangedAction.Remove);
 
             return true;
@@ -75,36 +57,5 @@ namespace Rpg.ModObjects
 
         protected void CallCollectionChanged(NotifyCollectionChangedAction action)
             => CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(action));
-
-        public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
-        {
-            foreach (var preAdded in GetPreAddedContents())
-            {
-                preAdded.OnCreating(graph, preAdded);
-                graph.AddObject(preAdded);
-            }
-
-            base.OnCreating(graph, entity);
-        }
-
-        private IEnumerable<RpgObject> GetPreAddedContents()
-        {
-            var res = new List<RpgObject>();
-            res.AddRange(PreAddedContents);
-            if (!string.IsNullOrEmpty(_preAddedContents))
-            {
-                var contents = RpgSerializer.Deserialize<RpgObject[]>(_preAddedContents);
-                res.AddRange(contents);
-            }
-
-            _preAddedContents = null;
-            PreAddedContents.Clear();
-
-            foreach (var preAdded in res)
-                if (!Contents.Contains(preAdded.Id))
-                    Contents.Add(preAdded.Id);
-
-            return res.SelectMany(x => x.Traverse());
-        }
     }
 }
