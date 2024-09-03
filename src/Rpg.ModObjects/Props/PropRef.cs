@@ -17,6 +17,13 @@ namespace Rpg.ModObjects.Props
             Prop = prop;
         }
 
+        public PropRef(string entityId, string prop, RefType refType)
+        {
+            EntityId = entityId;
+            Prop = prop;
+            RefType = refType;
+        }
+
         public static PropRef CreatePropRef<T, TResult>(T rootEntity, Expression<Func<T, TResult>> expression)
             where T : RpgObject
         {
@@ -53,7 +60,17 @@ namespace Rpg.ModObjects.Props
 
         public override string ToString()
         {
-            return $"{EntityId}.{Prop}";
+            return $"{RefType}.{EntityId}.{Prop}";
+        }
+
+        public static PropRef FromString(string str)
+        {
+            var parts = !string.IsNullOrEmpty(str) ? str.Split('.') : [];
+            var refType = Enum.Parse<Props.RefType>(parts[0]);
+            var entityId = parts[1];
+            var prop = string.Join('.', parts.Skip(2));
+
+            return new PropRef(entityId, prop, refType);
         }
     }
 }

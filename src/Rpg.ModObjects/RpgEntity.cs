@@ -44,9 +44,9 @@ namespace Rpg.ModObjects
             }
         }
 
-        public override void OnRestoring(RpgGraph graph)
+        public override void OnRestoring(RpgGraph graph, RpgObject? entity)
         {
-            base.OnRestoring(graph);
+            base.OnRestoring(graph, entity);
 
             foreach (var action in Actions.Values)
                 action.OnAdding(Graph);

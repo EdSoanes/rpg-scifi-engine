@@ -76,7 +76,7 @@ namespace Rpg.ModObjects.Props
 
         public bool IsAffectedBy(PropRef propRef)
             => Mods
-                .Any(x => x.SourcePropRef != null && x.SourcePropRef.EntityId == propRef.EntityId && x.SourcePropRef.Prop == propRef.Prop);
+                .Any(x => x.Source != null && x.Source.EntityId == propRef.EntityId && x.Source.Prop == propRef.Prop);
 
         #endregion Mods
 
@@ -94,9 +94,7 @@ namespace Rpg.ModObjects.Props
         }
 
         public bool Contains(string entityId)
-            => Graph != null
-                ? Refs.Any(x => x.Expiry == LifecycleExpiry.Active && x.Get() == entityId)
-                : Refs.Any(x => x.Get() == entityId);
+            => Refs.Any(x => x.GetMany().Any(r => r == entityId));
         
         public T? GetChildObject<T>() 
             where T : RpgObject
@@ -136,7 +134,7 @@ namespace Rpg.ModObjects.Props
             if (source == null)
             {
                 if (RefType == RefType.Child)
-                    Refs.FirstOrDefault()?.SetExpired();
+                    Refs.FirstOrDefault()?.Set(null);
 
                 return;
             }
@@ -174,7 +172,7 @@ namespace Rpg.ModObjects.Props
 
             var existing = Refs.FirstOrDefault(x => x.Get() == source.Id);
             if (existing != null)
-                existing.SetExpired();
+                existing.Set(null);
         }
 
         #endregion Refs
@@ -196,6 +194,16 @@ namespace Rpg.ModObjects.Props
 
             foreach (var objRef in Refs)
                 objRef.OnCreating(graph, entity);
+        }
+
+        public override void OnRestoring(RpgGraph graph, RpgObject? entity = null)
+        {
+            base.OnRestoring(graph, entity);
+            foreach (var objRef in Refs)
+                objRef.OnRestoring(graph, entity);
+
+            foreach (var mod in Mods)
+                mod.OnRestoring(graph, entity);
         }
 
         public override void OnTimeBegins()
@@ -245,22 +253,14 @@ namespace Rpg.ModObjects.Props
 
             return expiry;
         }
-        public override void OnRestoring(RpgGraph graph)
-        {
-            base.OnRestoring(graph);
-            foreach (var mod in Mods)
-                mod.OnRestoring(graph);
-
-            foreach (var objRef in Refs) 
-                objRef.OnRestoring(graph);
-        }
 
         public override string ToString()
         {
             return RefType switch
             {
                 RefType.Value => $"#Mods = {Mods.Count()}",
-                RefType.Child => $"#Ref = {Refs.FirstOrDefault(x => x.Expiry == LifecycleExpiry.Active)?.Get() ?? "null"}",
+                RefType.Child => $"#Ref = {Refs.FirstOrDefault()?.Get() ?? "null"}",
+                RefType.Children => $"#Refs = {Refs.Count(x => x.Get() != null)}",
                 _ => RefType.ToString()
             };
         }

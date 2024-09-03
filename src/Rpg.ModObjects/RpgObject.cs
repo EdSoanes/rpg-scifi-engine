@@ -217,7 +217,7 @@ namespace Rpg.ModObjects
                     foreach (var mod in modGroup.Where(x => x.IsDisabled && Props.ContainsKey(x.Prop)))
                     {
                         mod.Enable();
-                        Graph!.OnPropUpdated(mod.TargetPropRef);
+                        Graph!.OnPropUpdated(mod.Target);
                     }
                 }
                 else
@@ -234,7 +234,7 @@ namespace Rpg.ModObjects
                     foreach (var mod in modGroup.Where(x => !x.IsDisabled && Props.ContainsKey(x.Prop)))
                     {
                         mod.Disable();
-                        Graph!.OnPropUpdated(mod.TargetPropRef);
+                        Graph!.OnPropUpdated(mod.Target);
                     }
                 }
                 else
@@ -251,7 +251,7 @@ namespace Rpg.ModObjects
                     foreach (var mod in modGroup.Where(x => !x.IsApplied && Props.ContainsKey(x.Prop)))
                     {
                         mod.Apply();
-                        Graph!.OnPropUpdated(mod.TargetPropRef);
+                        Graph!.OnPropUpdated(mod.Target);
                     }
                 }
                 else
@@ -268,7 +268,7 @@ namespace Rpg.ModObjects
                     foreach (var mod in modGroup.Where(x => x.IsApplied && Props.ContainsKey(x.Prop)))
                     {
                         mod.Unapply();
-                        Graph!.OnPropUpdated(mod.TargetPropRef);
+                        Graph!.OnPropUpdated(mod.Target);
                     }
                 }
                 else
@@ -435,7 +435,7 @@ namespace Rpg.ModObjects
             }
         }
 
-        public override void OnRestoring(RpgGraph graph)
+        public override void OnRestoring(RpgGraph graph, RpgObject? entity = null)
         {
             base.OnRestoring(graph);
 

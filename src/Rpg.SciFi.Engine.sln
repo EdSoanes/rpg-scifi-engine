@@ -23,7 +23,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rpg.Cyborgs.Tests", "Rpg.Cy
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{08595625-17EB-41A5-A18C-0D0E63B8B36B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rpg.ModObjects.Server", "Rpg.ModObjects.Server\Rpg.ModObjects.Server.csproj", "{49AE8A90-8D5E-4F79-BC2A-D2ECEB6EB974}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rpg.ModObjects.Server", "Rpg.ModObjects.Server\Rpg.ModObjects.Server.csproj", "{49AE8A90-8D5E-4F79-BC2A-D2ECEB6EB974}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rpg.ModObjects.Server.Tests", "Rpg.ModObjects.Server.Tests\Rpg.ModObjects.Server.Tests.csproj", "{A8C0693D-689C-4799-9D91-C34855FA841C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,6 +69,10 @@ Global
 		{49AE8A90-8D5E-4F79-BC2A-D2ECEB6EB974}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49AE8A90-8D5E-4F79-BC2A-D2ECEB6EB974}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49AE8A90-8D5E-4F79-BC2A-D2ECEB6EB974}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8C0693D-689C-4799-9D91-C34855FA841C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8C0693D-689C-4799-9D91-C34855FA841C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8C0693D-689C-4799-9D91-C34855FA841C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8C0693D-689C-4799-9D91-C34855FA841C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -76,6 +82,7 @@ Global
 		{F8F6F70B-78AD-4150-AFA3-0A682C131FBD} = {08595625-17EB-41A5-A18C-0D0E63B8B36B}
 		{33496583-5CD3-4348-9EA0-4B2B16F881C0} = {08595625-17EB-41A5-A18C-0D0E63B8B36B}
 		{D98CED08-178C-4804-99A2-A8FD930CFA4F} = {08595625-17EB-41A5-A18C-0D0E63B8B36B}
+		{A8C0693D-689C-4799-9D91-C34855FA841C} = {08595625-17EB-41A5-A18C-0D0E63B8B36B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C1D2E329-47AC-4F8A-A0FF-A138087B187C}

@@ -38,7 +38,7 @@ namespace Rpg.ModObjects
                 ObjectStore.Add(entity.Id, entity);
 
             foreach (var entity in ObjectStore.Values)
-                entity.OnRestoring(this);
+                entity.OnRestoring(this, entity);
 
             Time = state.Time!;
             Time.OnTemporalEvent += OnTemporalEvent;
@@ -58,11 +58,11 @@ namespace Rpg.ModObjects
             return state;
         }
 
-        public RpgLifecycleObject? GetLifecycleObject(string? id)
+        public ILifecycle? GetLifecycleObject(string? id)
         {
-            var res = GetObject(id) as RpgLifecycleObject
-                ?? GetState(id) as RpgLifecycleObject
-                ?? GetModSet(id) as RpgLifecycleObject
+            var res = GetObject(id) as ILifecycle
+                ?? GetState(id) as ILifecycle
+                ?? GetModSet(id) as ILifecycle
                 ?? GetObjects()
                     .SelectMany(x => x.GetMods())
                     .FirstOrDefault(x => x.Id == id);
@@ -444,7 +444,7 @@ namespace Rpg.ModObjects
             if (mod == null)
                 return null;
 
-            Dice? value = mod.SourceValue ?? GetPropValue(GetObject(mod.SourcePropRef!.EntityId), mod.SourcePropRef.Prop);
+            Dice? value = mod.SourceValue ?? GetPropValue(GetObject(mod.Source!.EntityId), mod.Source.Prop);
 
             if (value != null && mod.SourceValueFunc != null)
             {

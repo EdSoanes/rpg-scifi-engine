@@ -13,14 +13,14 @@ namespace Rpg.ModObjects.Mods
     {
         [JsonProperty] public string Id { get; init; }
         [JsonProperty] public string? OwnerId { get; internal set; }
-        [JsonProperty] public string EntityId { get; internal set; }
-        [JsonProperty] public string Prop { get; internal set; }
+        [JsonIgnore] public string EntityId { get => Target.EntityId; }
+        [JsonIgnore] public string Prop { get => Target.Prop; }
         [JsonProperty] public string Name { get; internal set; }
         [JsonProperty] public BaseBehavior Behavior { get; protected set; }
 
-        [JsonIgnore] public PropRef TargetPropRef { get => new PropRef(EntityId, Prop); }
+        [JsonProperty] public PropRef Target { get; protected set; }
 
-        [JsonProperty] public PropRef? SourcePropRef { get; internal set; }
+        [JsonProperty] public PropRef? Source { get; internal set; }
         [JsonProperty] public Dice? SourceValue { get; internal set; }
         [JsonProperty] internal RpgMethod<RpgObject, Dice>? SourceValueFunc { get; set; }
         
@@ -57,7 +57,7 @@ namespace Rpg.ModObjects.Mods
             var oldExpiry = Expiry;
             base.OnStartLifecycle();
             if (oldExpiry != Expiry)
-                Graph.OnPropUpdated(TargetPropRef);
+                Graph.OnPropUpdated(Target);
 
             return Expiry;
         }
@@ -68,14 +68,14 @@ namespace Rpg.ModObjects.Mods
             base.OnUpdateLifecycle();
             Behavior.OnUpdating(Graph, this);
             if (oldExpiry != Expiry)
-                Graph.OnPropUpdated(TargetPropRef);
+                Graph.OnPropUpdated(Target);
 
             return Expiry;
         }
 
         public override string ToString()
         {
-            var src = $"{SourcePropRef}{SourceValue}";
+            var src = $"{Source}{SourceValue}";
             src = SourceValueFunc != null
                 ? $"{SourceValueFunc.MethodName}({src})"
                 : src;
@@ -93,7 +93,7 @@ namespace Rpg.ModObjects.Mods
         public Mod Set(Dice? value, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
         {
             SourceValue = value;
-            SourcePropRef = null;
+            Source = null;
             if (value != null && valueFunc != null)
                 SourceValueFunc = RpgMethod.Create<RpgObject, Dice, Dice>(valueFunc);
 
@@ -102,9 +102,8 @@ namespace Rpg.ModObjects.Mods
 
         public Mod Set(PropRef targetPropRef, PropRef sourcePropRef, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
         {
-            EntityId = targetPropRef.EntityId;
-            Prop = targetPropRef.Prop;
-            SourcePropRef = sourcePropRef;
+            Target = targetPropRef;
+            Source = sourcePropRef;
             if (valueFunc != null)
                 SourceValueFunc = RpgMethod.Create<RpgObject, Dice, Dice>(valueFunc);
 
@@ -116,8 +115,7 @@ namespace Rpg.ModObjects.Mods
 
         public Mod Set(PropRef targetPropRef, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
         {
-            EntityId = targetPropRef.EntityId;
-            Prop = targetPropRef.Prop;
+            Target = targetPropRef;
             SourceValue = dice;
             if (valueFunc != null)
                 SourceValueFunc = RpgMethod.Create<RpgObject, Dice, Dice>(valueFunc);
@@ -130,10 +128,9 @@ namespace Rpg.ModObjects.Mods
 
         public Mod Set(PropRef targetPropRef, Mod mod)
         {
-            EntityId = targetPropRef.EntityId;
-            Prop = targetPropRef.Prop;
+            Target = targetPropRef;
             SourceValue = mod.SourceValue;
-            SourcePropRef = mod.SourcePropRef;
+            Source = mod.Source;
             SourceValueFunc = mod.SourceValueFunc;
             Name = mod.Name;
             return this;

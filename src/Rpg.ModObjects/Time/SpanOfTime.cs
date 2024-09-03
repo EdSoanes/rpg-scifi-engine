@@ -4,11 +4,9 @@ namespace Rpg.ModObjects.Time
 {
     public class SpanOfTime
     {
-        [JsonProperty] private bool Started { get; set; }
+        private bool Started { get => Start.IsStarted() && End.IsStarted(); }
         [JsonProperty] public PointInTime Start { get; private set; }
         [JsonProperty] public PointInTime End { get; private set; }
-
-        public bool Infinity { get => Start.Type <= PointInTimeType.TimeBegins && End.Type == PointInTimeType.TimeEnds; }
 
         [JsonConstructor]
         public SpanOfTime()
@@ -27,7 +25,6 @@ namespace Rpg.ModObjects.Time
         {
             Start = start;
             End = end;
-            Started = started;
         }
 
         public bool OverlapsWith(SpanOfTime other)
@@ -50,8 +47,6 @@ namespace Rpg.ModObjects.Time
 
                 if (End.Type == PointInTimeType.Turn)
                     End = new PointInTime(End.Type, End.Count + now.Count);
-
-                Started = true;
             }
         }
 
@@ -73,7 +68,7 @@ namespace Rpg.ModObjects.Time
 
         public override string ToString()
         {
-            return $"{Start} => {End}";
+            return $"{Start}=>{End}";
         }
     }
 }

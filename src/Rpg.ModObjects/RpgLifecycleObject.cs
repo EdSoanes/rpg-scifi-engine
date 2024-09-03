@@ -3,7 +3,7 @@ using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects
 {
-    public class RpgLifecycleObject
+    public class RpgLifecycleObject : ILifecycle
     {
         protected RpgGraph Graph { get; private set; }
         [JsonProperty] protected SpanOfTime Lifespan { get; set; } = new SpanOfTime();
@@ -20,7 +20,7 @@ namespace Rpg.ModObjects
                 Graph = graph;
         }
 
-        public virtual void OnRestoring(RpgGraph graph)
+        public virtual void OnRestoring(RpgGraph graph, RpgObject? entity = null)
         {
             if (graph == null)
                 throw new InvalidOperationException("Cannot set RpgLifecycleObject.OnRestoring.Graph to null");

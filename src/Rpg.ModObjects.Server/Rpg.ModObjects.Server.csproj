@@ -7,12 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
-    <Folder Include="Responses\" />
+    <Compile Remove="Models\**" />
+    <Compile Remove="Responses\**" />
+    <EmbeddedResource Remove="Models\**" />
+    <EmbeddedResource Remove="Responses\**" />
+    <None Remove="Models\**" />
+    <None Remove="Responses\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.8" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
   </ItemGroup>
 

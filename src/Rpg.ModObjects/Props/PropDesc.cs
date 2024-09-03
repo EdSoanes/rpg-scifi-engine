@@ -103,9 +103,9 @@ namespace Rpg.ModObjects.Props
                 SourceValue = mod.SourceValue,
             };
 
-            var sourceEntity = graph.GetObject(mod.SourcePropRef?.EntityId);
+            var sourceEntity = graph.GetObject(mod.Source?.EntityId);
             if (sourceEntity != null)
-                modDesc.SourceProp = sourceEntity.Describe(mod.SourcePropRef!.Prop);
+                modDesc.SourceProp = sourceEntity.Describe(mod.Source!.Prop);
 
             return modDesc;
         }

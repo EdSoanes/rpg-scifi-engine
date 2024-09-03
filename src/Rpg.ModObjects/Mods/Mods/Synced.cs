@@ -23,7 +23,7 @@ namespace Rpg.ModObjects.Mods.Mods
             var oldExpiry = Expiry;
             Expiry = GetOwnerExpiry();
             if (oldExpiry != Expiry)
-                Graph.OnPropUpdated(TargetPropRef);
+                Graph.OnPropUpdated(Target);
             return Expiry;
         }
 
@@ -32,7 +32,7 @@ namespace Rpg.ModObjects.Mods.Mods
             var oldExpiry = Expiry;
             Expiry = GetOwnerExpiry();
             if (oldExpiry != Expiry)
-                Graph.OnPropUpdated(TargetPropRef);
+                Graph.OnPropUpdated(Target);
             return Expiry;
         }
 

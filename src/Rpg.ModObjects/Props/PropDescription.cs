@@ -80,12 +80,12 @@ namespace Rpg.ModObjects.Props
 
         public ModDescription(RpgGraph graph, RpgObject rootEntity, Mod mod)
         {
-            TargetProp = new PropDescription(graph, rootEntity, mod.TargetPropRef);
+            TargetProp = new PropDescription(graph, rootEntity, mod.Target);
             ModType = mod.GetType().Name;
             Value = graph.CalculateModValue(mod) ?? Dice.Zero;
             ValueFunction = mod.SourceValueFunc?.FullName;
 
-            var sourcePropRef = mod.SourcePropRef;
+            var sourcePropRef = mod.Source;
             if (sourcePropRef != null)
             {
                 SourceProp = new PropDescription(graph, rootEntity, sourcePropRef);

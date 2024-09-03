@@ -1,4 +1,6 @@
-﻿using Rpg.ModObjects.Values;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Values;
+using System.IO;
 
 namespace Rpg.ModObjects.Time
 {
@@ -22,7 +24,7 @@ namespace Rpg.ModObjects.Time
             Count = count;
         }
 
-        public bool IsEncounterTime { get => Type == PointInTimeType.Turn || Type == PointInTimeType.EncounterBegins; }
+        [JsonIgnore] public bool IsEncounterTime { get => Type == PointInTimeType.Turn || Type == PointInTimeType.EncounterBegins; }
 
         public static implicit operator PointInTime(PointInTimeType type) => new PointInTime(type);
         public static implicit operator PointInTime(int count) => new PointInTime(count);
@@ -35,6 +37,9 @@ namespace Rpg.ModObjects.Time
 
         public static bool operator >=(PointInTime d1, PointInTime d2) => d1.Type > d2.Type || (d1.Type == d2.Type && d1.Count >= d2.Count);
         public static bool operator <=(PointInTime d1, PointInTime d2) => d1.Type < d2.Type || (d1.Type == d2.Type && d1.Count <= d2.Count);
+
+        public bool IsStarted()
+            => Type != PointInTimeType.Turn || Count > 0;
 
         public override bool Equals(object? obj)
         {
@@ -54,7 +59,26 @@ namespace Rpg.ModObjects.Time
 
         public override string ToString()
         {
-            return Type == PointInTimeType.Turn ? Count.ToString() : Type.ToString();
+            return Type == PointInTimeType.Turn
+                ? $"{Type}:{Count}"
+                : Type.ToString();
+        }
+
+        public static PointInTime FromString(string? str)
+        {
+            if (string.IsNullOrEmpty(str))
+                return new PointInTime();
+
+            var parts = str?.Split(':') ?? [];
+            var type = parts.Length > 0
+                ? Enum.Parse<PointInTimeType>(parts[0])
+                : PointInTimeType.BeforeTime;
+
+            var count = parts.Length == 2
+                ? int.Parse(parts[1])
+                : 0;
+
+            return new PointInTime(type, count);
         }
     }
 }

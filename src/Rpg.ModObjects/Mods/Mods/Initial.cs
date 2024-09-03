@@ -15,8 +15,7 @@ namespace Rpg.ModObjects.Mods.Mods
         public Initial(string entityId, string prop, Dice sourceValue)
             : this()
         {
-            EntityId = entityId;
-            Prop = prop;
+            Target = new Props.PropRef(entityId, prop);
             SourceValue = sourceValue;
         }
     }

@@ -9,12 +9,11 @@ namespace Rpg.ModObjects.Behaviors
     public abstract class BaseBehavior
     {
         [JsonIgnore] public ModScope Scope { get; internal set; } = ModScope.Standard;
-        [JsonIgnore] public LifecycleExpiry Expiry { get; private set; } = LifecycleExpiry.Active;
 
         public virtual void OnAdding(RpgGraph graph, Prop modProp, Mod mod)
         {
             //Don't add if the source is a Value without a ValueFunction and the Value = null
-            if (mod.SourcePropRef != null || mod.SourceValue != null || mod.SourceValueFunc != null)
+            if (mod.Source != null || mod.SourceValue != null || mod.SourceValueFunc != null)
                 modProp.Add(mod);
 
             var scopedMods = CreateScopedMods(graph, mod);
@@ -52,7 +51,7 @@ namespace Rpg.ModObjects.Behaviors
 
         protected Mod[] GetMatchingMods<T>(RpgGraph graph, Mod mod)
             where T : BaseBehavior
-                => graph.GetMods(mod.TargetPropRef, x => x.Behavior is T && x.GetType() == mod.GetType() && x.Name == mod.Name);
+                => graph.GetMods(mod.Target, x => x.Behavior is T && x.GetType() == mod.GetType() && x.Name == mod.Name);
 
         protected virtual void RemoveScopedMods(RpgGraph graph, Mod mod)
         {

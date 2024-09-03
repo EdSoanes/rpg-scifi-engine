@@ -34,7 +34,7 @@ namespace Rpg.ModObjects.Mods
             foreach (var mod in Mods.Where(x => x is Synced && !x.IsExpired))
             {
                 mod.SetExpired();
-                Graph.OnPropUpdated(mod.TargetPropRef);
+                Graph.OnPropUpdated(mod.Target);
             }
         }
 
@@ -44,9 +44,9 @@ namespace Rpg.ModObjects.Mods
             Graph!.AddMods([.. Mods]);
         }
 
-        public override void OnRestoring(RpgGraph graph)
+        public override void OnRestoring(RpgGraph graph, RpgObject? entity = null)
         {
-            base.OnRestoring(graph);
+            base.OnRestoring(graph, entity);
             Mods = Graph.GetMods(mod => _modIds.Contains(mod.Id)).ToList();
         }
 

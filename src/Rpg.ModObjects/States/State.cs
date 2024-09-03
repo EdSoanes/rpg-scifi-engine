@@ -1,22 +1,24 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.ModSets;
-using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects.States
 {
-    public abstract class State : RpgLifecycleObject
+    public abstract class State : ILifecycle
     {
+        protected RpgGraph Graph {  get; private set; }
+
+        public LifecycleExpiry Expiry { get; private set; }
+
         [JsonProperty] public string Id { get; private set; }
         [JsonProperty] public string Name { get; protected set; }
         [JsonProperty] public string OwnerId { get; private init; }
         [JsonProperty] public string? OwnerArchetype { get; private set; }
-        [JsonProperty] protected PropObjRef<SpanOfTime> ActiveTimeSpans { get; set; } = new();
+        [JsonProperty] protected List<SpanOfTime> ActiveTimeSpans { get; set; } = new();
 
         public bool IsOn { get => OnByTimePeriod || OnByUserAction || OnByCondition; }
-        public bool OnByTimePeriod { get => (ActiveTimeSpans.Get()?.GetExpiry(Graph?.Time.Now ?? PointInTimeType.BeforeTime) ?? LifecycleExpiry.Unset) == LifecycleExpiry.Active; }
+        public bool OnByTimePeriod { get => ActiveTimeSpans.Any(x => x.GetExpiry(Graph?.Time.Now ?? PointInTimeType.BeforeTime) == LifecycleExpiry.Active); }
         public bool OnByUserAction { get; private set; }
         public bool OnByCondition { get; protected set; }
 
@@ -32,16 +34,14 @@ namespace Rpg.ModObjects.States
 
         public StateModSet CreateInstance(SpanOfTime? spanOfTime = null)
         {
-            if (spanOfTime != null)
-                ActiveTimeSpans.Set(spanOfTime, spanOfTime);
-            else
-                ActiveTimeSpans.Set(null);
+            if (spanOfTime != null && !ActiveTimeSpans.Any(x => x == spanOfTime))
+                ActiveTimeSpans.Add(spanOfTime);
 
             var instance = GetInstance();
             if (instance == null)
             {
                 instance = new StateModSet(OwnerId, Name);
-                instance.Update(OnByUserAction, Expiry);
+                instance.Update(OnByUserAction, CalculateExpiry());
                 FillStateSet(instance);
             }
 
@@ -52,6 +52,7 @@ namespace Rpg.ModObjects.States
             => Graph?.GetModSets<StateModSet>(OwnerId, (x) => x.StateName == Name && x.Expiry == LifecycleExpiry.Active).FirstOrDefault();
 
         internal abstract void FillStateSet(StateModSet modSet);
+        protected abstract LifecycleExpiry CalculateExpiry();
 
         public void On()
             => OnByUserAction = true;
@@ -76,47 +77,48 @@ namespace Rpg.ModObjects.States
             return states.ToArray();
         }
 
-        public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
-        {
-            base.OnCreating(graph, entity);
-            ActiveTimeSpans.OnCreating(graph, entity);
-        }
+        public void OnCreating(RpgGraph graph, RpgObject? entity = null)
+            => Graph = graph;
 
-        public override void OnRestoring(RpgGraph graph)
-        {
-            base.OnRestoring(graph);
-            ActiveTimeSpans.OnRestoring(graph);
-        }
+        public void OnRestoring(RpgGraph graph, RpgObject? entity = null)
+            => Graph = graph;
 
-        public override LifecycleExpiry OnStartLifecycle()
-        {
-            ActiveTimeSpans.OnStartLifecycle();
-            CalculateExpiry();
+        public void OnTimeBegins() { }
 
-            if (Expiry == LifecycleExpiry.Active)
+        public LifecycleExpiry OnStartLifecycle()
+        {
+            var expiry = CalculateExpiry();
+
+            if (expiry == LifecycleExpiry.Active)
             {
                 var instance = CreateInstance();
                 Graph.AddModSets(instance);
             }
 
-            return Expiry;
+            Expiry = expiry;
+            return expiry;
         }
 
-        public override LifecycleExpiry OnUpdateLifecycle()
+        public LifecycleExpiry OnUpdateLifecycle()
         {
-            ActiveTimeSpans.OnUpdateLifecycle();
-            CalculateExpiry();
+            ActiveTimeSpans = ActiveTimeSpans
+                .Where(x => x.GetExpiry(Graph.Time.Now) != LifecycleExpiry.Destroyed)
+                .ToList();
+
+            var expiry = CalculateExpiry();
 
             var instance = GetInstance();
             if (instance != null)
-                instance.Update(OnByUserAction, Expiry);
-            else if (Expiry == LifecycleExpiry.Active)
+                instance.Update(OnByUserAction, expiry);
+
+            else if (expiry == LifecycleExpiry.Active)
             {
                 instance = CreateInstance();
                 Graph.AddModSets(instance);
             }
 
-            return Expiry;
+            Expiry = expiry;
+            return expiry;
         }
 
 
@@ -160,11 +162,11 @@ namespace Rpg.ModObjects.States
         protected virtual void OnFillStateSet(StateModSet modSet, T owner)
         { }
 
-        protected override void CalculateExpiry()
+        protected override LifecycleExpiry CalculateExpiry()
         {
-            var expiry = OnByUserAction
+            var expiry = OnByUserAction || OnByTimePeriod
                 ? LifecycleExpiry.Active
-                : ActiveTimeSpans.Expiry;
+                : LifecycleExpiry.Expired;
 
             if (expiry != LifecycleExpiry.Active)
             {
@@ -177,7 +179,7 @@ namespace Rpg.ModObjects.States
             if (expiry == LifecycleExpiry.Expired && !Graph.Time.Now.IsEncounterTime)
                 expiry = LifecycleExpiry.Destroyed;
 
-            Expiry = expiry;
+            return expiry;
         }
     }
 }
