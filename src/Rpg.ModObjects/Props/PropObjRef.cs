@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Time;
+﻿using Rpg.ModObjects.Time;
+using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects.Props
 {
@@ -12,8 +12,8 @@ namespace Rpg.ModObjects.Props
         protected class InternalRef<T>
             where T : class
         {
-            [JsonProperty] public SpanOfTime Lifespan { get; set; }
-            [JsonProperty] internal T Obj { get; set; }
+            [JsonInclude] public SpanOfTime Lifespan { get; set; }
+            [JsonInclude] internal T Obj { get; set; }
 
             [JsonConstructor] InternalRef() { }
 
@@ -28,7 +28,7 @@ namespace Rpg.ModObjects.Props
                     => Obj = obj;
         }
 
-        [JsonProperty] private List<InternalRef<T>> Refs { get; set; } = new();
+        [JsonInclude] private List<InternalRef<T>> Refs { get; set; } = new();
 
         public static implicit operator PropObjRef<T>(T obj) => new PropObjRef<T>(obj);
 

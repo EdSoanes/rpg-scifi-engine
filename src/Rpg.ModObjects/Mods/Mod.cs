@@ -1,35 +1,35 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Behaviors;
+﻿using Rpg.ModObjects.Behaviors;
 using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
+using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects.Mods
 {
     public abstract class Mod : RpgLifecycleObject
     {
-        [JsonProperty] public string Id { get; init; }
-        [JsonProperty] public string? OwnerId { get; internal set; }
+        [JsonInclude] public string Id { get; init; }
+        [JsonInclude] public string? OwnerId { get; internal set; }
         [JsonIgnore] public string EntityId { get => Target.EntityId; }
         [JsonIgnore] public string Prop { get => Target.Prop; }
-        [JsonProperty] public string Name { get; internal set; }
-        [JsonProperty] public BaseBehavior Behavior { get; protected set; }
+        [JsonInclude] public string Name { get; internal set; }
+        [JsonInclude] public BaseBehavior Behavior { get; protected set; }
 
-        [JsonProperty] public PropRef Target { get; protected set; }
+        [JsonInclude] public PropRef Target { get; protected set; }
 
-        [JsonProperty] public PropRef? Source { get; internal set; }
-        [JsonProperty] public Dice? SourceValue { get; internal set; }
-        [JsonProperty] internal RpgMethod<RpgObject, Dice>? SourceValueFunc { get; set; }
+        [JsonInclude] public PropRef? Source { get; internal set; }
+        [JsonInclude] public Dice? SourceValue { get; internal set; }
+        [JsonInclude] internal RpgMethod<RpgObject, Dice>? SourceValueFunc { get; set; }
         
         [JsonIgnore] public bool IsBaseInitMod { get => this is Initial || this is Mods.Threshold; }
         [JsonIgnore] public bool IsBaseOverrideMod { get => this is Override; }
         [JsonIgnore] public bool IsBaseMod { get => this is Base; }
 
-        [JsonProperty] public bool IsApplied { get; private set; } = true;
-        [JsonProperty] public bool IsDisabled { get; private set; }
+        [JsonInclude] public bool IsApplied { get; private set; } = true;
+        [JsonInclude] public bool IsDisabled { get; private set; }
         [JsonIgnore] public bool IsActive { get => Expiry == LifecycleExpiry.Active && Behavior.Scope == ModScope.Standard && IsApplied && !IsDisabled; }
         [JsonIgnore] public bool IsPending { get => Expiry == LifecycleExpiry.Pending && Behavior.Scope == ModScope.Standard && IsApplied && !IsDisabled; }
         [JsonIgnore] public bool IsExpired { get => (Expiry == LifecycleExpiry.Destroyed || Expiry == LifecycleExpiry.Expired) && IsApplied && !IsDisabled; }

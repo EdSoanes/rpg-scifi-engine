@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace Rpg.ModObjects.Mods.Mods
+﻿namespace Rpg.ModObjects.Mods.Mods
 {
     public class Turn : Time
     {

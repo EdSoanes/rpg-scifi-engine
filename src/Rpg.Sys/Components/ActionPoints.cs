@@ -1,39 +1,32 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects;
+﻿using Rpg.ModObjects;
 using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
-using Rpg.Sys.Components.Values;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+using System.Text.Json.Serialization;
 
 namespace Rpg.Sys.Components
 {
     public class ActionPoints : RpgComponent
     {
-        [JsonProperty] 
+        [JsonInclude] 
         [Threshold(Min = 0)]
         public int Action { get; private set; }
 
-        [JsonProperty]
+        [JsonInclude]
         public int CurrentAction { get; private set; }
 
-        [JsonProperty]
+        [JsonInclude]
         [Threshold(Min = 0)]
         public int Exertion { get; private set; }
 
-        [JsonProperty]
+        [JsonInclude]
         public int CurrentExertion { get; private set; }
 
-        [JsonProperty]
+        [JsonInclude]
         [Threshold(Min = 0)]
         public int Focus { get; private set; }
 
-        [JsonProperty]
+        [JsonInclude]
         public int CurrentFocus { get; private set; }
 
         [JsonConstructor] private ActionPoints() { }

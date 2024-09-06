@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Mods.ModSets;
+﻿using Rpg.ModObjects.Mods.ModSets;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
+using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects.States
 {
@@ -11,11 +11,11 @@ namespace Rpg.ModObjects.States
 
         public LifecycleExpiry Expiry { get; private set; }
 
-        [JsonProperty] public string Id { get; private set; }
-        [JsonProperty] public string Name { get; protected set; }
-        [JsonProperty] public string OwnerId { get; private init; }
-        [JsonProperty] public string? OwnerArchetype { get; private set; }
-        [JsonProperty] protected List<SpanOfTime> ActiveTimeSpans { get; set; } = new();
+        [JsonInclude] public string Id { get; private set; }
+        [JsonInclude] public string Name { get; protected set; }
+        [JsonInclude] public string OwnerId { get; private init; }
+        [JsonInclude] public string? OwnerArchetype { get; private set; }
+        [JsonInclude] protected List<SpanOfTime> ActiveTimeSpans { get; set; } = new();
 
         public bool IsOn { get => OnByTimePeriod || OnByUserAction || OnByCondition; }
         public bool OnByTimePeriod { get => ActiveTimeSpans.Any(x => x.GetExpiry(Graph?.Time.Now ?? PointInTimeType.BeforeTime) == LifecycleExpiry.Active); }

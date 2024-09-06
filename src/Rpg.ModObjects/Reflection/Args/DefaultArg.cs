@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using System.Reflection;
+﻿using System.Reflection;
+using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects.Reflection.Args
 {

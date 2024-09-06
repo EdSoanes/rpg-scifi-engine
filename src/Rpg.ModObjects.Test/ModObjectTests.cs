@@ -1,6 +1,7 @@
 ﻿using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Reflection;
+using Rpg.ModObjects.Server.Json;
 using Rpg.ModObjects.Tests.Models;
 using Rpg.ModObjects.Tests.States;
 
@@ -76,9 +77,9 @@ namespace Rpg.ModObjects.Tests
             var entity = new ModdableEntity();
             var graph = new RpgGraph(entity);
 
-            var json = RpgSerializer.Serialize(graph.GetGraphState());
+            var json = RpgJson.Serialize(graph.GetGraphState());
 
-            var graphState = RpgSerializer.Deserialize<RpgGraphState>(json)!;
+            var graphState = RpgJson.Deserialize<RpgGraphState>(json)!;
             var graph2 = new RpgGraph(graphState);
 
 

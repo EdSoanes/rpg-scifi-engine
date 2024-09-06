@@ -14,17 +14,6 @@ namespace Rpg.ModObjects.Meta
         EntityTemplate,
         ComponentTemplate
     }
-
-    //public enum ReturnType
-    //{
-    //    Int32,
-    //    Dice,
-    //    Boolean,
-    //    Text,
-    //    Component,
-    //    Container
-    //}
-
     public enum EditorType
     {
         Int32,

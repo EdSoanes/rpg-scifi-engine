@@ -1,17 +1,17 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects;
+﻿using Rpg.ModObjects;
 using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Values;
+using System.Text.Json.Serialization;
 
 namespace Rpg.Cyborgs
 {
     public class RangedWeapon : RpgEntity
     {
-        [JsonProperty]
+        [JsonInclude]
         [Dice]
         public Dice Damage { get; protected set; }
 
-        [JsonProperty]
+        [JsonInclude]
         [Integer]
         public int HitBonus { get; protected set; }
 

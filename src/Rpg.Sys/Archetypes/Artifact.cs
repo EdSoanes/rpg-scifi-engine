@@ -1,25 +1,25 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects;
+﻿using Rpg.ModObjects;
 using Rpg.ModObjects.Meta.Props;
 using Rpg.Sys.Components;
+using System.Text.Json.Serialization;
 
 namespace Rpg.Sys.Archetypes
 {
     public abstract class Artifact : RpgEntity
     {
-        [JsonProperty] 
+        [JsonInclude] 
         [Component(Group = "Health")]
         public Health Health { get; private set; }
 
-        [JsonProperty] 
+        [JsonInclude] 
         [Component(Group = "Presence")]
         public Presence Presence { get; private set; }
 
-        [JsonProperty] 
+        [JsonInclude] 
         [Component(Tab = "Combat", Group = "Attack")]
         public Damage Damage { get; private set; }
 
-        [JsonProperty] 
+        [JsonInclude] 
         [Component(Tab = "Combat", Group = "Defense")]
         public Defenses Defenses { get; private set; }
 

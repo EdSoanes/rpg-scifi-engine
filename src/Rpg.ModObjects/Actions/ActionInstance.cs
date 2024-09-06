@@ -1,6 +1,5 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Reflection.Args;
-using System.Diagnostics;
+﻿using Rpg.ModObjects.Reflection.Args;
+using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects.Actions
 {
@@ -32,15 +31,15 @@ namespace Rpg.ModObjects.Actions
             }
         }
 
-        [JsonProperty] public string OwnerId { get; protected set; }
-        [JsonProperty] public string ActionName { get; protected set; }
-        [JsonProperty] public int ActionNo { get; protected set; }
+        [JsonInclude] public string OwnerId { get; protected set; }
+        [JsonInclude] public string ActionName { get; protected set; }
+        [JsonInclude] public int ActionNo { get; protected set; }
 
-        [JsonProperty] public Dictionary<string, object?> CanActArgs { get; protected set; } = new();
-        [JsonProperty] public Dictionary<string, object?> CostArgs { get; protected set; } = new();
-        [JsonProperty] public Dictionary<string, object?> ActArgs { get; protected set; } = new();
-        [JsonProperty] public Dictionary<string, object?> OutcomeArgs { get; protected set; } = new();
-        [JsonProperty] public Dictionary<string, RpgArg> Args { get; protected set; } = new();
+        [JsonInclude] public Dictionary<string, object?> CanActArgs { get; protected set; } = new();
+        [JsonInclude] public Dictionary<string, object?> CostArgs { get; protected set; } = new();
+        [JsonInclude] public Dictionary<string, object?> ActArgs { get; protected set; } = new();
+        [JsonInclude] public Dictionary<string, object?> OutcomeArgs { get; protected set; } = new();
+        [JsonInclude] public Dictionary<string, RpgArg> Args { get; protected set; } = new();
 
         public ActionInstance(RpgEntity owner, Action action, int actionNo)
         {

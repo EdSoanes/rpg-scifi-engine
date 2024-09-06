@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Time;
+﻿using Rpg.ModObjects.Time;
+using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects.Mods.ModSets
 {

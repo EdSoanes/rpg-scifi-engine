@@ -1,19 +1,19 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects;
+﻿using Rpg.ModObjects;
 using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Values;
+using System.Text.Json.Serialization;
 
 namespace Rpg.Sys.Components.Values
 {
     public class ScoreBonusValue : RpgComponent
     {
-        [JsonProperty]
+        [JsonInclude]
         [Integer(DataTypeName = "Score")]
         public int Score { get; protected set; }
 
-        [JsonProperty]
+        [JsonInclude]
         public int Bonus { get; protected set; }
 
         [JsonConstructor] private ScoreBonusValue() { }

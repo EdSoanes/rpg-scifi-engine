@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta;
 using Rpg.ModObjects.Reflection;
+using Rpg.ModObjects.Server.Json;
 
 namespace Rpg.Sys.Tests
 {
@@ -27,7 +28,7 @@ namespace Rpg.Sys.Tests
         {
             var metaGraph = new MetaGraph();
             var system = metaGraph.Build();
-            var json = RpgSerializer.Serialize(system);
+            var json = RpgJson.Serialize(system);
 
             Assert.That(json, Is.Not.Null);
         }
@@ -37,10 +38,10 @@ namespace Rpg.Sys.Tests
         {
             var metaGraph = new MetaGraph();
             var system = metaGraph.Build();
-            var json = RpgSerializer.Serialize(system);
+            var json = RpgJson.Serialize(system);
 
-            var system2 = RpgSerializer.Deserialize<MetaSystem>(json)!;
-            var json2 = RpgSerializer.Serialize(system2);
+            var system2 = RpgJson.Deserialize<MetaSystem>(json)!;
+            var json2 = RpgJson.Serialize(system2);
 
             Assert.That(json, Is.EqualTo(json2));
         }

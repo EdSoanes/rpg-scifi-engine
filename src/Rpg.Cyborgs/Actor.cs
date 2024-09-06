@@ -1,139 +1,139 @@
-﻿using Newtonsoft.Json;
-using Rpg.Cyborgs.Components;
+﻿using Rpg.Cyborgs.Components;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Values;
+using System.Text.Json.Serialization;
 
 namespace Rpg.Cyborgs
 {
     public abstract class Actor : RpgEntity
     {
-        [JsonProperty]
+        [JsonInclude]
         [Component(Group = "Stats")]
         public PropValue Strength { get; protected set; } = new PropValue();
 
-        [JsonProperty]
+        [JsonInclude]
         [Component(Group = "Stats")]
         public PropValue Agility { get; protected set; } = new PropValue();
 
-        [JsonProperty]
+        [JsonInclude]
         [Component(Group = "Stats")]
         public PropValue Health { get; protected set; } = new PropValue();
 
-        [JsonProperty]
+        [JsonInclude]
         [Component(Group = "Stats")]
         public PropValue Brains { get; protected set; } = new PropValue();
 
-        [JsonProperty]
+        [JsonInclude]
         [Component(Group = "Stats")]
         public PropValue Insight { get; protected set; } = new PropValue();
 
-        [JsonProperty]
+        [JsonInclude]
         [Component(Group = "Stats")]
         public PropValue Charisma { get; protected set; } = new PropValue();
 
 
-        [JsonProperty]
+        [JsonInclude]
         [Threshold(Min = 1, Ignore = true)]
         public int FocusPoints { get; protected set; }
 
-        [JsonProperty]
+        [JsonInclude]
         [Threshold(Min = 0, Ignore = true)]
         public int CurrentFocusPoints { get; protected set; }
 
-        [JsonProperty]
+        [JsonInclude]
         [Threshold(Min = 0, Ignore = true)]
         public int LuckPoints { get; protected set; } = 1;
 
-        [JsonProperty]
+        [JsonInclude]
         [Threshold(Min = 0, Ignore = true)]
         public int CurrentLuckPoints { get; protected set; }
 
-        [JsonProperty]
+        [JsonInclude]
         [Threshold(Min = 1, Ignore = true)]
         public int StaminaPoints { get; protected set; } = 12;
 
-        [JsonProperty]
+        [JsonInclude]
         [Threshold(Min = 0, Ignore = true)]
         [Integer()]
         public int CurrentStaminaPoints { get; protected set; }
 
-        [JsonProperty]
+        [JsonInclude]
         [Threshold(Min = 1, Ignore = true)]
         public int LifePoints { get; protected set; } = 6;
 
-        [JsonProperty]
+        [JsonInclude]
         [Threshold(Min = 0, Ignore = true)]
         public int CurrentLifePoints { get; protected set; }
 
-        [JsonProperty]
+        [JsonInclude]
         [Threshold(Min = 0, Ignore = true)]
         public int ActionPoints { get; protected set; } = 1;
 
-        [JsonProperty]
+        [JsonInclude]
         [Threshold(Min = 0, Ignore = true)]
         public int CurrentActionPoints { get; protected set; }
 
 
-        [JsonProperty]
+        [JsonInclude]
         public BodyPart Head { get; protected set; } = new BodyPart(nameof(Head), BodyPartType.Head);
 
-        [JsonProperty]
+        [JsonInclude]
         public BodyPart Torso { get; protected set; } = new BodyPart(nameof(Torso), BodyPartType.Torso);
 
-        [JsonProperty]
+        [JsonInclude]
         public BodyPart LeftArm { get; protected set; } = new BodyPart(nameof(LeftArm), BodyPartType.Limb);
 
-        [JsonProperty]
+        [JsonInclude]
         public BodyPart RightArm { get; protected set; } = new BodyPart(nameof(RightArm), BodyPartType.Limb);
 
-        [JsonProperty]
+        [JsonInclude]
         public BodyPart LeftLeg { get; protected set; } = new BodyPart(nameof(LeftLeg), BodyPartType.Limb);
 
-        [JsonProperty]
+        [JsonInclude]
         public BodyPart RightLeg { get; protected set; } = new BodyPart(nameof(RightLeg), BodyPartType.Limb);
 
 
-        [JsonProperty]
+        [JsonInclude]
         [Integer(Ignore = true)]
         public PropValue Reactions { get; protected set; } = new PropValue(7);
 
-        [JsonProperty]
+        [JsonInclude]
         [Integer(Ignore = true)]
         public PropValue Defence { get; protected set; } = new PropValue(7);
 
-        [JsonProperty]
+        [JsonInclude]
         [Integer(Ignore = true)]
         public PropValue ArmourRating { get; protected set; } = new PropValue(6);
 
-        [JsonProperty]
+        [JsonInclude]
         [Integer(Ignore = true)]
         public PropValue UnarmedDamageBonus { get; protected set; } = new PropValue();
 
-        [JsonProperty]
+        [JsonInclude]
         [Integer(Ignore = true)]
         public PropValue ParryDamageReduction { get; protected set; } = new PropValue();
 
-        [JsonProperty]
+        [JsonInclude]
         [Integer(Ignore = true)]
         public PropValue RangedAttack { get; protected set; } = new PropValue();
 
-        [JsonProperty]
+        [JsonInclude]
         [Integer(Ignore = true)]
         public PropValue RangedAimBonus { get; protected set; } = new PropValue();
 
-        [JsonProperty]
+        [JsonInclude]
         [Integer(Ignore = true)]
         public PropValue MeleeAttack { get; protected set; } = new PropValue();
 
 
-        [JsonProperty]
+        [JsonInclude]
         [Container(Tab = "Gear")]
         public RpgContainer Hands { get; protected set; } = new RpgContainer(nameof(Hands));
 
-        [JsonProperty]
+        [JsonInclude]
         [Container(Tab = "Gear")]
         public RpgContainer Wearing { get; protected set; } = new RpgContainer(nameof(Wearing));
 

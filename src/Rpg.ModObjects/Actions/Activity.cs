@@ -1,17 +1,18 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Mods;
+﻿using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Mods.ModSets;
 using Rpg.ModObjects.Reflection.Args;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
+using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects.Actions
 {
     public class Activity : RpgObject
     {
         private RpgEntity? _initiator;
+
         [JsonIgnore]
         public RpgEntity? Initiator
         {
@@ -24,14 +25,14 @@ namespace Rpg.ModObjects.Actions
             }
         }
 
-        [JsonProperty] public string InitiatorId { get; private set; }
-        [JsonProperty] public PointInTime Time { get; private set; }
-        [JsonProperty] public int ActivityNo { get; private set; }
-        [JsonProperty] public int NextActionNo { get; private set; }
-        [JsonProperty] public List<ActionInstance> ActionInstances { get; private set; } = new();
+        [JsonInclude] public string InitiatorId { get; private set; }
+        [JsonInclude] public PointInTime Time { get; private set; }
+        [JsonInclude] public int ActivityNo { get; private set; }
+        [JsonInclude] public int NextActionNo { get; private set; }
+        [JsonInclude] public List<ActionInstance> ActionInstances { get; private set; } = new();
         public ActionInstance? ActionInstance { get; private set; }
 
-        [JsonProperty] public List<ModSet> OutputSets { get; init; } = new();
+        [JsonInclude] public List<ModSet> OutputSets { get; init; } = new();
         private string OutcomeSetName { get => $"{Name}/OutcomeSet"; }
         public ModSet OutcomeSet { get => OutputSets.First(x => x.Name == OutcomeSetName); }
         private string CostSetName { get => $"{Name}/CostSet"; }

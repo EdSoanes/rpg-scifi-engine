@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.States;
+﻿using Rpg.ModObjects.States;
 using Rpg.Sys.Archetypes;
+using System.Text.Json.Serialization;
 
 namespace Rpg.Sys.States
 {

@@ -1,23 +1,18 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects;
+﻿using Rpg.ModObjects;
 using Rpg.Sys.Components.Values;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace Rpg.Sys.Components
 {
     public class Damage : RpgComponent
     {
-        [JsonProperty] public DamageValue Kinetic { get; private set; }
-        [JsonProperty] public DamageValue Heat { get; private set; }
-        [JsonProperty] public DamageValue Energy { get; private set; }
-        [JsonProperty] public DamageValue Chemical { get; private set; }
-        [JsonProperty] public DamageValue Radiation { get; private set; }
-        [JsonProperty] public DamageValue Cyber { get; private set; }
-        [JsonProperty] public DamageValue Mental { get; private set; }
+        [JsonInclude] public DamageValue Kinetic { get; private set; }
+        [JsonInclude] public DamageValue Heat { get; private set; }
+        [JsonInclude] public DamageValue Energy { get; private set; }
+        [JsonInclude] public DamageValue Chemical { get; private set; }
+        [JsonInclude] public DamageValue Radiation { get; private set; }
+        [JsonInclude] public DamageValue Cyber { get; private set; }
+        [JsonInclude] public DamageValue Mental { get; private set; }
 
         [JsonConstructor] private Damage() { }
 

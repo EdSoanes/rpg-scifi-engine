@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects.Actions
 {
     public abstract class ActionGroup
     {
-        [JsonProperty] public string Name { get; protected init; }
-        [JsonProperty] public List<ActionGroupItem> Items { get; private set; } = new();
+        [JsonInclude] public string Name { get; protected init; }
+        [JsonInclude] public List<ActionGroupItem> Items { get; private set; } = new();
 
         public void Add(string ownerArchetype, string actionName, bool optional = true)
             => Add(new ActionGroupItem(ownerArchetype, actionName, optional));

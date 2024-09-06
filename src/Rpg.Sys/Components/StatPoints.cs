@@ -1,18 +1,17 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects;
+﻿using Rpg.ModObjects;
 using Rpg.Sys.Components.Values;
-using System.Runtime.ConstrainedExecution;
+using System.Text.Json.Serialization;
 
 namespace Rpg.Sys.Components
 {
     public class StatPoints : RpgComponent
     {
-        [JsonProperty] public ScoreBonusValue Strength { get; private set; }
-        [JsonProperty] public ScoreBonusValue Intelligence { get; private set; }
-        [JsonProperty] public ScoreBonusValue Wisdom { get; private set; }
-        [JsonProperty] public ScoreBonusValue Dexterity { get; private set; }
-        [JsonProperty] public ScoreBonusValue Constitution { get; private set; }
-        [JsonProperty] public ScoreBonusValue Charisma { get; private set; }
+        [JsonInclude] public ScoreBonusValue Strength { get; private set; }
+        [JsonInclude] public ScoreBonusValue Intelligence { get; private set; }
+        [JsonInclude] public ScoreBonusValue Wisdom { get; private set; }
+        [JsonInclude] public ScoreBonusValue Dexterity { get; private set; }
+        [JsonInclude] public ScoreBonusValue Constitution { get; private set; }
+        [JsonInclude] public ScoreBonusValue Charisma { get; private set; }
 
         [JsonConstructor] private StatPoints() { }
 

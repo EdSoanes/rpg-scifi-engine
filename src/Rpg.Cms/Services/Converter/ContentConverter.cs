@@ -2,6 +2,7 @@
 using Rpg.Cms.Json;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta;
+using Rpg.ModObjects.Server.Json;
 using Rpg.ModObjects.States;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Services;
@@ -51,7 +52,7 @@ namespace Rpg.Cms.Services.Converter
             }
 
             var json = target.ToJson();
-            var entity = RpgSerializer.Deserialize<RpgEntity>(type, json!);
+            var entity = RpgJson.Deserialize<RpgEntity>(type, json!);
 
             var res = entity as RpgEntity;
             if (res != null)

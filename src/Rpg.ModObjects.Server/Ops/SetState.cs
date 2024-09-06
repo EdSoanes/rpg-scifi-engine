@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects.Server.Ops
 {
     public class SetState
     {
-        [JsonProperty] public string EntityId { get; set; }
-        [JsonProperty] public string State {  get; set; }
-        [JsonProperty] public bool On { get; set; }
+        [JsonInclude] public string EntityId { get; set; }
+        [JsonInclude] public string State {  get; set; }
+        [JsonInclude] public bool On { get; set; }
     }
 }

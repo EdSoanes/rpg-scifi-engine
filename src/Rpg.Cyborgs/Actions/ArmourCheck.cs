@@ -1,8 +1,8 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Actions;
+﻿using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Values;
+using System.Text.Json.Serialization;
 
 namespace Rpg.Cyborgs.Actions
 {

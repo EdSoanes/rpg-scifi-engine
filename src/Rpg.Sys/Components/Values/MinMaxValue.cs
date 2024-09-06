@@ -1,22 +1,22 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects;
+﻿using Rpg.ModObjects;
 using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
+using System.Text.Json.Serialization;
 
 namespace Rpg.Sys.Components.Values
 {
     public class MinMaxValue : RpgComponent
     {
-        [JsonProperty] 
+        [JsonInclude] 
         [MinZero(Ignore = true)]
         public int Min { get; protected set; }
 
-        [JsonProperty] 
+        [JsonInclude] 
         [MinZero]
         public int Max { get; protected set; }
 
-        [JsonProperty]
+        [JsonInclude]
         [MinZero]
         public int Current { get; protected set; }
 

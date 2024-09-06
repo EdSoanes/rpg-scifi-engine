@@ -1,4 +1,5 @@
 ﻿using Rpg.ModObjects.Meta;
+using Rpg.ModObjects.Server.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +26,7 @@ namespace Rpg.ModObjects.Tests
             var meta = new MetaGraph();
             var system = meta.Build();
 
-            var json = RpgSerializer.Serialize(system);
+            var json = RpgJson.Serialize(system);
 
             Assert.That(json, Is.Not.Null);
         }

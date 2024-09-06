@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Reflection;
+﻿using Rpg.ModObjects.Reflection;
+using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects.Actions
 {
@@ -7,17 +7,17 @@ namespace Rpg.ModObjects.Actions
     {
         protected RpgGraph Graph { get; private set; }
 
-        [JsonProperty] public string Id { get; private set; }
-        [JsonProperty] public string Name { get; private set; }
-        [JsonProperty] public string OwnerId { get; private set; }
-        [JsonProperty] public string OwnerArchetype { get; private set; }
+        [JsonInclude] public string Id { get; private set; }
+        [JsonInclude] public string Name { get; private set; }
+        [JsonInclude] public string OwnerId { get; private set; }
+        [JsonInclude] public string OwnerArchetype { get; private set; }
 
-        [JsonProperty] public RpgMethod<Action, bool> OnCanAct { get; private set; }
-        [JsonProperty] public RpgMethod<Action, bool> OnCost { get; private set; }
-        [JsonProperty] public RpgMethod<Action, bool> OnAct { get; private set; }
-        [JsonProperty] public RpgMethod<Action, bool> OnOutcome { get; private set; }
+        [JsonInclude] public RpgMethod<Action, bool> OnCanAct { get; private set; }
+        [JsonInclude] public RpgMethod<Action, bool> OnCost { get; private set; }
+        [JsonInclude] public RpgMethod<Action, bool> OnAct { get; private set; }
+        [JsonInclude] public RpgMethod<Action, bool> OnOutcome { get; private set; }
 
-        [JsonProperty] public string[] CanPerformAfter { get; protected set; }
+        [JsonInclude] public string[] CanPerformAfter { get; protected set; }
 
         [JsonConstructor] protected Action()
         {

@@ -1,18 +1,13 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects;
+﻿using Rpg.ModObjects;
 using Rpg.ModObjects.Meta.Props;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace Rpg.Cyborgs.Components
 {
     public class PropValue : RpgComponent
     {
         [Integer]
-        [JsonProperty] 
+        [JsonInclude] 
         public int Value { get; private set; }
 
         [Integer(Ignore = true)]

@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Rpg.ModObjects.Server\Rpg.ModObjects.Server.csproj" />
     <ProjectReference Include="..\Rpg.ModObjects\Rpg.ModObjects.csproj" />
   </ItemGroup>
 

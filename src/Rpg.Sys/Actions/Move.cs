@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Actions;
+﻿using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time;
 using Rpg.Sys.Archetypes;
 using Rpg.Sys.States;
+using System.Text.Json.Serialization;
 
 namespace Rpg.Sys.Actions
 {

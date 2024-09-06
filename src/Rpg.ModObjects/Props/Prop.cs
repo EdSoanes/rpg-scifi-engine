@@ -1,17 +1,17 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Behaviors;
+﻿using Rpg.ModObjects.Behaviors;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time;
+using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects.Props
 {
     public class Prop : RpgLifecycleObject
     {
-        [JsonProperty] public string EntityId { get; protected set; }
-        [JsonProperty] public string Name { get; protected set; }
-        [JsonProperty] public RefType RefType { get; protected set; } = RefType.Value;
-        [JsonProperty] public List<Mod> Mods { get; private set; } = new();
-        [JsonProperty] public List<PropObjRef<string>> Refs { get; private set; } = new();
+        [JsonInclude] public string EntityId { get; protected set; }
+        [JsonInclude] public string Name { get; protected set; }
+        [JsonInclude] public RefType RefType { get; protected set; } = RefType.Value;
+        [JsonInclude] public List<Mod> Mods { get; private set; } = new();
+        [JsonInclude] public List<PropObjRef<string>> Refs { get; private set; } = new();
 
         private List<RpgObject>? _preCreatedObjects = new();
 

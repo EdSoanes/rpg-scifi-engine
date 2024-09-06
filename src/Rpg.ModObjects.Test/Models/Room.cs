@@ -1,15 +1,10 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects.Tests.Models
 {
     public class Room : RpgEntity
     {
-        [JsonProperty] public RpgContainer Contents { get; set; }
+        [JsonInclude] public RpgContainer Contents { get; set; }
 
         public Room()
         {

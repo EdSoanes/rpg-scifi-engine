@@ -1,12 +1,12 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Time;
+﻿using Rpg.ModObjects.Time;
+using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects.Mods.ModSets
 {
     public class StateModSet : ModSet
     {
-        [JsonProperty] public string StateName { get; init; }
-        [JsonProperty] public bool IsManual { get; private set; }
+        [JsonInclude] public string StateName { get; init; }
+        [JsonInclude] public bool IsManual { get; private set; }
 
         [JsonConstructor] protected StateModSet()
             : base()

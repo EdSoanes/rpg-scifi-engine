@@ -1,12 +1,11 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Mods;
+﻿using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects.Behaviors
 {
     public class Threshold : BaseBehavior
     {
-        [JsonProperty] public int Min { get; private set; }
-        [JsonProperty] public int Max { get; private set; }
+        [JsonInclude] public int Min { get; private set; }
+        [JsonInclude] public int Max { get; private set; }
 
         [JsonConstructor] private Threshold() { }
 

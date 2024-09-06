@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
+using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects
 {
     public class RpgContainer : RpgComponent
     {
-        [JsonProperty] public RpgObject[] Contents { get => GetChildObjects(nameof(Contents)); }
+        [JsonInclude] public RpgObject[] Contents { get => GetChildObjects(nameof(Contents)); }
 
         public event NotifyCollectionChangedEventHandler? CollectionChanged;
         [JsonConstructor] public RpgContainer()

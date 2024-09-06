@@ -3,6 +3,7 @@ using Rpg.Cms.Extensions;
 using Rpg.Cms.Json;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta;
+using Rpg.ModObjects.Server.Json;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models.PublishedContent;
 
@@ -29,7 +30,7 @@ namespace Rpg.Cms.Services.Converter
 
                 if (entities.Any())
                 {
-                    var contentsJson = RpgSerializer.Serialize(entities);
+                    var contentsJson = RpgJson.Serialize(entities);
                     target.AddProp($"{fullPropName}._preAddedContents", contentsJson);
                 }
             }

@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using Rpg.ModObjects.Mods;
+﻿using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Values;
 

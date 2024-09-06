@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta;
 using Rpg.ModObjects.Reflection;
+using Rpg.ModObjects.Server.Json;
 using Rpg.Sys.Archetypes;
 
 namespace Rpg.Sys.Tests
@@ -30,10 +31,10 @@ namespace Rpg.Sys.Tests
                 }
             });
             
-            var json = RpgSerializer.Serialize(human);
+            var json = RpgJson.Serialize(human);
             Assert.That(json, Is.Not.Null);
 
-            var human2 = RpgSerializer.Deserialize<Human>(json);
+            var human2 = RpgJson.Deserialize<Human>(json);
             Assert.That(human2, Is.Not.Null);
         }
     }

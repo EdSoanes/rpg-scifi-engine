@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects.Server.Ops
 {
     public class ActivityComplete
     {
-        [JsonProperty] public string ActivityId { get; init; }
+        [JsonInclude] public string ActivityId { get; init; }
     }
 }

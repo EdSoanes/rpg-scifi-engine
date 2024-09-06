@@ -1,13 +1,13 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Time;
+﻿using Rpg.ModObjects.Time;
+using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects
 {
     public class RpgLifecycleObject : ILifecycle
     {
         protected RpgGraph Graph { get; private set; }
-        [JsonProperty] protected SpanOfTime Lifespan { get; set; } = new SpanOfTime();
-        [JsonProperty] protected PointInTime? ExpiredTime { get; private set; }
+        [JsonInclude] protected SpanOfTime Lifespan { get; set; } = new SpanOfTime();
+        [JsonInclude] protected PointInTime? ExpiredTime { get; private set; }
 
         public LifecycleExpiry Expiry { get; set; } = LifecycleExpiry.Unset;
 

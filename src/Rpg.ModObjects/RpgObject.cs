@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Mods;
+﻿using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
@@ -7,22 +6,23 @@ using Rpg.ModObjects.States;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.ComponentModel;
+using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects
 {
     public abstract class RpgObject : RpgLifecycleObject, INotifyPropertyChanged
     {
-        [JsonProperty] public Dictionary<string, ModSet> ModSets { get; private init; }
-        [JsonProperty] public Dictionary<string, Prop> Props { get; private init; }
-        [JsonProperty] public Dictionary<string, State> States { get; private init; }
+        [JsonInclude] public Dictionary<string, ModSet> ModSets { get; private init; }
+        [JsonInclude] public Dictionary<string, Prop> Props { get; private init; }
+        [JsonInclude] public Dictionary<string, State> States { get; private init; }
 
-        [JsonProperty] public string Id { get; private init; }
+        [JsonInclude] public string Id { get; private init; }
 
-        [JsonProperty] public string Archetype { get; private init; }
+        [JsonInclude] public string Archetype { get; private init; }
 
-        [JsonProperty] public string Name { get; protected set; }
+        [JsonInclude] public string Name { get; protected set; }
 
-        [JsonProperty] public string[] Archetypes { get; private init; }
+        [JsonInclude] public string[] Archetypes { get; private init; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

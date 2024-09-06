@@ -1,7 +1,6 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Meta.Props;
-using Rpg.ModObjects.Props;
+﻿using Rpg.ModObjects.Meta.Props;
 using System.Reflection;
+using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects.Meta
 {

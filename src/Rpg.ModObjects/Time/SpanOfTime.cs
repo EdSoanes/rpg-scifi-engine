@@ -1,12 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects.Time
 {
     public class SpanOfTime
     {
         private bool Started { get => Start.IsStarted() && End.IsStarted(); }
-        [JsonProperty] public PointInTime Start { get; private set; }
-        [JsonProperty] public PointInTime End { get; private set; }
+        [JsonInclude] public PointInTime Start { get; private set; }
+        [JsonInclude] public PointInTime End { get; private set; }
 
         [JsonConstructor]
         public SpanOfTime()

@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects.Server.Ops
 {
     public class Describe
     {
-        [JsonProperty] public string EntityId { get; set; }
-        [JsonProperty] public string Prop {  get; set; }
+        [JsonInclude] public string EntityId { get; set; }
+        [JsonInclude] public string Prop {  get; set; }
     }
 }

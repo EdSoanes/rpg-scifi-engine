@@ -4,6 +4,7 @@ using Rpg.ModObjects;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Reflection;
+using Rpg.ModObjects.Server.Json;
 using Rpg.ModObjects.Time;
 
 namespace Rpg.Cyborgs.Tests
@@ -121,7 +122,7 @@ namespace Rpg.Cyborgs.Tests
             pc.Hands.Add(sword);
 
             var graph = new RpgGraph(pc);
-            var json = RpgSerializer.Serialize(pc);
+            var json = RpgJson.Serialize(pc);
 
             Assert.That(json, Is.Not.Null);
         }

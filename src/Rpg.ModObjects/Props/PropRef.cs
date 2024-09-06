@@ -1,13 +1,13 @@
-﻿using Newtonsoft.Json;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
+using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects.Props
 {
     public class PropRef
     {
-        [JsonProperty] public string EntityId { get; protected set; }
-        [JsonProperty] public string Prop { get; protected set; }
-        [JsonProperty] public RefType RefType { get; protected set; } = RefType.Value;
+        [JsonInclude] public string EntityId { get; protected set; }
+        [JsonInclude] public string Prop { get; protected set; }
+        [JsonInclude] public RefType RefType { get; protected set; } = RefType.Value;
 
         [JsonConstructor] protected PropRef() { }
 

@@ -1,6 +1,7 @@
 using Rpg.Cyborgs.Tests.Models;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Reflection;
+using Rpg.ModObjects.Server.Json;
 
 namespace Rpg.Cyborgs.Tests
 {
@@ -20,9 +21,9 @@ namespace Rpg.Cyborgs.Tests
             pc.Hands.Add(sword);
 
             var graph = new RpgGraph(pc);
-            var json = RpgSerializer.Serialize(graph.GetGraphState());
+            var json = RpgJson.Serialize(graph.GetGraphState());
 
-            var graphState2 = RpgSerializer.Deserialize<RpgGraphState>(json);
+            var graphState2 = RpgJson.Deserialize<RpgGraphState>(json);
             var graph2 = new RpgGraph(graphState2);
 
             var pc2 = graph2.Context as PlayerCharacter;

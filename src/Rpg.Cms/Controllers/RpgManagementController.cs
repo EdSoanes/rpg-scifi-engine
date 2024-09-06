@@ -5,6 +5,7 @@ using Rpg.Cms.Services;
 using Rpg.Cms.Services.Converter;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Meta;
+using Rpg.ModObjects.Server.Json;
 using Umbraco.Cms.Api.Common.Attributes;
 using Umbraco.Cms.Api.Management.Controllers;
 using Umbraco.Cms.Api.Management.ViewModels.DocumentType;
@@ -55,7 +56,7 @@ namespace Rpg.Cms.Controllers
         public async Task<IActionResult> Systems()
         {
             var systems = MetaSystems.Get();
-            var json = RpgSerializer.Serialize(systems);
+            var json = RpgJson.Serialize(systems);
 
             return Content(json, "application/json");
         }
@@ -107,7 +108,7 @@ namespace Rpg.Cms.Controllers
             var meta = new MetaGraph();
             var metaSystem = meta.Build();
 
-            var json = RpgSerializer.Serialize(metaSystem);
+            var json = RpgJson.Serialize(metaSystem);
             return Content(json, "application/json");
         }
 
@@ -129,7 +130,7 @@ namespace Rpg.Cms.Controllers
         {
             var res = await _syncTypesService.DocumentTypeUpdatesAsync(CurrentUserKey(_backOfficeSecurityAccessor));
 
-            var json = RpgSerializer.Serialize(res);
+            var json = RpgJson.Serialize(res);
             return Content(json, "application/json");
         }
     }

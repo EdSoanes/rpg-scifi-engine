@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Actions;
+﻿using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Behaviors;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
+using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects
 {
@@ -13,10 +13,10 @@ namespace Rpg.ModObjects
     {
         private List<PropRef> UpdatedProps = new List<PropRef>();
 
-        [JsonProperty] public RpgEntity Context { get; private set; }
-        [JsonProperty] protected Dictionary<string, RpgObject> ObjectStore { get; set; } = new();
+        [JsonInclude] public RpgEntity Context { get; private set; }
+        [JsonInclude] protected Dictionary<string, RpgObject> ObjectStore { get; set; } = new();
 
-        [JsonProperty] public Temporal Time { get; init; } = new Temporal();
+        [JsonInclude] public Temporal Time { get; init; } = new Temporal();
 
         public RpgGraph(RpgEntity context)
         {

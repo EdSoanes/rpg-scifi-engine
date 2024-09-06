@@ -1,24 +1,22 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Actions;
-using Rpg.ModObjects.Meta.Attributes;
-using Rpg.ModObjects.Mods;
+﻿using Rpg.ModObjects.Meta.Attributes;
 using Rpg.ModObjects.Reflection;
 using System.Reflection;
+using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects.Meta
 {
     public class MetaAction
     {
-        [JsonProperty] public string Name { get; private set; }
-        [JsonProperty] public string OwnerArchetype { get; private set; }
-        [JsonProperty] public bool Required { get; private set; }
-        [JsonProperty] public string? Category { get; private set; }
-        [JsonProperty] public string? SubCategory { get; private set; }
-        [JsonProperty] public string[]? NextActionHints { get; private set; }
+        [JsonInclude] public string Name { get; private set; }
+        [JsonInclude] public string OwnerArchetype { get; private set; }
+        [JsonInclude] public bool Required { get; private set; }
+        [JsonInclude] public string? Category { get; private set; }
+        [JsonInclude] public string? SubCategory { get; private set; }
+        [JsonInclude] public string[]? NextActionHints { get; private set; }
 
-        [JsonProperty] private RpgMethod<Actions.Action, bool> OnCost { get; set; }
-        [JsonProperty] private RpgMethod<Actions.Action, bool> OnAct { get; set; }
-        [JsonProperty] private RpgMethod<Actions.Action, bool> OnOutcome { get; set; }
+        [JsonInclude] private RpgMethod<Actions.Action, bool> OnCost { get; set; }
+        [JsonInclude] private RpgMethod<Actions.Action, bool> OnAct { get; set; }
+        [JsonInclude] private RpgMethod<Actions.Action, bool> OnOutcome { get; set; }
 
         [JsonConstructor] private MetaAction() { }
 
