@@ -18,7 +18,7 @@ function StatesBlock() {
         {stateAtoms.map((state, i) => (
           <StateButton key={i} stateAtom={state} />
         ))}
-      </ButtonGroup>
+      </ButtonGroup> 
     </Stack>
   )
 }
