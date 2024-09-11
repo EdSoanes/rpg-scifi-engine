@@ -1,41 +1,65 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization.Metadata;
-using System.Text.Json.Serialization;
+﻿using Rpg.ModObjects.Reflection;
 using System.Text.Json;
-using System.Threading.Tasks;
-using Rpg.ModObjects.Meta;
-using Rpg.ModObjects.Reflection;
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 namespace Rpg.ModObjects.Server.Json
 {
+    public interface IDerivedTypeFactory
+    {
+        public bool CanHandle(JsonTypeInfo typeInfo);
+        public List<JsonDerivedType> GetDerivedTypes(JsonTypeInfo typeInfo);
+    }
+
+    public class DerivedTypeFactory<T> : IDerivedTypeFactory
+    {
+        private List<JsonDerivedType>? _derivedTypes = null;
+
+        public bool CanHandle(JsonTypeInfo typeInfo)
+            => typeInfo.Type.IsAssignableTo(typeof(T));
+
+        public List<JsonDerivedType> GetDerivedTypes(JsonTypeInfo typeInfo)
+        {
+            if (_derivedTypes == null)
+            {
+                var subTypes = RpgTypeScan.ForTypes<T>().ToArray();
+                _derivedTypes = subTypes
+                    .Select(x => new JsonDerivedType(x, x.Name))
+                    .ToList();
+            }
+                
+            return _derivedTypes;
+        }
+    }
+
     public class PolymorphicTypeResolver : DefaultJsonTypeInfoResolver
     {
+        private static List<IDerivedTypeFactory> _factories = new();
+
+        public static void Register<T>()
+            => _factories.Add(new DerivedTypeFactory<T>());
+
+        public static void Register(IDerivedTypeFactory derivedTypeFactory)
+            => _factories.Add(derivedTypeFactory);
+
         public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options)
         {
             JsonTypeInfo jsonTypeInfo = base.GetTypeInfo(type, options);
-
-            Type baseRpgObjectType = typeof(RpgObject);
-            if (jsonTypeInfo.Type == baseRpgObjectType)
+            foreach (var factory in _factories)
             {
-                foreach (var assembly in RpgTypeScan.GetScanAssemblies())
+                if (factory.CanHandle(jsonTypeInfo))
                 {
-                    RpgTypeScan.ForTypes<RpgObject>()
-                }
-
                     jsonTypeInfo.PolymorphismOptions = new JsonPolymorphismOptions
-                {
-                    TypeDiscriminatorPropertyName = "$obj-type",
-                    IgnoreUnrecognizedTypeDiscriminators = true,
-                    UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
-                    DerivedTypes =
-                {
-                    new JsonDerivedType(typeof(ThreeDimensionalPoint), "3d"),
-                    new JsonDerivedType(typeof(FourDimensionalPoint), "4d")
+                    {
+                        TypeDiscriminatorPropertyName = "$type",
+                        IgnoreUnrecognizedTypeDiscriminators = true,
+                        UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
+
+                    };
+
+                    foreach (var item in factory.GetDerivedTypes(jsonTypeInfo))
+                        jsonTypeInfo.PolymorphismOptions.DerivedTypes.Add(item);
                 }
-                };
             }
 
             return jsonTypeInfo;
