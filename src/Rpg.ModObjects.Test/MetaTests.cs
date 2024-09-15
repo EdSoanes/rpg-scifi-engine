@@ -19,16 +19,5 @@ namespace Rpg.ModObjects.Tests
 
             Assert.That(system, Is.Not.Null);
         }
-
-        [Test]
-        public void MetaGraph_Serialize_EnsureValues()
-        {
-            var meta = new MetaGraph();
-            var system = meta.Build();
-
-            var json = RpgJson.Serialize(system);
-
-            Assert.That(json, Is.Not.Null);
-        }
     }
 }

@@ -8,39 +8,53 @@ namespace Rpg.ModObjects.Server.Json
     public interface IDerivedTypeFactory
     {
         public bool CanHandle(JsonTypeInfo typeInfo);
-        public List<JsonDerivedType> GetDerivedTypes(JsonTypeInfo typeInfo);
+        public List<JsonDerivedType> GetDerivedTypes(Type type);
     }
 
     public class DerivedTypeFactory<T> : IDerivedTypeFactory
     {
-        private List<JsonDerivedType>? _derivedTypes = null;
+        private Dictionary<string, List<JsonDerivedType>> _derivedTypes = new();
 
         public bool CanHandle(JsonTypeInfo typeInfo)
-            => typeInfo.Type.IsAssignableTo(typeof(T));
+            => typeInfo.Type.IsAssignableTo(typeof(T)) && typeInfo.Kind == JsonTypeInfoKind.Object;
 
-        public List<JsonDerivedType> GetDerivedTypes(JsonTypeInfo typeInfo)
+        public List<JsonDerivedType> GetDerivedTypes(Type type)
         {
-            if (_derivedTypes == null)
+            if (!_derivedTypes.ContainsKey(type.Name))
             {
-                var subTypes = RpgTypeScan.ForTypes<T>().ToArray();
-                _derivedTypes = subTypes
+                var subTypes = RpgTypeScan.ForSubTypes(type)
+                    .Where(x => !x.IsGenericType && !x.IsAbstract)
                     .Select(x => new JsonDerivedType(x, x.Name))
                     .ToList();
+
+                _derivedTypes.Add(type.Name, subTypes);
             }
                 
-            return _derivedTypes;
+            return _derivedTypes[type.Name];
         }
     }
 
     public class PolymorphicTypeResolver : DefaultJsonTypeInfoResolver
     {
-        private static List<IDerivedTypeFactory> _factories = new();
+        private List<IDerivedTypeFactory> _factories = new();
 
-        public static void Register<T>()
-            => _factories.Add(new DerivedTypeFactory<T>());
+        public PolymorphicTypeResolver Register<T>()
+        {
+            _factories.Add(new DerivedTypeFactory<T>());
+            return this;
+        }
 
-        public static void Register(IDerivedTypeFactory derivedTypeFactory)
-            => _factories.Add(derivedTypeFactory);
+        //public PolymorphicTypeResolver() : base() 
+        //{
+        //    Modifiers.Add(jsonTypeInfo =>
+        //    {
+        //        var propInfo = jsonTypeInfo.CreateJsonPropertyInfo(typeof(string), "$type");
+        //        propInfo.Get = (obj) => jsonTypeInfo.Type.Name;
+        //        propInfo.Set = (obj, val) => { };
+
+        //        jsonTypeInfo.Properties.Add(propInfo);
+        //    });
+        //}
 
         public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options)
         {
@@ -49,16 +63,21 @@ namespace Rpg.ModObjects.Server.Json
             {
                 if (factory.CanHandle(jsonTypeInfo))
                 {
-                    jsonTypeInfo.PolymorphismOptions = new JsonPolymorphismOptions
+                    var derivedTypes = factory.GetDerivedTypes(type);
+                    if (derivedTypes.Any())
                     {
-                        TypeDiscriminatorPropertyName = "$type",
-                        IgnoreUnrecognizedTypeDiscriminators = true,
-                        UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
+                        jsonTypeInfo.PolymorphismOptions = new JsonPolymorphismOptions
+                        {
+                            TypeDiscriminatorPropertyName = "$type",
+                            IgnoreUnrecognizedTypeDiscriminators = true,
+                            UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
+                        };
 
-                    };
+                        foreach (var item in derivedTypes)
+                            jsonTypeInfo.PolymorphismOptions.DerivedTypes.Add(item);
+                    }
 
-                    foreach (var item in factory.GetDerivedTypes(jsonTypeInfo))
-                        jsonTypeInfo.PolymorphismOptions.DerivedTypes.Add(item);
+                    break;
                 }
             }
 

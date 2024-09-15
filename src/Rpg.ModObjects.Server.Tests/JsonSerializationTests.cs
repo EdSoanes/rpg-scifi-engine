@@ -1,6 +1,7 @@
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Props;
+using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Server.Json;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
@@ -31,6 +32,12 @@ namespace Rpg.ModObjects.Server.Tests
 
     public class Tests
     {
+        [SetUp]
+        public void Setup()
+        {
+            RpgTypeScan.RegisterAssembly(this.GetType().Assembly);
+        }
+
         [Test]
         public void TestClass_Serialize()
         {
@@ -83,7 +90,7 @@ namespace Rpg.ModObjects.Server.Tests
             var time2 = RpgJson.Deserialize<JsonTestClass>(json);
 
             Assert.That(time2, Is.Not.Null);
-            Assert.That(time2.GetMods().Count, Is.EqualTo(2));
+            Assert.That(time2.GetMods().Count, Is.EqualTo(5));
             Assert.That(time2.GetMods().Any(x => x is Permanent), Is.True);
             Assert.That(time2.GetMods().First(x => x is Permanent).SourceValue, Is.EqualTo(new Dice(1)));
 

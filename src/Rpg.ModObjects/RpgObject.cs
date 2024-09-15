@@ -12,30 +12,31 @@ namespace Rpg.ModObjects
 {
     public abstract class RpgObject : RpgLifecycleObject, INotifyPropertyChanged
     {
-        [JsonInclude] public Dictionary<string, ModSet> ModSets { get; private init; }
-        [JsonInclude] public Dictionary<string, Prop> Props { get; private init; }
-        [JsonInclude] public Dictionary<string, State> States { get; private init; }
+        [JsonInclude] public ModSetDictionary ModSets { get; set; }
+        [JsonInclude] public PropsDictionary Props { get; set; }
+        [JsonInclude] public StatesDictionary States { get; set; }
 
-        [JsonInclude] public string Id { get; private init; }
+        [JsonInclude] public string Id { get; private set; }
 
-        [JsonInclude] public string Archetype { get; private init; }
+        [JsonInclude] public string Archetype { get; private set; }
 
         [JsonInclude] public string Name { get; protected set; }
 
-        [JsonInclude] public string[] Archetypes { get; private init; }
+        [JsonInclude] public string[] Archetypes { get; private set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public RpgObject()
+            : base()
         {
             Id = this.NewId();
             Archetype = this.GetType().Name;
             Name = this.GetType().Name;
             Archetypes = this.GetType().GetArchetypes();
 
-            ModSets = new Dictionary<string, ModSet>();
-            Props = new Dictionary<string, Prop>();
-            States = new Dictionary<string, State>();
+            ModSets = new ModSetDictionary();
+            Props = new PropsDictionary();
+            States = new StatesDictionary();
         }
 
         #region ModSets

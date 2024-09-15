@@ -14,7 +14,7 @@ namespace Rpg.ModObjects
         private List<PropRef> UpdatedProps = new List<PropRef>();
 
         [JsonInclude] public RpgEntity Context { get; private set; }
-        [JsonInclude] protected Dictionary<string, RpgObject> ObjectStore { get; set; } = new();
+        [JsonInclude] protected ObjectsDictionary ObjectStore { get; set; } = new();
 
         [JsonInclude] public Temporal Time { get; init; } = new Temporal();
 

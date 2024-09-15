@@ -4,13 +4,11 @@ namespace Rpg.ModObjects
 {
     public abstract class RpgEntity : RpgObject
     {
-        public Dictionary<string, Actions.Action> Actions { get; init; }
+        [JsonInclude] public ActionsDictionary Actions { get; private set; }
 
-        [JsonConstructor]
-        protected RpgEntity()
-            : base()
+        public RpgEntity() : base() 
         {
-            Actions = new Dictionary<string, Actions.Action>();
+            Actions = new ActionsDictionary();
         }
 
         public RpgEntity(string name)
@@ -37,9 +35,12 @@ namespace Rpg.ModObjects
             var actions = ModObjects.Actions.Action.CreateOwnerActions(this);
             foreach (var action in actions)
             {
-                action.OnAdding(Graph!);
-                if (!Actions.ContainsKey(action.Name))
-                    Actions.Add(action.Name, action);
+                if (action != null)
+                {
+                    action.OnAdding(Graph!);
+                    if (!Actions.ContainsKey(action.Name))
+                        Actions.Add(action.Name, action!);
+                }
             }
         }
 

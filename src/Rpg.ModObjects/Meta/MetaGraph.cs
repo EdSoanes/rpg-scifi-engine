@@ -1,9 +1,8 @@
-﻿using System.Collections;
-using System.Data;
-using System.Reflection;
-using Rpg.ModObjects.Actions;
+﻿using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Reflection;
+using System.Data;
+using System.Reflection;
 
 namespace Rpg.ModObjects.Meta
 {
@@ -47,7 +46,7 @@ namespace Rpg.ModObjects.Meta
             system.Actions = actions;
             system.ActionGroups = actionGroups;
             system.States = states;
-            system.PropUIs = propUIs;
+            system.PropUIs = propUIs.Select(x => x.GetValues()).ToArray();
             system.Namespaces = Namespaces(objectTypes);
            
             return system;

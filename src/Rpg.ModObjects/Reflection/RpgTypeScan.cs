@@ -9,8 +9,8 @@ namespace Rpg.ModObjects.Reflection
         internal static readonly Type[] RpgPropertyTypes =
         [
             typeof(int),
-                    typeof(string),
-                    typeof(Dice)
+            typeof(string),
+            typeof(Dice)
         ];
 
         private static string[] ExcludeAssembliesWith =
@@ -26,6 +26,9 @@ namespace Rpg.ModObjects.Reflection
         };
 
         private static List<Assembly> _scanAssemblies = new List<Assembly>();
+
+        public static bool TypeNotExcluded(Type type)
+            => !ExcludeAssembliesWith.Any(x => type.Name.StartsWith(x));
 
         public static void RegisterAssembly(Assembly assembly)
         {

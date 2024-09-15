@@ -11,7 +11,12 @@ namespace Rpg.ModObjects.Server.Json
         public PolymorphicTypeConverter()
         {
             var type = typeof(T);
-            _types = RpgTypeScan.ForSubTypes(type);
+            _types = RpgTypeScan.ForSubTypes(type).Where(x => !x.IsGenericType && !x.IsAbstract);
+        }
+
+        public override bool CanConvert(Type typeToConvert)
+        {
+            return _types.Contains(typeToConvert) || typeof(T) == typeToConvert;
         }
 
         public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -38,14 +43,25 @@ namespace Rpg.ModObjects.Server.Json
 
         public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
         {
-            if (_types.Count() > 0)
+            writer.WriteStartObject();
+            writer.WriteString("$type", value!.GetType().Name);
+
+            var json = JsonSerializer.Serialize(value, value.GetType(), options);
+            var document = JsonDocument.Parse(json);
+
+            var root = document.RootElement;
+            if (root.ValueKind != JsonValueKind.Object)
             {
-                writer.WritePropertyName("$type");
-                writer.WriteStringValue(value!.GetType().Name);
+                throw new NotSupportedException();
             }
 
-            JsonSerializer.Serialize(writer, (object)value, options);
-        }
+            foreach (var property in root.EnumerateObject())
+            {
+                property.WriteTo(writer);
+            }
 
+            writer.WriteEndObject();
+            writer.Flush();
+        }
     }
 }

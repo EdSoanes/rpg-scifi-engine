@@ -14,7 +14,7 @@ namespace Rpg.ModObjects.Tests.Models
 
         [JsonInclude] public int Bonus { get; protected set; }
 
-        [JsonConstructor] private ScoreBonusValue() { }
+        [JsonConstructor] public ScoreBonusValue() : base() { }
 
         public ScoreBonusValue(string name, int score) 
             : base(name)

@@ -4,7 +4,7 @@ namespace Rpg.ModObjects
 {
     public abstract class RpgComponent : RpgObject
     {
-        [JsonConstructor] protected RpgComponent() { }
+        [JsonConstructor] public RpgComponent() { }
 
         public RpgComponent(string name)
         {

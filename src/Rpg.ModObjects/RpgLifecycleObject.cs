@@ -11,6 +11,8 @@ namespace Rpg.ModObjects
 
         public LifecycleExpiry Expiry { get; set; } = LifecycleExpiry.Unset;
 
+        public RpgLifecycleObject() { }
+
         public virtual void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
             if (graph == null)

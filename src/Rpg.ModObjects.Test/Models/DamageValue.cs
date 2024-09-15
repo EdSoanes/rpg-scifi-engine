@@ -18,7 +18,7 @@ namespace Rpg.ModObjects.Tests.Models
         [Meters]
         public int Radius { get; protected set; }
 
-        [JsonConstructor] private DamageValue() { }
+        [JsonConstructor] public DamageValue() : base() { }
 
         public DamageValue(string name, Dice dice, int armorPenetration, int radius)
             : base(name)

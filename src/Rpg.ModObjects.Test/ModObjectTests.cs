@@ -1,7 +1,6 @@
 ﻿using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Reflection;
-using Rpg.ModObjects.Server.Json;
 using Rpg.ModObjects.Tests.Models;
 using Rpg.ModObjects.Tests.States;
 
@@ -69,33 +68,6 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.Strength.Bonus, Is.EqualTo(2));
             Assert.That(entity.Melee.Roll(), Is.EqualTo(4));
             Assert.That(entity.Damage.Dice.ToString(), Is.EqualTo("1d6 + 2"));
-        }
-
-        [Test]
-        public void TestEntity_Serialize_EnsureValues()
-        {
-            var entity = new ModdableEntity();
-            var graph = new RpgGraph(entity);
-
-            var json = RpgJson.Serialize(graph.GetGraphState());
-
-            var graphState = RpgJson.Deserialize<RpgGraphState>(json)!;
-            var graph2 = new RpgGraph(graphState);
-
-
-            var entity2 = graph2.Context as ModdableEntity;
-
-            Assert.That(entity2, Is.Not.Null);
-
-            Assert.That(entity2.Strength.Score, Is.EqualTo(entity.Strength.Score));
-            Assert.That(entity2.Strength.Bonus, Is.EqualTo(entity.Strength.Bonus));
-
-            Assert.That(entity2.Damage.ArmorPenetration, Is.EqualTo(entity.Damage.ArmorPenetration));
-            Assert.That(entity2.Damage.Dice, Is.EqualTo(entity.Damage.Dice));
-            Assert.That(entity2.Damage.Radius, Is.EqualTo(entity.Damage.Radius));
-
-            Assert.That(entity2.Melee, Is.EqualTo(entity.Melee));
-            Assert.That(entity2.Missile, Is.EqualTo(entity.Missile));
         }
 
         [Test]

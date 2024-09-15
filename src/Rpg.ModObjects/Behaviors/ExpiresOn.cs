@@ -9,6 +9,8 @@ namespace Rpg.ModObjects.Behaviors
     {
         [JsonInclude] public Dice Value { get; private set; }
 
+        [JsonConstructor] protected ExpiresOn() { }
+
         public ExpiresOn(int value)
             : base()
         {

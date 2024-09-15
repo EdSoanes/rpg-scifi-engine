@@ -15,6 +15,8 @@ namespace Rpg.ModObjects.Props
 
         private List<RpgObject>? _preCreatedObjects = new();
 
+        public Prop() : base() { }
+
         public Prop(string entityId, string name, RefType refType)
         {
             EntityId = entityId;

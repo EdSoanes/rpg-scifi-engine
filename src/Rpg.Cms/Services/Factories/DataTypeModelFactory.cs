@@ -49,7 +49,7 @@ namespace Rpg.Cms.Services.Factories
                 .Select(x => x.Key.ToString())
                 .ToArray();
 
-            var model = CreateModel(session, session.System.PropUIs.First(x => x is ContainerAttribute), parentFolder);
+            var model = CreateModel(session, session.System.PropUIs.First(x => x.Editor! == EditorType.Container), parentFolder);
             var values = model.Values.Where(x => x.Alias != "filter").ToList();
             values.Add(new DataTypePropertyPresentationModel { Alias = "filter", Value = string.Join(',', items) });
             model.Values = values;
@@ -57,13 +57,13 @@ namespace Rpg.Cms.Services.Factories
             return model;
         }
 
-        public CreateDataTypeRequestModel CreateModel(SyncSession session, MetaPropAttribute attr, IUmbracoEntity parentFolder)
+        public CreateDataTypeRequestModel CreateModel(SyncSession session, MetaPropAttr attr, IUmbracoEntity parentFolder)
         {
             var res = new CreateDataTypeRequestModel();
 
             res.Id = Guid.NewGuid();
             res.Parent = new ReferenceByIdModel(parentFolder.Key);
-            res.Name = session.GetDataTypeName(attr.DataTypeName);
+            res.Name = session.GetDataTypeName(attr.Value("DataTypeName", string.Empty));
             res.EditorAlias = attr.UmbEditor();
             res.EditorUiAlias = attr.UmbUIEditor();
             res.Values = attr.UmbDataTypeValues();

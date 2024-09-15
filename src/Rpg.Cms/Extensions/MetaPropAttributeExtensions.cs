@@ -7,7 +7,7 @@ namespace Rpg.Cms.Extensions
 {
     public static class MetaPropAttributeExtensions
     {
-        public static string UmbEditor(this MetaPropAttribute attr)
+        public static string UmbEditor(this MetaPropAttr attr)
         {
             return attr.Editor switch
             {
@@ -21,7 +21,7 @@ namespace Rpg.Cms.Extensions
             };
         }
 
-        public static string UmbUIEditor(this MetaPropAttribute attr)
+        public static string UmbUIEditor(this MetaPropAttr attr)
         {
             return attr.Editor switch
             {
@@ -35,7 +35,7 @@ namespace Rpg.Cms.Extensions
             };
         }
 
-        public static IEnumerable<DataTypePropertyPresentationModel> UmbDataTypeValues(this MetaPropAttribute attr)
+        public static IEnumerable<DataTypePropertyPresentationModel> UmbDataTypeValues(this MetaPropAttr attr)
         {
             var vals = attr.Editor switch
             {
@@ -53,7 +53,7 @@ namespace Rpg.Cms.Extensions
                 ?? Enumerable.Empty<DataTypePropertyPresentationModel>();
         }
 
-        private static Dictionary<string, object> UmbInt32Values(this MetaPropAttribute attr)
+        private static Dictionary<string, object> UmbInt32Values(this MetaPropAttr attr)
         { 
             var res = new Dictionary<string, object>();
 
@@ -68,7 +68,7 @@ namespace Rpg.Cms.Extensions
             return res;
         }
 
-        private static Dictionary<string, object> UmbMultiOptionValues(this MetaPropAttribute attr)
+        private static Dictionary<string, object> UmbMultiOptionValues(this MetaPropAttr attr)
         {
             var res = new Dictionary<string, object>();
 
@@ -79,7 +79,7 @@ namespace Rpg.Cms.Extensions
             return res;
         }
 
-        private static Dictionary<string, object> UmbRichTextValues(this MetaPropAttribute attr)
+        private static Dictionary<string, object> UmbRichTextValues(this MetaPropAttr attr)
         {
             var res = new Dictionary<string, object>();
             res.Add("mode", "classic");
@@ -104,7 +104,7 @@ namespace Rpg.Cms.Extensions
             return res;
         }
 
-        private static Dictionary<string, object> UmbContainerValues(this MetaPropAttribute attr)
+        private static Dictionary<string, object> UmbContainerValues(this MetaPropAttr attr)
         {
             var res = new Dictionary<string, object>();
             res.Add("minNumber", 0);
