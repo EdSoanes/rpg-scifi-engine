@@ -33,7 +33,7 @@ builder.Services
     .AddTransient<IDataTypeFolderSynchronizer, DataTypeFolderSynchronizer>()
     .AddTransient<DocTypeModelFactory>()
     .AddTransient<DataTypeModelFactory>()
-    .AddSingleton<ContentConverter>()
+    .AddTransient<ContentConverter>()
     .AddRpgServer(options => options.ContentFactoryType = typeof(ContentFactory));
 
 foreach (var propConverterType in RpgTypeScan.ForTypes<IPropConverter>())

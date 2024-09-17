@@ -7,7 +7,7 @@ namespace Rpg.ModObjects.Behaviors
 {
     public class ExpiresOn : BaseBehavior
     {
-        [JsonInclude] public Dice Value { get; private set; }
+        [JsonInclude] public Dice Value { get; protected set; }
 
         [JsonConstructor] protected ExpiresOn() { }
 

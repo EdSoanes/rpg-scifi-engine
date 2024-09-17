@@ -1,6 +1,8 @@
 ﻿using NanoidDotNet;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Values;
+using System.IO;
+using System.Reflection;
 
 namespace Rpg.ModObjects
 {
@@ -11,6 +13,34 @@ namespace Rpg.ModObjects
 
         public static string NewId(this object obj)
             => $"{obj.GetType().Name}[{Nanoid.Generate(Alphabet, Size)}]";
+
+        public static void SetProperty<T>(this RpgObject? obj, string prop, T? value)
+        {
+            var propInfo = RpgReflection.ScanForProperty(obj, prop, out var target);
+            if (target != null && propInfo != null
+                && (propInfo.PropertyType.IsAssignableFrom(typeof(T)) || (Nullable.GetUnderlyingType(propInfo.PropertyType)?.IsAssignableFrom(typeof(T)) ?? false)))
+            {
+                var x = propInfo.GetSetMethod(true);
+                x?.Invoke(target, [value]);
+                //Type t = target.GetType();
+                //t.InvokeMember($"set_{propInfo.Name}", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.InvokeMethod | BindingFlags.Instance, null, obj, [value]);
+
+                //propInfo.SetValue(target, value, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.SetProperty | BindingFlags.Instance, null, null, null);
+            }
+        }
+
+        public static T? GetProperty<T>(this RpgObject? obj, string prop)
+        {
+            var propInfo = RpgReflection.ScanForProperty(obj, prop, out var target);
+            if (propInfo != null
+                && (propInfo.PropertyType.IsAssignableFrom(typeof(T)) || (Nullable.GetUnderlyingType(propInfo.PropertyType)?.IsAssignableFrom(typeof(T)) ?? false)))
+            {
+                var val = propInfo.GetValue(target);
+                return val != null ? (T)val : default;
+            }
+
+            return default;
+        }
 
         internal static object? PropertyValue(this object? entity, string path, out bool propExists)
         {

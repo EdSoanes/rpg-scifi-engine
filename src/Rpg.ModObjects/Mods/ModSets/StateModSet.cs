@@ -6,7 +6,7 @@ namespace Rpg.ModObjects.Mods.ModSets
     public class StateModSet : ModSet
     {
         [JsonInclude] public string StateName { get; init; }
-        [JsonInclude] public bool IsManual { get; private set; }
+        [JsonInclude] public bool IsManual { get; protected set; }
 
         [JsonConstructor] protected StateModSet()
             : base()

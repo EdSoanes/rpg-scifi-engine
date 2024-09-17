@@ -9,14 +9,14 @@ namespace Rpg.ModObjects.Mods
     public class ModSet : RpgLifecycleObject
     {
         [JsonInclude] public string Id { get; private set; }
-        [JsonInclude] public string? OwnerId { get; private set; }
+        [JsonInclude] public string? OwnerId { get; protected set; }
         [JsonInclude] public string Name { get; set; }
 
-        [JsonInclude] public bool IsApplied { get; private set; } = true;
-        [JsonInclude] public bool IsDisabled { get; private set; }
+        [JsonInclude] public bool IsApplied { get; protected set; } = true;
+        [JsonInclude] public bool IsDisabled { get; protected set; }
         public bool IsActive { get => IsApplied && !IsDisabled; }
 
-        [JsonIgnore] public List<Mod> Mods { get; private set; } = new List<Mod>();
+        [JsonIgnore] public List<Mod> Mods { get; protected set; } = new List<Mod>();
         [JsonInclude] private List<string> _modIds { get; init; } = new();
 
         [JsonConstructor] protected ModSet() { }

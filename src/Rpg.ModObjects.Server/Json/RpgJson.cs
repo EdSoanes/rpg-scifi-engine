@@ -9,31 +9,6 @@ namespace Rpg.ModObjects.Server.Json
 {
     public class RpgJson
     {
-        private static JsonSerializerOptions deserializeOptions = new JsonSerializerOptions
-        {
-            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-            WriteIndented = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            TypeInfoResolver = new PolymorphicTypeResolver()
-                .Register<RpgObject>()
-                .Register<Mod>()
-                .Register<ModSet>()
-                .Register<BaseBehavior>()
-                .Register<State>()
-                .Register<RpgArg>(),
-            Converters =
-            {
-                new PointInTimeConverter(),
-                new PropRefConverter(),
-                new DiceConverter(),
-                new ObjectsDictionaryTypeConverter(),
-                new ModSetsDictionaryTypeConverter(),
-                new StatesDictionaryTypeConverter(),
-                new ActionsDictionaryTypeConverter(),
-                //new PropsDictionaryTypeConverter(),
-            }
-        };
-
         private static JsonSerializerOptions serializeOptions = new JsonSerializerOptions
         {
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
@@ -55,7 +30,6 @@ namespace Rpg.ModObjects.Server.Json
                 new ModSetsDictionaryTypeConverter(),
                 new StatesDictionaryTypeConverter(),
                 new ActionsDictionaryTypeConverter(),
-                //new PropsDictionaryTypeConverter(),
             }
         };
 
@@ -64,10 +38,10 @@ namespace Rpg.ModObjects.Server.Json
 
         public static T Deserialize<T>(string json)
             where T : class
-                => JsonSerializer.Deserialize<T>(json, deserializeOptions)!;
+                => JsonSerializer.Deserialize<T>(json, serializeOptions)!;
 
         public static T Deserialize<T>(Type type, string json)
             where T : class
-                => (T)JsonSerializer.Deserialize(json, type, deserializeOptions)!;
+                => (T)JsonSerializer.Deserialize(json, type, serializeOptions)!;
     }
 }

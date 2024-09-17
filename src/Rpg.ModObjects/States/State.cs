@@ -9,17 +9,17 @@ namespace Rpg.ModObjects.States
     {
         protected RpgGraph Graph {  get; private set; }
 
-        public LifecycleExpiry Expiry { get; private set; }
+        public LifecycleExpiry Expiry { get; protected set; }
 
         [JsonInclude] public string Id { get; private set; }
         [JsonInclude] public string Name { get; protected set; }
-        [JsonInclude] public string OwnerId { get; private init; }
-        [JsonInclude] public string? OwnerArchetype { get; private set; }
+        [JsonInclude] public string OwnerId { get; protected set; }
+        [JsonInclude] public string? OwnerArchetype { get; protected set; }
         [JsonInclude] protected List<SpanOfTime> ActiveTimeSpans { get; set; } = new();
 
         public bool IsOn { get => OnByTimePeriod || OnByUserAction || OnByCondition; }
         public bool OnByTimePeriod { get => ActiveTimeSpans.Any(x => x.GetExpiry(Graph?.Time.Now ?? PointInTimeType.BeforeTime) == LifecycleExpiry.Active); }
-        public bool OnByUserAction { get; private set; }
+        public bool OnByUserAction { get; protected set; }
         public bool OnByCondition { get; protected set; }
 
         [JsonConstructor] protected State() { }

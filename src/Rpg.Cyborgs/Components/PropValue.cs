@@ -8,7 +8,7 @@ namespace Rpg.Cyborgs.Components
     {
         [Integer]
         [JsonInclude] 
-        public int Value { get; private set; }
+        public int Value { get; protected set; }
 
         [Integer(Ignore = true)]
         public int InitValue { get => Graph?.CalculateInitialPropValue(this, nameof(Value))?.Roll() ?? 0; }

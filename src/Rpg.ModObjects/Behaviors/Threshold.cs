@@ -4,8 +4,8 @@ namespace Rpg.ModObjects.Behaviors
 {
     public class Threshold : BaseBehavior
     {
-        [JsonInclude] public int Min { get; private set; }
-        [JsonInclude] public int Max { get; private set; }
+        [JsonInclude] public int Min { get; protected set; }
+        [JsonInclude] public int Max { get; protected set; }
 
         [JsonConstructor] private Threshold() { }
 

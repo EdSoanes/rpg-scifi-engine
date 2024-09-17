@@ -17,7 +17,7 @@ namespace Rpg.ModObjects.Meta.Props
         public MetaPropAttr GetValues()
         {
             var attrs = new MetaPropAttr();
-            foreach (var propInfo in GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(x => !RpgTypeScan.TypeNotExcluded(x.PropertyType)))
+            foreach (var propInfo in GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(x => x.Name != "TypeId" && (x.PropertyType.IsPrimitive || x.PropertyType.IsEnum || RpgTypeScan.TypeNotExcluded(x.PropertyType))))
                 attrs.Add(propInfo.Name, propInfo.GetValue(this));
 
             return attrs;

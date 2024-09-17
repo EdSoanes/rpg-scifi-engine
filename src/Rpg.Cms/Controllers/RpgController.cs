@@ -1,4 +1,5 @@
 ﻿using Asp.Versioning;
+using Azure;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Rpg.ModObjects;
@@ -6,6 +7,7 @@ using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Server;
+using Rpg.ModObjects.Server.Json;
 using Rpg.ModObjects.Server.Ops;
 using Umbraco.Cms.Api.Common.Attributes;
 
@@ -31,7 +33,10 @@ namespace Rpg.Cms.Controllers
         public IActionResult ListEntities(string system)
         {
             var items = _sessionlessServer.ListEntities(system);
-            return Ok(items);
+
+            var json = RpgJson.Serialize(items);
+            return new ContentResult() { Content = json, ContentType = "application/json" };
+
         }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
@@ -40,7 +45,9 @@ namespace Rpg.Cms.Controllers
         public IActionResult CreateGraphState(string system, string archetype, string id)
         {
             var graphState = _sessionlessServer.CreateGraphState(system, archetype, id);
-            return Ok(graphState);
+
+            var json = RpgJson.Serialize(graphState);
+            return new ContentResult() { Content = json, ContentType = "application/json" };
         }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
@@ -49,7 +56,9 @@ namespace Rpg.Cms.Controllers
         public IActionResult AddModSet(string system, RpgRequest<ModSet> request)
         {
             var response = _sessionlessServer.ApplyModSet(system, request);
-            return Ok(response);
+
+            var json = RpgJson.Serialize(response);
+            return new ContentResult() { Content = json, ContentType = "application/json" };
         }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
@@ -58,7 +67,10 @@ namespace Rpg.Cms.Controllers
         public IActionResult ActivityCreate(string system, RpgRequest<ActivityCreate> request)
         {
             var response = _sessionlessServer.ActivityCreate(system, request);
-            return Ok(response);
+
+            var json = RpgJson.Serialize(response);
+            return new ContentResult() { Content = json, ContentType = "application/json" };
+
         }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
@@ -67,7 +79,10 @@ namespace Rpg.Cms.Controllers
         public IActionResult ActivityCreateByGroup(string system, RpgRequest<ActivityCreateByGroup> request)
         {
             var response = _sessionlessServer.ActivityCreate(system, request);
-            return Ok(response);
+
+            var json = RpgJson.Serialize(response);
+            return new ContentResult() { Content = json, ContentType = "application/json" };
+
         }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
@@ -76,7 +91,10 @@ namespace Rpg.Cms.Controllers
         public IActionResult ActivityAct(string system, RpgRequest<ActivityAct> request)
         {
             var response = _sessionlessServer.ActivityAct(system, request);
-            return Ok(response);
+
+            var json = RpgJson.Serialize(response);
+            return new ContentResult() { Content = json, ContentType = "application/json" };
+
         }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
@@ -85,7 +103,9 @@ namespace Rpg.Cms.Controllers
         public IActionResult ActivityOutcome(string system, RpgRequest<ActivityOutcome> request)
         {
             var response = _sessionlessServer.ActivityOutcome(system, request);
-            return Ok(response);
+
+            var json = RpgJson.Serialize(response);
+            return new ContentResult() { Content = json, ContentType = "application/json" };
         }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
@@ -94,7 +114,10 @@ namespace Rpg.Cms.Controllers
         public IActionResult StateState(string system, RpgRequest<SetState> request)
         {
             var response = _sessionlessServer.SetState(system, request);
-            return Ok(response);
+
+            var json = RpgJson.Serialize(response);
+            return new ContentResult() { Content = json, ContentType = "application/json" };
+
         }
 
         [HttpPost("{system}/describe")]
@@ -103,7 +126,9 @@ namespace Rpg.Cms.Controllers
         public IActionResult Describe(string system, RpgRequest<Describe> request)
         {
             var response = _sessionlessServer.Describe(system, request);
-            return Ok(response);
+
+            var json = RpgJson.Serialize(response);
+            return new ContentResult() { Content = json, ContentType = "application/json" };
         }
     }
 }

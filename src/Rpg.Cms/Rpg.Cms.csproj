@@ -9,7 +9,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.8" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Umbraco.Cms" Version="14.1.1" />
+    <PackageReference Include="Umbraco.Cms" Version="14.2.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -9,7 +9,7 @@ namespace Rpg.Cyborgs
     {
         [Injury]
         [JsonIgnore] public int InjurySeverity { get; protected set; }
-        [JsonInclude] public int[] Injuries { get; private set; } = Array.Empty<int>();
+        [JsonInclude] public int[] Injuries { get; protected set; } = Array.Empty<int>();
 
         [JsonInclude] public BodyPartType BodyPartType { get; protected set; }
 

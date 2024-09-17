@@ -5,7 +5,8 @@ namespace Rpg.ModObjects
 {
     public class RpgContainer : RpgComponent
     {
-        [JsonInclude] public RpgObject[] Contents { get => GetChildObjects(nameof(Contents)); }
+        [JsonIgnore] public RpgObject[] Contents { get => GetChildObjects(nameof(Contents)); }
+        [JsonInclude] private object[] Containers { get => Props.Values.Where(x => x.RefType != ModObjects.Props.RefType.Value).Select(x => new { x.Name, x.Refs }).ToArray(); }
 
         public event NotifyCollectionChangedEventHandler? CollectionChanged;
         [JsonConstructor] public RpgContainer()

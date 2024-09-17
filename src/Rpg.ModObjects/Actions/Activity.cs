@@ -25,12 +25,12 @@ namespace Rpg.ModObjects.Actions
             }
         }
 
-        [JsonInclude] public string InitiatorId { get; private set; }
-        [JsonInclude] public PointInTime Time { get; private set; }
-        [JsonInclude] public int ActivityNo { get; private set; }
-        [JsonInclude] public int NextActionNo { get; private set; }
-        [JsonInclude] public List<ActionInstance> ActionInstances { get; private set; } = new();
-        public ActionInstance? ActionInstance { get; private set; }
+        [JsonInclude] public string InitiatorId { get; protected set; }
+        [JsonInclude] public PointInTime Time { get; protected set; }
+        [JsonInclude] public int ActivityNo { get; protected set; }
+        [JsonInclude] public int NextActionNo { get; protected set; }
+        [JsonInclude] public List<ActionInstance> ActionInstances { get; protected set; } = new();
+        public ActionInstance? ActionInstance { get; protected set; }
 
         [JsonInclude] public List<ModSet> OutputSets { get; init; } = new();
         private string OutcomeSetName { get => $"{Name}/OutcomeSet"; }

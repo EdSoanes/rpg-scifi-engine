@@ -10,8 +10,8 @@ namespace Rpg.ModObjects.Props
         [JsonInclude] public string EntityId { get; protected set; }
         [JsonInclude] public string Name { get; protected set; }
         [JsonInclude] public RefType RefType { get; protected set; } = RefType.Value;
-        [JsonInclude] public List<Mod> Mods { get; private set; } = new();
-        [JsonInclude] public List<PropObjRef<string>> Refs { get; private set; } = new();
+        [JsonInclude] public List<Mod> Mods { get; protected set; } = new();
+        [JsonInclude] public List<PropObjRef<string>> Refs { get; protected set; } = new();
 
         private List<RpgObject>? _preCreatedObjects = new();
 

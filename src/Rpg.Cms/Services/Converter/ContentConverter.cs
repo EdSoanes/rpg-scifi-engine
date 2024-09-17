@@ -1,9 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
-using Rpg.Cms.Json;
-using Rpg.ModObjects;
+﻿using Rpg.ModObjects;
 using Rpg.ModObjects.Meta;
-using Rpg.ModObjects.Server.Json;
-using Rpg.ModObjects.States;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Services;
 
@@ -14,9 +10,9 @@ namespace Rpg.Cms.Services.Converter
         private readonly IEnumerable<IPropConverter> _propConverters;
         private readonly IContentTypeService _contentTypeService;
 
-        private List<RpgObject> Entities = new();
+        private List<RpgEntity> Entities = new();
 
-        public void AddEntity(RpgObject entity)
+        public void AddEntity(RpgEntity entity)
         {
             if (!Entities.Any(x => x.Id == entity.Id))
                 Entities.Add(entity);
@@ -33,13 +29,9 @@ namespace Rpg.Cms.Services.Converter
             if (type == null)
                 return null;
 
-            var obj = (Activator.CreateInstance(type, true) as RpgObject)!;
-            var target = JObject.FromObject(obj);
-
-            target
-                .AddPropIfNotNull("Id", obj.NewId())
-                .AddProp("Name", source.Name)
-                .AddProp("Archetype", type.Name);
+            var obj = (Activator.CreateInstance(type, true) as RpgEntity)!;
+            obj.SetProperty("Name", source.Name);
+            obj.SetProperty("Archetype", type.Name);
 
             var contentType = _contentTypeService.Get(source.ContentType.Key)!;
             foreach (var propType in contentType.PropertyTypes)
@@ -48,17 +40,12 @@ namespace Rpg.Cms.Services.Converter
                 var fullPropName = propType.Description!;
                 var propConverter = _propConverters.FirstOrDefault(x => x.CanConvert(prop));
                 if (propConverter != null)
-                    propConverter.Convert(system, this, target, prop, fullPropName);
+                    propConverter.Convert(system, this, obj, prop, fullPropName);
             }
 
-            var json = target.ToJson();
-            var entity = RpgJson.Deserialize<RpgEntity>(type, json!);
+            AddEntity(obj);
 
-            var res = entity as RpgEntity;
-            if (res != null)
-                AddEntity(res);
-
-            return res;
+            return obj;
         }
     }
 }

@@ -28,8 +28,8 @@ namespace Rpg.ModObjects.Mods
         [JsonIgnore] public bool IsBaseOverrideMod { get => this is Override; }
         [JsonIgnore] public bool IsBaseMod { get => this is Base; }
 
-        [JsonInclude] public bool IsApplied { get; private set; } = true;
-        [JsonInclude] public bool IsDisabled { get; private set; }
+        [JsonInclude] public bool IsApplied { get; protected set; } = true;
+        [JsonInclude] public bool IsDisabled { get; protected set; }
         [JsonIgnore] public bool IsActive { get => Expiry == LifecycleExpiry.Active && Behavior.Scope == ModScope.Standard && IsApplied && !IsDisabled; }
         [JsonIgnore] public bool IsPending { get => Expiry == LifecycleExpiry.Pending && Behavior.Scope == ModScope.Standard && IsApplied && !IsDisabled; }
         [JsonIgnore] public bool IsExpired { get => (Expiry == LifecycleExpiry.Destroyed || Expiry == LifecycleExpiry.Expired) && IsApplied && !IsDisabled; }

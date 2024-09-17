@@ -7,7 +7,7 @@ namespace Rpg.ModObjects
     {
         protected RpgGraph Graph { get; private set; }
         [JsonInclude] protected SpanOfTime Lifespan { get; set; } = new SpanOfTime();
-        [JsonInclude] protected PointInTime? ExpiredTime { get; private set; }
+        [JsonInclude] protected PointInTime? ExpiredTime { get; set; }
 
         public LifecycleExpiry Expiry { get; set; } = LifecycleExpiry.Unset;
 
