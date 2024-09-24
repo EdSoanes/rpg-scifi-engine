@@ -320,7 +320,7 @@ namespace Rpg.ModObjects
 
         public T? GetChildObject<T>(string propName)
             where T : RpgObject
-                => GetProp(propName)?.GetChildObject<T>();
+                => GetProp(propName, RefType.Child)?.GetChildObject<T>();
 
         public RpgObject[] GetChildObjects()
         {
@@ -352,34 +352,30 @@ namespace Rpg.ModObjects
             return prop.GetChildObjects();
         }
 
-        public void AddChildObject(string propName, RpgObject rpgObj)
+        public void AddChild(string propName, RpgObject? rpgObj)
         {
-            var prop = GetProp(propName, RefType.Children, true)!;
+            var prop = GetProp(propName, RefType.Child, true)!;
             prop.AddRef(rpgObj);
         }
 
-        public void SetChildObject(string propName, RpgObject? rpgObj)
-        {
-            var prop = GetProp(propName, RefType.Child, true);
-            if (rpgObj == null)
-            {
-                var existing = GetChildObject<RpgObject>(propName);
-                if (existing != null)
-                    prop!.RemoveRef(existing);
-            }
-            else
-            {
-                if (Graph != null && Graph.GetObject(rpgObj.Id) == null)
-                    Graph.AddObject(rpgObj);
-
-                prop!.AddRef(rpgObj);
-            }
-        }
-
-        public void RemoveChildObject(string propName, RpgObject rpgObj)
+        public void AddChildren(string propName, params RpgObject[] rpgObjs)
         {
             var prop = GetProp(propName, RefType.Children, true)!;
+            foreach (var rpgObj in rpgObjs)
+                prop.AddRef(rpgObj);
+        }
+
+        public void RemoveChild(string propName, RpgObject rpgObj)
+        {
+            var prop = GetProp(propName, RefType.Child, true)!;
             prop.RemoveRef(rpgObj);
+        }
+
+        public void RemoveChildren(string propName, params RpgObject[] rpgObjs)
+        {
+            var prop = GetProp(propName, RefType.Children, true)!;
+            foreach (var rpgObj in rpgObjs)
+                prop.RemoveRef(rpgObj);
         }
 
         #endregion Refs
@@ -421,6 +417,7 @@ namespace Rpg.ModObjects
 
         public bool IsA(string type) 
             => Archetypes.Contains(type);
+
 
         public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
@@ -497,8 +494,27 @@ namespace Rpg.ModObjects
             if (Graph == null)
                 throw new InvalidOperationException("Graph is null");
 
-            foreach (var prop in Props.Values)
-                prop.OnCreating(Graph, this);
+            foreach (var propInfo in RpgReflection.ScanForChildProperties(this))
+            {
+                if (!Props.ContainsKey(propInfo.Name))
+                {
+                    var prop = new Prop(Id, propInfo.Name, RefType.Child);
+                    Props.Add(propInfo.Name, prop);
+                }
+
+                Props[propInfo.Name].OnCreating(Graph, this);
+            }
+
+            foreach (var propInfo in RpgReflection.ScanForChildrenProperties(this))
+            {
+                if (!Props.ContainsKey(propInfo.Name))
+                {
+                    var prop = new Prop(Id, propInfo.Name, RefType.Children);
+                    Props.Add(propInfo.Name, prop);
+                }
+             
+                Props[propInfo.Name].OnCreating(Graph, this);
+            }
 
             foreach (var propInfo in RpgReflection.ScanForModdableProperties(this))
             {

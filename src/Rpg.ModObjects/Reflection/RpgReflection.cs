@@ -39,6 +39,13 @@ namespace Rpg.ModObjects.Reflection
                 .ToArray();
         }
 
+        internal static PropertyInfo[] ScanForChildrenProperties(this RpgObject context)
+        {
+            return context.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(IsChildrenProperty)
+                .ToArray();
+        }
+
         internal static (int?, int?) GetPropertyThresholds(this PropertyInfo propInfo)
         {
             if (propInfo.PropertyType == typeof(int))
@@ -129,6 +136,15 @@ namespace Rpg.ModObjects.Reflection
             return propertyInfo.PropertyType.IsAssignableTo(typeof(RpgObject))
                 || Nullable.GetUnderlyingType(propertyInfo.PropertyType) == typeof(RpgObject);
 
+        }
+
+        private static bool IsChildrenProperty(this PropertyInfo? propertyInfo)
+        {
+            if (propertyInfo == null)
+                return false;
+
+            return propertyInfo.PropertyType.IsAssignableTo(typeof(IEnumerable<RpgObject>))
+                || (Nullable.GetUnderlyingType(propertyInfo.PropertyType)?.IsAssignableTo(typeof(IEnumerable<RpgObject>)) ?? false);
         }
 
         internal static IEnumerable<Type> GetLoadableTypes(Assembly assembly)

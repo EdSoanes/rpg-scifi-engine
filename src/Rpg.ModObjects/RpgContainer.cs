@@ -1,4 +1,5 @@
-﻿using System.Collections.Specialized;
+﻿using Rpg.ModObjects.Props;
+using System.Collections.Specialized;
 using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects
@@ -32,14 +33,14 @@ namespace Rpg.ModObjects
             => Contains(obj.Id);
 
         public bool Contains(string entityId)
-            => GetProp(nameof(Contents))?.Contains(entityId) ?? false;
+            => GetProp(nameof(Contents), RefType.Children)?.Contains(entityId) ?? false;
 
         public bool Add(RpgEntity obj)
         {
             if (Contains(obj))
                 return false;
 
-            AddChildObject(nameof(Contents), obj);
+            AddChildren(nameof(Contents), obj);
             CallCollectionChanged(NotifyCollectionChangedAction.Add);
 
             return true;
@@ -50,7 +51,7 @@ namespace Rpg.ModObjects
             if (!Contains(obj))
                 return false;
 
-            RemoveChildObject(nameof(Contents), obj);
+            RemoveChildren(nameof(Contents), obj);
             CallCollectionChanged(NotifyCollectionChangedAction.Remove);
 
             return true;

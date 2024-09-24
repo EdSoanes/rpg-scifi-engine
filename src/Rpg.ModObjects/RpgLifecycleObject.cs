@@ -52,7 +52,6 @@ namespace Rpg.ModObjects
         {
             ExpiredTime = Graph.Time.Now;
             CalculateExpiry();
-            Expiry = Lifespan.GetExpiry(Graph.Time.Now);
         }
 
         protected virtual void CalculateExpiry()

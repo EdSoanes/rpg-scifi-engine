@@ -1,6 +1,7 @@
 ﻿using Rpg.ModObjects.Behaviors;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time;
+using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects.Props
@@ -98,9 +99,7 @@ namespace Rpg.ModObjects.Props
         public bool Contains(string entityId)
             => Refs.Any(x => x.Expiry == LifecycleExpiry.Active && x.EntityId == entityId);
 
-
-        public T? GetChildObject<T>() 
-            where T : RpgObject
+        public string? GetChildObjectId()
         {
             if (RefType != RefType.Child)
                 throw new InvalidDataException("Can only GetObject for RefType.Object");
@@ -112,16 +111,25 @@ namespace Rpg.ModObjects.Props
                 .Where(x => x.Expiry == LifecycleExpiry.Active)
                 .GroupBy(x => x.EntityId);
 
-            if (active.Count() == 1)
-                return Graph.GetObject<T>(active.First().Key);
-
             if (active.Count() > 1)
                 throw new InvalidDataException("Child props should never have more than one active entity");
 
-            return null;
+            return active?.FirstOrDefault()?.Key;
         }
 
-        public RpgObject[] GetChildObjects()
+        public T? GetChildObject<T>() 
+            where T : RpgObject
+        {
+            var objId = GetChildObjectId();
+            var obj = RetrieveObject<RpgObject>(objId);
+            return obj as T;
+        }
+
+        private T? RetrieveObject<T>(string? objId)
+            where T : RpgObject
+                => (Graph?.GetObject(objId) ?? _preCreatedObjects?.FirstOrDefault(x => x.Id == objId)) as T;
+
+        public string[] GetChildObjectIds()
         {
             if (RefType != RefType.Children)
                 throw new InvalidDataException("Can only GetObjects for RefType.Objects");
@@ -129,49 +137,62 @@ namespace Rpg.ModObjects.Props
             if (Graph == null)
                 return [];
 
-            var active = Refs
+            var objIds = Refs
                 .Where(x => x.Expiry == LifecycleExpiry.Active)
                 .GroupBy(x => x.EntityId)
-                .Select(x => Graph!.GetObject(x.Key))
+                .Select(x => x.Key)
+                .ToArray();
+
+            return objIds;
+        }
+
+        public RpgObject[] GetChildObjects()
+        {
+            var objIds = GetChildObjectIds();
+
+            var objs = objIds
+                .Select(x => RetrieveObject<RpgObject>(x))
                 .Where(x => x != null)
                 .Cast<RpgObject>()
                 .ToArray();
 
-            return active;
+            return objs;
         }
 
         public void AddRef(RpgObject? source)
         {
-            var objRef = new PropObjRef(source.Id, new SpanOfTime(Graph.Time.Now, PointInTimeType.TimeEnds));
-            if (Graph != null)
-            {
-                objRef.OnCreating(Graph);
-                objRef.OnStartLifecycle();
-            }
-            else if (source != null && _preCreatedObjects != null && !_preCreatedObjects.Any(x => x.Id == source.Id))
-            {
-                _preCreatedObjects.Add(source);
-            }
-
             if (RefType == RefType.Value)
                 throw new InvalidDataException("Cannot add Ref to RefType.Value prop");
 
+            var lifespan = Graph != null
+                ? new SpanOfTime(Graph.Time.Now, PointInTimeType.TimeEnds)
+                : new SpanOfTime();
+
+            PropObjRef? objRef = null;
+            if (source != null)
+            {
+                objRef = new PropObjRef(source.Id, lifespan);
+                if (Graph != null)
+                {
+                    Graph.AddObject(source);
+                    objRef.OnCreating(Graph);
+                    objRef.OnTimeBegins();
+                    objRef.OnStartLifecycle();
+                }
+                else if (_preCreatedObjects != null && !_preCreatedObjects.Any(x => x.Id == source.Id))
+                {
+                    _preCreatedObjects.Add(source);
+                }
+            }
+
             if (RefType == RefType.Child)
             {
-                if (Refs.Count() > 1)
-                    throw new InvalidDataException("Too many Refs for RefType.Object");
-
                 foreach (var existing in Refs.Where(x => x.Expiry == LifecycleExpiry.Active))
                     existing.SetExpired();
+            }
 
+            if (objRef != null && !Refs.Any(x => x == objRef))
                 Refs.Add(objRef);
-            }
-            else
-            {
-                if (!Refs.Any(x => x == objRef))
-                    Refs.Add(objRef);
-            }
-
         }
 
         public void RemoveRef(RpgObject source)
@@ -182,7 +203,10 @@ namespace Rpg.ModObjects.Props
             if (Contains(source.Id))
             {
                 foreach (var existing in Refs.Where(x => x.Expiry == LifecycleExpiry.Active))
-                    existing.SetExpired();
+                {
+                    if (RefType == RefType.Child || existing.EntityId == source.Id)
+                        existing.SetExpired();
+                }
             }
         }
 
@@ -270,8 +294,8 @@ namespace Rpg.ModObjects.Props
             return RefType switch
             {
                 RefType.Value => $"#Mods = {Mods.Count()}",
-                RefType.Child => $"#Ref = {Refs.FirstOrDefault()?.Get() ?? "null"}",
-                RefType.Children => $"#Refs = {Refs.Count(x => x.Get() != null)}",
+                RefType.Child => $"#Ref = {GetChildObjectId() ?? "null"}",
+                RefType.Children => $"#Refs = {GetChildObjectIds().Count()}",
                 _ => RefType.ToString()
             };
         }

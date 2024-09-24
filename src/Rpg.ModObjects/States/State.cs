@@ -34,14 +34,17 @@ namespace Rpg.ModObjects.States
 
         public StateModSet CreateInstance(SpanOfTime? spanOfTime = null)
         {
-            if (spanOfTime != null && !ActiveTimeSpans.Any(x => x == spanOfTime))
-                ActiveTimeSpans.Add(spanOfTime);
+            if (spanOfTime != null)
+            {
+                spanOfTime.SetStartTime(Graph.Time.Now);
+                if (!ActiveTimeSpans.Any(x => x == spanOfTime))
+                    ActiveTimeSpans.Add(spanOfTime);
+            }
 
             var instance = GetInstance();
             if (instance == null)
             {
                 instance = new StateModSet(OwnerId, Name);
-                instance.Update(OnByUserAction, CalculateExpiry());
                 FillStateSet(instance);
             }
 
@@ -108,10 +111,7 @@ namespace Rpg.ModObjects.States
             var expiry = CalculateExpiry();
 
             var instance = GetInstance();
-            if (instance != null)
-                instance.Update(OnByUserAction, expiry);
-
-            else if (expiry == LifecycleExpiry.Active)
+            if (expiry == LifecycleExpiry.Active && instance == null)
             {
                 instance = CreateInstance();
                 Graph.AddModSets(instance);

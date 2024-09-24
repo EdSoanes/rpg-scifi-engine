@@ -6,7 +6,6 @@ namespace Rpg.ModObjects.Mods.ModSets
     public class StateModSet : ModSet
     {
         [JsonInclude] public string StateName { get; init; }
-        [JsonInclude] public bool IsManual { get; protected set; }
 
         [JsonConstructor] protected StateModSet()
             : base()
@@ -18,16 +17,9 @@ namespace Rpg.ModObjects.Mods.ModSets
             StateName = stateName;
         }
 
-        internal void Update(bool isManual, LifecycleExpiry expiry)
+        protected override void CalculateExpiry()
         {
-            IsManual = isManual;
-            Expiry = expiry;
+            Expiry = Graph.GetState(OwnerId, StateName)!.Expiry;
         }
-
-        public override LifecycleExpiry OnStartLifecycle()
-            => Graph.GetState(OwnerId, StateName)!.Expiry;
-
-        public override LifecycleExpiry OnUpdateLifecycle()
-            => Graph.GetState(OwnerId, StateName)!.Expiry;
     }
 }

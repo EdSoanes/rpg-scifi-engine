@@ -18,19 +18,19 @@ namespace Rpg.ModObjects.Tests
         public ScopedComponent ChildComponent1
         {
             get => GetChildObject<ScopedComponent>(nameof(ChildComponent1))!;
-            set => SetChildObject(nameof(ChildComponent1), value);
+            set => AddChild(nameof(ChildComponent1), value);
         }
 
         public ScopedComponent? ChildComponent2
         {
             get => GetChildObject<ScopedComponent>(nameof(ChildComponent2));
-            set => SetChildObject(nameof(ChildComponent2), value);
+            set => AddChild(nameof(ChildComponent2), value);
         }
 
         public ChildEntity? ChildEntity
         {
             get => GetChildObject<ChildEntity>(nameof(ChildEntity));
-            set => SetChildObject(nameof(ChildEntity), value);
+            set => AddChild(nameof(ChildEntity), value);
         }
 
         public ScopedEntity()

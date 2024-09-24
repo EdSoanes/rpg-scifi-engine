@@ -23,6 +23,7 @@ namespace Rpg.ModObjects.Time
         }
 
         [JsonIgnore] public bool IsEncounterTime { get => Type == PointInTimeType.Turn || Type == PointInTimeType.EncounterBegins; }
+        [JsonIgnore] public bool IsAfterEncounterTime { get => Type == PointInTimeType.TimeEnds; }
 
         public static implicit operator PointInTime(PointInTimeType type) => new PointInTime(type);
         public static implicit operator PointInTime(int count) => new PointInTime(count);

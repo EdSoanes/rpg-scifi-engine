@@ -52,7 +52,10 @@ namespace Rpg.ModObjects.Time
 
         public LifecycleExpiry GetExpiry(PointInTime now)
         {
-            if (Start.Type == PointInTimeType.Turn && End.Type == PointInTimeType.Turn && !now.IsEncounterTime)
+            if (Start.IsEncounterTime && End.IsAfterEncounterTime && now.Type == PointInTimeType.EncounterEnds)
+                Start = PointInTimeType.TimePassing;
+
+            if (Start.IsEncounterTime && End.IsAfterEncounterTime && !now.IsEncounterTime)
                 return LifecycleExpiry.Expired;
 
             if (Start > now)

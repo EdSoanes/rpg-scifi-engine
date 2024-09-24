@@ -10,7 +10,7 @@ namespace Rpg.ModObjects.Tests
         public ChildRefEntity? Child
         {
             get => GetChildObject<ChildRefEntity>(nameof(Child));
-            set => SetChildObject(nameof(Child), value);
+            set => AddChild(nameof(Child), value);
         }
 
         public ParentRefEntity(string name)
@@ -25,7 +25,7 @@ namespace Rpg.ModObjects.Tests
     }
 
 
-    public class ObjectRefChildTests
+    public class ContainerPropertyForChildTests
     {
         [SetUp]
         public void Setup()
