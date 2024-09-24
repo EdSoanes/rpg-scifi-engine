@@ -32,7 +32,7 @@ namespace Rpg.Cyborgs.Skills.Movement
 
         public bool OnOutcome(Activity activity, Actor owner)
         {
-            var moving = owner.GetState(nameof(Moving))!.CreateInstance(new SpanOfTime(0, 1));
+            var moving = owner.GetState(nameof(Moving))!.ActivateInstance(new SpanOfTime(0, 1));
             activity.OutputSets.Add(moving);
 
             return true;

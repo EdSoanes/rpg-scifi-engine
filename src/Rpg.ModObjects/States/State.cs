@@ -32,27 +32,33 @@ namespace Rpg.ModObjects.States
             OwnerArchetype = owner.Archetype;
         }
 
-        public StateModSet CreateInstance(SpanOfTime? spanOfTime = null)
+        public StateModSet? ActivateInstance(SpanOfTime? spanOfTime = null)
         {
-            if (spanOfTime != null)
+            if (Graph != null)
             {
-                spanOfTime.SetStartTime(Graph.Time.Now);
-                if (!ActiveTimeSpans.Any(x => x == spanOfTime))
-                    ActiveTimeSpans.Add(spanOfTime);
+                if (spanOfTime != null)
+                {
+                    spanOfTime.SetStartTime(Graph.Time.Now);
+                    if (!ActiveTimeSpans.Any(x => x == spanOfTime))
+                        ActiveTimeSpans.Add(spanOfTime);
+                }
+
+                var instance = Graph?
+                    .GetModSets<StateModSet>(OwnerId, (x) => x.StateName == Name && x.Expiry == LifecycleExpiry.Active)
+                    .FirstOrDefault();
+
+                if (instance == null)
+                {
+                    instance = new StateModSet(OwnerId, Name);
+                    FillStateSet(instance);
+                    Graph.AddModSets(instance);
+                }
+
+                return instance;
             }
 
-            var instance = GetInstance();
-            if (instance == null)
-            {
-                instance = new StateModSet(OwnerId, Name);
-                FillStateSet(instance);
-            }
-
-            return instance;
+            return null;
         }
-
-        public StateModSet? GetInstance()
-            => Graph?.GetModSets<StateModSet>(OwnerId, (x) => x.StateName == Name && x.Expiry == LifecycleExpiry.Active).FirstOrDefault();
 
         internal abstract void FillStateSet(StateModSet modSet);
         protected abstract LifecycleExpiry CalculateExpiry();
@@ -62,23 +68,6 @@ namespace Rpg.ModObjects.States
 
         public void Off()
             => OnByUserAction = false;
-
-        public static State[] CreateOwnerStates(RpgObject entity)
-        {
-            var states = new List<State>();
-
-            var types = RpgTypeScan.ForTypes<State>()
-                .Where(x => IsOwnerStateType(entity, x));
-
-            foreach (var type in types)
-            {
-                var state = (State)Activator.CreateInstance(type, [entity])!;
-                if (entity.IsA(state.OwnerArchetype!))
-                    states.Add(state);
-            }
-
-            return states.ToArray();
-        }
 
         public void OnCreating(RpgGraph graph, RpgObject? entity = null)
             => Graph = graph;
@@ -90,16 +79,11 @@ namespace Rpg.ModObjects.States
 
         public LifecycleExpiry OnStartLifecycle()
         {
-            var expiry = CalculateExpiry();
+            Expiry = CalculateExpiry();
+            if (Expiry == LifecycleExpiry.Active)
+                ActivateInstance();
 
-            if (expiry == LifecycleExpiry.Active)
-            {
-                var instance = CreateInstance();
-                Graph.AddModSets(instance);
-            }
-
-            Expiry = expiry;
-            return expiry;
+            return Expiry;
         }
 
         public LifecycleExpiry OnUpdateLifecycle()
@@ -108,35 +92,11 @@ namespace Rpg.ModObjects.States
                 .Where(x => x.GetExpiry(Graph.Time.Now) != LifecycleExpiry.Destroyed)
                 .ToList();
 
-            var expiry = CalculateExpiry();
+            Expiry = CalculateExpiry();
+            if (Expiry == LifecycleExpiry.Active)
+                ActivateInstance();
 
-            var instance = GetInstance();
-            if (expiry == LifecycleExpiry.Active && instance == null)
-            {
-                instance = CreateInstance();
-                Graph.AddModSets(instance);
-            }
-
-            Expiry = expiry;
-            return expiry;
-        }
-
-
-        private static bool IsOwnerStateType(RpgObject entity, Type? stateType)
-        {
-            while (stateType != null)
-            {
-                if (stateType.IsGenericType)
-                {
-                    var genericTypes = stateType.GetGenericArguments();
-                    if (genericTypes.Length == 1 && entity.GetType().IsAssignableTo(genericTypes[0]))
-                        return true;
-                }
-
-                stateType = stateType.BaseType;
-            }
-
-            return false;
+            return Expiry;
         }
     }
 
@@ -164,17 +124,12 @@ namespace Rpg.ModObjects.States
 
         protected override LifecycleExpiry CalculateExpiry()
         {
-            var expiry = OnByUserAction || OnByTimePeriod
+            var owner = Graph!.GetObject<T>(OwnerId)!;
+            OnByCondition = IsOnWhen(owner);
+
+            var expiry = OnByUserAction || OnByTimePeriod || OnByCondition
                 ? LifecycleExpiry.Active
                 : LifecycleExpiry.Expired;
-
-            if (expiry != LifecycleExpiry.Active)
-            {
-                var owner = Graph!.GetObject<T>(OwnerId)!;
-                OnByCondition = IsOnWhen(owner);
-                if (OnByCondition)
-                    expiry = LifecycleExpiry.Active;
-            }
 
             if (expiry == LifecycleExpiry.Expired && !Graph.Time.Now.IsEncounterTime)
                 expiry = LifecycleExpiry.Destroyed;

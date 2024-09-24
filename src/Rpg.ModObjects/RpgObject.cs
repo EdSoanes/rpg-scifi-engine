@@ -398,7 +398,7 @@ namespace Rpg.ModObjects
             => GetState(state)?.Off();
 
         public ModSet CreateStateInstance(string state, SpanOfTime? spanOfTime = null)
-            => GetState(state)!.CreateInstance(spanOfTime);
+            => GetState(state)!.ActivateInstance(spanOfTime);
 
         public bool OnUpdateStateLifecycle()
         {
@@ -424,13 +424,7 @@ namespace Rpg.ModObjects
             base.OnCreating(graph, entity);
 
             OnCreatingProperties();
-
-            var states = State.CreateOwnerStates(this);
-            foreach (var state in states)
-            {
-                state.OnCreating(Graph);
-                States.Add(state.Name, state);
-            }
+            OnCreatingStates();
         }
 
         public override void OnRestoring(RpgGraph graph, RpgObject? entity = null)
@@ -532,6 +526,39 @@ namespace Rpg.ModObjects
                         AddMods(new Threshold(Id, propInfo.Name, min ?? int.MinValue, max ?? int.MaxValue));
                 }
             }
+        }
+
+        private void OnCreatingStates()
+        {
+            var types = RpgTypeScan.ForTypes<State>()
+                .Where(x => IsOwnerStateType(this, x));
+
+            foreach (var type in types)
+            {
+                var state = (State)Activator.CreateInstance(type, [this])!;
+                if (this.IsA(state.OwnerArchetype!))
+                {
+                    state.OnCreating(Graph);
+                    States.Add(state.Name, state);
+                }
+            }
+        }
+
+        private bool IsOwnerStateType(RpgObject entity, Type? stateType)
+        {
+            while (stateType != null)
+            {
+                if (stateType.IsGenericType)
+                {
+                    var genericTypes = stateType.GetGenericArguments();
+                    if (genericTypes.Length == 1 && entity.GetType().IsAssignableTo(genericTypes[0]))
+                        return true;
+                }
+
+                stateType = stateType.BaseType;
+            }
+
+            return false;
         }
     }
 }

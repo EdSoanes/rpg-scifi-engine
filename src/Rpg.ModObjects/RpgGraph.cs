@@ -170,8 +170,8 @@ namespace Rpg.ModObjects
         {
             if (!ObjectStore.ContainsKey(entity.Id))
             {
-                entity.OnCreating(this);
                 ObjectStore.Add(entity.Id, entity);
+                entity.OnCreating(this);
                 if (Time.Now.Type != PointInTimeType.BeforeTime)
                 {
                     entity.OnTimeBegins();
