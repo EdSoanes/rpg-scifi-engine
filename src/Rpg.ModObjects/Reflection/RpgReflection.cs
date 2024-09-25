@@ -25,7 +25,7 @@ namespace Rpg.ModObjects.Reflection
             return res.ToArray();
         }
 
-        internal static PropertyInfo[] ScanForModdableProperties(this RpgObject context)
+        internal static PropertyInfo[] ScanForModdableProperties(this RpgLifecycleObject context)
         {
             return context.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                 .Where(IsModdableProperty)

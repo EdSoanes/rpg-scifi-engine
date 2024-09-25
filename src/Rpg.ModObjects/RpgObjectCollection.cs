@@ -1,6 +1,10 @@
-﻿using Rpg.ModObjects.Props;
+﻿using Rpg.ModObjects.Mods.Mods;
+using Rpg.ModObjects.Props;
+using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
+using Rpg.ModObjects.Values;
 using System.Collections;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 namespace Rpg.ModObjects
@@ -8,9 +12,16 @@ namespace Rpg.ModObjects
     public class RpgObjectCollection : RpgLifecycleObject, IList<RpgObject>
     {
         private List<RpgObject>? _preAddedObjects = new();
+        private Dictionary<string, Dice>? _preAddedProps = new();
 
         [JsonInclude] protected string ContainerName { get; set; }
         [JsonInclude] protected string EntityId { get; set; }
+        [JsonInclude]
+        public int MaxItems
+        {
+            get => PropertyValue<int>(nameof(MaxItems));
+            protected set => _preAddedProps?.Add(nameof(MaxItems), value);
+        }
 
         protected RpgObject? Entity { get => Graph?.GetObject(EntityId); }
         protected Prop? EntityProp { get => Entity?.GetProp(ContainerName, RefType.Children); }
@@ -18,18 +29,23 @@ namespace Rpg.ModObjects
         public RpgObjectCollection() : base() { }
 
         public RpgObjectCollection(string entityId, string containerName)
-            : base() 
+            : base()
         {
             EntityId = entityId;
             ContainerName = containerName;
         }
 
-        public int Count 
+        public T? PropertyValue<T>(string prop)
+            => Entity != null
+                ? Entity.PropertyValue<T>(PropName(prop))
+                : default;
+
+        public int Count
             => Entity?.GetChildObjects(ContainerName).Count() ?? 0;
 
         public bool IsReadOnly => false;
 
-        public RpgObject this[int index] 
+        public RpgObject this[int index]
         {
             get => Entity!.GetChildObjects(ContainerName)[index];
             set => throw new NotImplementedException();
@@ -39,7 +55,7 @@ namespace Rpg.ModObjects
         {
             if (Entity != null)
                 Entity.AddChildren(ContainerName, item);
-            else if (!_preAddedObjects!.Any(x => x.Id == item.Id))
+            else if (_preAddedObjects != null && _preAddedObjects!.Any(x => x.Id == item.Id))
                 _preAddedObjects.Add(item);
         }
 
@@ -64,7 +80,7 @@ namespace Rpg.ModObjects
 
         public void CopyTo(RpgObject[] array, int arrayIndex)
         {
-            
+
         }
 
         public IEnumerator<RpgObject> GetEnumerator()
@@ -121,11 +137,51 @@ namespace Rpg.ModObjects
         public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
             base.OnCreating(graph, entity);
-            if (Entity != null && _preAddedObjects != null)
+            OnCreatingContents();
+            OnCreatingProperties();
+        }
+
+        private void OnCreatingContents()
+        {
+            if (Graph == null || Entity == null)
+                throw new InvalidOperationException("Graph is null");
+
+            if (_preAddedObjects != null)
             {
                 Entity.AddChildren(ContainerName, _preAddedObjects.ToArray());
                 _preAddedObjects = null;
             }
         }
+
+        private void OnCreatingProperties()
+        {
+            if (Graph == null || Entity == null)
+                throw new InvalidOperationException("Graph is null");
+
+            if (_preAddedProps != null)
+            {
+                foreach (var prop in _preAddedProps.Keys)
+                {
+                    var val = _preAddedProps[prop];
+                    if (val.IsConstant && val.Roll() != 0)
+                        Graph.AddMods(new Initial(EntityId, PropName(prop), val.Roll()));
+                    else
+                        Graph.AddMods(new Initial(EntityId, PropName(prop), val));
+
+                    var propInfo = GetType().GetProperty(prop, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (propInfo != null)
+                    {
+                        var (min, max) = propInfo.GetPropertyThresholds();
+                        if (min != null || max != null)
+                            Graph.AddMods(new Threshold(EntityId, PropName(propInfo.Name), min ?? int.MinValue, max ?? int.MaxValue));
+                    }
+                }
+
+                _preAddedProps = null;
+            }
+        }
+
+        private string PropName(string prop)
+            => $"{ContainerName}.{prop}";
     }
 }
