@@ -14,8 +14,8 @@ namespace Rpg.ModObjects
         private List<RpgObject>? _preAddedObjects = new();
         private Dictionary<string, Dice>? _preAddedProps = new();
 
-        [JsonInclude] protected string ContainerName { get; set; }
-        [JsonInclude] protected string EntityId { get; set; }
+        [JsonInclude] public string ContainerName { get; set; }
+        [JsonInclude] public string EntityId { get; set; }
         [JsonInclude]
         public int MaxItems
         {
@@ -26,7 +26,10 @@ namespace Rpg.ModObjects
         protected RpgObject? Entity { get => Graph?.GetObject(EntityId); }
         protected Prop? EntityProp { get => Entity?.GetProp(ContainerName, RefType.Children); }
 
-        public RpgObjectCollection() : base() { }
+        public RpgObjectCollection() : base() 
+        {
+            ContainerName = nameof(RpgObjectCollection);
+        }
 
         public RpgObjectCollection(string entityId, string containerName)
             : base()
@@ -55,7 +58,7 @@ namespace Rpg.ModObjects
         {
             if (Entity != null)
                 Entity.AddChildren(ContainerName, item);
-            else if (_preAddedObjects != null && _preAddedObjects!.Any(x => x.Id == item.Id))
+            else if (_preAddedObjects != null && !_preAddedObjects!.Any(x => x.Id == item.Id))
                 _preAddedObjects.Add(item);
         }
 

@@ -3,6 +3,7 @@ using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Server.Json;
+using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.Text.Json.Serialization;
 
@@ -66,18 +67,56 @@ namespace Rpg.ModObjects.Server.Tests
         public Dice Missile { get; protected set; }
         public int Health { get; protected set; } = 10;
 
+        public RpgObjectCollection Objects { get; protected set; }
+
         public ModdableEntity()
         {
             Strength = new ScoreBonusValue(nameof(Strength), 14);
             Damage = new DamageValue(nameof(Damage), "d6", 10, 100);
+            Objects = new RpgObjectCollection(Id, nameof(Objects));
+        }
+
+        public ModdableEntity(string name)
+            : base(name)
+        {
+            Strength = new ScoreBonusValue(nameof(Strength), 14);
+            Damage = new DamageValue(nameof(Damage), "d6", 10, 100);
+            Objects = new RpgObjectCollection(Id, nameof(Objects));
+        }
+
+        public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
+        {
+            base.OnCreating(graph, entity);
+            Objects.OnCreating(graph);
+        }
+
+        public override void OnRestoring(RpgGraph graph, RpgObject? entity)
+        {
+            base.OnRestoring(graph, entity);
+            Objects.OnRestoring(graph);
         }
 
         public override void OnTimeBegins()
         {
             base.OnTimeBegins();
+            Objects.OnTimeBegins();
             this
                 .AddMod(new Base(), x => x.Melee, x => x.Strength.Bonus)
                 .AddMod(new Base(), x => x.Damage.Dice, x => x.Strength.Bonus);
+        }
+
+        public override LifecycleExpiry OnStartLifecycle()
+        {
+            base.OnStartLifecycle();
+            Objects.OnStartLifecycle();
+            return Expiry;
+        }
+
+        public override LifecycleExpiry OnUpdateLifecycle()
+        {
+            base.OnUpdateLifecycle();
+            Objects.OnUpdateLifecycle();
+            return Expiry;
         }
     }
 
@@ -93,6 +132,8 @@ namespace Rpg.ModObjects.Server.Tests
         public void TestEntity_Serialize_EnsureValues()
         {
             var entity = new ModdableEntity();
+            entity.Objects.Add(new ModdableEntity("Child"));
+
             var graph = new RpgGraph(entity);
 
             var json = RpgJson.Serialize(graph.GetGraphState());
@@ -113,6 +154,19 @@ namespace Rpg.ModObjects.Server.Tests
 
             Assert.That(entity2.Melee, Is.EqualTo(entity.Melee));
             Assert.That(entity2.Missile, Is.EqualTo(entity.Missile));
+        }
+
+        [Test]
+        public void RpgObjectCollection_Serialization()
+        {
+            var objs = new RpgObjectCollection();
+            objs.Add(new ModdableEntity());
+            var json = RpgJson.Serialize(objs);
+
+            var objs2 = RpgJson.Deserialize<RpgObjectCollection>(json);
+            Assert.That(objs2, Is.Not.Null);
+
+
         }
     }
 }

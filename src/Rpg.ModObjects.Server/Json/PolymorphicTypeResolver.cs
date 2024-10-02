@@ -1,4 +1,5 @@
 ﻿using Rpg.ModObjects.Reflection;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
@@ -80,6 +81,9 @@ namespace Rpg.ModObjects.Server.Json
                     break;
                 }
             }
+
+            if (type.Name == nameof(RpgObjectCollection))
+                Debug.WriteLine(jsonTypeInfo.Converter.GetType().Name);
 
             return jsonTypeInfo;
         }

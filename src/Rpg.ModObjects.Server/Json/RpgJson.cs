@@ -23,6 +23,7 @@ namespace Rpg.ModObjects.Server.Json
                 .Register<RpgArg>(),
             Converters =
             {
+                new RpgObjectCollectionTypeConverter(),
                 new PointInTimeConverter(),
                 new PropRefConverter(),
                 new DiceConverter(),
