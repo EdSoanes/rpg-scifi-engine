@@ -4,6 +4,7 @@ using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.Collections;
+using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
@@ -19,8 +20,8 @@ namespace Rpg.ModObjects
         [JsonInclude]
         public int MaxItems
         {
-            get => PropertyValue<int>(nameof(MaxItems));
-            protected set => _preAddedProps?.Add(nameof(MaxItems), value);
+            get => GetIntPropertyValue(nameof(MaxItems));
+            set => _preAddedProps?.Add(PropName(nameof(MaxItems)), value);
         }
 
         protected RpgObject? Entity { get => Graph?.GetObject(EntityId); }
@@ -38,10 +39,16 @@ namespace Rpg.ModObjects
             ContainerName = containerName;
         }
 
-        public T? PropertyValue<T>(string prop)
-            => Entity != null
-                ? Entity.PropertyValue<T>(PropName(prop))
-                : default;
+        public int GetIntPropertyValue(string prop)
+        {
+            var propName = PropName(nameof(MaxItems));
+            if (Graph != null)
+                return Graph?.CalculatePropValue(new PropRef(EntityId, propName))?.Roll() ?? 0;
+            else if (_preAddedProps?.TryGetValue(PropName(prop), out var value) ?? false)
+                return value.Roll();
+
+            return 0;
+        }
 
         public int Count
             => Entity?.GetChildObjects(ContainerName).Count() ?? 0;
@@ -83,7 +90,8 @@ namespace Rpg.ModObjects
 
         public void CopyTo(RpgObject[] array, int arrayIndex)
         {
-
+            foreach (var obj in this)
+                array[arrayIndex++] = obj;
         }
 
         public IEnumerator<RpgObject> GetEnumerator()
@@ -95,7 +103,10 @@ namespace Rpg.ModObjects
                 {
                     var obj = Graph!.GetObject(objRef.EntityId);
                     if (obj != null)
+                    {
+                        Debug.WriteLine(obj.Id);
                         yield return obj;
+                    }
                 }
             }
 
@@ -140,6 +151,13 @@ namespace Rpg.ModObjects
         public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
             base.OnCreating(graph, entity);
+            OnCreatingContents();
+            OnCreatingProperties();
+        }
+
+        public override void OnRestoring(RpgGraph graph, RpgObject? entity = null)
+        {
+            base.OnRestoring(graph, entity);
             OnCreatingContents();
             OnCreatingProperties();
         }
