@@ -1,20 +1,20 @@
 ﻿using Rpg.ModObjects;
 using Rpg.Sys.Components.Values;
 using System.Runtime.ConstrainedExecution;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.Sys.Components
 {
     public class Presence : RpgComponent
     {
-        [JsonInclude] public int Size { get; protected set; }
-        [JsonInclude] public int Weight { get; protected set; }
-        [JsonInclude] public PresenceValue Sound { get; private set; }
-        [JsonInclude] public PresenceValue Light { get; private set; }
-        [JsonInclude] public PresenceValue Heat { get; private set; }
-        [JsonInclude] public PresenceValue Chemical { get; private set; }
-        [JsonInclude] public PresenceValue Radiation { get; private set; }
-        [JsonInclude] public PresenceValue Electromagnetic { get; private set; }
+        [JsonProperty] public int Size { get; protected set; }
+        [JsonProperty] public int Weight { get; protected set; }
+        [JsonProperty] public PresenceValue Sound { get; private set; }
+        [JsonProperty] public PresenceValue Light { get; private set; }
+        [JsonProperty] public PresenceValue Heat { get; private set; }
+        [JsonProperty] public PresenceValue Chemical { get; private set; }
+        [JsonProperty] public PresenceValue Radiation { get; private set; }
+        [JsonProperty] public PresenceValue Electromagnetic { get; private set; }
 
         [JsonConstructor] private Presence() { }
 

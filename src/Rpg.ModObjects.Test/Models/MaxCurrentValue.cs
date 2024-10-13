@@ -1,13 +1,13 @@
 ﻿using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Tests.Models
 {
     public class MaxCurrentValue : RpgComponent
     {
-        [JsonInclude] public int Max { get; protected set; }
-        [JsonInclude] public int Current { get; protected set; }
+        [JsonProperty] public int Max { get; protected set; }
+        [JsonProperty] public int Current { get; protected set; }
 
         [JsonConstructor] private MaxCurrentValue() { }
 

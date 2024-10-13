@@ -1,19 +1,19 @@
 ﻿using Rpg.ModObjects;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.Cyborgs
 {
     public class Armour : RpgEntity
     {
-        [JsonInclude]
+        [JsonProperty]
         public int ArmourRating { get; protected set; }
 
-        [JsonInclude]
+        [JsonProperty]
         public int CurrentArmourRating { get; protected set; }
 
-        [JsonInclude]
+        [JsonProperty]
         public int DefenceModifier { get; protected set; }
 
         public override void OnTimeBegins()

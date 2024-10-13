@@ -1,10 +1,10 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace Rpg.ModObjects
 {
     public abstract class RpgEntity : RpgObject
     {
-        [JsonInclude] public ActionsDictionary Actions { get; private set; }
+        [JsonProperty] public ActionsDictionary Actions { get; private set; }
 
         public RpgEntity() : base() 
         {

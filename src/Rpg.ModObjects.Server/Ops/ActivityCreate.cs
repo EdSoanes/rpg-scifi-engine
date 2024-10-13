@@ -1,11 +1,11 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Server.Ops
 {
     public class ActivityCreate
     {
-        [JsonInclude] public string InitiatorId { get; init; }
-        [JsonInclude] public string OwnerId { get; init; }
-        [JsonInclude] public string Action { get; init; }
+        [JsonProperty] public string InitiatorId { get; init; }
+        [JsonProperty] public string OwnerId { get; init; }
+        [JsonProperty] public string Action { get; init; }
     }
 }

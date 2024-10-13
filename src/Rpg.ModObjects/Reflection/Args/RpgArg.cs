@@ -1,14 +1,14 @@
 ﻿using System.Reflection;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Reflection.Args
 {
     public abstract class RpgArg
     {
-        [JsonInclude] public string Name { get; internal set; }
-        [JsonInclude] public string TypeName { get; internal set; }
-        [JsonInclude] public string QualifiedTypeName { get; internal set; }
-        [JsonInclude] public bool IsNullable { get; internal set; }
+        [JsonProperty] public string Name { get; internal set; }
+        [JsonProperty] public string TypeName { get; internal set; }
+        [JsonProperty] public string QualifiedTypeName { get; internal set; }
+        [JsonProperty] public bool IsNullable { get; internal set; }
 
         public abstract bool IsValid(string argName, object? value);
         public abstract string? ToArgString(RpgGraph graph, object? value);

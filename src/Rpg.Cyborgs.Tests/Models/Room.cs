@@ -1,11 +1,11 @@
 ﻿using Rpg.ModObjects;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.Cyborgs.Tests.Models
 {
     public class Room : RpgEntity
     {
-        [JsonInclude] public RpgContainer Contents { get; set; }
+        [JsonProperty] public RpgContainer Contents { get; set; }
 
         public Room()
         {

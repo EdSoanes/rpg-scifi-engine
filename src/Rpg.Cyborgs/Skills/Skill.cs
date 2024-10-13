@@ -1,7 +1,7 @@
 ﻿using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Values;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.Cyborgs.Skills
 {
@@ -26,7 +26,7 @@ namespace Rpg.Cyborgs.Skills
             }
         }
 
-        [JsonInclude] public bool IsIntrinsic { get; protected set; }
+        [JsonProperty] public bool IsIntrinsic { get; protected set; }
 
         [JsonConstructor] protected Skill() { }
 

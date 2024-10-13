@@ -2,7 +2,7 @@
 using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.Cyborgs.Actions
 {

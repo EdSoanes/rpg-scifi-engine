@@ -1,22 +1,22 @@
 ﻿using Rpg.ModObjects.Reflection;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Meta
 {
     public class MetaObj
     {
-        [JsonInclude] public string Archetype { get; private set; }
-        [JsonInclude] public string? QualifiedClassName { get; private set; }
-        [JsonInclude] public string[] Archetypes {  get; private set; }
-        [JsonInclude] public string? Icon { get; private set; }
-        [JsonInclude] public List<MetaProp> Props { get; set; } = new List<MetaProp>();
+        [JsonProperty] public string Archetype { get; private set; }
+        [JsonProperty] public string? QualifiedClassName { get; private set; }
+        [JsonProperty] public string[] Archetypes {  get; private set; }
+        [JsonProperty] public string? Icon { get; private set; }
+        [JsonProperty] public List<MetaProp> Props { get; set; } = new List<MetaProp>();
 
-        [JsonInclude] public bool AllowedAsRoot { get; private set; }
-        [JsonInclude] public List<string> AllowedChildArchetypes { get; private set; } = new List<string>();
-        [JsonInclude] public List<MetaAction> AllowedActions { get; set; } = new List<MetaAction>();
-        [JsonInclude] public List<MetaState> AllowedStates { get; set; } = new List<MetaState>();
-        [JsonInclude] public List<MetaContainer> Containers { get; set; } = new List<MetaContainer>();
-        [JsonInclude] public bool IsElement { get; private set; }
+        [JsonProperty] public bool AllowedAsRoot { get; private set; }
+        [JsonProperty] public List<string> AllowedChildArchetypes { get; private set; } = new List<string>();
+        [JsonProperty] public List<MetaAction> AllowedActions { get; set; } = new List<MetaAction>();
+        [JsonProperty] public List<MetaState> AllowedStates { get; set; } = new List<MetaState>();
+        [JsonProperty] public List<MetaContainer> Containers { get; set; } = new List<MetaContainer>();
+        [JsonProperty] public bool IsElement { get; private set; }
 
         [JsonConstructor] public MetaObj() { }
 

@@ -6,7 +6,7 @@ using Rpg.ModObjects.Values;
 using System.Collections;
 using System.Diagnostics;
 using System.Reflection;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.ModObjects
 {
@@ -15,9 +15,9 @@ namespace Rpg.ModObjects
         private List<RpgObject>? _preAddedObjects = new();
         private Dictionary<string, Dice>? _preAddedProps = new();
 
-        [JsonInclude] public string ContainerName { get; set; }
-        [JsonInclude] public string EntityId { get; set; }
-        [JsonInclude]
+        [JsonProperty] public string ContainerName { get; set; }
+        [JsonProperty] public string EntityId { get; set; }
+        [JsonProperty]
         public int MaxItems
         {
             get => GetIntPropertyValue(nameof(MaxItems));
@@ -150,14 +150,22 @@ namespace Rpg.ModObjects
 
         public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
+            if (entity != null)
+                EntityId = entity.Id;
+
             base.OnCreating(graph, entity);
+
             OnCreatingContents();
             OnCreatingProperties();
         }
 
         public override void OnRestoring(RpgGraph graph, RpgObject? entity = null)
         {
+            if (entity != null)
+                EntityId = entity.Id;
+
             base.OnRestoring(graph, entity);
+            
             OnCreatingContents();
             OnCreatingProperties();
         }

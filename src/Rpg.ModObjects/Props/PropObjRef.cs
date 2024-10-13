@@ -1,12 +1,12 @@
 ﻿using Rpg.ModObjects.Time;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Props
 {
     public class PropObjRef : RpgLifecycleObject
     {
-        [JsonInclude] public string EntityId { get; protected set; }
-        [JsonInclude] public string? OwnerId { get; protected set; }
+        [JsonProperty] public string EntityId { get; protected set; }
+        [JsonProperty] public string? OwnerId { get; protected set; }
 
         public static bool operator ==(PropObjRef? d1, PropObjRef? d2) => d1?.OwnerId == d2?.OwnerId && d1?.EntityId == d2?.EntityId && d1?.Lifespan == d2?.Lifespan;
         public static bool operator !=(PropObjRef? d1, PropObjRef? d2) => d1?.OwnerId != d2?.OwnerId || d1?.EntityId != d2?.EntityId || d1?.Lifespan != d2?.Lifespan;
@@ -41,8 +41,8 @@ namespace Rpg.ModObjects.Props
     //    protected class InternalRef<T>
     //        where T : class
     //    {
-    //        [JsonInclude] public SpanOfTime Lifespan { get; set; }
-    //        [JsonInclude] internal T Obj { get; set; }
+    //        [JsonProperty] public SpanOfTime Lifespan { get; set; }
+    //        [JsonProperty] internal T Obj { get; set; }
 
     //        [JsonConstructor] InternalRef() { }
 
@@ -57,7 +57,7 @@ namespace Rpg.ModObjects.Props
     //                => Obj = obj;
     //    }
 
-    //    [JsonInclude] private List<InternalRef<T>> Refs { get; set; } = new();
+    //    [JsonProperty] private List<InternalRef<T>> Refs { get; set; } = new();
 
     //    public static implicit operator PropObjRef<T>(T obj) => new PropObjRef<T>(obj);
 

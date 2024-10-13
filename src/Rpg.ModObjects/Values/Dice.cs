@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Values
 {
@@ -10,7 +10,7 @@ namespace Rpg.ModObjects.Values
 
         private string _expr = "0";
 
-        [JsonInclude]
+        [JsonProperty]
         private string Expr
         {
             get => _expr;

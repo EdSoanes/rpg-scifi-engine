@@ -1,14 +1,14 @@
 ﻿using Rpg.ModObjects;
 using Rpg.Sys.Components.Values;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.Sys.Components
 {
     public class Health : RpgComponent
     {
-        [JsonInclude] public HealthValue Physical { get; private set; } = new HealthValue(nameof(Physical));
-        [JsonInclude] public HealthValue Mental { get; private set; } = new HealthValue(nameof(Mental));
-        [JsonInclude] public HealthValue Cyber { get; private set; } = new HealthValue(nameof(Cyber));
+        [JsonProperty] public HealthValue Physical { get; private set; } = new HealthValue(nameof(Physical));
+        [JsonProperty] public HealthValue Mental { get; private set; } = new HealthValue(nameof(Mental));
+        [JsonProperty] public HealthValue Cyber { get; private set; } = new HealthValue(nameof(Cyber));
 
         [JsonConstructor] private Health() { }
 

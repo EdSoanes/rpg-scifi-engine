@@ -1,12 +1,12 @@
 ﻿using System.Reflection;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Reflection.Args
 {
     public class RpgObjectArg : RpgArg
     {
-        [JsonInclude] public string? ForArgName { get; init; }
-        [JsonInclude] public string Archetype { get; init; }
+        [JsonProperty] public string? ForArgName { get; init; }
+        [JsonProperty] public string Archetype { get; init; }
 
         [JsonConstructor] private RpgObjectArg() { }
 

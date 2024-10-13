@@ -5,7 +5,7 @@ using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.ModObjects
 {
@@ -13,10 +13,10 @@ namespace Rpg.ModObjects
     {
         private List<PropRef> UpdatedProps = new List<PropRef>();
 
-        [JsonInclude] public RpgEntity Context { get; private set; }
-        [JsonInclude] protected ObjectsDictionary ObjectStore { get; set; } = new();
+        [JsonProperty] public RpgEntity Context { get; private set; }
+        [JsonProperty] protected ObjectsDictionary ObjectStore { get; set; } = new();
 
-        [JsonInclude] public Temporal Time { get; init; } = new Temporal();
+        [JsonProperty] public Temporal Time { get; init; } = new Temporal();
 
         public RpgGraph(RpgEntity context)
         {
@@ -35,7 +35,8 @@ namespace Rpg.ModObjects
             Context = (RpgEntity)state.Entities.First(x => x.Id == state.ContextId);
 
             foreach (var entity in state.Entities.SelectMany(x => x.Traverse()))
-                ObjectStore.Add(entity.Id, entity);
+                if (!ObjectStore.ContainsKey(entity.Id))
+                    ObjectStore.Add(entity.Id, entity);
 
             foreach (var entity in ObjectStore.Values)
                 entity.OnRestoring(this, entity);

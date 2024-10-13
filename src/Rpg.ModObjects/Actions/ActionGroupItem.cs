@@ -1,12 +1,12 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Actions
 {
     public class ActionGroupItem
     {
-        [JsonInclude] public string OwnerArchetype { get; private init; }
-        [JsonInclude] public string ActionName { get; private init; }
-        [JsonInclude] public bool Optional { get; private init; }
+        [JsonProperty] public string OwnerArchetype { get; private init; }
+        [JsonProperty] public string ActionName { get; private init; }
+        [JsonProperty] public bool Optional { get; private init; }
 
         public ActionGroupItem(string ownerArchetype, string actionName, bool optional = true)
         {

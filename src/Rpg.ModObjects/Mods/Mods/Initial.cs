@@ -1,6 +1,6 @@
 ﻿using Rpg.ModObjects.Behaviors;
 using Rpg.ModObjects.Values;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Mods.Mods
 {

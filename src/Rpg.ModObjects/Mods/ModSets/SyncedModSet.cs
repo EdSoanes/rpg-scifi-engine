@@ -1,11 +1,11 @@
 ﻿using Rpg.ModObjects.Time;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Mods.ModSets
 {
     public class SyncedModSet : ModSet
     {
-        [JsonInclude] public string SyncedToId { get; init; }
+        [JsonProperty] public string SyncedToId { get; init; }
         [JsonConstructor] protected SyncedModSet()
             : base()
         { }

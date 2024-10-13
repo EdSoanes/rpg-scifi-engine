@@ -1,21 +1,21 @@
 ﻿using Rpg.ModObjects;
 using Rpg.Sys.Components.Values;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.Sys.Components
 {
     public class Defenses : RpgComponent
     {
-        [JsonInclude] public DefenseValue Kinetic { get; private set; }
-        [JsonInclude] public DefenseValue Heat { get; private set; }
-        [JsonInclude] public DefenseValue Energy { get; private set; }
-        [JsonInclude] public DefenseValue Chemical { get; private set; }
-        [JsonInclude] public DefenseValue Radiation { get; private set; }
-        [JsonInclude] public DefenseValue Cyber { get; private set; }
-        [JsonInclude] public DefenseValue Mental { get; private set; }
+        [JsonProperty] public DefenseValue Kinetic { get; private set; }
+        [JsonProperty] public DefenseValue Heat { get; private set; }
+        [JsonProperty] public DefenseValue Energy { get; private set; }
+        [JsonProperty] public DefenseValue Chemical { get; private set; }
+        [JsonProperty] public DefenseValue Radiation { get; private set; }
+        [JsonProperty] public DefenseValue Cyber { get; private set; }
+        [JsonProperty] public DefenseValue Mental { get; private set; }
 
-        [JsonInclude] public int Evasion { get; protected set; }
-        [JsonInclude] public int Concealment { get; protected set; }
+        [JsonProperty] public int Evasion { get; protected set; }
+        [JsonProperty] public int Concealment { get; protected set; }
 
         [JsonConstructor] private Defenses() { }
 

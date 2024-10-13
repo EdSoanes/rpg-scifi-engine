@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Server.Tests
@@ -15,7 +15,7 @@ namespace Rpg.ModObjects.Server.Tests
     {
         private class DiceObj : RpgEntity
         {
-            [JsonInclude] public Dice Dice { get; protected set; } = 2;
+            [JsonProperty] public Dice Dice { get; protected set; } = 2;
             public DiceObj(Dice dice)
                 => Dice = dice;
 

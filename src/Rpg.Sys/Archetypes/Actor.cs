@@ -4,21 +4,21 @@ using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Values;
 using Rpg.Sys.Components;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.Sys.Archetypes
 {
     public abstract class Actor : Artifact
     {
-        [JsonInclude]
+        [JsonProperty]
         [Component(Group = "Stats")]
         public StatPoints Stats { get; private set; }
 
-        [JsonInclude]
+        [JsonProperty]
         [Component(Group = "Movement")]
         public Movement Movement { get; private set; }
 
-        [JsonInclude]
+        [JsonProperty]
         [Component(Group = "Actions")] 
         public ActionPoints Actions { get; private set; }
         

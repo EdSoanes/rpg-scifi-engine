@@ -5,21 +5,21 @@ using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Server.Json;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Server.Tests
 {
     public class DamageValue : RpgComponent
     {
-        [JsonInclude]
+        [JsonProperty]
         [Dice]
         public Dice Dice { get; protected set; }
 
-        [JsonInclude]
+        [JsonProperty]
         [Percent]
         public int ArmorPenetration { get; protected set; }
 
-        [JsonInclude]
+        [JsonProperty]
         [Meters]
         public int Radius { get; protected set; }
 
@@ -36,11 +36,11 @@ namespace Rpg.ModObjects.Server.Tests
 
     public class ScoreBonusValue : RpgComponent
     {
-        [JsonInclude]
+        [JsonProperty]
         [Integer(DataTypeName = "Score")]
         public int Score { get; protected set; }
 
-        [JsonInclude] public int Bonus { get; protected set; }
+        [JsonProperty] public int Bonus { get; protected set; }
 
         [JsonConstructor] public ScoreBonusValue() : base() { }
 
@@ -87,13 +87,13 @@ namespace Rpg.ModObjects.Server.Tests
         public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
             base.OnCreating(graph, entity);
-            Objects.OnCreating(graph);
+            Objects.OnCreating(graph, entity);
         }
 
         public override void OnRestoring(RpgGraph graph, RpgObject? entity)
         {
             base.OnRestoring(graph, entity);
-            Objects.OnRestoring(graph);
+            Objects.OnRestoring(graph, entity);
         }
 
         public override void OnTimeBegins()

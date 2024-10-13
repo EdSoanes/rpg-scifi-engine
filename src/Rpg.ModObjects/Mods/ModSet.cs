@@ -2,22 +2,22 @@
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Mods
 {
     public class ModSet : RpgLifecycleObject
     {
-        [JsonInclude] public string Id { get; private set; }
-        [JsonInclude] public string? OwnerId { get; protected set; }
-        [JsonInclude] public string Name { get; set; }
+        [JsonProperty] public string Id { get; private set; }
+        [JsonProperty] public string? OwnerId { get; protected set; }
+        [JsonProperty] public string Name { get; set; }
 
-        [JsonInclude] public bool IsApplied { get; protected set; } = true;
-        [JsonInclude] public bool IsDisabled { get; protected set; }
+        [JsonProperty] public bool IsApplied { get; protected set; } = true;
+        [JsonProperty] public bool IsDisabled { get; protected set; }
         public bool IsActive { get => IsApplied && !IsDisabled; }
 
         [JsonIgnore] public List<Mod> Mods { get; protected set; } = new List<Mod>();
-        [JsonInclude] private List<string> _modIds { get; init; } = new();
+        [JsonProperty] private List<string> _modIds { get; init; } = new();
 
         [JsonConstructor] protected ModSet() { }
 

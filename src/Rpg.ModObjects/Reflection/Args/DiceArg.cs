@@ -1,6 +1,6 @@
 ﻿using Rpg.ModObjects.Values;
 using System.Reflection;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 using System.Windows.Markup;
 
 namespace Rpg.ModObjects.Reflection.Args

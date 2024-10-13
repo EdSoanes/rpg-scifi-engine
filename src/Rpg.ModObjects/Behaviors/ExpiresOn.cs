@@ -1,13 +1,13 @@
 ﻿using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Values;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Behaviors
 {
     public class ExpiresOn : BaseBehavior
     {
-        [JsonInclude] public Dice Value { get; protected set; }
+        [JsonProperty] public Dice Value { get; protected set; }
 
         [JsonConstructor] protected ExpiresOn() { }
 

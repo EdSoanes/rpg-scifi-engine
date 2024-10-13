@@ -1,10 +1,10 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Time
 {
     public class Temporal
     {
-        [JsonInclude] public PointInTime Now { get; private set; } = new PointInTime(PointInTimeType.BeforeTime);
+        [JsonProperty] public PointInTime Now { get; private set; } = new PointInTime(PointInTimeType.BeforeTime);
 
         public Temporal()
         { }

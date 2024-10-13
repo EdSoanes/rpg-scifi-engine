@@ -1,16 +1,16 @@
 ﻿using Rpg.ModObjects;
 using Rpg.ModObjects.Meta.Props;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.Sys.Components.Values
 {
     public class DefenseValue : RpgComponent
     {
-        [JsonInclude] 
+        [JsonProperty] 
         [Percent]
         public int Value { get; protected set; }
 
-        [JsonInclude]
+        [JsonProperty]
         [Percent]
         public int Shielding { get; protected set; }
 

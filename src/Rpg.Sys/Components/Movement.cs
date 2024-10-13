@@ -1,14 +1,14 @@
 ﻿using Rpg.ModObjects;
 using Rpg.Sys.Components.Values;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.Sys.Components
 {
     public class Movement : RpgComponent
     {
-        [JsonInclude] public MinMaxValue Speed { get; private set; }
-        [JsonInclude] public int Acceleration { get; protected set; }
-        [JsonInclude] public int Deceleration { get; protected set; }
+        [JsonProperty] public MinMaxValue Speed { get; private set; }
+        [JsonProperty] public int Acceleration { get; protected set; }
+        [JsonProperty] public int Deceleration { get; protected set; }
 
         [JsonConstructor] private Movement() { }
 

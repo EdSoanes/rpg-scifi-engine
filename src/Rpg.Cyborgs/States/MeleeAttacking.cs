@@ -1,5 +1,5 @@
 ﻿using Rpg.ModObjects.States;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.Cyborgs.States
 {

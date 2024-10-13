@@ -5,7 +5,7 @@ using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Server.Json;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Server.Tests
 {
@@ -18,8 +18,8 @@ namespace Rpg.ModObjects.Server.Tests
 
         public int Bonus { get; protected set; }
 
-        [JsonInclude] public string PrivateSet { get; private set; }
-        [JsonInclude] private string PrivateGetSet { get; set; }
+        [JsonProperty] public string PrivateSet { get; private set; }
+        [JsonProperty] private string PrivateGetSet { get; set; }
 
         [JsonConstructor] private JsonTestClass() { }
 

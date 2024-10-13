@@ -1,7 +1,7 @@
 ﻿using Rpg.Cyborgs.Attributes;
 using Rpg.ModObjects;
 using Rpg.ModObjects.Time;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.Cyborgs
 {
@@ -9,9 +9,9 @@ namespace Rpg.Cyborgs
     {
         [Injury]
         [JsonIgnore] public int InjurySeverity { get; protected set; }
-        [JsonInclude] public int[] Injuries { get; protected set; } = Array.Empty<int>();
+        [JsonProperty] public int[] Injuries { get; protected set; } = Array.Empty<int>();
 
-        [JsonInclude] public BodyPartType BodyPartType { get; protected set; }
+        [JsonProperty] public BodyPartType BodyPartType { get; protected set; }
 
         [JsonConstructor] public BodyPart()
             : base() { }

@@ -4,7 +4,7 @@ using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time;
 using Rpg.Sys.Archetypes;
 using Rpg.Sys.States;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.Sys.Actions
 {

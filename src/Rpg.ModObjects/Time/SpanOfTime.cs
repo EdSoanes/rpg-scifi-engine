@@ -1,12 +1,12 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Time
 {
     public class SpanOfTime
     {
         private bool Started { get => Start.IsStarted() && End.IsStarted(); }
-        [JsonInclude] public PointInTime Start { get; private set; }
-        [JsonInclude] public PointInTime End { get; private set; }
+        [JsonProperty] public PointInTime Start { get; private set; }
+        [JsonProperty] public PointInTime End { get; private set; }
 
         [JsonConstructor]
         public SpanOfTime()
@@ -26,6 +26,9 @@ namespace Rpg.ModObjects.Time
             Start = start;
             End = end;
         }
+
+        public static bool operator ==(SpanOfTime? d1, SpanOfTime? d2) => d1?.Start == d2?.Start && d1?.End == d2?.End && d1?.Started == d2?.Started;
+        public static bool operator !=(SpanOfTime? d1, SpanOfTime? d2) => d1?.Start != d2?.Start || d1?.End != d2?.End || d1?.Started != d2?.Started;
 
         public bool OverlapsWith(SpanOfTime other)
         {
@@ -72,6 +75,22 @@ namespace Rpg.ModObjects.Time
         public override string ToString()
         {
             return $"{Start}=>{End}";
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj == null)
+                return false;
+
+            if (obj is SpanOfTime lifespan)
+                return lifespan.Start == Start && lifespan.End == End && lifespan.Started == Started;
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 }

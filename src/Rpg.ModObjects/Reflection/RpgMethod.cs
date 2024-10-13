@@ -1,7 +1,7 @@
 ﻿using Rpg.ModObjects.Reflection.Args;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Reflection
 {
@@ -76,14 +76,14 @@ namespace Rpg.ModObjects.Reflection
     public class RpgMethod<TOwner, TReturn> : RpgMethod
         where TOwner : class
     {
-        [JsonInclude] public string? EntityId { get; internal set; }
-        [JsonInclude] public string? ClassName { get; internal set; }
-        [JsonInclude] public string MethodName { get; internal set; }
-        [JsonInclude] public string? ReturnTypeName { get; internal set; }
-        [JsonInclude] public string? ReturnQualifiedTypeName { get; internal set; }
-        [JsonInclude] public bool ReturnIsNullable { get; internal set; }
+        [JsonProperty] public string? EntityId { get; internal set; }
+        [JsonProperty] public string? ClassName { get; internal set; }
+        [JsonProperty] public string MethodName { get; internal set; }
+        [JsonProperty] public string? ReturnTypeName { get; internal set; }
+        [JsonProperty] public string? ReturnQualifiedTypeName { get; internal set; }
+        [JsonProperty] public bool ReturnIsNullable { get; internal set; }
 
-        [JsonInclude] public RpgArg[] Args { get; internal set; } = Array.Empty<RpgArg>();
+        [JsonProperty] public RpgArg[] Args { get; internal set; } = Array.Empty<RpgArg>();
 
         public RpgMethod() { }
 

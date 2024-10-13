@@ -1,17 +1,17 @@
 ﻿using Rpg.ModObjects.Meta.Attributes;
 using System.Reflection;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Meta
 {
     public class MetaState
     {
-        [JsonInclude] public string Name { get; private set; }
-        [JsonInclude] public string Archetype { get; private set; }
-        [JsonInclude] public bool Required { get; private set; }
-        [JsonInclude] public bool Hidden { get; private set; }
-        [JsonInclude] public string? Category { get; private set; }
-        [JsonInclude] public string? SubCategory { get; private set; }
+        [JsonProperty] public string Name { get; private set; }
+        [JsonProperty] public string Archetype { get; private set; }
+        [JsonProperty] public bool Required { get; private set; }
+        [JsonProperty] public bool Hidden { get; private set; }
+        [JsonProperty] public string? Category { get; private set; }
+        [JsonProperty] public string? SubCategory { get; private set; }
 
         [JsonConstructor] private MetaState() { }
 

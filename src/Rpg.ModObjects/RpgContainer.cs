@@ -1,13 +1,13 @@
 ﻿using Rpg.ModObjects.Props;
 using System.Collections.Specialized;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.ModObjects
 {
     public class RpgContainer : RpgComponent
     {
         [JsonIgnore] public RpgObject[] Contents { get => GetChildObjects(nameof(Contents)); }
-        [JsonInclude] private object[] Containers { get => Props.Values.Where(x => x.RefType != ModObjects.Props.RefType.Value).Select(x => new { x.Name, x.Refs }).ToArray(); }
+        [JsonProperty] private object[] Containers { get => Props.Values.Where(x => x.RefType != ModObjects.Props.RefType.Value).Select(x => new { x.Name, x.Refs }).ToArray(); }
 
         public event NotifyCollectionChangedEventHandler? CollectionChanged;
         [JsonConstructor] public RpgContainer()

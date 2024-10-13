@@ -1,13 +1,13 @@
 ﻿using Rpg.ModObjects;
 using Rpg.ModObjects.States;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.Cyborgs.Conditions
 {
     public abstract class Condition<T> : State<T>
         where T : RpgObject
     {
-        [JsonInclude] public string[] RemoveOnActions { get; init; }
+        [JsonProperty] public string[] RemoveOnActions { get; init; }
 
         protected Condition() { }
  

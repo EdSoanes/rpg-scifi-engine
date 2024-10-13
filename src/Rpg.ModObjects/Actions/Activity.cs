@@ -5,7 +5,7 @@ using Rpg.ModObjects.Reflection.Args;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Actions
 {
@@ -25,14 +25,14 @@ namespace Rpg.ModObjects.Actions
             }
         }
 
-        [JsonInclude] public string InitiatorId { get; protected set; }
-        [JsonInclude] public PointInTime Time { get; protected set; }
-        [JsonInclude] public int ActivityNo { get; protected set; }
-        [JsonInclude] public int NextActionNo { get; protected set; }
-        [JsonInclude] public List<ActionInstance> ActionInstances { get; protected set; } = new();
+        [JsonProperty] public string InitiatorId { get; protected set; }
+        [JsonProperty] public PointInTime Time { get; protected set; }
+        [JsonProperty] public int ActivityNo { get; protected set; }
+        [JsonProperty] public int NextActionNo { get; protected set; }
+        [JsonProperty] public List<ActionInstance> ActionInstances { get; protected set; } = new();
         public ActionInstance? ActionInstance { get; protected set; }
 
-        [JsonInclude] public List<ModSet> OutputSets { get; init; } = new();
+        [JsonProperty] public List<ModSet> OutputSets { get; init; } = new();
         private string OutcomeSetName { get => $"{Name}/OutcomeSet"; }
         public ModSet OutcomeSet { get => OutputSets.First(x => x.Name == OutcomeSetName); }
         private string CostSetName { get => $"{Name}/CostSet"; }
