@@ -184,7 +184,7 @@ namespace Rpg.ModObjects
 
             return false;
         }
-        public Activity CreateActivity<T>(T initiator, ActionGroup actionGroup)
+        public Activity CreateActivity<T>(T initiator, ActivityTemplate actionGroup)
             where T : RpgEntity
         {
             var activityNo = GetObjects<Activity>()

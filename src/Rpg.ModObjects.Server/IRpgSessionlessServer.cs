@@ -9,8 +9,10 @@ namespace Rpg.ModObjects.Server
     {
         RpgContent[] ListEntities(string system);
         RpgResponse<string> CreateGraphState(string system, string archetype, string id);
+
+        ActivityTemplate[] ActivityTemplates(string system);
         RpgResponse<Activity> ActivityCreate(string system, RpgRequest<ActivityCreate> request);
-        RpgResponse<Activity> ActivityCreate(string system, RpgRequest<ActivityCreateByGroup> request);
+        RpgResponse<Activity> ActivityCreate(string system, RpgRequest<ActivityCreateByTemplate> request);
 
         RpgResponse<Activity> ActivityAct(string system, RpgRequest<ActivityAct> request);
         RpgResponse<Activity> ActivityAutoComplete(string system, RpgRequest<ActivityAutoComplete> request);

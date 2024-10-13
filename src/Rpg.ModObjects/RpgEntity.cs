@@ -5,7 +5,6 @@ namespace Rpg.ModObjects
     public abstract class RpgEntity : RpgObject
     {
         [JsonProperty] public ActionsDictionary Actions { get; private set; }
-
         public RpgEntity() : base() 
         {
             Actions = new ActionsDictionary();

@@ -23,7 +23,7 @@ import { QuestionOutlineIcon } from '@chakra-ui/icons'
 import { getPropDesc } from '../../lib/rpg-api/fetcher'
 import { graphStateAtom } from '../atoms/graphState.atom'
 
-const describeAtom = atom<PropDesc | null>(null)
+const describeAtom = atom<PropDesc | undefined>(undefined)
 
 export declare interface StatPanelProps {
   propName: string
@@ -41,14 +41,9 @@ function StatPanel(props: StatPanelProps) {
   const dec = !eq && (propValue?.value ?? 0) < (propValue?.baseValue ?? 0)
 
   const onDescribe = async () => {
-    if (propValue?.entityPropRef) {
-      const prop = `${propValue.entityPropRef.prop}.Value`
-      const desc = await getPropDesc(
-        propValue.entityPropRef.entityId,
-        prop,
-        graphState!
-      )
-      setDescribe(desc)
+    if (propValue) {
+      const response = await getPropDesc(propValue.id, 'Value', graphState!)
+      setDescribe(response?.data)
       onOpen()
     }
   }

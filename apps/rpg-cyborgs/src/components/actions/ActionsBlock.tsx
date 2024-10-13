@@ -18,7 +18,12 @@ import React from 'react'
 import { splitAtom } from 'jotai/utils'
 import { playerCharacterActionsAtom } from '../atoms/playerCharacterActions.atom'
 import ActionButton from './ActionButton'
-import { Action, ActionInstance, PropValue } from '../../lib/rpg-api/types'
+import {
+  Action,
+  ActionInstance,
+  Activity,
+  PropValue,
+} from '../../lib/rpg-api/types'
 import { playerCharacterAtom } from '../atoms/playerCharacter.atom'
 import { StatPanel } from '../stats'
 import { getActionInstance } from '../../lib/rpg-api/fetcher'
@@ -26,8 +31,9 @@ import { graphStateAtom } from '../atoms/graphState.atom'
 import ActionInstancePanel from './ActionInstancePanel'
 
 const actionAtomsAtom = splitAtom(playerCharacterActionsAtom)
-const selectedActionAtom = atom<Action | null>(null)
-const actionInstanceAtom = atom<ActionInstance | null>(null)
+const selectedActionAtom = atom<Action | undefined>(undefined)
+const activityAtom = atom<Activity | undefined>(undefined)
+const actionInstanceAtom = atom<ActionInstance | undefined>(undefined)
 
 const reactionsAtom = atom<PropValue | null>(
   (get) => get(playerCharacterAtom)?.reactions ?? null
@@ -63,6 +69,7 @@ const luckPointsAtom = atom<PropValue | null>((get) => {
 function ActionsBlock() {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [selectedAction, setSelectedAction] = useAtom(selectedActionAtom)
+  const [activity, setActivity] = useAtom(activityAtom)
   const [actionInstance, setActionInstance] = useAtom(actionInstanceAtom)
 
   const [playerCharacter] = useAtom(playerCharacterAtom)
@@ -74,12 +81,13 @@ function ActionsBlock() {
         playerCharacter?.id,
         playerCharacter?.id,
         action.name,
-        0,
         graphState!
       )
 
       setSelectedAction(action)
-      setActionInstance(res)
+      setActivity(res?.data)
+      setActionInstance(res?.data?.actionInstance)
+
       onOpen()
     }
   }
@@ -130,7 +138,10 @@ function ActionsBlock() {
           <DrawerHeader>{selectedAction?.name ?? '-'}</DrawerHeader>
 
           <DrawerBody>
-            <ActionInstancePanel actionInstanceAtom={actionInstanceAtom} />
+            <ActionInstancePanel
+              activityAtom={activityAtom}
+              actionInstanceAtom={actionInstanceAtom}
+            />
           </DrawerBody>
 
           <DrawerFooter>

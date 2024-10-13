@@ -2,13 +2,13 @@
 
 namespace Rpg.ModObjects.Actions
 {
-    public class ActionGroupItem
+    public class ActivityTemplateItem
     {
         [JsonProperty] public string OwnerArchetype { get; private init; }
         [JsonProperty] public string ActionName { get; private init; }
         [JsonProperty] public bool Optional { get; private init; }
 
-        public ActionGroupItem(string ownerArchetype, string actionName, bool optional = true)
+        public ActivityTemplateItem(string ownerArchetype, string actionName, bool optional = true)
         {
             OwnerArchetype = ownerArchetype;
             ActionName = actionName;

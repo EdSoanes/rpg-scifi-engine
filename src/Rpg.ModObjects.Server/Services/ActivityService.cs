@@ -13,8 +13,8 @@ namespace Rpg.ModObjects.Server.Services
             _graphService = graphService;
         }
 
-        public ActionGroup[] GetActionGroups(string systemIdentifier)
-            => MetaSystems.Get(systemIdentifier)!.ActionGroups;
+        public ActivityTemplate[] GetActivityTemplates(string systemIdentifier)
+            => MetaSystems.Get(systemIdentifier)!.ActivityTemplates;
 
         public Activity Create(RpgGraph graph, ActivityCreate createActivity)
         {
@@ -39,7 +39,7 @@ namespace Rpg.ModObjects.Server.Services
             return activity;
         }
 
-        public Activity Create(string systemIdentifier, RpgGraph graph, ActivityCreateByGroup createActivity)
+        public Activity Create(string systemIdentifier, RpgGraph graph, ActivityCreateByTemplate createActivity)
         {
             var initiator = graph.GetObject<RpgEntity>(createActivity.InitiatorId);
 
@@ -53,13 +53,13 @@ namespace Rpg.ModObjects.Server.Services
             if (owner == null)
                 throw new InvalidOperationException($"Could not find owner with Id {createActivity.OwnerId} in hydrated graph");
 
-            var actionGroup = GetActionGroups(systemIdentifier).FirstOrDefault(x => x.Name == createActivity.ActionGroup);
+            var actionGroup = GetActivityTemplates(systemIdentifier).FirstOrDefault(x => x.Name == createActivity.ActivityTemplateName);
             if (actionGroup == null)
-                throw new InvalidOperationException($"Could not find action group {createActivity.ActionGroup}");
+                throw new InvalidOperationException($"Could not find activity template {createActivity.ActivityTemplateName}");
 
             var activity = graph.CreateActivity(initiator, actionGroup);
             if (activity.ActionInstance == null)
-                throw new InvalidOperationException($"Could not create instance for action group {createActivity.ActionGroup} for owner {createActivity.OwnerId}");
+                throw new InvalidOperationException($"Could not create instance for activity template {createActivity.ActivityTemplateName} for owner {createActivity.OwnerId}");
 
             activity.Cost();
 

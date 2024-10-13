@@ -12,27 +12,27 @@ namespace Rpg.Cyborgs
     {
         [JsonProperty]
         [Component(Group = "Stats")]
-        public PropValue Strength { get; protected set; } = new PropValue();
+        public PropValue Strength { get; protected set; } = new PropValue(nameof(Strength));
 
         [JsonProperty]
         [Component(Group = "Stats")]
-        public PropValue Agility { get; protected set; } = new PropValue();
+        public PropValue Agility { get; protected set; } = new PropValue(nameof(Agility));
 
         [JsonProperty]
         [Component(Group = "Stats")]
-        public PropValue Health { get; protected set; } = new PropValue();
+        public PropValue Health { get; protected set; } = new PropValue(nameof(Health));
 
         [JsonProperty]
         [Component(Group = "Stats")]
-        public PropValue Brains { get; protected set; } = new PropValue();
+        public PropValue Brains { get; protected set; } = new PropValue(nameof(Brains));
 
         [JsonProperty]
         [Component(Group = "Stats")]
-        public PropValue Insight { get; protected set; } = new PropValue();
+        public PropValue Insight { get; protected set; } = new PropValue(nameof(Insight));
 
         [JsonProperty]
         [Component(Group = "Stats")]
-        public PropValue Charisma { get; protected set; } = new PropValue();
+        public PropValue Charisma { get; protected set; } = new PropValue(nameof(Charisma));
 
 
         [JsonProperty]
@@ -98,40 +98,40 @@ namespace Rpg.Cyborgs
 
         [JsonProperty]
         [Integer(Ignore = true)]
-        public PropValue Reactions { get; protected set; } = new PropValue(7);
+        public PropValue Reactions { get; protected set; } = new PropValue(nameof(Reactions), 7);
 
         [JsonProperty]
         [Integer(Ignore = true)]
-        public PropValue Defence { get; protected set; } = new PropValue(7);
+        public PropValue Defence { get; protected set; } = new PropValue(nameof(Defence), 7);
 
         [JsonProperty]
         [Integer(Ignore = true)]
-        public PropValue ArmourRating { get; protected set; } = new PropValue(6);
+        public PropValue ArmourRating { get; protected set; } = new PropValue(nameof(ArmourRating), 6);
 
         [JsonProperty]
         [Integer(Ignore = true)]
-        public PropValue UnarmedDamageBonus { get; protected set; } = new PropValue();
+        public PropValue UnarmedDamageBonus { get; protected set; } = new PropValue(nameof(UnarmedDamageBonus));
 
         [JsonProperty]
         [Integer(Ignore = true)]
-        public PropValue ParryDamageReduction { get; protected set; } = new PropValue();
+        public PropValue ParryDamageReduction { get; protected set; } = new PropValue(nameof(ParryDamageReduction));
 
         [JsonProperty]
         [Integer(Ignore = true)]
-        public PropValue RangedAttack { get; protected set; } = new PropValue();
+        public PropValue RangedAttack { get; protected set; } = new PropValue(nameof(RangedAttack));
 
         [JsonProperty]
         [Integer(Ignore = true)]
-        public PropValue RangedAimBonus { get; protected set; } = new PropValue();
+        public PropValue RangedAimBonus { get; protected set; } = new PropValue(nameof(RangedAimBonus));
 
         [JsonProperty]
         [Integer(Ignore = true)]
-        public PropValue MeleeAttack { get; protected set; } = new PropValue();
+        public PropValue MeleeAttack { get; protected set; } = new PropValue(nameof(MeleeAttack));
 
 
         [JsonProperty]
         [Container(Tab = "Gear")]
-        public RpgContainer Hands { get; protected set; } = new RpgContainer(nameof(Hands));
+        public RpgContainer Hands { get; protected set; } = new RpgContainer(nameof(Hands), 2);
 
         [JsonProperty]
         [Container(Tab = "Gear")]

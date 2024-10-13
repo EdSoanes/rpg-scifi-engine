@@ -9,7 +9,7 @@ namespace Rpg.ModObjects.Mods.Mods
     public class Base : Permanent
     {
         public Base()
-            : base()
+            : base(nameof(Base))
         { }
     }
 }

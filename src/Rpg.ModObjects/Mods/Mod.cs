@@ -40,6 +40,10 @@ namespace Rpg.ModObjects.Mods
             Behavior = new Add();
         }
 
+        protected Mod(string name)
+            : this()
+                => Name = name;
+
         public void Apply()
             => IsApplied = true;
 

@@ -10,8 +10,8 @@ function LoadGraphButton() {
   const [, setGraphState] = useAtom(graphStateAtom)
 
   const fetchGraphState = async () => {
-    const graphState = await getGraphState('Benny')
-    setGraphState(graphState)
+    const response = await getGraphState('Benny')
+    setGraphState(response?.graphState)
   }
 
   return (

@@ -5,7 +5,7 @@ namespace Rpg.ModObjects.Mods.Mods
     public class Encounter : Time
     {
         public Encounter()
-            : base(PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds)
+            : base(nameof(Turn), PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds)
         { }
     }
 }

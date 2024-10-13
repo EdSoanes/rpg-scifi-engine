@@ -54,7 +54,7 @@ namespace Rpg.ModObjects.Server
         public RpgResponse<PropDesc> Describe(string system, RpgRequest<Describe> request)
         {
             var graph = _graphService.HydrateGraph(system, request.GraphState);
-            var entity = graph.GetObject<RpgEntity>(request.Op.EntityId)!;
+            var entity = graph.GetObject(request.Op.EntityId)!;
             if (entity == null)
                 throw new InvalidOperationException($"Could not find entity with Id {request.Op.EntityId} in hydrated graph");
 
@@ -69,8 +69,8 @@ namespace Rpg.ModObjects.Server
             };
         }
 
-        public ActionGroup[] ActivityActionGroups(string system)
-            => _activityService.GetActionGroups(system);
+        public ActivityTemplate[] ActivityTemplates(string system)
+            => _activityService.GetActivityTemplates(system);
 
         public RpgResponse<Activity> ActivityCreate(string system, RpgRequest<ActivityCreate> request)
         {
@@ -84,7 +84,7 @@ namespace Rpg.ModObjects.Server
             };
         }
 
-        public RpgResponse<Activity> ActivityCreate(string system, RpgRequest<ActivityCreateByGroup> request)
+        public RpgResponse<Activity> ActivityCreate(string system, RpgRequest<ActivityCreateByTemplate> request)
         {
             var graph = _graphService.HydrateGraph(system, request.GraphState);
             var activity = _activityService.Create(system, graph, request.Op);

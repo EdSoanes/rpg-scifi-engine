@@ -1,8 +1,6 @@
 ﻿using Asp.Versioning;
-using Azure;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Rpg.ModObjects;
 using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
@@ -45,7 +43,6 @@ namespace Rpg.Cms.Controllers
         public IActionResult CreateGraphState(string system, string archetype, string id)
         {
             var graphState = _sessionlessServer.CreateGraphState(system, archetype, id);
-
             var json = RpgJson.Serialize(graphState);
             return new ContentResult() { Content = json, ContentType = "application/json" };
         }
@@ -64,7 +61,7 @@ namespace Rpg.Cms.Controllers
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
         [HttpPost("{system}/activity/create")]
         [ProducesResponseType(typeof(RpgResponse<Activity>), StatusCodes.Status200OK)]
-        public IActionResult ActivityCreate(string system, RpgRequest<ActivityCreate> request)
+        public IActionResult ActivityCreate(string system, [FromBody] RpgRequest<ActivityCreate> request)
         {
             var response = _sessionlessServer.ActivityCreate(system, request);
 
@@ -76,9 +73,21 @@ namespace Rpg.Cms.Controllers
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
         [HttpPost("{system}/activity/createbygroup")]
         [ProducesResponseType(typeof(RpgResponse<Activity>), StatusCodes.Status200OK)]
-        public IActionResult ActivityCreateByGroup(string system, RpgRequest<ActivityCreateByGroup> request)
+        public IActionResult ActivityCreateByGroup(string system, RpgRequest<ActivityCreateByTemplate> request)
         {
             var response = _sessionlessServer.ActivityCreate(system, request);
+
+            var json = RpgJson.Serialize(response);
+            return new ContentResult() { Content = json, ContentType = "application/json" };
+
+        }
+
+        [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
+        [HttpGet("{system}/activity/templates")]
+        [ProducesResponseType(typeof(ActivityTemplate[]), StatusCodes.Status200OK)]
+        public IActionResult ActivityTemplates(string system)
+        {
+            var response = _sessionlessServer.ActivityTemplates(system);
 
             var json = RpgJson.Serialize(response);
             return new ContentResult() { Content = json, ContentType = "application/json" };

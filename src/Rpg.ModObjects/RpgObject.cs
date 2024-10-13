@@ -483,6 +483,11 @@ namespace Rpg.ModObjects
             return Expiry;
         }
 
+        public override string ToString()
+        {
+            return $"{Archetype} {Id}";
+        }
+
         private void OnCreatingProperties()
         {
             if (Graph == null)

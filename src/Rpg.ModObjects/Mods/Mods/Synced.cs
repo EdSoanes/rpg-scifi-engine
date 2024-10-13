@@ -11,7 +11,7 @@ namespace Rpg.ModObjects.Mods.Mods
         { }
 
         public Synced(string ownerId)
-            : base()
+            : base(nameof(Synced))
         {
             OwnerId = ownerId;
             Behavior = new Add();

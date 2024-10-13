@@ -1,10 +1,10 @@
 import React from 'react'
 import { Button, Stack } from '@chakra-ui/react'
-import { RpgArgSet } from '../../../lib/rpg-api/types'
+import { RpgArg } from '../../../lib/rpg-api/types'
 import ArgInput from './ArgInput'
 
 export declare interface ArgFormProps {
-  argSet: RpgArgSet
+  argSet: RpgArg[]
   onSubmit: (argValues: { [key: string]: string | null | undefined }) => void
 }
 
@@ -21,7 +21,7 @@ export default function ArgForm(props: ArgFormProps) {
 
   return (
     <Stack>
-      {props.argSet.args.map((a, i) => (
+      {props.argSet.map((a, i) => (
         <ArgInput key={i} arg={a} onInputCapture={onInputCapture} />
       ))}
 

@@ -24,6 +24,11 @@ namespace Rpg.Cyborgs.Components
             Value = value;
         }
 
+        public PropValue(string name)
+            : base(name)
+        {
+        }
+
         public PropValue(string name, int value = 0)
             : base(name) 
         {

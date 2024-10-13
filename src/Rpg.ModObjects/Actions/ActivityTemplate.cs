@@ -2,21 +2,21 @@
 
 namespace Rpg.ModObjects.Actions
 {
-    public abstract class ActionGroup
+    public abstract class ActivityTemplate
     {
         [JsonProperty] public string Name { get; protected init; }
-        [JsonProperty] public List<ActionGroupItem> Items { get; private set; } = new();
+        [JsonProperty] public List<ActivityTemplateItem> Items { get; private set; } = new();
 
         public void Add(string ownerArchetype, string actionName, bool optional = true)
-            => Add(new ActionGroupItem(ownerArchetype, actionName, optional));
+            => Add(new ActivityTemplateItem(ownerArchetype, actionName, optional));
 
-        public void Add(ActionGroupItem item)
+        public void Add(ActivityTemplateItem item)
         {
             if (!Contains(item))
                 Items.Add(item);
         }
 
-        public void InsertAt(ActionGroupItem item, int idx)
+        public void InsertAt(ActivityTemplateItem item, int idx)
         {
             Remove(item);
             if (idx >= Items.Count())
@@ -27,13 +27,13 @@ namespace Rpg.ModObjects.Actions
                 Items.Insert(idx, item);
         }
 
-        public void InsertBefore(ActionGroupItem item, ActionGroupItem beforeItem)
+        public void InsertBefore(ActivityTemplateItem item, ActivityTemplateItem beforeItem)
         {
             Remove(item);
             InsertAt(item, IndexOf(beforeItem));
         }
 
-        public void InsertAfter(ActionGroupItem item, ActionGroupItem afterItem)
+        public void InsertAfter(ActivityTemplateItem item, ActivityTemplateItem afterItem)
         {
             Remove(item);
             InsertAt(item, IndexOf(afterItem) + 1);
@@ -42,17 +42,17 @@ namespace Rpg.ModObjects.Actions
         public bool Contains(string ownerArchetype, string actionName)
             => Items.Any(x => x.ActionName == actionName && x.OwnerArchetype == ownerArchetype);
 
-        public bool Contains(ActionGroupItem item)
+        public bool Contains(ActivityTemplateItem item)
             => Items.Any(x => x.ActionName == item.ActionName && x.OwnerArchetype == item.OwnerArchetype);
 
-        public void Remove(ActionGroupItem item)
+        public void Remove(ActivityTemplateItem item)
         {
             var res = Items.Find(x => x.ActionName == item.ActionName && x.OwnerArchetype == item.OwnerArchetype);
             if (res != null)
                 Items.Remove(res);
         }
 
-        public int IndexOf(ActionGroupItem item)
+        public int IndexOf(ActivityTemplateItem item)
             => Items.FindIndex(x => x.ActionName == item.ActionName && x.OwnerArchetype == item.OwnerArchetype);
     }
 }

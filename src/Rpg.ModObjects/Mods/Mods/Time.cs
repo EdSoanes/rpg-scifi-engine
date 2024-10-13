@@ -4,24 +4,24 @@ using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Mods.Mods
 {
-    public class Time : Mod
+    public abstract class Time : Mod
     {
         [JsonConstructor] protected Time()
             : base() { }
 
-        public Time(SpanOfTime lifespan) 
-            : base()
+        protected Time(string name, SpanOfTime lifespan) 
+            : base(name)
         {
             Lifespan = lifespan;
             Behavior = new Add();
         }
 
-        public Time(PointInTimeType start, PointInTimeType end)
-            : this(new SpanOfTime(start, end))
+        protected Time(string name, PointInTimeType start, PointInTimeType end)
+            : this(name, new SpanOfTime(start, end))
         { }
 
-        public Time(int startTurn, int duration)
-            : this(new SpanOfTime(startTurn, duration))
+        protected Time(string name, int startTurn, int duration)
+            : this(name, new SpanOfTime(startTurn, duration))
         { }
     }
 }

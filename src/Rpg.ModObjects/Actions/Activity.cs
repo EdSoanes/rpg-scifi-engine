@@ -66,7 +66,7 @@ namespace Rpg.ModObjects.Actions
             }
         }
 
-        internal void Init(ActionGroup actionGroup)
+        internal void Init(ActivityTemplate actionGroup)
         {
             foreach (var item in actionGroup.Items)
             {

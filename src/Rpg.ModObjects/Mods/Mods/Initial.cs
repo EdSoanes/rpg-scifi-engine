@@ -7,7 +7,7 @@ namespace Rpg.ModObjects.Mods.Mods
     public class Initial : Mod
     {
         [JsonConstructor] protected Initial()
-            : base()
+            : base(nameof(Initial))
         {
             Behavior = new Replace();
         }

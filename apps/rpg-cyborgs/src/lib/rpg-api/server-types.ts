@@ -36,8 +36,8 @@ export type ActivityCreateRequest = Pick<
 >
 
 export type ActivityCreateByGroupRequest = Pick<
-  components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityCreateByGroup'],
-  keyof components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityCreateByGroup']
+  components['schemas']['Rpg.ModObjects.Server.Ops.ActivityCreateByTemplate'],
+  keyof components['schemas']['Rpg.ModObjects.Server.Ops.ActivityCreateByTemplate']
 >
 
 export type ActivityResponse = Pick<
@@ -50,7 +50,7 @@ export type DescribeResponse = Pick<
   keyof components['schemas']['Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Props.PropDesc']
 >
 
-export type CreateGraphStateResponse = Pick<
+export type StringResponse = Pick<
   components['schemas']['Rpg.ModObjects.Server.RpgResponse.System.String'],
   keyof components['schemas']['Rpg.ModObjects.Server.RpgResponse.System.String']
 >

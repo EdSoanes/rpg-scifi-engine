@@ -5,9 +5,9 @@ namespace Rpg.ModObjects.Server.Services
 {
     public interface IActivityService
     {
-        ActionGroup[] GetActionGroups(string systemIdentifier);
+        ActivityTemplate[] GetActivityTemplates(string systemIdentifier);
         Activity Create(RpgGraph graph, ActivityCreate createActivity);
-        Activity Create(string systemIdentifier, RpgGraph graph, ActivityCreateByGroup createActivity);
+        Activity Create(string systemIdentifier, RpgGraph graph, ActivityCreateByTemplate createActivity);
 
         Activity Act(RpgGraph graph, ActivityAct activityAct);
         Activity AutoComplete(RpgGraph graph, ActivityAutoComplete activityAutoComplete);

@@ -8,14 +8,23 @@ namespace Rpg.ModObjects.Mods.Mods
             : base()
         { }
 
+        public Permanent(string name)
+            : base(name)
+        { }
+
         public Permanent(BaseBehavior behavior)
-            : base()
+            : this(nameof(Permanent), behavior)
+        {
+        }
+
+        public Permanent(string name, BaseBehavior behavior)
+            : base(name)
         {
             Behavior = behavior;
         }
 
-        public Permanent(ModScope scope)
-            : base()
+        public Permanent(string name, ModScope scope)
+            : base(name)
         {
             Behavior.Scope = scope;
         }

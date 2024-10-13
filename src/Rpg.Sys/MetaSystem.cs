@@ -20,7 +20,7 @@ namespace Rpg.Sys
 
         public MetaAction[] Actions { get; set; } = Array.Empty<MetaAction>();
 
-        public ActionGroup[] ActionGroups { get; set; } = Array.Empty<ActionGroup>();
+        public ActivityTemplate[] ActivityTemplates { get; set; } = Array.Empty<ActivityTemplate>();
 
         public MetaState[] States { get; set; } = Array.Empty<MetaState>();
         

@@ -1,63 +1,81 @@
-﻿using Rpg.ModObjects.Props;
-using System.Collections.Specialized;
+﻿using Rpg.ModObjects.Time;
 using Newtonsoft.Json;
+using Rpg.ModObjects.Props;
+using System.Collections.Specialized;
 
 namespace Rpg.ModObjects
 {
     public class RpgContainer : RpgComponent
     {
-        [JsonIgnore] public RpgObject[] Contents { get => GetChildObjects(nameof(Contents)); }
-        [JsonProperty] private object[] Containers { get => Props.Values.Where(x => x.RefType != ModObjects.Props.RefType.Value).Select(x => new { x.Name, x.Refs }).ToArray(); }
+        public RpgObjectCollection Contents { get; private set; }
 
-        public event NotifyCollectionChangedEventHandler? CollectionChanged;
-        [JsonConstructor] public RpgContainer()
+        [JsonConstructor] protected RpgContainer() 
             : base() { }
 
-        public RpgContainer(string name)
+        public RpgContainer(string name, int maxItems = int.MaxValue)
             : base(name)
         {
+            Contents = new RpgObjectCollection(Id, nameof(Contents));
+            Contents.MaxItems = maxItems;
         }
 
         public T? Get<T>(string entityId)
             where T : RpgObject
-                => GetChildObjects(nameof(Contents))
-                    .FirstOrDefault(x => x.Id == entityId) as T;
+                => Contents.FirstOrDefault(x => x.Id == entityId) as T;
 
         public IEnumerable<T> Get<T>(Func<T, bool>? filterFunc = null)
             where T : RpgObject
-                => GetChildObjects(nameof(Contents))
-                    .Where(x => (x is T e) && (filterFunc?.Invoke(e) ?? true))
+                => Contents.Where(x => (x is T e) && (filterFunc?.Invoke(e) ?? true))
                     .Cast<T>();
 
         public bool Contains(RpgEntity obj)
-            => Contains(obj.Id);
+            => Contents.Any(x => x.Id == obj.Id);
 
         public bool Contains(string entityId)
-            => GetProp(nameof(Contents), RefType.Children)?.Contains(entityId) ?? false;
+            => Contents.Any(x => x.Id == entityId);
 
         public bool Add(RpgEntity obj)
         {
             if (Contains(obj))
                 return false;
 
-            AddChildren(nameof(Contents), obj);
-            CallCollectionChanged(NotifyCollectionChangedAction.Add);
-
+            Contents.Add(obj);
             return true;
         }
 
         public bool Remove(RpgEntity obj)
+            => Contents.Remove(obj);
+
+        public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
-            if (!Contains(obj))
-                return false;
-
-            RemoveChildren(nameof(Contents), obj);
-            CallCollectionChanged(NotifyCollectionChangedAction.Remove);
-
-            return true;
+            base.OnCreating(graph, entity);
+            Contents.OnCreating(graph, this);
         }
 
-        protected void CallCollectionChanged(NotifyCollectionChangedAction action)
-            => CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(action));
+        public override void OnRestoring(RpgGraph graph, RpgObject? entity = null)
+        {
+            base.OnRestoring(graph, entity);
+            Contents.OnRestoring(graph, this);
+        }
+
+        public override void OnTimeBegins()
+        {
+            base.OnTimeBegins();
+            Contents.OnTimeBegins();
+        }
+
+        public override LifecycleExpiry OnStartLifecycle()
+        {
+            base.OnStartLifecycle();
+            Contents.OnStartLifecycle();
+            return Expiry;
+        }
+
+        public override LifecycleExpiry OnUpdateLifecycle()
+        {
+            base.OnUpdateLifecycle();
+            Contents.OnUpdateLifecycle();
+            return Expiry;
+        }
     }
 }

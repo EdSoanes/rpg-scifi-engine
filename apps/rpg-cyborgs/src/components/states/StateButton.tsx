@@ -25,7 +25,7 @@ function StateButton(props: StateButtonProps) {
       graphState!
     )
 
-    setGraphState(res)
+    setGraphState(res?.graphState)
   }
 
   return (

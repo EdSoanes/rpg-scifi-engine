@@ -8,7 +8,7 @@ namespace Rpg.ModObjects.Mods.Mods
         [JsonConstructor] protected Threshold() { }
 
         public Threshold(string entityId, string prop, int min, int max)
-            : base()
+            : base(nameof(Threshold))
         {
             Target = new Props.PropRef(entityId, prop);
             SourceValue = Dice.Zero;

@@ -1,19 +1,24 @@
 import {
+  ActivityActRequest,
   ActivityCreateRequest,
+  ActivityOutcomeRequest,
   ActivityResponse,
-  CreateGraphStateResponse,
+  BooleanResponse,
+  StringResponse,
   DescribeRequest,
   DescribeResponse,
+  ModSetRequest,
+  SetStateRequest,
 } from './server-types'
 
-import { ActionInstance, ActionModSet, ModSet, RpgGraphState } from './types'
+import { Activity, ModSet, RpgGraphState } from './types'
 
 export const getGraphState = async (
   id: string
-): Promise<CreateGraphStateResponse | null> => {
+): Promise<StringResponse | null> => {
   const response = await get(`Cyborgs/PlayerCharacter/${id}`)
 
-  return (await response.json()) as CreateGraphStateResponse
+  return (await response.json()) as StringResponse
 }
 
 export const getPropDesc = async (
@@ -52,79 +57,55 @@ export const getActionInstance = async (
   return (await response.json()) as ActivityResponse
 }
 
-export const getActionCost = async (
-  actionInstance: ActionInstance,
-  argValues: { [key: string]: string | null | undefined },
-  graphState: RpgGraphState
-): Promise<ModSet | null> => {
-  const op: Act = {
-    graphState: graphState,
-    operation: {
-      ownerId: actionInstance.ownerId,
-      initiatorId: actionInstance.initiatorId,
-      actionName: actionInstance.actionName,
-      actionNo: actionInstance.actionNo,
-      argValues: argValues,
-    },
-  }
-
-  const response = await post('Cyborgs/actioninstance/cost', op)
-  return response.status === 200 ? ((await response.json()) as ModSet) : null
-}
-
 export const getActionAct = async (
-  actionInstance: ActionInstance,
+  activityId: string,
   argValues: { [key: string]: string | null | undefined },
   graphState: RpgGraphState
-): Promise<ActionModSet | null> => {
-  const op: Act = {
+): Promise<Activity | undefined> => {
+  const op: ActivityActRequest = {
     graphState: graphState,
-    operation: {
-      ownerId: actionInstance.ownerId,
-      initiatorId: actionInstance.initiatorId,
-      actionName: actionInstance.actionName,
-      actionNo: actionInstance.actionNo,
-      argValues: argValues,
+    op: {
+      activityId: activityId,
+      args: argValues,
     },
   }
 
-  const response = await post('Cyborgs/actioninstance/act', op)
+  const response = await post('Cyborgs/activity/act', op)
   return response.status === 200
-    ? ((await response.json()) as ActionModSet)
-    : null
+    ? ((await response.json()) as Activity)
+    : undefined
 }
 
 export const getActionOutcome = async (
-  actionInstance: ActionInstance,
+  activityId: string,
   argValues: { [key: string]: string | null | undefined },
   graphState: RpgGraphState
-): Promise<ModSet[] | null> => {
-  const op: Act = {
+): Promise<Activity | undefined> => {
+  const op: ActivityOutcomeRequest = {
     graphState: graphState,
-    operation: {
-      ownerId: actionInstance.ownerId,
-      initiatorId: actionInstance.initiatorId,
-      actionName: actionInstance.actionName,
-      actionNo: actionInstance.actionNo,
-      argValues: argValues,
+    op: {
+      activityId: activityId,
+      args: argValues,
     },
   }
 
-  const response = await post('Cyborgs/actioninstance/outcome', op)
-  return response.status === 200 ? ((await response.json()) as ModSet[]) : null
+  const response = await post('Cyborgs/activity/outcome', op)
+  return response.status === 200
+    ? ((await response.json()) as Activity)
+    : undefined
 }
 
 export const postModSet = async (
   modSet: ModSet,
   graphState: RpgGraphState
-): Promise<RpgGraphState | null> => {
-  const op: AddModSet = {
+): Promise<BooleanResponse | null> => {
+  const op: ModSetRequest = {
     graphState: graphState!,
-    operation: modSet,
+    op: modSet,
   }
 
   const response = await post('Cyborgs/modSet', op)
-  return (await response.json()) as RpgGraphState
+  return (await response.json()) as BooleanResponse
 }
 
 export const postSetState = async (
@@ -132,10 +113,10 @@ export const postSetState = async (
   stateName: string,
   on: boolean,
   graphState: RpgGraphState
-): Promise<RpgGraphState | null> => {
-  const setState: SetState = {
+): Promise<StringResponse | undefined> => {
+  const setState: SetStateRequest = {
     graphState: graphState!,
-    operation: {
+    op: {
       entityId: entityId,
       state: stateName,
       on: on,
@@ -143,7 +124,7 @@ export const postSetState = async (
   }
 
   const response = await post('Cyborgs/state', setState)
-  return (await response.json()) as RpgGraphState
+  return (await response.json()) as StringResponse
 }
 
 const get = async (path: string) => {

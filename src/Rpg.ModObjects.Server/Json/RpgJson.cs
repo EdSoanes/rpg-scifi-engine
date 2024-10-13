@@ -1,11 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Rpg.ModObjects.Behaviors;
-using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Reflection.Args;
-using Rpg.ModObjects.States;
-using System.Text.Encodings.Web;
-using System.Text.Json;
 
 namespace Rpg.ModObjects.Server.Json
 {
@@ -36,7 +30,7 @@ namespace Rpg.ModObjects.Server.Json
         //    }
         //};
 
-        private static JsonSerializerSettings serializeOptions = new JsonSerializerSettings
+        public static JsonSerializerSettings SerializeOptions = new JsonSerializerSettings
         {
             TypeNameHandling = TypeNameHandling.Auto,
             NullValueHandling = NullValueHandling.Include,
@@ -52,15 +46,15 @@ namespace Rpg.ModObjects.Server.Json
         };
 
         public static string Serialize(object obj)
-            => JsonConvert.SerializeObject(obj, serializeOptions);
+            => JsonConvert.SerializeObject(obj, SerializeOptions);
 
         public static T Deserialize<T>(string json)
             where T : class
-                => JsonConvert.DeserializeObject<T>(json, serializeOptions)!;
+                => JsonConvert.DeserializeObject<T>(json, SerializeOptions)!;
 
         public static T Deserialize<T>(Type type, string json)
             where T : class
-                => (T)JsonConvert.DeserializeObject(json, type, serializeOptions)!;
+                => (T)JsonConvert.DeserializeObject(json, type, SerializeOptions)!;
         //public static string Serialize(object obj)
         //    => JsonSerializer.Serialize(obj, serializeOptions);
 

@@ -5,7 +5,7 @@ namespace Rpg.ModObjects.Mods.Mods
     public class Override : Mod
     {
         public Override()
-            : base()
+            : base(nameof(Override))
         {
             Behavior = new Replace();
         }

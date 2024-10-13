@@ -50,7 +50,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write ./**/*.{js,jsx,ts,tsx,css,md,mjs,json}",
-    "openapi": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 openapi-typescript https://localhost:44349/umbraco/swagger/rpg/swagger.json --output src/lib/rpg-api/rpgtypes.d.ts"
+    "openapi": "openapi-typescript ./openapi/rpg.json --output src/lib/rpg-api/rpgtypes.d.ts"
   },
   "eslintConfig": {
     "extends": [

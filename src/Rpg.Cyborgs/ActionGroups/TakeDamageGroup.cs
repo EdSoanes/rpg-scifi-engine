@@ -3,7 +3,7 @@ using Rpg.ModObjects.Actions;
 
 namespace Rpg.Cyborgs.ActionGroups
 {
-    public class TakeDamageGroup : ActionGroup
+    public class TakeDamageGroup : ActivityTemplate
     {
         public TakeDamageGroup() 
         {

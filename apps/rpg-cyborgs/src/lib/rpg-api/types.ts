@@ -20,6 +20,16 @@ export type Action = Pick<
   keyof components['schemas']['Rpg.ModObjects.Actions.Action']
 >
 
+export type Activity = Pick<
+  components['schemas']['Rpg.ModObjects.Actions.Activity'],
+  keyof components['schemas']['Rpg.ModObjects.Actions.Activity']
+>
+
+export type ActivityTemplate = Pick<
+  components['schemas']['Rpg.ModObjects.Actions.ActivityTemplate'],
+  keyof components['schemas']['Rpg.ModObjects.Actions.ActivityTemplate']
+>
+
 export type PropDesc = Pick<
   components['schemas']['Rpg.ModObjects.Props.PropDesc'],
   keyof components['schemas']['Rpg.ModObjects.Props.PropDesc']
@@ -38,16 +48,6 @@ export type ActionInstance = Pick<
 export type ModSet = Pick<
   components['schemas']['Rpg.ModObjects.Mods.ModSet'],
   keyof components['schemas']['Rpg.ModObjects.Mods.ModSet']
->
-
-export type ActionModSet = Pick<
-  components['schemas']['Rpg.ModObjects.Actions.ActionModSet'],
-  keyof components['schemas']['Rpg.ModObjects.Actions.ActionModSet']
->
-
-export type OutcomeModSet = Pick<
-  components['schemas']['Rpg.ModObjects.Actions.OutcomeModSet'],
-  keyof components['schemas']['Rpg.ModObjects.Actions.OutcomeModSet']
 >
 
 export type RpgArg = Pick<
