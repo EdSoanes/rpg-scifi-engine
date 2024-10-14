@@ -1,17 +1,16 @@
 import { atom, Atom, useAtom } from 'jotai'
 import React, { useMemo } from 'react'
-import { ActionInstance, RpgArg } from '../../lib/rpg-api/types'
+import { ActionInstance, Activity } from '../../lib/rpg-api/types'
 import {
-  Box,
   Code,
-  Heading,
+  Stack,
   Tab,
   TabList,
   TabPanel,
   TabPanels,
   Tabs,
 } from '@chakra-ui/react'
-import ArgForm from './forms/ArgForm'
+import ActionInstancePanel from './ActionInstancePanel'
 
 // import { graphStateAtom } from '../atoms/graphState.atom'
 // import { getActionAct, getActionOutcome } from '../../lib/rpg-api/fetcher'
@@ -21,12 +20,30 @@ import ArgForm from './forms/ArgForm'
 // const actAtom = atom<ModSet | null>(null)
 // const outcomeAtom = atom<ModSet[] | null>(null)
 
-export declare interface ActionInstancePanelProps {
-  actionInstanceAtom: Atom<ActionInstance | undefined>
+export declare interface ActivityPanelProps {
+  activityAtom: Atom<Activity | undefined>
 }
 
-function ActionInstancePanel(props: ActionInstancePanelProps) {
-  const [actionInstance] = useAtom(props.actionInstanceAtom)
+function ActivityPanel(props: ActivityPanelProps) {
+  const actionInstancesAtom = useMemo(
+    () =>
+      atom<ActionInstance[]>((get) => {
+        return get(props.activityAtom)?.actionInstances ?? []
+      }),
+    [props.activityAtom]
+  )
+
+  const actionInstanceAtom = useMemo(
+    () =>
+      atom<ActionInstance | undefined>((get) => {
+        return get(props.activityAtom)?.actionInstance
+      }),
+    [props.activityAtom]
+  )
+
+  const [activity] = useAtom(props.activityAtom)
+  const [actionInstance] = useAtom(actionInstanceAtom)
+  const [actionInstances] = useAtom(actionInstancesAtom)
 
   // const [cost, setCost] = useAtom(costAtom)
   // const [act, setAct] = useAtom(actAtom)
@@ -59,22 +76,13 @@ function ActionInstancePanel(props: ActionInstancePanelProps) {
   //   setOutcome(outcome)
   // }
 
-  const onSubmit = (argValues: {
-    [key: string]: string | null | undefined
-  }) => {}
-
   return (
-    <Box>
-      <Heading as="h3" size="lg" paddingBottom={4} paddingTop={10}>
-        {actionInstance?.actionName}
-      </Heading>
-      <ArgForm
-        argSet={Object.values(actionInstance!.args) as RpgArg[]}
-        onSubmit={onSubmit}
-      />
-      <Code>{JSON.stringify(actionInstance, undefined, 2)}</Code>
-    </Box>
+    <Stack w={'100%'}>
+      {actionInstances.map((i) => (
+        <ActionInstancePanel />
+      ))}
+    </Stack>
   )
 }
 
-export default ActionInstancePanel
+export default ActivityPanel

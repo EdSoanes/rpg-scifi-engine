@@ -28,7 +28,7 @@ import { playerCharacterAtom } from '../atoms/playerCharacter.atom'
 import { StatPanel } from '../stats'
 import { getActionInstance } from '../../lib/rpg-api/fetcher'
 import { graphStateAtom } from '../atoms/graphState.atom'
-import ActionInstancePanel from './ActionInstancePanel'
+import ActionInstancePanel from './ActivityPanel'
 
 const actionAtomsAtom = splitAtom(playerCharacterActionsAtom)
 const selectedActionAtom = atom<Action | undefined>(undefined)
