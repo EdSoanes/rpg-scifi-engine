@@ -10,6 +10,11 @@ export type SetStateRequest = Pick<
   keyof components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.SetState']
 >
 
+export type SetState = Pick<
+  components['schemas']['Rpg.ModObjects.Server.Ops.SetState'],
+  keyof components['schemas']['Rpg.ModObjects.Server.Ops.SetState']
+>
+
 export type DescribeRequest = Pick<
   components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.Describe'],
   keyof components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.Describe']
@@ -33,6 +38,11 @@ export type ActivityOutcomeRequest = Pick<
 export type ActivityCreateRequest = Pick<
   components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityCreate'],
   keyof components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityCreate']
+>
+
+export type ActivityCreate = Pick<
+  components['schemas']['Rpg.ModObjects.Server.Ops.ActivityCreate'],
+  keyof components['schemas']['Rpg.ModObjects.Server.Ops.ActivityCreate']
 >
 
 export type ActivityCreateByGroupRequest = Pick<

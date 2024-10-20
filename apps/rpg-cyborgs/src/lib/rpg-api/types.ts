@@ -1,5 +1,15 @@
 import { components } from './rpgtypes'
 
+export type PointInTimeType = Pick<
+  components['schemas']['Rpg.ModObjects.Time.PointInTimeType'],
+  keyof components['schemas']['Rpg.ModObjects.Time.PointInTimeType']
+>
+
+export type PointInTime = Pick<
+  components['schemas']['Rpg.ModObjects.Time.PointInTime'],
+  keyof components['schemas']['Rpg.ModObjects.Time.PointInTime']
+>
+
 export type RpgGraphState = Pick<
   components['schemas']['Rpg.ModObjects.RpgGraphState'],
   keyof components['schemas']['Rpg.ModObjects.RpgGraphState']

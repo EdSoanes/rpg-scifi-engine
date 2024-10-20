@@ -1,22 +1,21 @@
 'use client'
 
-import { useAtom } from 'jotai'
-import { getGraphState } from '../../lib/rpg-api/fetcher'
-import { graphStateAtom } from '../atoms/graphState.atom'
 import React from 'react'
 import { Button } from '@chakra-ui/react'
+import { useAppDispatch } from '../../app/hooks'
+import { fetchGraphState } from '../../app/thunks'
 
 function LoadGraphButton() {
-  const [, setGraphState] = useAtom(graphStateAtom)
 
-  const fetchGraphState = async () => {
-    const response = await getGraphState('Benny')
-    setGraphState(response?.graphState)
+  const dispatch = useAppDispatch()
+
+  const onLoadGraphState = async () => {
+    dispatch(fetchGraphState('Benny'))
   }
 
   return (
     <div>
-      <Button colorScheme="teal" variant="outline" onClick={fetchGraphState}>
+      <Button colorScheme="teal" variant="outline" onClick={onLoadGraphState}>
         Get Benny
       </Button>
     </div>

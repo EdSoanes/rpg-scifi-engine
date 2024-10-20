@@ -1,41 +1,40 @@
-import { Atom, useAtom } from 'jotai'
+
 import React from 'react'
 import { State } from '../../lib/rpg-api/types'
 import { Button } from '@chakra-ui/react'
-import { postSetState } from '../../lib/rpg-api/fetcher'
-import { playerCharacterAtom } from '../atoms/playerCharacter.atom'
-import { graphStateAtom } from '../atoms/graphState.atom'
 import { CheckCircleIcon, SmallCloseIcon } from '@chakra-ui/icons'
+import { selectPlayerCharacter } from '../../app/graphState/graphSelectors'
+import { useSelector } from 'react-redux'
+import { useAppDispatch } from '../../app/hooks'
+import { toggleState } from '../../app/thunks'
 
 export declare interface StateButtonProps {
-  stateAtom: Atom<State>
+  state: State
 }
 
 function StateButton(props: StateButtonProps) {
-  const [playerCharacter] = useAtom(playerCharacterAtom)
-  const [state] = useAtom(props.stateAtom)
-  const [graphState, setGraphState] = useAtom(graphStateAtom)
-  const variant = state.isOn ? 'solid' : 'outline'
+  const dispatch = useAppDispatch()
+  const playerCharacter = useSelector(selectPlayerCharacter)
+  const variant = props.state.isOn ? 'solid' : 'outline'
 
   const onChangeState = async () => {
-    const res = await postSetState(
-      playerCharacter!.id,
-      state.name,
-      !state.isOn,
-      graphState!
-    )
-
-    setGraphState(res?.graphState)
+    if (playerCharacter) {
+      dispatch(toggleState({
+        entityId: playerCharacter.id,
+        state: props.state.name,
+        on: !props.state.isOn,
+      }))
+    }
   }
 
   return (
     <Button
-      leftIcon={state.isOn ? <CheckCircleIcon /> : <SmallCloseIcon />}
+      leftIcon={props.state.isOn ? <CheckCircleIcon /> : <SmallCloseIcon />}
       variant={variant}
       size={'lg'}
       onClick={onChangeState}
     >
-      {state.name}
+      {props.state.name}
     </Button>
   )
 }

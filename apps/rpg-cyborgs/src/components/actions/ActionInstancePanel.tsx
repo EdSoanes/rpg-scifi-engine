@@ -1,63 +1,23 @@
-import { atom, Atom, useAtom } from 'jotai'
-import React, { useMemo } from 'react'
+import React from 'react'
 import { ActionInstance, RpgArg } from '../../lib/rpg-api/types'
 import {
   Box,
   Code,
   Heading,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
+  // Tab,
+  // TabList,
+  // TabPanel,
+  // TabPanels,
+  // Tabs,
 } from '@chakra-ui/react'
 import ArgForm from './forms/ArgForm'
 
-// import { graphStateAtom } from '../atoms/graphState.atom'
-// import { getActionAct, getActionOutcome } from '../../lib/rpg-api/fetcher'
-// import ArgForm from './forms/ArgForm'
-
-// const costAtom = atom<ModSet | null>(null)
-// const actAtom = atom<ModSet | null>(null)
-// const outcomeAtom = atom<ModSet[] | null>(null)
-
 export declare interface ActionInstancePanelProps {
-  actionInstanceAtom: Atom<ActionInstance | undefined>
+  actionInstance: ActionInstance
 }
 
 function ActionInstancePanel(props: ActionInstancePanelProps) {
-  const [actionInstance] = useAtom(props.actionInstanceAtom)
-
-  // const [cost, setCost] = useAtom(costAtom)
-  // const [act, setAct] = useAtom(actAtom)
-  // const [outcome, setOutcome] = useAtom(outcomeAtom)
-
-  // const [graphState, setGraphState] = useAtom(graphStateAtom)
-
-  // const onCostClicked = async (argValues: {
-  //   [key: string]: string | null | undefined
-  // }) => {
-  //   const cost = await getActionCost(actionInstance!, argValues, graphState!)
-  //   setCost(cost)
-  // }
-
-  // const onActClicked = async (argValues: {
-  //   [key: string]: string | null | undefined
-  // }) => {
-  //   const act = await getActionAct(actionInstance!, argValues, graphState!)
-  //   setAct(act)
-  // }
-
-  // const onOutcomeClicked = async (argValues: {
-  //   [key: string]: string | null | undefined
-  // }) => {
-  //   const outcome = await getActionOutcome(
-  //     actionInstance!,
-  //     argValues,
-  //     graphState!
-  //   )
-  //   setOutcome(outcome)
-  // }
+  const { actionInstance } = props
 
   const onSubmit = (argValues: {
     [key: string]: string | null | undefined

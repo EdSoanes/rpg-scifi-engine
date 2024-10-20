@@ -1,24 +1,17 @@
-import { atom, useAtom } from 'jotai'
+
 import { Grid, GridItem, Heading, Stack } from '@chakra-ui/react'
 import React from 'react'
 import PointPanel from './PointPanel'
-import { playerCharacterAtom } from '../atoms/playerCharacter.atom'
 import { StatPanel } from '../stats'
-import { PropValue } from '../../lib/rpg-api/types'
+import { useSelector } from 'react-redux'
+import { selectDefence, selectLifePoints, selectMeleeAttack, selectRangedAttack, selectStaminaPoints } from '../../app/graphState/graphSelectors'
 
-const meleeAttackAtom = atom<PropValue | null>(
-  (get) => get(playerCharacterAtom)?.meleeAttack ?? null
-)
-
-const rangedAttackAtom = atom<PropValue | null>(
-  (get) => get(playerCharacterAtom)?.rangedAttack ?? null
-)
-
-const defenceAtom = atom<PropValue | null>(
-  (get) => get(playerCharacterAtom)?.defence ?? null
-)
 function LifeBlock() {
-  const [playerCharacter] = useAtom(playerCharacterAtom)
+  const meleeAttack = useSelector(selectMeleeAttack)
+  const rangedAttack = useSelector(selectRangedAttack)
+  const defence = useSelector(selectDefence)
+  const lifePoints = useSelector(selectLifePoints)
+  const staminaPoints = useSelector(selectStaminaPoints)
 
   return (
     <Stack w={'100%'}>
@@ -34,36 +27,36 @@ function LifeBlock() {
         <GridItem colSpan={3} rowSpan={1}>
           <PointPanel
             name={'Stamina'}
-            current={playerCharacter?.currentStaminaPoints ?? 0}
-            max={playerCharacter?.staminaPoints ?? 0}
+            current={staminaPoints?.value ?? 0}
+            max={staminaPoints?.baseValue ?? 0}
           />
         </GridItem>
         <GridItem colSpan={1} rowSpan={2}>
           <StatPanel
             propName={'Melee Attack'}
             propNameAbbr={''}
-            propValueAtom={meleeAttackAtom}
+            propValue={meleeAttack}
           ></StatPanel>
         </GridItem>
         <GridItem colSpan={1} rowSpan={2}>
           <StatPanel
             propName={'Ranged Attack'}
             propNameAbbr={''}
-            propValueAtom={rangedAttackAtom}
+            propValue={rangedAttack}
           ></StatPanel>
         </GridItem>
         <GridItem colSpan={1} rowSpan={2}>
           <StatPanel
             propName={'Defence'}
             propNameAbbr={''}
-            propValueAtom={defenceAtom}
+            propValue={defence}
           ></StatPanel>
         </GridItem>
         <GridItem colSpan={3} rowSpan={1}>
           <PointPanel
             name={'Life'}
-            current={playerCharacter?.currentLifePoints ?? 0}
-            max={playerCharacter?.lifePoints ?? 0}
+            current={lifePoints?.value ?? 0}
+            max={lifePoints?.baseValue ?? 0}
           />
         </GridItem>
       </Grid>

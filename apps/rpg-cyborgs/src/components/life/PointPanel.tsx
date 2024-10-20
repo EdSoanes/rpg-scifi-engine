@@ -1,6 +1,5 @@
 import React from 'react'
-import { Text, Grid, Progress, GridItem } from '@chakra-ui/react'
-import { StatPanel } from '../stats'
+import { Grid, Progress, GridItem } from '@chakra-ui/react'
 
 export declare interface PointPanelProps {
   name: string
