@@ -56,6 +56,25 @@ namespace Rpg.ModObjects.Mods
         public void Disable()
             => IsDisabled = true;
 
+        public ModDescription? Describe()
+        {
+            var value = Graph.CalculateModValue(this);
+            var modDesc = new ModDescription
+            {
+                ModType = GetType().Name,
+                Behavior = Behavior.GetType().Name,
+                Value = value ?? Dice.Zero,
+                ValueFunction = SourceValueFunc?.FullName,
+                SourceValue = SourceValue,
+            };
+
+            var sourceEntity = Graph.GetObject(Source?.EntityId);
+            if (sourceEntity != null)
+                modDesc.SourceProp = sourceEntity.Describe(Source!.Prop);
+
+            return modDesc;
+        }
+
         public override LifecycleExpiry OnStartLifecycle()
         {
             var oldExpiry = Expiry;

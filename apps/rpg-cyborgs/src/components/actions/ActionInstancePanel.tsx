@@ -1,84 +1,39 @@
-import { Atom, useAtom } from 'jotai'
 import React from 'react'
-import { ActionInstance, Activity } from '../../lib/rpg-api/types'
-import { Code, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
-
-// import { graphStateAtom } from '../atoms/graphState.atom'
-// import { getActionAct, getActionOutcome } from '../../lib/rpg-api/fetcher'
-// import ArgForm from './forms/ArgForm'
-
-// const costAtom = atom<ModSet | null>(null)
-// const actAtom = atom<ModSet | null>(null)
-// const outcomeAtom = atom<ModSet[] | null>(null)
+import { ActionInstance, RpgArg } from '../../lib/rpg-api/types'
+import {
+  Box,
+  Code,
+  Heading,
+  // Tab,
+  // TabList,
+  // TabPanel,
+  // TabPanels,
+  // Tabs,
+} from '@chakra-ui/react'
+import ArgForm from './forms/ArgForm'
 
 export declare interface ActionInstancePanelProps {
-  activityAtom: Atom<Activity | undefined>
-  actionInstanceAtom: Atom<ActionInstance | undefined>
+  actionInstance: ActionInstance
 }
 
 function ActionInstancePanel(props: ActionInstancePanelProps) {
-  // const [cost, setCost] = useAtom(costAtom)
-  // const [act, setAct] = useAtom(actAtom)
-  // const [outcome, setOutcome] = useAtom(outcomeAtom)
+  const { actionInstance } = props
 
-  // const [graphState, setGraphState] = useAtom(graphStateAtom)
-  const [activity] = useAtom(props.activityAtom)
-  const [actionInstance] = useAtom(props.actionInstanceAtom)
-
-  // const onCostClicked = async (argValues: {
-  //   [key: string]: string | null | undefined
-  // }) => {
-  //   const cost = await getActionCost(actionInstance!, argValues, graphState!)
-  //   setCost(cost)
-  // }
-
-  // const onActClicked = async (argValues: {
-  //   [key: string]: string | null | undefined
-  // }) => {
-  //   const act = await getActionAct(actionInstance!, argValues, graphState!)
-  //   setAct(act)
-  // }
-
-  // const onOutcomeClicked = async (argValues: {
-  //   [key: string]: string | null | undefined
-  // }) => {
-  //   const outcome = await getActionOutcome(
-  //     actionInstance!,
-  //     argValues,
-  //     graphState!
-  //   )
-  //   setOutcome(outcome)
-  // }
+  const onSubmit = (argValues: {
+    [key: string]: string | null | undefined
+  }) => {}
 
   return (
-    <Tabs>
-      <TabList>
-        <Tab>Cost</Tab>
-        <Tab>Act</Tab>
-        <Tab>Outcome</Tab>
-        <Tab>Instance</Tab>
-      </TabList>
-
-      <TabPanels>
-        <TabPanel>
-          <Code>{JSON.stringify(activity, null, 2)}</Code>
-        </TabPanel>
-        {/* <TabPanel>
-          <ArgForm argSet={actionInstance!.actArgs} onSubmit={onActClicked} />
-          <Code>{JSON.stringify(act, null, 2)}</Code>
-        </TabPanel>
-        <TabPanel>
-          <ArgForm
-            argSet={actionInstance!.outcomeArgs}
-            onSubmit={onOutcomeClicked}
-          />
-          <Code>{JSON.stringify(outcome, null, 2)}</Code>
-        </TabPanel>
-        <TabPanel>
-          <Code>{JSON.stringify(graphState, null, 2)}</Code>
-        </TabPanel> */}
-      </TabPanels>
-    </Tabs>
+    <Box>
+      <Heading as="h3" size="lg" paddingBottom={4} paddingTop={10}>
+        {actionInstance?.actionName}
+      </Heading>
+      <ArgForm
+        argSet={Object.values(actionInstance!.args) as RpgArg[]}
+        onSubmit={onSubmit}
+      />
+      <Code>{JSON.stringify(actionInstance, undefined, 2)}</Code>
+    </Box>
   )
 }
 

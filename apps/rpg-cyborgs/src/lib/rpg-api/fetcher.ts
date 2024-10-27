@@ -5,10 +5,12 @@ import {
   ActivityResponse,
   BooleanResponse,
   StringResponse,
-  DescribeRequest,
-  DescribeResponse,
+  DescribePropRequest,
+  DescribePropResponse,
   ModSetRequest,
   SetStateRequest,
+  DescribeModSetResponse,
+  DescribeStateRequest,
 } from './server-types'
 
 import { Activity, ModSet, RpgGraphState } from './types'
@@ -25,8 +27,8 @@ export const getPropDesc = async (
   entityId: string,
   prop: string,
   graphState: RpgGraphState
-): Promise<DescribeResponse | null> => {
-  const describe: DescribeRequest = {
+): Promise<DescribePropResponse | null> => {
+  const describe: DescribePropRequest = {
     graphState: graphState,
     op: {
       entityId: entityId,
@@ -35,7 +37,7 @@ export const getPropDesc = async (
   }
 
   const response = await post('Cyborgs/describe', describe)
-  return (await response.json()) as DescribeResponse
+  return (await response.json()) as DescribePropResponse
 }
 
 export const getActionInstance = async (
@@ -125,6 +127,23 @@ export const postSetState = async (
 
   const response = await post('Cyborgs/state', setState)
   return (await response.json()) as StringResponse
+}
+
+export const getStateDescription = async (
+  entityId: string,
+  stateName: string,
+  graphState: RpgGraphState
+): Promise<DescribeModSetResponse | undefined> => {
+  const setState: DescribeStateRequest = {
+    graphState: graphState!,
+    op: {
+      entityId: entityId,
+      state: stateName,
+    },
+  }
+
+  const response = await post('Cyborgs/state/describe', setState)
+  return (await response.json()) as DescribeModSetResponse
 }
 
 const get = async (path: string) => {

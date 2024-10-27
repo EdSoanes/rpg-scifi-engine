@@ -13,7 +13,7 @@ namespace Rpg.ModObjects.Server
 
             services.AddControllers().AddNewtonsoftJson(options =>
             {
-                var settings = RpgJson.SerializeOptions;
+                var settings = RpgJson.SerializerOptions();
 
                 options.SerializerSettings.TypeNameHandling = settings.TypeNameHandling;
                 options.SerializerSettings.NullValueHandling = settings.NullValueHandling;
@@ -26,9 +26,9 @@ namespace Rpg.ModObjects.Server
             });
 
             services
-                .AddScoped<IRpgSessionlessServer, RpgSessionlessServer>()
-                .AddScoped<IGraphService, GraphService>()
-                .AddScoped<IActivityService, ActivityService>()
+                .AddScoped<RpgSessionlessServer>()
+                .AddScoped<GraphService>()
+                .AddScoped<ActivityService>()
                 .AddScoped(typeof(IContentFactory), options.ContentFactoryType);
 
             return services;

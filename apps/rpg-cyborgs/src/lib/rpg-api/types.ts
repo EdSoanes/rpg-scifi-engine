@@ -1,13 +1,28 @@
 import { components } from './rpgtypes'
 
+export type PointInTimeType = Pick<
+  components['schemas']['Rpg.ModObjects.Time.PointInTimeType'],
+  keyof components['schemas']['Rpg.ModObjects.Time.PointInTimeType']
+>
+
+export type PointInTime = Pick<
+  components['schemas']['Rpg.ModObjects.Time.PointInTime'],
+  keyof components['schemas']['Rpg.ModObjects.Time.PointInTime']
+>
+
 export type RpgGraphState = Pick<
   components['schemas']['Rpg.ModObjects.RpgGraphState'],
   keyof components['schemas']['Rpg.ModObjects.RpgGraphState']
 >
 
-export type PlayerCharacter = Pick<
-  components['schemas']['Rpg.Cyborgs.PlayerCharacter'],
-  keyof components['schemas']['Rpg.Cyborgs.PlayerCharacter']
+export type RpgContainer = Pick<
+  components['schemas']['Rpg.ModObjects.RpgContainer'],
+  keyof components['schemas']['Rpg.ModObjects.RpgContainer']
+>
+
+export type RpgEntity = Pick<
+  components['schemas']['Rpg.ModObjects.RpgEntity'],
+  keyof components['schemas']['Rpg.ModObjects.RpgEntity']
 >
 
 export type State = Pick<
@@ -30,9 +45,14 @@ export type ActivityTemplate = Pick<
   keyof components['schemas']['Rpg.ModObjects.Actions.ActivityTemplate']
 >
 
-export type PropDesc = Pick<
-  components['schemas']['Rpg.ModObjects.Props.PropDesc'],
-  keyof components['schemas']['Rpg.ModObjects.Props.PropDesc']
+export type PropDescription = Pick<
+  components['schemas']['Rpg.ModObjects.Props.PropDescription'],
+  keyof components['schemas']['Rpg.ModObjects.Props.PropDescription']
+>
+
+export type ModSetDescription = Pick<
+  components['schemas']['Rpg.ModObjects.Mods.ModSetDescription'],
+  keyof components['schemas']['Rpg.ModObjects.Mods.ModSetDescription']
 >
 
 export type PropValue = Pick<

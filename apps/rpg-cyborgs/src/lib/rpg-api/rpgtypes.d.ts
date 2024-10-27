@@ -4,54 +4,6 @@
  */
 
 export interface paths {
-    "/api/v1/rpg/{system}/{archetype}/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    system: string;
-                    archetype: string;
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.System.String"];
-                        "text/json": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.System.String"];
-                        "text/plain": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.System.String"];
-                    };
-                };
-                /** @description The resource is protected and requires an authentication token */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/rpg/{system}/activity/act": {
         parameters: {
             query?: never;
@@ -75,6 +27,7 @@ export interface paths {
                     "application/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityAct"];
                     "text/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityAct"];
                     "application/*+json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityAct"];
+                    "application/json-patch+json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityAct"];
                 };
             };
             responses: {
@@ -129,6 +82,7 @@ export interface paths {
                     "application/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityCreate"];
                     "text/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityCreate"];
                     "application/*+json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityCreate"];
+                    "application/json-patch+json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityCreate"];
                 };
             };
             responses: {
@@ -183,6 +137,7 @@ export interface paths {
                     "application/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityCreateByTemplate"];
                     "text/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityCreateByTemplate"];
                     "application/*+json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityCreateByTemplate"];
+                    "application/json-patch+json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityCreateByTemplate"];
                 };
             };
             responses: {
@@ -237,6 +192,7 @@ export interface paths {
                     "application/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityOutcome"];
                     "text/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityOutcome"];
                     "application/*+json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityOutcome"];
+                    "application/json-patch+json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityOutcome"];
                 };
             };
             responses: {
@@ -314,6 +270,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/rpg/{system}/{archetype}/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    system: string;
+                    archetype: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.System.String"];
+                        "text/json": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.System.String"];
+                        "text/plain": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.System.String"];
+                    };
+                };
+                /** @description The resource is protected and requires an authentication token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/rpg/{system}/describe": {
         parameters: {
             query?: never;
@@ -334,9 +338,10 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.Describe"];
-                    "text/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.Describe"];
-                    "application/*+json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.Describe"];
+                    "application/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeProp"];
+                    "text/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeProp"];
+                    "application/*+json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeProp"];
+                    "application/json-patch+json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeProp"];
                 };
             };
             responses: {
@@ -348,9 +353,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Props.PropDesc"];
-                        "text/json": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Props.PropDesc"];
-                        "text/plain": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Props.PropDesc"];
+                        "application/json": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Props.PropDescription"];
+                        "text/json": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Props.PropDescription"];
+                        "text/plain": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Props.PropDescription"];
                     };
                 };
                 /** @description Bad Request */
@@ -446,6 +451,7 @@ export interface paths {
                     "application/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Mods.ModSet"];
                     "text/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Mods.ModSet"];
                     "application/*+json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Mods.ModSet"];
+                    "application/json-patch+json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Mods.ModSet"];
                 };
             };
             responses: {
@@ -477,7 +483,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/rpg/{system}/state": {
+    "/api/v1/rpg/{system}/modset/describe": {
         parameters: {
             query?: never;
             header?: never;
@@ -497,9 +503,10 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.SetState"];
-                    "text/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.SetState"];
-                    "application/*+json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.SetState"];
+                    "application/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeModSet"];
+                    "text/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeModSet"];
+                    "application/*+json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeModSet"];
+                    "application/json-patch+json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeModSet"];
                 };
             };
             responses: {
@@ -511,9 +518,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.System.String"];
-                        "text/json": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.System.String"];
-                        "text/plain": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.System.String"];
+                        "application/json": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Mods.ModSetDescription"];
+                        "text/json": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Mods.ModSetDescription"];
+                        "text/plain": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Mods.ModSetDescription"];
                     };
                 };
                 /** @description The resource is protected and requires an authentication token */
@@ -525,6 +532,59 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rpg/{system}/time": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    system: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Time.PointInTime"];
+                    "text/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Time.PointInTime"];
+                    "application/*+json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Time.PointInTime"];
+                    "application/json-patch+json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Time.PointInTime"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Time.PointInTime"];
+                        "text/json": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Time.PointInTime"];
+                        "text/plain": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Time.PointInTime"];
+                    };
+                };
+                /** @description The resource is protected and requires an authentication token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -834,6 +894,116 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/rpg/{system}/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    system: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.SetState"];
+                    "text/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.SetState"];
+                    "application/*+json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.SetState"];
+                    "application/json-patch+json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.SetState"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        /** @description The list of notifications produced during the request. */
+                        "Umb-Notifications"?: components["schemas"]["NotificationHeaderModel"][] | null;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.System.String"];
+                        "text/json": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.System.String"];
+                        "text/plain": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.System.String"];
+                    };
+                };
+                /** @description The resource is protected and requires an authentication token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rpg/{system}/state/describe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    system: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeState"];
+                    "text/json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeState"];
+                    "application/*+json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeState"];
+                    "application/json-patch+json": components["schemas"]["Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeState"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        /** @description The list of notifications produced during the request. */
+                        "Umb-Notifications"?: components["schemas"]["NotificationHeaderModel"][] | null;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Mods.ModSetDescription"];
+                        "text/json": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Mods.ModSetDescription"];
+                        "text/plain": components["schemas"]["Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Mods.ModSetDescription"];
+                    };
+                };
+                /** @description The resource is protected and requires an authentication token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1003,6 +1173,7 @@ export interface components {
             readonly name: string;
             readonly ownerId: string;
             readonly ownerArchetype?: string | null;
+            readonly isPlayerVisible: boolean;
             readonly isOn: boolean;
             readonly onByTimePeriod: boolean;
             readonly onByUserAction: boolean;
@@ -1015,6 +1186,7 @@ export interface components {
             readonly name: string;
             readonly ownerId: string;
             readonly ownerArchetype?: string | null;
+            readonly isPlayerVisible: boolean;
             readonly isOn: boolean;
             readonly onByTimePeriod: boolean;
             readonly onByUserAction: boolean;
@@ -1257,6 +1429,12 @@ export interface components {
             readonly isActive: boolean;
             readonly mods: (components["schemas"]["Rpg.ModObjects.Mods.Mods.Base"] | components["schemas"]["Rpg.ModObjects.Mods.Mods.Encounter"] | components["schemas"]["Rpg.ModObjects.Mods.Mods.Initial"] | components["schemas"]["Rpg.ModObjects.Mods.Mods.Override"] | components["schemas"]["Rpg.ModObjects.Mods.Mods.Permanent"] | components["schemas"]["Rpg.ModObjects.Mods.Mods.Synced"] | components["schemas"]["Rpg.ModObjects.Mods.Mods.Threshold"] | components["schemas"]["Rpg.ModObjects.Mods.Mods.Time"] | components["schemas"]["Rpg.ModObjects.Mods.Mods.Turn"])[];
         } & components["schemas"]["Rpg.ModObjects.RpgLifecycleObject"];
+        "Rpg.ModObjects.Mods.ModSetDescription": {
+            name: string;
+            readonly values: {
+                [key: string]: components["schemas"]["Rpg.ModObjects.Values.Dice"] | undefined;
+            };
+        };
         "Rpg.ModObjects.Mods.ModSets.StateModSet": {
             stateName: string;
         } & components["schemas"]["Rpg.ModObjects.Mods.ModSet"];
@@ -1274,8 +1452,8 @@ export interface components {
         "Rpg.ModObjects.Mods.Mods.Threshold": components["schemas"]["Rpg.ModObjects.Mods.Mod"];
         "Rpg.ModObjects.Mods.Mods.Time": components["schemas"]["Rpg.ModObjects.Mods.Mod"];
         "Rpg.ModObjects.Mods.Mods.Turn": components["schemas"]["Rpg.ModObjects.Mods.Mods.Time"];
-        "Rpg.ModObjects.Props.ModDesc": {
-            sourceProp: components["schemas"]["Rpg.ModObjects.Props.PropDesc"];
+        "Rpg.ModObjects.Props.ModDescription": {
+            sourceProp: components["schemas"]["Rpg.ModObjects.Props.PropDescription"];
             modType: string;
             behavior: string;
             sourceValue: components["schemas"]["Rpg.ModObjects.Values.Dice"];
@@ -1289,7 +1467,7 @@ export interface components {
             readonly mods: (components["schemas"]["Rpg.ModObjects.Mods.Mods.Base"] | components["schemas"]["Rpg.ModObjects.Mods.Mods.Encounter"] | components["schemas"]["Rpg.ModObjects.Mods.Mods.Initial"] | components["schemas"]["Rpg.ModObjects.Mods.Mods.Override"] | components["schemas"]["Rpg.ModObjects.Mods.Mods.Permanent"] | components["schemas"]["Rpg.ModObjects.Mods.Mods.Synced"] | components["schemas"]["Rpg.ModObjects.Mods.Mods.Threshold"] | components["schemas"]["Rpg.ModObjects.Mods.Mods.Time"] | components["schemas"]["Rpg.ModObjects.Mods.Mods.Turn"])[];
             readonly refs: components["schemas"]["Rpg.ModObjects.Props.PropObjRef"][];
         } & components["schemas"]["Rpg.ModObjects.RpgLifecycleObject"];
-        "Rpg.ModObjects.Props.PropDesc": {
+        "Rpg.ModObjects.Props.PropDescription": {
             rootEntityId: string;
             rootEntityName: string;
             rootEntityArchetype: string;
@@ -1300,7 +1478,7 @@ export interface components {
             prop: string;
             value: components["schemas"]["Rpg.ModObjects.Values.Dice"];
             baseValue: components["schemas"]["Rpg.ModObjects.Values.Dice"];
-            mods: components["schemas"]["Rpg.ModObjects.Props.ModDesc"][];
+            mods: components["schemas"]["Rpg.ModObjects.Props.ModDescription"][];
         };
         "Rpg.ModObjects.Props.PropObjRef": {
             entityId: string;
@@ -1309,7 +1487,6 @@ export interface components {
         "Rpg.ModObjects.Props.PropRef": {
             entityId: string;
             prop: string;
-            refType: components["schemas"]["Rpg.ModObjects.Props.RefType"];
         };
         /** @enum {string} */
         "Rpg.ModObjects.Props.RefType": "Value" | "Child" | "Children";
@@ -1391,9 +1568,17 @@ export interface components {
                 [key: string]: (string | null) | undefined;
             };
         };
-        "Rpg.ModObjects.Server.Ops.Describe": {
+        "Rpg.ModObjects.Server.Ops.DescribeModSet": {
+            entityId: string;
+            modSetId: string;
+        };
+        "Rpg.ModObjects.Server.Ops.DescribeProp": {
             entityId: string;
             prop: string;
+        };
+        "Rpg.ModObjects.Server.Ops.DescribeState": {
+            entityId: string;
+            state: string;
         };
         "Rpg.ModObjects.Server.Ops.SetState": {
             entityId: string;
@@ -1409,7 +1594,7 @@ export interface components {
         };
         "Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Mods.ModSet": {
             graphState: components["schemas"]["Rpg.ModObjects.RpgGraphState"];
-            op: components["schemas"]["Rpg.ModObjects.Mods.ModSet"] | components["schemas"]["Rpg.ModObjects.Mods.ModSets.StateModSet"] | components["schemas"]["Rpg.ModObjects.Mods.ModSets.SyncedModSet"] | components["schemas"]["Rpg.ModObjects.Mods.ModSets.TimedModSet"] | components["schemas"]["Rpg.ModObjects.Mods.ModSets.TurnModSet"];
+            op?: (components["schemas"]["Rpg.ModObjects.Mods.ModSet"] | components["schemas"]["Rpg.ModObjects.Mods.ModSets.StateModSet"] | components["schemas"]["Rpg.ModObjects.Mods.ModSets.SyncedModSet"] | components["schemas"]["Rpg.ModObjects.Mods.ModSets.TimedModSet"] | components["schemas"]["Rpg.ModObjects.Mods.ModSets.TurnModSet"]) | null;
         };
         "Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityAct": {
             graphState: components["schemas"]["Rpg.ModObjects.RpgGraphState"];
@@ -1427,21 +1612,41 @@ export interface components {
             graphState: components["schemas"]["Rpg.ModObjects.RpgGraphState"];
             op: components["schemas"]["Rpg.ModObjects.Server.Ops.ActivityOutcome"];
         };
-        "Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.Describe": {
+        "Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeModSet": {
             graphState: components["schemas"]["Rpg.ModObjects.RpgGraphState"];
-            op: components["schemas"]["Rpg.ModObjects.Server.Ops.Describe"];
+            op: components["schemas"]["Rpg.ModObjects.Server.Ops.DescribeModSet"];
+        };
+        "Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeProp": {
+            graphState: components["schemas"]["Rpg.ModObjects.RpgGraphState"];
+            op: components["schemas"]["Rpg.ModObjects.Server.Ops.DescribeProp"];
+        };
+        "Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeState": {
+            graphState: components["schemas"]["Rpg.ModObjects.RpgGraphState"];
+            op: components["schemas"]["Rpg.ModObjects.Server.Ops.DescribeState"];
         };
         "Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.SetState": {
             graphState: components["schemas"]["Rpg.ModObjects.RpgGraphState"];
             op: components["schemas"]["Rpg.ModObjects.Server.Ops.SetState"];
         };
+        "Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Time.PointInTime": {
+            graphState: components["schemas"]["Rpg.ModObjects.RpgGraphState"];
+            op: components["schemas"]["Rpg.ModObjects.Time.PointInTime"];
+        };
         "Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Actions.Activity": {
             graphState: components["schemas"]["Rpg.ModObjects.RpgGraphState"];
             data: components["schemas"]["Rpg.ModObjects.Actions.Activity"];
         };
-        "Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Props.PropDesc": {
+        "Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Mods.ModSetDescription": {
             graphState: components["schemas"]["Rpg.ModObjects.RpgGraphState"];
-            data: components["schemas"]["Rpg.ModObjects.Props.PropDesc"];
+            data: components["schemas"]["Rpg.ModObjects.Mods.ModSetDescription"];
+        };
+        "Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Props.PropDescription": {
+            graphState: components["schemas"]["Rpg.ModObjects.RpgGraphState"];
+            data: components["schemas"]["Rpg.ModObjects.Props.PropDescription"];
+        };
+        "Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Time.PointInTime": {
+            graphState: components["schemas"]["Rpg.ModObjects.RpgGraphState"];
+            data: components["schemas"]["Rpg.ModObjects.Time.PointInTime"];
         };
         "Rpg.ModObjects.Server.RpgResponse.System.Boolean": {
             graphState: components["schemas"]["Rpg.ModObjects.RpgGraphState"];
@@ -1449,7 +1654,7 @@ export interface components {
         };
         "Rpg.ModObjects.Server.RpgResponse.System.String": {
             graphState: components["schemas"]["Rpg.ModObjects.RpgGraphState"];
-            data: string;
+            data?: string | null;
         };
         "Rpg.ModObjects.States.State": {
             expiry: components["schemas"]["Rpg.ModObjects.Time.LifecycleExpiry"];
@@ -1457,6 +1662,7 @@ export interface components {
             readonly name: string;
             readonly ownerId: string;
             readonly ownerArchetype?: string | null;
+            readonly isPlayerVisible: boolean;
             readonly isOn: boolean;
             readonly onByTimePeriod: boolean;
             readonly onByUserAction: boolean;
@@ -1468,6 +1674,7 @@ export interface components {
             readonly name: string;
             readonly ownerId: string;
             readonly ownerArchetype?: string | null;
+            readonly isPlayerVisible: boolean;
             readonly isOn: boolean;
             readonly onByTimePeriod: boolean;
             readonly onByUserAction: boolean;
@@ -1479,6 +1686,7 @@ export interface components {
             readonly name: string;
             readonly ownerId: string;
             readonly ownerArchetype?: string | null;
+            readonly isPlayerVisible: boolean;
             readonly isOn: boolean;
             readonly onByTimePeriod: boolean;
             readonly onByUserAction: boolean;
@@ -1490,6 +1698,7 @@ export interface components {
             readonly name: string;
             readonly ownerId: string;
             readonly ownerArchetype?: string | null;
+            readonly isPlayerVisible: boolean;
             readonly isOn: boolean;
             readonly onByTimePeriod: boolean;
             readonly onByUserAction: boolean;

@@ -2,6 +2,7 @@
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
 using Newtonsoft.Json;
+using Rpg.ModObjects.Mods;
 
 namespace Rpg.ModObjects.States
 {
@@ -15,6 +16,7 @@ namespace Rpg.ModObjects.States
         [JsonProperty] public string Name { get; protected set; }
         [JsonProperty] public string OwnerId { get; protected set; }
         [JsonProperty] public string? OwnerArchetype { get; protected set; }
+        [JsonProperty] public bool IsPlayerVisible { get; protected set; } = true;
         [JsonProperty] protected List<SpanOfTime> ActiveTimeSpans { get; set; } = new();
 
         public bool IsOn { get => OnByTimePeriod || OnByUserAction || OnByCondition; }
@@ -30,6 +32,14 @@ namespace Rpg.ModObjects.States
             Name = this.GetType().Name;
             OwnerId = owner.Id;
             OwnerArchetype = owner.Archetype;
+        }
+
+        public ModSetDescription Describe()
+        {
+            var instance = new StateModSet(OwnerId, Name);
+            instance.OnCreating(Graph);
+            FillStateSet(instance);
+            return instance.Describe();
         }
 
         public StateModSet? ActivateInstance(SpanOfTime? spanOfTime = null)

@@ -2,9 +2,9 @@
 
 namespace Rpg.ModObjects.Server.Ops
 {
-    public class Describe
+    public class DescribeModSet
     {
         [JsonProperty] public string EntityId { get; set; }
-        [JsonProperty] public string Prop {  get; set; }
+        [JsonProperty] public string ModSetId {  get; set; }
     }
 }

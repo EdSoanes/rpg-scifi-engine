@@ -5,9 +5,9 @@ namespace Rpg.Cyborgs.States
 {
     public class MeleeAttacked : State<Actor>
     {
-        [JsonConstructor] private MeleeAttacked() { }
+        [JsonConstructor] private MeleeAttacked() { IsPlayerVisible = false; }
 
         public MeleeAttacked(Actor owner)
-           : base(owner) { }
+           : base(owner) { IsPlayerVisible = false; }
     }
 }

@@ -5,9 +5,9 @@ namespace Rpg.Cyborgs.States
 {
     public class Parrying : State<Actor>
     {
-        [JsonConstructor] private Parrying() { }
+        [JsonConstructor] private Parrying() { IsPlayerVisible = false; }
 
         public Parrying(Actor owner)
-            : base(owner) { }
+            : base(owner) { IsPlayerVisible = false; }
     }
 }

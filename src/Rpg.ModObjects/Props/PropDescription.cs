@@ -1,128 +1,108 @@
 ﻿using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Values;
-using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Props
 {
     public class PropDescription
     {
-        [JsonIgnore] public RpgObject RootEntity { get; set; }
-        [JsonIgnore] public RpgObject Entity { get; private set; }
-        public string Prop { get; private set; }
-        public string Path { get; private set; }
+        public string RootEntityId { get; set; }
+        public string RootEntityName { get; set; }  
+        public string RootEntityArchetype { get; set; }
+        public string RootProp { get; set; }
 
-        [JsonIgnore] public Dice InitialValue { get; private set; }
-        [JsonIgnore] public Dice BaseValue { get; private set; }
-        public Dice Value { get; private set; }
+        public string EntityId { get; set; }
+        public string EntityName { get; set; }
+        public string EntityArchetype { get; set; }
 
-        public ModDescription[] Mods { get; private set; } = new ModDescription[0];
+        public string Prop { get; set; }
+        public Dice Value { get; set; }
+        public Dice BaseValue { get; set; }
 
-        public PropDescription(RpgGraph graph, RpgObject rootEntity, string prop)
-            : this(graph, rootEntity, new PropRef(rootEntity.Id, prop))
-        {
-            Mods = graph.GetActiveMods(Entity, prop)
-                .Select(x => new ModDescription(graph, rootEntity, x))
-                .ToArray();
-        }
-
-        public PropDescription(RpgGraph graph, RpgObject rootEntity, PropRef propRef)
-        {
-            RootEntity = rootEntity;
-            Entity = graph.GetObject(propRef.EntityId)!;
-            Path = string.Join('.', rootEntity.PathTo(Entity));
-            Prop = propRef.Prop;
-
-            InitialValue = graph.CalculateInitialPropValue(Entity, propRef.Prop) ?? Dice.Zero;
-            BaseValue = graph.CalculateBasePropValue(Entity, propRef.Prop) ?? Dice.Zero;
-            Value = graph.GetPropValue(Entity, propRef.Prop) ?? Dice.Zero;
-        }
-
-        public string PropertyString()
-        {
-            var parts = new List<string>
-            {
-                string.IsNullOrEmpty(Path) ? Entity.Name : RootEntity.Name,
-                Path,
-                Prop
-            };
-
-            var prop = string.Join('.', parts.Where(x => !string.IsNullOrEmpty(x)));
-            return prop;
-        }
+        public List<ModDescription> Mods { get; set; } = new();
 
         public override string ToString()
-            => $"{PropertyString()} = {Value}";
+        {
+            return $"{Value} <= {RootEntityArchetype}.{RootProp}";
+        }
     }
-
 
     public class ModDescription
     {
-        [JsonIgnore] public PropDescription TargetProp { get; private set; }
-        public PropDescription? SourceProp { get; private set; }
-        public string ModType { get; private set; }
-        public Dice SourceValue { get; private set; }
-        public Dice Value { get; private set; }
-        public string? ValueFunction { get; private set; }
-        public ModDescription[] Mods { get; private set; } = new ModDescription[0];
-
-        public ModDescription(RpgGraph graph, RpgObject rootEntity, PropDescription targetProp, Mod[] baseMods)
-        {
-            TargetProp = targetProp;
-            ModType = nameof(Override);
-            Value = graph.CalculateBasePropValue(TargetProp.Entity, TargetProp.Prop) ?? Dice.Zero;
-
-            Mods = baseMods
-                .Where(x => !x.IsBaseMod)
-                .Select(x => new ModDescription(graph, rootEntity, x))
-                .ToArray();
-        }
-
-        public ModDescription(RpgGraph graph, RpgObject rootEntity, Mod mod)
-        {
-            TargetProp = new PropDescription(graph, rootEntity, mod.Target);
-            ModType = mod.GetType().Name;
-            Value = graph.CalculateModValue(mod) ?? Dice.Zero;
-            ValueFunction = mod.SourceValueFunc?.FullName;
-
-            var sourcePropRef = mod.Source;
-            if (sourcePropRef != null)
-            {
-                SourceProp = new PropDescription(graph, rootEntity, sourcePropRef);
-                SourceValue = SourceProp.Value;
-
-                var mods = new List<ModDescription>();
-                var sourceMods = graph.GetActiveMods(sourcePropRef);
-                if (sourceMods.Any(x => x.IsBaseOverrideMod))
-                {
-                    mods.Add(new ModDescription(graph, rootEntity, TargetProp, sourceMods.Where(x => x.IsBaseMod && !x.IsBaseOverrideMod).ToArray()));
-                    mods.AddRange(sourceMods
-                        .Where(x => !x.IsBaseMod)
-                        .Select(x => new ModDescription(graph, rootEntity, x)));
-                }
-                else
-                {
-                    mods.AddRange(sourceMods
-                        .Select(x => new ModDescription(graph, rootEntity, x)));
-                }
-
-                Mods = mods.ToArray();
-            }
-            else
-                SourceValue = mod.SourceValue ?? Dice.Zero;
-        }
+        public PropDescription? SourceProp { get; set; }
+        public string ModType { get; set; }
+        public string Behavior { get; set; }
+        public Dice? SourceValue { get; set; }
+        public Dice Value { get; set; }
+        public string? ValueFunction { get; set; }
 
         public override string ToString()
         {
-            var res = $"[{ModType}] {(ModType == nameof(Initial) ? TargetProp.InitialValue : Value)}";
-            if (!string.IsNullOrEmpty(ValueFunction))
-                res += $" ({ValueFunction} {SourceValue})";
+            var src = SourceProp != null
+                ? $"{SourceProp.RootEntityName}.{SourceProp.RootProp}"
+                : SourceValue?.ToString();
 
-            var srcProp = SourceProp?.PropertyString();
-            if (!string.IsNullOrEmpty(srcProp))
-                res += $" from {srcProp}";
-
-            return res;
+            var type = Behavior == "Threshold" ? Behavior : ModType;
+            return $"{Value} <= ({type}) {src}";
         }
+    }
+
+    public static class PropDescExtensions
+    {
+        //public static PropDesc? Describe(this RpgObject? rootObject, RpgGraph graph, string propPath)
+        //{
+        //    var exists = false;
+        //    var (entity, prop) = rootObject.FromPath(propPath);
+        //    if (entity == null || prop == null)
+        //        return null;
+
+        //    var propVal = entity?.PropertyValue(prop, out exists);
+
+
+        //    var propDesc = new PropDesc
+        //    {
+        //        RootEntityId = rootObject!.Id,
+        //        RootEntityArchetype = rootObject.Archetype,
+        //        RootEntityName = rootObject.Name,
+        //        RootProp = propPath,
+
+        //        EntityId = entity!.Id,
+        //        EntityArchetype = entity.Archetype,
+        //        EntityName = entity.Name,
+        //        Prop = prop,
+
+        //        Value = graph.CalculatePropValue(entity, prop) ?? Dice.Zero,
+        //        BaseValue = graph.CalculateBasePropValue(entity, prop) ?? Dice.Zero
+        //    };
+
+        //    propDesc.Mods = entity.GetActiveMods(prop)
+        //        .Select(x => x.Describe(graph))
+        //        .Where(x => x != null)
+        //        .Cast<ModDesc>()
+        //        .ToList();
+
+        //    return propDesc;
+        //}
+
+        //public static ModDescription? Describe(this Mod? mod, RpgGraph graph)
+        //{
+        //    if (mod == null) 
+        //        return null;
+
+        //    var value = graph.CalculateModValue(mod);
+        //    var modDesc = new ModDescription
+        //    {
+        //        ModType = mod.GetType().Name,
+        //        Behavior = mod.Behavior.GetType().Name,
+        //        Value = value ?? Dice.Zero,
+        //        ValueFunction = mod.SourceValueFunc?.FullName,
+        //        SourceValue = mod.SourceValue,
+        //    };
+
+        //    var sourceEntity = graph.GetObject(mod.Source?.EntityId);
+        //    if (sourceEntity != null)
+        //        modDesc.SourceProp = sourceEntity.Describe(mod.Source!.Prop);
+
+        //    return modDesc;
+        //}
     }
 }

@@ -1,10 +1,11 @@
-import { useAtomValue } from 'jotai'
 import { Code, Heading, Stack } from '@chakra-ui/react'
 import React from 'react'
-import { graphStateAtom } from '../atoms/graphState.atom'
+import { selectGraphState } from '../../app/graphState/graphSelectors'
+import { useSelector } from 'react-redux'
+
 
 function GraphStateBlock() {
-  const graphState = useAtomValue(graphStateAtom)
+  const graphState = useSelector(selectGraphState)
 
   return (
     <Stack w={'100%'}>

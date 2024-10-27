@@ -7,7 +7,6 @@ namespace Rpg.ModObjects.Props
     {
         [JsonProperty] public string EntityId { get; protected set; }
         [JsonProperty] public string Prop { get; protected set; }
-        [JsonProperty] public RefType RefType { get; protected set; } = RefType.Value;
 
         [JsonConstructor] protected PropRef() { }
 
@@ -15,13 +14,6 @@ namespace Rpg.ModObjects.Props
         {
             EntityId = entityId;
             Prop = prop;
-        }
-
-        public PropRef(string entityId, string prop, RefType refType)
-        {
-            EntityId = entityId;
-            Prop = prop;
-            RefType = refType;
         }
 
         public static PropRef CreatePropRef<T, TResult>(T rootEntity, Expression<Func<T, TResult>> expression)
@@ -60,17 +52,16 @@ namespace Rpg.ModObjects.Props
 
         public override string ToString()
         {
-            return $"{RefType}.{EntityId}.{Prop}";
+            return $"{EntityId}.{Prop}";
         }
 
         public static PropRef FromString(string str)
         {
             var parts = !string.IsNullOrEmpty(str) ? str.Split('.') : [];
-            var refType = Enum.Parse<Props.RefType>(parts[0]);
-            var entityId = parts[1];
-            var prop = string.Join('.', parts.Skip(2));
+            var entityId = parts[0];
+            var prop = string.Join('.', parts.Skip(1));
 
-            return new PropRef(entityId, prop, refType);
+            return new PropRef(entityId, prop);
         }
     }
 }

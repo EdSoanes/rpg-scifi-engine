@@ -1,63 +1,50 @@
 'use client'
 
-import { atom } from 'jotai'
 import { StatGroup } from '@chakra-ui/react'
 import React from 'react'
-import { PropValue } from '../../lib/rpg-api/types'
 import StatPanel from './StatPanel'
-import { playerCharacterAtom } from '../atoms/playerCharacter.atom'
-
-const strengthAtom = atom<PropValue | null>(
-  (get) => get(playerCharacterAtom)?.strength ?? null
-)
-const agilityAtom = atom<PropValue | null>(
-  (get) => get(playerCharacterAtom)?.agility ?? null
-)
-const healthAtom = atom<PropValue | null>(
-  (get) => get(playerCharacterAtom)?.health ?? null
-)
-const brainsAtom = atom<PropValue | null>(
-  (get) => get(playerCharacterAtom)?.brains ?? null
-)
-const insightAtom = atom<PropValue | null>(
-  (get) => get(playerCharacterAtom)?.insight ?? null
-)
-const charismaAtom = atom<PropValue | null>(
-  (get) => get(playerCharacterAtom)?.charisma ?? null
-)
+import { selectAgility, selectBrains, selectCharisma, selectHealth, selectInsight, selectStrength } from '../../app/graphState/graphSelectors'
+import { useSelector } from 'react-redux'
 
 function StatsBlock() {
+  const strength = useSelector(selectStrength)
+  const agility = useSelector(selectAgility)
+  const health = useSelector(selectHealth)
+  const brains = useSelector(selectBrains)
+  const insight = useSelector(selectInsight)
+  const charisma = useSelector(selectCharisma)
+
   return (
     <StatGroup w={'100%'} alignItems={'stretch'}>
       <StatPanel
         propName="Strength"
         propNameAbbr="STR"
-        propValueAtom={strengthAtom}
+        propValue={strength}
       />
       <StatPanel
         propName="Agility"
         propNameAbbr="AGI"
-        propValueAtom={agilityAtom}
+        propValue={agility}
       />
       <StatPanel
         propName="Health"
         propNameAbbr="HEL"
-        propValueAtom={healthAtom}
+        propValue={health}
       />
       <StatPanel
         propName="Brains"
         propNameAbbr="BRA"
-        propValueAtom={brainsAtom}
+        propValue={brains}
       />
       <StatPanel
         propName="Insight"
         propNameAbbr="INS"
-        propValueAtom={insightAtom}
+        propValue={insight}
       />
       <StatPanel
         propName="Charisma"
         propNameAbbr="CHA"
-        propValueAtom={charismaAtom}
+        propValue={charisma}
       />
     </StatGroup>
   )

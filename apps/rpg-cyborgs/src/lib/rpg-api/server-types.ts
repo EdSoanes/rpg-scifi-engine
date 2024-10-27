@@ -10,14 +10,39 @@ export type SetStateRequest = Pick<
   keyof components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.SetState']
 >
 
-export type DescribeRequest = Pick<
-  components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.Describe'],
-  keyof components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.Describe']
+export type SetState = Pick<
+  components['schemas']['Rpg.ModObjects.Server.Ops.SetState'],
+  keyof components['schemas']['Rpg.ModObjects.Server.Ops.SetState']
+>
+
+export type DescribeStateRequest = Pick<
+  components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeState'],
+  keyof components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeState']
+>
+
+export type DescribePropRequest = Pick<
+  components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeProp'],
+  keyof components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeProp']
+>
+
+export type DescribePropResponse = Pick<
+  components['schemas']['Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Props.PropDescription'],
+  keyof components['schemas']['Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Props.PropDescription']
 >
 
 export type ModSetRequest = Pick<
   components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Mods.ModSet'],
   keyof components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Mods.ModSet']
+>
+
+export type DescribeModSetRequest = Pick<
+  components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeModSet'],
+  keyof components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeModSet']
+>
+
+export type DescribeModSetResponse = Pick<
+  components['schemas']['Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Mods.ModSetDescription'],
+  keyof components['schemas']['Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Mods.ModSetDescription']
 >
 
 export type ActivityActRequest = Pick<
@@ -35,6 +60,11 @@ export type ActivityCreateRequest = Pick<
   keyof components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityCreate']
 >
 
+export type ActivityCreate = Pick<
+  components['schemas']['Rpg.ModObjects.Server.Ops.ActivityCreate'],
+  keyof components['schemas']['Rpg.ModObjects.Server.Ops.ActivityCreate']
+>
+
 export type ActivityCreateByGroupRequest = Pick<
   components['schemas']['Rpg.ModObjects.Server.Ops.ActivityCreateByTemplate'],
   keyof components['schemas']['Rpg.ModObjects.Server.Ops.ActivityCreateByTemplate']
@@ -45,11 +75,6 @@ export type ActivityResponse = Pick<
   keyof components['schemas']['Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Actions.Activity']
 >
 
-export type DescribeResponse = Pick<
-  components['schemas']['Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Props.PropDesc'],
-  keyof components['schemas']['Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Props.PropDesc']
->
-
 export type StringResponse = Pick<
   components['schemas']['Rpg.ModObjects.Server.RpgResponse.System.String'],
   keyof components['schemas']['Rpg.ModObjects.Server.RpgResponse.System.String']
@@ -58,4 +83,14 @@ export type StringResponse = Pick<
 export type BooleanResponse = Pick<
   components['schemas']['Rpg.ModObjects.Server.RpgResponse.System.Boolean'],
   keyof components['schemas']['Rpg.ModObjects.Server.RpgResponse.System.Boolean']
+>
+
+export type SetTimeRequest = Pick<
+  components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Time.PointInTime'],
+  keyof components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Time.PointInTime']
+>
+
+export type SetTimeResponse = Pick<
+  components['schemas']['Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Time.PointInTime'],
+  keyof components['schemas']['Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Time.PointInTime']
 >

@@ -1,4 +1,4 @@
 import StatesBlock from './StatesBlock'
-import StateButton from './StateButton'
+import StatePanel from './StatePanel'
 
-export { StatesBlock, StateButton }
+export { StatesBlock, StatePanel }

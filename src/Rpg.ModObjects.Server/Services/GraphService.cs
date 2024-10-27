@@ -2,7 +2,7 @@
 
 namespace Rpg.ModObjects.Server.Services
 {
-    public class GraphService : IGraphService
+    public class GraphService
     {
         private readonly IContentFactory _contentFactory;
 

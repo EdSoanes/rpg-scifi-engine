@@ -5,9 +5,9 @@ namespace Rpg.Cyborgs.States
 {
     public class Aiming : State<Actor>
     {
-        [JsonConstructor] private Aiming() { }
+        [JsonConstructor] private Aiming() { IsPlayerVisible = false; }
 
         public Aiming(Actor owner) 
-            : base(owner) { }
+            : base(owner) { IsPlayerVisible = false; }
     }
 }

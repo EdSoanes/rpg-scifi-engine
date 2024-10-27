@@ -1,7 +1,8 @@
 import React from 'react'
-import { Provider } from 'jotai'
+import { Provider } from 'react-redux'
 import { Flex } from '@chakra-ui/react'
 import Header from './header'
+import { store } from '../app/store'
 
 export default function MainLayout({
   children,
@@ -9,7 +10,7 @@ export default function MainLayout({
   children: React.ReactNode
 }) {
   return (
-    <Provider>
+    <Provider store={store}>
       <Flex
         direction="column"
         align="center"

@@ -1,24 +1,23 @@
-import { useAtom } from 'jotai'
-import { ButtonGroup, Heading, Stack } from '@chakra-ui/react'
+import { Heading, Stack } from '@chakra-ui/react'
 import React from 'react'
-import StateButton from './StateButton'
-import { splitAtom } from 'jotai/utils'
-import { playerCharacterStatesAtom } from '../atoms/playerCharacterStates.atom'
-
-const stateAtomsAtom = splitAtom(playerCharacterStatesAtom)
+import StatePanel from './StatePanel'
+import { selectStates } from '../../app/states/statesSelectors'
+import { useSelector } from 'react-redux'
 
 function StatesBlock() {
-  const [stateAtoms] = useAtom(stateAtomsAtom)
+  const states = useSelector(selectStates)
   return (
     <Stack w={'100%'}>
-      <Heading as="h3" size="md" paddingBottom={4} paddingTop={10}>
+      <Heading as="h3" size="lg" paddingBottom={4} paddingTop={10}>
         States
       </Heading>
-      <ButtonGroup w={'100%'} alignItems={'stretch'}>
-        {stateAtoms.map((state, i) => (
-          <StateButton key={i} stateAtom={state} />
-        ))}
-      </ButtonGroup> 
+      <Stack direction={'row'} w={'100%'} wrap={'wrap'} alignItems={'stretch'}>
+        {states
+          .filter((state) => state.isPlayerVisible)
+          .map((state, i) => (
+            <StatePanel key={i} state={state} />
+          ))}
+      </Stack>
     </Stack>
   )
 }

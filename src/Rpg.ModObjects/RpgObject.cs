@@ -95,14 +95,14 @@ namespace Rpg.ModObjects
 
         #region Props
 
-        public PropDesc? Describe(string propPath)
+        public PropDescription? Describe(string propPath)
         {
             var exists = false;
             var (entity, prop) = this.FromPath(propPath);
             if (entity == null || prop == null)
                 return null;
 
-            var propDesc = new PropDesc
+            var propDesc = new PropDescription
             {
                 RootEntityId = Id,
                 RootEntityArchetype = Archetype,
@@ -119,9 +119,9 @@ namespace Rpg.ModObjects
             };
 
             propDesc.Mods = entity.GetActiveMods(prop)
-                .Select(x => x.Describe(Graph!))
+                .Select(x => x.Describe())
                 .Where(x => x != null)
-                .Cast<ModDesc>()
+                .Cast<ModDescription>()
                 .ToList();
 
             return propDesc;

@@ -44,7 +44,7 @@ namespace Rpg.ModObjects.Server.Tests
             var time = new JsonTestClass("private_set")
             {
                 Time = new PointInTime(PointInTimeType.BeforeTime),
-                PropRef = new PropRef("1234abcd", "propertyName", RefType.Value),
+                PropRef = new PropRef("1234abcd", "propertyName"),
                 DiceNumber = 5,
                 Dice = "1d6 + 2d8 +4"
             };
@@ -59,7 +59,7 @@ namespace Rpg.ModObjects.Server.Tests
             var time = new JsonTestClass("private_set")
             {
                 Time = new PointInTime(PointInTimeType.BeforeTime),
-                PropRef = new PropRef("1234abcd", "propertyName", RefType.Value),
+                PropRef = new PropRef("1234abcd", "propertyName"),
                 DiceNumber = 5,
                 Dice = "1d6 + 2d8 +4"
             };
@@ -77,7 +77,7 @@ namespace Rpg.ModObjects.Server.Tests
             var time = new JsonTestClass("private_set")
             {
                 Time = new PointInTime(PointInTimeType.BeforeTime),
-                PropRef = new PropRef("1234abcd", "propertyName", RefType.Value),
+                PropRef = new PropRef("1234abcd", "propertyName"),
                 DiceNumber = 5,
                 Dice = "1d6 + 2d8 +4"
             };

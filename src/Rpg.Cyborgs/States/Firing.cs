@@ -5,9 +5,9 @@ namespace Rpg.Cyborgs.States
 {
     public class Firing : State<RangedWeapon>
     {
-        [JsonConstructor] private Firing() { }
+        [JsonConstructor] private Firing() { IsPlayerVisible = false; }
 
         public Firing(RangedWeapon owner)
-            : base(owner) { }
+            : base(owner) { IsPlayerVisible = false; }
     }
 }

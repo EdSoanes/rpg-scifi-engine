@@ -2,6 +2,7 @@
 using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Tests.Models;
+using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Tests
 {
@@ -47,6 +48,31 @@ namespace Rpg.ModObjects.Tests
             Assert.That(scoreMod.Value.Roll(), Is.EqualTo(2));
             Assert.That(scoreMod.SourceProp.Value.Roll(), Is.EqualTo(14));
 
+        }
+
+        [Test]
+        public void DescribeModSet()
+        {
+            var entity = new ModdableEntity();
+            var graph = new RpgGraph(entity);
+
+            var modSet = new ModSet(entity.Id, "Testing")
+                .Add(entity, x => x.Melee, 1)
+                .Add(entity, x => x.Missile, -2)
+                .Add(entity, x => x.Damage, "3d6")
+                .Add(entity, x => x.Health, x => x.Melee);
+
+            modSet.OnCreating(graph, entity);
+            var desc = modSet.Describe();
+
+            Assert.That(desc, Is.Not.Null);
+            Assert.That(desc.Name, Is.EqualTo("Testing"));
+            Assert.That(desc.Values.Count(), Is.EqualTo(4));
+
+            Assert.That(desc.Get(new Props.PropRef(entity.Id, "Melee")), Is.EqualTo(new Dice("1")));
+            Assert.That(desc.Get(new Props.PropRef(entity.Id, "Missile")), Is.EqualTo(new Dice("-2")));
+            Assert.That(desc.Get(new Props.PropRef(entity.Id, "Damage")), Is.EqualTo(new Dice("3d6")));
+            Assert.That(desc.Get(new Props.PropRef(entity.Id, "Health")), Is.EqualTo(new Dice("5")));
         }
     }
 }

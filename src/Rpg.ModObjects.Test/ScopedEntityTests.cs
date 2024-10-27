@@ -64,7 +64,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(entity.ChildComponent2.Prop, Is.EqualTo(0));
             Assert.That(entity.ChildEntity!.Prop, Is.EqualTo(0));
 
-            entity.AddMod(new Permanent(ModScope.ChildComponents), "Prop", 1);
+            entity.AddMod(new Permanent("Prop", ModScope.ChildComponents), "Prop", 1);
             graph.Time.TriggerEvent();
 
             Assert.That(entity.Prop, Is.EqualTo(0));

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using System;
 
 namespace Rpg.ModObjects.Server.Json
 {
@@ -30,31 +31,43 @@ namespace Rpg.ModObjects.Server.Json
         //    }
         //};
 
-        public static JsonSerializerSettings SerializeOptions = new JsonSerializerSettings
+        public static JsonSerializerSettings? _serializerOptions;
+
+        public static JsonSerializerSettings SerializerOptions()
         {
-            TypeNameHandling = TypeNameHandling.Auto,
-            NullValueHandling = NullValueHandling.Include,
-            Formatting = Formatting.Indented,
-            ContractResolver = new CamelCasePropertyNamesContractResolver
+            if (_serializerOptions == null)
             {
-                NamingStrategy = new CamelCaseNamingStrategy
+                _serializerOptions = new JsonSerializerSettings
                 {
-                    ProcessDictionaryKeys = false,
-                    OverrideSpecifiedNames = true
-                }
+                    TypeNameHandling = TypeNameHandling.Auto,
+                    NullValueHandling = NullValueHandling.Include,
+                    Formatting = Formatting.Indented,
+                    ContractResolver = new CamelCasePropertyNamesContractResolver
+                    {
+                        NamingStrategy = new CamelCaseNamingStrategy
+                        {
+                            ProcessDictionaryKeys = false,
+                            OverrideSpecifiedNames = true
+                        }
+                    }
+                };
+
+                _serializerOptions.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
             }
-        };
+
+            return _serializerOptions;
+        }
 
         public static string Serialize(object obj)
-            => JsonConvert.SerializeObject(obj, SerializeOptions);
+            => JsonConvert.SerializeObject(obj, SerializerOptions());
 
         public static T Deserialize<T>(string json)
             where T : class
-                => JsonConvert.DeserializeObject<T>(json, SerializeOptions)!;
+                => JsonConvert.DeserializeObject<T>(json, SerializerOptions())!;
 
         public static T Deserialize<T>(Type type, string json)
             where T : class
-                => (T)JsonConvert.DeserializeObject(json, type, SerializeOptions)!;
+                => (T)JsonConvert.DeserializeObject(json, type, SerializerOptions())!;
         //public static string Serialize(object obj)
         //    => JsonSerializer.Serialize(obj, serializeOptions);
 

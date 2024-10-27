@@ -4,11 +4,11 @@ using Rpg.ModObjects.Server.Ops;
 
 namespace Rpg.ModObjects.Server.Services
 {
-    public class ActivityService : IActivityService
+    public class ActivityService
     {
-        private readonly IGraphService _graphService;
+        private readonly GraphService _graphService;
 
-        public ActivityService(IGraphService graphService)
+        public ActivityService(GraphService graphService)
         {
             _graphService = graphService;
         }
