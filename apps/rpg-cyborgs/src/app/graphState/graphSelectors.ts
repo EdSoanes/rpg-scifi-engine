@@ -187,3 +187,33 @@ export const selectActionByName = createSelector(
   [selectPlayerCharacterActions, selectActionName],
   (actions, actionName) => actions.find((action) => action.name === actionName)
 )
+
+export const selectHead = createSelector(
+  [selectPlayerCharacter],
+  (playerCharacter?: PlayerCharacter) => playerCharacter?.head
+)
+
+export const selectTorso = createSelector(
+  [selectPlayerCharacter],
+  (playerCharacter?: PlayerCharacter) => playerCharacter?.torso
+)
+
+export const selectLeftArm = createSelector(
+  [selectPlayerCharacter],
+  (playerCharacter?: PlayerCharacter) => playerCharacter?.leftArm
+)
+
+export const selectRightArm = createSelector(
+  [selectPlayerCharacter],
+  (playerCharacter?: PlayerCharacter) => playerCharacter?.rightArm
+)
+
+export const selectLeftLeg = createSelector(
+  [selectPlayerCharacter],
+  (playerCharacter?: PlayerCharacter) => playerCharacter?.leftLeg
+)
+
+export const selectRightLeg = createSelector(
+  [selectPlayerCharacter],
+  (playerCharacter?: PlayerCharacter) => playerCharacter?.rightLeg
+)
