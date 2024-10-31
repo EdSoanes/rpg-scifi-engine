@@ -25,7 +25,7 @@ namespace Rpg.ModObjects
             Context = context;
 
             Time.OnTemporalEvent += OnTemporalEvent;
-            Time.Transition(PointInTimeType.TimePassing);
+            Time.Transition(PointInTimeType.Waiting);
         }
 
         public RpgGraph(RpgGraphState state)

@@ -7,6 +7,7 @@ namespace Rpg.ModObjects.Time
         private bool Started { get => Start.IsStarted() && End.IsStarted(); }
         [JsonProperty] public PointInTime Start { get; private set; }
         [JsonProperty] public PointInTime End { get; private set; }
+        [JsonProperty] public LifecycleExpiry Expiry { get; private set; } = LifecycleExpiry.Unset;
 
         [JsonConstructor]
         public SpanOfTime()
@@ -55,8 +56,20 @@ namespace Rpg.ModObjects.Time
 
         public LifecycleExpiry GetExpiry(PointInTime now)
         {
+            Expiry = CalculateExpiry(now);
+            return Expiry;
+        }
+
+        private LifecycleExpiry CalculateExpiry(PointInTime now)
+        {
+            if (now.Type == PointInTimeType.Waiting && Expiry != LifecycleExpiry.Unset)
+                return Expiry;
+
+            if (now.Type == PointInTimeType.TimePasses && End.Type == PointInTimeType.TimePasses && now.Count >= End.Count)
+                return LifecycleExpiry.Expired;
+
             if (Start.IsEncounterTime && End.IsAfterEncounterTime && now.Type == PointInTimeType.EncounterEnds)
-                Start = PointInTimeType.TimePassing;
+                Start = PointInTimeType.Waiting;
 
             if (Start.IsEncounterTime && End.IsAfterEncounterTime && !now.IsEncounterTime)
                 return LifecycleExpiry.Expired;

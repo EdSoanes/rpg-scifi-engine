@@ -19,14 +19,14 @@ namespace Rpg.ModObjects.Time
     {
         BeforeTime,
         TimeBegins,
-        TimePassing,
+        Waiting,
 
         EncounterBegins,
         Turn, //Count
         EncounterEnds,
-        Minute,
-        Hour,
-        Day,
+        //MinutePasses,
+        TimePasses,
+        //DayPasses,
 
         TimeEnds
     }

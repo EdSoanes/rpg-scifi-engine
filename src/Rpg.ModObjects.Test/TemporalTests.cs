@@ -35,12 +35,12 @@ namespace Rpg.ModObjects.Tests
             var events = new List<PointInTime>();
             temporal.OnTemporalEvent += (obj, e) => events.Add(e.Time);
 
-            temporal.Transition(PointInTimeType.TimePassing);
+            temporal.Transition(PointInTimeType.Waiting);
 
             Assert.That(events.Count, Is.EqualTo(3));
             Assert.That(events[0].Type, Is.EqualTo(PointInTimeType.BeforeTime));
             Assert.That(events[1].Type, Is.EqualTo(PointInTimeType.TimeBegins));
-            Assert.That(events[2].Type, Is.EqualTo(PointInTimeType.TimePassing));
+            Assert.That(events[2].Type, Is.EqualTo(PointInTimeType.Waiting));
         }
 
         [Test]
@@ -56,7 +56,7 @@ namespace Rpg.ModObjects.Tests
             Assert.That(events.Count, Is.EqualTo(5));
             Assert.That(events[0].Type, Is.EqualTo(PointInTimeType.BeforeTime));
             Assert.That(events[1].Type, Is.EqualTo(PointInTimeType.TimeBegins));
-            Assert.That(events[2].Type, Is.EqualTo(PointInTimeType.TimePassing));
+            Assert.That(events[2].Type, Is.EqualTo(PointInTimeType.Waiting));
             Assert.That(events[3].Type, Is.EqualTo(PointInTimeType.EncounterBegins));
             Assert.That(events[4].Type, Is.EqualTo(PointInTimeType.Turn));
             Assert.That(events[4].Count, Is.EqualTo(1));
@@ -75,10 +75,10 @@ namespace Rpg.ModObjects.Tests
             Assert.That(events.Count, Is.EqualTo(6));
             Assert.That(events[0].Type, Is.EqualTo(PointInTimeType.BeforeTime));
             Assert.That(events[1].Type, Is.EqualTo(PointInTimeType.TimeBegins));
-            Assert.That(events[2].Type, Is.EqualTo(PointInTimeType.TimePassing));
+            Assert.That(events[2].Type, Is.EqualTo(PointInTimeType.Waiting));
             Assert.That(events[3].Type, Is.EqualTo(PointInTimeType.EncounterBegins));
             Assert.That(events[4].Type, Is.EqualTo(PointInTimeType.EncounterEnds));
-            Assert.That(events[5].Type, Is.EqualTo(PointInTimeType.TimePassing));
+            Assert.That(events[5].Type, Is.EqualTo(PointInTimeType.Waiting));
         }
 
         [Test]
@@ -89,15 +89,15 @@ namespace Rpg.ModObjects.Tests
             var events = new List<PointInTime>();
             temporal.OnTemporalEvent += (obj, e) => events.Add(e.Time);
 
-            temporal.Transition(PointInTimeType.TimePassing);
-            temporal.Transition(PointInTimeType.Hour);
+            temporal.Transition(PointInTimeType.Waiting);
+            temporal.Transition(PointInTimeType.TimePasses);
 
             Assert.That(events.Count, Is.EqualTo(5));
             Assert.That(events[0].Type, Is.EqualTo(PointInTimeType.BeforeTime));
             Assert.That(events[1].Type, Is.EqualTo(PointInTimeType.TimeBegins));
-            Assert.That(events[2].Type, Is.EqualTo(PointInTimeType.TimePassing));
-            Assert.That(events[3].Type, Is.EqualTo(PointInTimeType.Hour));
-            Assert.That(events[4].Type, Is.EqualTo(PointInTimeType.TimePassing));
+            Assert.That(events[2].Type, Is.EqualTo(PointInTimeType.Waiting));
+            Assert.That(events[3].Type, Is.EqualTo(PointInTimeType.TimePasses));
+            Assert.That(events[4].Type, Is.EqualTo(PointInTimeType.Waiting));
         }
 
         [Test]
@@ -163,7 +163,7 @@ namespace Rpg.ModObjects.Tests
 
             Assert.That(events.Count, Is.EqualTo(2));
             Assert.That(events[0].Type, Is.EqualTo(PointInTimeType.EncounterEnds));
-            Assert.That(events[1].Type, Is.EqualTo(PointInTimeType.TimePassing));
+            Assert.That(events[1].Type, Is.EqualTo(PointInTimeType.Waiting));
         }
 
         [Test]
@@ -180,7 +180,7 @@ namespace Rpg.ModObjects.Tests
 
             Assert.That(events.Count, Is.EqualTo(4));
             Assert.That(events[0].Type, Is.EqualTo(PointInTimeType.EncounterEnds));
-            Assert.That(events[1].Type, Is.EqualTo(PointInTimeType.TimePassing));
+            Assert.That(events[1].Type, Is.EqualTo(PointInTimeType.Waiting));
             Assert.That(events[2].Type, Is.EqualTo(PointInTimeType.EncounterBegins));
             Assert.That(events[3].Type, Is.EqualTo(PointInTimeType.Turn));
             Assert.That(events[3].Count, Is.EqualTo(1));
@@ -190,7 +190,7 @@ namespace Rpg.ModObjects.Tests
         public void TimePassing_To_BeforeTime_Fail()
         {
             var temporal = new Temporal();
-            temporal.Transition(PointInTimeType.TimePassing);
+            temporal.Transition(PointInTimeType.Waiting);
 
             var events = new List<PointInTime>();
             temporal.OnTemporalEvent += (obj, e) => events.Add(e.Time);
@@ -202,7 +202,7 @@ namespace Rpg.ModObjects.Tests
         public void SpanOfTime_Encounter_TimePassing_Pending()
         {
             var span = new SpanOfTime(PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds);
-            var expiry = span.GetExpiry(PointInTimeType.TimePassing);
+            var expiry = span.GetExpiry(PointInTimeType.Waiting);
 
             Assert.That(expiry, Is.EqualTo(LifecycleExpiry.Pending));
         }
@@ -247,7 +247,7 @@ namespace Rpg.ModObjects.Tests
         public void SpanOfTime_Encounter_OverlapsWith_TimePassingEncounterBegins_False()
         {
             var span1 = new SpanOfTime(PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds);
-            var span2 = new SpanOfTime(PointInTimeType.TimePassing, PointInTimeType.EncounterBegins);
+            var span2 = new SpanOfTime(PointInTimeType.Waiting, PointInTimeType.EncounterBegins);
 
             Assert.That(span2.OverlapsWith(span1), Is.False);
         }
@@ -256,7 +256,7 @@ namespace Rpg.ModObjects.Tests
         public void SpanOfTime_Encounter_OverlapsWith_TimePassingTurn1_False()
         {
             var span1 = new SpanOfTime(PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds);
-            var span2 = new SpanOfTime(PointInTimeType.TimePassing, 1);
+            var span2 = new SpanOfTime(PointInTimeType.Waiting, 1);
 
             Assert.That(span2.OverlapsWith(span1), Is.True);
         }

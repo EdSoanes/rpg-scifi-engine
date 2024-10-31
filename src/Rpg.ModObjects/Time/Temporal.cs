@@ -37,7 +37,7 @@ namespace Rpg.ModObjects.Time
             if (!Now.IsEncounterTime && !to.IsEncounterTime && to < Now)
                 throw new InvalidOperationException($"Cannot transition from '{Now}' to '{to}'");
 
-            if (Now.IsEncounterTime && to.Type < PointInTimeType.TimePassing)
+            if (Now.IsEncounterTime && to.Type < PointInTimeType.Waiting)
                 throw new InvalidOperationException($"Cannot transition from '{Now}' to '{to}'");
 
             if (Now.Type == PointInTimeType.BeforeTime)
@@ -50,7 +50,7 @@ namespace Rpg.ModObjects.Time
 
             if (Now.Type == PointInTimeType.TimeBegins)
             {
-                TriggerEvent(PointInTimeType.TimePassing);
+                TriggerEvent(PointInTimeType.Waiting);
                 Transition(to);
                 return;
             }
@@ -58,8 +58,8 @@ namespace Rpg.ModObjects.Time
             if (!to.IsEncounterTime && to.Type != PointInTimeType.EncounterEnds)
             {
                 TriggerEvent(to);
-                if (to.Type != PointInTimeType.TimeEnds && to.Type != PointInTimeType.TimePassing)
-                    TriggerEvent(PointInTimeType.TimePassing);
+                if (to.Type != PointInTimeType.TimeEnds && to.Type != PointInTimeType.Waiting)
+                    TriggerEvent(PointInTimeType.Waiting);
                 return;
             }
 
@@ -69,7 +69,7 @@ namespace Rpg.ModObjects.Time
                     TriggerEvent(PointInTimeType.EncounterEnds);
 
                 if (Now.Type == PointInTimeType.EncounterEnds)
-                    TriggerEvent(PointInTimeType.TimePassing);
+                    TriggerEvent(PointInTimeType.Waiting);
 
                 TriggerEvent(PointInTimeType.EncounterBegins);
                 TriggerEvent(PointInTimeType.Turn, 1);
@@ -79,9 +79,9 @@ namespace Rpg.ModObjects.Time
             if (to.Type == PointInTimeType.Turn)
             {
                 if (Now.Type == PointInTimeType.EncounterEnds)
-                    TriggerEvent(PointInTimeType.TimePassing);
+                    TriggerEvent(PointInTimeType.Waiting);
 
-                if (Now.Type == PointInTimeType.TimePassing)
+                if (Now.Type == PointInTimeType.Waiting)
                     TriggerEvent(PointInTimeType.EncounterBegins);
 
                 if (Now.Type == PointInTimeType.EncounterBegins || Now.Type == PointInTimeType.Turn)
@@ -92,14 +92,14 @@ namespace Rpg.ModObjects.Time
 
             if (to.Type == PointInTimeType.EncounterEnds)
             {
-                if (Now.Type == PointInTimeType.TimePassing)
+                if (Now.Type == PointInTimeType.Waiting)
                     TriggerEvent(PointInTimeType.EncounterBegins);
 
                 if (Now.Type == PointInTimeType.EncounterBegins || Now.Type == PointInTimeType.Turn)
                     TriggerEvent(PointInTimeType.EncounterEnds);
 
                 if (Now.Type == PointInTimeType.EncounterEnds)
-                    TriggerEvent(PointInTimeType.TimePassing);
+                    TriggerEvent(PointInTimeType.Waiting);
 
                 return;
             }

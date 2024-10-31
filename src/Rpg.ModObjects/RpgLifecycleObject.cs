@@ -13,6 +13,11 @@ namespace Rpg.ModObjects
 
         public RpgLifecycleObject() { }
 
+        public void SetLifespan(RpgLifecycleObject fromObject)
+        {
+            Lifespan = fromObject.Lifespan;
+        }
+
         public virtual void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
             if (graph == null)

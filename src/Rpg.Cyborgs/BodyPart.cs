@@ -9,7 +9,7 @@ namespace Rpg.Cyborgs
     {
         [Injury]
         [JsonIgnore] public int InjurySeverity { get; protected set; }
-        [JsonProperty] public int[] Injuries { get; protected set; } = Array.Empty<int>();
+        [JsonProperty] public Injury[] Injuries { get; protected set; } = Array.Empty<Injury>();
 
         [JsonProperty] public BodyPartType BodyPartType { get; protected set; }
 
@@ -22,12 +22,45 @@ namespace Rpg.Cyborgs
             BodyPartType = bodyPartType;
         }
 
+        public override void OnRestoring(RpgGraph graph, RpgObject? entity = null)
+        {
+            base.OnRestoring(graph, entity);
+            foreach (var injury in Injuries)
+                injury.OnRestoring(Graph, this);
+        }
+
         public override LifecycleExpiry OnUpdateLifecycle()
         {
             var expiry = base.OnUpdateLifecycle();
-            Injuries = GetActiveMods(nameof(InjurySeverity)).Select(x => Graph!.CalculateModValue(x)?.Roll() ?? 0).ToArray();
+            Injuries = CalculateInjuries();
 
             return expiry;
+        }
+
+        private Injury[] CalculateInjuries()
+        {
+            var injuryMods = GetActiveMods(nameof(InjurySeverity));
+            var injuries = injuryMods.Select(x =>
+            {
+                var injury = new Injury
+                {
+                    Id = x.Id,
+                    Severity = Graph!.CalculateModValue(x)?.Roll() ?? 0,
+                    BodyPartType = this.BodyPartType
+                };
+
+                injury.SetLifespan(x);
+                if (Graph != null)
+                {
+                    injury.OnCreating(Graph, this);
+                    injury.OnTimeBegins();
+                }
+
+                return injury;
+            })
+            .ToArray();
+
+            return injuries;
         }
     }
 }
