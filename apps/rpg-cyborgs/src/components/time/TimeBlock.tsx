@@ -17,7 +17,7 @@ function TimeBlock() {
   const onChangeEncounterTime = async () => {
     const newTime: PointInTime = isEncounterTime(time)
       ? {
-          type: 'TimePassing',
+          type: 'Waiting',
           count: 0,
           isEncounterTime: false,
           isAfterEncounterTime: false,

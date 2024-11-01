@@ -10,8 +10,6 @@ import {
   SetTimeResponse,
   StringResponse,
 } from '../lib/rpg-api/server-types'
-import { selectGraphState } from './graphState/graphSelectors'
-import { useSelector } from 'react-redux'
 import { RootState } from './store'
 
 export type ThunkStatus = 'idle' | 'loading' | 'loaded'
@@ -28,9 +26,10 @@ export const fetchGraphState = createAsyncThunk(
 export const fetchActivity = createAsyncThunk(
   'activity/create',
   async (
-    activityCreate: ActivityCreate
+    activityCreate: ActivityCreate,
+    thunkAPI
   ): Promise<ActivityResponse | undefined> => {
-    const graph = useSelector(selectGraphState)
+    const graph = (thunkAPI.getState() as RootState).graph.graphState
     const op: ActivityCreateRequest = {
       graphState: graph!,
       op: activityCreate,

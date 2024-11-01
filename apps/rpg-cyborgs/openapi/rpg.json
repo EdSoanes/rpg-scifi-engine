@@ -789,7 +789,7 @@
             }
         },
         "/api/v1/rpg/{system}/time": {
-            "get": {
+            "post": {
                 "tags": [
                     "Entities"
                 ],
@@ -830,6 +830,18 @@
                 "responses": {
                     "200": {
                         "description": "OK",
+                        "headers": {
+                            "Umb-Notifications": {
+                                "description": "The list of notifications produced during the request.",
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/NotificationHeaderModel"
+                                    },
+                                    "nullable": true
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1838,8 +1850,7 @@
                     "injuries": {
                         "type": "array",
                         "items": {
-                            "type": "integer",
-                            "format": "int32"
+                            "$ref": "#/components/schemas/Rpg.Cyborgs.Injury"
                         },
                         "readOnly": true
                     },
@@ -2141,6 +2152,32 @@
                         "$ref": "#/components/schemas/Rpg.Cyborgs.Conditions.Condition.Rpg.Cyborgs.BodyPart"
                     }
                 ],
+                "additionalProperties": false
+            },
+            "Rpg.Cyborgs.Injury": {
+                "required": [
+                    "bodyPartType",
+                    "id",
+                    "severity"
+                ],
+                "type": "object",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/Rpg.ModObjects.RpgLifecycleObject"
+                    }
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "bodyPartType": {
+                        "$ref": "#/components/schemas/Rpg.Cyborgs.BodyPartType"
+                    },
+                    "severity": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                },
                 "additionalProperties": false
             },
             "Rpg.Cyborgs.MeleeWeapon": {
@@ -4996,13 +5033,11 @@
                 "enum": [
                     "BeforeTime",
                     "TimeBegins",
-                    "TimePassing",
+                    "Waiting",
                     "EncounterBegins",
                     "Turn",
                     "EncounterEnds",
-                    "Minute",
-                    "Hour",
-                    "Day",
+                    "TimePasses",
                     "TimeEnds"
                 ],
                 "type": "string"

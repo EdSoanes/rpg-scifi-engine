@@ -44,46 +44,29 @@ namespace Rpg.ModObjects.Actions
         {
         }
 
-        internal Activity(RpgEntity initiator, int activityNo)
-            : this()
+        internal Activity(RpgEntity initiator, RpgEntity owner, string actionName, int activityNo)
         {
             _initiator = initiator;
             InitiatorId = initiator.Id;
             ActivityNo = activityNo;
+            Name = $"{actionName}/{activityNo}";
+            ActionInstances.Add(new ActionInstance(owner, owner.GetAction(actionName)!, activityNo));
         }
 
-        internal void Init(RpgEntity owner, string actionName)
+        internal Activity(RpgEntity initiator, ActivityTemplate actionGroup, int activityNo)
         {
-            var action = owner.GetAction(actionName);
-            if (action != null)
-            {
-                var instance = new ActionInstance(owner, action, NextActionNo++);
-                instance.OnBeforeTime(Graph!);
+            _initiator = initiator;
+            InitiatorId = initiator.Id;
+            ActivityNo = activityNo;
+            Name = $"{actionGroup.Name}/{activityNo}";
 
-                InitActionProps(instance);
-                ActionInstances.Add(instance);
-                ActionInstance = instance;
-            }
-        }
-
-        internal void Init(ActivityTemplate actionGroup)
-        {
             foreach (var item in actionGroup.Items)
             {
                 var owner = Graph!.GetObjects<RpgEntity>()
                     .First(x => x.Archetypes.Contains(item.OwnerArchetype) && x.Actions.Values.Any(a => a.Name == item.ActionName));
 
-                Init(owner, item.ActionName);
+                ActionInstances.Add(new ActionInstance(owner, owner.GetAction(item.ActionName)!, activityNo));
             }
-
-            ActionInstance = null;
-        }
-
-        public void SetActionInstance(int actionNo)
-        {
-            var next = ActionInstances.FirstOrDefault(x => x.ActionNo == actionNo);
-            if (next != null)
-                ActionInstance = next;
         }
 
         public void SetActionInstance(string actionName)
@@ -99,11 +82,6 @@ namespace Rpg.ModObjects.Actions
             => Props.Keys
                 .Where(x => !x.Contains('/'))
                 .ToArray();
-
-        //public string[] GetActionPropNames()
-        //    => Props.Keys
-        //        .Where(x => x.EndsWith($"/{ActionInstance!.ActionNo}"))
-        //        .ToArray();
 
         private void SetActivityProp(string prop, object? val)
         {
@@ -171,78 +149,6 @@ namespace Rpg.ModObjects.Actions
         }
 
         #endregion Activity Mods
-
-        //#region Action Mods
-
-        //public bool HasActionProp(string prop)
-        //{
-        //    var propName = GetPropNameFromArg(prop, ActionInstance!.ActionNo);
-        //    return Props.ContainsKey(propName) && Props[propName].Mods.Any();
-        //}
-
-        //public Dice? GetActionProp(string prop)
-        //    => Graph!.CalculatePropValue(this, GetPropNameFromArg(prop, ActionInstance!.ActionNo));
-
-        //private void SetActionProp(string prop, object? val)
-        //{
-        //    if (Dice.TryParse(val, out var dice))
-        //    {
-        //        if (HasActionProp(prop))
-        //            ActionResultMod(prop, "arg", dice);
-        //        else
-        //            this.InitMod(GetPropNameFromArg(prop, ActionInstance!.ActionNo), dice);
-        //    }
-        //}
-
-        //public Activity ActionMod(string targetProp, string modName, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
-        //{
-        //    var mod = new BaseMod()
-        //        .SetName(modName)
-        //        .SetProps(this, GetPropNameFromArg(targetProp, ActionInstance!.ActionNo), dice, valueCalc)
-        //        .Create();
-
-        //    AddMods(mod);
-
-        //    return this;
-        //}
-
-        //public Activity ActionMod<TSource, TSourceValue>(string targetProp, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
-        //    where TSource : RpgObject
-        //{
-        //    var mod = new BaseMod()
-        //        .SetProps(this, GetPropNameFromArg(targetProp, ActionInstance!.ActionNo), source, sourceExpr, valueCalc)
-        //        .Create();
-
-        //    AddMods(mod);
-
-        //    return this;
-        //}
-
-        //public Activity ActionResultMod(string targetProp, string modName, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
-        //{
-        //    var mod = new OverrideMod()
-        //        .SetName(modName)
-        //        .SetProps(this, GetPropNameFromArg(targetProp, ActionInstance!.ActionNo), dice, valueCalc)
-        //        .Create();
-
-        //    AddMods(mod);
-
-        //    return this;
-        //}
-
-        //public Activity ActionResultMod<TSource, TSourceValue>(string targetProp, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
-        //    where TSource : RpgObject
-        //{
-        //    var mod = new OverrideMod()
-        //        .SetProps(this, GetPropNameFromArg(targetProp, ActionInstance!.ActionNo), source, sourceExpr, valueCalc)
-        //        .Create();
-
-        //    AddMods(mod);
-
-        //    return this;
-        //}
-
-        //#endregion Action Mods
 
         public Activity SetAll(string arg, object? value)
         {
@@ -408,8 +314,10 @@ namespace Rpg.ModObjects.Actions
         public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
             base.OnCreating(graph, entity);
+            foreach (var actionInstance in ActionInstances)
+                actionInstance.OnBeforeTime(graph);
+
             Time = graph.Time.Now;
-            Name = $"{InitiatorId}/{Time.Type}/{Time.Count}/{ActivityNo}";
 
             var outcomeSet = GetModSetByName(OutcomeSetName) as ModSet;
             if (outcomeSet == null)
@@ -440,11 +348,5 @@ namespace Rpg.ModObjects.Actions
             foreach (var prop in props)
                 GetProp(prop.Name, create: true);
         }
-
-        //private string GetPropNameFromArg(string argName, int actionNo)
-        //    => $"{argName}/{actionNo}";
-
-        //private string GetArgNameFromProp(string propName)
-        //    => propName.Split('/').First();
     }
 }

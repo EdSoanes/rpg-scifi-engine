@@ -191,10 +191,8 @@ namespace Rpg.ModObjects
                 .Where(x => x.InitiatorId == initiator.Id && x.Time == Time.Now)
                 .Count();
 
-            var activity = new Activity(initiator, activityNo);
+            var activity = new Activity(initiator, actionGroup, activityNo);
             AddObject(activity);
-
-            activity.Init(actionGroup);
 
             return activity;
         }
@@ -206,10 +204,8 @@ namespace Rpg.ModObjects
                 .Where(x => x.InitiatorId == initiator.Id && x.Time == Time.Now)
                 .Count();
 
-            var activity = new Activity(initiator, activityNo);
+            var activity = new Activity(initiator, owner, actionName, activityNo);
             AddObject(activity);
-
-            activity.Init(owner, actionName);
 
             return activity;
         }

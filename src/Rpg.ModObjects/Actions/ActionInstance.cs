@@ -41,6 +41,8 @@ namespace Rpg.ModObjects.Actions
         [JsonProperty] public Dictionary<string, object?> OutcomeArgs { get; protected set; } = new();
         [JsonProperty] public Dictionary<string, RpgArg> Args { get; protected set; } = new();
 
+        [JsonConstructor] private ActionInstance() { }
+
         public ActionInstance(RpgEntity owner, Action action, int actionNo)
         {
             ActionName = action.Name;

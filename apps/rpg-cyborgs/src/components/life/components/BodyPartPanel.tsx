@@ -11,6 +11,9 @@ function BodyPartPanel(props: BodyPartPanelProps) {
     <Stack direction={'column'}>
       <Heading size={'md'}>{bodyPart?.name}</Heading>{' '}
       <span>{bodyPart?.bodyPartType}</span>
+      <li>
+        {bodyPart?.injuries?.map((i) => <li key={i.id}>{i.severity}</li>)}
+      </li>
     </Stack>
   )
 }

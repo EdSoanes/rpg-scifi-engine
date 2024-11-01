@@ -81,7 +81,7 @@ function ActionsBlock() {
 
   const onActionButtonClicked = async (action: Action) => {
     setSelectedAction(action)
-
+    console.log('onActionButtonClicked', action)
     if (playerCharacter) {
       dispatch(
         fetchActivity({

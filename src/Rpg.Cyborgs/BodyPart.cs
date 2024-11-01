@@ -2,6 +2,7 @@
 using Rpg.ModObjects;
 using Rpg.ModObjects.Time;
 using Newtonsoft.Json;
+using Rpg.ModObjects.Mods.Mods;
 
 namespace Rpg.Cyborgs
 {
@@ -39,7 +40,7 @@ namespace Rpg.Cyborgs
 
         private Injury[] CalculateInjuries()
         {
-            var injuryMods = GetActiveMods(nameof(InjurySeverity));
+            var injuryMods = GetActiveMods(nameof(InjurySeverity), (mod) => mod is Permanent);
             var injuries = injuryMods.Select(x =>
             {
                 var injury = new Injury

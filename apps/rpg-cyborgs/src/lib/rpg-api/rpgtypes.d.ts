@@ -545,7 +545,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: {
+        get?: never;
+        put?: never;
+        post: {
             parameters: {
                 query?: never;
                 header?: never;
@@ -566,6 +568,8 @@ export interface paths {
                 /** @description OK */
                 200: {
                     headers: {
+                        /** @description The list of notifications produced during the request. */
+                        "Umb-Notifications"?: components["schemas"]["NotificationHeaderModel"][] | null;
                         [name: string]: unknown;
                     };
                     content: {
@@ -583,8 +587,6 @@ export interface paths {
                 };
             };
         };
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1152,7 +1154,7 @@ export interface components {
         "Rpg.Cyborgs.BodyPart": {
             /** Format: int32 */
             readonly injurySeverity: number;
-            readonly injuries: number[];
+            readonly injuries: components["schemas"]["Rpg.Cyborgs.Injury"][];
             bodyPartType: components["schemas"]["Rpg.Cyborgs.BodyPartType"];
         } & components["schemas"]["Rpg.ModObjects.RpgComponent"];
         /** @enum {string} */
@@ -1206,6 +1208,12 @@ export interface components {
         "Rpg.Cyborgs.Conditions.Treatable": components["schemas"]["Rpg.Cyborgs.Conditions.Condition.Rpg.Cyborgs.BodyPart"];
         "Rpg.Cyborgs.Conditions.Unconscious": components["schemas"]["Rpg.Cyborgs.Conditions.Condition.Rpg.Cyborgs.Actor"];
         "Rpg.Cyborgs.Conditions.Unusable": components["schemas"]["Rpg.Cyborgs.Conditions.Condition.Rpg.Cyborgs.BodyPart"];
+        "Rpg.Cyborgs.Injury": {
+            id: string;
+            bodyPartType: components["schemas"]["Rpg.Cyborgs.BodyPartType"];
+            /** Format: int32 */
+            severity: number;
+        } & components["schemas"]["Rpg.ModObjects.RpgLifecycleObject"];
         "Rpg.Cyborgs.MeleeWeapon": {
             damage: components["schemas"]["Rpg.ModObjects.Values.Dice"];
             /** Format: int32 */
@@ -1715,7 +1723,7 @@ export interface components {
             readonly isAfterEncounterTime: boolean;
         };
         /** @enum {string} */
-        "Rpg.ModObjects.Time.PointInTimeType": "BeforeTime" | "TimeBegins" | "TimePassing" | "EncounterBegins" | "Turn" | "EncounterEnds" | "Minute" | "Hour" | "Day" | "TimeEnds";
+        "Rpg.ModObjects.Time.PointInTimeType": "BeforeTime" | "TimeBegins" | "Waiting" | "EncounterBegins" | "Turn" | "EncounterEnds" | "TimePasses" | "TimeEnds";
         "Rpg.ModObjects.Time.Temporal": {
             now: components["schemas"]["Rpg.ModObjects.Time.PointInTime"];
         };
