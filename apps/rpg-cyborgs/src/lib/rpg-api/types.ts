@@ -1,76 +1,79 @@
 import { components } from './rpgtypes'
 
+export type LifecycleExpiry = Pick<
+  components['schemas']['Time.LifecycleExpiry'],
+  keyof components['schemas']['Time.LifecycleExpiry']
+>
+
 export type PointInTimeType = Pick<
-  components['schemas']['Rpg.ModObjects.Time.PointInTimeType'],
-  keyof components['schemas']['Rpg.ModObjects.Time.PointInTimeType']
+  components['schemas']['Time.PointInTimeType'],
+  keyof components['schemas']['Time.PointInTimeType']
 >
 
 export type PointInTime = Pick<
-  components['schemas']['Rpg.ModObjects.Time.PointInTime'],
-  keyof components['schemas']['Rpg.ModObjects.Time.PointInTime']
+  components['schemas']['Time.PointInTime'],
+  keyof components['schemas']['Time.PointInTime']
+>
+
+export type Lifespan = Pick<
+  components['schemas']['Time.Lifespan'],
+  keyof components['schemas']['Time.Lifespan']
 >
 
 export type RpgGraphState = Pick<
-  components['schemas']['Rpg.ModObjects.RpgGraphState'],
-  keyof components['schemas']['Rpg.ModObjects.RpgGraphState']
+  components['schemas']['RpgGraphState'],
+  keyof components['schemas']['RpgGraphState']
 >
 
 export type RpgContainer = Pick<
-  components['schemas']['Rpg.ModObjects.RpgContainer'],
-  keyof components['schemas']['Rpg.ModObjects.RpgContainer']
+  components['schemas']['RpgContainer'],
+  keyof components['schemas']['RpgContainer']
 >
 
 export type RpgEntity = Pick<
-  components['schemas']['Rpg.ModObjects.RpgEntity'],
-  keyof components['schemas']['Rpg.ModObjects.RpgEntity']
+  components['schemas']['RpgEntity'],
+  keyof components['schemas']['RpgEntity']
 >
 
-export type State = Pick<
-  components['schemas']['Rpg.ModObjects.States.State'],
-  keyof components['schemas']['Rpg.ModObjects.States.State']
->
+export interface State {
+  expiry: LifecycleExpiry;
+  readonly id: string;
+  readonly name: string;
+  readonly ownerId: string;
+  readonly ownerArchetype?: string | null;
+  readonly isPlayerVisible: boolean;
+  readonly isOn: boolean;
+  readonly isOnTimed: boolean;
+  readonly isOnManually: boolean;
+  readonly isOnConditionally: boolean;
+}
 
 export type Action = Pick<
-  components['schemas']['Rpg.ModObjects.Actions.Action'],
-  keyof components['schemas']['Rpg.ModObjects.Actions.Action']
+  components['schemas']['Actions2.Action2'],
+  keyof components['schemas']['Actions2.Action2']
 >
 
 export type Activity = Pick<
-  components['schemas']['Rpg.ModObjects.Actions.Activity'],
-  keyof components['schemas']['Rpg.ModObjects.Actions.Activity']
->
-
-export type ActivityTemplate = Pick<
-  components['schemas']['Rpg.ModObjects.Actions.ActivityTemplate'],
-  keyof components['schemas']['Rpg.ModObjects.Actions.ActivityTemplate']
+  components['schemas']['Actions2.Activity2'],
+  keyof components['schemas']['Actions2.Activity2']
 >
 
 export type PropDescription = Pick<
-  components['schemas']['Rpg.ModObjects.Props.PropDescription'],
-  keyof components['schemas']['Rpg.ModObjects.Props.PropDescription']
+  components['schemas']['Props.PropDescription'],
+  keyof components['schemas']['Props.PropDescription']
 >
 
 export type ModSetDescription = Pick<
-  components['schemas']['Rpg.ModObjects.Mods.ModSetDescription'],
-  keyof components['schemas']['Rpg.ModObjects.Mods.ModSetDescription']
->
-
-export type PropValue = Pick<
-  components['schemas']['Rpg.Cyborgs.Components.PropValue'],
-  keyof components['schemas']['Rpg.Cyborgs.Components.PropValue']
->
-
-export type ActionInstance = Pick<
-  components['schemas']['Rpg.ModObjects.Actions.ActionInstance'],
-  keyof components['schemas']['Rpg.ModObjects.Actions.ActionInstance']
+  components['schemas']['Mods.ModSetDescription'],
+  keyof components['schemas']['Mods.ModSetDescription']
 >
 
 export type ModSet = Pick<
-  components['schemas']['Rpg.ModObjects.Mods.ModSet'],
-  keyof components['schemas']['Rpg.ModObjects.Mods.ModSet']
+  components['schemas']['Mods.ModSet'],
+  keyof components['schemas']['Mods.ModSet']
 >
 
 export type RpgArg = Pick<
-  components['schemas']['Rpg.ModObjects.Reflection.Args.RpgArg'],
-  keyof components['schemas']['Rpg.ModObjects.Reflection.Args.RpgArg']
+  components['schemas']['Reflection.Args.RpgArg'],
+  keyof components['schemas']['Reflection.Args.RpgArg']
 >

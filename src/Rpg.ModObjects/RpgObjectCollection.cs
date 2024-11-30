@@ -4,7 +4,6 @@ using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.Collections;
-using System.Diagnostics;
 using System.Reflection;
 using Newtonsoft.Json;
 
@@ -104,7 +103,6 @@ namespace Rpg.ModObjects
                     var obj = Graph!.GetObject(objRef.EntityId);
                     if (obj != null)
                     {
-                        Debug.WriteLine(obj.Id);
                         yield return obj;
                     }
                 }

@@ -133,8 +133,8 @@ namespace Rpg.ModObjects.Reflection
             if (propertyInfo == null)
                 return false;
 
-            return propertyInfo.PropertyType.IsAssignableTo(typeof(RpgObject))
-                || Nullable.GetUnderlyingType(propertyInfo.PropertyType) == typeof(RpgObject);
+            return propertyInfo.CanWrite && (propertyInfo.PropertyType.IsAssignableTo(typeof(RpgObject))
+                || Nullable.GetUnderlyingType(propertyInfo.PropertyType) == typeof(RpgObject));
 
         }
 
@@ -143,8 +143,8 @@ namespace Rpg.ModObjects.Reflection
             if (propertyInfo == null)
                 return false;
 
-            return propertyInfo.PropertyType.IsAssignableTo(typeof(IEnumerable<RpgObject>))
-                || (Nullable.GetUnderlyingType(propertyInfo.PropertyType)?.IsAssignableTo(typeof(IEnumerable<RpgObject>)) ?? false);
+            return !propertyInfo.CanWrite && (propertyInfo.PropertyType.IsAssignableTo(typeof(IEnumerable<RpgObject>))
+                || (Nullable.GetUnderlyingType(propertyInfo.PropertyType)?.IsAssignableTo(typeof(IEnumerable<RpgObject>)) ?? false));
         }
 
         internal static IEnumerable<Type> GetLoadableTypes(Assembly assembly)

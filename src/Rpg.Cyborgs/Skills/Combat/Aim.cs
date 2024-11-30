@@ -1,14 +1,15 @@
-﻿using Rpg.Cyborgs.States;
-using Rpg.ModObjects.Actions;
+﻿using Newtonsoft.Json;
+using Rpg.Cyborgs.States;
+using Rpg.ModObjects.Activities;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Time;
-using Newtonsoft.Json;
 
 namespace Rpg.Cyborgs.Skills.Combat
 {
     public class Aim : Skill
     {
-        [JsonConstructor] private Aim() { }
+        [JsonConstructor] protected Aim() { }
 
         public Aim(Actor owner)
             : base(owner) 
@@ -19,24 +20,16 @@ namespace Rpg.Cyborgs.Skills.Combat
         public bool OnCanAct(Actor owner)
             => !owner.IsStateOn(nameof(Aiming)) || owner.RangedAimBonus.Value < 6;
 
-        public bool OnCost(Activity activity, Actor owner, Actor initiator)
+        public bool Cost(ModObjects.Activities.Action action, Actor initiator)
         {
-            activity.CostSet
-                .Add(initiator, x => x.CurrentActionPoints, -1);
-
+            action.CostModSet.Add(initiator, x => x.CurrentActionPoints, -1);
             return true;
         }
 
-        public bool OnAct(Activity activity)
-            => true;
-
-        public bool OnOutcome(Activity activity, Actor owner)
+        public bool Outcome(ModObjects.Activities.Action action, Actor owner)
         {
-            activity.OutcomeSet
-                .Add(owner, x => x.RangedAimBonus, 2);
-
-            var aiming = owner.CreateStateInstance(nameof(Aiming), new SpanOfTime(0, 1));
-            activity.OutputSets.Add(aiming);
+            action.OutcomeModSet.Add(new Turn(), owner, x => x.RangedAimBonus, 2);
+            action.SetOutcomeState(owner, nameof(Aiming), new Lifespan(0, 1));
 
             return true;
         }

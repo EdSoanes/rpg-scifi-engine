@@ -1,7 +1,9 @@
 ﻿using NanoidDotNet;
+using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Values;
 using System.IO;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Rpg.ModObjects
@@ -40,6 +42,20 @@ namespace Rpg.ModObjects
             }
 
             return default;
+        }
+
+        public static Dice? InitialValue<T, TVal>(this T obj, Expression<Func<T, TVal>> targetExpr)
+            where T : RpgObject
+        {
+            var propRef = PropRef.CreatePropRef(obj, targetExpr);
+            return obj._InitialPropertyValue(propRef.Prop);
+        }
+
+        public static Dice? BaseValue<T, TVal>(this T obj, Expression<Func<T, TVal>> targetExpr)
+            where T : RpgObject
+        {
+            var propRef = PropRef.CreatePropRef(obj, targetExpr);
+            return obj._BasePropertyValue(propRef.Prop);
         }
 
         internal static object? PropertyValue(this object? entity, string path, out bool propExists)

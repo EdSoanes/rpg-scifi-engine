@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Reflection;
+﻿using Rpg.Core.Tests.Models;
+using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Server.Json;
 using Rpg.ModObjects.Time;
 
@@ -56,6 +57,7 @@ namespace Rpg.ModObjects.Server.Tests
         public void Setup()
         {
             RpgTypeScan.RegisterAssembly(this.GetType().Assembly);
+            RpgTypeScan.RegisterAssembly(typeof(TestPerson).Assembly);
         }
 
         [Test]

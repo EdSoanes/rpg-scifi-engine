@@ -11,7 +11,7 @@ namespace Rpg.ModObjects.Props
         public static bool operator ==(PropObjRef? d1, PropObjRef? d2) => d1?.OwnerId == d2?.OwnerId && d1?.EntityId == d2?.EntityId && d1?.Lifespan == d2?.Lifespan;
         public static bool operator !=(PropObjRef? d1, PropObjRef? d2) => d1?.OwnerId != d2?.OwnerId || d1?.EntityId != d2?.EntityId || d1?.Lifespan != d2?.Lifespan;
 
-        public PropObjRef(string entityId, SpanOfTime lifespan, string? ownerId = null)
+        public PropObjRef(string entityId, Lifespan lifespan, string? ownerId = null)
         {
             EntityId = entityId;
             Lifespan = lifespan;

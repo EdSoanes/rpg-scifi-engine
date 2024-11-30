@@ -1,11 +1,12 @@
-﻿using Rpg.ModObjects.Actions;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Activities;
 using Rpg.ModObjects.Behaviors;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
-using Newtonsoft.Json;
+using System;
 
 namespace Rpg.ModObjects
 {
@@ -13,16 +14,18 @@ namespace Rpg.ModObjects
     {
         private List<PropRef> UpdatedProps = new List<PropRef>();
 
-        [JsonProperty] public RpgEntity Context { get; private set; }
-        [JsonProperty] protected ObjectsDictionary ObjectStore { get; set; } = new();
+        public RpgEntity Context { get; set; }
+        public RpgEntity? Initiator { get; set; }
+        private ObjectsDictionary ObjectStore { get; set; } = new();
 
-        [JsonProperty] public Temporal Time { get; init; } = new Temporal();
+        public Temporal Time { get; init; } = new Temporal();
 
-        public RpgGraph(RpgEntity context)
+        public RpgGraph(RpgEntity context, RpgEntity? initiator = null)
         {
             RpgTypeScan.RegisterAssembly(GetType().Assembly);
 
             Context = context;
+            Initiator = initiator ?? context;
 
             Time.OnTemporalEvent += OnTemporalEvent;
             Time.Transition(PointInTimeType.Waiting);
@@ -33,10 +36,16 @@ namespace Rpg.ModObjects
             RpgTypeScan.RegisterAssembly(GetType().Assembly);
 
             Context = (RpgEntity)state.Entities.First(x => x.Id == state.ContextId);
+            Initiator = state.InitiatorId != null
+                ? (RpgEntity)state.Entities.First(x => x.Id == state.InitiatorId)
+                : null;
 
-            foreach (var entity in state.Entities.SelectMany(x => x.Traverse()))
-                if (!ObjectStore.ContainsKey(entity.Id))
-                    ObjectStore.Add(entity.Id, entity);
+            var builder = new RpgGraphBuilder();
+            var rpgObjs = builder.Build(state.Entities.ToArray());
+
+            foreach (var rpgObj in rpgObjs)
+                if (!ObjectStore.ContainsKey(rpgObj.Id))
+                    ObjectStore.Add(rpgObj.Id, rpgObj);
 
             foreach (var entity in ObjectStore.Values)
                 entity.OnRestoring(this, entity);
@@ -52,6 +61,7 @@ namespace Rpg.ModObjects
             var state = new RpgGraphState
             {
                 ContextId = Context.Id,
+                InitiatorId = Initiator?.Id,
                 Entities = ObjectStore.Values.Where(x => x is RpgEntity || x is Activity).ToList(),
                 Time = Time,
             };
@@ -112,30 +122,6 @@ namespace Rpg.ModObjects
             }
         }
 
-        public void EnableMods(params Mod[] mods)
-        {
-            foreach (var modGroup in mods.GroupBy(x => x.EntityId))
-                GetObject(modGroup.Key)?.EnableMods(modGroup.ToArray());
-        }
-
-        public void DisableMods(params Mod[] mods)
-        {
-            foreach (var modGroup in mods.GroupBy(x => x.EntityId))
-                GetObject(modGroup.Key)?.DisableMods(modGroup.ToArray());
-        }
-
-        public void ApplyMods(params Mod[] mods)
-        {
-            foreach (var modGroup in mods.GroupBy(x => x.EntityId))
-                GetObject(modGroup.Key)?.ApplyMods(modGroup.ToArray());
-        }
-
-        public void UnapplyMods(params Mod[] mods)
-        {
-            foreach (var modGroup in mods.GroupBy(x => x.EntityId))
-                GetObject(modGroup.Key)?.UnapplyMods(modGroup.ToArray());
-        }
-
         public void RemoveMods(params Mod[] mods)
         {
             foreach (var modGroup in mods.GroupBy(x => x.EntityId))
@@ -184,48 +170,29 @@ namespace Rpg.ModObjects
 
             return false;
         }
-        public Activity CreateActivity<T>(T initiator, ActivityTemplate actionGroup)
-            where T : RpgEntity
-        {
-            var activityNo = GetObjects<Activity>()
-                .Where(x => x.InitiatorId == initiator.Id && x.Time == Time.Now)
-                .Count();
 
-            var activity = new Activity(initiator, actionGroup, activityNo);
-            AddObject(activity);
+        public T? GetContext<T>()
+            where T : RpgObject
+                => Context as T;
 
-            return activity;
-        }
-
-        public Activity CreateActivity<T>(T initiator, RpgEntity owner, string actionName)
-            where T : RpgEntity
-        {
-            var activityNo = GetObjects<Activity>()
-                .Where(x => x.InitiatorId == initiator.Id && x.Time == Time.Now)
-                .Count();
-
-            var activity = new Activity(initiator, owner, actionName, activityNo);
-            AddObject(activity);
-
-            return activity;
-        }
-
-        public bool RemoveEntity(RpgObject entity)
-        {
-            if (ObjectStore.ContainsKey(entity.Id))
-            {
-                ObjectStore.Remove(entity.Id);
-                return true;
-            }
-
-            return false;
-        }
+        public T? GetInitiator<T>()
+            where T : RpgObject
+                => Initiator as T;
 
         public T? GetObject<T>(string? objectId)
             where T : RpgObject
                 => objectId != null && ObjectStore.ContainsKey(objectId)
                     ? ObjectStore[objectId] as T
                     : null;
+
+        public T[] GetObjectsOwnedBy<T>(string? ownerId)
+            where T : RpgObject
+                => ownerId != null
+                    ? ObjectStore.Values
+                        .Where(x => x.OwnerId == ownerId && x.Expiry == LifecycleExpiry.Active && x is T)
+                        .Cast<T>()
+                        .ToArray()
+                    : [];
 
         public RpgObject? GetParentObject(RpgObject childObject)
             => GetParentObject(childObject.Id);
@@ -235,11 +202,12 @@ namespace Rpg.ModObjects
             foreach (var obj in ObjectStore.Values.Where(x => x.Id != childObjectId))
             {
                 if (obj.IsParentObjectTo(childObjectId))
-                    return obj; 
+                    return obj;
             }
 
             return null;
         }
+
         public RpgObject? GetObject(string? objectId)
             => objectId != null && ObjectStore.ContainsKey(objectId)
                 ? ObjectStore[objectId]
@@ -262,15 +230,6 @@ namespace Rpg.ModObjects
                     ? [rpgObj]
                     : [];
 
-            if (scope == ModScope.ParentEntity)
-            {
-                var parent = rpgObj.GetParentObject();
-                return parent != null
-                    ? [parent]
-                    : [];
-            }
-
-            //Children...
             var children = rpgObj.GetChildObjects();
             return scope == ModScope.ChildObjects
                 ? children
@@ -384,15 +343,14 @@ namespace Rpg.ModObjects
                 rpgObj.RemoveModSet(modSet.Id);
         }
 
-        /// <summary>
-        /// Shallow recalculation of a property value
-        /// </summary>
-        /// <param name="propRef"></param>
-        /// <returns></returns>
+
         public Dice? CalculatePropValue(PropRef propRef, Func<Mod, bool>? filterFunc = null)
+            => CalculatePropValue(propRef.EntityId, propRef.Prop, filterFunc);
+
+        public Dice? CalculatePropValue(string entityId, string prop, Func<Mod, bool>? filterFunc = null)
         {
-            var entity = GetObject(propRef.EntityId);
-            return CalculatePropValue(entity, propRef.Prop, filterFunc);
+            var entity = GetObject(entityId);
+            return CalculatePropValue(entity, prop, filterFunc);
         }
 
         /// <summary>
@@ -558,8 +516,11 @@ namespace Rpg.ModObjects
 
         private void OnBeforeTime()
         {
-            foreach (var entity in Context.Traverse())
-                AddObject(entity);
+            var builder = new RpgGraphBuilder();
+            var rpgObjs = builder.Build(Context);
+
+            foreach (var rpgObj in rpgObjs)
+                AddObject(rpgObj);
         }
 
         private void OnTimeBegins()

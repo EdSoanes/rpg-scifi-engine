@@ -1,57 +1,51 @@
-﻿using Rpg.Cyborgs.States;
-using Rpg.ModObjects.Actions;
+﻿using Newtonsoft.Json;
+using Rpg.Cyborgs.States;
+using Rpg.ModObjects.Activities;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Time;
-using Rpg.ModObjects.Values;
-using Newtonsoft.Json;
 
 namespace Rpg.Cyborgs.Actions
 {
-    public class MeleeParry : ModObjects.Actions.Action<Actor>
+    public class MeleeParry : ActionTemplate<Actor>
     {
-        [JsonConstructor] private MeleeParry() { }
+        [JsonConstructor] protected MeleeParry()
+            : base() { }
 
         public MeleeParry(Actor owner)
-            : base(owner)
-        {
-            CanPerformAfter = [nameof(TakeDamage)];
-        }
+            : base(owner) { }
 
-        public bool OnCanAct(Activity activity, Actor owner)
-            => (activity.GetActivityProp("damage") ?? Dice.Zero) != Dice.Zero && !owner.IsStateOn(nameof(Parrying));
+        public bool CanPerform(Actor owner, int damage)
+            => damage > 0 && !owner.IsStateOn(nameof(Parrying));
 
-        public bool OnCost(Activity activity, Actor owner, Actor initiator)
+        public bool Cost(ModObjects.Activities.Action action, Actor owner, Actor initiator, int focusPoints)
         {
-            activity.CostSet
-                .Add(new Turn(1, 1), initiator, x => x.CurrentActionPoints, -1);
+            action.CostModSet.Add(new Turn(1, 1), initiator, x => x.CurrentActionPoints, -1);
+            if (focusPoints > 0)
+                action.CostModSet.Add(new Turn(), owner, x => x.CurrentFocusPoints, -focusPoints);
 
             return true;
         }
 
-        public bool OnAct(Activity activity, Actor owner, int target, int focusPoints, int? parry)
+        public bool Perform(ModObjects.Activities.Action action, Actor owner, int parryTarget, int? abilityScore)
         {
-            if (focusPoints > 0)
-                activity.OutcomeSet
-                    .Add(owner, x => x.CurrentFocusPoints, -focusPoints);
-
-            activity
-                .ActivityMod("diceRoll", "Base", "2d6");
-
-            var bonus = parry != null
-                ? parry.Value * (focusPoints + 1)
+            var focusPoints = action.Prop("focusPoints")?.Roll();
+            var bonus = abilityScore != null
+                ? abilityScore.Value * (focusPoints + 1)
                 : owner.Strength.Value * (focusPoints + 1);
 
-            if (parry != null)
-                activity.ActivityMod("diceRoll", "Ability", bonus);
-            else
-                activity.ActivityMod("diceRoll", "Strength.Value", bonus);
+            action
+                .SetProp("diceRoll", "2d6")
+                .SetProp("diceRoll", bonus)
+                .SetProp("parryTarget", parryTarget);
 
             return true;
         }
 
-        public bool OnOutcome(Activity activity, Actor owner, int diceRoll, int target, int damage)
+        public bool Outcome(ModObjects.Activities.Action action, Actor owner, int diceRoll, int target, int damage)
         {
+            action.SetOutcomeState(owner, nameof(Parrying), new Lifespan(1, 1));
+
             if (diceRoll >= target)
             {
                 var reduction = owner.Strength.Value > 0
@@ -62,11 +56,11 @@ namespace Rpg.Cyborgs.Actions
                     reduction = 1;
 
                 if (diceRoll >= target)
-                    activity.ActivityMod("damage", "Parry", -reduction);
-
-                var parrying = owner.CreateStateInstance(nameof(Parrying), new SpanOfTime(1, 1));
-                activity.OutputSets.Add(parrying);
+                    action.SetProp("damage", -reduction);
             }
+            action
+                .SetOutcomeAction(owner, nameof(ArmourCheck), false)
+                .SetOutcomeAction(owner, nameof(TakeDamage), true);
 
             return true;
         }

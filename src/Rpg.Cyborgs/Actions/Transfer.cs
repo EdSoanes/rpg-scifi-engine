@@ -1,34 +1,29 @@
-﻿using Rpg.ModObjects;
-using Rpg.ModObjects.Actions;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects;
+using Rpg.ModObjects.Activities;
 using Rpg.ModObjects.Mods;
-using Newtonsoft.Json;
+using Rpg.ModObjects.Mods.Mods;
 
 namespace Rpg.Cyborgs.Actions
 {
-    public class Transfer : ModObjects.Actions.Action<RpgEntity>
+    public class Transfer : ActionTemplate<RpgEntity>
     {
-        [JsonConstructor] private Transfer() { }
+        [JsonConstructor] protected Transfer()
+            : base() { }
 
         public Transfer(RpgEntity owner)
-            : base(owner)
-        {
-        }
+            : base(owner) { }
 
-        public bool OnCanAct(RpgEntity owner, Actor initiator, RpgContainer from, RpgContainer to)
+        public bool CanPerform(RpgEntity owner, Actor initiator, RpgContainer from)
             => initiator.CurrentActionPoints > 0 && from.Contains(owner);
 
-        public bool OnCost(Activity activity, Actor initiator)
+        public bool Cost(ModObjects.Activities.Action action, Actor initiator)
         {
-            activity.CostSet
-                .Add(initiator, x => x.CurrentActionPoints, -1);
-
+            action.CostModSet.Add(new Turn(), initiator, x => x.CurrentActionPoints, -1);
             return true;
         }
 
-        public bool OnAct(Activity activity)
-            => true;
-
-        public bool OnOutcome(RpgEntity owner, RpgContainer from, RpgContainer to)
+        public bool Outcome(RpgEntity owner, RpgContainer from, RpgContainer to)
         {
             from.Remove(owner);
             to.Add(owner);

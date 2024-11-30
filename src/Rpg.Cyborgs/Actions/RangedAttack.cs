@@ -1,57 +1,55 @@
-﻿using Rpg.Cyborgs.States;
-using Rpg.ModObjects.Actions;
+﻿using Newtonsoft.Json;
+using Rpg.Cyborgs.States;
+using Rpg.ModObjects.Activities;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Time;
-using Newtonsoft.Json;
 
 namespace Rpg.Cyborgs.Actions
 {
-    public class RangedAttack : ModObjects.Actions.Action<MeleeWeapon>
+    public class RangedAttack : ActionTemplate<RangedWeapon>
     {
-        [JsonConstructor] private RangedAttack() { }
+        [JsonConstructor] protected RangedAttack()
+            : base() { }
 
-        public RangedAttack(MeleeWeapon owner)
-            : base(owner)
-        {
-        }
+        public RangedAttack(RangedWeapon owner)
+            : base(owner) { }
 
-        public bool OnCanAct(Activity activity, RangedWeapon owner, Actor initiator)
+        public bool CanPerform(RangedWeapon owner, Actor initiator)
             => initiator.Hands.Contains(owner) && initiator.CurrentActionPoints > 0;
 
-        public bool OnCost(Activity activity, Actor initiator)
+        public bool Cost(ModObjects.Activities.Action action, Actor initiator, int focusPoints)
         {
-            activity.CostSet
-                .Add(initiator, x => x.CurrentActionPoints, -1);
-
-            return true;
-        }
-
-        public bool OnAct(Activity activity, RangedWeapon owner, Actor initiator, int targetDefence, int focusPoints, int? abilityScore)
-        {
+            action.CostModSet.Add(new Turn(), initiator, x => x.CurrentActionPoints, -1);
             if (focusPoints > 0)
-                activity.OutcomeSet
-                    .Add(initiator, x => x.CurrentFocusPoints, -focusPoints);
-
-            activity
-                .ActivityMod("diceRoll", "Base", "2d6")
-                .ActivityMod("diceRoll", owner, x => x.HitBonus)
-                .ActivityMod("target", "Base", targetDefence);
-
-            if (abilityScore != null)
-                activity.ActivityMod("diceRoll", "Ability", abilityScore.Value * (focusPoints + 1));
-            else
-                activity.ActivityMod("diceRoll", initiator, x => x.RangedAttack.Value * (focusPoints + 1));
+                action.CostModSet
+                    .Add(new Turn(), initiator, x => x.CurrentFocusPoints, -focusPoints);
 
             return true;
         }
 
-        public bool OnOutcome(Activity activity, RangedWeapon owner, Actor initiator, int diceRoll, int targetDefence)
+        public bool Perform(ModObjects.Activities.Action action, RangedWeapon owner, Actor initiator, int targetDefence, int? abilityScore)
         {
-            activity
-                .ActivityMod("damage", owner, x => x.Damage);
+            var focusPoints = action.Prop("focusPoints")?.Roll();
 
-            var rangedAttacking = owner.CreateStateInstance(nameof(RangedAttacking), new SpanOfTime(0, 1));
-            activity.OutputSets.Add(rangedAttacking);
+            var val = abilityScore != null
+                ? abilityScore.Value * (focusPoints + 1)
+                : initiator.RangedAttack.Value * (focusPoints + 1);
+
+            action
+                .SetProp("diceRoll", "2d6")
+                .SetProp("diceRoll", owner, x => x.HitBonus)
+                .SetProp("diceRoll", val)
+                .SetProp("targetDefence", targetDefence);
+
+            return true;
+        }
+
+        public bool Outcome(ModObjects.Activities.Action action, RangedWeapon owner, Actor initiator, int diceRoll, int targetDefence)
+        {
+            action
+                .SetProp("damage", owner, x => x.Damage)
+                .SetOutcomeState(initiator, nameof(RangedAttacking), new Lifespan(0, 1));
 
             return true;
         }

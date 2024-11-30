@@ -6,9 +6,19 @@ using System.Threading.Tasks;
 
 namespace Rpg.ModObjects.Reflection.Attributes
 {
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    public abstract class ArgAttribute : Attribute
+    public class ArgSelectAttribute : ArgAttribute
     {
-        public string Arg { get; set; }
+        public string[]? Options { get; set; }
+        public Type? Enum { get; set; }
+
+        public ArgSelectAttribute() 
+            : base() 
+        {
+            if (Enum != null && !Enum.GetType().IsEnum)
+                throw new ArgumentException("Enum");
+
+            if (Enum != null && Options == null)
+                Options = Enum.GetEnumNames();
+        }
     }
 }

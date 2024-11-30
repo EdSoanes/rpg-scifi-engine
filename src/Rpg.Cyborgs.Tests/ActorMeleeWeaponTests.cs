@@ -1,10 +1,10 @@
 ﻿using Rpg.Cyborgs.Actions;
 using Rpg.Cyborgs.Tests.Models;
 using Rpg.ModObjects;
-using Rpg.ModObjects.Actions;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
+using Rpg.ModObjects.Reflection.Args;
 
 namespace Rpg.Cyborgs.Tests
 {
@@ -26,7 +26,7 @@ namespace Rpg.Cyborgs.Tests
             var room = new Room();
             room.Contents.Add(_pc);
 
-            _graph = new RpgGraph(room);
+            _graph = new RpgGraph(room, _pc);
         }
 
         [Test]
@@ -41,38 +41,36 @@ namespace Rpg.Cyborgs.Tests
         [Test]
         public void PlayerCharacter_CarryingSword_Attack()
         {
-            var activity = _graph.CreateActivity(_pc, _sword, nameof(MeleeAttack));
-            var attack = activity.ActionInstance;
-
             _graph.Time.Transition(PointInTimeType.EncounterBegins);
+
+            var activity = _pc.InitiateAction(_sword, nameof(MeleeAttack));
+            var attack = activity.CurrentAction()!;
+
             Assert.That(_graph.Time.Now.Type, Is.EqualTo(PointInTimeType.Turn));
             Assert.That(_graph.Time.Now.Count, Is.EqualTo(1));
 
-            var costs = activity.Cost();
-            Assert.That(costs.Mods.Count(), Is.EqualTo(1));
+            activity.Cost(activity.CostArgs());
 
-            _graph.AddModSets(costs);
+            Assert.That(attack.CostModSet.Mods.Count(), Is.EqualTo(1));
+            _graph.AddModSets(attack.CostModSet);
+            attack.CostModSet.Apply();
             _graph.Time.TriggerEvent();
 
             Assert.That(_pc.CurrentActionPoints, Is.EqualTo(_pc.ActionPoints - 1));
 
-            activity
-                .SetActArg("focusPoints", 0)
-                .SetActArg("targetDefence", 12)
-                .Act();
+            var performArgs = activity.PerformArgs();
+            performArgs.Set("targetDefence", 12);
+            activity.Perform(performArgs);
 
-            Assert.That(activity.GetActivityProp("diceRoll")?.ToString(), Is.EqualTo("2d6"));
-            Assert.That(activity.GetActivityProp("target")?.ToString(), Is.EqualTo("12"));
+            Assert.That(attack.Prop("diceRoll").ToString(), Is.EqualTo("2d6 + 1"));
+            Assert.That(attack.Prop("targetDefence").ToString(), Is.EqualTo("12"));
 
-            activity
-                .ActivityResultMod("diceRoll", "Result", 14)
-                .ActivityResultMod("target", "Result", 12);
+            var outcomeArgs = activity.OutcomeArgs();
+            outcomeArgs.Set("diceRoll", 14);
+            outcomeArgs.Set("targetDefence", 12);
 
-            Assert.That(activity.GetActivityProp("diceRoll")?.ToString(), Is.EqualTo("14"));
-            Assert.That(activity.GetActivityProp("target")?.ToString(), Is.EqualTo("12"));
-            
-            activity.Outcome();
-            Assert.That(activity.GetActivityProp("damage")?.ToString(), Is.EqualTo("1d6 - 1"));
+            var outcomeResult = activity.Outcome(outcomeArgs);
+            Assert.That(attack.Prop("damage").ToString(), Is.EqualTo("1d6"));
 
             activity.Complete();
 

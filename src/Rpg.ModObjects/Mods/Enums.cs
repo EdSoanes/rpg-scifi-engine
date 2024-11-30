@@ -9,7 +9,6 @@ namespace Rpg.ModObjects.Mods
     public enum ModScope
     {
         Standard,
-        ParentEntity,
         ChildComponents,
         ChildObjects
     }

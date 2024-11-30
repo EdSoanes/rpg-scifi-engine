@@ -1,5 +1,5 @@
 import ActionsBlock from './ActionsBlock'
-import ActionInstancePanel from './ActionInstancePanel'
+import ActionPanel from './ActionPanel'
 import ActionButton from './ActionButton'
 
-export { ActionsBlock, ActionInstancePanel, ActionButton }
+export { ActionsBlock, ActionPanel as ActionInstancePanel, ActionButton }

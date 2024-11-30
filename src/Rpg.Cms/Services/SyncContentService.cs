@@ -31,7 +31,7 @@ namespace Rpg.Cms.Services
             var stateLibrary = await EnsureContentAsync(session, "State Library", session.StateLibraryDocType!.Key, systemRoot, sysChildren);
 
             var actionSiblings = _contentService.GetPagedChildren(actionLibrary.Id, 0, 10000, out _);
-            foreach (var action in session.System.Actions)
+            foreach (var action in session.System.ActionTemplates)
             {
                 var name = $"{action.OwnerArchetype}.{action.Name}";
                 await EnsureContentAsync(session, name, session.ActionDocType!.Key, actionLibrary, actionSiblings);

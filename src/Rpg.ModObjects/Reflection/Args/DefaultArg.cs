@@ -11,28 +11,20 @@ namespace Rpg.ModObjects.Reflection.Args
             : base(parameterInfo)
         { }
 
-        public override bool IsValid(string argName, object? value)
-            => true;
+        public override RpgArg Clone()
+            => new DefaultArg 
+            { 
+                Name = Name, 
+                Type = Type,
+                IsNullable = IsNullable,
+                Value = Value, 
+                Groups = Groups 
+            };
 
-        public override string? ToArgString(RpgGraph graph, object? value)
-            => value?.ToString();
+        public override void SetValue(object? value, RpgGraph? graph = null)
+            => Value = value;
 
-        public override object? FromInput(RpgGraph graph, object? value)
-        {
-            if (value == null) return null;
-            if (RpgMethodArgs.PrimitiveArgTypes.Contains(value?.GetType())) return value;
-
-            throw new ArgumentException($"value {value} invalid");
-
-        }
-
-        public override object? ToOutput(RpgGraph graph, object? value)
-        {
-            if (value == null) return null;
-            if (RpgMethodArgs.PrimitiveArgTypes.Contains(value?.GetType())) return value;
-
-            throw new ArgumentException($"value {value} invalid");
-
-        }
+        public override void FillValue(object? value, RpgGraph? graph = null)
+            => Value ??= value;
     }
 }

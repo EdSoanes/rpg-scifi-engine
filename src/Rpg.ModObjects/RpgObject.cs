@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Mods;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
@@ -6,7 +7,6 @@ using Rpg.ModObjects.States;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.ComponentModel;
-using Newtonsoft.Json;
 
 namespace Rpg.ModObjects
 {
@@ -17,11 +17,9 @@ namespace Rpg.ModObjects
         [JsonProperty] public StatesDictionary States { get; set; }
 
         [JsonProperty] public string Id { get; private set; }
-
+        [JsonProperty] public string? OwnerId { get; private set; }
         [JsonProperty] public string Archetype { get; private set; }
-
         [JsonProperty] public string Name { get; protected set; }
-
         [JsonProperty] public string[] Archetypes { get; private set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -39,6 +37,18 @@ namespace Rpg.ModObjects
             States = new StatesDictionary();
         }
 
+        public RpgObject(string ownerId)
+            : this()
+        {
+            OwnerId = ownerId;
+        }
+
+        public RpgObject(string ownerId, Lifespan lifespan)
+            : this(ownerId)
+        {
+            Lifespan = lifespan;
+        }
+
         #region ModSets
 
         public ModSet? GetModSet(string id)
@@ -54,15 +64,17 @@ namespace Rpg.ModObjects
 
             if (!ModSets.ContainsKey(modSet.Id))
             {
-                modSet.OnCreating(Graph!, this);
-                ModSets.Add(modSet.Id, modSet);
-
-                if (Graph.Time.Now.Type != PointInTimeType.BeforeTime)
+                if (Graph != null)
                 {
-                    modSet.OnTimeBegins();
-                    modSet.OnStartLifecycle();
+                    modSet.OnCreating(Graph!, this);
+                    if (Graph.Time.Now.Type != PointInTimeType.BeforeTime)
+                    {
+                        modSet.OnTimeBegins();
+                        modSet.OnStartLifecycle();
+                    }
                 }
-
+                
+                ModSets.Add(modSet.Id, modSet);
                 return true;
             }
 
@@ -125,6 +137,17 @@ namespace Rpg.ModObjects
                 .ToList();
 
             return propDesc;
+        }
+
+        public Dice? Prop(string propName)
+        {
+            var prop = Props.ContainsKey(propName)
+                ? Props[propName]
+                : null;
+
+            return prop != null
+                ? Graph.CalculateModsValue(prop.GetActive())
+                : null;
         }
 
         public Prop? GetProp(string? prop, RefType refType = RefType.Value, bool create = false)
@@ -206,74 +229,6 @@ namespace Rpg.ModObjects
                 }
                 else
                     Graph!.AddMods([.. modGroup]);
-            }
-        }
-
-        public void EnableMods(params Mod[] mods)
-        {
-            foreach (var modGroup in mods.GroupBy(x => x.EntityId))
-            {
-                if (modGroup.Key == Id)
-                {
-                    foreach (var mod in modGroup.Where(x => x.IsDisabled && Props.ContainsKey(x.Prop)))
-                    {
-                        mod.Enable();
-                        Graph!.OnPropUpdated(mod.Target);
-                    }
-                }
-                else
-                    Graph!.EnableMods([.. modGroup]);
-            }
-        }
-
-        public void DisableMods(params Mod[] mods)
-        {
-            foreach (var modGroup in mods.GroupBy(x => x.EntityId))
-            {
-                if (modGroup.Key == Id)
-                {
-                    foreach (var mod in modGroup.Where(x => !x.IsDisabled && Props.ContainsKey(x.Prop)))
-                    {
-                        mod.Disable();
-                        Graph!.OnPropUpdated(mod.Target);
-                    }
-                }
-                else
-                    Graph!.DisableMods([.. modGroup]);
-            }
-        }
-
-        public void ApplyMods(params Mod[] mods)
-        {
-            foreach (var modGroup in mods.GroupBy(x => x.EntityId))
-            {
-                if (modGroup.Key == Id)
-                {
-                    foreach (var mod in modGroup.Where(x => !x.IsApplied && Props.ContainsKey(x.Prop)))
-                    {
-                        mod.Apply();
-                        Graph!.OnPropUpdated(mod.Target);
-                    }
-                }
-                else
-                    Graph!.EnableMods([.. modGroup]);
-            }
-        }
-
-        public void UnapplyMods(params Mod[] mods)
-        {
-            foreach (var modGroup in mods.GroupBy(x => x.EntityId))
-            {
-                if (modGroup.Key == Id)
-                {
-                    foreach (var mod in modGroup.Where(x => x.IsApplied && Props.ContainsKey(x.Prop)))
-                    {
-                        mod.Unapply();
-                        Graph!.OnPropUpdated(mod.Target);
-                    }
-                }
-                else
-                    Graph!.DisableMods([.. modGroup]);
             }
         }
 
@@ -392,13 +347,10 @@ namespace Rpg.ModObjects
             => GetState(state)?.IsOn ?? false;
 
         public void SetStateOn(string state)
-            => GetState(state)?.On();
+            => GetState(state)?.Activate();
 
         public void SetStateOff(string state)
-            => GetState(state)?.Off();
-
-        public ModSet CreateStateInstance(string state, SpanOfTime? spanOfTime = null)
-            => GetState(state)!.ActivateInstance(spanOfTime);
+            => GetState(state)?.Deactivate();
 
         public bool OnUpdateStateLifecycle()
         {
@@ -422,6 +374,8 @@ namespace Rpg.ModObjects
         public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
             base.OnCreating(graph, entity);
+            foreach (var modSet in ModSets.Values)
+                modSet.OnCreating(graph, entity);
 
             OnCreatingProperties();
             OnCreatingStates();
@@ -487,6 +441,12 @@ namespace Rpg.ModObjects
         {
             return $"{Archetype} {Id}";
         }
+
+        internal Dice? _InitialPropertyValue(string prop)
+            => Graph.CalculateInitialPropValue(this, prop);
+
+        internal Dice? _BasePropertyValue(string prop)
+            => Graph.CalculateBasePropValue(this, prop);
 
         private void OnCreatingProperties()
         {

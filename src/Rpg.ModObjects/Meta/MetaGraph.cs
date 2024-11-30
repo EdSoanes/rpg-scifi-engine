@@ -1,4 +1,4 @@
-﻿using Rpg.ModObjects.Actions;
+﻿using Rpg.ModObjects.Activities;
 using Rpg.ModObjects.Meta.Props;
 using Rpg.ModObjects.Reflection;
 using System.Data;
@@ -25,12 +25,8 @@ namespace Rpg.ModObjects.Meta
                 .Select(x => (MetaPropAttribute)Activator.CreateInstance(x)!)
                 .ToArray();
 
-            var actions = RpgTypeScan.ForTypes<Actions.Action>(systemAssemblies)
+            var actionTemplates = RpgTypeScan.ForTypes<ActionTemplate>(systemAssemblies)
                 .Select(x => new MetaAction(x))
-                .ToArray();
-
-            var activityTemplates = RpgTypeScan.ForTypes<ActivityTemplate>(systemAssemblies)
-                .Select(x => (ActivityTemplate)Activator.CreateInstance(x)!)
                 .ToArray();
 
             var states = RpgTypeScan.ForTypes<States.State>(systemAssemblies)
@@ -39,12 +35,11 @@ namespace Rpg.ModObjects.Meta
 
             var objectTypes = RpgTypeScan.ForTypes<RpgEntity>(systemAssemblies);
             var res = objectTypes
-                .Select(x => Object(x, actions, states))
+                .Select(x => Object(x, actionTemplates, states))
                 .ToArray();
 
             system.Objects = res;
-            system.Actions = actions;
-            system.ActivityTemplates = activityTemplates;
+            system.ActionTemplates = actionTemplates;
             system.States = states;
             system.PropUIs = propUIs.Select(x => x.GetValues()).ToArray();
             system.Namespaces = Namespaces(objectTypes);

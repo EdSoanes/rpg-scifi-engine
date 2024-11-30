@@ -9,7 +9,8 @@ namespace Rpg.Cyborgs.Conditions
     {
         [JsonProperty] public string[] RemoveOnActions { get; init; }
 
-        protected Condition() { }
+        [JsonConstructor] protected Condition()
+            : base() { }
  
         public Condition(T owner)
             : base(owner) { }

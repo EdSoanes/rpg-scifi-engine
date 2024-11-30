@@ -8,8 +8,10 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
+using Rpg.ModObjects;
+using Rpg.Core.Tests.Models;
 
-namespace Rpg.ModObjects.Server.Tests
+namespace Rpg.Core.Tests.Server
 {
     public class BaseSerializationTests
     {
@@ -26,8 +28,14 @@ namespace Rpg.ModObjects.Server.Tests
         public void Setup()
         {
             RpgTypeScan.RegisterAssembly(this.GetType().Assembly);
+            RpgTypeScan.RegisterAssembly(typeof(TestPerson).Assembly);
         }
 
+        [Test]
+        public void RpgArgs_Serialization()
+        {
+
+        }
         [Test]
         public void DiceWithDefault_Serialize_EnsureValues()
         {
@@ -50,7 +58,7 @@ namespace Rpg.ModObjects.Server.Tests
             var obj = new DiceObj(new Dice("2+2"));
             var graph = new RpgGraph(obj);
 
-            var method = RpgMethod.Create<DiceObj, Dice>(obj, nameof(DiceObj.CalculateStatBonus));
+            var method = RpgMethodFactory.Create<DiceObj, Dice>(obj, nameof(DiceObj.CalculateStatBonus));
 
             Assert.That(method, Is.Not.Null);
             Assert.That(method.MethodName, Is.EqualTo(nameof(DiceObj.CalculateStatBonus)));

@@ -5,59 +5,44 @@ namespace Rpg.ModObjects.Reflection.Args
 {
     public class RpgObjectArg : RpgArg
     {
-        [JsonProperty] public string? ForArgName { get; init; }
-        [JsonProperty] public string Archetype { get; init; }
-
         [JsonConstructor] private RpgObjectArg() { }
 
-        internal RpgObjectArg(ParameterInfo parameterInfo)
+        public RpgObjectArg(ParameterInfo parameterInfo)
             : base(parameterInfo)
+        { }
+
+        public override RpgArg Clone()
+            => new RpgObjectArg 
+            { 
+                Name = Name, 
+                Type = Type,
+                IsNullable = IsNullable,
+                Value = Value,
+                Groups = Groups
+            };
+
+        public override void SetValue(object? value, RpgGraph? graph = null)
+            => Value = Convert(value, graph);
+
+        public override void FillValue(object? value, RpgGraph? graph = null)
+            => Value ??= Convert(value, graph);
+
+        private string? Convert(object? value, RpgGraph? graph)
         {
-            Archetype = parameterInfo.ParameterType.Name;
-        }
-
-        internal RpgObjectArg(ParameterInfo parameterInfo, string validArgName)
-            : this(parameterInfo)
-        { 
-            ForArgName = validArgName;
-        }
-
-        public override bool IsValid(string argName, object? value)
-            => ValidType(value) && (ForArgName == null || ForArgName == argName);
-
-        public override string? ToArgString(RpgGraph graph, object? value)
-            => ValidType(value)
-                ? (value as RpgObject)?.Id
-                : null;
-
-        public override object? FromInput(RpgGraph graph, object? value)
-        {
+            if (value == null) return null;
+            if (value is RpgObject obj && obj.Archetypes.Contains(Type))
+                return obj.Id;
+            //{
+            //    var conversionType = RpgTypeScan.ForTypeByName(Type);
+            //    return System.Convert.ChangeType(value, conversionType) as RpgObject;
+            //}
             if (value is string id)
             {
-                var res = graph.GetObject(id);
-                if (ValidType(res))
-                    return res;
-
-                throw new ArgumentException($"value {value} invalid");
-
+                return graph != null
+                    ? graph.GetObject(id)?.Id
+                    : id;
             }
-
-            return ValidType(value)
-                ? value
-                : null;
-        }
-
-        public override object? ToOutput(RpgGraph graph, object? value)
-            => ValidType(value)
-                ? (value as RpgObject)!.Id
-                : null;
-
-        private bool ValidType(object? value)
-        {
-            if (value is RpgObject obj)
-                return obj.Archetypes.Contains(Archetype);
-
-            return false;
+            throw new ArgumentException($"value not of type {Type}");
         }
     }
 }

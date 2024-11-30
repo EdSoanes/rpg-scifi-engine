@@ -1,5 +1,4 @@
-﻿using Asp.Versioning;
-using Microsoft.AspNetCore.Cors;
+﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
@@ -7,15 +6,11 @@ using Rpg.ModObjects.Server;
 using Rpg.ModObjects.Server.Json;
 using Rpg.ModObjects.Server.Ops;
 using Rpg.ModObjects.Time;
-using Umbraco.Cms.Api.Common.Attributes;
 
 namespace Rpg.Cms.Controllers
 {
-    [Route("api/v{version:apiVersion}/rpg")]
+    [Route("api/rpg")]
     [ApiController]
-    [ApiVersion("1.0")]
-    [MapToApi("rpg")]
-    [ApiExplorerSettings(GroupName = "Entities")]
     public class RpgEntitiesController : Controller
     {
         private readonly RpgSessionlessServer _sessionlessServer;

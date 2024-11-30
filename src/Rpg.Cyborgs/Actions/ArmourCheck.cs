@@ -1,69 +1,61 @@
-﻿using Rpg.ModObjects.Actions;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Activities;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
-using Rpg.ModObjects.Values;
-using Newtonsoft.Json;
 
 namespace Rpg.Cyborgs.Actions
 {
-    public class ArmourCheck : ModObjects.Actions.Action<Actor>
+    public class ArmourCheck : ActionTemplate<Actor>
     {
-        [JsonConstructor] private ArmourCheck() { }
+        [JsonConstructor] protected ArmourCheck()
+            : base() { }
 
-        public ArmourCheck(Actor owner)
-            : base(owner)
-        {
-            CanPerformAfter = [nameof(TakeDamage), nameof(MeleeParry)];
-        }
+        public ArmourCheck(Actor owner) 
+            : base(owner) { }
 
-        public bool OnCanAct(Activity activity, Actor owner)
-            => owner.Wearing.Get<Armour>().Any() && (activity.GetActivityProp("damage") ?? Dice.Zero) != Dice.Zero;
+        public bool CanPerform(Activity activity, Actor owner, int damage)
+            => damage > 0 && owner.Wearing.Get<Armour>().Any();
 
-        public bool OnCost(Activity activity, Actor owner, int luckPoints)
-            => true;
-
-        public bool OnAct(Activity activity, Actor owner, int luckPoints)
+        public bool Perform(ModObjects.Activities.Action action, Actor owner, int luckPoints)
         {
             var armourRating = CalculateArmourRating(owner);
 
-            activity
-                .ActivityMod("diceRoll1", "Base", "1d6")
-                .ActivityMod("diceRoll2", "Base", "1d6")
-                .ActivityMod("armourRating", "Base", armourRating);
+            action
+                .SetProp("diceRoll1", "1d6")
+                .SetProp("diceRoll2", "1d6")
+                .SetProp("armourRating", armourRating);
 
             if (luckPoints > 0)
-                activity.ActivityResultMod("diceRoll1", "Result", armourRating + 1);
+                action.SetProp("diceRoll1", 1);
 
             if (luckPoints > 1)
-                activity.ActivityResultMod("diceRoll2", "Result", armourRating + 1);
+                action.SetProp("diceRoll2", 1);
 
             return true;
         }
 
-        public bool OnOutcome(Activity activity, Actor owner, int damage, int diceRoll1, int diceRoll2)
+        public bool Outcome(ModObjects.Activities.Action action, Actor owner, int damage, int diceRoll1, int diceRoll2, int armourRating)
         {
-            activity
-                .ActivityResultMod("diceRoll1", "Result", diceRoll1)
-                .ActivityResultMod("diceRoll2", "Result", diceRoll2);
-
-            var armourRating = activity.GetActivityProp("armourRating")?.Roll() ?? 0;
             var success1 = diceRoll1 > armourRating;
             var success2 = diceRoll2 > armourRating;
+
+            action.ResetProp("damage");
 
             var armour = GetArmour(owner);
             if (armour != null)
             {
                 if (success1 && success2)
-                    activity
-                        .ActivityMod("damage", "ArmourCheck", damage)
-                        .OutcomeSet
-                            .Add(new Permanent(), armour, x => x.CurrentArmourRating, -2);
+                {
+                    action.SetProp("damage", damage);
+                    action.OutcomeModSet.Add(new Permanent(), armour, x => x.CurrentArmourRating, -2);
+                }
 
                 else if (success1)
-                    activity
-                        .ActivityMod("damage", "ArmourCheck", Convert.ToInt32(Math.Ceiling((double)damage / 2)))
-                        .OutcomeSet
-                            .Add(new Permanent(), armour, x => x.CurrentArmourRating, -1);
+                {
+                    var damageReduction = Convert.ToInt32(Math.Ceiling((double)damage / 2));
+                    action.SetProp("damage", damageReduction);
+                    action.OutcomeModSet.Add(new Permanent(), armour, x => x.CurrentArmourRating, -1);
+                }
             }
 
             return true;

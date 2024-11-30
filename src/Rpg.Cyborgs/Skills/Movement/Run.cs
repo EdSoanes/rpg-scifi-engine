@@ -1,14 +1,14 @@
-﻿using Rpg.Cyborgs.States;
-using Rpg.ModObjects.Actions;
+﻿using Newtonsoft.Json;
+using Rpg.Cyborgs.States;
+using Rpg.ModObjects.Activities;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Time;
-using Newtonsoft.Json;
 
 namespace Rpg.Cyborgs.Skills.Movement
 {
     public class Run : Skill
     {
-        [JsonConstructor] private Run() { }
+        [JsonConstructor] protected Run() { }
 
         public Run(Actor owner)
             : base(owner) 
@@ -16,25 +16,18 @@ namespace Rpg.Cyborgs.Skills.Movement
             IsIntrinsic = true;
         }
 
-        public bool OnCanAct(Actor owner)
+        public bool CanPerform(Actor owner)
             => owner.CurrentActionPoints > 0;
 
-        public bool OnCost(Activity activity, Actor owner)
+        public bool Cost(ModObjects.Activities.Action action, Actor owner)
         {
-            activity.CostSet
-                .Add(owner, x => x.CurrentActionPoints, -1);
-
+            action.CostModSet.Add(owner, x => x.CurrentActionPoints, -1);
             return true;
         }
 
-        public bool OnAct(ActionInstance actionInstance, Actor owner)
-            => true;
-
-        public bool OnOutcome(Activity activity, Actor owner)
+        public bool Outcome(ModObjects.Activities.Action action, Actor owner)
         {
-            var moving = owner.GetState(nameof(Moving))!.ActivateInstance(new SpanOfTime(0, 1));
-            activity.OutputSets.Add(moving);
-
+            action.SetOutcomeState(owner, nameof(Moving), new Lifespan(0, 1));
             return true;
         }
     }

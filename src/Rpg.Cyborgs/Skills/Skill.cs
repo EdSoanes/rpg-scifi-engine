@@ -1,36 +1,26 @@
-﻿using Rpg.ModObjects.Mods.Mods;
-using Rpg.ModObjects.Props;
-using Rpg.ModObjects.Values;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Activities;
+using Rpg.ModObjects.Mods.Mods;
 
 namespace Rpg.Cyborgs.Skills
 {
-    public abstract class Skill : ModObjects.Actions.Action<Actor>
+    public abstract class Skill : ActionTemplate<Actor>
     {
         protected string RatingProp => $"{GetType().Name}_Rating";
+
+        [JsonConstructor] protected Skill() 
+            : base() { }
+
+        public Skill(Actor owner)
+            : base(owner) { }
 
         [JsonIgnore]
         public int Rating
         {
-            get
-            {
-                var actor = Graph.GetObject<Actor>(OwnerId)!;
-                var rating = Graph.CalculatePropValue(new PropRef(OwnerId!, RatingProp)) ?? Dice.Zero;
-
-                return rating.Roll();
-            }
-            set
-            {
-                var actor = Graph.GetObject<Actor>(OwnerId)!;
-                actor.AddMods(new Initial(actor.Id, RatingProp, value));
-            }
+            get => Graph?.CalculatePropValue(OwnerId!, RatingProp)?.Roll() ?? 0;
+            set => Graph?.AddMods(new Initial(OwnerId!, RatingProp, value));
         }
 
         [JsonProperty] public bool IsIntrinsic { get; protected set; }
-
-        [JsonConstructor] protected Skill() { }
-
-        public Skill(Actor owner)
-            : base(owner) { }
     }
 }

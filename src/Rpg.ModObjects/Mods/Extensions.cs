@@ -14,6 +14,15 @@ namespace Rpg.ModObjects.Mods
             return target;
         }
 
+        public static TTarget AddMod<TTarget, TSource>(this TTarget target, Mod mod, string targetProp, TSource source, string sourceProp, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+            where TTarget : RpgObject
+            where TSource : RpgObject
+        {
+            mod.Set(target, targetProp, source, sourceProp, valueFunc);
+            target.AddMods(mod);
+            return target;
+        }
+
         public static TTarget AddMod<TTarget>(this TTarget target, Mod mod, PropRef targetPropRef, Dice value)
             where TTarget : RpgObject
                 => target.AddMod(mod, targetPropRef.Prop, value);

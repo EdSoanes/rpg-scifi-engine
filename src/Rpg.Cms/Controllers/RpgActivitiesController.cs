@@ -1,7 +1,8 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Rpg.ModObjects.Actions;
+using Rpg.ModObjects.Activities;
+using Rpg.ModObjects.Reflection.Args;
 using Rpg.ModObjects.Server;
 using Rpg.ModObjects.Server.Json;
 using Rpg.ModObjects.Server.Ops;
@@ -9,11 +10,8 @@ using Umbraco.Cms.Api.Common.Attributes;
 
 namespace Rpg.Cms.Controllers
 {
-    [Route("api/v{version:apiVersion}/rpg")]
+    [Route("api/rpg")]
     [ApiController]
-    [ApiVersion("1.0")]
-    [MapToApi("rpg")]
-    [ApiExplorerSettings(GroupName = "Activities")]
     public class RpgActivitiesController : Controller
     {
         private readonly RpgSessionlessServer _sessionlessServer;
@@ -36,11 +34,22 @@ namespace Rpg.Cms.Controllers
         }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
-        [HttpPost("{system}/activity/createbygroup")]
-        [ProducesResponseType(typeof(RpgResponse<Activity>), StatusCodes.Status200OK)]
-        public IActionResult ActivityCreateByGroup(string system, RpgRequest<ActivityCreateByTemplate> request)
+        [HttpPost("{system}/action/args")]
+        [ProducesResponseType(typeof(RpgResponse<RpgArg[]>), StatusCodes.Status200OK)]
+        public IActionResult ActionStepArgs(string system, RpgRequest<ActionStepArgs> request)
         {
-            var response = _sessionlessServer.ActivityCreate(system, request);
+            var response = _sessionlessServer.GetActionStepArgs(system, request);
+
+            var json = RpgJson.Serialize(response);
+            return new ContentResult() { Content = json, ContentType = "application/json" };
+
+        }
+        [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
+        [HttpPost("{system}/action/cost")]
+        [ProducesResponseType(typeof(RpgResponse<ModObjects.Activities.Action>), StatusCodes.Status200OK)]
+        public IActionResult ActionCost(string system, RpgRequest<ActionStepRun> request)
+        {
+            var response = _sessionlessServer.ActionExecuteCost(system, request);
 
             var json = RpgJson.Serialize(response);
             return new ContentResult() { Content = json, ContentType = "application/json" };
@@ -48,35 +57,56 @@ namespace Rpg.Cms.Controllers
         }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
-        [HttpGet("{system}/activity/templates")]
-        [ProducesResponseType(typeof(ActivityTemplate[]), StatusCodes.Status200OK)]
-        public IActionResult ActivityTemplates(string system)
+        [HttpPost("{system}/action/perform")]
+        [ProducesResponseType(typeof(RpgResponse<ModObjects.Activities.Action>), StatusCodes.Status200OK)]
+        public IActionResult ActionPerform(string system, RpgRequest<ActionStepRun> request)
         {
-            var response = _sessionlessServer.ActivityTemplates(system);
+            var response = _sessionlessServer.ActionExecutePerform(system, request);
 
             var json = RpgJson.Serialize(response);
             return new ContentResult() { Content = json, ContentType = "application/json" };
-
         }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
-        [HttpPost("{system}/activity/act")]
-        [ProducesResponseType(typeof(RpgResponse<Activity>), StatusCodes.Status200OK)]
-        public IActionResult ActivityAct(string system, RpgRequest<ActivityAct> request)
+        [HttpPost("{system}/action/outcome")]
+        [ProducesResponseType(typeof(RpgResponse<ModObjects.Activities.Action>), StatusCodes.Status200OK)]
+        public IActionResult ActionOutcome(string system, RpgRequest<ActionStepRun> request)
         {
-            var response = _sessionlessServer.ActivityAct(system, request);
+            var response = _sessionlessServer.ActionExecuteOutcome(system, request);
 
             var json = RpgJson.Serialize(response);
             return new ContentResult() { Content = json, ContentType = "application/json" };
-
         }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
-        [HttpPost("{system}/activity/outcome")]
-        [ProducesResponseType(typeof(RpgResponse<Activity>), StatusCodes.Status200OK)]
-        public IActionResult ActivityOutcome(string system, RpgRequest<ActivityOutcome> request)
+        [HttpPost("{system}/action/complete")]
+        [ProducesResponseType(typeof(RpgResponse<ModObjects.Activities.Action>), StatusCodes.Status200OK)]
+        public IActionResult ActionComplete(string system, RpgRequest<ActivityComplete> request)
         {
-            var response = _sessionlessServer.ActivityOutcome(system, request);
+            var response = _sessionlessServer.ActionComplete(system, request);
+
+            var json = RpgJson.Serialize(response);
+            return new ContentResult() { Content = json, ContentType = "application/json" };
+        }
+
+        [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
+        [HttpPost("{system}/action/autocomplete")]
+        [ProducesResponseType(typeof(RpgResponse<ModObjects.Activities.Action>), StatusCodes.Status200OK)]
+        public IActionResult ActionAutoComplete(string system, RpgRequest<ActivityComplete> request)
+        {
+            var response = _sessionlessServer.ActionAutoComplete(system, request);
+
+            var json = RpgJson.Serialize(response);
+            return new ContentResult() { Content = json, ContentType = "application/json" };
+        }
+
+
+        [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
+        [HttpPost("{system}/action/reset")]
+        [ProducesResponseType(typeof(RpgResponse<ModObjects.Activities.Action>), StatusCodes.Status200OK)]
+        public IActionResult ActionReset(string system, RpgRequest<ActivityComplete> request)
+        {
+            var response = _sessionlessServer.ActionReset(system, request);
 
             var json = RpgJson.Serialize(response);
             return new ContentResult() { Content = json, ContentType = "application/json" };

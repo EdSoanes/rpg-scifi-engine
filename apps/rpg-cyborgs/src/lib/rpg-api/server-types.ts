@@ -1,96 +1,81 @@
 import { components } from './rpgtypes'
 
 export type RpgContent = Pick<
-  components['schemas']['Rpg.ModObjects.Server.RpgContent'],
-  keyof components['schemas']['Rpg.ModObjects.Server.RpgContent']
+  components['schemas']['Server.RpgContent'],
+  keyof components['schemas']['Server.RpgContent']
 >
 
 export type SetStateRequest = Pick<
-  components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.SetState'],
-  keyof components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.SetState']
+  components['schemas']['Server.RpgRequest_SetState'],
+  keyof components['schemas']['Server.RpgRequest_SetState']
 >
 
 export type SetState = Pick<
-  components['schemas']['Rpg.ModObjects.Server.Ops.SetState'],
-  keyof components['schemas']['Rpg.ModObjects.Server.Ops.SetState']
+  components['schemas']['Server.Ops.SetState'],
+  keyof components['schemas']['Server.Ops.SetState']
 >
 
 export type DescribeStateRequest = Pick<
-  components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeState'],
-  keyof components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeState']
+  components['schemas']['Server.RpgRequest_DescribeState'],
+  keyof components['schemas']['Server.RpgRequest_DescribeState']
 >
 
 export type DescribePropRequest = Pick<
-  components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeProp'],
-  keyof components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeProp']
+  components['schemas']['Server.RpgRequest_DescribeProp'],
+  keyof components['schemas']['Server.RpgRequest_DescribeProp']
 >
 
 export type DescribePropResponse = Pick<
-  components['schemas']['Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Props.PropDescription'],
-  keyof components['schemas']['Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Props.PropDescription']
+  components['schemas']['Server.RpgResponse_PropDescription'],
+  keyof components['schemas']['Server.RpgResponse_PropDescription']
 >
 
 export type ModSetRequest = Pick<
-  components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Mods.ModSet'],
-  keyof components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Mods.ModSet']
+  components['schemas']['Server.RpgRequest_ModSet'],
+  keyof components['schemas']['Server.RpgRequest_ModSet']
 >
 
 export type DescribeModSetRequest = Pick<
-  components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeModSet'],
-  keyof components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.DescribeModSet']
+  components['schemas']['Server.RpgRequest_DescribeModSet'],
+  keyof components['schemas']['Server.RpgRequest_DescribeModSet']
 >
 
 export type DescribeModSetResponse = Pick<
-  components['schemas']['Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Mods.ModSetDescription'],
-  keyof components['schemas']['Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Mods.ModSetDescription']
->
-
-export type ActivityActRequest = Pick<
-  components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityAct'],
-  keyof components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityAct']
->
-
-export type ActivityOutcomeRequest = Pick<
-  components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityOutcome'],
-  keyof components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityOutcome']
+  components['schemas']['Server.RpgResponse_ModSetDescription'],
+  keyof components['schemas']['Server.RpgResponse_ModSetDescription']
 >
 
 export type ActivityCreateRequest = Pick<
-  components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityCreate'],
-  keyof components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Server.Ops.ActivityCreate']
+  components['schemas']['Server.RpgRequest_ActivityCreate'],
+  keyof components['schemas']['Server.RpgRequest_ActivityCreate']
 >
 
 export type ActivityCreate = Pick<
-  components['schemas']['Rpg.ModObjects.Server.Ops.ActivityCreate'],
-  keyof components['schemas']['Rpg.ModObjects.Server.Ops.ActivityCreate']
+  components['schemas']['Server.Ops.ActivityCreate'],
+  keyof components['schemas']['Server.Ops.ActivityCreate']
 >
 
-export type ActivityCreateByGroupRequest = Pick<
-  components['schemas']['Rpg.ModObjects.Server.Ops.ActivityCreateByTemplate'],
-  keyof components['schemas']['Rpg.ModObjects.Server.Ops.ActivityCreateByTemplate']
->
-
-export type ActivityResponse = Pick<
-  components['schemas']['Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Actions.Activity'],
-  keyof components['schemas']['Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Actions.Activity']
+export type ActionResponse = Pick<
+  components['schemas']['Server.RpgResponse_Action2'],
+  keyof components['schemas']['Server.RpgResponse_Action2']
 >
 
 export type StringResponse = Pick<
-  components['schemas']['Rpg.ModObjects.Server.RpgResponse.System.String'],
-  keyof components['schemas']['Rpg.ModObjects.Server.RpgResponse.System.String']
+  components['schemas']['Server.RpgResponse_String'],
+  keyof components['schemas']['Server.RpgResponse_String']
 >
 
 export type BooleanResponse = Pick<
-  components['schemas']['Rpg.ModObjects.Server.RpgResponse.System.Boolean'],
-  keyof components['schemas']['Rpg.ModObjects.Server.RpgResponse.System.Boolean']
+  components['schemas']['Server.RpgResponse_Boolean'],
+  keyof components['schemas']['Server.RpgResponse_Boolean']
 >
 
 export type SetTimeRequest = Pick<
-  components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Time.PointInTime'],
-  keyof components['schemas']['Rpg.ModObjects.Server.RpgRequest.Rpg.ModObjects.Time.PointInTime']
+  components['schemas']['Server.RpgRequest_PointInTime'],
+  keyof components['schemas']['Server.RpgRequest_PointInTime']
 >
 
 export type SetTimeResponse = Pick<
-  components['schemas']['Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Time.PointInTime'],
-  keyof components['schemas']['Rpg.ModObjects.Server.RpgResponse.Rpg.ModObjects.Time.PointInTime']
+  components['schemas']['Server.RpgResponse_PointInTime'],
+  keyof components['schemas']['Server.RpgResponse_PointInTime']
 >

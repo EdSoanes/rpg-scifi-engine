@@ -1,60 +1,66 @@
-﻿using Rpg.Cyborgs.States;
-using Rpg.ModObjects.Actions;
+﻿using Newtonsoft.Json;
+using Rpg.Cyborgs.States;
+using Rpg.ModObjects;
+using Rpg.ModObjects.Activities;
 using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Time;
-using Newtonsoft.Json;
+using Rpg.ModObjects.Values;
 
 namespace Rpg.Cyborgs.Actions
 {
-    public class MeleeAttack : ModObjects.Actions.Action<MeleeWeapon>
+    public class MeleeAttack : ActionTemplate<MeleeWeapon>
     {
-        [JsonConstructor] private MeleeAttack() { }
+        [JsonConstructor] protected MeleeAttack()
+            : base() { }
 
         public MeleeAttack(MeleeWeapon owner)
-            : base(owner)
+            : base(owner) 
         {
         }
 
-        public bool OnCanAct(Activity activity, MeleeWeapon owner, Actor initiator)
+        public override void OnCreating(RpgGraph graph, RpgEntity owner)
+        {
+            base.OnCreating(graph, owner);
+            SetArg("actionPoints", 1);
+            SetArg("focusPoints", 0);
+        }
+        public bool CanPerform(MeleeWeapon owner, Actor initiator)
             => initiator.Hands.Contains(owner) && initiator.CurrentActionPoints > 0;
 
-        public bool OnCost(Activity activity, Actor initiator)
+        public bool Cost(ModObjects.Activities.Action action, Actor initiator, int actionPoints, int focusPoints)
         {
-            activity.CostSet
-                .Add(initiator, x => x.CurrentActionPoints, -1);
+            if (actionPoints > 0) 
+                action.CostModSet.Add(new Turn(), initiator, x => x.CurrentActionPoints, -actionPoints);
 
-            return true;
-        }
-
-        public bool OnAct(Activity activity, MeleeWeapon owner, Actor initiator, int targetDefence, int focusPoints, int? abilityScore)
-        {
             if (focusPoints > 0)
-                activity.OutcomeSet
-                    .Add(initiator, x => x.CurrentFocusPoints, -focusPoints);
-
-            activity
-                .ActivityMod("diceRoll", "Base", "2d6")
-                .ActivityMod("diceRoll", owner, x => x.HitBonus)
-                .ActivityMod("target", "Base", targetDefence);
-
-            var score = (abilityScore ?? initiator.MeleeAttack.Value) * (focusPoints + 1);
-
-            if (abilityScore != null)
-                activity.ActivityMod("diceRoll", "Ability", score);
-            else
-                activity.ActivityMod("diceRoll", "MeleeAttack.Value", score);
+                action.CostModSet.Add(new Turn(), initiator, x => x.CurrentFocusPoints, -focusPoints);
 
             return true;
         }
 
-        public bool OnOutcome(Activity activity, MeleeWeapon owner, Actor initiator, int diceRoll, int target)
+        public bool Perform(ModObjects.Activities.Action action, MeleeWeapon owner, Actor initiator, int targetDefence, int? abilityScore)
         {
-            activity
-                .ActivityMod("damage", owner, x => x.Damage)
-                .ActivityMod("damage", initiator, x => x.Strength.Value);
+            var focusPoints = action.Prop("focusPoints")?.Roll();
 
-            var meleeAttacking = initiator.CreateStateInstance(nameof(MeleeAttacking), new SpanOfTime(0, 1));
-            activity.OutputSets.Add(meleeAttacking);
+            var val = abilityScore != null
+                ? abilityScore.Value * (focusPoints + 1)
+                : initiator.RangedAttack.Value * (focusPoints + 1);
+
+            action
+                .SetProp("diceRoll", "2d6")
+                .SetProp("diceRoll", owner, x => x.HitBonus)
+                .SetProp("diceRoll", val)
+                .SetProp("targetDefence", targetDefence);
+
+            return true;
+        }
+
+        public bool Outcome(ModObjects.Activities.Action action, MeleeWeapon owner, Actor initiator, int diceRoll, int targetDefence)
+        {
+            action
+                .SetProp("damage", owner, x => x.Damage)
+                .SetOutcomeState(initiator, nameof(MeleeAttacking), new Lifespan(0, 1));
 
             return true;
         }

@@ -52,7 +52,7 @@ namespace Rpg.Cyborgs.Tests
             var pc = new PlayerCharacter(ActorFactory.BennyTemplate);
             var graph = new RpgGraph(pc);
 
-            Assert.That(pc.Actions.Count(), Is.EqualTo(6));
+            Assert.That(pc.ActionTemplates.Count(), Is.EqualTo(7));
         }
 
         [Test]
@@ -74,26 +74,26 @@ namespace Rpg.Cyborgs.Tests
             var exhausted = pc.GetState(nameof(Exhausted));
             Assert.That(exhausted, Is.Not.Null);
 
-            exhausted.On();
+            exhausted.Activate();
             graph.Time.TriggerEvent();
 
             Assert.That(exhausted.IsOn, Is.True);
-            Assert.That(exhausted.OnByUserAction, Is.True);
-            Assert.That(exhausted.OnByTimePeriod, Is.False);
+            Assert.That(exhausted.IsOnManually, Is.True);
+            Assert.That(exhausted.IsOnTimed, Is.False);
 
             graph.Time.Transition(PointInTimeType.Turn, 4);
             graph.Time.TriggerEvent();
 
             Assert.That(exhausted.IsOn, Is.True);
-            Assert.That(exhausted.OnByUserAction, Is.True);
-            Assert.That(exhausted.OnByTimePeriod, Is.False);
+            Assert.That(exhausted.IsOnManually, Is.True);
+            Assert.That(exhausted.IsOnTimed, Is.False);
 
-            exhausted.Off();
+            exhausted.Deactivate();
             graph.Time.TriggerEvent();
 
             Assert.That(exhausted.IsOn, Is.False);
-            Assert.That(exhausted.OnByUserAction, Is.False);
-            Assert.That(exhausted.OnByTimePeriod, Is.False);
+            Assert.That(exhausted.IsOnManually, Is.False);
+            Assert.That(exhausted.IsOnTimed, Is.False);
         }
 
         [Test]

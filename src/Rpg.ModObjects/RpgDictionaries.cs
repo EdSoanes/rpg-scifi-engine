@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Mods;
+﻿using Rpg.ModObjects.Activities;
+using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.States;
 
@@ -24,8 +25,8 @@ namespace Rpg.ModObjects
         public StatesDictionary() : base() { }
     }
 
-    public class ActionsDictionary : Dictionary<string, Actions.Action>
+    public class ActionTemplateDictionary : Dictionary<string, ActionTemplate>
     {
-        public ActionsDictionary() : base() { }
+        public ActionTemplateDictionary() : base() { }
     }
 }

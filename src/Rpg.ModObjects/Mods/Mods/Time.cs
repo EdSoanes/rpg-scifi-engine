@@ -9,7 +9,7 @@ namespace Rpg.ModObjects.Mods.Mods
         [JsonConstructor] protected Time()
             : base() { }
 
-        protected Time(string name, SpanOfTime lifespan) 
+        protected Time(string name, Lifespan lifespan) 
             : base(name)
         {
             Lifespan = lifespan;
@@ -17,11 +17,11 @@ namespace Rpg.ModObjects.Mods.Mods
         }
 
         protected Time(string name, PointInTimeType start, PointInTimeType end)
-            : this(name, new SpanOfTime(start, end))
+            : this(name, new Lifespan(start, end))
         { }
 
         protected Time(string name, int startTurn, int duration)
-            : this(name, new SpanOfTime(startTurn, duration))
+            : this(name, new Lifespan(startTurn, duration))
         { }
     }
 }

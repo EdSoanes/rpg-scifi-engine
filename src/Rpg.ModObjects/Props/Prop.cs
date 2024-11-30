@@ -117,12 +117,15 @@ namespace Rpg.ModObjects.Props
             return active?.FirstOrDefault()?.Key;
         }
 
-        public T? GetChildObject<T>() 
+        public T? GetChildObject<T>()
             where T : RpgObject
+                => GetChildObject() as T;
+
+        public RpgObject? GetChildObject()
         {
             var objId = GetChildObjectId();
             var obj = RetrieveObject<RpgObject>(objId);
-            return obj as T;
+            return obj;
         }
 
         private T? RetrieveObject<T>(string? objId)
@@ -165,8 +168,8 @@ namespace Rpg.ModObjects.Props
                 throw new InvalidDataException("Cannot add Ref to RefType.Value prop");
 
             var lifespan = Graph != null
-                ? new SpanOfTime(Graph.Time.Now, PointInTimeType.TimeEnds)
-                : new SpanOfTime();
+                ? new Lifespan(Graph.Time.Now, PointInTimeType.TimeEnds)
+                : new Lifespan();
 
             PropObjRef? objRef = null;
             if (source != null)

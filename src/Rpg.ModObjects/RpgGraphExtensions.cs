@@ -18,57 +18,73 @@ namespace Rpg.ModObjects
             typeof(Guid)
         };
 
-        internal static IEnumerable<RpgObject> Traverse(this object obj, bool bottomUp = false)
+        internal static IEnumerable<RpgObject> Traverse(this object obj)
         {
+            var traversedIds = new List<string>();
             var entity = obj as RpgObject;
-            if (entity != null && !bottomUp)
-                yield return entity;
-
-            if (!IsExcludedType(obj.GetType()))
+            if (entity != null && !IsExcludedType(entity.GetType()))
             {
-                var propertyInfos = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                foreach (var propertyInfo in propertyInfos)
-                {
-                    var items = obj.GetPropertyObjects(propertyInfo, out var isEnumerable);
-                    foreach (var item in items)
-                    {
-                        var childEntities = item.Traverse(bottomUp);
-                        foreach (var childEntity in childEntities)
-                            yield return childEntity;
-                    }
-                }
-            }
-
-            if (entity != null && bottomUp)
+                traversedIds.Add(entity.Id);
                 yield return entity;
+
+                foreach (var child in entity.Traverse(traversedIds))
+                    yield return child;
+            }
         }
 
-        internal static IEnumerable<T> Traverse<T, TStop>(this object obj)
-            where T : RpgObject
-            where TStop : RpgObject
+        private static IEnumerable<RpgObject> Traverse(this object obj, List<string> traversedIds)
         {
-            var component = obj as T;
-            if (component != null)
-                yield return component;
-
-            if (!IsExcludedType(obj.GetType()))
+            var propertyInfos = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            foreach (var propertyInfo in propertyInfos)
             {
-                var propertyInfos = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                foreach (var propertyInfo in propertyInfos)
+                var items = obj.GetPropertyObjects(propertyInfo, out var isEnumerable);
+                foreach (var item in items)
                 {
-                    var items = obj.GetPropertyObjects(propertyInfo, out var isEnumerable);
-                    foreach (var item in items.Where(x => x is not TStop))
+                    if (!IsExcludedType(item.GetType()))
                     {
-                        var childComponents = item.Traverse<T, TStop>();
-                        foreach (var childComponent in childComponents)
-                            yield return childComponent;
+
+                        if (item is RpgObject rpgObj && !traversedIds.Contains(rpgObj.Id))
+                        {
+                            if (traversedIds.Contains(rpgObj.Id))
+                                throw new InvalidOperationException($"Recursion error on object {rpgObj.Id}");
+
+                            traversedIds.Add(rpgObj.Id);
+                            yield return rpgObj;
+                        }
+                        var childItems = item.Traverse(traversedIds);
+                        foreach (var childItem in childItems)
+                            yield return childItem;
                     }
                 }
             }
-
-            if (component != null)
-                yield return component;
         }
+
+        //internal static IEnumerable<T> Traverse<T, TStop>(this object obj)
+        //    where T : RpgObject
+        //    where TStop : RpgObject
+        //{
+        //    var component = obj as T;
+        //    if (component != null)
+        //        yield return component;
+
+        //    if (!IsExcludedType(obj.GetType()))
+        //    {
+        //        var propertyInfos = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        //        foreach (var propertyInfo in propertyInfos)
+        //        {
+        //            var items = obj.GetPropertyObjects(propertyInfo, out var isEnumerable);
+        //            foreach (var item in items.Where(x => x is not TStop))
+        //            {
+        //                var childComponents = item.Traverse<T, TStop>();
+        //                foreach (var childComponent in childComponents)
+        //                    yield return childComponent;
+        //            }
+        //        }
+        //    }
+
+        //    if (component != null)
+        //        yield return component;
+        //}
 
         internal static void Merge(this List<PropRef> target, PropRef propRef)
         {

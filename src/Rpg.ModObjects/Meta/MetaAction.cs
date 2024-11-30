@@ -2,6 +2,8 @@
 using Rpg.ModObjects.Reflection;
 using System.Reflection;
 using Newtonsoft.Json;
+using Rpg.ModObjects.Activities;
+using Rpg.ModObjects.Mods;
 
 namespace Rpg.ModObjects.Meta
 {
@@ -14,21 +16,21 @@ namespace Rpg.ModObjects.Meta
         [JsonProperty] public string? SubCategory { get; private set; }
         [JsonProperty] public string[]? NextActionHints { get; private set; }
 
-        [JsonProperty] private RpgMethod<Actions.Action, bool> OnCost { get; set; }
-        [JsonProperty] private RpgMethod<Actions.Action, bool> OnAct { get; set; }
-        [JsonProperty] private RpgMethod<Actions.Action, bool> OnOutcome { get; set; }
+        [JsonProperty] private RpgMethod<ActionTemplate, bool>? Cost { get; set; }
+        [JsonProperty] private RpgMethod<ActionTemplate, bool>? Perform { get; set; }
+        [JsonProperty] private RpgMethod<ActionTemplate, bool> Outcome { get; set; }
 
         [JsonConstructor] private MetaAction() { }
 
         public MetaAction(Type actionType)
         {
-            var action = (Actions.Action)Activator.CreateInstance(actionType, true)!;
+            var actionTemplate = (ActionTemplate)Activator.CreateInstance(actionType, true)!;
 
             Name = actionType.Name;
-            OwnerArchetype = action.OwnerArchetype;
-            OnCost = action.OnCost;
-            OnAct = action.OnAct;
-            OnOutcome = action.OnOutcome;
+            //OwnerArchetype =
+            Cost = actionTemplate.CostMethod;
+            Perform = actionTemplate.PerformMethod;
+            Outcome = actionTemplate.OutcomeMethod;
 
             var attr = actionType.GetCustomAttribute<ActionAttribute>();
             if (attr != null)

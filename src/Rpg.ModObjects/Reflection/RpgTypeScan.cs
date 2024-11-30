@@ -77,7 +77,7 @@ namespace Rpg.ModObjects.Reflection
             var className = parts[0];
             var methodName = parts[1];
 
-            Type? type = ForType(className);
+            Type? type = ForTypeByName(className);
             if (type == null)
                 throw new ArgumentException($"Failed to find class for static method {staticMethod}");
 
@@ -88,20 +88,20 @@ namespace Rpg.ModObjects.Reflection
             return methodInfo;
         }
 
-        internal static MethodInfo ForMethod(Type type, string methodName)
+        internal static MethodInfo? ForMethod(Type type, string methodName)
         {
             var methodInfo = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-            if (methodInfo == null)
-                throw new InvalidOperationException($"{methodName}() method not found on {type.Name} class");
+            //if (methodInfo == null)
+            //    throw new InvalidOperationException($"{methodName}() method not found on {type.Name} class");
 
             return methodInfo;
         }
 
-        internal static MethodInfo ForMethod<TReturn>(Type type, string methodName)
+        internal static MethodInfo? ForMethod<TReturn>(Type type, string methodName)
         {
             var methodInfo = ForMethod(type, methodName);
 
-            if (!methodInfo.ReturnType.IsAssignableTo(typeof(TReturn)))
+            if (methodInfo != null && !methodInfo.ReturnType.IsAssignableTo(typeof(TReturn)))
                 throw new InvalidOperationException($"{methodName}() method on {type.Name} class does not have return type {nameof(TReturn)}");
 
             return methodInfo;
@@ -130,7 +130,7 @@ namespace Rpg.ModObjects.Reflection
                 foreach (var assembly in assemblies)
                 {
                     var assemblyTypes = assembly.DefinedTypes
-                        .Where(x => x.IsSubclassOf(type))
+                        .Where(x => x.IsSubclassOf(type) && !x.IsAbstract)
                         .Select(x => x.AsType());
 
                     res.AddRange(assemblyTypes);
@@ -189,6 +189,26 @@ namespace Rpg.ModObjects.Reflection
                 return typeInfo.ImplementedInterfaces.Contains(typeof(T));
 
             return false;
+        }
+
+        public static string OpenApiSchemaId(Type type)
+        {
+            var name = !string.IsNullOrEmpty(type.Namespace)
+                ? $"{type.Namespace}.{type.Name}"
+                : type.Name;
+
+            if (name.Contains('`'))
+                name = name.Substring(0, name.IndexOf('`'));
+
+            var genericArgTypes = type.GetGenericArguments();
+            if (genericArgTypes.Any())
+                name += $"_{string.Join("_", genericArgTypes.Select(x => x.Name))}";
+
+            if (name.StartsWith("Rpg.ModObjects."))
+                name = name.Substring("Rpg.ModObjects.".Length);
+            else if (name.StartsWith("Rpg."))
+                name = name.Substring("Rpg.".Length);
+            return name;
         }
     }
 }

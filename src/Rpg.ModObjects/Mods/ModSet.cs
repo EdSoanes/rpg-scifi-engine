@@ -1,8 +1,9 @@
-﻿using Rpg.ModObjects.Mods.Mods;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Mods.Mods;
+using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
-using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Mods
 {
@@ -28,6 +29,20 @@ namespace Rpg.ModObjects.Mods
             OwnerId = ownerId;
         }
 
+        public ModSet ExtractFor(string entityId)
+        {
+            var mods = Mods
+                .Where(x => x.EntityId == entityId)
+                .Select(x => new Synced(entityId).Set(x.Target, x))
+                .ToList();
+
+            Mods = Mods.Where(x => x.EntityId != entityId).ToList();
+
+            var res = new ModSet(entityId, Name);
+            res.Mods = mods;
+            return res;
+        }
+
         public override void SetExpired()
         {
             base.SetExpired();
@@ -36,6 +51,16 @@ namespace Rpg.ModObjects.Mods
                 mod.SetExpired();
                 Graph.OnPropUpdated(mod.Target);
             }
+        }
+
+        public void Remove()
+            => Graph?.RemoveModSet(Id);
+
+        public virtual void Reset()
+        {
+            Graph.RemoveMods(Mods.ToArray());
+            Mods.Clear();
+            _modIds.Clear();
         }
 
         public ModSetDescription Describe()
@@ -94,6 +119,7 @@ namespace Rpg.ModObjects.Mods
         {
             base.OnRestoring(graph, entity);
             Mods = Graph.GetMods(mod => _modIds.Contains(mod.Id)).ToList();
+            _modIds.Clear();
         }
 
         public override LifecycleExpiry OnStartLifecycle()
@@ -101,9 +127,58 @@ namespace Rpg.ModObjects.Mods
             if (!Mods.Any())
                 Mods.AddRange(Graph!.GetActiveMods(x => x.OwnerId == Id));
 
+            var ownerExpiry = GetOwnerExpiry();
+            if (ownerExpiry != LifecycleExpiry.Active)
+            {
+                Expiry = ownerExpiry;
+                return Expiry;
+            }
+
             return base.OnStartLifecycle();
         }
 
+        public override LifecycleExpiry OnUpdateLifecycle()
+        {
+            var ownerExpiry = GetOwnerExpiry();
+            if (ownerExpiry != LifecycleExpiry.Active)
+            {
+                Expiry = ownerExpiry;
+                return Expiry;
+            }
+
+            return base.OnUpdateLifecycle();
+        }
+
+        public PropRef[] ModPropRefs()
+        {
+            var res = new List<PropRef>();
+            
+            foreach (var mod in Mods)
+                if (!res.Any(x => x.EntityId == mod.Target.EntityId && x.Prop == mod.Target.Prop))
+                    res.Add(mod.Target);
+
+            return res.ToArray();
+        }
+
+        public Dice? CalculateValue(PropRef propRef)
+            => CalculateValue(propRef.EntityId, propRef.Prop);
+
+        public Dice? CalculateValue(string entityId, string prop)
+        {
+            var mods = GetMods(entityId, prop) ?? [];
+            return Graph?.CalculateModsValue(mods);
+        }
+
+        public Mod[] GetMods(PropRef propRef)
+            => Mods
+                .Where(x => x.Target.EntityId == propRef.EntityId && x.Target.Prop == propRef.Prop)
+                .ToArray();
+
+        public Mod[] GetMods(string entityId, string targetProp)
+            => Mods
+                .Where(x => x.Target.EntityId == entityId && x.Target.Prop == targetProp)
+                .ToArray();
+        
         public void AddMods(params Mod[] mods)
         {
             foreach (var mod in mods)
@@ -127,16 +202,56 @@ namespace Rpg.ModObjects.Mods
         }
 
         public void Apply()
-            => Graph!.ApplyMods([.. Mods]);
+        {
+            IsApplied = true;
+            foreach (var mod in Mods.Where(x => !x.IsApplied))
+            {
+                mod.Apply();
+                Graph?.OnPropUpdated(mod.Target);
+            }
+        }
 
         public void Unapply()
-            => Graph!.UnapplyMods([.. Mods]);
+        {
+            IsApplied = false;
+            foreach (var mod in Mods.Where(x => x.IsApplied))
+            {
+                mod.Unapply();
+                Graph?.OnPropUpdated(mod.Target);
+            }
+        }
 
         public void UserEnabled()
-            => Graph!.EnableMods([.. Mods]);
+        {
+            IsDisabled = false;
+            foreach (var mod in Mods.Where(x => x.IsDisabled))
+            {
+                mod.Enable();
+                Graph?.OnPropUpdated(mod.Target);
+            }
+        }
 
         public void UserDisabled()
-            => Graph!.DisableMods([.. Mods]);
+        {
+            IsDisabled = true;
+            foreach (var mod in Mods.Where(x => !x.IsDisabled))
+            {
+                mod.Disable();
+                Graph?.OnPropUpdated(mod.Target);
+            }
+        }
+
+        private LifecycleExpiry GetOwnerExpiry()
+        {
+            if (Graph != null && OwnerId != null)
+            {
+                var owner = Graph.GetObject(OwnerId);
+                if (owner != null)
+                    return owner.Expiry;
+            }
+
+            return LifecycleExpiry.Unset;
+        }
     }
 
     public static class ModSetExtensions
@@ -189,6 +304,12 @@ namespace Rpg.ModObjects.Mods
             modSet.AddMods(mod);
             return modSet;
         }
+
+        public static T Add<T, TTarget, TSource, TSourceValue>(this T modSet, TTarget target, string targetProp, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+            where T : ModSet
+            where TTarget : RpgObject
+            where TSource : RpgObject
+                => modSet.Add(new Synced(modSet.Id), target, targetProp, source, sourceExpr, valueFunc);
 
         public static T Add<T, TTarget, TSource, TSourceValue>(this T modSet, Mod mod, TTarget target, string targetProp, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where T : ModSet

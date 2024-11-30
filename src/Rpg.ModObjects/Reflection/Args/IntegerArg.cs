@@ -1,6 +1,7 @@
 ﻿using Rpg.ModObjects.Values;
 using System.Reflection;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Rpg.ModObjects.Reflection.Args
 {
@@ -12,41 +13,28 @@ namespace Rpg.ModObjects.Reflection.Args
             : base(parameterInfo)
         { }
 
-        public override bool IsValid(string argName, object? value)
-            => int.TryParse(value?.ToString(), out int _);
-
-        public override string? ToArgString(RpgGraph graph, object? value)
-            => ToOutput(graph, value)?.ToString();
-
-        public override object? FromInput(RpgGraph graph, object? value)
-        {
-            if (value is null) return null;
-            if (value is int i) return i;
-            if (value is Dice dice && dice.IsConstant)
-                return dice.Roll();
-            else if (int.TryParse(value.ToString(), out var i2))
-                return i2;
-
-            throw new ArgumentException($"value {value} invalid");
-        }
-
-        public override object? ToOutput(RpgGraph graph, object? value)
-        {
-            if (value is null) return null;
-            if (value is int i) return i;
-            if (value is Dice dice)
+        public override RpgArg Clone()
+            => new IntegerArg
             {
-                if (dice.IsConstant)
-                    return dice.Roll();
-                else
-                    return dice;
-            }
+                Name = Name,
+                Type = Type,
+                IsNullable = IsNullable,
+                Value = Value,
+                Groups = Groups
+            };
 
-            else if (int.TryParse(value.ToString(), out var i2))
-                return i2;
+        public override void SetValue(object? value, RpgGraph? graph = null)
+            => Value = Convert(value);
 
+        public override void FillValue(object? value, RpgGraph? graph = null)
+            => Value ??= Convert(value);
+
+        private int? Convert(object? value)
+        {
+            if (value == null) return null;
+            if (int.TryParse(value?.ToString(), out int i)) return i;
+            if (Dice.TryParse(value?.ToString(), out var dice)) return dice.Roll();
             throw new ArgumentException($"value {value} invalid");
         }
-
     }
 }

@@ -5,8 +5,8 @@ namespace Rpg.ModObjects
 {
     public class RpgLifecycleObject : ILifecycle
     {
-        protected RpgGraph Graph { get; private set; }
-        [JsonProperty] protected SpanOfTime Lifespan { get; set; } = new SpanOfTime();
+        protected RpgGraph Graph { get; set; }
+        [JsonProperty] protected Lifespan Lifespan { get; set; } = new Lifespan();
         [JsonProperty] protected PointInTime? ExpiredTime { get; set; }
 
         public LifecycleExpiry Expiry { get; set; } = LifecycleExpiry.Unset;
@@ -16,6 +16,11 @@ namespace Rpg.ModObjects
         public void SetLifespan(RpgLifecycleObject fromObject)
         {
             Lifespan = fromObject.Lifespan;
+        }
+
+        public void SetLifespan(Lifespan lifespan)
+        {
+            Lifespan = lifespan;
         }
 
         public virtual void OnCreating(RpgGraph graph, RpgObject? entity = null)
@@ -62,9 +67,9 @@ namespace Rpg.ModObjects
         protected virtual void CalculateExpiry()
         {
             if (ExpiredTime != null)
-                Expiry = new SpanOfTime(PointInTimeType.BeforeTime, ExpiredTime.Value).GetExpiry(Graph.Time.Now);
+                Expiry = new Lifespan(PointInTimeType.BeforeTime, ExpiredTime.Value).UpdateExpiry(Graph.Time.Now);
             else
-                Expiry = Lifespan.GetExpiry(Graph!.Time.Now);
+                Expiry = Lifespan.UpdateExpiry(Graph!.Time.Now);
 
             if (Expiry == LifecycleExpiry.Expired && !Graph.Time.Now.IsEncounterTime)
                 Expiry = LifecycleExpiry.Destroyed;

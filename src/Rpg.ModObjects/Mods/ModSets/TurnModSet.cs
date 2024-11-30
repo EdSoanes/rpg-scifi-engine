@@ -10,7 +10,7 @@ namespace Rpg.ModObjects.Mods.ModSets
         { }
 
         public TurnModSet(string ownerId, string name)
-            : base(ownerId, name, new SpanOfTime(0, 1))
+            : base(ownerId, name, new Lifespan(0, 1))
         { }
     }
 }

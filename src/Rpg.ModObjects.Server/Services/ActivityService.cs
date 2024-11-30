@@ -1,5 +1,6 @@
-﻿using Rpg.ModObjects.Actions;
-using Rpg.ModObjects.Meta;
+﻿using Rpg.ModObjects.Activities;
+using Rpg.ModObjects.Mods;
+using Rpg.ModObjects.Reflection.Args;
 using Rpg.ModObjects.Server.Ops;
 
 namespace Rpg.ModObjects.Server.Services
@@ -13,13 +14,9 @@ namespace Rpg.ModObjects.Server.Services
             _graphService = graphService;
         }
 
-        public ActivityTemplate[] GetActivityTemplates(string systemIdentifier)
-            => MetaSystems.Get(systemIdentifier)!.ActivityTemplates;
-
         public Activity Create(RpgGraph graph, ActivityCreate createActivity)
         {
             var initiator = graph.GetObject<RpgEntity>(createActivity.InitiatorId);
-
             if (initiator == null)
                 throw new InvalidOperationException($"Could not find initiator with Id {createActivity.InitiatorId} in hydrated graph");
 
@@ -30,67 +27,99 @@ namespace Rpg.ModObjects.Server.Services
             if (owner == null)
                 throw new InvalidOperationException($"Could not find owner with Id {createActivity.OwnerId} in hydrated graph");
 
-            var activity = graph.CreateActivity(initiator, owner, createActivity.Action);
-            if (activity.ActionInstance == null)
-                throw new InvalidOperationException($"Could not find action {createActivity.Action} for owner {createActivity.OwnerId}");
-
-            activity.Cost();
+            var activity = initiator.InitiateAction(owner, createActivity.ActionTemplate);
+            if (!activity.Actions.Any())
+                throw new InvalidOperationException($"Could not find action {createActivity.ActionTemplate} for owner {createActivity.OwnerId}");
 
             return activity;
         }
 
-        public Activity Create(string systemIdentifier, RpgGraph graph, ActivityCreateByTemplate createActivity)
+        public Activity AddAction(RpgGraph graph, ActionRef actionRef)
         {
-            var initiator = graph.GetObject<RpgEntity>(createActivity.InitiatorId);
+            var activity = graph.GetObject<Activity>(actionRef.ActivityId);
+            if (activity == null)
+                throw new InvalidOperationException($"Could not find activity with Id {actionRef.ActivityId} in hydrated graph");
 
+            var initiator = graph.GetObject<RpgEntity>(activity.OwnerId);
             if (initiator == null)
-                throw new InvalidOperationException($"Could not find initiator with Id {createActivity.InitiatorId} in hydrated graph");
+                throw new InvalidOperationException($"Could not find initiator with Id {activity.OwnerId} in hydrated graph");
 
-            var owner = createActivity.OwnerId == createActivity.InitiatorId
-                ? initiator
-                : graph.GetObject<RpgEntity>(createActivity.OwnerId);
-
-            if (owner == null)
-                throw new InvalidOperationException($"Could not find owner with Id {createActivity.OwnerId} in hydrated graph");
-
-            var actionGroup = GetActivityTemplates(systemIdentifier).FirstOrDefault(x => x.Name == createActivity.ActivityTemplateName);
-            if (actionGroup == null)
-                throw new InvalidOperationException($"Could not find activity template {createActivity.ActivityTemplateName}");
-
-            var activity = graph.CreateActivity(initiator, actionGroup);
-            if (activity.ActionInstance == null)
-                throw new InvalidOperationException($"Could not create instance for activity template {createActivity.ActivityTemplateName} for owner {createActivity.OwnerId}");
-
-            activity.Cost();
+            initiator.InitiateAction(actionRef);
 
             return activity;
         }
+        public RpgArg[] GetActionArgs(RpgGraph graph, ActionStepArgs runStep)
+        {
+            var activity = graph.GetObject<Activity>(runStep.ActivityId);
+            if (activity == null)
+                throw new InvalidOperationException($"Could not find activity with Id {runStep.ActivityId} in hydrated graph");
 
-        public Activity Act(RpgGraph graph, ActivityAct activityAct)
-            => RunActivityStep(graph, activityAct.ActivityId, (activity) => activity.Act());
+            return runStep.ActionStep switch
+            {
+                ActionStep.Cost => activity.CostArgs(),
+                ActionStep.Perform => activity.PerformArgs(),
+                ActionStep.Outcome => activity.OutcomeArgs()
+            };
+        }
 
-        public Activity Outcome(RpgGraph graph, ActivityOutcome activityOutcome)
-            => RunActivityStep(graph, activityOutcome.ActivityId, (activity) => activity.Outcome());
+        public Activities.Action Cost(RpgGraph graph, ActionStepRun runStep)
+        {
+            var activity = graph.GetObject<Activity>(runStep.ActivityId);
+            if (activity == null)
+                throw new InvalidOperationException($"Could not find activity with Id {runStep.ActivityId} in hydrated graph");
 
-        public Activity AutoComplete(RpgGraph graph, ActivityAutoComplete activityAutoComplete)
-            => RunActivityStep(graph, activityAutoComplete.ActivityId, (activity) => activity.AutoComplete());
+            activity.Cost(runStep.Args);
+            return activity.CurrentAction()!;
+        }
 
-        public Activity Complete(RpgGraph graph, ActivityComplete activityComplete)
-            => RunActivityStep(graph, activityComplete.ActivityId, (activity) => activity.Complete());
+        public Activities.Action Perform(RpgGraph graph, ActionStepRun runStep)
+        {
+            var activity = graph.GetObject<Activity>(runStep.ActivityId);
+            if (activity == null)
+                throw new InvalidOperationException($"Could not find activity with Id {runStep.ActivityId} in hydrated graph");
 
-        private Activity RunActivityStep(RpgGraph graph, string activityId, System.Action<Activity> runStep)
+            activity.Perform(runStep.Args);
+            return activity.CurrentAction()!;
+        }
+
+        public Activities.Action Outcome(RpgGraph graph, ActionStepRun runStep)
+        {
+            var activity = graph.GetObject<Activity>(runStep.ActivityId);
+            if (activity == null)
+                throw new InvalidOperationException($"Could not find activity with Id {runStep.ActivityId} in hydrated graph");
+
+            activity.Outcome(runStep.Args);
+            return activity.CurrentAction()!;
+        }
+
+        public Activities.Action Complete(RpgGraph graph, string activityId)
         {
             var activity = graph.GetObject<Activity>(activityId);
-
             if (activity == null)
                 throw new InvalidOperationException($"Could not find activity with Id {activityId} in hydrated graph");
 
-            if (activity.ActionInstance == null)
-                throw new InvalidOperationException($"Could not find action instance for activity {activityId}");
+            activity.Complete();
+            return activity.CurrentAction()!;
+        }
 
-            runStep(activity);
+        public Activities.Action AutoComplete(RpgGraph graph, string activityId)
+        {
+            var activity = graph.GetObject<Activity>(activityId);
+            if (activity == null)
+                throw new InvalidOperationException($"Could not find activity with Id {activityId} in hydrated graph");
 
-            return activity;
+            activity.AutoComplete();
+            return activity.CurrentAction()!;
+        }
+
+        public Activities.Action Reset(RpgGraph graph, string activityId)
+        {
+            var activity = graph.GetObject<Activity>(activityId);
+            if (activity == null)
+                throw new InvalidOperationException($"Could not find activity with Id {activityId} in hydrated graph");
+
+            activity.Reset();
+            return activity.CurrentAction()!;
         }
     }
 }

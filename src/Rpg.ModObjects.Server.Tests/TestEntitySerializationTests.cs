@@ -6,6 +6,7 @@ using Rpg.ModObjects.Server.Json;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using Newtonsoft.Json;
+using Rpg.Core.Tests.Models;
 
 namespace Rpg.ModObjects.Server.Tests
 {
@@ -126,6 +127,7 @@ namespace Rpg.ModObjects.Server.Tests
         public void Setup()
         {
             RpgTypeScan.RegisterAssembly(this.GetType().Assembly);
+            RpgTypeScan.RegisterAssembly(typeof(TestPerson).Assembly);
         }
 
         [Test]

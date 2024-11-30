@@ -118,7 +118,7 @@ namespace Rpg.ModObjects.Mods
             SourceValue = value;
             Source = null;
             if (value != null && valueFunc != null)
-                SourceValueFunc = RpgMethod.Create<RpgObject, Dice, Dice>(valueFunc);
+                SourceValueFunc = RpgMethodFactory.Create<RpgObject, Dice, Dice>(valueFunc);
 
             return this;
         }
@@ -128,7 +128,7 @@ namespace Rpg.ModObjects.Mods
             Target = targetPropRef;
             Source = sourcePropRef;
             if (valueFunc != null)
-                SourceValueFunc = RpgMethod.Create<RpgObject, Dice, Dice>(valueFunc);
+                SourceValueFunc = RpgMethodFactory.Create<RpgObject, Dice, Dice>(valueFunc);
 
             if (string.IsNullOrEmpty(Name))
                 Name = targetPropRef.Prop;
@@ -141,7 +141,7 @@ namespace Rpg.ModObjects.Mods
             Target = targetPropRef;
             SourceValue = dice;
             if (valueFunc != null)
-                SourceValueFunc = RpgMethod.Create<RpgObject, Dice, Dice>(valueFunc);
+                SourceValueFunc = RpgMethodFactory.Create<RpgObject, Dice, Dice>(valueFunc);
 
             if (string.IsNullOrEmpty(Name))
                 Name = targetPropRef.Prop;
@@ -159,8 +159,8 @@ namespace Rpg.ModObjects.Mods
             return this;
         }
 
-        public Mod Set<TEntity>(TEntity target, string targetProp, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
-            where TEntity : RpgObject
+        public Mod Set<TTarget>(TTarget target, string targetProp, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
+            where TTarget : RpgObject
         {
             var targetPropRef = PropRef.CreatePropRef(target, targetProp);
             return Set(targetPropRef, dice, valueCalc);
@@ -189,6 +189,15 @@ namespace Rpg.ModObjects.Mods
         {
             var targetPropRef = PropRef.CreatePropRef(target, targetProp);
             var sourcePropRef = PropRef.CreatePropRef(source, sourceExpr);
+            return Set(targetPropRef, sourcePropRef, valueFunc);
+        }
+
+        public Mod Set<TTarget, TSource>(TTarget target, string targetProp, TSource source, string sourceProp, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+            where TTarget : RpgObject
+            where TSource : RpgObject
+        {
+            var targetPropRef = PropRef.CreatePropRef(target, targetProp);
+            var sourcePropRef = PropRef.CreatePropRef(source, sourceProp);
             return Set(targetPropRef, sourcePropRef, valueFunc);
         }
 

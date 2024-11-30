@@ -1,13 +1,16 @@
 ﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Activities;
+using Rpg.ModObjects.Time;
 
 namespace Rpg.ModObjects
 {
     public abstract class RpgEntity : RpgObject
     {
-        [JsonProperty] public ActionsDictionary Actions { get; private set; }
+        [JsonProperty] public ActionTemplateDictionary ActionTemplates { get; private set; }
+
         public RpgEntity() : base() 
         {
-            Actions = new ActionsDictionary();
+            ActionTemplates = new ActionTemplateDictionary();
         }
 
         public RpgEntity(string name)
@@ -18,8 +21,51 @@ namespace Rpg.ModObjects
 
         #region Actions
 
-        public Actions.Action? GetAction(string action)
-            => Actions.ContainsKey(action) ? Actions[action] : null;
+        public bool CanInitiateAction(string actionTemplate)
+            => CanInitiateAction(this, actionTemplate);
+
+        public bool CanInitiateAction(ActionRef actionRef)
+        {
+            var owner = Graph.GetObject<RpgEntity>(actionRef.ActionOwnerId);
+            return owner?.CanInitiateAction(actionRef.Action) ?? false;
+        }
+
+        public bool CanInitiateAction(RpgEntity owner, string actionTemplate)
+            => owner.GetActionTemplate(actionTemplate)?.IsPerformable ?? false;
+
+        public Activity InitiateAction(string actionTemplate)
+            => InitiateAction(this, actionTemplate);
+
+        public Activity InitiateAction(ActionRef actionRef)
+        {
+            var owner = Graph.GetObject<RpgEntity>(actionRef.ActionOwnerId);
+            if (owner == null)
+                throw new InvalidOperationException($"Cannot find action owner from actionref {actionRef.ActionOwnerId}.{actionRef.Action}");
+
+            return InitiateAction(owner, actionRef.Action);
+        }
+
+        public Activity InitiateAction(RpgEntity owner, string actionTemplate)
+        {
+            var template = owner.GetActionTemplate(actionTemplate);
+            if (template == null)
+                throw new InvalidOperationException($"Cannot find action template {actionTemplate}");
+
+            var activity = Graph.GetObjectsOwnedBy<Activity>(Id).FirstOrDefault();
+            if (activity == null)
+            {
+                activity = new Activity(this, actionTemplate, 0);
+                Graph.AddObject(activity);
+            }
+
+            var action = new Activities.Action(template, owner, this, activity);
+            Graph.AddObject(action);
+
+            return activity;
+        }
+
+        public ActionTemplate? GetActionTemplate(string actionTemplate)
+            => ActionTemplates.ContainsKey(actionTemplate) ? ActionTemplates[actionTemplate] : null;
 
         #endregion Actions
 
@@ -31,24 +77,25 @@ namespace Rpg.ModObjects
         {
             base.OnCreating(graph, entity);
 
-            var actions = ModObjects.Actions.Action.CreateOwnerActions(this);
-            foreach (var action in actions)
+            var actionTemplates = ActionTemplateFactory.CreateFor(this);
+            foreach (var actionTemplate in actionTemplates)
             {
-                if (action != null)
+                if (actionTemplate != null)
                 {
-                    action.OnAdding(Graph!);
-                    if (!Actions.ContainsKey(action.Name))
-                        Actions.Add(action.Name, action!);
+                    actionTemplate.OnCreating(Graph!, this);
+                    if (!ActionTemplates.ContainsKey(actionTemplate.Name))
+                        ActionTemplates.Add(actionTemplate.Name, actionTemplate!);
                 }
             }
+
         }
 
         public override void OnRestoring(RpgGraph graph, RpgObject? entity)
         {
             base.OnRestoring(graph, entity);
 
-            foreach (var action in Actions.Values)
-                action.OnAdding(Graph);
+            foreach (var actionTemplates in ActionTemplates.Values)
+                actionTemplates.OnRestoring(Graph);
         }
     }
 }

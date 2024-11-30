@@ -7,7 +7,6 @@ using Rpg.Cms.Services.Synchronizers;
 using Rpg.Cyborgs;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Server;
-using Umbraco.Cms.Api.Common.OpenApi;
 
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -20,8 +19,7 @@ builder.CreateUmbracoBuilder()
     .Build();
 
 builder.Services
-    .ConfigureOptions<RpgSwaggerGenOptions>()
-    .AddSingleton<ISchemaIdHandler, RpgSchemaIdHandler>();
+    .ConfigureOptions<RpgSwaggerGenOptions>();
 
 builder.Services
     .AddTransient<ISyncTypesService, SyncTypesService>()

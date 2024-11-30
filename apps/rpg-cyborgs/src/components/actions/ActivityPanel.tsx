@@ -8,21 +8,21 @@ import {
   // TabPanels,
   // Tabs,
 } from '@chakra-ui/react'
-import ActionInstancePanel from './ActionInstancePanel'
-import { selectActionInstances } from '../../app/activity/activitySelectors'
+import ActionPanel from './ActionPanel'
+import { selectActions } from '../../app/activity/activitySelectors'
 import { useSelector } from 'react-redux'
 import { selectActionsStatus } from '../../app/actions/actionsSelectors'
 
 function ActivityPanel() {
 
-  const actionInstances = useSelector(selectActionInstances)
+  const actions = useSelector(selectActions)
   const actionStatus = useSelector(selectActionsStatus)
 
   return (
     actionStatus === 'loaded' &&
     <Stack w={'100%'}>
-      {actionInstances.map((i) => (
-        <ActionInstancePanel key={(`${i.actionName}/${i.actionNo}`)} actionInstance={i} />
+      {actions.map((i) => (
+        <ActionPanel key={(`${i.name}/${i.actionNo}`)} action={i} />
       ))}
     </Stack>
   )

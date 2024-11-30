@@ -2,7 +2,7 @@
 
 namespace Rpg.ModObjects.Reflection.Args
 {
-    public abstract class RpgObjectArgFactory : IRpgArgFactory
+    public class RpgObjectArgFactory : IRpgArgFactory
     {
         public virtual bool CanCreate(ParameterInfo parameterInfo)
             => parameterInfo.ParameterType.IsAssignableTo(typeof(RpgObject)) 
