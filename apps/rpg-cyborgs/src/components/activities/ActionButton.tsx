@@ -9,15 +9,22 @@ export declare interface ActionButtonProps {
 }
 
 function ActionButton(props: ActionButtonProps) {
+  const {actionTemplate} = props
 
   return (
     <Button
       leftIcon={<ArrowForwardIcon />}
       variant={'solid'}
       size={'lg'}
-      onClick={() => props.onActionTemplate(props.actionTemplate)}
+      onClick={() => props.onActionTemplate(actionTemplate)}
     >
-      {props.actionTemplate.name}
+      <span>
+        {actionTemplate.name}
+      </span>
+      <span>Performable: {String(actionTemplate.isPerformable)}</span>
+      
+      {actionTemplate.actionArgs.filter((arg) => arg.value).map((arg) => (<span key={arg.name}>{arg.name + ' ' + arg.value}</span>))}
+      
     </Button>
   )
 }
