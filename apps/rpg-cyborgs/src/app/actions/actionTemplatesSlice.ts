@@ -1,20 +1,20 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { Action } from '../../lib/rpg-api/types'
+import { ActionTemplate } from '../../lib/rpg-api/types'
 import { fetchGraphState, ThunkStatus } from '../thunks'
 import { PlayerCharacter } from '../../lib/rpg-api/cyborg-types'
 
-export declare interface ActionsState {
-  actions: Action[]
+export declare interface ActionTemplatesState {
+  actionTemplates: ActionTemplate[]
   status: ThunkStatus
 }
 
-const initialState: ActionsState = {
-  actions: [],
+const initialState: ActionTemplatesState = {
+  actionTemplates: [],
   status: 'idle',
 }
 
-export const actionsSlice = createSlice({
-  name: 'rpgActions',
+export const actionTemplatesSlice = createSlice({
+  name: 'rpgActionTemplates',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -26,10 +26,10 @@ export const actionsSlice = createSlice({
         const playerCharacter = action.payload?.entities?.find(
           (item) => item.archetype === 'PlayerCharacter'
         ) as PlayerCharacter
-        const dict = playerCharacter?.actions
+        const dict = playerCharacter?.actionTemplates
 
-        state.actions = dict
-          ? Object.entries(dict).map((pair) => pair[1] as Action)
+        state.actionTemplates = dict
+          ? Object.entries(dict).map((pair) => pair[1] as ActionTemplate)
           : []
         state.status = action.payload ? 'loaded' : 'idle'
       })
@@ -38,4 +38,4 @@ export const actionsSlice = createSlice({
 
 // Action creators are generated for each case reducer function
 
-export default actionsSlice.reducer
+export default actionTemplatesSlice.reducer

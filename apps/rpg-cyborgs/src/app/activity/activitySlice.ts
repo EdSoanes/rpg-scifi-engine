@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { Activity } from '../../lib/rpg-api/types'
-import { fetchActivity, ThunkStatus } from '../thunks'
+import { initiateAction, ThunkStatus } from '../thunks'
 
 export declare interface ActivitiesState {
   activity?: Activity
@@ -18,10 +18,10 @@ export const activitySlice = createSlice({
   },
   extraReducers: builder => {
     builder
-    .addCase(fetchActivity.pending, (state) => {
+    .addCase(initiateAction.pending, (state) => {
       state.status = 'loading'
     })
-    .addCase(fetchActivity.fulfilled, (state, action) => {
+    .addCase(initiateAction.fulfilled, (state, action) => {
       state.activity = action.payload?.data
       state.status = action.payload ? 'loaded' : 'idle'
     })

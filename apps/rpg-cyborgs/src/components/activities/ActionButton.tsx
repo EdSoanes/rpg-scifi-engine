@@ -1,11 +1,11 @@
 import React from 'react'
-import { Action } from '../../lib/rpg-api/types'
+import { ActionTemplate } from '../../lib/rpg-api/types'
 import { Button } from '@chakra-ui/react'
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 
 export declare interface ActionButtonProps {
-  onAction: (action: Action) => void
-  action: Action
+  onActionTemplate: (actionTemplate: ActionTemplate) => void
+  actionTemplate: ActionTemplate
 }
 
 function ActionButton(props: ActionButtonProps) {
@@ -15,9 +15,9 @@ function ActionButton(props: ActionButtonProps) {
       leftIcon={<ArrowForwardIcon />}
       variant={'solid'}
       size={'lg'}
-      onClick={() => props.onAction(props.action)}
+      onClick={() => props.onActionTemplate(props.actionTemplate)}
     >
-      {props.action.name}
+      {props.actionTemplate.name}
     </Button>
   )
 }

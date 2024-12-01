@@ -21,7 +21,9 @@ function ActionPanel(props: ActionPanelProps) {
 
   const onSubmit = (argValues: {
     [key: string]: string | null | undefined
-  }) => {}
+  }) => {
+    console.log('argValues', argValues)
+  }
 
   return (
     <Box>

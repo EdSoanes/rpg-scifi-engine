@@ -1,18 +1,23 @@
 import { createSelector } from '@reduxjs/toolkit'
 import {
-  Action,
+  ActionTemplate,
   PointInTime,
-  PropValue,
   RpgGraphState,
   State,
 } from '../../lib/rpg-api/types'
+
 import { RootState } from '../store'
-import { PlayerCharacter } from '../../lib/rpg-api/cyborg-types'
+import { PlayerCharacter, PropValue } from '../../lib/rpg-api/cyborg-types'
 
 export const selectGraphState = (state: RootState): RpgGraphState | undefined =>
   state.graph.graphState
+
+export const selectActionTemplates = (state: RootState): ActionTemplate[] => 
+  state.actionTemplates.actionTemplates
+
 export const selectStateName = (state: RootState, stateName: string) =>
   stateName
+
 export const selectActionName = (state: RootState, actionName: string) =>
   actionName
 
@@ -29,14 +34,6 @@ export const selectPlayerCharacter = createSelector(
     return graphState?.entities.find(
       (entity) => entity.archetype === 'PlayerCharacter'
     ) as PlayerCharacter
-  }
-)
-
-export const selectPlayerCharacterActions = createSelector(
-  [selectPlayerCharacter],
-  (playerCharacter?: PlayerCharacter): Action[] => {
-    const dict = playerCharacter?.actions ?? {}
-    return Object.entries(dict).map((pair) => pair[1] as Action)
   }
 )
 
@@ -184,7 +181,7 @@ export const selectLifePoints = createSelector(
 )
 
 export const selectActionByName = createSelector(
-  [selectPlayerCharacterActions, selectActionName],
+  [selectActionTemplates, selectActionName],
   (actions, actionName) => actions.find((action) => action.name === actionName)
 )
 

@@ -117,8 +117,8 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(nextActions.Length, Is.EqualTo(1));
 
             var nextAction = nextActions[0];
-            Assert.That(nextAction.Action, Is.EqualTo(nameof(TakeInjury)));
-            Assert.That(nextAction.ActionOwnerId, Is.EqualTo(_pc.Id));
+            Assert.That(nextAction.ActionTemplateName, Is.EqualTo(nameof(TakeInjury)));
+            Assert.That(nextAction.ActionTemplateOwnerId, Is.EqualTo(_pc.Id));
             Assert.That(nextAction.Optional, Is.False);
 
             Assert.That(_pc.CanInitiateAction(nextAction), Is.True);

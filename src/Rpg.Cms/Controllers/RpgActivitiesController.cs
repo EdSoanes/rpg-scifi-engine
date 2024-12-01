@@ -22,11 +22,11 @@ namespace Rpg.Cms.Controllers
         }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
-        [HttpPost("{system}/activity/create")]
+        [HttpPost("{system}/action/initiate")]
         [ProducesResponseType(typeof(RpgResponse<Activity>), StatusCodes.Status200OK)]
-        public IActionResult ActivityCreate(string system, [FromBody] RpgRequest<ActivityCreate> request)
+        public IActionResult InitiateAction(string system, [FromBody] RpgRequest<InitiateAction> request)
         {
-            var response = _sessionlessServer.ActivityCreate(system, request);
+            var response = _sessionlessServer.InitiateAction(system, request);
 
             var json = RpgJson.Serialize(response);
             return new ContentResult() { Content = json, ContentType = "application/json" };

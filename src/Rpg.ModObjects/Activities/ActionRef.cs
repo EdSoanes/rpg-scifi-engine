@@ -5,8 +5,8 @@ namespace Rpg.ModObjects.Activities
     public sealed class ActionRef
     {
         [JsonProperty] public string ActivityId { get; private set; }
-        [JsonProperty] public string ActionOwnerId { get; private set; }
-        [JsonProperty] public string Action { get; private set; }
+        [JsonProperty] public string ActionTemplateOwnerId { get; private set; }
+        [JsonProperty] public string ActionTemplateName { get; private set; }
         [JsonProperty] public bool Optional { get; private set; }
 
         [JsonConstructor] private ActionRef() { }
@@ -14,8 +14,8 @@ namespace Rpg.ModObjects.Activities
         public ActionRef(string activityId, string actionOwnerId, string action, bool optional)
         {
             ActivityId = activityId;
-            ActionOwnerId = actionOwnerId;
-            Action = action;
+            ActionTemplateOwnerId = actionOwnerId;
+            ActionTemplateName = action;
             Optional = optional;
         }
     }

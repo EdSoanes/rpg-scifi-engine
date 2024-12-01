@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { RpgGraphState } from '../../lib/rpg-api/types'
 import {
-  fetchActivity,
+  initiateAction,
   fetchGraphState,
   setGraphTime,
   ThunkStatus,
@@ -30,10 +30,10 @@ export const graphSlice = createSlice({
         state.graphState = action.payload
         state.status = action.payload ? 'loaded' : 'idle'
       })
-      .addCase(fetchActivity.pending, (state) => {
+      .addCase(initiateAction.pending, (state) => {
         state.status = 'loading'
       })
-      .addCase(fetchActivity.fulfilled, (state, action) => {
+      .addCase(initiateAction.fulfilled, (state, action) => {
         state.graphState = action.payload?.graphState
         state.status = action.payload ? 'loaded' : 'idle'
       })

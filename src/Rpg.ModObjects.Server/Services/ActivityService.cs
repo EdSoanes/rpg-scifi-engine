@@ -14,27 +14,27 @@ namespace Rpg.ModObjects.Server.Services
             _graphService = graphService;
         }
 
-        public Activity Create(RpgGraph graph, ActivityCreate createActivity)
+        public Activity InitiateAction(RpgGraph graph, InitiateAction createActivity)
         {
             var initiator = graph.GetObject<RpgEntity>(createActivity.InitiatorId);
             if (initiator == null)
                 throw new InvalidOperationException($"Could not find initiator with Id {createActivity.InitiatorId} in hydrated graph");
 
-            var owner = createActivity.OwnerId == createActivity.InitiatorId
+            var owner = createActivity.ActionTemplateOwnerId == createActivity.InitiatorId
                 ? initiator
-                : graph.GetObject<RpgEntity>(createActivity.OwnerId);
+                : graph.GetObject<RpgEntity>(createActivity.ActionTemplateOwnerId);
 
             if (owner == null)
-                throw new InvalidOperationException($"Could not find owner with Id {createActivity.OwnerId} in hydrated graph");
+                throw new InvalidOperationException($"Could not find owner with Id {createActivity.ActionTemplateOwnerId} in hydrated graph");
 
-            var activity = initiator.InitiateAction(owner, createActivity.ActionTemplate);
+            var activity = initiator.InitiateAction(owner, createActivity.ActionTemplateName);
             if (!activity.Actions.Any())
-                throw new InvalidOperationException($"Could not find action {createActivity.ActionTemplate} for owner {createActivity.OwnerId}");
+                throw new InvalidOperationException($"Could not find action {createActivity.ActionTemplateName} for owner {createActivity.ActionTemplateOwnerId}");
 
             return activity;
         }
 
-        public Activity AddAction(RpgGraph graph, ActionRef actionRef)
+        public Activity InitiateAction(RpgGraph graph, ActionRef actionRef)
         {
             var activity = graph.GetObject<Activity>(actionRef.ActivityId);
             if (activity == null)

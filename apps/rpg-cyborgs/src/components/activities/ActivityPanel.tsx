@@ -11,7 +11,7 @@ import {
 import ActionPanel from './ActionPanel'
 import { selectActions } from '../../app/activity/activitySelectors'
 import { useSelector } from 'react-redux'
-import { selectActionsStatus } from '../../app/actions/actionsSelectors'
+import { selectActionsStatus } from '../../app/actions/actionTemplatesSelectors'
 
 function ActivityPanel() {
 

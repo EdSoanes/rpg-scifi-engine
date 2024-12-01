@@ -1,8 +1,8 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 import { PointInTime, RpgGraphState } from '../lib/rpg-api/types'
 import {
-  ActivityCreate,
-  ActivityCreateRequest,
+  InitiateAction,
+  InitiateActionRequest,
   ActivityResponse,
   SetState,
   SetStateRequest,
@@ -23,18 +23,18 @@ export const fetchGraphState = createAsyncThunk(
   }
 )
 
-export const fetchActivity = createAsyncThunk(
-  'activity/create',
+export const initiateAction = createAsyncThunk(
+  'action/initiate',
   async (
-    activityCreate: ActivityCreate,
+    initiateAction: InitiateAction,
     thunkAPI
   ): Promise<ActivityResponse | undefined> => {
     const graph = (thunkAPI.getState() as RootState).graph.graphState
-    const op: ActivityCreateRequest = {
+    const op: InitiateActionRequest = {
       graphState: graph!,
-      op: activityCreate,
+      op: initiateAction,
     }
-    const response = await post('Cyborgs/activity/create', op)
+    const response = await post('Cyborgs/action/initiate', op)
     const res = (await response.json()) as ActivityResponse
     return res
   }
@@ -73,7 +73,7 @@ export const toggleState = createAsyncThunk(
 )
 
 export const get = async (path: string) => {
-  const response = await fetch(`https://localhost:44349/api/v1/rpg/${path}`, {
+  const response = await fetch(`https://localhost:44349/api/rpg/${path}`, {
     method: 'GET',
     headers: {
       Accept: 'application/json; charset=utf-8',
@@ -85,7 +85,7 @@ export const get = async (path: string) => {
 }
 
 export const post = async (path: string, body?: unknown) => {
-  const response = await fetch(`https://localhost:44349/api/v1/rpg/${path}`, {
+  const response = await fetch(`https://localhost:44349/api/rpg/${path}`, {
     method: 'POST',
     headers: {
       Accept: 'application/json; charset=utf-8',

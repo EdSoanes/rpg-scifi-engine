@@ -48,14 +48,37 @@ export interface State {
   readonly isOnConditionally: boolean;
 }
 
+export type RpgArg = Pick<
+  components['schemas']['Reflection.Args.RpgArg'],
+  keyof components['schemas']['Reflection.Args.RpgArg']
+>
+
+export type ActionTemplateMethod = Pick<
+  components['schemas']['Reflection.RpgMethod_ActionTemplate_Boolean'],
+  keyof components['schemas']['Reflection.RpgMethod_ActionTemplate_Boolean']
+>
+
+export type ActionTemplate = {
+  readonly id: string;
+  readonly name: string;
+  readonly ownerId: string;
+  readonly ownerArchetype: string;
+  readonly actionArgs: RpgArg[];
+  canPerformMethod: ActionTemplateMethod;
+  costMethod: ActionTemplateMethod;
+  performMethod: ActionTemplateMethod;
+  outcomeMethod: ActionTemplateMethod;
+  readonly isPerformable: boolean;
+}
+
 export type Action = Pick<
-  components['schemas']['Actions2.Action2'],
-  keyof components['schemas']['Actions2.Action2']
+  components['schemas']['Activities.Action'],
+  keyof components['schemas']['Activities.Action']
 >
 
 export type Activity = Pick<
-  components['schemas']['Actions2.Activity2'],
-  keyof components['schemas']['Actions2.Activity2']
+  components['schemas']['Activities.Activity'],
+  keyof components['schemas']['Activities.Activity']
 >
 
 export type PropDescription = Pick<
@@ -71,9 +94,4 @@ export type ModSetDescription = Pick<
 export type ModSet = Pick<
   components['schemas']['Mods.ModSet'],
   keyof components['schemas']['Mods.ModSet']
->
-
-export type RpgArg = Pick<
-  components['schemas']['Reflection.Args.RpgArg'],
-  keyof components['schemas']['Reflection.Args.RpgArg']
 >

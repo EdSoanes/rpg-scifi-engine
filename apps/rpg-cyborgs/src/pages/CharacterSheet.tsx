@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import { Heading, useColorMode } from '@chakra-ui/react'
 import { StatsBlock } from '../components/stats'
 import { StatesBlock } from '../components/states'
-import { ActionsBlock } from '../components/actions'
+import { ActionTemplatesBlock } from '../components/activities'
 import LifeBlock from '../components/life/LifeBlock'
 import { GraphStateBlock } from '../components/graph'
 import { useSelector } from 'react-redux'
@@ -35,7 +35,7 @@ export default function CharacterSheet() {
       <TimeBlock />
       <StatsBlock />
       <StatesBlock />
-      <ActionsBlock />
+      <ActionTemplatesBlock />
       <LifeBlock />
       <GearBlock name={'Hands'} container={hands} />
       <GearBlock name={'Wearing'} container={wearing} />

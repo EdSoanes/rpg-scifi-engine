@@ -45,19 +45,24 @@ export type DescribeModSetResponse = Pick<
   keyof components['schemas']['Server.RpgResponse_ModSetDescription']
 >
 
-export type ActivityCreateRequest = Pick<
-  components['schemas']['Server.RpgRequest_ActivityCreate'],
-  keyof components['schemas']['Server.RpgRequest_ActivityCreate']
+export type InitiateActionRequest = Pick<
+  components['schemas']['Server.RpgRequest_InitiateAction'],
+  keyof components['schemas']['Server.RpgRequest_InitiateAction']
 >
 
-export type ActivityCreate = Pick<
-  components['schemas']['Server.Ops.ActivityCreate'],
-  keyof components['schemas']['Server.Ops.ActivityCreate']
+export type InitiateAction = Pick<
+  components['schemas']['Server.Ops.InitiateAction'],
+  keyof components['schemas']['Server.Ops.InitiateAction']
+>
+
+export type ActivityResponse = Pick<
+  components['schemas']['Server.RpgResponse_Activity'],
+  keyof components['schemas']['Server.RpgResponse_Activity']
 >
 
 export type ActionResponse = Pick<
-  components['schemas']['Server.RpgResponse_Action2'],
-  keyof components['schemas']['Server.RpgResponse_Action2']
+  components['schemas']['Server.RpgResponse_Action'],
+  keyof components['schemas']['Server.RpgResponse_Action']
 >
 
 export type StringResponse = Pick<

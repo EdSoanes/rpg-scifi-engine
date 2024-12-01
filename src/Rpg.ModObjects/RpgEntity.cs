@@ -26,8 +26,8 @@ namespace Rpg.ModObjects
 
         public bool CanInitiateAction(ActionRef actionRef)
         {
-            var owner = Graph.GetObject<RpgEntity>(actionRef.ActionOwnerId);
-            return owner?.CanInitiateAction(actionRef.Action) ?? false;
+            var owner = Graph.GetObject<RpgEntity>(actionRef.ActionTemplateOwnerId);
+            return owner?.CanInitiateAction(actionRef.ActionTemplateName) ?? false;
         }
 
         public bool CanInitiateAction(RpgEntity owner, string actionTemplate)
@@ -38,11 +38,11 @@ namespace Rpg.ModObjects
 
         public Activity InitiateAction(ActionRef actionRef)
         {
-            var owner = Graph.GetObject<RpgEntity>(actionRef.ActionOwnerId);
+            var owner = Graph.GetObject<RpgEntity>(actionRef.ActionTemplateOwnerId);
             if (owner == null)
-                throw new InvalidOperationException($"Cannot find action owner from actionref {actionRef.ActionOwnerId}.{actionRef.Action}");
+                throw new InvalidOperationException($"Cannot find action owner from actionref {actionRef.ActionTemplateOwnerId}.{actionRef.ActionTemplateName}");
 
-            return InitiateAction(owner, actionRef.Action);
+            return InitiateAction(owner, actionRef.ActionTemplateName);
         }
 
         public Activity InitiateAction(RpgEntity owner, string actionTemplate)

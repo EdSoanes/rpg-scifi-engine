@@ -18,11 +18,12 @@ import {
   useColorMode,
 } from '@chakra-ui/react'
 import React, { useState } from 'react'
-import { PropDescription, PropValue } from '../../lib/rpg-api/types'
+import { PropDescription } from '../../lib/rpg-api/types'
 import { QuestionOutlineIcon } from '@chakra-ui/icons'
 import { getPropDesc } from '../../lib/rpg-api/fetcher'
 import { selectGraphState } from '../../app/graphState/graphSelectors'
 import { useSelector } from 'react-redux'
+import { PropValue } from '../../lib/rpg-api/cyborg-types'
 
 //const describeAtom = atom<PropDesc | undefined>(undefined)
 

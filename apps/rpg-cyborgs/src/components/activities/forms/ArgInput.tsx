@@ -17,21 +17,21 @@ export declare interface ArgInputProps {
 }
 
 function ArgInput(props: ArgInputProps) {
-  if (props.arg.typeName !== 'Int32' && props.arg.typeName !== 'Dice') {
+  if (props.arg.type !== 'Int32' && props.arg.type !== 'Dice') {
     return <></>
   }
 
   return (
     <FormControl>
       <FormLabel htmlFor={props.arg.name}>{props.arg.name}</FormLabel>
-      {props.arg.typeName === 'Dice' && (
+      {props.arg.type === 'Dice' && (
         <Input
           id={props.arg.name}
           placeholder={props.arg.name}
           onChange={(e) => props.onInputCapture(props.arg.name, e.target.value)}
         />
       )}
-      {props.arg.typeName === 'Int32' && (
+      {props.arg.type === 'Int32' && (
         <NumberInput
           id={props.arg.name}
           onChange={(valStr) => props.onInputCapture(props.arg.name, valStr)}

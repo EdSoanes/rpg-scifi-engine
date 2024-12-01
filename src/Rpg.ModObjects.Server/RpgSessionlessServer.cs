@@ -119,10 +119,10 @@ namespace Rpg.ModObjects.Server
             };
         }
 
-        public RpgResponse<Activity> ActivityCreate(string system, RpgRequest<ActivityCreate> request)
+        public RpgResponse<Activity> InitiateAction(string system, RpgRequest<InitiateAction> request)
         {
             var graph = _graphService.HydrateGraph(system, request.GraphState);
-            var activity = _activityService.Create(graph, request.Op);
+            var activity = _activityService.InitiateAction(graph, request.Op);
 
             return new RpgResponse<Activity>
             {

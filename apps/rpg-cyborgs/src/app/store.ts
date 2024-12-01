@@ -2,7 +2,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import graphReducer from './graphState/graphSlice'
 import activityReducer from './activity/activitySlice'
 import statesReducer from './states/statesSlice'
-import actionsReducer from './actions/actionsSlice'
+import actionsTemplatesReducer from './actions/actionTemplatesSlice'
 import gearReducer from './gear/gearSlice'
 // ...
 
@@ -10,7 +10,7 @@ export const store = configureStore({
   reducer: {
     graph: graphReducer,
     states: statesReducer,
-    actions: actionsReducer,
+    actionTemplates: actionsTemplatesReducer,
     activity: activityReducer,
     gear: gearReducer,
   },

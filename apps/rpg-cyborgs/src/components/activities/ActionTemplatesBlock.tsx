@@ -15,10 +15,10 @@ import {
 } from '@chakra-ui/react'
 import React, { useState } from 'react'
 import ActionButton from './ActionButton'
-import { Action } from '../../lib/rpg-api/types'
+import { ActionTemplate } from '../../lib/rpg-api/types'
 import { StatPanel } from '../stats'
 import ActionInstancePanel from './ActivityPanel'
-import { selectActions } from '../../app/actions/actionsSelectors'
+import { selectActionTemplates } from '../../app/actions/actionTemplatesSelectors'
 import { useSelector } from 'react-redux'
 import {
   selectActionPoints,
@@ -28,7 +28,7 @@ import {
   selectReactions,
 } from '../../app/graphState/graphSelectors'
 // import { selectActionInstance, selectActivity, selectActivityStatus } from '../../app/activity/activitySelectors'
-import { fetchActivity } from '../../app/thunks'
+import { initiateAction } from '../../app/thunks'
 import { useAppDispatch } from '../../app/hooks'
 
 // const reactionsAtom = atom<PropValue | null>(
@@ -62,9 +62,9 @@ import { useAppDispatch } from '../../app/hooks'
 //   } as PropValue
 // })
 
-function ActionsBlock() {
+function ActionTemplatesBlock() {
   const playerCharacter = useSelector(selectPlayerCharacter)
-  const actions = useSelector(selectActions)
+  const actionTemplates = useSelector(selectActionTemplates)
 
   const actionPoints = useSelector(selectActionPoints)
   const focusPoints = useSelector(selectFocusPoints)
@@ -77,17 +77,17 @@ function ActionsBlock() {
 
   const dispatch = useAppDispatch()
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const [selectedAction, setSelectedAction] = useState<Action | undefined>()
+  const [selectedActionTemplate, setSelectedActionTemplate] = useState<ActionTemplate | undefined>()
 
-  const onActionButtonClicked = async (action: Action) => {
-    setSelectedAction(action)
-    console.log('onActionButtonClicked', action)
+  const onActionTemplateButtonClicked = async (actionTemplate: ActionTemplate) => {
+    setSelectedActionTemplate(actionTemplate)
+    console.log('onActionButtonClicked', actionTemplate)
     if (playerCharacter) {
       dispatch(
-        fetchActivity({
-          ownerId: action.ownerId,
+        initiateAction({
+          actionTemplateOwnerId: actionTemplate.ownerId,
           initiatorId: playerCharacter.id,
-          action: action.name,
+          actionTemplateName: actionTemplate.name,
         })
       )
 
@@ -124,11 +124,11 @@ function ActionsBlock() {
           />
         </StatGroup>
         <Grid templateColumns="repeat(6, 1fr)" gap={6}>
-          {actions.map((action, i) => (
+          {actionTemplates.map((actionTemplate, i) => (
             <ActionButton
               key={i}
-              action={action}
-              onAction={onActionButtonClicked}
+              actionTemplate={actionTemplate}
+              onActionTemplate={onActionTemplateButtonClicked}
             />
           ))}
         </Grid>
@@ -137,7 +137,7 @@ function ActionsBlock() {
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
-          <DrawerHeader>{selectedAction?.name ?? '-'}</DrawerHeader>
+          <DrawerHeader>{selectedActionTemplate?.name ?? '-'}</DrawerHeader>
 
           <DrawerBody>
             <ActionInstancePanel />
@@ -155,4 +155,4 @@ function ActionsBlock() {
   )
 }
 
-export default ActionsBlock
+export default ActionTemplatesBlock

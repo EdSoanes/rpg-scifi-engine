@@ -105,7 +105,7 @@ namespace Rpg.ModObjects.Activities
         public Action SetOutcomeAction(RpgEntity actionOwner, string actionName, bool optional)
         {
             var template = actionOwner.GetActionTemplate(actionName);
-            OutcomeActions = OutcomeActions.Where(x => x.ActionOwnerId != actionOwner.Id || x.Action != actionName).ToList();
+            OutcomeActions = OutcomeActions.Where(x => x.ActionTemplateOwnerId != actionOwner.Id || x.ActionTemplateName != actionName).ToList();
             OutcomeActions.Add(new ActionRef(OwnerId!, actionOwner.Id, actionName, optional));
 
             return this;
