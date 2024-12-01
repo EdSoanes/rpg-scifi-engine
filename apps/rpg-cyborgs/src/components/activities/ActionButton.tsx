@@ -1,7 +1,7 @@
 import React from 'react'
 import { ActionTemplate } from '../../lib/rpg-api/types'
-import { Button } from '@chakra-ui/react'
-import { ArrowForwardIcon } from '@chakra-ui/icons'
+import { IconButton } from '@chakra-ui/react'
+import { PiArrowRight } from 'react-icons/pi'
 
 export declare interface ActionButtonProps {
   onActionTemplate: (actionTemplate: ActionTemplate) => void
@@ -12,12 +12,12 @@ function ActionButton(props: ActionButtonProps) {
   const {actionTemplate} = props
 
   return (
-    <Button
-      leftIcon={<ArrowForwardIcon />}
+    <IconButton
       variant={'solid'}
       size={'lg'}
       onClick={() => props.onActionTemplate(actionTemplate)}
     >
+      <PiArrowRight />
       <span>
         {actionTemplate.name}
       </span>
@@ -25,7 +25,7 @@ function ActionButton(props: ActionButtonProps) {
       
       {actionTemplate.actionArgs.filter((arg) => arg.value).map((arg) => (<span key={arg.name}>{arg.name + ' ' + arg.value}</span>))}
       
-    </Button>
+    </IconButton>
   )
 }
 

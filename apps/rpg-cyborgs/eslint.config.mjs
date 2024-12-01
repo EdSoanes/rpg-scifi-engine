@@ -1,21 +1,15 @@
-import globals from 'globals'
-import pluginJs from '@eslint/js'
-import tseslint from 'typescript-eslint'
-import pluginReactConfig from 'eslint-plugin-react/configs/recommended.js'
+import globals from "globals";
+import pluginJs from "@eslint/js";
+import tseslint from "typescript-eslint";
+import pluginReact from "eslint-plugin-react";
+const eslintPluginPrettierRecommended = require('eslint-plugin-prettier/recommended');
 
+/** @type {import('eslint').Linter.Config[]} */
 export default [
-  {
-    settings: {
-      react: {
-        version: 'detect',
-      },
-    },
-  },
-  { ignores: ['build/'] },
-  { files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'] },
-  { languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } } },
-  { languageOptions: { globals: globals.browser } },
+  {files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"]},
+  {languageOptions: { globals: {...globals.browser, ...globals.node} }},
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
-  pluginReactConfig,
-]
+  pluginReact.configs.flat.recommended,
+  eslintPluginPrettierRecommended
+];

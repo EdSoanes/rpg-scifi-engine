@@ -16,11 +16,6 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import {
-  CheckCircleIcon,
-  QuestionOutlineIcon,
-  SmallCloseIcon,
-} from '@chakra-ui/icons'
-import {
   selectGraphState,
   selectPlayerCharacter,
 } from '../../app/graphState/graphSelectors'

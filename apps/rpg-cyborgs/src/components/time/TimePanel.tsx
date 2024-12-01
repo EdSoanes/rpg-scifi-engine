@@ -4,13 +4,13 @@ import {
   Button,
   Code,
   IconButton,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
+  DrawerRoot,
+  DrawerBody,
+  DrawerCloseTrigger,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
   Stack,
   useColorMode,
   useDisclosure,
@@ -89,16 +89,15 @@ function TimePanel(props: TimePanelProps) {
         />
       </Stack>
       {colorMode === 'light' && (
-        <Modal isOpen={isOpen} onClose={onClose}>
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>{describe?.name ?? '-'}</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
+        <DrawerRoot isOpen={isOpen} onClose={onClose}>
+          <DrawerContent>
+            <DrawerHeader>{describe?.name ?? '-'}</DrawerHeader>
+            <DrawerCloseTrigger />
+            <DrawerBody>
               <Code>{JSON.stringify(describe, null, 2)}</Code>
-            </ModalBody>
+            </DrawerBody>
 
-            <ModalFooter>
+            <DrawerFooter>
               <Button
                 variant={'unstyled'}
                 colorScheme="blue"
@@ -107,9 +106,9 @@ function TimePanel(props: TimePanelProps) {
               >
                 Close
               </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
+            </DrawerFooter>
+          </DrawerContent>
+        </DrawerRoot>
       )}
     </>
   )

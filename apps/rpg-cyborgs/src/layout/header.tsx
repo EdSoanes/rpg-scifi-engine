@@ -2,7 +2,7 @@ import React from 'react'
 
 import { Box, Flex } from '@chakra-ui/react'
 
-import { CloseIcon, HamburgerIcon } from '@chakra-ui/icons'
+import { PiCross, PiHamburger } from 'react-icons/pi'
 import { LoadGraphButton } from '../components/graph'
 
 export declare interface HeaderProps {
@@ -30,7 +30,7 @@ const Header = (props: HeaderProps) => {
       <Flex align="center"></Flex>
 
       <Box display={{ base: 'block', md: 'none' }} onClick={toggleMenu}>
-        {show ? <CloseIcon /> : <HamburgerIcon />}
+        {show ? <PiCross /> : <PiHamburger />}
       </Box>
 
       <Box

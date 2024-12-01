@@ -2,12 +2,12 @@ import { Button, Heading, Stack, StackItem } from '@chakra-ui/react'
 import React from 'react'
 import { useSelector } from 'react-redux'
 import { selectTime } from '../../app/graphState/graphSelectors'
-import { CheckCircleIcon, SmallCloseIcon } from '@chakra-ui/icons'
+import { PiCheckCircle, PiCross } from 'react-icons/pi'
 import { PointInTime } from '../../lib/rpg-api/types'
 import { useAppDispatch } from '../../app/hooks'
 import { setGraphTime } from '../../app/thunks'
 import { isEncounterTime } from '../../app/utils/is-encounter-time'
-import { FaGreaterThan, FaLessThan } from 'react-icons/fa'
+import { PiGreaterThan, PiLessThan } from 'react-icons/pi'
 
 function TimeBlock() {
   const dispatch = useAppDispatch()
@@ -68,7 +68,7 @@ function TimeBlock() {
       <StackItem>
         <Button
           leftIcon={
-            time?.isEncounterTime ? <CheckCircleIcon /> : <SmallCloseIcon />
+            time?.isEncounterTime ? <PiCheckCircle /> : <PiCross />
           }
           variant={variant}
           size={'lg'}
@@ -79,14 +79,14 @@ function TimeBlock() {
       </StackItem>
       <StackItem visibility={isEncounterTime(time) ? 'visible' : 'hidden'}>
         <Button
-          leftIcon={<FaLessThan />}
+          leftIcon={<PiLessThan />}
           variant={variant}
           size={'lg'}
           onClick={onPrevTurn}
         ></Button>
         <span>{time?.count}</span>
         <Button
-          leftIcon={<FaGreaterThan />}
+          leftIcon={<PiGreaterThan />}
           variant={variant}
           size={'lg'}
           onClick={onNextTurn}
