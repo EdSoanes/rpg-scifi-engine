@@ -13,11 +13,11 @@ import { RpgArg } from '../../../lib/rpg-api/types'
 
 import { Fieldset, Input } from '@chakra-ui/react'
 import { Field } from '../../ui/field'
-import {
-  NumberInputField,
-  NumberInputLabel,
-  NumberInputRoot,
-} from '../../ui/number-input'
+// import {
+//   NumberInputField,
+//   NumberInputLabel,
+//   NumberInputRoot,
+// } from '../../ui/number-input'
 
 export declare interface ArgInputProps {
   arg: RpgArg
@@ -43,7 +43,7 @@ function ArgInput(props: ArgInputProps) {
           />
         </Field>
       )}
-      {props.arg.type === 'Int32' && (
+      {/* {props.arg.type === 'Int32' && (
         <Field label={arg.name}>
           <NumberInputRoot
             defaultValue="10"
@@ -55,7 +55,7 @@ function ArgInput(props: ArgInputProps) {
             <NumberInputField />
           </NumberInputRoot>
         </Field>
-      )}
+      )} */}
     </Fieldset.Root>
   )
 }

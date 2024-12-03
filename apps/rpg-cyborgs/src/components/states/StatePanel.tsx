@@ -7,6 +7,7 @@ import {
   Drawer,
   Stack,
   useDisclosure,
+  Heading,
 } from '@chakra-ui/react'
 import {
   selectGraphState,
@@ -16,6 +17,7 @@ import { useSelector } from 'react-redux'
 import { useAppDispatch } from '../../app/hooks'
 import { toggleState } from '../../app/thunks'
 import { getStateDescription } from '../../lib/rpg-api/fetcher'
+import BoxButton from '../ui/box-button'
 
 export declare interface StateButtonProps {
   state: State
@@ -25,13 +27,14 @@ function StatePanel(props: StateButtonProps) {
   const dispatch = useAppDispatch()
   const graphState = useSelector(selectGraphState)
   const playerCharacter = useSelector(selectPlayerCharacter)
-  const variant = props.state.isOn ? 'solid' : 'outline'
   const [describe, setDescribe] = useState<ModSetDescription | undefined>()
 
   const { onOpen, onClose } = useDisclosure()
 
   const onChangeState = async () => {
+    console.log('clicked', playerCharacter)
     if (playerCharacter) {
+      console.log('playercharacter', playerCharacter)
       await dispatch(
         toggleState({
           entityId: playerCharacter.id,
@@ -57,16 +60,18 @@ function StatePanel(props: StateButtonProps) {
   return (
     <>
       <Stack direction={'row'} gap={0}>
-        <Button variant={variant} size={'lg'} onClick={onChangeState}>
-          {props.state.name}
-        </Button>
-        <IconButton
-          marginLeft={0}
-          paddingLeft={0}
-          aria-label="describe"
-          size="lg"
-          onClick={onDescribe}
-        />
+        <BoxButton onClick={onChangeState}>
+          <Heading as={'h3'} size={'sm'}>
+            {props.state.name}
+          </Heading>{' '}
+          <IconButton
+            marginLeft={0}
+            paddingLeft={0}
+            aria-label="describe"
+            size="lg"
+            onClick={onDescribe}
+          />
+        </BoxButton>
       </Stack>
       <Drawer.Root>
         <Drawer.Content>

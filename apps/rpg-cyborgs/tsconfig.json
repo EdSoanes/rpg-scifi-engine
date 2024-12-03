@@ -18,5 +18,5 @@
       "module": "CommonJS"
     }
   },
-  "include": ["src/**/*"]
+  "include": ["src/*", "src/**/*"]
 }
