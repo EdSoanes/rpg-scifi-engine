@@ -1,6 +1,5 @@
-import React from 'react'
 import { RpgEntity } from '../../lib/rpg-api/types'
-import { StackItem } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 
 export declare interface GearPanelProps {
   item: RpgEntity
@@ -9,7 +8,7 @@ export declare interface GearPanelProps {
 function GearPanel(props: GearPanelProps) {
   const { item } = props
 
-  return <StackItem>{item.name}</StackItem>
+  return <Box>{item.name}</Box>
 }
 
 export default GearPanel

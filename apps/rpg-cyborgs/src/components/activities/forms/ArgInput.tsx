@@ -1,15 +1,23 @@
-import React from 'react'
 import { RpgArg } from '../../../lib/rpg-api/types'
+// import {
+//   Input,
+//   Fieldset,
+//   Field,
+//   // NumberInputInput
+//   // NumberDecrementStepper,
+//   // NumberIncrementStepper,
+//   // NumberInput,
+//   // NumberIn
+//   // NumberInputStepper,
+// } from '@chakra-ui/react'
+
+import { Fieldset, Input } from '@chakra-ui/react'
+import { Field } from '../../ui/field'
 import {
-  FormControl,
-  FormLabel,
-  Input,
-  NumberDecrementStepper,
-  NumberIncrementStepper,
-  NumberInput,
   NumberInputField,
-  NumberInputStepper,
-} from '@chakra-ui/react'
+  NumberInputLabel,
+  NumberInputRoot,
+} from '../../ui/number-input'
 
 export declare interface ArgInputProps {
   arg: RpgArg
@@ -17,33 +25,38 @@ export declare interface ArgInputProps {
 }
 
 function ArgInput(props: ArgInputProps) {
-  if (props.arg.type !== 'Int32' && props.arg.type !== 'Dice') {
+  const { arg, onInputCapture } = props
+  if (arg.type !== 'Int32' && arg.type !== 'Dice') {
     return <></>
   }
 
   return (
-    <FormControl>
-      <FormLabel htmlFor={props.arg.name}>{props.arg.name}</FormLabel>
-      {props.arg.type === 'Dice' && (
-        <Input
-          id={props.arg.name}
-          placeholder={props.arg.name}
-          onChange={(e) => props.onInputCapture(props.arg.name, e.target.value)}
-        />
+    <Fieldset.Root>
+      <Fieldset.Content></Fieldset.Content>
+
+      {arg.type === 'Dice' && (
+        <Field label={arg.name}>
+          <Input
+            id={props.arg.name}
+            placeholder={props.arg.name}
+            onChange={(e) => onInputCapture(props.arg.name, e.target.value)}
+          />
+        </Field>
       )}
       {props.arg.type === 'Int32' && (
-        <NumberInput
-          id={props.arg.name}
-          onChange={(valStr) => props.onInputCapture(props.arg.name, valStr)}
-        >
-          <NumberInputField />
-          <NumberInputStepper>
-            <NumberIncrementStepper />
-            <NumberDecrementStepper />
-          </NumberInputStepper>
-        </NumberInput>
+        <Field label={arg.name}>
+          <NumberInputRoot
+            defaultValue="10"
+            onValueChange={({ value }) => {
+              field.onChange(value)
+            }}
+            onChange={(e) => onInputCapture(arg.name, e.target.value)}
+          >
+            <NumberInputField />
+          </NumberInputRoot>
+        </Field>
       )}
-    </FormControl>
+    </Fieldset.Root>
   )
 }
 

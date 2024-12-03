@@ -1,12 +1,17 @@
 {
   "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "skipLibCheck": true,
     "target": "es5",
     "allowJs": true,
-    "jsx": "react",
-    "moduleResolution": "node",
+    "jsx": "react-jsx",
     "outDir": "./dist",
     "strict": true,
-    "esModuleInterop": true  
+    "esModuleInterop": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "ts-node": {
     "compilerOptions": {

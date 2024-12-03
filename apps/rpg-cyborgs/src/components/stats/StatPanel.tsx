@@ -1,25 +1,13 @@
 import {
   Stat,
-  StatNumber,
-  StatHelpText,
-  StatLabel,
-  StatArrow,
   IconButton,
   useDisclosure,
   Code,
   Button,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  useColorMode,
+  Drawer,
 } from '@chakra-ui/react'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { PropDescription } from '../../lib/rpg-api/types'
-import { QuestionOutlineIcon } from '@chakra-ui/icons'
 import { getPropDesc } from '../../lib/rpg-api/fetcher'
 import { selectGraphState } from '../../app/graphState/graphSelectors'
 import { useSelector } from 'react-redux'
@@ -36,8 +24,6 @@ export declare interface StatPanelProps {
 function StatPanel(props: StatPanelProps) {
   const graphState = useSelector(selectGraphState)
   const [describe, setDescribe] = useState<PropDescription | undefined>()
-
-  const { colorMode } = useColorMode()
 
   const eq =
     (props?.propValue?.value ?? 0) === (props?.propValue?.baseValue ?? 0)
@@ -58,46 +44,45 @@ function StatPanel(props: StatPanelProps) {
     }
   }
 
-  const { onOpen, onClose, isOpen } = useDisclosure()
+  const { onOpen, onClose } = useDisclosure()
 
   return (
     <>
-      <Stat m={4} p={4} border="1px" borderRadius={4} borderColor={'lightgray'}>
-        <StatLabel>{props.propNameAbbr}</StatLabel>
-        <StatNumber>{props?.propValue?.value ?? 0}</StatNumber>
-        {colorMode === 'light' && (
-          <StatHelpText>
-            {inc && <StatArrow type="increase" />}
-            {dec && <StatArrow type="decrease" />}
-            {props.propName} {props?.propValue?.baseValue ?? 0}
-            <IconButton
-              variant={'ghost'}
-              aria-label="describe"
-              size="lg"
-              icon={<QuestionOutlineIcon />}
-              onClick={onDescribe}
-            />
-          </StatHelpText>
-        )}
-      </Stat>
-      {colorMode === 'light' && (
-        <Modal isOpen={isOpen} onClose={onClose}>
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>{describe?.rootProp ?? '-'}</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <Code>{JSON.stringify(describe, null, 2)}</Code>
-            </ModalBody>
+      <Stat.Root
+        m={4}
+        p={4}
+        border="1px"
+        borderRadius={4}
+        borderColor={'lightgray'}
+      >
+        <Stat.Label>{props.propNameAbbr}</Stat.Label>
+        <Stat.ValueText>{props?.propValue?.value ?? 0}</Stat.ValueText>
+        <Stat.HelpText>
+          {inc && <Stat.UpIndicator />}
+          {dec && <Stat.DownIndicator />}
+          {props.propName} {props?.propValue?.baseValue ?? 0}
+          <IconButton
+            variant={'ghost'}
+            aria-label="describe"
+            size="lg"
+            onClick={onDescribe}
+          />
+        </Stat.HelpText>
+      </Stat.Root>
+      <Drawer.Root>
+        <Drawer.Content>
+          <Drawer.Header>{describe?.rootProp ?? '-'}</Drawer.Header>
+          <Drawer.Body>
+            <Code>{JSON.stringify(describe, null, 2)}</Code>
+          </Drawer.Body>
 
-            <ModalFooter>
-              <Button colorScheme="blue" mr={3} onClick={onClose}>
-                Close
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
-      )}
+          <Drawer.Footer>
+            <Button colorScheme="blue" mr={3} onClick={onClose}>
+              Close
+            </Button>
+          </Drawer.Footer>
+        </Drawer.Content>
+      </Drawer.Root>
     </>
   )
 }

@@ -1,4 +1,3 @@
-import React from 'react'
 import {
   //Code,
   Stack,
@@ -14,17 +13,18 @@ import { useSelector } from 'react-redux'
 import { selectActionsStatus } from '../../app/actions/actionTemplatesSelectors'
 
 function ActivityPanel() {
-
   const activity = useSelector(selectActivity)
   const actionStatus = useSelector(selectActionsStatus)
 
   return (
-    activity && actionStatus === 'loaded' &&
-    <Stack w={'100%'}>
-      {activity.actions.map((i) => (
-        <ActionPanel key={(`${i.name}/${i.actionNo}`)} action={i} />
-      ))}
-    </Stack>
+    activity &&
+    actionStatus === 'loaded' && (
+      <Stack w={'100%'}>
+        {activity.actions.map((i) => (
+          <ActionPanel key={`${i.name}/${i.actionNo}`} action={i} />
+        ))}
+      </Stack>
+    )
   )
 }
 

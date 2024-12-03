@@ -1,8 +1,6 @@
 import { Code, Heading, Stack } from '@chakra-ui/react'
-import React from 'react'
 import { selectGraphState } from '../../app/graphState/graphSelectors'
 import { useSelector } from 'react-redux'
-
 
 function GraphStateBlock() {
   const graphState = useSelector(selectGraphState)

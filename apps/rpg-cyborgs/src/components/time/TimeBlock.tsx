@@ -1,13 +1,10 @@
-import { Button, Heading, Stack, StackItem } from '@chakra-ui/react'
-import React from 'react'
+import { Box, Button, Heading, Stack } from '@chakra-ui/react'
 import { useSelector } from 'react-redux'
 import { selectTime } from '../../app/graphState/graphSelectors'
-import { PiCheckCircle, PiCross } from 'react-icons/pi'
 import { PointInTime } from '../../lib/rpg-api/types'
 import { useAppDispatch } from '../../app/hooks'
 import { setGraphTime } from '../../app/thunks'
 import { isEncounterTime } from '../../app/utils/is-encounter-time'
-import { PiGreaterThan, PiLessThan } from 'react-icons/pi'
 
 function TimeBlock() {
   const dispatch = useAppDispatch()
@@ -29,7 +26,7 @@ function TimeBlock() {
           isAfterEncounterTime: false,
         }
 
-    dispatch(setGraphTime(newTime))
+    await dispatch(setGraphTime(newTime))
   }
 
   const onNextTurn = async () => {
@@ -40,7 +37,7 @@ function TimeBlock() {
         isEncounterTime: true,
         isAfterEncounterTime: false,
       }
-      dispatch(setGraphTime(newTime))
+      await dispatch(setGraphTime(newTime))
     }
   }
 
@@ -52,7 +49,7 @@ function TimeBlock() {
         isEncounterTime: true,
         isAfterEncounterTime: false,
       }
-      dispatch(setGraphTime(newTime))
+      await dispatch(setGraphTime(newTime))
     }
   }
   //Start Encounter
@@ -62,57 +59,20 @@ function TimeBlock() {
 
   return (
     <Stack direction={'row'}>
-      <StackItem>
+      <div>
         <Heading size={'md'}>{time?.type}</Heading>
-      </StackItem>
-      <StackItem>
-        <Button
-          leftIcon={
-            time?.isEncounterTime ? <PiCheckCircle /> : <PiCross />
-          }
-          variant={variant}
-          size={'lg'}
-          onClick={onChangeEncounterTime}
-        >
+      </div>
+      <Box>
+        <Button variant={variant} size={'lg'} onClick={onChangeEncounterTime}>
           {isEncounterTime(time) ? 'End Encounter' : 'Begin Encounter'}
         </Button>
-      </StackItem>
-      <StackItem visibility={isEncounterTime(time) ? 'visible' : 'hidden'}>
-        <Button
-          leftIcon={<PiLessThan />}
-          variant={variant}
-          size={'lg'}
-          onClick={onPrevTurn}
-        ></Button>
+      </Box>
+      <Box visibility={isEncounterTime(time) ? 'visible' : 'hidden'}>
+        <Button variant={variant} size={'lg'} onClick={onPrevTurn}></Button>
         <span>{time?.count}</span>
-        <Button
-          leftIcon={<PiGreaterThan />}
-          variant={variant}
-          size={'lg'}
-          onClick={onNextTurn}
-        ></Button>
-      </StackItem>
+        <Button variant={variant} size={'lg'} onClick={onNextTurn}></Button>
+      </Box>
     </Stack>
-    // <div>
-    //   <
-    //   <p>{time?.type}</p>
-    //   {time?.isEncounterTime ? (
-    //     <span>Turn: {time.count}</span>
-    //   ) : (
-    //     <span>{time?.type}</span>
-    //   )}
-    //   <Button
-    //     leftIcon={
-    //       time?.isEncounterTime ? <CheckCircleIcon /> : <SmallCloseIcon />
-    //     }
-    //     variant={variant}
-    //     size={'lg'}
-    //     onClick={onChangeEncounterTime}
-    //   >
-    //     {time?.type ?? 'BeforeTime'}
-    //   </Button>
-
-    // </div>
   )
 }
 
