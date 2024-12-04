@@ -20,7 +20,3 @@ export const boxButton = style([
     },
   },
 ])
-
-// .boxButton:active {
-
-// }

@@ -2,20 +2,23 @@ import { Box, HTMLChakraProps } from '@chakra-ui/react'
 import { boxButton } from './box-button.css'
 import { useState } from 'react'
 
+export type BoxButtonState = 'on' | 'off'
+
 export interface BoxButtonProps extends HTMLChakraProps<'div'> {
-  onButtonClicked?: (toggleState: string) => void
+  onButtonClicked?: (buttonState: BoxButtonState) => void
   toggle?: boolean
+  state?: BoxButtonState
 }
 
 export default function BoxButton(props: BoxButtonProps) {
   const { toggle, onButtonClicked } = props
-  const [isOn, setIsOn] = useState<boolean>(false)
+  const [buttonState, setButtonState] = useState<BoxButtonState>('off')
 
   const onClicked = () => {
     if (toggle) {
-      const newIsOn = !isOn
-      setIsOn(newIsOn)
-      if (onButtonClicked) onButtonClicked(newIsOn ? 'on' : 'off')
+      const newButtonState = buttonState == 'off' ? 'on' : 'off'
+      setButtonState(newButtonState)
+      if (onButtonClicked) onButtonClicked(newButtonState)
     }
   }
 
