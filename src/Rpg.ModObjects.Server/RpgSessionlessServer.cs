@@ -12,12 +12,14 @@ namespace Rpg.ModObjects.Server
     {
         private readonly GraphService _graphService;
         private readonly ActivityService _activityService;
+        private readonly EntityService _entityService;
         private readonly IContentFactory _contentFactory;
 
-        public RpgSessionlessServer(GraphService graphService, ActivityService activityService, IContentFactory contentFactory)
+        public RpgSessionlessServer(GraphService graphService, ActivityService activityService, EntityService entityService, IContentFactory contentFactory)
         {
             _graphService = graphService;
             _activityService = activityService;
+            _entityService = entityService;
             _contentFactory = contentFactory;
         }
 
@@ -31,6 +33,16 @@ namespace Rpg.ModObjects.Server
             {
                 GraphState = _graphService.DehydrateGraph(graph),
                 Data = id
+            };
+        }
+
+        public RpgResponse<bool> OverrideBaseValue(string system, RpgRequest<OverrideBaseValue> request)
+        {
+            var graph = _graphService.HydrateGraph(system, request.GraphState);
+            return new RpgResponse<bool>
+            {
+                GraphState = _entityService.OverrideBaseValue(graph, request.Op),
+                Data = true
             };
         }
 

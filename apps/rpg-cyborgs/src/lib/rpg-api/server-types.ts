@@ -84,3 +84,18 @@ export type SetTimeResponse = Pick<
   components['schemas']['Server.RpgResponse_PointInTime'],
   keyof components['schemas']['Server.RpgResponse_PointInTime']
 >
+
+export type OverridePropValue = Pick<
+  components['schemas']['Server.Ops.OverrideBaseValue'],
+  keyof components['schemas']['Server.Ops.OverrideBaseValue']
+>
+
+export type OverridePropValueRequest = Pick<
+  components['schemas']['Server.RpgRequest_OverrideBaseValue'],
+  keyof components['schemas']['Server.RpgRequest_OverrideBaseValue']
+>
+
+export type OverridePropValueResponse = Pick<
+  components['schemas']['Server.RpgResponse_Boolean'],
+  keyof components['schemas']['Server.RpgResponse_Boolean']
+>

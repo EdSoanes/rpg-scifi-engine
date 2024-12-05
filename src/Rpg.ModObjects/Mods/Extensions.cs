@@ -1,4 +1,5 @@
-﻿using Rpg.ModObjects.Props;
+﻿using Rpg.ModObjects.Mods.Mods;
+using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
 
@@ -6,6 +7,18 @@ namespace Rpg.ModObjects.Mods
 {
     public static class Extensions
     {
+        public static bool IsInitialMod(this Mod mod)
+            => mod is Initial;
+
+        public static bool IsBaseMod(this Mod mod)
+            => mod is Initial || mod is Base || mod is Override || mod is Threshold;
+
+        public static bool IsOriginalBaseMod(this Mod mod)
+            => mod is Initial || mod is Base || mod is Override || mod is Threshold;
+
+        public static bool IsOverrideMod(this Mod mod)
+            => mod is Override;
+
         public static TTarget AddMod<TTarget>(this TTarget target, Mod mod, string targetProp, Dice value, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TTarget : RpgObject
         {

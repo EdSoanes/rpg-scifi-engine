@@ -1,7 +1,10 @@
 import { Heading } from '@chakra-ui/react'
 import { StatsBlock } from '../components/stats'
-import { StatesBlock } from '../components/states'
-import { ActionTemplatesBlock } from '../components/activities'
+import { ConditionsBlock, StatesBlock } from '../components/states'
+import {
+  ActionTemplatesBlock,
+  SkillTemplatesBlock,
+} from '../components/activities'
 import LifeBlock from '../components/life/LifeBlock'
 import { GraphStateBlock } from '../components/graph'
 import { useSelector } from 'react-redux'
@@ -9,6 +12,7 @@ import { selectPlayerCharacter } from '../app/graphState/graphSelectors'
 import { useAppSelector } from '../app/hooks'
 import { GearBlock } from '../components/gear'
 import { TimeBlock } from '../components/time'
+
 //import { isEncounterTime } from '../app/utils/is-encounter-time'
 
 export default function CharacterSheet() {
@@ -23,7 +27,9 @@ export default function CharacterSheet() {
       <TimeBlock />
       <StatsBlock />
       <StatesBlock />
+      <ConditionsBlock />
       <ActionTemplatesBlock />
+      <SkillTemplatesBlock />
       <LifeBlock />
       <GearBlock name={'Hands'} container={hands} />
       <GearBlock name={'Wearing'} container={wearing} />

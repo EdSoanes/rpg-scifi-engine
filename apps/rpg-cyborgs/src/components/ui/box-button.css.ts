@@ -8,14 +8,12 @@ export const boxButton = style([
     boxShadow: '0 0 5px -1px rgba(0, 0, 0, 0.2)',
     cursor: 'pointer',
     verticalAlign: 'middle',
-    maxWidth: '100px',
     padding: '5px',
     textAlign: 'center',
     ':hover': {
       boxShadow: '0 0 5px -1px rgba(0, 0, 0, 0.6)',
     },
     ':active': {
-      color: 'red',
       boxShadow: '0 0 5px -1px rgba(0, 0, 0, 0.6)',
     },
   },

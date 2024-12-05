@@ -564,69 +564,6 @@
                 }
             }
         },
-        "/api/rpg/{system}/activity/create": {
-            "post": {
-                "tags": [
-                    "v1"
-                ],
-                "parameters": [
-                    {
-                        "name": "system",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/Server.RpgRequest_InitiateAction"
-                            }
-                        },
-                        "text/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/Server.RpgRequest_InitiateAction"
-                            }
-                        },
-                        "application/*+json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/Server.RpgRequest_InitiateAction"
-                            }
-                        },
-                        "application/json-patch+json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/Server.RpgRequest_InitiateAction"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Server.RpgResponse_Activity"
-                                }
-                            },
-                            "text/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Server.RpgResponse_Activity"
-                                }
-                            },
-                            "text/plain": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Server.RpgResponse_Activity"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/rpg/{system}/describe": {
             "post": {
                 "tags": [
@@ -734,6 +671,69 @@
                                     "items": {
                                         "$ref": "#/components/schemas/Server.RpgContent"
                                     }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/rpg/{system}/entities/props/override": {
+            "post": {
+                "tags": [
+                    "v1"
+                ],
+                "parameters": [
+                    {
+                        "name": "system",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Server.RpgRequest_OverrideBaseValue"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Server.RpgRequest_OverrideBaseValue"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Server.RpgRequest_OverrideBaseValue"
+                            }
+                        },
+                        "application/json-patch+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Server.RpgRequest_OverrideBaseValue"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Server.RpgResponse_Boolean"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Server.RpgResponse_Boolean"
+                                }
+                            },
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Server.RpgResponse_Boolean"
                                 }
                             }
                         }
@@ -1176,14 +1176,22 @@
                     "outcomeStates": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/States.StateRef"
+                            "oneOf": [
+                                {
+                                    "$ref": "#/components/schemas/States.StateRef"
+                                }
+                            ]
                         },
                         "readOnly": true
                     },
                     "outcomeActions": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Activities.ActionRef"
+                            "oneOf": [
+                                {
+                                    "$ref": "#/components/schemas/Activities.ActionRef"
+                                }
+                            ]
                         },
                         "readOnly": true
                     },
@@ -1241,6 +1249,7 @@
                 "required": [
                     "actionArgs",
                     "canPerformMethod",
+                    "classification",
                     "costMethod",
                     "id",
                     "isPerformable",
@@ -1257,6 +1266,10 @@
                         "readOnly": true
                     },
                     "name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "classification": {
                         "type": "string",
                         "readOnly": true
                     },
@@ -1311,6 +1324,7 @@
                 "required": [
                     "actionArgs",
                     "canPerformMethod",
+                    "classification",
                     "costMethod",
                     "id",
                     "isPerformable",
@@ -1327,6 +1341,10 @@
                         "readOnly": true
                     },
                     "name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "classification": {
                         "type": "string",
                         "readOnly": true
                     },
@@ -1381,6 +1399,7 @@
                 "required": [
                     "actionArgs",
                     "canPerformMethod",
+                    "classification",
                     "costMethod",
                     "id",
                     "isPerformable",
@@ -1397,6 +1416,10 @@
                         "readOnly": true
                     },
                     "name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "classification": {
                         "type": "string",
                         "readOnly": true
                     },
@@ -1451,6 +1474,7 @@
                 "required": [
                     "actionArgs",
                     "canPerformMethod",
+                    "classification",
                     "costMethod",
                     "id",
                     "isPerformable",
@@ -1467,6 +1491,10 @@
                         "readOnly": true
                     },
                     "name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "classification": {
                         "type": "string",
                         "readOnly": true
                     },
@@ -1538,7 +1566,11 @@
                     "actions": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Activities.Action"
+                            "oneOf": [
+                                {
+                                    "$ref": "#/components/schemas/Activities.Action"
+                                }
+                            ]
                         },
                         "readOnly": true
                     },
@@ -1596,7 +1628,11 @@
                 ],
                 "properties": {
                     "value": {
-                        "$ref": "#/components/schemas/Values.Dice"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Values.Dice"
+                            }
+                        ]
                     }
                 },
                 "additionalProperties": false
@@ -1779,7 +1815,11 @@
                     "props": {
                         "type": "object",
                         "additionalProperties": {
-                            "$ref": "#/components/schemas/Props.Prop"
+                            "oneOf": [
+                                {
+                                    "$ref": "#/components/schemas/Props.Prop"
+                                }
+                            ]
                         }
                     },
                     "states": {
@@ -1912,22 +1952,52 @@
                         "readOnly": true
                     },
                     "strength": {
-                        "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "agility": {
-                        "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "health": {
-                        "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "brains": {
-                        "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "insight": {
-                        "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "charisma": {
-                        "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "focusPoints": {
                         "type": "integer",
@@ -1980,52 +2050,132 @@
                         "readOnly": true
                     },
                     "head": {
-                        "$ref": "#/components/schemas/Cyborgs.BodyPart"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Cyborgs.BodyPart"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "torso": {
-                        "$ref": "#/components/schemas/Cyborgs.BodyPart"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Cyborgs.BodyPart"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "leftArm": {
-                        "$ref": "#/components/schemas/Cyborgs.BodyPart"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Cyborgs.BodyPart"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "rightArm": {
-                        "$ref": "#/components/schemas/Cyborgs.BodyPart"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Cyborgs.BodyPart"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "leftLeg": {
-                        "$ref": "#/components/schemas/Cyborgs.BodyPart"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Cyborgs.BodyPart"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "rightLeg": {
-                        "$ref": "#/components/schemas/Cyborgs.BodyPart"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Cyborgs.BodyPart"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "reactions": {
-                        "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "defence": {
-                        "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "armourRating": {
-                        "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "unarmedDamageBonus": {
-                        "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "parryDamageReduction": {
-                        "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "rangedAttack": {
-                        "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "rangedAimBonus": {
-                        "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "meleeAttack": {
-                        "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Cyborgs.Components.PropValue"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "hands": {
-                        "$ref": "#/components/schemas/RpgContainer"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/RpgContainer"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "wearing": {
-                        "$ref": "#/components/schemas/RpgContainer"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/RpgContainer"
+                            }
+                        ],
+                        "readOnly": true
                     }
                 },
                 "additionalProperties": false
@@ -2082,7 +2232,11 @@
                     "injuries": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Cyborgs.Injury"
+                            "oneOf": [
+                                {
+                                    "$ref": "#/components/schemas/Cyborgs.Injury"
+                                }
+                            ]
                         },
                         "readOnly": true
                     },
@@ -2150,6 +2304,7 @@
             },
             "Cyborgs.Conditions.Condition_Actor": {
                 "required": [
+                    "classification",
                     "expiry",
                     "id",
                     "isOn",
@@ -2171,6 +2326,10 @@
                         "readOnly": true
                     },
                     "name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "classification": {
                         "type": "string",
                         "readOnly": true
                     },
@@ -2214,6 +2373,7 @@
             },
             "Cyborgs.Conditions.Condition_BodyPart": {
                 "required": [
+                    "classification",
                     "expiry",
                     "id",
                     "isOn",
@@ -2235,6 +2395,10 @@
                         "readOnly": true
                     },
                     "name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "classification": {
                         "type": "string",
                         "readOnly": true
                     },
@@ -2405,7 +2569,12 @@
                 ],
                 "properties": {
                     "damage": {
-                        "$ref": "#/components/schemas/Values.Dice"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Values.Dice"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "hitBonus": {
                         "type": "integer",
@@ -2437,7 +2606,12 @@
                 ],
                 "properties": {
                     "damage": {
-                        "$ref": "#/components/schemas/Values.Dice"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Values.Dice"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "hitBonus": {
                         "type": "integer",
@@ -2469,6 +2643,7 @@
                 "required": [
                     "actionArgs",
                     "canPerformMethod",
+                    "classification",
                     "costMethod",
                     "id",
                     "isIntrinsic",
@@ -2487,6 +2662,10 @@
                         "readOnly": true
                     },
                     "name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "classification": {
                         "type": "string",
                         "readOnly": true
                     },
@@ -2642,8 +2821,6 @@
                     "isPending",
                     "name",
                     "prop",
-                    "source",
-                    "sourceValue",
                     "target"
                 ],
                 "type": "object",
@@ -2695,13 +2872,30 @@
                         "readOnly": true
                     },
                     "target": {
-                        "$ref": "#/components/schemas/Props.PropRef"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Props.PropRef"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "source": {
-                        "$ref": "#/components/schemas/Props.PropRef"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Props.PropRef"
+                            }
+                        ],
+                        "nullable": true,
+                        "readOnly": true
                     },
                     "sourceValue": {
-                        "$ref": "#/components/schemas/Values.Dice"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Values.Dice"
+                            }
+                        ],
+                        "nullable": true,
+                        "readOnly": true
                     },
                     "isBaseInitMod": {
                         "type": "boolean",
@@ -2833,7 +3027,11 @@
                     "values": {
                         "type": "object",
                         "additionalProperties": {
-                            "$ref": "#/components/schemas/Values.Dice"
+                            "oneOf": [
+                                {
+                                    "$ref": "#/components/schemas/Values.Dice"
+                                }
+                            ]
                         },
                         "readOnly": true
                     }
@@ -2975,8 +3173,6 @@
                     "isPending",
                     "name",
                     "prop",
-                    "source",
-                    "sourceValue",
                     "target"
                 ],
                 "type": "object",
@@ -3028,13 +3224,30 @@
                         "readOnly": true
                     },
                     "target": {
-                        "$ref": "#/components/schemas/Props.PropRef"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Props.PropRef"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "source": {
-                        "$ref": "#/components/schemas/Props.PropRef"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Props.PropRef"
+                            }
+                        ],
+                        "nullable": true,
+                        "readOnly": true
                     },
                     "sourceValue": {
-                        "$ref": "#/components/schemas/Values.Dice"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Values.Dice"
+                            }
+                        ],
+                        "nullable": true,
+                        "readOnly": true
                     },
                     "isBaseInitMod": {
                         "type": "boolean",
@@ -3084,14 +3297,17 @@
                 "required": [
                     "behavior",
                     "modType",
-                    "sourceProp",
-                    "sourceValue",
                     "value"
                 ],
                 "type": "object",
                 "properties": {
                     "sourceProp": {
-                        "$ref": "#/components/schemas/Props.PropDescription"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Props.PropDescription"
+                            }
+                        ],
+                        "nullable": true
                     },
                     "modType": {
                         "type": "string"
@@ -3100,10 +3316,19 @@
                         "type": "string"
                     },
                     "sourceValue": {
-                        "$ref": "#/components/schemas/Values.Dice"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Values.Dice"
+                            }
+                        ],
+                        "nullable": true
                     },
                     "value": {
-                        "$ref": "#/components/schemas/Values.Dice"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Values.Dice"
+                            }
+                        ]
                     },
                     "valueFunction": {
                         "type": "string",
@@ -3173,7 +3398,11 @@
                     "refs": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Props.PropObjRef"
+                            "oneOf": [
+                                {
+                                    "$ref": "#/components/schemas/Props.PropObjRef"
+                                }
+                            ]
                         },
                         "readOnly": true
                     }
@@ -3221,15 +3450,27 @@
                         "type": "string"
                     },
                     "value": {
-                        "$ref": "#/components/schemas/Values.Dice"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Values.Dice"
+                            }
+                        ]
                     },
                     "baseValue": {
-                        "$ref": "#/components/schemas/Values.Dice"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Values.Dice"
+                            }
+                        ]
                     },
                     "mods": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Props.ModDescription"
+                            "oneOf": [
+                                {
+                                    "$ref": "#/components/schemas/Props.ModDescription"
+                                }
+                            ]
                         }
                     }
                 },
@@ -3461,7 +3702,11 @@
                     "props": {
                         "type": "object",
                         "additionalProperties": {
-                            "$ref": "#/components/schemas/Props.Prop"
+                            "oneOf": [
+                                {
+                                    "$ref": "#/components/schemas/Props.Prop"
+                                }
+                            ]
                         }
                     },
                     "states": {
@@ -3652,7 +3897,11 @@
                     "props": {
                         "type": "object",
                         "additionalProperties": {
-                            "$ref": "#/components/schemas/Props.Prop"
+                            "oneOf": [
+                                {
+                                    "$ref": "#/components/schemas/Props.Prop"
+                                }
+                            ]
                         }
                     },
                     "states": {
@@ -3789,8 +4038,7 @@
             },
             "RpgGraphState": {
                 "required": [
-                    "entities",
-                    "time"
+                    "entities"
                 ],
                 "type": "object",
                 "properties": {
@@ -3837,7 +4085,12 @@
                         "nullable": true
                     },
                     "time": {
-                        "$ref": "#/components/schemas/Time.Temporal"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Time.Temporal"
+                            }
+                        ],
+                        "nullable": true
                     }
                 },
                 "additionalProperties": false
@@ -3895,7 +4148,11 @@
                     "props": {
                         "type": "object",
                         "additionalProperties": {
-                            "$ref": "#/components/schemas/Props.Prop"
+                            "oneOf": [
+                                {
+                                    "$ref": "#/components/schemas/Props.Prop"
+                                }
+                            ]
                         }
                     },
                     "states": {
@@ -4131,6 +4388,27 @@
                 },
                 "additionalProperties": false
             },
+            "Server.Ops.OverrideBaseValue": {
+                "required": [
+                    "propRef",
+                    "value"
+                ],
+                "type": "object",
+                "properties": {
+                    "propRef": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Props.PropRef"
+                            }
+                        ]
+                    },
+                    "value": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                },
+                "additionalProperties": false
+            },
             "Server.Ops.SetState": {
                 "required": [
                     "entityId",
@@ -4184,7 +4462,11 @@
                 "type": "object",
                 "properties": {
                     "graphState": {
-                        "$ref": "#/components/schemas/RpgGraphState"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/RpgGraphState"
+                            }
+                        ]
                     },
                     "op": {
                         "$ref": "#/components/schemas/Server.Ops.ActionStepArgs"
@@ -4200,7 +4482,11 @@
                 "type": "object",
                 "properties": {
                     "graphState": {
-                        "$ref": "#/components/schemas/RpgGraphState"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/RpgGraphState"
+                            }
+                        ]
                     },
                     "op": {
                         "$ref": "#/components/schemas/Server.Ops.ActionStepRun"
@@ -4216,7 +4502,11 @@
                 "type": "object",
                 "properties": {
                     "graphState": {
-                        "$ref": "#/components/schemas/RpgGraphState"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/RpgGraphState"
+                            }
+                        ]
                     },
                     "op": {
                         "$ref": "#/components/schemas/Server.Ops.ActivityComplete"
@@ -4232,7 +4522,11 @@
                 "type": "object",
                 "properties": {
                     "graphState": {
-                        "$ref": "#/components/schemas/RpgGraphState"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/RpgGraphState"
+                            }
+                        ]
                     },
                     "op": {
                         "$ref": "#/components/schemas/Server.Ops.DescribeModSet"
@@ -4248,7 +4542,11 @@
                 "type": "object",
                 "properties": {
                     "graphState": {
-                        "$ref": "#/components/schemas/RpgGraphState"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/RpgGraphState"
+                            }
+                        ]
                     },
                     "op": {
                         "$ref": "#/components/schemas/Server.Ops.DescribeProp"
@@ -4264,7 +4562,11 @@
                 "type": "object",
                 "properties": {
                     "graphState": {
-                        "$ref": "#/components/schemas/RpgGraphState"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/RpgGraphState"
+                            }
+                        ]
                     },
                     "op": {
                         "$ref": "#/components/schemas/Server.Ops.DescribeState"
@@ -4280,7 +4582,11 @@
                 "type": "object",
                 "properties": {
                     "graphState": {
-                        "$ref": "#/components/schemas/RpgGraphState"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/RpgGraphState"
+                            }
+                        ]
                     },
                     "op": {
                         "$ref": "#/components/schemas/Server.Ops.InitiateAction"
@@ -4295,7 +4601,11 @@
                 "type": "object",
                 "properties": {
                     "graphState": {
-                        "$ref": "#/components/schemas/RpgGraphState"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/RpgGraphState"
+                            }
+                        ]
                     },
                     "op": {
                         "oneOf": [
@@ -4320,6 +4630,26 @@
                 },
                 "additionalProperties": false
             },
+            "Server.RpgRequest_OverrideBaseValue": {
+                "required": [
+                    "graphState",
+                    "op"
+                ],
+                "type": "object",
+                "properties": {
+                    "graphState": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/RpgGraphState"
+                            }
+                        ]
+                    },
+                    "op": {
+                        "$ref": "#/components/schemas/Server.Ops.OverrideBaseValue"
+                    }
+                },
+                "additionalProperties": false
+            },
             "Server.RpgRequest_PointInTime": {
                 "required": [
                     "graphState",
@@ -4328,10 +4658,18 @@
                 "type": "object",
                 "properties": {
                     "graphState": {
-                        "$ref": "#/components/schemas/RpgGraphState"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/RpgGraphState"
+                            }
+                        ]
                     },
                     "op": {
-                        "$ref": "#/components/schemas/Time.PointInTime"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Time.PointInTime"
+                            }
+                        ]
                     }
                 },
                 "additionalProperties": false
@@ -4344,7 +4682,11 @@
                 "type": "object",
                 "properties": {
                     "graphState": {
-                        "$ref": "#/components/schemas/RpgGraphState"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/RpgGraphState"
+                            }
+                        ]
                     },
                     "op": {
                         "$ref": "#/components/schemas/Server.Ops.SetState"
@@ -4354,32 +4696,48 @@
             },
             "Server.RpgResponse_Action": {
                 "required": [
-                    "data",
                     "graphState"
                 ],
                 "type": "object",
                 "properties": {
                     "graphState": {
-                        "$ref": "#/components/schemas/RpgGraphState"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/RpgGraphState"
+                            }
+                        ]
                     },
                     "data": {
-                        "$ref": "#/components/schemas/Activities.Action"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Activities.Action"
+                            }
+                        ],
+                        "nullable": true
                     }
                 },
                 "additionalProperties": false
             },
             "Server.RpgResponse_Activity": {
                 "required": [
-                    "data",
                     "graphState"
                 ],
                 "type": "object",
                 "properties": {
                     "graphState": {
-                        "$ref": "#/components/schemas/RpgGraphState"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/RpgGraphState"
+                            }
+                        ]
                     },
                     "data": {
-                        "$ref": "#/components/schemas/Activities.Activity"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Activities.Activity"
+                            }
+                        ],
+                        "nullable": true
                     }
                 },
                 "additionalProperties": false
@@ -4392,7 +4750,11 @@
                 "type": "object",
                 "properties": {
                     "graphState": {
-                        "$ref": "#/components/schemas/RpgGraphState"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/RpgGraphState"
+                            }
+                        ]
                     },
                     "data": {
                         "type": "boolean"
@@ -4402,16 +4764,24 @@
             },
             "Server.RpgResponse_ModSetDescription": {
                 "required": [
-                    "data",
                     "graphState"
                 ],
                 "type": "object",
                 "properties": {
                     "graphState": {
-                        "$ref": "#/components/schemas/RpgGraphState"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/RpgGraphState"
+                            }
+                        ]
                     },
                     "data": {
-                        "$ref": "#/components/schemas/Mods.ModSetDescription"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Mods.ModSetDescription"
+                            }
+                        ],
+                        "nullable": true
                     }
                 },
                 "additionalProperties": false
@@ -4424,26 +4794,42 @@
                 "type": "object",
                 "properties": {
                     "graphState": {
-                        "$ref": "#/components/schemas/RpgGraphState"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/RpgGraphState"
+                            }
+                        ]
                     },
                     "data": {
-                        "$ref": "#/components/schemas/Time.PointInTime"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Time.PointInTime"
+                            }
+                        ]
                     }
                 },
                 "additionalProperties": false
             },
             "Server.RpgResponse_PropDescription": {
                 "required": [
-                    "data",
                     "graphState"
                 ],
                 "type": "object",
                 "properties": {
                     "graphState": {
-                        "$ref": "#/components/schemas/RpgGraphState"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/RpgGraphState"
+                            }
+                        ]
                     },
                     "data": {
-                        "$ref": "#/components/schemas/Props.PropDescription"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Props.PropDescription"
+                            }
+                        ],
+                        "nullable": true
                     }
                 },
                 "additionalProperties": false
@@ -4455,7 +4841,11 @@
                 "type": "object",
                 "properties": {
                     "graphState": {
-                        "$ref": "#/components/schemas/RpgGraphState"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/RpgGraphState"
+                            }
+                        ]
                     },
                     "data": {
                         "type": "array",
@@ -4487,7 +4877,11 @@
                 "type": "object",
                 "properties": {
                     "graphState": {
-                        "$ref": "#/components/schemas/RpgGraphState"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/RpgGraphState"
+                            }
+                        ]
                     },
                     "data": {
                         "type": "string",
@@ -4554,6 +4948,7 @@
             },
             "States.State_Actor": {
                 "required": [
+                    "classification",
                     "expiry",
                     "id",
                     "isOn",
@@ -4574,6 +4969,10 @@
                         "readOnly": true
                     },
                     "name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "classification": {
                         "type": "string",
                         "readOnly": true
                     },
@@ -4611,6 +5010,7 @@
             },
             "States.State_RangedWeapon": {
                 "required": [
+                    "classification",
                     "expiry",
                     "id",
                     "isOn",
@@ -4631,6 +5031,10 @@
                         "readOnly": true
                     },
                     "name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "classification": {
                         "type": "string",
                         "readOnly": true
                     },
@@ -4679,20 +5083,35 @@
             "Time.Lifespan": {
                 "required": [
                     "end",
-                    "expired",
                     "expiry",
                     "start"
                 ],
                 "type": "object",
                 "properties": {
                     "start": {
-                        "$ref": "#/components/schemas/Time.PointInTime"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Time.PointInTime"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "end": {
-                        "$ref": "#/components/schemas/Time.PointInTime"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Time.PointInTime"
+                            }
+                        ],
+                        "readOnly": true
                     },
                     "expired": {
-                        "$ref": "#/components/schemas/Time.PointInTime"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Time.PointInTime"
+                            }
+                        ],
+                        "nullable": true,
+                        "readOnly": true
                     },
                     "expiry": {
                         "$ref": "#/components/schemas/Time.LifecycleExpiry"
@@ -4747,7 +5166,12 @@
                 "type": "object",
                 "properties": {
                     "now": {
-                        "$ref": "#/components/schemas/Time.PointInTime"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Time.PointInTime"
+                            }
+                        ],
+                        "readOnly": true
                     }
                 },
                 "additionalProperties": false

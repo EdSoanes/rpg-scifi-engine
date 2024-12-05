@@ -1,4 +1,5 @@
 import StatesBlock from './StatesBlock'
+import ConditionsBlock from './ConditionsBlock'
 import StatePanel from './StatePanel'
 
-export { StatesBlock, StatePanel }
+export { ConditionsBlock, StatesBlock, StatePanel }

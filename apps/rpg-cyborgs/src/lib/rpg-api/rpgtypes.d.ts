@@ -413,52 +413,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rpg/{system}/activity/create": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    system: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["Server.RpgRequest_InitiateAction"];
-                    "text/json": components["schemas"]["Server.RpgRequest_InitiateAction"];
-                    "application/*+json": components["schemas"]["Server.RpgRequest_InitiateAction"];
-                    "application/json-patch+json": components["schemas"]["Server.RpgRequest_InitiateAction"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Server.RpgResponse_Activity"];
-                        "text/json": components["schemas"]["Server.RpgResponse_Activity"];
-                        "text/plain": components["schemas"]["Server.RpgResponse_Activity"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/rpg/{system}/describe": {
         parameters: {
             query?: never;
@@ -545,6 +499,52 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rpg/{system}/entities/props/override": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    system: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["Server.RpgRequest_OverrideBaseValue"];
+                    "text/json": components["schemas"]["Server.RpgRequest_OverrideBaseValue"];
+                    "application/*+json": components["schemas"]["Server.RpgRequest_OverrideBaseValue"];
+                    "application/json-patch+json": components["schemas"]["Server.RpgRequest_OverrideBaseValue"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Server.RpgResponse_Boolean"];
+                        "text/json": components["schemas"]["Server.RpgResponse_Boolean"];
+                        "text/plain": components["schemas"]["Server.RpgResponse_Boolean"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -814,6 +814,7 @@ export interface components {
         "Activities.ActionTemplate_Actor": {
             readonly id: string;
             readonly name: string;
+            readonly classification: string;
             readonly ownerId: string;
             readonly ownerArchetype: string;
             readonly actionArgs: (components["schemas"]["Reflection.Args.DefaultArg"] | components["schemas"]["Reflection.Args.DiceArg"] | components["schemas"]["Reflection.Args.IntegerArg"] | components["schemas"]["Reflection.Args.RpgObjectArg"])[];
@@ -826,6 +827,7 @@ export interface components {
         "Activities.ActionTemplate_MeleeWeapon": {
             readonly id: string;
             readonly name: string;
+            readonly classification: string;
             readonly ownerId: string;
             readonly ownerArchetype: string;
             readonly actionArgs: (components["schemas"]["Reflection.Args.DefaultArg"] | components["schemas"]["Reflection.Args.DiceArg"] | components["schemas"]["Reflection.Args.IntegerArg"] | components["schemas"]["Reflection.Args.RpgObjectArg"])[];
@@ -838,6 +840,7 @@ export interface components {
         "Activities.ActionTemplate_RangedWeapon": {
             readonly id: string;
             readonly name: string;
+            readonly classification: string;
             readonly ownerId: string;
             readonly ownerArchetype: string;
             readonly actionArgs: (components["schemas"]["Reflection.Args.DefaultArg"] | components["schemas"]["Reflection.Args.DiceArg"] | components["schemas"]["Reflection.Args.IntegerArg"] | components["schemas"]["Reflection.Args.RpgObjectArg"])[];
@@ -850,6 +853,7 @@ export interface components {
         "Activities.ActionTemplate_RpgEntity": {
             readonly id: string;
             readonly name: string;
+            readonly classification: string;
             readonly ownerId: string;
             readonly ownerArchetype: string;
             readonly actionArgs: (components["schemas"]["Reflection.Args.DefaultArg"] | components["schemas"]["Reflection.Args.DiceArg"] | components["schemas"]["Reflection.Args.IntegerArg"] | components["schemas"]["Reflection.Args.RpgObjectArg"])[];
@@ -893,13 +897,13 @@ export interface components {
         "Cyborgs.Actor": {
             expiry: components["schemas"]["Time.LifecycleExpiry"];
             modSets: {
-                [key: string]: (components["schemas"]["Mods.ModSet"] | components["schemas"]["Mods.ModSets.StateModSet"] | components["schemas"]["Mods.ModSets.SyncedModSet"] | components["schemas"]["Mods.ModSets.TimedModSet"] | components["schemas"]["Mods.ModSets.TurnModSet"]) | undefined;
+                [key: string]: components["schemas"]["Mods.ModSet"] | components["schemas"]["Mods.ModSets.StateModSet"] | components["schemas"]["Mods.ModSets.SyncedModSet"] | components["schemas"]["Mods.ModSets.TimedModSet"] | components["schemas"]["Mods.ModSets.TurnModSet"];
             };
             props: {
-                [key: string]: components["schemas"]["Props.Prop"] | undefined;
+                [key: string]: components["schemas"]["Props.Prop"];
             };
             states: {
-                [key: string]: (components["schemas"]["Cyborgs.States.Aiming"] | components["schemas"]["Cyborgs.States.Exhausted"] | components["schemas"]["Cyborgs.States.Firing"] | components["schemas"]["Cyborgs.States.MeleeAttacked"] | components["schemas"]["Cyborgs.States.MeleeAttacking"] | components["schemas"]["Cyborgs.States.Moving"] | components["schemas"]["Cyborgs.States.Parrying"] | components["schemas"]["Cyborgs.States.RangedAttacking"] | components["schemas"]["Cyborgs.States.VeryFast"] | components["schemas"]["Cyborgs.Conditions.Attachable"] | components["schemas"]["Cyborgs.Conditions.Bleeding"] | components["schemas"]["Cyborgs.Conditions.Dead"] | components["schemas"]["Cyborgs.Conditions.Dying"] | components["schemas"]["Cyborgs.Conditions.Fixable"] | components["schemas"]["Cyborgs.Conditions.Pain"] | components["schemas"]["Cyborgs.Conditions.Repairable"] | components["schemas"]["Cyborgs.Conditions.Replaceable"] | components["schemas"]["Cyborgs.Conditions.Shock"] | components["schemas"]["Cyborgs.Conditions.Treatable"] | components["schemas"]["Cyborgs.Conditions.Unconscious"] | components["schemas"]["Cyborgs.Conditions.Unusable"]) | undefined;
+                [key: string]: components["schemas"]["Cyborgs.States.Aiming"] | components["schemas"]["Cyborgs.States.Exhausted"] | components["schemas"]["Cyborgs.States.Firing"] | components["schemas"]["Cyborgs.States.MeleeAttacked"] | components["schemas"]["Cyborgs.States.MeleeAttacking"] | components["schemas"]["Cyborgs.States.Moving"] | components["schemas"]["Cyborgs.States.Parrying"] | components["schemas"]["Cyborgs.States.RangedAttacking"] | components["schemas"]["Cyborgs.States.VeryFast"] | components["schemas"]["Cyborgs.Conditions.Attachable"] | components["schemas"]["Cyborgs.Conditions.Bleeding"] | components["schemas"]["Cyborgs.Conditions.Dead"] | components["schemas"]["Cyborgs.Conditions.Dying"] | components["schemas"]["Cyborgs.Conditions.Fixable"] | components["schemas"]["Cyborgs.Conditions.Pain"] | components["schemas"]["Cyborgs.Conditions.Repairable"] | components["schemas"]["Cyborgs.Conditions.Replaceable"] | components["schemas"]["Cyborgs.Conditions.Shock"] | components["schemas"]["Cyborgs.Conditions.Treatable"] | components["schemas"]["Cyborgs.Conditions.Unconscious"] | components["schemas"]["Cyborgs.Conditions.Unusable"];
             };
             readonly id: string;
             readonly ownerId?: string | null;
@@ -907,14 +911,14 @@ export interface components {
             readonly name: string;
             readonly archetypes: string[];
             readonly actionTemplates: {
-                [key: string]: (components["schemas"]["Cyborgs.Skills.Movement.Run"] | components["schemas"]["Cyborgs.Skills.Combat.Aim"] | components["schemas"]["Cyborgs.Actions.ArmourCheck"] | components["schemas"]["Cyborgs.Actions.MeleeAttack"] | components["schemas"]["Cyborgs.Actions.MeleeParry"] | components["schemas"]["Cyborgs.Actions.RangedAttack"] | components["schemas"]["Cyborgs.Actions.TakeDamage"] | components["schemas"]["Cyborgs.Actions.TakeInjury"] | components["schemas"]["Cyborgs.Actions.Transfer"]) | undefined;
+                [key: string]: components["schemas"]["Cyborgs.Skills.Movement.Run"] | components["schemas"]["Cyborgs.Skills.Combat.Aim"] | components["schemas"]["Cyborgs.Actions.ArmourCheck"] | components["schemas"]["Cyborgs.Actions.MeleeAttack"] | components["schemas"]["Cyborgs.Actions.MeleeParry"] | components["schemas"]["Cyborgs.Actions.RangedAttack"] | components["schemas"]["Cyborgs.Actions.TakeDamage"] | components["schemas"]["Cyborgs.Actions.TakeInjury"] | components["schemas"]["Cyborgs.Actions.Transfer"];
             };
-            strength: components["schemas"]["Cyborgs.Components.PropValue"];
-            agility: components["schemas"]["Cyborgs.Components.PropValue"];
-            health: components["schemas"]["Cyborgs.Components.PropValue"];
-            brains: components["schemas"]["Cyborgs.Components.PropValue"];
-            insight: components["schemas"]["Cyborgs.Components.PropValue"];
-            charisma: components["schemas"]["Cyborgs.Components.PropValue"];
+            readonly strength: components["schemas"]["Cyborgs.Components.PropValue"];
+            readonly agility: components["schemas"]["Cyborgs.Components.PropValue"];
+            readonly health: components["schemas"]["Cyborgs.Components.PropValue"];
+            readonly brains: components["schemas"]["Cyborgs.Components.PropValue"];
+            readonly insight: components["schemas"]["Cyborgs.Components.PropValue"];
+            readonly charisma: components["schemas"]["Cyborgs.Components.PropValue"];
             /** Format: int32 */
             readonly focusPoints: number;
             /** Format: int32 */
@@ -935,22 +939,22 @@ export interface components {
             readonly actionPoints: number;
             /** Format: int32 */
             readonly currentActionPoints: number;
-            head: components["schemas"]["Cyborgs.BodyPart"];
-            torso: components["schemas"]["Cyborgs.BodyPart"];
-            leftArm: components["schemas"]["Cyborgs.BodyPart"];
-            rightArm: components["schemas"]["Cyborgs.BodyPart"];
-            leftLeg: components["schemas"]["Cyborgs.BodyPart"];
-            rightLeg: components["schemas"]["Cyborgs.BodyPart"];
-            reactions: components["schemas"]["Cyborgs.Components.PropValue"];
-            defence: components["schemas"]["Cyborgs.Components.PropValue"];
-            armourRating: components["schemas"]["Cyborgs.Components.PropValue"];
-            unarmedDamageBonus: components["schemas"]["Cyborgs.Components.PropValue"];
-            parryDamageReduction: components["schemas"]["Cyborgs.Components.PropValue"];
-            rangedAttack: components["schemas"]["Cyborgs.Components.PropValue"];
-            rangedAimBonus: components["schemas"]["Cyborgs.Components.PropValue"];
-            meleeAttack: components["schemas"]["Cyborgs.Components.PropValue"];
-            hands: components["schemas"]["RpgContainer"];
-            wearing: components["schemas"]["RpgContainer"];
+            readonly head: components["schemas"]["Cyborgs.BodyPart"];
+            readonly torso: components["schemas"]["Cyborgs.BodyPart"];
+            readonly leftArm: components["schemas"]["Cyborgs.BodyPart"];
+            readonly rightArm: components["schemas"]["Cyborgs.BodyPart"];
+            readonly leftLeg: components["schemas"]["Cyborgs.BodyPart"];
+            readonly rightLeg: components["schemas"]["Cyborgs.BodyPart"];
+            readonly reactions: components["schemas"]["Cyborgs.Components.PropValue"];
+            readonly defence: components["schemas"]["Cyborgs.Components.PropValue"];
+            readonly armourRating: components["schemas"]["Cyborgs.Components.PropValue"];
+            readonly unarmedDamageBonus: components["schemas"]["Cyborgs.Components.PropValue"];
+            readonly parryDamageReduction: components["schemas"]["Cyborgs.Components.PropValue"];
+            readonly rangedAttack: components["schemas"]["Cyborgs.Components.PropValue"];
+            readonly rangedAimBonus: components["schemas"]["Cyborgs.Components.PropValue"];
+            readonly meleeAttack: components["schemas"]["Cyborgs.Components.PropValue"];
+            readonly hands: components["schemas"]["RpgContainer"];
+            readonly wearing: components["schemas"]["RpgContainer"];
         };
         "Cyborgs.Armour": {
             /** Format: int32 */
@@ -982,6 +986,7 @@ export interface components {
             expiry: components["schemas"]["Time.LifecycleExpiry"];
             readonly id: string;
             readonly name: string;
+            readonly classification: string;
             readonly ownerId: string;
             readonly ownerArchetype?: string | null;
             readonly isPlayerVisible: boolean;
@@ -995,6 +1000,7 @@ export interface components {
             expiry: components["schemas"]["Time.LifecycleExpiry"];
             readonly id: string;
             readonly name: string;
+            readonly classification: string;
             readonly ownerId: string;
             readonly ownerArchetype?: string | null;
             readonly isPlayerVisible: boolean;
@@ -1021,13 +1027,13 @@ export interface components {
             severity: number;
         } & components["schemas"]["RpgLifecycleObject"];
         "Cyborgs.MeleeWeapon": {
-            damage: components["schemas"]["Values.Dice"];
+            readonly damage: components["schemas"]["Values.Dice"];
             /** Format: int32 */
             readonly hitBonus: number;
         } & components["schemas"]["RpgEntity"];
         "Cyborgs.PlayerCharacter": components["schemas"]["Cyborgs.Actor"];
         "Cyborgs.RangedWeapon": {
-            damage: components["schemas"]["Values.Dice"];
+            readonly damage: components["schemas"]["Values.Dice"];
             /** Format: int32 */
             readonly hitBonus: number;
         } & components["schemas"]["RpgEntity"];
@@ -1036,6 +1042,7 @@ export interface components {
         "Cyborgs.Skills.Skill": {
             readonly id: string;
             readonly name: string;
+            readonly classification: string;
             readonly ownerId: string;
             readonly ownerArchetype: string;
             readonly actionArgs: (components["schemas"]["Reflection.Args.DefaultArg"] | components["schemas"]["Reflection.Args.DiceArg"] | components["schemas"]["Reflection.Args.IntegerArg"] | components["schemas"]["Reflection.Args.RpgObjectArg"])[];
@@ -1065,9 +1072,9 @@ export interface components {
             readonly prop: string;
             readonly name: string;
             readonly behavior: components["schemas"]["Behaviors.Add"] | components["schemas"]["Behaviors.Combine"] | components["schemas"]["Behaviors.ExpiresOn"] | components["schemas"]["Behaviors.Highest"] | components["schemas"]["Behaviors.Replace"] | components["schemas"]["Behaviors.Threshold"];
-            target: components["schemas"]["Props.PropRef"];
-            source: components["schemas"]["Props.PropRef"];
-            sourceValue: components["schemas"]["Values.Dice"];
+            readonly target: components["schemas"]["Props.PropRef"];
+            readonly source?: components["schemas"]["Props.PropRef"] | null;
+            readonly sourceValue?: components["schemas"]["Values.Dice"] | null;
             readonly isBaseInitMod: boolean;
             readonly isBaseOverrideMod: boolean;
             readonly isBaseMod: boolean;
@@ -1091,7 +1098,7 @@ export interface components {
         "Mods.ModSetDescription": {
             name: string;
             readonly values: {
-                [key: string]: components["schemas"]["Values.Dice"] | undefined;
+                [key: string]: components["schemas"]["Values.Dice"];
             };
         };
         "Mods.ModSets.StateModSet": {
@@ -1118,9 +1125,9 @@ export interface components {
             readonly prop: string;
             readonly name: string;
             readonly behavior: components["schemas"]["Behaviors.Add"] | components["schemas"]["Behaviors.Combine"] | components["schemas"]["Behaviors.ExpiresOn"] | components["schemas"]["Behaviors.Highest"] | components["schemas"]["Behaviors.Replace"] | components["schemas"]["Behaviors.Threshold"];
-            target: components["schemas"]["Props.PropRef"];
-            source: components["schemas"]["Props.PropRef"];
-            sourceValue: components["schemas"]["Values.Dice"];
+            readonly target: components["schemas"]["Props.PropRef"];
+            readonly source?: components["schemas"]["Props.PropRef"] | null;
+            readonly sourceValue?: components["schemas"]["Values.Dice"] | null;
             readonly isBaseInitMod: boolean;
             readonly isBaseOverrideMod: boolean;
             readonly isBaseMod: boolean;
@@ -1132,10 +1139,10 @@ export interface components {
         };
         "Mods.Mods.Turn": components["schemas"]["Mods.Mods.Time"];
         "Props.ModDescription": {
-            sourceProp: components["schemas"]["Props.PropDescription"];
+            sourceProp?: components["schemas"]["Props.PropDescription"] | null;
             modType: string;
             behavior: string;
-            sourceValue: components["schemas"]["Values.Dice"];
+            sourceValue?: components["schemas"]["Values.Dice"] | null;
             value: components["schemas"]["Values.Dice"];
             valueFunction?: string | null;
         };
@@ -1194,13 +1201,13 @@ export interface components {
         RpgComponent: {
             expiry: components["schemas"]["Time.LifecycleExpiry"];
             modSets: {
-                [key: string]: (components["schemas"]["Mods.ModSet"] | components["schemas"]["Mods.ModSets.StateModSet"] | components["schemas"]["Mods.ModSets.SyncedModSet"] | components["schemas"]["Mods.ModSets.TimedModSet"] | components["schemas"]["Mods.ModSets.TurnModSet"]) | undefined;
+                [key: string]: components["schemas"]["Mods.ModSet"] | components["schemas"]["Mods.ModSets.StateModSet"] | components["schemas"]["Mods.ModSets.SyncedModSet"] | components["schemas"]["Mods.ModSets.TimedModSet"] | components["schemas"]["Mods.ModSets.TurnModSet"];
             };
             props: {
-                [key: string]: components["schemas"]["Props.Prop"] | undefined;
+                [key: string]: components["schemas"]["Props.Prop"];
             };
             states: {
-                [key: string]: (components["schemas"]["Cyborgs.States.Aiming"] | components["schemas"]["Cyborgs.States.Exhausted"] | components["schemas"]["Cyborgs.States.Firing"] | components["schemas"]["Cyborgs.States.MeleeAttacked"] | components["schemas"]["Cyborgs.States.MeleeAttacking"] | components["schemas"]["Cyborgs.States.Moving"] | components["schemas"]["Cyborgs.States.Parrying"] | components["schemas"]["Cyborgs.States.RangedAttacking"] | components["schemas"]["Cyborgs.States.VeryFast"] | components["schemas"]["Cyborgs.Conditions.Attachable"] | components["schemas"]["Cyborgs.Conditions.Bleeding"] | components["schemas"]["Cyborgs.Conditions.Dead"] | components["schemas"]["Cyborgs.Conditions.Dying"] | components["schemas"]["Cyborgs.Conditions.Fixable"] | components["schemas"]["Cyborgs.Conditions.Pain"] | components["schemas"]["Cyborgs.Conditions.Repairable"] | components["schemas"]["Cyborgs.Conditions.Replaceable"] | components["schemas"]["Cyborgs.Conditions.Shock"] | components["schemas"]["Cyborgs.Conditions.Treatable"] | components["schemas"]["Cyborgs.Conditions.Unconscious"] | components["schemas"]["Cyborgs.Conditions.Unusable"]) | undefined;
+                [key: string]: components["schemas"]["Cyborgs.States.Aiming"] | components["schemas"]["Cyborgs.States.Exhausted"] | components["schemas"]["Cyborgs.States.Firing"] | components["schemas"]["Cyborgs.States.MeleeAttacked"] | components["schemas"]["Cyborgs.States.MeleeAttacking"] | components["schemas"]["Cyborgs.States.Moving"] | components["schemas"]["Cyborgs.States.Parrying"] | components["schemas"]["Cyborgs.States.RangedAttacking"] | components["schemas"]["Cyborgs.States.VeryFast"] | components["schemas"]["Cyborgs.Conditions.Attachable"] | components["schemas"]["Cyborgs.Conditions.Bleeding"] | components["schemas"]["Cyborgs.Conditions.Dead"] | components["schemas"]["Cyborgs.Conditions.Dying"] | components["schemas"]["Cyborgs.Conditions.Fixable"] | components["schemas"]["Cyborgs.Conditions.Pain"] | components["schemas"]["Cyborgs.Conditions.Repairable"] | components["schemas"]["Cyborgs.Conditions.Replaceable"] | components["schemas"]["Cyborgs.Conditions.Shock"] | components["schemas"]["Cyborgs.Conditions.Treatable"] | components["schemas"]["Cyborgs.Conditions.Unconscious"] | components["schemas"]["Cyborgs.Conditions.Unusable"];
             };
             readonly id: string;
             readonly ownerId?: string | null;
@@ -1214,13 +1221,13 @@ export interface components {
         RpgEntity: {
             expiry: components["schemas"]["Time.LifecycleExpiry"];
             modSets: {
-                [key: string]: (components["schemas"]["Mods.ModSet"] | components["schemas"]["Mods.ModSets.StateModSet"] | components["schemas"]["Mods.ModSets.SyncedModSet"] | components["schemas"]["Mods.ModSets.TimedModSet"] | components["schemas"]["Mods.ModSets.TurnModSet"]) | undefined;
+                [key: string]: components["schemas"]["Mods.ModSet"] | components["schemas"]["Mods.ModSets.StateModSet"] | components["schemas"]["Mods.ModSets.SyncedModSet"] | components["schemas"]["Mods.ModSets.TimedModSet"] | components["schemas"]["Mods.ModSets.TurnModSet"];
             };
             props: {
-                [key: string]: components["schemas"]["Props.Prop"] | undefined;
+                [key: string]: components["schemas"]["Props.Prop"];
             };
             states: {
-                [key: string]: (components["schemas"]["Cyborgs.States.Aiming"] | components["schemas"]["Cyborgs.States.Exhausted"] | components["schemas"]["Cyborgs.States.Firing"] | components["schemas"]["Cyborgs.States.MeleeAttacked"] | components["schemas"]["Cyborgs.States.MeleeAttacking"] | components["schemas"]["Cyborgs.States.Moving"] | components["schemas"]["Cyborgs.States.Parrying"] | components["schemas"]["Cyborgs.States.RangedAttacking"] | components["schemas"]["Cyborgs.States.VeryFast"] | components["schemas"]["Cyborgs.Conditions.Attachable"] | components["schemas"]["Cyborgs.Conditions.Bleeding"] | components["schemas"]["Cyborgs.Conditions.Dead"] | components["schemas"]["Cyborgs.Conditions.Dying"] | components["schemas"]["Cyborgs.Conditions.Fixable"] | components["schemas"]["Cyborgs.Conditions.Pain"] | components["schemas"]["Cyborgs.Conditions.Repairable"] | components["schemas"]["Cyborgs.Conditions.Replaceable"] | components["schemas"]["Cyborgs.Conditions.Shock"] | components["schemas"]["Cyborgs.Conditions.Treatable"] | components["schemas"]["Cyborgs.Conditions.Unconscious"] | components["schemas"]["Cyborgs.Conditions.Unusable"]) | undefined;
+                [key: string]: components["schemas"]["Cyborgs.States.Aiming"] | components["schemas"]["Cyborgs.States.Exhausted"] | components["schemas"]["Cyborgs.States.Firing"] | components["schemas"]["Cyborgs.States.MeleeAttacked"] | components["schemas"]["Cyborgs.States.MeleeAttacking"] | components["schemas"]["Cyborgs.States.Moving"] | components["schemas"]["Cyborgs.States.Parrying"] | components["schemas"]["Cyborgs.States.RangedAttacking"] | components["schemas"]["Cyborgs.States.VeryFast"] | components["schemas"]["Cyborgs.Conditions.Attachable"] | components["schemas"]["Cyborgs.Conditions.Bleeding"] | components["schemas"]["Cyborgs.Conditions.Dead"] | components["schemas"]["Cyborgs.Conditions.Dying"] | components["schemas"]["Cyborgs.Conditions.Fixable"] | components["schemas"]["Cyborgs.Conditions.Pain"] | components["schemas"]["Cyborgs.Conditions.Repairable"] | components["schemas"]["Cyborgs.Conditions.Replaceable"] | components["schemas"]["Cyborgs.Conditions.Shock"] | components["schemas"]["Cyborgs.Conditions.Treatable"] | components["schemas"]["Cyborgs.Conditions.Unconscious"] | components["schemas"]["Cyborgs.Conditions.Unusable"];
             };
             readonly id: string;
             readonly ownerId?: string | null;
@@ -1228,14 +1235,14 @@ export interface components {
             readonly name: string;
             readonly archetypes: string[];
             readonly actionTemplates: {
-                [key: string]: (components["schemas"]["Cyborgs.Skills.Movement.Run"] | components["schemas"]["Cyborgs.Skills.Combat.Aim"] | components["schemas"]["Cyborgs.Actions.ArmourCheck"] | components["schemas"]["Cyborgs.Actions.MeleeAttack"] | components["schemas"]["Cyborgs.Actions.MeleeParry"] | components["schemas"]["Cyborgs.Actions.RangedAttack"] | components["schemas"]["Cyborgs.Actions.TakeDamage"] | components["schemas"]["Cyborgs.Actions.TakeInjury"] | components["schemas"]["Cyborgs.Actions.Transfer"]) | undefined;
+                [key: string]: components["schemas"]["Cyborgs.Skills.Movement.Run"] | components["schemas"]["Cyborgs.Skills.Combat.Aim"] | components["schemas"]["Cyborgs.Actions.ArmourCheck"] | components["schemas"]["Cyborgs.Actions.MeleeAttack"] | components["schemas"]["Cyborgs.Actions.MeleeParry"] | components["schemas"]["Cyborgs.Actions.RangedAttack"] | components["schemas"]["Cyborgs.Actions.TakeDamage"] | components["schemas"]["Cyborgs.Actions.TakeInjury"] | components["schemas"]["Cyborgs.Actions.Transfer"];
             };
         };
         RpgGraphState: {
             entities: (components["schemas"]["Cyborgs.Armour"] | components["schemas"]["Cyborgs.BodyPart"] | components["schemas"]["Cyborgs.MeleeWeapon"] | components["schemas"]["Cyborgs.PlayerCharacter"] | components["schemas"]["Cyborgs.RangedWeapon"] | components["schemas"]["Cyborgs.Components.PropValue"] | components["schemas"]["RpgContainer"] | components["schemas"]["Activities.Action"] | components["schemas"]["Activities.Activity"])[];
             contextId?: string | null;
             initiatorId?: string | null;
-            time: components["schemas"]["Time.Temporal"];
+            time?: components["schemas"]["Time.Temporal"] | null;
         };
         RpgLifecycleObject: {
             expiry: components["schemas"]["Time.LifecycleExpiry"];
@@ -1243,13 +1250,13 @@ export interface components {
         RpgObject: {
             expiry: components["schemas"]["Time.LifecycleExpiry"];
             modSets: {
-                [key: string]: (components["schemas"]["Mods.ModSet"] | components["schemas"]["Mods.ModSets.StateModSet"] | components["schemas"]["Mods.ModSets.SyncedModSet"] | components["schemas"]["Mods.ModSets.TimedModSet"] | components["schemas"]["Mods.ModSets.TurnModSet"]) | undefined;
+                [key: string]: components["schemas"]["Mods.ModSet"] | components["schemas"]["Mods.ModSets.StateModSet"] | components["schemas"]["Mods.ModSets.SyncedModSet"] | components["schemas"]["Mods.ModSets.TimedModSet"] | components["schemas"]["Mods.ModSets.TurnModSet"];
             };
             props: {
-                [key: string]: components["schemas"]["Props.Prop"] | undefined;
+                [key: string]: components["schemas"]["Props.Prop"];
             };
             states: {
-                [key: string]: (components["schemas"]["Cyborgs.States.Aiming"] | components["schemas"]["Cyborgs.States.Exhausted"] | components["schemas"]["Cyborgs.States.Firing"] | components["schemas"]["Cyborgs.States.MeleeAttacked"] | components["schemas"]["Cyborgs.States.MeleeAttacking"] | components["schemas"]["Cyborgs.States.Moving"] | components["schemas"]["Cyborgs.States.Parrying"] | components["schemas"]["Cyborgs.States.RangedAttacking"] | components["schemas"]["Cyborgs.States.VeryFast"] | components["schemas"]["Cyborgs.Conditions.Attachable"] | components["schemas"]["Cyborgs.Conditions.Bleeding"] | components["schemas"]["Cyborgs.Conditions.Dead"] | components["schemas"]["Cyborgs.Conditions.Dying"] | components["schemas"]["Cyborgs.Conditions.Fixable"] | components["schemas"]["Cyborgs.Conditions.Pain"] | components["schemas"]["Cyborgs.Conditions.Repairable"] | components["schemas"]["Cyborgs.Conditions.Replaceable"] | components["schemas"]["Cyborgs.Conditions.Shock"] | components["schemas"]["Cyborgs.Conditions.Treatable"] | components["schemas"]["Cyborgs.Conditions.Unconscious"] | components["schemas"]["Cyborgs.Conditions.Unusable"]) | undefined;
+                [key: string]: components["schemas"]["Cyborgs.States.Aiming"] | components["schemas"]["Cyborgs.States.Exhausted"] | components["schemas"]["Cyborgs.States.Firing"] | components["schemas"]["Cyborgs.States.MeleeAttacked"] | components["schemas"]["Cyborgs.States.MeleeAttacking"] | components["schemas"]["Cyborgs.States.Moving"] | components["schemas"]["Cyborgs.States.Parrying"] | components["schemas"]["Cyborgs.States.RangedAttacking"] | components["schemas"]["Cyborgs.States.VeryFast"] | components["schemas"]["Cyborgs.Conditions.Attachable"] | components["schemas"]["Cyborgs.Conditions.Bleeding"] | components["schemas"]["Cyborgs.Conditions.Dead"] | components["schemas"]["Cyborgs.Conditions.Dying"] | components["schemas"]["Cyborgs.Conditions.Fixable"] | components["schemas"]["Cyborgs.Conditions.Pain"] | components["schemas"]["Cyborgs.Conditions.Repairable"] | components["schemas"]["Cyborgs.Conditions.Replaceable"] | components["schemas"]["Cyborgs.Conditions.Shock"] | components["schemas"]["Cyborgs.Conditions.Treatable"] | components["schemas"]["Cyborgs.Conditions.Unconscious"] | components["schemas"]["Cyborgs.Conditions.Unusable"];
             };
             readonly id: string;
             readonly ownerId?: string | null;
@@ -1286,6 +1293,11 @@ export interface components {
             initiatorId: string;
             actionTemplateOwnerId: string;
             actionTemplateName: string;
+        };
+        "Server.Ops.OverrideBaseValue": {
+            propRef: components["schemas"]["Props.PropRef"];
+            /** Format: int32 */
+            value: number;
         };
         "Server.Ops.SetState": {
             entityId: string;
@@ -1331,6 +1343,10 @@ export interface components {
             graphState: components["schemas"]["RpgGraphState"];
             op?: (components["schemas"]["Mods.ModSet"] | components["schemas"]["Mods.ModSets.StateModSet"] | components["schemas"]["Mods.ModSets.SyncedModSet"] | components["schemas"]["Mods.ModSets.TimedModSet"] | components["schemas"]["Mods.ModSets.TurnModSet"]) | null;
         };
+        "Server.RpgRequest_OverrideBaseValue": {
+            graphState: components["schemas"]["RpgGraphState"];
+            op: components["schemas"]["Server.Ops.OverrideBaseValue"];
+        };
         "Server.RpgRequest_PointInTime": {
             graphState: components["schemas"]["RpgGraphState"];
             op: components["schemas"]["Time.PointInTime"];
@@ -1341,11 +1357,11 @@ export interface components {
         };
         "Server.RpgResponse_Action": {
             graphState: components["schemas"]["RpgGraphState"];
-            data: components["schemas"]["Activities.Action"];
+            data?: components["schemas"]["Activities.Action"] | null;
         };
         "Server.RpgResponse_Activity": {
             graphState: components["schemas"]["RpgGraphState"];
-            data: components["schemas"]["Activities.Activity"];
+            data?: components["schemas"]["Activities.Activity"] | null;
         };
         "Server.RpgResponse_Boolean": {
             graphState: components["schemas"]["RpgGraphState"];
@@ -1353,7 +1369,7 @@ export interface components {
         };
         "Server.RpgResponse_ModSetDescription": {
             graphState: components["schemas"]["RpgGraphState"];
-            data: components["schemas"]["Mods.ModSetDescription"];
+            data?: components["schemas"]["Mods.ModSetDescription"] | null;
         };
         "Server.RpgResponse_PointInTime": {
             graphState: components["schemas"]["RpgGraphState"];
@@ -1361,7 +1377,7 @@ export interface components {
         };
         "Server.RpgResponse_PropDescription": {
             graphState: components["schemas"]["RpgGraphState"];
-            data: components["schemas"]["Props.PropDescription"];
+            data?: components["schemas"]["Props.PropDescription"] | null;
         };
         "Server.RpgResponse_RpgArg[]": {
             graphState: components["schemas"]["RpgGraphState"];
@@ -1386,6 +1402,7 @@ export interface components {
             expiry: components["schemas"]["Time.LifecycleExpiry"];
             readonly id: string;
             readonly name: string;
+            readonly classification: string;
             readonly ownerId: string;
             readonly ownerArchetype?: string | null;
             readonly isPlayerVisible: boolean;
@@ -1398,6 +1415,7 @@ export interface components {
             expiry: components["schemas"]["Time.LifecycleExpiry"];
             readonly id: string;
             readonly name: string;
+            readonly classification: string;
             readonly ownerId: string;
             readonly ownerArchetype?: string | null;
             readonly isPlayerVisible: boolean;
@@ -1409,9 +1427,9 @@ export interface components {
         /** @enum {string} */
         "Time.LifecycleExpiry": "Unset" | "Pending" | "Active" | "Expired" | "Destroyed";
         "Time.Lifespan": {
-            start: components["schemas"]["Time.PointInTime"];
-            end: components["schemas"]["Time.PointInTime"];
-            expired: components["schemas"]["Time.PointInTime"];
+            readonly start: components["schemas"]["Time.PointInTime"];
+            readonly end: components["schemas"]["Time.PointInTime"];
+            readonly expired?: components["schemas"]["Time.PointInTime"] | null;
             expiry: components["schemas"]["Time.LifecycleExpiry"];
         };
         "Time.PointInTime": {
@@ -1424,7 +1442,7 @@ export interface components {
         /** @enum {string} */
         "Time.PointInTimeType": "BeforeTime" | "TimeBegins" | "Waiting" | "EncounterBegins" | "Turn" | "EncounterEnds" | "TimePasses" | "TimeEnds";
         "Time.Temporal": {
-            now: components["schemas"]["Time.PointInTime"];
+            readonly now: components["schemas"]["Time.PointInTime"];
         };
         "Umbraco.Cms.Api.Management.ViewModels.NotificationHeaderModel": {
             message: string;

@@ -1,4 +1,5 @@
 import { components } from './rpgtypes'
+import { ActionTemplate, State } from './types'
 
 export type PropValue = Pick<
   components['schemas']['Cyborgs.Components.PropValue'],
@@ -34,3 +35,9 @@ export type MeleeAttack = Pick<
   components['schemas']['Cyborgs.Actions.MeleeAttack'],
   keyof components['schemas']['Cyborgs.Actions.MeleeAttack']
 >
+
+export interface Condition extends State {}
+
+export interface SkillTemplate extends ActionTemplate {
+  readonly rating: number
+}

@@ -35,10 +35,16 @@ export type RpgEntity = Pick<
   keyof components['schemas']['RpgEntity']
 >
 
+export type PropRef = Pick<
+  components['schemas']['Props.PropRef'],
+  keyof components['schemas']['Props.PropRef']
+>
+
 export interface State {
   expiry: LifecycleExpiry
   readonly id: string
   readonly name: string
+  readonly classification: string
   readonly ownerId: string
   readonly ownerArchetype?: string | null
   readonly isPlayerVisible: boolean
@@ -61,6 +67,7 @@ export type ActionTemplateMethod = Pick<
 export interface ActionTemplate {
   readonly id: string
   readonly name: string
+  readonly classification: string
   readonly ownerId: string
   readonly ownerArchetype: string
   readonly actionArgs: RpgArg[]

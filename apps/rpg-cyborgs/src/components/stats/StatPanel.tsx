@@ -10,8 +10,10 @@ import { useState } from 'react'
 import { PropDescription } from '../../lib/rpg-api/types'
 import { getPropDesc } from '../../lib/rpg-api/fetcher'
 import { selectGraphState } from '../../app/graphState/graphSelectors'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { PropValue } from '../../lib/rpg-api/cyborg-types'
+import PropertyValue from '../ui/property-value'
+import { overridePropValue } from '@/app/thunks'
 
 //const describeAtom = atom<PropDesc | undefined>(undefined)
 
@@ -22,15 +24,14 @@ export declare interface StatPanelProps {
 }
 
 function StatPanel(props: StatPanelProps) {
+  const { propName, propNameAbbr, propValue } = props
   const graphState = useSelector(selectGraphState)
   const [describe, setDescribe] = useState<PropDescription | undefined>()
+  const dispatch = useDispatch()
 
-  const eq =
-    (props?.propValue?.value ?? 0) === (props?.propValue?.baseValue ?? 0)
-  const inc =
-    !eq && (props?.propValue?.value ?? 0) > (props?.propValue?.baseValue ?? 0)
-  const dec =
-    !eq && (props?.propValue?.value ?? 0) < (props?.propValue?.baseValue ?? 0)
+  const eq = (propValue?.value ?? 0) === (propValue?.baseValue ?? 0)
+  const inc = !eq && (propValue?.value ?? 0) > (propValue?.baseValue ?? 0)
+  const dec = !eq && (propValue?.value ?? 0) < (propValue?.baseValue ?? 0)
 
   const onDescribe = async () => {
     if (props?.propValue) {
@@ -44,10 +45,26 @@ function StatPanel(props: StatPanelProps) {
     }
   }
 
+  const onPropValueChanged = async (value: number, propValue?: PropValue) => {
+    await dispatch(
+      overridePropValue({
+        propRef: { entityId: propValue.ownerId, prop: propValue.name },
+        value: value,
+      })
+    )
+  }
   const { onOpen, onClose } = useDisclosure()
 
   return (
     <>
+      <PropertyValue
+        name={propName}
+        abbreviatedName={propNameAbbr}
+        propValue={propValue!}
+        onPropValueChanged={async (value: number) =>
+          await onPropValueChanged(value, props?.propValue)
+        }
+      />
       <Stat.Root
         m={4}
         p={4}

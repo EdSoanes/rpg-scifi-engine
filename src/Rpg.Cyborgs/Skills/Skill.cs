@@ -12,7 +12,10 @@ namespace Rpg.Cyborgs.Skills
             : base() { }
 
         public Skill(Actor owner)
-            : base(owner) { }
+            : base(owner) 
+        {
+            Classification = "Skill";
+        }
 
         [JsonIgnore]
         public int Rating

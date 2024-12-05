@@ -43,6 +43,17 @@ namespace Rpg.Cms.Controllers
         }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
+        [HttpPost("{system}/entities/props/override")]
+        [ProducesResponseType(typeof(RpgResponse<bool>), StatusCodes.Status200OK)]
+        public IActionResult OverrideBaseValue(string system, RpgRequest<OverrideBaseValue> request)
+        {
+            var response = _sessionlessServer.OverrideBaseValue(system, request);
+
+            var json = RpgJson.Serialize(response);
+            return new ContentResult() { Content = json, ContentType = "application/json" };
+        }
+
+        [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
         [HttpPost("{system}/time")]
         [ProducesResponseType(typeof(RpgResponse<PointInTime>), StatusCodes.Status200OK)]
         public IActionResult SetTime(string system, RpgRequest<PointInTime> request)

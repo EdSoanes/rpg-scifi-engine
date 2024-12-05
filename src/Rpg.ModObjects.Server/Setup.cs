@@ -29,6 +29,7 @@ namespace Rpg.ModObjects.Server
                 .AddScoped<RpgSessionlessServer>()
                 .AddScoped<GraphService>()
                 .AddScoped<ActivityService>()
+                .AddScoped<EntityService>()
                 .AddScoped(typeof(IContentFactory), options.ContentFactoryType);
 
             return services;

@@ -343,6 +343,14 @@ namespace Rpg.ModObjects
                 rpgObj.RemoveModSet(modSet.Id);
         }
 
+        public Dice? CalculateInitialPropValue(RpgObject? entity, string prop)
+            => CalculatePropValue(entity, prop, mod => mod.IsInitialMod());
+
+        public Dice? CalculateBasePropValue(RpgObject? entity, string prop)
+            => CalculatePropValue(entity, prop, mod => mod.IsBaseMod());
+
+        public Dice? CalculateOriginalBasePropValue(PropRef propRef)
+            => CalculatePropValue(propRef, mod => mod.IsOriginalBaseMod());
 
         public Dice? CalculatePropValue(PropRef propRef, Func<Mod, bool>? filterFunc = null)
             => CalculatePropValue(propRef.EntityId, propRef.Prop, filterFunc);
@@ -388,11 +396,6 @@ namespace Rpg.ModObjects
             return dice != null ? ApplyThreshold(mods, dice!.Value) : null;
         }
 
-        public Dice? CalculateInitialPropValue(RpgObject? entity, string prop)
-            => CalculatePropValue(entity, prop, mod => mod.IsBaseInitMod);
-
-        public Dice? CalculateBasePropValue(RpgObject? entity, string prop)
-            => CalculatePropValue(entity, prop, mod => mod.IsBaseMod || mod.IsBaseInitMod);
 
         public Dice? CalculateModValue(Mod? mod)
         {

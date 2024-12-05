@@ -8,7 +8,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { useState } from 'react'
-import ActionButton from './ActionButton'
+import ActionTemplatePanel from './ActionTemplatePanel'
 
 import { useSelector } from 'react-redux'
 import {
@@ -89,10 +89,12 @@ function ActionTemplatesBlock() {
         </HStack>
         <Grid templateColumns="repeat(6, 1fr)" gap={6}>
           {actionTemplates.map((actionTemplate, i) => (
-            <ActionButton
+            <ActionTemplatePanel
               key={i}
               actionTemplate={actionTemplate}
-              onActionTemplate={onActionTemplateButtonClicked}
+              onActionTemplate={(actionTemplate) =>
+                onActionTemplateButtonClicked(actionTemplate)
+              }
             />
           ))}
         </Grid>
