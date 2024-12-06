@@ -1,29 +1,20 @@
 import {
-  Stat,
-  StatNumber,
-  StatHelpText,
-  StatLabel,
-  StatArrow,
-  IconButton,
   useDisclosure,
-  Code,
-  Button,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  useColorMode,
+  Text,
+  Grid,
+  GridItem,
+  Heading,
+  HStack,
 } from '@chakra-ui/react'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { PropDescription } from '../../lib/rpg-api/types'
-import { QuestionOutlineIcon } from '@chakra-ui/icons'
 import { getPropDesc } from '../../lib/rpg-api/fetcher'
 import { selectGraphState } from '../../app/graphState/graphSelectors'
 import { useSelector } from 'react-redux'
 import { PropValue } from '../../lib/rpg-api/cyborg-types'
+import PropertyValue from '../ui/property-value'
+import { overridePropValue } from '../../app/thunks'
+import { useAppDispatch } from '../../app/hooks'
 
 //const describeAtom = atom<PropDesc | undefined>(undefined)
 
@@ -34,17 +25,10 @@ export declare interface StatPanelProps {
 }
 
 function StatPanel(props: StatPanelProps) {
+  const { propName, propNameAbbr, propValue } = props
   const graphState = useSelector(selectGraphState)
-  const [describe, setDescribe] = useState<PropDescription | undefined>()
-
-  const { colorMode } = useColorMode()
-
-  const eq =
-    (props?.propValue?.value ?? 0) === (props?.propValue?.baseValue ?? 0)
-  const inc =
-    !eq && (props?.propValue?.value ?? 0) > (props?.propValue?.baseValue ?? 0)
-  const dec =
-    !eq && (props?.propValue?.value ?? 0) < (props?.propValue?.baseValue ?? 0)
+  const [describe, setDescribe] = useState<PropDescription | null | undefined>()
+  const dispatch = useAppDispatch()
 
   const onDescribe = async () => {
     if (props?.propValue) {
@@ -58,47 +42,32 @@ function StatPanel(props: StatPanelProps) {
     }
   }
 
-  const { onOpen, onClose, isOpen } = useDisclosure()
+  const onPropValueChanged = async (
+    value: number,
+    propValue?: PropValue
+  ): Promise<void> => {
+    if (propValue?.ownerId && propValue?.name) {
+      console.log(`Updating propValue ${propValue.name}`, value)
+      await dispatch(
+        overridePropValue({
+          propRef: { entityId: propValue.id, prop: 'Value' },
+          value: value,
+        })
+      )
+    }
+  }
+  const { onOpen, onClose } = useDisclosure()
 
   return (
-    <>
-      <Stat m={4} p={4} border="1px" borderRadius={4} borderColor={'lightgray'}>
-        <StatLabel>{props.propNameAbbr}</StatLabel>
-        <StatNumber>{props?.propValue?.value ?? 0}</StatNumber>
-        {colorMode === 'light' && (
-          <StatHelpText>
-            {inc && <StatArrow type="increase" />}
-            {dec && <StatArrow type="decrease" />}
-            {props.propName} {props?.propValue?.baseValue ?? 0}
-            <IconButton
-              variant={'ghost'}
-              aria-label="describe"
-              size="lg"
-              icon={<QuestionOutlineIcon />}
-              onClick={onDescribe}
-            />
-          </StatHelpText>
-        )}
-      </Stat>
-      {colorMode === 'light' && (
-        <Modal isOpen={isOpen} onClose={onClose}>
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>{describe?.rootProp ?? '-'}</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <Code>{JSON.stringify(describe, null, 2)}</Code>
-            </ModalBody>
-
-            <ModalFooter>
-              <Button colorScheme="blue" mr={3} onClick={onClose}>
-                Close
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
-      )}
-    </>
+    <HStack>
+      <Heading size={'md'}>{propNameAbbr}</Heading>
+      <PropertyValue
+        propValue={propValue}
+        onPropValueChanged={async (value) =>
+          await onPropValueChanged(value, propValue)
+        }
+      />
+    </HStack>
   )
 }
 

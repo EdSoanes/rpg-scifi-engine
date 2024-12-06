@@ -1,4 +1,3 @@
-import React from 'react'
 import { Action } from '../../lib/rpg-api/types'
 import {
   Box,
@@ -19,21 +18,16 @@ export declare interface ActionPanelProps {
 function ActionPanel(props: ActionPanelProps) {
   const { action } = props
 
-  const onSubmit = (argValues: {
-    [key: string]: string | null | undefined
-  }) => {
+  const onSubmit = (argValues: Record<string, string | null | undefined>) => {
     console.log('argValues', argValues)
   }
 
   return (
     <Box>
       <Heading as="h3" size="lg" paddingBottom={4} paddingTop={10}>
-        {action?.name}
+        {action.name}
       </Heading>
-      <ArgForm
-        argSet={action!.actionArgs}
-        onSubmit={onSubmit}
-      />
+      <ArgForm argSet={action.actionArgs} onSubmit={onSubmit} />
       <Code>{JSON.stringify(action, undefined, 2)}</Code>
     </Box>
   )

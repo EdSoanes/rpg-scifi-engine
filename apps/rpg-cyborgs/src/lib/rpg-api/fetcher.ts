@@ -41,7 +41,7 @@ export const postModSet = async (
   graphState: RpgGraphState
 ): Promise<BooleanResponse | null> => {
   const op: ModSetRequest = {
-    graphState: graphState!,
+    graphState: graphState,
     op: modSet,
   }
 
@@ -56,7 +56,7 @@ export const postSetState = async (
   graphState: RpgGraphState
 ): Promise<StringResponse | undefined> => {
   const setState: SetStateRequest = {
-    graphState: graphState!,
+    graphState: graphState,
     op: {
       entityId: entityId,
       state: stateName,
@@ -74,7 +74,7 @@ export const getStateDescription = async (
   graphState: RpgGraphState
 ): Promise<DescribeModSetResponse | undefined> => {
   const setState: DescribeStateRequest = {
-    graphState: graphState!,
+    graphState: graphState,
     op: {
       entityId: entityId,
       state: stateName,

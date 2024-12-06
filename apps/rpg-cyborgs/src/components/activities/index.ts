@@ -1,5 +1,11 @@
 import ActionTemplatesBlock from './ActionTemplatesBlock'
 import ActionPanel from './ActionPanel'
-import ActionButton from './ActionButton'
+import ActionTemplatePanel from './ActionTemplatePanel'
+import SkillTemplatesBlock from './SkillTemplatesBlock'
 
-export { ActionTemplatesBlock, ActionPanel, ActionButton }
+export {
+  ActionTemplatesBlock,
+  SkillTemplatesBlock,
+  ActionPanel,
+  ActionTemplatePanel,
+}

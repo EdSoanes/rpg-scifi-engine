@@ -29,20 +29,20 @@ namespace Rpg.Core.Tests
             var graph = new RpgGraph(person);
 
             Assert.That(person.Strength, Is.EqualTo(13));
-            Assert.That(person.InitialValue(x => x.Strength)?.Roll() ?? 0, Is.EqualTo(13));
+            Assert.That(person.InitialValue(nameof(TestPerson.Strength))?.Roll() ?? 0, Is.EqualTo(13));
 
             Assert.That(person.StrengthBonus, Is.EqualTo(1));
-            Assert.That(person.InitialValue(x => x.StrengthBonus)?.Roll() ?? 0, Is.EqualTo(0));
-            Assert.That(person.BaseValue(x => x.StrengthBonus)?.Roll() ?? 0, Is.EqualTo(1));
+            Assert.That(person.InitialValue(nameof(TestPerson.StrengthBonus))?.Roll() ?? 0, Is.EqualTo(0));
+            Assert.That(person.BaseValue(nameof(TestPerson.StrengthBonus))?.Roll() ?? 0, Is.EqualTo(1));
 
             Assert.That(person.MeleeAttack, Is.EqualTo(2));
-            Assert.That(person.InitialValue(x => x.MeleeAttack)?.Roll() ?? 0, Is.EqualTo(1));
+            Assert.That(person.InitialValue(nameof(TestPerson.MeleeAttack))?.Roll() ?? 0, Is.EqualTo(1));
 
             Assert.That(person.MeleeDefence, Is.EqualTo(10));
-            Assert.That(person.InitialValue(x => x.MeleeDefence)?.Roll() ?? 0, Is.EqualTo(10));
+            Assert.That(person.InitialValue(nameof(TestPerson.MeleeDefence))?.Roll() ?? 0, Is.EqualTo(10));
 
             Assert.That(person.HitPoints, Is.EqualTo(10));
-            Assert.That(person.InitialValue(x => x.HitPoints)?.Roll() ?? 0, Is.EqualTo(10));
+            Assert.That(person.InitialValue(nameof(TestPerson.HitPoints))?.Roll() ?? 0, Is.EqualTo(10));
         }
 
         [Test]

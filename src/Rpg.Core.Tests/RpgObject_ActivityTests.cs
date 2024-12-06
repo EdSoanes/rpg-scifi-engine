@@ -116,8 +116,8 @@ namespace Rpg.Core.Tests
 
             var performResult = activity.Perform(performArgs);
             Assert.That(performResult, Is.True);
-            Assert.That(action.Prop("diceRoll").ToString(), Is.EqualTo("1d20 + 2"));
-            Assert.That(action.Prop("targetDefence").ToString(), Is.EqualTo("15"));
+            Assert.That(action.Value("diceRoll").ToString(), Is.EqualTo("1d20 + 2"));
+            Assert.That(action.Value("targetDefence").ToString(), Is.EqualTo("15"));
             Assert.That(action.Status, Is.EqualTo(ActionStatus.Started));
         }
 
@@ -154,7 +154,7 @@ namespace Rpg.Core.Tests
             var outcomeResult = activity.Outcome(outcomeArgs);
             Assert.That(outcomeResult, Is.True);
             Assert.That(action.Status, Is.EqualTo(ActionStatus.CanComplete));
-            Assert.That(action.Prop("damage").ToString(), Is.EqualTo("1d6 + 1"));
+            Assert.That(action.Value("damage").ToString(), Is.EqualTo("1d6 + 1"));
             Assert.That(action.OutcomeModSet.Mods.Count(), Is.EqualTo(0));
 
             Assert.That(action.OutcomeStates.Count(), Is.EqualTo(1));

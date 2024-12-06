@@ -1,0 +1,21 @@
+/*!******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/@vanilla-extract/webpack-plugin/virtualFileLoader/dist/vanilla-extract-webpack-plugin-virtualFileLoader.cjs.js?{"fileName":"src/components/ui/box-button.css.ts.vanilla.css","source":"LmJveC1idXR0b25fYm94QnV0dG9uX18xaW8wYXBhMCB7CiAgZGlzcGxheTogaW5saW5lLWJsb2NrOwogIGJvcmRlcjogMXB4IHNvbGlkICNjY2M7CiAgYm9yZGVyLXJhZGl1czogNHB4OwogIGJveC1zaGFkb3c6IDAgMCA1cHggLTFweCByZ2JhKDAsIDAsIDAsIDAuMik7CiAgY3Vyc29yOiBwb2ludGVyOwogIHZlcnRpY2FsLWFsaWduOiBtaWRkbGU7CiAgbWF4LXdpZHRoOiAxMDBweDsKICBwYWRkaW5nOiA1cHg7CiAgdGV4dC1hbGlnbjogY2VudGVyOwp9Ci5ib3gtYnV0dG9uX2JveEJ1dHRvbl9fMWlvMGFwYTA6aG92ZXIgewogIGJveC1zaGFkb3c6IDAgMCA1cHggLTFweCByZ2JhKDAsIDAsIDAsIDAuNik7Cn0KLmJveC1idXR0b25fYm94QnV0dG9uX18xaW8wYXBhMDphY3RpdmUgewogIGNvbG9yOiByZWQ7CiAgYm94LXNoYWRvdzogMCAwIDVweCAtMXB4IHJnYmEoMCwgMCwgMCwgMC42KTsKfQ=="}!./node_modules/@vanilla-extract/webpack-plugin/extracted.js ***!
+  \******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+.box-button_boxButton__1io0apa0 {
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 0 5px -1px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  vertical-align: middle;
+  max-width: 100px;
+  padding: 5px;
+  text-align: center;
+}
+.box-button_boxButton__1io0apa0:hover {
+  box-shadow: 0 0 5px -1px rgba(0, 0, 0, 0.6);
+}
+.box-button_boxButton__1io0apa0:active {
+  color: red;
+  box-shadow: 0 0 5px -1px rgba(0, 0, 0, 0.6);
+}

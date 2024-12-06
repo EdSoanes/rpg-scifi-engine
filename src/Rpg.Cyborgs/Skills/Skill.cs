@@ -12,12 +12,15 @@ namespace Rpg.Cyborgs.Skills
             : base() { }
 
         public Skill(Actor owner)
-            : base(owner) { }
+            : base(owner) 
+        {
+            Classification = "Skill";
+        }
 
         [JsonIgnore]
         public int Rating
         {
-            get => Graph?.CalculatePropValue(OwnerId!, RatingProp)?.Roll() ?? 0;
+            get => Graph?.GetObject(OwnerId)?.Value(RatingProp)?.Roll() ?? 0;
             set => Graph?.AddMods(new Initial(OwnerId!, RatingProp, value));
         }
 

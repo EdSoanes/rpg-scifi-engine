@@ -1,21 +1,56 @@
-import globals from 'globals'
-import pluginJs from '@eslint/js'
-import tseslint from 'typescript-eslint'
-import pluginReactConfig from 'eslint-plugin-react/configs/recommended.js'
+// import globals from 'globals'
+// import pluginJs from '@eslint/js'
+// import tseslint from 'typescript-eslint'
+// import pluginReact from 'eslint-plugin-react'
+// //import prettier from 'eslint-plugin-prettier'
 
-export default [
+// /** @type {import('eslint').Linter.Config[]} */
+
+// const config = [
+//   {
+//     files: ['src/*.{js,mjs,cjs,ts,jsx,tsx}'],
+//     languageOptions: { globals: { ...globals.browser, ...globals.node } },
+//     rules: {
+//       ...pluginJs.configs.recommended.rules,
+//       '@typescript-eslint/no-unused-vars': 'off',
+//     },
+//   },
+
+//   ...tseslint.configs.recommended,
+//   pluginReact.configs.flat.recommended,
+// ]
+
+// console.log('eslint', config)
+// export default config
+import eslint from '@eslint/js'
+import tseslint from 'typescript-eslint'
+import react from 'eslint-plugin-react'
+
+export default tseslint.config(
   {
-    settings: {
-      react: {
-        version: 'detect',
+    ignores: ['**/*.d.ts', '*.config.{js,mjs}', 'dist/*'],
+  },
+  eslint.configs.recommended,
+  tseslint.configs.recommendedTypeChecked,
+  tseslint.configs.stylisticTypeChecked,
+  react.configs.flat.recommended,
+  react.configs.flat['jsx-runtime'], // Add this if you are using React 17+
+  {
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+        ecmaFeatures: {
+          jsx: true,
+        },
       },
     },
-  },
-  { ignores: ['build/'] },
-  { files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'] },
-  { languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } } },
-  { languageOptions: { globals: globals.browser } },
-  pluginJs.configs.recommended,
-  ...tseslint.configs.recommended,
-  pluginReactConfig,
-]
+    rules: {
+      '@typescript-eslint/no-floating-promises': 'warn',
+      '@typescript-eslint/no-misused-promises': 'warn',
+      '@typescript-eslint/no-empty-object-type': 'warn',
+      '@typescript-eslint/no-unsafe-member-access': 'warn',
+      '@typescript-eslint/no-unsafe-assignment': 'warn',
+    },
+  }
+)

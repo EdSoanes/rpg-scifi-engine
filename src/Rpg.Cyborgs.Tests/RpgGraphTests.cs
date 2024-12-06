@@ -31,8 +31,14 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(pc2, Is.Not.Null);
             Assert.That(graph2.Time.Now, Is.EqualTo(graph.Time.Now));
             Assert.That(graph2.GetObjects().Count(), Is.EqualTo(graph.GetObjects().Count()));
-            Assert.That(graph2.GetActiveMods().Count(), Is.EqualTo(graph.GetActiveMods().Count()));
             Assert.That(graph2.GetModSets().Count(), Is.EqualTo(graph.GetModSets().Count()));
+
+            foreach (var rpgObj in graph.GetObjects())
+            {
+                var rpgObj2 = graph2.GetObject(rpgObj.Id);
+                Assert.That(rpgObj2, Is.Not.Null);
+                Assert.That(rpgObj2.GetMods().Count(), Is.EqualTo(rpgObj.GetMods().Count()));
+            }
         }
     }
 }

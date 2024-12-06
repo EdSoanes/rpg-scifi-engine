@@ -1,12 +1,8 @@
-﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Activities;
-using Rpg.ModObjects.Behaviors;
+﻿using Rpg.ModObjects.Activities;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
-using Rpg.ModObjects.Values;
-using System;
 
 namespace Rpg.ModObjects
 {
@@ -81,31 +77,31 @@ namespace Rpg.ModObjects
             return res;
         }
 
-        public Mod[] GetActiveMods(RpgObject? rpgObj, string? prop, Func<Mod, bool>? filterFunc = null)
-            => rpgObj?.GetActiveMods(prop)
-                .Where(x => filterFunc == null || filterFunc(x))
-                .ToArray() ?? Array.Empty<Mod>();
+        //public Mod[] GetActiveMods(RpgObject? rpgObj, string? prop, Func<Mod, bool>? filterFunc = null)
+        //    => rpgObj?.GetActiveMods(prop)
+        //        .Where(x => filterFunc == null || filterFunc(x))
+        //        .ToArray() ?? Array.Empty<Mod>();
 
-        public Mod[] GetActiveMods(PropRef? propRef, Func<Mod, bool>? filterFunc = null)
-            => GetActiveMods(GetObject(propRef?.EntityId), propRef?.Prop, filterFunc);
+        ////public Mod[] GetActiveMods(PropRef? propRef, Func<Mod, bool>? filterFunc = null)
+        ////    => GetActiveMods(GetObject(propRef?.EntityId), propRef?.Prop, filterFunc);
 
-        public Mod[] GetActiveMods(Func<Mod, bool>? filterFunc = null)
-            => ObjectStore.Values
-                .SelectMany(x => x.GetActiveMods())
-                .Where(x => filterFunc == null || filterFunc(x))
-                .ToArray();
+        //public Mod[] GetActiveMods(Func<Mod, bool>? filterFunc = null)
+        //    => ObjectStore.Values
+        //        .SelectMany(x => x.GetActiveMods())
+        //        .Where(x => filterFunc == null || filterFunc(x))
+        //        .ToArray();
 
-        public Mod[] GetMods(PropRef? propRef, Func<Mod, bool>? filterFunc = null)
-            => GetObject(propRef?.EntityId)
-                ?.GetMods(propRef?.Prop)
-                .Where(x => filterFunc == null || filterFunc(x))
-                .ToArray() ?? Array.Empty<Mod>();
+        //public Mod[] GetMods(PropRef? propRef, Func<Mod, bool>? filterFunc = null)
+        //    => GetObject(propRef?.EntityId)
+        //        ?.GetMods(propRef?.Prop)
+        //        .Where(x => filterFunc == null || filterFunc(x))
+        //        .ToArray() ?? Array.Empty<Mod>();
 
-        public Mod[] GetMods(Func<Mod, bool>? filterFunc = null)
-            => ObjectStore.Values
-                .SelectMany(x => x.GetMods())
-                .Where(x => filterFunc == null || filterFunc(x))
-                .ToArray();
+        //public Mod[] GetMods(Func<Mod, bool>? filterFunc = null)
+        //    => ObjectStore.Values
+        //        .SelectMany(x => x.GetMods())
+        //        .Where(x => filterFunc == null || filterFunc(x))
+        //        .ToArray();
 
         public void AddMods(params Mod[] mods)
         {
@@ -343,116 +339,97 @@ namespace Rpg.ModObjects
                 rpgObj.RemoveModSet(modSet.Id);
         }
 
+        //public Dice? CalculateInitialPropValue(RpgObject? entity, string prop)
+        //    => CalculatePropValue(entity, prop, mod => mod.IsInitialMod());
 
-        public Dice? CalculatePropValue(PropRef propRef, Func<Mod, bool>? filterFunc = null)
-            => CalculatePropValue(propRef.EntityId, propRef.Prop, filterFunc);
+        //public Dice? CalculateBasePropValue(RpgObject? entity, string prop)
+        //    => CalculatePropValue(entity, prop, mod => mod.IsBaseMod());
 
-        public Dice? CalculatePropValue(string entityId, string prop, Func<Mod, bool>? filterFunc = null)
-        {
-            var entity = GetObject(entityId);
-            return CalculatePropValue(entity, prop, filterFunc);
-        }
+        //public Dice? CalculateOriginalBasePropValue(PropRef propRef)
+        //    => CalculatePropValue(propRef, mod => mod.IsOriginalBaseMod());
+
+        //public Dice? CalculateOriginalBasePropValue(RpgObject? entity, string prop)
+        //    => CalculatePropValue(entity, prop, mod => mod.IsOriginalBaseMod());
+
+        //public Dice? CalculatePropValue(PropRef propRef, Func<Mod, bool>? filterFunc = null)
+        //    => CalculatePropValue(propRef.EntityId, propRef.Prop, filterFunc);
+
+        //public Dice? CalculatePropValue(string entityId, string prop, Func<Mod, bool>? filterFunc = null)
+        //{
+        //    var entity = GetObject(entityId);
+        //    return CalculatePropValue(entity, prop, filterFunc);
+        //}
 
         /// <summary>
         /// Shallow recalculation of a property value
         /// </summary>
         /// <param name="propRef"></param>
         /// <returns></returns>
-        public Dice? CalculatePropValue(RpgObject? entity, string? prop, Func<Mod, bool>? filterFunc = null)
-        {
-            if (entity == null || string.IsNullOrEmpty(prop))
-                return null;
+        //public Dice? CalculatePropValue(RpgObject? entity, string? prop, Func<Mod, bool>? filterFunc = null)
+        //{
+        //    if (entity == null || string.IsNullOrEmpty(prop))
+        //        return null;
 
-            var mods = filterFunc != null
-                ? GetActiveMods(entity, prop, filterFunc)
-                : GetActiveMods(entity, prop);
+        //    var mods = filterFunc != null
+        //        ? GetActiveMods(entity, prop, filterFunc)
+        //        : GetActiveMods(entity, prop);
 
-            var dice = CalculateModsValue(mods);
-            return dice;
-        }
+        //    var dice = CalculateModsValue(mods);
+        //    return dice;
+        //}
 
-        public Dice? CalculateModsValue(Mod[] mods)
-        {
-            var selectedMods = mods.Where(x => !(x.Behavior is Threshold));
-            if (!selectedMods.Any())
-                return null;
+        //public Dice? CalculateModsValue(Mod[] mods)
+        //{
+        //    var selectedMods = mods.Where(x => !(x.Behavior is Threshold));
+        //    if (!selectedMods.Any())
+        //        return null;
 
-            Dice? dice = null;
-            foreach (var mod in selectedMods)
-            {
-                var val = CalculateModValue(mod);
-                if (val != null)
-                    dice = dice != null ? dice.Value + val.Value : val;
-            }
+        //    Dice? dice = null;
+        //    foreach (var mod in selectedMods)
+        //    {
+        //        var val = mod.Value();
+        //        if (val != null)
+        //            dice = dice != null ? dice.Value + val.Value : val;
+        //    }
 
-            return dice != null ? ApplyThreshold(mods, dice!.Value) : null;
-        }
+        //    return dice != null ? ApplyThreshold(mods, dice!.Value) : null;
+        //}
 
-        public Dice? CalculateInitialPropValue(RpgObject? entity, string prop)
-            => CalculatePropValue(entity, prop, mod => mod.IsBaseInitMod);
 
-        public Dice? CalculateBasePropValue(RpgObject? entity, string prop)
-            => CalculatePropValue(entity, prop, mod => mod.IsBaseMod || mod.IsBaseInitMod);
+        //public Dice? CalculateModValue(Mod? mod)
+        //{
+        //    if (mod == null)
+        //        return null;
 
-        public Dice? CalculateModValue(Mod? mod)
-        {
-            if (mod == null)
-                return null;
+        //    Dice? value = mod.SourceValue ?? GetPropValue(GetObject(mod.Source!.EntityId), mod.Source.Prop);
 
-            Dice? value = mod.SourceValue ?? GetPropValue(GetObject(mod.Source!.EntityId), mod.Source.Prop);
+        //    if (value != null && mod.SourceValueFunc != null)
+        //    {
+        //        var args = new Dictionary<string, object?>();
+        //        args.Add(mod.SourceValueFunc.Args.First().Name, value);
 
-            if (value != null && mod.SourceValueFunc != null)
-            {
-                var args = new Dictionary<string, object?>();
-                args.Add(mod.SourceValueFunc.Args.First().Name, value);
+        //        var entity = GetObject(mod.SourceValueFunc.EntityId);
+        //        value = entity != null
+        //            ? mod.SourceValueFunc.Execute(entity, args)
+        //            : mod.SourceValueFunc.Execute(args);
+        //    }
 
-                var entity = GetObject(mod.SourceValueFunc.EntityId);
-                value = entity != null
-                    ? mod.SourceValueFunc.Execute(entity, args)
-                    : mod.SourceValueFunc.Execute(args);
-            }
+        //    return value;
+        //}
 
-            return value;
-        }
+        //private Dice ApplyThreshold(Mod[] mods, Dice dice)
+        //{
+        //    var threshold = mods.FirstOrDefault(x => x.Behavior is Threshold)?.Behavior as Threshold;
+        //    if (threshold != null && dice.IsConstant)
+        //    {
+        //        if (dice.Roll() < threshold.Min)
+        //            dice = threshold.Min;
+        //        else if (dice.Roll() > threshold.Max)
+        //            dice = threshold.Max;
+        //    }
 
-        private Dice ApplyThreshold(Mod[] mods, Dice dice)
-        {
-            var threshold = mods.FirstOrDefault(x => x.Behavior is Threshold)?.Behavior as Threshold;
-            if (threshold != null && dice.IsConstant)
-            {
-                if (dice.Roll() < threshold.Min)
-                    dice = threshold.Min;
-                else if (dice.Roll() > threshold.Max)
-                    dice = threshold.Max;
-            }
-
-            return dice;
-        }
-
-        public Dice? GetPropValue(RpgObject? entity, string? prop)
-        {
-            if (entity == null || string.IsNullOrEmpty(prop))
-                return null;
-
-            var val = entity.PropertyValue(prop, out var propExists);
-            if (propExists && val != null)
-            {
-                if (val is Dice)
-                    return (Dice)val;
-                else if (val is int)
-                    return (int)val;
-            }
-
-            if (!propExists)
-            {
-                var mods = GetActiveMods(entity, prop);
-                var dice = CalculateModsValue(mods);
-
-                return dice;
-            }
-
-            return null;
-        }
+        //    return dice;
+        //}
 
         public void OnPropUpdated(PropRef propRef)
             => UpdatedProps.Merge(propRef);
@@ -464,22 +441,7 @@ namespace Rpg.ModObjects
                     UpdatedProps.Merge(new PropRef(prop.EntityId, prop.Name));
         }
 
-        public void SetPropValue(PropRef propRef)
-        {
-            var entity = GetObject(propRef.EntityId);
-            SetPropValue(entity, propRef.Prop);
-        }
-
-        public void SetPropValue(RpgObject? entity, string prop)
-        {
-            var oldValue = GetPropValue(entity, prop);
-            var newValue = CalculatePropValue(entity, prop);
-
-            if (oldValue == null || oldValue != newValue)
-                entity.PropertyValue(prop, newValue ?? Dice.Zero);
-        }
-
-        private void UpdateProps()
+        private void UpdatePropValues()
         {
             //It is IMPORTANT that Merge() adds the propRefs in the right order because
             // after this step the assumption is that they can be updated from top to bottom
@@ -495,7 +457,17 @@ namespace Rpg.ModObjects
             UpdatedProps.Clear();
 
             foreach (var propRef in propsToUpdate)
-                SetPropValue(propRef);
+            {
+                var entity = GetObject(propRef.EntityId);
+                if (entity != null)
+                {
+                    var oldValue = entity.Value(propRef.Prop);
+                    var newValue = entity.Value(propRef.Prop, calculate: true);
+
+                    if (oldValue == null || oldValue != newValue)
+                        entity.SetValue(propRef.Prop, newValue);
+                }
+            }
         }
 
         private void OnTemporalEvent(object? sender, TemporalEventArgs e)
@@ -532,10 +504,10 @@ namespace Rpg.ModObjects
                 obj.OnStartLifecycle();
 
             OnPropsUpdated();
-            UpdateProps();
+            UpdatePropValues();
 
             OnPropsUpdated();
-            UpdateProps();
+            UpdatePropValues();
         }
 
         private void OnTimeUpdates()
@@ -546,7 +518,7 @@ namespace Rpg.ModObjects
                 entity.OnUpdateLifecycle();
             }
 
-            UpdateProps();
+            UpdatePropValues();
 
             foreach (var entity in ObjectStore.Values)
             {
@@ -554,7 +526,7 @@ namespace Rpg.ModObjects
                     entity.OnUpdateLifecycle();
             }
 
-            UpdateProps();
+            UpdatePropValues();
         }
     }
 }

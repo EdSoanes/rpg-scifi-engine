@@ -9,6 +9,9 @@ import {
   SetTimeRequest,
   SetTimeResponse,
   StringResponse,
+  OverridePropValue,
+  OverridePropValueResponse,
+  OverridePropValueRequest,
 } from '../lib/rpg-api/server-types'
 import { RootState } from './store'
 
@@ -24,7 +27,7 @@ export const fetchGraphState = createAsyncThunk(
 )
 
 export const initiateAction = createAsyncThunk(
-  'action/initiate',
+  'Cyborgs/action/initiate',
   async (
     initiateAction: InitiateAction,
     thunkAPI
@@ -36,6 +39,27 @@ export const initiateAction = createAsyncThunk(
     }
     const response = await post('Cyborgs/action/initiate', op)
     const res = (await response.json()) as ActivityResponse
+    return res
+  }
+)
+
+//{system}/entities/props/override
+export const overridePropValue = createAsyncThunk(
+  'Cyborgs/entity/prop/override',
+  async (
+    op: OverridePropValue,
+    thunkAPI
+  ): Promise<OverridePropValueResponse | undefined> => {
+    const graph = (thunkAPI.getState() as RootState).graph.graphState
+    const request: OverridePropValueRequest = {
+      graphState: graph!,
+      op: op,
+    }
+    const response = await post('Cyborgs/entities/props/override', request)
+    const res = (await response.json()) as OverridePropValueResponse
+
+    console.log('overridePropValue.response', res)
+
     return res
   }
 )

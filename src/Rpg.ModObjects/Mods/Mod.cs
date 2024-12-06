@@ -1,11 +1,10 @@
-﻿using Rpg.ModObjects.Behaviors;
-using Rpg.ModObjects.Mods.Mods;
+﻿using Newtonsoft.Json;
+using Rpg.ModObjects.Behaviors;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection;
 using Rpg.ModObjects.Time;
 using Rpg.ModObjects.Values;
 using System.Linq.Expressions;
-using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Mods
 {
@@ -23,16 +22,6 @@ namespace Rpg.ModObjects.Mods
         [JsonProperty] public PropRef? Source { get; internal set; }
         [JsonProperty] public Dice? SourceValue { get; internal set; }
         [JsonProperty] internal RpgMethod<RpgObject, Dice>? SourceValueFunc { get; set; }
-        
-        [JsonIgnore] public bool IsBaseInitMod { get => this is Initial || this is Mods.Threshold; }
-        [JsonIgnore] public bool IsBaseOverrideMod { get => this is Override; }
-        [JsonIgnore] public bool IsBaseMod { get => this is Base; }
-
-        [JsonProperty] public bool IsApplied { get; protected set; } = true;
-        [JsonProperty] public bool IsDisabled { get; protected set; }
-        [JsonIgnore] public bool IsActive { get => Expiry == LifecycleExpiry.Active && Behavior.Scope == ModScope.Standard && IsApplied && !IsDisabled; }
-        [JsonIgnore] public bool IsPending { get => Expiry == LifecycleExpiry.Pending && Behavior.Scope == ModScope.Standard && IsApplied && !IsDisabled; }
-        [JsonIgnore] public bool IsExpired { get => (Expiry == LifecycleExpiry.Destroyed || Expiry == LifecycleExpiry.Expired) && IsApplied && !IsDisabled; }
 
         [JsonConstructor] protected Mod() 
         {
@@ -43,6 +32,15 @@ namespace Rpg.ModObjects.Mods
         protected Mod(string name)
             : this()
                 => Name = name;
+
+        public override void SetExpired()
+        {
+            base.SetExpired();
+            if (Graph != null)
+                foreach (var rpgObj in Graph.GetObjects())
+                    foreach (var mod in ModFilters.SyncedToOwner(rpgObj.GetMods(), Id))
+                        mod.SetExpired();
+        }
 
         public void Apply()
             => IsApplied = true;
@@ -56,9 +54,30 @@ namespace Rpg.ModObjects.Mods
         public void Disable()
             => IsDisabled = true;
 
+        public Dice? Value()
+        {
+            if (Graph == null)
+                return null;
+
+            Dice? value = SourceValue ?? Graph.GetObject(Source!.EntityId)?.Value(Source.Prop);
+
+            if (value != null && SourceValueFunc != null)
+            {
+                var args = new Dictionary<string, object?>();
+                args.Add(SourceValueFunc.Args.First().Name, value);
+
+                var entity = Graph.GetObject(SourceValueFunc.EntityId);
+                value = entity != null
+                    ? SourceValueFunc.Execute(entity, args)
+                    : SourceValueFunc.Execute(args);
+            }
+
+            return value;
+        }
+
         public ModDescription? Describe()
         {
-            var value = Graph.CalculateModValue(this);
+            var value = Value();
             var modDesc = new ModDescription
             {
                 ModType = GetType().Name,

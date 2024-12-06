@@ -1,15 +1,14 @@
-import React from 'react'
 import { Button, Stack } from '@chakra-ui/react'
 import { RpgArg } from '../../../lib/rpg-api/types'
 import ArgInput from './ArgInput'
 
 export declare interface ArgFormProps {
   argSet: RpgArg[]
-  onSubmit: (argValues: { [key: string]: string | null | undefined }) => void
+  onSubmit: (argValues: Record<string, unknown>) => void
 }
 
 export default function ArgForm(props: ArgFormProps) {
-  const argVals: { [key: string]: string | null | undefined } = {}
+  const argVals: Record<string, unknown> = {}
 
   const onInputCapture = (arg: string, val?: string) => {
     argVals[arg] = val

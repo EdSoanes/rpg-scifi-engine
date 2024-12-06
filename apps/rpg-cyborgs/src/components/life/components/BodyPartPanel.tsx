@@ -1,4 +1,3 @@
-import React from 'react'
 import { Heading, Stack } from '@chakra-ui/react'
 import { BodyPart } from '../../../lib/rpg-api/cyborg-types'
 

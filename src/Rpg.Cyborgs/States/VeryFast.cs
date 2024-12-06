@@ -19,7 +19,7 @@ namespace Rpg.Cyborgs.States
         protected override void OnFillStateSet(StateModSet modSet, Actor owner)
         {
             base.OnFillStateSet(modSet, owner);
-            modSet.Add(new Synced(modSet.Id), owner, x => x.ActionPoints, 1);
+            modSet.Add(new Permanent(modSet.Id), owner, x => x.ActionPoints, 1);
         }
     }
 }

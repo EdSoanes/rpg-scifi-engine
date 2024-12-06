@@ -17,7 +17,7 @@ namespace Rpg.ModObjects
         [JsonProperty] public StatesDictionary States { get; set; }
 
         [JsonProperty] public string Id { get; private set; }
-        [JsonProperty] public string? OwnerId { get; private set; }
+        [JsonProperty] public string? OwnerId { get; set; }
         [JsonProperty] public string Archetype { get; private set; }
         [JsonProperty] public string Name { get; protected set; }
         [JsonProperty] public string[] Archetypes { get; private set; }
@@ -66,7 +66,7 @@ namespace Rpg.ModObjects
             {
                 if (Graph != null)
                 {
-                    modSet.OnCreating(Graph!, this);
+                    modSet.OnCreating(Graph, this);
                     if (Graph.Time.Now.Type != PointInTimeType.BeforeTime)
                     {
                         modSet.OnTimeBegins();
@@ -91,13 +91,18 @@ namespace Rpg.ModObjects
 
         public bool RemoveModSet(string modSetId)
         {
-            var existing = GetModSet(modSetId);
-            if (existing != null)
-            {
-                existing.SetExpired();
-                Graph?.RemoveMods(existing.Mods.Where(x => x is Synced).ToArray());
 
-                return ModSets.Remove(existing.Id);
+            if (Graph != null)
+            {
+                var existing = GetModSet(modSetId);
+                if (existing != null)
+                {
+                    existing.SetExpired();
+                    var syncedMods = ModFilters.SyncedToOwner(existing.Mods, existing.Id);
+                    Graph.RemoveMods([.. syncedMods]);
+
+                    return ModSets.Remove(existing.Id);
+                }
             }
 
             return false;
@@ -109,7 +114,6 @@ namespace Rpg.ModObjects
 
         public PropDescription? Describe(string propPath)
         {
-            var exists = false;
             var (entity, prop) = this.FromPath(propPath);
             if (entity == null || prop == null)
                 return null;
@@ -125,12 +129,11 @@ namespace Rpg.ModObjects
                 EntityArchetype = entity.Archetype,
                 EntityName = entity.Name,
                 Prop = prop,
-
-                Value = Graph!.CalculatePropValue(entity, prop) ?? Dice.Zero,
-                BaseValue = Graph!.CalculateBasePropValue(entity, prop) ?? Dice.Zero
+                Value = ModCalculator.Value(Graph, entity.GetMods(prop)) ?? Dice.Zero,
+                BaseValue = ModCalculator.BaseValue(Graph, entity.GetMods(prop)) ?? Dice.Zero
             };
 
-            propDesc.Mods = entity.GetActiveMods(prop)
+            propDesc.Mods = ModFilters.Active(entity.GetMods(prop))
                 .Select(x => x.Describe())
                 .Where(x => x != null)
                 .Cast<ModDescription>()
@@ -139,42 +142,72 @@ namespace Rpg.ModObjects
             return propDesc;
         }
 
-        public Dice? Prop(string propName)
+        public Dice? Value(string path, bool calculate = false)
         {
-            var prop = Props.ContainsKey(propName)
-                ? Props[propName]
-                : null;
-
-            return prop != null
-                ? Graph.CalculateModsValue(prop.GetActive())
-                : null;
-        }
-
-        public Prop? GetProp(string? prop, RefType refType = RefType.Value, bool create = false)
-        {
-            if (string.IsNullOrEmpty(prop))
-                return null;
-
-            if (Props.ContainsKey(prop))
-                return Props[prop];
-
-            if (create)
+            var propInfo = RpgReflection.ScanForModdableProperty(this, path, out var target);
+            target ??= this;
+            
+            if (propInfo != null && !calculate)
             {
-                var created = new Prop(Id, prop, refType);
-                if (Graph != null)
-                {
-                    created.OnCreating(Graph, this);
-                    created.OnTimeBegins();
-                    created.OnStartLifecycle();
-                }
-
-                Props.Add(prop, created);
-
-                return created;
+                var val = propInfo?.GetValue(target, null);
+                if (val is Dice dice) return dice;
+                if (val is int num) return num;
+                return null;
             }
 
-            return null;
+            return target is RpgObject rpgObj
+                ? ModCalculator.Value(Graph, GetMods(propInfo?.Name ?? path))
+                : null;
         }
+
+        public Dice? InitialValue(string prop)
+        {
+            var mods = GetMods(prop);
+            return ModCalculator.InitialValue(Graph, mods);
+        }
+
+        public Dice? BaseValue(string prop)
+        {
+            var mods = GetMods(prop);
+            return ModCalculator.BaseValue(Graph, mods);
+        }
+
+        public Dice? OriginalBaseValue(string prop)
+        {
+            var mods = GetMods(prop);
+            return ModCalculator.OriginalBaseValue(Graph, mods);
+        }
+
+        public bool OverrideBaseValue(string prop, Dice? dice)
+        {
+            var overrides = GetMods(prop).Where(ModFilters.IsOverride).ToArray();
+            if (overrides.Any()) RemoveMods(overrides);
+
+            if (dice != null && dice != OriginalBaseValue(prop))
+            {
+                this.AddMod(new Override(), prop, dice.Value);
+                return true;
+            }
+
+            return false;
+        }
+        internal void SetValue(string path, Dice? value)
+        {
+            var propInfo = RpgReflection.ScanForModdableProperty(this, path, out var pathEntity);
+            if (propInfo?.SetMethod != null)
+            {
+                if (propInfo.PropertyType == typeof(int))
+                {
+                    var num = value?.Roll() ?? 0;
+                    propInfo.SetValue(pathEntity, num);
+                }
+                else
+                    propInfo.SetValue(pathEntity, value);
+            }
+        }
+
+        public Prop? GetProp(string prop, RefType refType = RefType.Value, bool create = false)
+            => Props.GetProp(Graph, this, prop, refType, create);
 
         public Prop[] GetProps()
             => Props.Values.ToArray();
@@ -184,29 +217,21 @@ namespace Rpg.ModObjects
         #region Mods
 
         public Mod? GetMod(string id)
-            => Props.Values
-                .SelectMany(x => x.Mods)
-                .FirstOrDefault(x => x.Id == id);
+            => Props.GetMod(id);
 
         public Mod[] GetMods()
-            => Props.Values
-                .SelectMany(x => x.Mods)
-                .ToArray();
+            => Props.GetMods();
 
-        public Mod[] GetMods(string? prop, Func<Mod, bool>? filterFunc = null)
-            => GetProp(prop)?.Mods
-                .Where(x => filterFunc == null || filterFunc(x))
-                .ToArray() ?? Array.Empty<Mod>();
+        public Mod[] GetMods(string prop)
+            => Props.GetMods(prop);
 
-        public Mod[] GetActiveMods()
-            => Props.Values
-                .SelectMany(x => x.GetActive())
-                .ToArray();
+        //public Mod[] GetActiveMods()
+        //    => Props.Values
+        //        .SelectMany(x => x.GetActive())
+        //        .ToArray();
 
-        public Mod[] GetActiveMods(string? prop, Func<Mod, bool>? filterFunc = null)
-            => GetProp(prop)?.GetActive()
-                .Where(x => filterFunc == null || filterFunc(x))
-                .ToArray() ?? Array.Empty<Mod>();
+        //public Mod[] GetActiveMods(string prop, Func<Mod, bool>? filterFunc = null)
+        //    => Props.GetActiveMods(Graph, this, prop, filterFunc);
 
         public void AddMods(params Mod[] mods)
         {
@@ -377,6 +402,7 @@ namespace Rpg.ModObjects
             foreach (var modSet in ModSets.Values)
                 modSet.OnCreating(graph, entity);
 
+            OnCreatingOwnerIds();
             OnCreatingProperties();
             OnCreatingStates();
         }
@@ -442,11 +468,14 @@ namespace Rpg.ModObjects
             return $"{Archetype} {Id}";
         }
 
-        internal Dice? _InitialPropertyValue(string prop)
-            => Graph.CalculateInitialPropValue(this, prop);
-
-        internal Dice? _BasePropertyValue(string prop)
-            => Graph.CalculateBasePropValue(this, prop);
+        private void OnCreatingOwnerIds()
+        {
+            foreach (var propertyInfo in this.GetType().GetProperties().Where(x => x.PropertyType.IsAssignableTo(typeof(RpgObject))))
+            {
+                var rpgObj = propertyInfo.GetValue(this, null) as RpgObject;
+                if (rpgObj != null) rpgObj.OwnerId = Id;
+            }
+        }
 
         private void OnCreatingProperties()
         {

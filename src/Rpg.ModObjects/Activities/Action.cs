@@ -127,7 +127,7 @@ namespace Rpg.ModObjects.Activities
             if  (dice != null)
             {
                 var modSet = GetModSetByName(ActionModSetName)!;
-                modSet.Add(new Synced(modSet.Id), this, targetProp, dice.Value, valueCalc);
+                modSet.Add(new Permanent(modSet.Id), this, targetProp, dice.Value, valueCalc);
             }
 
             return this;
@@ -137,7 +137,7 @@ namespace Rpg.ModObjects.Activities
             where TSource : RpgObject
         {
             var modSet = GetModSetByName(ActionModSetName)!;
-            modSet.Add(new Synced(modSet.Id), this, targetProp, source, sourceExpr, valueFunc);
+            modSet.Add(new Permanent(modSet.Id), this, targetProp, source, sourceExpr, valueFunc);
 
             return this;
         }
@@ -162,6 +162,12 @@ namespace Rpg.ModObjects.Activities
         {
             base.OnCreating(graph, entity);
             InitActionArgs();
+        }
+
+        public override LifecycleExpiry OnStartLifecycle()
+        {
+            var expiry = base.OnStartLifecycle();
+            return expiry;
         }
 
         //internal RpgArg[] CanPerformArgs()
@@ -322,7 +328,7 @@ namespace Rpg.ModObjects.Activities
             var result = runStep.Invoke(template, args.ToDictionary(Graph!));
 
             foreach (var prop in Props.Values)
-                ActionArgs.Set(prop.Name, this.Prop(prop.Name));
+                ActionArgs.Set(prop.Name, Value(prop.Name));
 
             return result;
         }
@@ -365,14 +371,14 @@ namespace Rpg.ModObjects.Activities
             {
                 var argVal = InitArgValue(arg.Name);
                 var val = argVal is Mod
-                    ? Graph.CalculateModValue((Mod)argVal)
+                    ? ((Mod)argVal).Value()
                     : argVal;
 
                 if (val == null && Owner != null)
                 {
                     for (int i = Owner.CurrentActionNo - 1; i >= 0; i--)
                     {
-                        val = Owner.Actions[i].Prop(arg.Name);
+                        val = Owner.Actions[i].Value(arg.Name);
                         if (val != null)
                         {
                             arg.FillValue(val);

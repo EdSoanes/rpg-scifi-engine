@@ -12,6 +12,7 @@ namespace Rpg.ModObjects.Activities
 
         [JsonProperty] public string Id { get; protected set; }
         [JsonProperty] public string Name { get; protected set; }
+        [JsonProperty] public string Classification { get; protected set; } = "Action";
         [JsonProperty] public string OwnerId { get; protected set; }
         [JsonProperty] public string OwnerArchetype { get; protected set; }
         [JsonProperty] public RpgArg[] ActionArgs { get; protected set; } = [];

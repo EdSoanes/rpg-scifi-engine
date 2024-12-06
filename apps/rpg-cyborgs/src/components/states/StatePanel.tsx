@@ -1,25 +1,6 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { ModSetDescription, State } from '../../lib/rpg-api/types'
-import {
-  Button,
-  Code,
-  IconButton,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Stack,
-  useColorMode,
-  useDisclosure,
-} from '@chakra-ui/react'
-import {
-  CheckCircleIcon,
-  QuestionOutlineIcon,
-  SmallCloseIcon,
-} from '@chakra-ui/icons'
+import { Grid, GridItem, Heading } from '@chakra-ui/react'
 import {
   selectGraphState,
   selectPlayerCharacter,
@@ -28,89 +9,105 @@ import { useSelector } from 'react-redux'
 import { useAppDispatch } from '../../app/hooks'
 import { toggleState } from '../../app/thunks'
 import { getStateDescription } from '../../lib/rpg-api/fetcher'
+import BoxButton, { BoxButtonState } from '../ui/box-button'
+import {
+  PiCheckCircleFill,
+  PiCheckCircleLight,
+  PiQuestionLight,
+} from 'react-icons/pi'
+import {
+  HoverCardArrow,
+  HoverCardContent,
+  HoverCardRoot,
+  HoverCardTrigger,
+} from '../ui/hover-card'
+import ReactJson from 'react-json-view'
 
 export declare interface StateButtonProps {
+  className?: string
   state: State
 }
 
 function StatePanel(props: StateButtonProps) {
+  const { state } = props
+
   const dispatch = useAppDispatch()
   const graphState = useSelector(selectGraphState)
   const playerCharacter = useSelector(selectPlayerCharacter)
-  const variant = props.state.isOn ? 'solid' : 'outline'
-  const [describe, setDescribe] = useState<ModSetDescription | undefined>()
 
-  const { colorMode } = useColorMode()
-  const { onOpen, onClose, isOpen } = useDisclosure()
+  const [loadingDescribe, setLoadingDescribe] = useState<boolean>(false)
+  const [describe, setDescribe] = useState<
+    ModSetDescription | undefined | null
+  >()
+  const [open, setOpen] = useState(false)
 
-  const onChangeState = async () => {
+  const onChangeState = (buttonState: BoxButtonState) => {
+    console.log('clicked', buttonState)
     if (playerCharacter) {
+      console.log('playercharacter', playerCharacter)
       dispatch(
         toggleState({
           entityId: playerCharacter.id,
-          state: props.state.name,
-          on: !props.state.isOn,
+          state: state.name,
+          on: !state.isOn,
         })
       )
     }
   }
 
-  const onDescribe = async () => {
-    if (props?.state) {
-      const response = await getStateDescription(
-        props.state.ownerId,
-        props.state.name,
-        graphState!
-      )
-      setDescribe(response?.data)
-      onOpen()
+  const onDescribe = async (open: boolean) => {
+    if (state) {
+      if (!describe && !loadingDescribe) {
+        setLoadingDescribe(true)
+        const response = await getStateDescription(
+          state.ownerId,
+          state.name,
+          graphState!
+        )
+        setDescribe(response?.data)
+        setLoadingDescribe(false)
+      }
+      setOpen(open)
     }
   }
 
   return (
     <>
-      <Stack direction={'row'} gap={0}>
-        <Button
-          leftIcon={props.state.isOn ? <CheckCircleIcon /> : <SmallCloseIcon />}
-          variant={variant}
-          size={'lg'}
-          onClick={onChangeState}
-        >
-          {props.state.name}
-        </Button>
-        <IconButton
-          marginLeft={0}
-          paddingLeft={0}
-          variant={'unstyled'}
-          aria-label="describe"
-          size="lg"
-          icon={<QuestionOutlineIcon />}
-          onClick={onDescribe}
-        />
-      </Stack>
-      {colorMode === 'light' && (
-        <Modal isOpen={isOpen} onClose={onClose}>
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>{describe?.name ?? '-'}</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <Code>{JSON.stringify(describe, null, 2)}</Code>
-            </ModalBody>
+      <BoxButton
+        width={'100%'}
+        state={state.isOn ? 'on' : 'off'}
+        onClick={() => onChangeState('on')}
+      >
+        <Grid templateColumns="repeat(6, 1fr)" gap={4} width={'100%'}>
+          <GridItem colSpan={5} h="10">
+            <Heading as={'h3'} size={'sm'}>
+              {state.name}
+            </Heading>
+          </GridItem>
+          <GridItem colStart={6} h="10">
+            {state.isOn ? (
+              <PiCheckCircleFill size={'28px'} />
+            ) : (
+              <PiCheckCircleLight size={'28px'} />
+            )}
+          </GridItem>
+        </Grid>
+      </BoxButton>
 
-            <ModalFooter>
-              <Button
-                variant={'unstyled'}
-                colorScheme="blue"
-                mr={3}
-                onClick={onClose}
-              >
-                Close
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
-      )}
+      <HoverCardRoot
+        size="sm"
+        open={open}
+        onOpenChange={async (e) => await onDescribe(e.open)}
+      >
+        <HoverCardTrigger asChild>
+          <PiQuestionLight />
+        </HoverCardTrigger>
+
+        <HoverCardContent>
+          <HoverCardArrow />
+          {describe && <ReactJson src={describe} />}
+        </HoverCardContent>
+      </HoverCardRoot>
     </>
   )
 }

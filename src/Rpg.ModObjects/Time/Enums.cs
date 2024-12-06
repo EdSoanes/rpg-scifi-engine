@@ -11,6 +11,7 @@ namespace Rpg.ModObjects.Time
         Unset,
         Pending,
         Active,
+        Suspended,
         Expired,
         Destroyed
     }

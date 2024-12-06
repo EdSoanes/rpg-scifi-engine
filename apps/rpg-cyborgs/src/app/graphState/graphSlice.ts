@@ -6,6 +6,7 @@ import {
   setGraphTime,
   ThunkStatus,
   toggleState,
+  overridePropValue,
 } from '../thunks'
 
 export declare interface GraphState {
@@ -48,6 +49,13 @@ export const graphSlice = createSlice({
         state.status = 'loading'
       })
       .addCase(setGraphTime.fulfilled, (state, action) => {
+        state.graphState = action.payload?.graphState
+        state.status = action.payload ? 'loaded' : 'idle'
+      })
+      .addCase(overridePropValue.pending, (state) => {
+        state.status = 'loading'
+      })
+      .addCase(overridePropValue.fulfilled, (state, action) => {
         state.graphState = action.payload?.graphState
         state.status = action.payload ? 'loaded' : 'idle'
       })

@@ -1,5 +1,4 @@
-﻿using Rpg.ModObjects.Time;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace Rpg.ModObjects.Mods.ModSets
 {
@@ -16,22 +15,7 @@ namespace Rpg.ModObjects.Mods.ModSets
             SyncedToId = syncedToId;
         }
 
-        public override LifecycleExpiry OnStartLifecycle()
-        {
-            base.OnStartLifecycle();
-            return GetSyncedToExpiry();
-        }
-
-        public override LifecycleExpiry OnUpdateLifecycle()
-        {
-            base.OnUpdateLifecycle();
-            return GetSyncedToExpiry();
-        }
-
-        private LifecycleExpiry GetSyncedToExpiry()
-        {
-            var expiry = Graph.GetLifecycleObject(SyncedToId)?.Expiry ?? Expiry;
-            return expiry;
-        }
+        protected override void CalculateExpiry()
+            => CalculateExpiry(SyncedToId);
     }
 }

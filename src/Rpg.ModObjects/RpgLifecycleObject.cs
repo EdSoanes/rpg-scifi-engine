@@ -8,6 +8,8 @@ namespace Rpg.ModObjects
         protected RpgGraph Graph { get; set; }
         [JsonProperty] protected Lifespan Lifespan { get; set; } = new Lifespan();
         [JsonProperty] protected PointInTime? ExpiredTime { get; set; }
+        [JsonProperty] public bool IsApplied { get; protected set; } = true;
+        [JsonProperty] public bool IsDisabled { get; protected set; }
 
         public LifecycleExpiry Expiry { get; set; } = LifecycleExpiry.Unset;
 
@@ -65,6 +67,9 @@ namespace Rpg.ModObjects
         }
 
         protected virtual void CalculateExpiry()
+            => CalculateExpiry(null);
+
+        protected void CalculateExpiry(string? syncedToId)
         {
             if (ExpiredTime != null)
                 Expiry = new Lifespan(PointInTimeType.BeforeTime, ExpiredTime.Value).UpdateExpiry(Graph.Time.Now);
@@ -73,6 +78,31 @@ namespace Rpg.ModObjects
 
             if (Expiry == LifecycleExpiry.Expired && !Graph.Time.Now.IsEncounterTime)
                 Expiry = LifecycleExpiry.Destroyed;
+
+            if (Expiry == LifecycleExpiry.Active || Expiry == LifecycleExpiry.Suspended)
+                Expiry = !IsDisabled && IsApplied
+                    ? LifecycleExpiry.Active
+                    : LifecycleExpiry.Suspended;
+
+            var ownerExpiry = CalculateOwnerExpiry(syncedToId);
+            if (ownerExpiry != LifecycleExpiry.Unset)
+            {
+                Expiry = ownerExpiry == LifecycleExpiry.Active && Expiry == LifecycleExpiry.Suspended
+                    ? LifecycleExpiry.Suspended
+                    : ownerExpiry;
+            }
+        }
+
+        protected virtual LifecycleExpiry CalculateOwnerExpiry(string? ownerId)
+        {
+            if (Graph != null && ownerId != null)
+            {
+                var owner = Graph.GetObject(ownerId);
+                if (owner != null)
+                    return owner.Expiry;
+            }
+
+            return LifecycleExpiry.Unset;
         }
     }
 }

@@ -14,6 +14,7 @@ namespace Rpg.ModObjects.States
 
         [JsonProperty] public string Id { get; private set; }
         [JsonProperty] public string Name { get; protected set; }
+        [JsonProperty] public string Classification { get; protected set; } = "State";
         [JsonProperty] public string OwnerId { get; protected set; }
         [JsonProperty] public string? OwnerArchetype { get; protected set; }
         [JsonProperty] public bool IsPlayerVisible { get; protected set; } = true;

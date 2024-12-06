@@ -27,18 +27,6 @@ namespace Rpg.ModObjects.Props
 
         #region Mods
 
-        public Mod[] GetActive()
-        {
-            if (Mods.Any(x => x.IsBaseOverrideMod))
-                return Mods
-                    .Where(x => x.IsActive && (x.IsBaseOverrideMod || x.Behavior is Threshold))
-                    .ToArray();
-
-            return Mods
-                    .Where(x => x.IsActive)
-                    .ToArray();
-        }
-
         public Mod[] Get(Func<Mod, bool> filterFunc)
             => Mods
                 .Where(x => filterFunc(x))

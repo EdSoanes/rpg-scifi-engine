@@ -1,5 +1,4 @@
 import { Grid, GridItem, Heading, Stack } from '@chakra-ui/react'
-import React from 'react'
 import PointPanel from './PointPanel'
 import { StatPanel } from '../stats'
 import { useSelector } from 'react-redux'

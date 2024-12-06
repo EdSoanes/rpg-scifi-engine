@@ -13,6 +13,9 @@ namespace Rpg.Cyborgs.Conditions
             : base() { }
  
         public Condition(T owner)
-            : base(owner) { }
+            : base(owner) 
+        {
+            Classification = "Condition";
+        }
     }
 }

@@ -1,5 +1,5 @@
-import React from 'react'
-import { Grid, Progress, GridItem } from '@chakra-ui/react'
+import { Grid, GridItem } from '@chakra-ui/react'
+import { ProgressBar, ProgressRoot } from '../ui/progress'
 
 export declare interface PointPanelProps {
   name: string
@@ -19,13 +19,15 @@ function PointPanel(props: PointPanelProps) {
     <Grid width="100%" gap={4} templateColumns={'repeat(6, 1fr)'}>
       <GridItem colSpan={1}>{props.name}</GridItem>
       <GridItem colSpan={4}>
-        <Progress
+        <ProgressRoot
           w={'100%'}
           max={props.max}
           colorScheme={color}
           size="md"
           value={props.current}
-        />
+        >
+          <ProgressBar></ProgressBar>
+        </ProgressRoot>
       </GridItem>
       <GridItem colSpan={1}>Max {props.max}</GridItem>
     </Grid>

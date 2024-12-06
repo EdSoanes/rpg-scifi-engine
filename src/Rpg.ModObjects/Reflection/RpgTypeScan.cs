@@ -130,7 +130,7 @@ namespace Rpg.ModObjects.Reflection
                 foreach (var assembly in assemblies)
                 {
                     var assemblyTypes = assembly.DefinedTypes
-                        .Where(x => x.IsSubclassOf(type) && !x.IsAbstract)
+                        .Where(x => x.IsAssignableTo(type) && !x.IsAbstract)
                         .Select(x => x.AsType());
 
                     res.AddRange(assemblyTypes);

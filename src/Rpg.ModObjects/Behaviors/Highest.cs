@@ -28,13 +28,13 @@ namespace Rpg.ModObjects.Behaviors
 
         private Mod? HighestMod(RpgGraph graph, Mod[] existing, Mod mod)
         {
-            var val = graph.CalculateModValue(mod);
+            var val = mod.Value();
             if (!existing.Any())
                 return val == null ? null : mod;
             
             foreach (var oldMod in existing)
             {
-                var oldVal = graph.CalculateModValue(oldMod);
+                var oldVal = oldMod.Value();
                 if (val == null ||(oldVal != null && oldVal.Value.Roll() > val.Value.Roll()))
                     return oldMod;
             }

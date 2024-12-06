@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Rpg.Cyborgs.Components;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Server;
@@ -39,6 +40,17 @@ namespace Rpg.Cms.Controllers
         {
             var graphState = _sessionlessServer.CreateGraphState(system, archetype, id);
             var json = RpgJson.Serialize(graphState);
+            return new ContentResult() { Content = json, ContentType = "application/json" };
+        }
+
+        [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
+        [HttpPost("{system}/entities/props/override")]
+        [ProducesResponseType(typeof(RpgResponse<bool>), StatusCodes.Status200OK)]
+        public IActionResult OverrideBaseValue(string system, RpgRequest<OverrideBaseValue> request)
+        {
+            var response = _sessionlessServer.OverrideBaseValue(system, request);
+
+            var json = RpgJson.Serialize(response);
             return new ContentResult() { Content = json, ContentType = "application/json" };
         }
 

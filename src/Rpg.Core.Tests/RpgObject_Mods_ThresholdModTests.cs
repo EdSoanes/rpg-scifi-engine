@@ -21,10 +21,10 @@ namespace Rpg.Core.Tests
             var person = new TestPerson("Benny");
             var graph = new RpgGraph(person);
 
-            var mods = graph.GetActiveMods(person, nameof(TestPerson.Strength));
+            var mods = person.GetMods(nameof(TestPerson.Strength));
 
             Assert.That(mods.Count(), Is.EqualTo(2));
-            Assert.That(mods.All(x => x.IsBaseInitMod), Is.True);
+            Assert.That(mods.All(ModFilters.IsInitial), Is.True);
 
             var thresholdMod = mods.FirstOrDefault(x => x is Threshold);
             Assert.That(thresholdMod, Is.Not.Null);

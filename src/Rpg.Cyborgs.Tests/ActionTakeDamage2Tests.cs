@@ -135,8 +135,8 @@ namespace Rpg.Cyborgs.Tests
             var injuryPerformResult = activity.Perform(injuryPerformArgs);
             Assert.That(injuryPerformResult, Is.True);
 
-            Assert.That(injuryAction.Prop("injuryRoll").ToString(), Is.EqualTo("2d6 - 1"));
-            Assert.That(injuryAction.Prop("injuryLocationRoll").ToString(), Is.EqualTo("1d6"));
+            Assert.That(injuryAction.Value("injuryRoll").ToString(), Is.EqualTo("2d6 - 1"));
+            Assert.That(injuryAction.Value("injuryLocationRoll").ToString(), Is.EqualTo("1d6"));
 
             var injuryOutcomeArgs = activity.OutcomeArgs();
             injuryOutcomeArgs.Set("injuryRoll", 3);

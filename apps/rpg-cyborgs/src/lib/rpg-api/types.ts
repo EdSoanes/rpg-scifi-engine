@@ -35,17 +35,23 @@ export type RpgEntity = Pick<
   keyof components['schemas']['RpgEntity']
 >
 
+export type PropRef = Pick<
+  components['schemas']['Props.PropRef'],
+  keyof components['schemas']['Props.PropRef']
+>
+
 export interface State {
-  expiry: LifecycleExpiry;
-  readonly id: string;
-  readonly name: string;
-  readonly ownerId: string;
-  readonly ownerArchetype?: string | null;
-  readonly isPlayerVisible: boolean;
-  readonly isOn: boolean;
-  readonly isOnTimed: boolean;
-  readonly isOnManually: boolean;
-  readonly isOnConditionally: boolean;
+  expiry: LifecycleExpiry
+  readonly id: string
+  readonly name: string
+  readonly classification: string
+  readonly ownerId: string
+  readonly ownerArchetype?: string | null
+  readonly isPlayerVisible: boolean
+  readonly isOn: boolean
+  readonly isOnTimed: boolean
+  readonly isOnManually: boolean
+  readonly isOnConditionally: boolean
 }
 
 export type RpgArg = Pick<
@@ -58,17 +64,18 @@ export type ActionTemplateMethod = Pick<
   keyof components['schemas']['Reflection.RpgMethod_ActionTemplate_Boolean']
 >
 
-export type ActionTemplate = {
-  readonly id: string;
-  readonly name: string;
-  readonly ownerId: string;
-  readonly ownerArchetype: string;
-  readonly actionArgs: RpgArg[];
-  canPerformMethod: ActionTemplateMethod;
-  costMethod: ActionTemplateMethod;
-  performMethod: ActionTemplateMethod;
-  outcomeMethod: ActionTemplateMethod;
-  readonly isPerformable: boolean;
+export interface ActionTemplate {
+  readonly id: string
+  readonly name: string
+  readonly classification: string
+  readonly ownerId: string
+  readonly ownerArchetype: string
+  readonly actionArgs: RpgArg[]
+  canPerformMethod: ActionTemplateMethod
+  costMethod: ActionTemplateMethod
+  performMethod: ActionTemplateMethod
+  outcomeMethod: ActionTemplateMethod
+  readonly isPerformable: boolean
 }
 
 export type Action = Pick<

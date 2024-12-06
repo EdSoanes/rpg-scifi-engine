@@ -1,24 +1,15 @@
 import {
   Button,
   Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerOverlay,
   Grid,
   Heading,
+  HStack,
   Stack,
-  StatGroup,
   useDisclosure,
 } from '@chakra-ui/react'
-import React, { useState } from 'react'
-import ActionButton from './ActionButton'
-import { ActionTemplate } from '../../lib/rpg-api/types'
-import { StatPanel } from '../stats'
-import ActionInstancePanel from './ActivityPanel'
-import { selectActionTemplates } from '../../app/actions/actionTemplatesSelectors'
+import { useState } from 'react'
+import ActionTemplatePanel from './ActionTemplatePanel'
+
 import { useSelector } from 'react-redux'
 import {
   selectActionPoints,
@@ -27,40 +18,13 @@ import {
   selectPlayerCharacter,
   selectReactions,
 } from '../../app/graphState/graphSelectors'
-// import { selectActionInstance, selectActivity, selectActivityStatus } from '../../app/activity/activitySelectors'
 import { initiateAction } from '../../app/thunks'
 import { useAppDispatch } from '../../app/hooks'
 
-// const reactionsAtom = atom<PropValue | null>(
-//   (get) => get(playerCharacterAtom)?.reactions ?? null
-// )
-
-// const actionPointsAtom = atom<PropValue | null>((get) => {
-//   const pc = get(playerCharacterAtom)
-//   return {
-//     id: pc?.id,
-//     value: pc?.currentActionPoints,
-//     baseValue: pc?.actionPoints,
-//   } as PropValue
-// })
-
-// const focusPointsAtom = atom<PropValue | null>((get) => {
-//   const pc = get(playerCharacterAtom)
-//   return {
-//     id: pc?.id,
-//     value: pc?.currentFocusPoints,
-//     baseValue: pc?.focusPoints,
-//   } as PropValue
-// })
-
-// const luckPointsAtom = atom<PropValue | null>((get) => {
-//   const pc = get(playerCharacterAtom)
-//   return {
-//     id: pc?.id,
-//     value: pc?.currentLuckPoints,
-//     baseValue: pc?.luckPoints,
-//   } as PropValue
-// })
+import { ActionTemplate } from '../../lib/rpg-api/types'
+import { StatPanel } from '../stats'
+import ActionInstancePanel from './ActivityPanel'
+import { selectActionTemplates } from '../../app/actions/actionTemplatesSelectors'
 
 function ActionTemplatesBlock() {
   const playerCharacter = useSelector(selectPlayerCharacter)
@@ -71,19 +35,19 @@ function ActionTemplatesBlock() {
   const luckPoints = useSelector(selectLuckPoints)
   const reactions = useSelector(selectReactions)
 
-  // const activity = useSelector(selectActivity)
-  // const activityStatus = useSelector(selectActivityStatus)
-  // const actionInstance = useSelector(selectActionInstance)
-
   const dispatch = useAppDispatch()
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const [selectedActionTemplate, setSelectedActionTemplate] = useState<ActionTemplate | undefined>()
+  const { onOpen, onClose } = useDisclosure()
+  const [selectedActionTemplate, setSelectedActionTemplate] = useState<
+    ActionTemplate | undefined
+  >()
 
-  const onActionTemplateButtonClicked = async (actionTemplate: ActionTemplate) => {
+  const onActionTemplateButtonClicked = async (
+    actionTemplate: ActionTemplate
+  ) => {
     setSelectedActionTemplate(actionTemplate)
     console.log('onActionButtonClicked', actionTemplate)
     if (playerCharacter) {
-      dispatch(
+      await dispatch(
         initiateAction({
           actionTemplateOwnerId: actionTemplate.ownerId,
           initiatorId: playerCharacter.id,
@@ -101,7 +65,7 @@ function ActionTemplatesBlock() {
         <Heading as="h3" size="lg" paddingBottom={4} paddingTop={10}>
           Actions
         </Heading>
-        <StatGroup w={'100%'} alignItems={'stretch'}>
+        <HStack w={'100%'} alignItems={'stretch'}>
           <StatPanel
             propName={'Action Points'}
             propNameAbbr={''}
@@ -122,35 +86,35 @@ function ActionTemplatesBlock() {
             propNameAbbr={''}
             propValue={reactions}
           />
-        </StatGroup>
+        </HStack>
         <Grid templateColumns="repeat(6, 1fr)" gap={6}>
           {actionTemplates.map((actionTemplate, i) => (
-            <ActionButton
+            <ActionTemplatePanel
               key={i}
               actionTemplate={actionTemplate}
-              onActionTemplate={onActionTemplateButtonClicked}
+              onActionTemplate={(actionTemplate) =>
+                onActionTemplateButtonClicked(actionTemplate)
+              }
             />
           ))}
         </Grid>
       </Stack>
-      <Drawer isOpen={isOpen} size={'lg'} placement="right" onClose={onClose}>
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerCloseButton />
-          <DrawerHeader>{selectedActionTemplate?.name ?? '-'}</DrawerHeader>
+      <Drawer.Root>
+        <Drawer.Content>
+          <Drawer.Header>{selectedActionTemplate?.name ?? '-'}</Drawer.Header>
 
-          <DrawerBody>
+          <Drawer.Body>
             <ActionInstancePanel />
-          </DrawerBody>
+          </Drawer.Body>
 
-          <DrawerFooter>
+          <Drawer.Footer>
             <Button variant="outline" mr={3} onClick={onClose}>
               Cancel
             </Button>
             <Button colorScheme="blue">Save</Button>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
+          </Drawer.Footer>
+        </Drawer.Content>
+      </Drawer.Root>
     </>
   )
 }
