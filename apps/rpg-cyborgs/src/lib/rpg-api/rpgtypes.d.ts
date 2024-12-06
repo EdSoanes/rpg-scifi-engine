@@ -895,6 +895,8 @@ export interface components {
         "Cyborgs.Actions.TakeInjury": components["schemas"]["Activities.ActionTemplate_Actor"];
         "Cyborgs.Actions.Transfer": components["schemas"]["Activities.ActionTemplate_RpgEntity"];
         "Cyborgs.Actor": {
+            readonly isApplied: boolean;
+            readonly isDisabled: boolean;
             expiry: components["schemas"]["Time.LifecycleExpiry"];
             modSets: {
                 [key: string]: components["schemas"]["Mods.ModSet"] | components["schemas"]["Mods.ModSets.StateModSet"] | components["schemas"]["Mods.ModSets.SyncedModSet"] | components["schemas"]["Mods.ModSets.TimedModSet"] | components["schemas"]["Mods.ModSets.TurnModSet"];
@@ -1067,6 +1069,8 @@ export interface components {
         "Cyborgs.States.RangedAttacking": components["schemas"]["States.State_Actor"];
         "Cyborgs.States.VeryFast": components["schemas"]["States.State_Actor"];
         "Mods.Mod": {
+            readonly isApplied: boolean;
+            readonly isDisabled: boolean;
             expiry: components["schemas"]["Time.LifecycleExpiry"];
             id: string;
             readonly ownerId?: string | null;
@@ -1077,14 +1081,6 @@ export interface components {
             readonly target: components["schemas"]["Props.PropRef"];
             readonly source?: components["schemas"]["Props.PropRef"] | null;
             readonly sourceValue?: components["schemas"]["Values.Dice"] | null;
-            readonly isBaseInitMod: boolean;
-            readonly isBaseOverrideMod: boolean;
-            readonly isBaseMod: boolean;
-            readonly isApplied: boolean;
-            readonly isDisabled: boolean;
-            readonly isActive: boolean;
-            readonly isPending: boolean;
-            readonly isExpired: boolean;
         };
         /** @enum {string} */
         "Mods.ModScope": "Standard" | "ChildComponents" | "ChildObjects";
@@ -1092,10 +1088,7 @@ export interface components {
             readonly id: string;
             ownerId?: string | null;
             name: string;
-            readonly isApplied: boolean;
-            readonly isDisabled: boolean;
-            readonly isActive: boolean;
-            readonly mods: (components["schemas"]["Mods.Mods.Base"] | components["schemas"]["Mods.Mods.Encounter"] | components["schemas"]["Mods.Mods.Initial"] | components["schemas"]["Mods.Mods.Override"] | components["schemas"]["Mods.Mods.Permanent"] | components["schemas"]["Mods.Mods.Synced"] | components["schemas"]["Mods.Mods.Threshold"] | components["schemas"]["Mods.Mods.Turn"])[];
+            readonly mods: (components["schemas"]["Mods.Mods.Base"] | components["schemas"]["Mods.Mods.Encounter"] | components["schemas"]["Mods.Mods.Initial"] | components["schemas"]["Mods.Mods.Override"] | components["schemas"]["Mods.Mods.Permanent"] | components["schemas"]["Mods.Mods.Threshold"] | components["schemas"]["Mods.Mods.Turn"])[];
         } & components["schemas"]["RpgLifecycleObject"];
         "Mods.ModSetDescription": {
             name: string;
@@ -1112,14 +1105,15 @@ export interface components {
         } & components["schemas"]["Mods.ModSet"];
         "Mods.ModSets.TimedModSet": components["schemas"]["Mods.ModSet"];
         "Mods.ModSets.TurnModSet": components["schemas"]["Mods.ModSets.TimedModSet"];
-        "Mods.Mods.Base": components["schemas"]["Mods.Mods.Permanent"];
+        "Mods.Mods.Base": components["schemas"]["Mods.Mod"];
         "Mods.Mods.Encounter": components["schemas"]["Mods.Mods.Time"];
         "Mods.Mods.Initial": components["schemas"]["Mods.Mod"];
         "Mods.Mods.Override": components["schemas"]["Mods.Mod"];
         "Mods.Mods.Permanent": components["schemas"]["Mods.Mod"];
-        "Mods.Mods.Synced": components["schemas"]["Mods.Mod"];
         "Mods.Mods.Threshold": components["schemas"]["Mods.Mod"];
         "Mods.Mods.Time": {
+            readonly isApplied: boolean;
+            readonly isDisabled: boolean;
             expiry: components["schemas"]["Time.LifecycleExpiry"];
             id: string;
             readonly ownerId?: string | null;
@@ -1130,14 +1124,6 @@ export interface components {
             readonly target: components["schemas"]["Props.PropRef"];
             readonly source?: components["schemas"]["Props.PropRef"] | null;
             readonly sourceValue?: components["schemas"]["Values.Dice"] | null;
-            readonly isBaseInitMod: boolean;
-            readonly isBaseOverrideMod: boolean;
-            readonly isBaseMod: boolean;
-            readonly isApplied: boolean;
-            readonly isDisabled: boolean;
-            readonly isActive: boolean;
-            readonly isPending: boolean;
-            readonly isExpired: boolean;
         };
         "Mods.Mods.Turn": components["schemas"]["Mods.Mods.Time"];
         "Props.ModDescription": {
@@ -1152,7 +1138,7 @@ export interface components {
             readonly entityId: string;
             readonly name: string;
             refType: components["schemas"]["Props.RefType"];
-            readonly mods: (components["schemas"]["Mods.Mods.Base"] | components["schemas"]["Mods.Mods.Encounter"] | components["schemas"]["Mods.Mods.Initial"] | components["schemas"]["Mods.Mods.Override"] | components["schemas"]["Mods.Mods.Permanent"] | components["schemas"]["Mods.Mods.Synced"] | components["schemas"]["Mods.Mods.Threshold"] | components["schemas"]["Mods.Mods.Turn"])[];
+            readonly mods: (components["schemas"]["Mods.Mods.Base"] | components["schemas"]["Mods.Mods.Encounter"] | components["schemas"]["Mods.Mods.Initial"] | components["schemas"]["Mods.Mods.Override"] | components["schemas"]["Mods.Mods.Permanent"] | components["schemas"]["Mods.Mods.Threshold"] | components["schemas"]["Mods.Mods.Turn"])[];
             readonly refs: components["schemas"]["Props.PropObjRef"][];
         } & components["schemas"]["RpgLifecycleObject"];
         "Props.PropDescription": {
@@ -1201,6 +1187,8 @@ export interface components {
             readonly isStatic: boolean;
         };
         RpgComponent: {
+            readonly isApplied: boolean;
+            readonly isDisabled: boolean;
             expiry: components["schemas"]["Time.LifecycleExpiry"];
             modSets: {
                 [key: string]: components["schemas"]["Mods.ModSet"] | components["schemas"]["Mods.ModSets.StateModSet"] | components["schemas"]["Mods.ModSets.SyncedModSet"] | components["schemas"]["Mods.ModSets.TimedModSet"] | components["schemas"]["Mods.ModSets.TurnModSet"];
@@ -1221,6 +1209,8 @@ export interface components {
             readonly contents: (components["schemas"]["Cyborgs.Armour"] | components["schemas"]["Cyborgs.BodyPart"] | components["schemas"]["Cyborgs.MeleeWeapon"] | components["schemas"]["Cyborgs.PlayerCharacter"] | components["schemas"]["Cyborgs.RangedWeapon"] | components["schemas"]["Cyborgs.Components.PropValue"] | components["schemas"]["RpgContainer"] | components["schemas"]["Activities.Action"] | components["schemas"]["Activities.Activity"])[];
         } & components["schemas"]["RpgComponent"];
         RpgEntity: {
+            readonly isApplied: boolean;
+            readonly isDisabled: boolean;
             expiry: components["schemas"]["Time.LifecycleExpiry"];
             modSets: {
                 [key: string]: components["schemas"]["Mods.ModSet"] | components["schemas"]["Mods.ModSets.StateModSet"] | components["schemas"]["Mods.ModSets.SyncedModSet"] | components["schemas"]["Mods.ModSets.TimedModSet"] | components["schemas"]["Mods.ModSets.TurnModSet"];
@@ -1247,9 +1237,13 @@ export interface components {
             time?: components["schemas"]["Time.Temporal"] | null;
         };
         RpgLifecycleObject: {
+            readonly isApplied: boolean;
+            readonly isDisabled: boolean;
             expiry: components["schemas"]["Time.LifecycleExpiry"];
         };
         RpgObject: {
+            readonly isApplied: boolean;
+            readonly isDisabled: boolean;
             expiry: components["schemas"]["Time.LifecycleExpiry"];
             modSets: {
                 [key: string]: components["schemas"]["Mods.ModSet"] | components["schemas"]["Mods.ModSets.StateModSet"] | components["schemas"]["Mods.ModSets.SyncedModSet"] | components["schemas"]["Mods.ModSets.TimedModSet"] | components["schemas"]["Mods.ModSets.TurnModSet"];
@@ -1299,7 +1293,7 @@ export interface components {
         "Server.Ops.OverrideBaseValue": {
             propRef: components["schemas"]["Props.PropRef"];
             /** Format: int32 */
-            value: number;
+            overrideValue: number;
         };
         "Server.Ops.SetState": {
             entityId: string;
@@ -1427,7 +1421,7 @@ export interface components {
             readonly isOnConditionally: boolean;
         };
         /** @enum {string} */
-        "Time.LifecycleExpiry": "Unset" | "Pending" | "Active" | "Expired" | "Destroyed";
+        "Time.LifecycleExpiry": "Unset" | "Pending" | "Active" | "Suspended" | "Expired" | "Destroyed";
         "Time.Lifespan": {
             readonly start: components["schemas"]["Time.PointInTime"];
             readonly end: components["schemas"]["Time.PointInTime"];

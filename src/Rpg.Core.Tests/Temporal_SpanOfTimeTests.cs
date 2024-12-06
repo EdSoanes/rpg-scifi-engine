@@ -14,6 +14,15 @@ namespace Rpg.Core.Tests
         }
 
         [Test]
+        public void SpanOfTime_WaitingToTimePasses_EncounterBegins_Expired()
+        {
+            var span = new Lifespan(PointInTimeType.Waiting, PointInTimeType.TimePasses);
+            var expiry = span.UpdateExpiry(PointInTimeType.EncounterBegins);
+
+            Assert.That(expiry, Is.EqualTo(LifecycleExpiry.Destroyed));
+        }
+
+        [Test]
         public void SpanOfTime_Encounter_TimePassing_Pending()
         {
             var span = new Lifespan(PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds);

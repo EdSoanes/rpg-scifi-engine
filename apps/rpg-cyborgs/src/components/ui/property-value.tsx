@@ -3,7 +3,7 @@ import {
   NumberInputValueChangeDetails,
 } from '@chakra-ui/react'
 import { StepperInput } from './stepper-input'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { PropValue } from '@/lib/rpg-api/cyborg-types'
 
 export interface PropertyValueProps extends HTMLChakraProps<'div'> {
@@ -14,6 +14,7 @@ export interface PropertyValueProps extends HTMLChakraProps<'div'> {
 export default function PropertyValue(props: PropertyValueProps) {
   const { propValue, onPropValueChanged } = props
   const [hide, setHide] = useState<boolean>(true)
+  const value = useMemo(() => String(propValue?.value), [propValue?.value])
 
   const propValueChanged = (e: NumberInputValueChangeDetails) => {
     if (propValue && onPropValueChanged) {
@@ -39,7 +40,7 @@ export default function PropertyValue(props: PropertyValueProps) {
       maxW="200px"
       color={color}
       size={'md'}
-      value={String(propValue?.value ?? 0)}
+      value={value}
       onValueChange={propValueChanged}
       onMouseOver={() => setHide(false)}
       onMouseLeave={() => setHide(true)}
