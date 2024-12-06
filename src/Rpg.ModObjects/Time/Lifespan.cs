@@ -71,7 +71,7 @@ namespace Rpg.ModObjects.Time
         private LifecycleExpiry CalculateExpiry(PointInTime now)
         {
             if (Start == PointInTimeType.Waiting && End == PointInTimeType.TimePasses && now != PointInTimeType.Waiting)
-                return LifecycleExpiry.Expired;
+                return LifecycleExpiry.Destroyed;
 
             if (now.Type == PointInTimeType.Waiting && Expiry != LifecycleExpiry.Unset)
                 return Expiry;
