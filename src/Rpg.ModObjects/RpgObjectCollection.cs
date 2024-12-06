@@ -42,7 +42,10 @@ namespace Rpg.ModObjects
         {
             var propName = PropName(nameof(MaxItems));
             if (Graph != null)
-                return Graph?.CalculatePropValue(new PropRef(EntityId, propName))?.Roll() ?? 0;
+            {
+                var entity = Graph.GetObject(EntityId);
+                return entity?.Value(prop)?.Roll() ?? 0;
+            }
             else if (_preAddedProps?.TryGetValue(PropName(prop), out var value) ?? false)
                 return value.Roll();
 

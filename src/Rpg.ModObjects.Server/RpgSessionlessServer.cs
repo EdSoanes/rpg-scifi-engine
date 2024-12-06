@@ -39,10 +39,11 @@ namespace Rpg.ModObjects.Server
         public RpgResponse<bool> OverrideBaseValue(string system, RpgRequest<OverrideBaseValue> request)
         {
             var graph = _graphService.HydrateGraph(system, request.GraphState);
+            var res = _entityService.OverrideBaseValue(graph, request.Op);
             return new RpgResponse<bool>
             {
-                GraphState = _entityService.OverrideBaseValue(graph, request.Op),
-                Data = true
+                GraphState = graph.GetGraphState(),
+                Data = res
             };
         }
 

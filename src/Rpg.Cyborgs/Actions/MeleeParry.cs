@@ -29,7 +29,7 @@ namespace Rpg.Cyborgs.Actions
 
         public bool Perform(ModObjects.Activities.Action action, Actor owner, int parryTarget, int? abilityScore)
         {
-            var focusPoints = action.Prop("focusPoints")?.Roll();
+            var focusPoints = action.Value("focusPoints")?.Roll();
             var bonus = abilityScore != null
                 ? abilityScore.Value * (focusPoints + 1)
                 : owner.Strength.Value * (focusPoints + 1);

@@ -13,21 +13,14 @@ namespace Rpg.ModObjects.Server.Services
             _graphService = graphService;
         }
 
-        public RpgGraphState OverrideBaseValue(RpgGraph graph, OverrideBaseValue overrideBaseValue)
+        public bool OverrideBaseValue(RpgGraph graph, OverrideBaseValue overrideBaseValue)
         {
             var entity = graph.GetObject(overrideBaseValue.PropRef.EntityId);
-            var originalValue = graph.CalculateOriginalBasePropValue(overrideBaseValue.PropRef);
-            if (entity != null && originalValue != null)
-            {
-                entity.RemoveMods(entity.GetMods(overrideBaseValue.PropRef.Prop, mod => mod.IsOverrideMod()));
+            var res = entity?.OverrideBaseValue(overrideBaseValue.PropRef.Prop, overrideBaseValue.OverrideValue) ?? false;
 
-                if (originalValue.Value.Roll() != overrideBaseValue.Value)
-                    entity.AddMod(new Override(), overrideBaseValue.PropRef, overrideBaseValue.Value);
+            graph.Time.TriggerEvent();
 
-                graph.Time.TriggerEvent();
-            }
-
-            return graph.GetGraphState();
+            return res;
         }
     }
 }

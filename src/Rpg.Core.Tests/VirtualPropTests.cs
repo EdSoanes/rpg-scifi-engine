@@ -24,7 +24,7 @@ namespace Rpg.Core.Tests
             person.AddMod(new Permanent(), "VirtualProp", 1);
             graph.Time.TriggerEvent();
 
-            Assert.That(graph.GetPropValue(person, "VirtualProp")?.Roll(), Is.EqualTo(1));
+            Assert.That(person.Value("VirtualProp")?.Roll(), Is.EqualTo(1));
         }
     }
 }

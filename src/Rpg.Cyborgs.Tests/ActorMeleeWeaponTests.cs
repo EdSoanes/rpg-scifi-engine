@@ -62,15 +62,15 @@ namespace Rpg.Cyborgs.Tests
             performArgs.Set("targetDefence", 12);
             activity.Perform(performArgs);
 
-            Assert.That(attack.Prop("diceRoll").ToString(), Is.EqualTo("2d6 + 1"));
-            Assert.That(attack.Prop("targetDefence").ToString(), Is.EqualTo("12"));
+            Assert.That(attack.Value("diceRoll").ToString(), Is.EqualTo("2d6 + 1"));
+            Assert.That(attack.Value("targetDefence").ToString(), Is.EqualTo("12"));
 
             var outcomeArgs = activity.OutcomeArgs();
             outcomeArgs.Set("diceRoll", 14);
             outcomeArgs.Set("targetDefence", 12);
 
             var outcomeResult = activity.Outcome(outcomeArgs);
-            Assert.That(attack.Prop("damage").ToString(), Is.EqualTo("1d6"));
+            Assert.That(attack.Value("damage").ToString(), Is.EqualTo("1d6"));
 
             activity.Complete();
 

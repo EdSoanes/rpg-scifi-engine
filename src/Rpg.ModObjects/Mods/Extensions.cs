@@ -14,7 +14,7 @@ namespace Rpg.ModObjects.Mods
             => mod is Initial || mod is Base || mod is Override || mod is Threshold;
 
         public static bool IsOriginalBaseMod(this Mod mod)
-            => mod is Initial || mod is Base || mod is Override || mod is Threshold;
+            => mod is Initial || mod is Base || mod is Threshold;
 
         public static bool IsOverrideMod(this Mod mod)
             => mod is Override;

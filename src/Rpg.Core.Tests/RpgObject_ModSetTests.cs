@@ -167,7 +167,7 @@ namespace Rpg.Core.Tests
 
             graph.Time.Transition(PointInTimeType.Turn);
 
-            var modSet = new TimedModSet(person.Id, "name", new Lifespan(PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds))
+            var modSet = new TimedModSet("name", new Lifespan(PointInTimeType.EncounterBegins, PointInTimeType.EncounterEnds))
                 .Add(person, x => x.MeleeAttack, 1)
                 .Add(person, x => x.HitPoints, 1);
 

@@ -20,7 +20,7 @@ namespace Rpg.Cyborgs.Skills
         [JsonIgnore]
         public int Rating
         {
-            get => Graph?.CalculatePropValue(OwnerId!, RatingProp)?.Roll() ?? 0;
+            get => Graph?.GetObject(OwnerId)?.Value(RatingProp)?.Roll() ?? 0;
             set => Graph?.AddMods(new Initial(OwnerId!, RatingProp, value));
         }
 

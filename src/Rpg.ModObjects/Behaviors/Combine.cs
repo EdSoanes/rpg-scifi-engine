@@ -10,8 +10,8 @@ namespace Rpg.ModObjects.Behaviors
         {
             var matchingMods = GetMatchingMods<ExpiresOn>(graph, mod);
             var value = Dice.Add(
-                graph.CalculateModsValue(matchingMods),
-                graph.CalculateModValue(mod)
+                ModCalculator.Value(graph, matchingMods),
+                mod.Value()
             );
 
             mod.Set(value);

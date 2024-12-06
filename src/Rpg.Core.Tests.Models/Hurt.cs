@@ -18,6 +18,6 @@ namespace Rpg.Core.Tests.Models
         { }
 
         protected override bool IsOnWhen(TestPerson owner)
-            => owner.HitPoints < owner.BaseValue(x => x.HitPoints)?.Roll();
+            => owner.HitPoints < owner.BaseValue(nameof(TestPerson.HitPoints))?.Roll();
     }
 }

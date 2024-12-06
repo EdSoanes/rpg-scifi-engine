@@ -18,6 +18,47 @@ namespace Rpg.ModObjects
     public class PropsDictionary : Dictionary<string, Prop>
     {
         public PropsDictionary() : base() { }
+
+        internal Prop? GetProp(RpgGraph graph, RpgObject rpgObj, string prop, RefType refType = RefType.Value, bool create = false)
+        {
+            if (string.IsNullOrEmpty(prop))
+                return null;
+
+            if (ContainsKey(prop))
+                return this[prop];
+
+            if (create)
+            {
+                var created = new Prop(rpgObj.Id, prop, refType);
+                if (graph != null)
+                {
+                    created.OnCreating(graph, rpgObj);
+                    created.OnTimeBegins();
+                    created.OnStartLifecycle();
+                }
+
+                Add(prop, created);
+
+                return created;
+            }
+
+            return null;
+        }
+
+        internal Mod? GetMod(string id)
+            => Values
+                .SelectMany(x => x.Mods)
+                .FirstOrDefault(x => x.Id == id);
+
+        public Mod[] GetMods()
+            => Values
+                .SelectMany(x => x.Mods)
+                .ToArray();
+
+        public Mod[] GetMods(string prop)
+            => ContainsKey(prop)
+            ? this[prop].Mods.ToArray()
+            : [];
     }
 
     public class StatesDictionary : Dictionary<string, State>

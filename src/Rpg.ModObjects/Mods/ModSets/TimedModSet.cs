@@ -9,8 +9,8 @@ namespace Rpg.ModObjects.Mods.ModSets
             : base()
         { }
 
-        public TimedModSet(string ownerId, string name, Lifespan lifespan)
-            : base(ownerId, name)
+        public TimedModSet(string name, Lifespan lifespan)
+            : base(null, name)
         {
             Lifespan = lifespan;
         }

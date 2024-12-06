@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Rpg.Cyborgs.Components;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Server;

@@ -84,7 +84,7 @@ namespace Rpg.Core.Tests
             var person = new TestPerson("Benny");
             var graph = new RpgGraph(person);
 
-            var modCount = graph.GetActiveMods().Count();
+            var modCount = graph.GetObjects().SelectMany(x => x.GetMods());
 
             Assert.That(person.MeleeAttack, Is.EqualTo(2));
             graph.Time.Transition(PointInTimeType.EncounterBegins);
@@ -96,7 +96,7 @@ namespace Rpg.Core.Tests
             graph.Time.Transition(PointInTimeType.EncounterEnds);
             graph.Time.Transition(PointInTimeType.EncounterBegins);
             Assert.That(person.MeleeAttack, Is.EqualTo(2));
-            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(modCount));
+            Assert.That(graph.GetObjects().SelectMany(x => x.GetMods()), Is.EqualTo(modCount));
         }
 
         [Test]
@@ -105,7 +105,7 @@ namespace Rpg.Core.Tests
             var person = new TestPerson("Benny");
             var graph = new RpgGraph(person);
 
-            var modCount = graph.GetActiveMods().Count();
+            var modCount = graph.GetObjects().SelectMany(x => x.GetMods());
 
             graph.Time.Transition(PointInTimeType.EncounterBegins);
 
@@ -117,7 +117,7 @@ namespace Rpg.Core.Tests
             graph.Time.Transition(PointInTimeType.EncounterEnds);
 
             Assert.That(person.MeleeAttack, Is.EqualTo(2));
-            Assert.That(graph.GetActiveMods().Count(), Is.EqualTo(modCount));
+            Assert.That(graph.GetObjects().SelectMany(x => x.GetMods()), Is.EqualTo(modCount));
         }
 
         [Test]

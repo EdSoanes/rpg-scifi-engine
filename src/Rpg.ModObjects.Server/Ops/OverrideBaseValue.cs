@@ -10,6 +10,6 @@ namespace Rpg.ModObjects.Server.Ops
     public class OverrideBaseValue
     {
         public PropRef PropRef {  get; set; }
-        public int Value { get; set; }
+        public int OverrideValue { get; set; }
     }
 }

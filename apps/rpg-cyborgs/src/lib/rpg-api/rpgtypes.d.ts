@@ -906,7 +906,7 @@ export interface components {
                 [key: string]: components["schemas"]["Cyborgs.States.Aiming"] | components["schemas"]["Cyborgs.States.Exhausted"] | components["schemas"]["Cyborgs.States.Firing"] | components["schemas"]["Cyborgs.States.MeleeAttacked"] | components["schemas"]["Cyborgs.States.MeleeAttacking"] | components["schemas"]["Cyborgs.States.Moving"] | components["schemas"]["Cyborgs.States.Parrying"] | components["schemas"]["Cyborgs.States.RangedAttacking"] | components["schemas"]["Cyborgs.States.VeryFast"] | components["schemas"]["Cyborgs.Conditions.Attachable"] | components["schemas"]["Cyborgs.Conditions.Bleeding"] | components["schemas"]["Cyborgs.Conditions.Dead"] | components["schemas"]["Cyborgs.Conditions.Dying"] | components["schemas"]["Cyborgs.Conditions.Fixable"] | components["schemas"]["Cyborgs.Conditions.Pain"] | components["schemas"]["Cyborgs.Conditions.Repairable"] | components["schemas"]["Cyborgs.Conditions.Replaceable"] | components["schemas"]["Cyborgs.Conditions.Shock"] | components["schemas"]["Cyborgs.Conditions.Treatable"] | components["schemas"]["Cyborgs.Conditions.Unconscious"] | components["schemas"]["Cyborgs.Conditions.Unusable"];
             };
             readonly id: string;
-            readonly ownerId?: string | null;
+            ownerId?: string | null;
             readonly archetype: string;
             readonly name: string;
             readonly archetypes: string[];
@@ -979,6 +979,8 @@ export interface components {
             readonly initValue: number;
             /** Format: int32 */
             readonly baseValue: number;
+            /** Format: int32 */
+            readonly originalBaseValue: number;
         } & components["schemas"]["RpgComponent"];
         "Cyborgs.Conditions.Attachable": components["schemas"]["Cyborgs.Conditions.Condition_BodyPart"];
         "Cyborgs.Conditions.Bleeding": components["schemas"]["Cyborgs.Conditions.Condition_BodyPart"];
@@ -1210,7 +1212,7 @@ export interface components {
                 [key: string]: components["schemas"]["Cyborgs.States.Aiming"] | components["schemas"]["Cyborgs.States.Exhausted"] | components["schemas"]["Cyborgs.States.Firing"] | components["schemas"]["Cyborgs.States.MeleeAttacked"] | components["schemas"]["Cyborgs.States.MeleeAttacking"] | components["schemas"]["Cyborgs.States.Moving"] | components["schemas"]["Cyborgs.States.Parrying"] | components["schemas"]["Cyborgs.States.RangedAttacking"] | components["schemas"]["Cyborgs.States.VeryFast"] | components["schemas"]["Cyborgs.Conditions.Attachable"] | components["schemas"]["Cyborgs.Conditions.Bleeding"] | components["schemas"]["Cyborgs.Conditions.Dead"] | components["schemas"]["Cyborgs.Conditions.Dying"] | components["schemas"]["Cyborgs.Conditions.Fixable"] | components["schemas"]["Cyborgs.Conditions.Pain"] | components["schemas"]["Cyborgs.Conditions.Repairable"] | components["schemas"]["Cyborgs.Conditions.Replaceable"] | components["schemas"]["Cyborgs.Conditions.Shock"] | components["schemas"]["Cyborgs.Conditions.Treatable"] | components["schemas"]["Cyborgs.Conditions.Unconscious"] | components["schemas"]["Cyborgs.Conditions.Unusable"];
             };
             readonly id: string;
-            readonly ownerId?: string | null;
+            ownerId?: string | null;
             readonly archetype: string;
             readonly name: string;
             readonly archetypes: string[];
@@ -1230,7 +1232,7 @@ export interface components {
                 [key: string]: components["schemas"]["Cyborgs.States.Aiming"] | components["schemas"]["Cyborgs.States.Exhausted"] | components["schemas"]["Cyborgs.States.Firing"] | components["schemas"]["Cyborgs.States.MeleeAttacked"] | components["schemas"]["Cyborgs.States.MeleeAttacking"] | components["schemas"]["Cyborgs.States.Moving"] | components["schemas"]["Cyborgs.States.Parrying"] | components["schemas"]["Cyborgs.States.RangedAttacking"] | components["schemas"]["Cyborgs.States.VeryFast"] | components["schemas"]["Cyborgs.Conditions.Attachable"] | components["schemas"]["Cyborgs.Conditions.Bleeding"] | components["schemas"]["Cyborgs.Conditions.Dead"] | components["schemas"]["Cyborgs.Conditions.Dying"] | components["schemas"]["Cyborgs.Conditions.Fixable"] | components["schemas"]["Cyborgs.Conditions.Pain"] | components["schemas"]["Cyborgs.Conditions.Repairable"] | components["schemas"]["Cyborgs.Conditions.Replaceable"] | components["schemas"]["Cyborgs.Conditions.Shock"] | components["schemas"]["Cyborgs.Conditions.Treatable"] | components["schemas"]["Cyborgs.Conditions.Unconscious"] | components["schemas"]["Cyborgs.Conditions.Unusable"];
             };
             readonly id: string;
-            readonly ownerId?: string | null;
+            ownerId?: string | null;
             readonly archetype: string;
             readonly name: string;
             readonly archetypes: string[];
@@ -1259,7 +1261,7 @@ export interface components {
                 [key: string]: components["schemas"]["Cyborgs.States.Aiming"] | components["schemas"]["Cyborgs.States.Exhausted"] | components["schemas"]["Cyborgs.States.Firing"] | components["schemas"]["Cyborgs.States.MeleeAttacked"] | components["schemas"]["Cyborgs.States.MeleeAttacking"] | components["schemas"]["Cyborgs.States.Moving"] | components["schemas"]["Cyborgs.States.Parrying"] | components["schemas"]["Cyborgs.States.RangedAttacking"] | components["schemas"]["Cyborgs.States.VeryFast"] | components["schemas"]["Cyborgs.Conditions.Attachable"] | components["schemas"]["Cyborgs.Conditions.Bleeding"] | components["schemas"]["Cyborgs.Conditions.Dead"] | components["schemas"]["Cyborgs.Conditions.Dying"] | components["schemas"]["Cyborgs.Conditions.Fixable"] | components["schemas"]["Cyborgs.Conditions.Pain"] | components["schemas"]["Cyborgs.Conditions.Repairable"] | components["schemas"]["Cyborgs.Conditions.Replaceable"] | components["schemas"]["Cyborgs.Conditions.Shock"] | components["schemas"]["Cyborgs.Conditions.Treatable"] | components["schemas"]["Cyborgs.Conditions.Unconscious"] | components["schemas"]["Cyborgs.Conditions.Unusable"];
             };
             readonly id: string;
-            readonly ownerId?: string | null;
+            ownerId?: string | null;
             readonly archetype: string;
             readonly name: string;
             readonly archetypes: string[];

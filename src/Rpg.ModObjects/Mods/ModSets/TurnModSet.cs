@@ -9,8 +9,8 @@ namespace Rpg.ModObjects.Mods.ModSets
             : base()
         { }
 
-        public TurnModSet(string ownerId, string name)
-            : base(ownerId, name, new Lifespan(0, 1))
+        public TurnModSet(string name)
+            : base(name, new Lifespan(0, 1))
         { }
     }
 }

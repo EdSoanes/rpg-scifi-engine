@@ -24,10 +24,6 @@ namespace Rpg.ModObjects
             {
                 var x = propInfo.GetSetMethod(true);
                 x?.Invoke(target, [value]);
-                //Type t = target.GetType();
-                //t.InvokeMember($"set_{propInfo.Name}", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.InvokeMethod | BindingFlags.Instance, null, obj, [value]);
-
-                //propInfo.SetValue(target, value, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.SetProperty | BindingFlags.Instance, null, null, null);
             }
         }
 
@@ -42,20 +38,6 @@ namespace Rpg.ModObjects
             }
 
             return default;
-        }
-
-        public static Dice? InitialValue<T, TVal>(this T obj, Expression<Func<T, TVal>> targetExpr)
-            where T : RpgObject
-        {
-            var propRef = PropRef.CreatePropRef(obj, targetExpr);
-            return obj._InitialPropertyValue(propRef.Prop);
-        }
-
-        public static Dice? BaseValue<T, TVal>(this T obj, Expression<Func<T, TVal>> targetExpr)
-            where T : RpgObject
-        {
-            var propRef = PropRef.CreatePropRef(obj, targetExpr);
-            return obj._BasePropertyValue(propRef.Prop);
         }
 
         internal static object? PropertyValue(this object? entity, string path, out bool propExists)
@@ -80,18 +62,6 @@ namespace Rpg.ModObjects
                 return (T?)(object?)res?.ToString();
 
             return default;
-        }
-
-        internal static void PropertyValue(this object? entity, string path, object? value)
-        {
-            var propInfo = RpgReflection.ScanForModdableProperty(entity, path, out var pathEntity);
-            if (propInfo?.SetMethod != null)
-            {
-                if (propInfo.PropertyType == typeof(int) && value is Dice)
-                    propInfo?.SetValue(pathEntity, ((Dice)value).Roll());
-                else
-                    propInfo?.SetValue(pathEntity, (Dice)value);
-            }
         }
     }
 }

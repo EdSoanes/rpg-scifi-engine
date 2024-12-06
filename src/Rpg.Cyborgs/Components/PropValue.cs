@@ -11,10 +11,13 @@ namespace Rpg.Cyborgs.Components
         public int Value { get; protected set; }
 
         [Integer(Ignore = true)]
-        public int InitValue { get => Graph?.CalculateInitialPropValue(this, nameof(Value))?.Roll() ?? 0; }
+        public int InitValue { get => this.InitialValue(nameof(Value))?.Roll() ?? 0; }
 
         [Integer(Ignore = true)]
-        public int BaseValue { get => Graph?.CalculateBasePropValue(this, nameof(Value))?.Roll() ?? 0; }
+        public int BaseValue { get => this.BaseValue(nameof(Value))?.Roll() ?? 0; }
+
+        [Integer(Ignore = true)]
+        public int OriginalBaseValue { get => this.OriginalBaseValue(nameof(Value))?.Roll() ?? 0; }
 
         [JsonConstructor] private PropValue() { }
 

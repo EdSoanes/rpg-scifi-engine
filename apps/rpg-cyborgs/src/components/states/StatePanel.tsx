@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ModSetDescription, State } from '../../lib/rpg-api/types'
-import { Grid, GridItem, Heading, Code } from '@chakra-ui/react'
+import { Grid, GridItem, Heading } from '@chakra-ui/react'
 import {
   selectGraphState,
   selectPlayerCharacter,

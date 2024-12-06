@@ -30,7 +30,7 @@ namespace Rpg.Cyborgs.Actions
 
         public bool Perform(ModObjects.Activities.Action action, RangedWeapon owner, Actor initiator, int targetDefence, int? abilityScore)
         {
-            var focusPoints = action.Prop("focusPoints")?.Roll();
+            var focusPoints = action.Value("focusPoints")?.Roll();
 
             var val = abilityScore != null
                 ? abilityScore.Value * (focusPoints + 1)
