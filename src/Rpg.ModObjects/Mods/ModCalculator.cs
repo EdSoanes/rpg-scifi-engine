@@ -1,12 +1,11 @@
 ﻿using Rpg.ModObjects.Behaviors;
-using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Values;
 
 namespace Rpg.ModObjects.Mods
 {
-    internal class ModCalculator
+    public class ModCalculator
     {
-        internal static Dice? Value(RpgGraph graph, Mod mod)
+        public static Dice? Value(RpgGraph graph, Mod mod)
         {
             if (graph == null)
                 return null;
@@ -27,25 +26,25 @@ namespace Rpg.ModObjects.Mods
             return value;
         }
 
-        internal static Dice? InitialValue(RpgGraph graph, IEnumerable<Mod> mods)
+        public static Dice? InitialValue(RpgGraph graph, IEnumerable<Mod> mods)
         {
             var baseMods = mods.Where(ModFilters.IsInitial);
             return Value(graph, baseMods);
         }
 
-        internal static Dice? BaseValue(RpgGraph graph, IEnumerable<Mod> mods)
+        public static Dice? BaseValue(RpgGraph graph, IEnumerable<Mod> mods)
         {
             var baseMods = mods.Where(ModFilters.IsBase);
             return Value(graph, baseMods);
         }
 
-        internal static Dice? OriginalBaseValue(RpgGraph graph, IEnumerable<Mod> mods)
+        public static Dice? OriginalBaseValue(RpgGraph graph, IEnumerable<Mod> mods)
         {
             var baseMods = mods.Where(ModFilters.IsOriginalBase);
             return Value(graph, baseMods);
         }
 
-        internal static Dice? Value(RpgGraph graph, IEnumerable<Mod> mods)
+        public static Dice? Value(RpgGraph graph, IEnumerable<Mod> mods)
         {
             var selectedMods = ModFilters.ActiveNoThreshold(mods);
 
@@ -63,11 +62,14 @@ namespace Rpg.ModObjects.Mods
             if (dice == null)
                 return null;
 
+            if (selectedMods.Any(ModFilters.IsOverride))
+                return dice;
+
             var threshold = ModFilters.ActiveThreshold(mods);
             return ApplyThreshold(threshold, dice!.Value);
         }
 
-        private static Dice ApplyThreshold(Mod? mod, Dice dice)
+        public static Dice ApplyThreshold(Mod? mod, Dice dice)
         {
             var threshold = mod?.Behavior as Threshold;
             if (threshold != null && dice.IsConstant)

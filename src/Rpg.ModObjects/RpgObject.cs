@@ -172,6 +172,22 @@ namespace Rpg.ModObjects
             return ModCalculator.BaseValue(Graph, mods);
         }
 
+        public int? ThresholdMinValue(string prop)
+        {
+            var mod = ModFilters.ActiveThreshold(GetMods(prop));
+            return mod?.Behavior is Behaviors.Threshold threshold
+                ? threshold.Min
+                : null;
+        }
+
+        public int? ThresholdMaxValue(string prop)
+        {
+            var mod = ModFilters.ActiveThreshold(GetMods(prop));
+            return mod?.Behavior is Behaviors.Threshold threshold
+                ? threshold.Max
+                : null;
+        }
+
         public Dice? OriginalBaseValue(string prop)
         {
             var mods = GetMods(prop);
@@ -191,6 +207,7 @@ namespace Rpg.ModObjects
 
             return false;
         }
+
         internal void SetValue(string path, Dice? value)
         {
             var propInfo = RpgReflection.ScanForModdableProperty(this, path, out var pathEntity);
@@ -216,22 +233,11 @@ namespace Rpg.ModObjects
 
         #region Mods
 
-        public Mod? GetMod(string id)
-            => Props.GetMod(id);
-
         public Mod[] GetMods()
             => Props.GetMods();
 
         public Mod[] GetMods(string prop)
             => Props.GetMods(prop);
-
-        //public Mod[] GetActiveMods()
-        //    => Props.Values
-        //        .SelectMany(x => x.GetActive())
-        //        .ToArray();
-
-        //public Mod[] GetActiveMods(string prop, Func<Mod, bool>? filterFunc = null)
-        //    => Props.GetActiveMods(Graph, this, prop, filterFunc);
 
         public void AddMods(params Mod[] mods)
         {
