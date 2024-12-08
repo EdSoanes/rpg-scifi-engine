@@ -13,6 +13,14 @@ export const propertyValue = style([
   },
 ])
 
+export const propertyValueTitle = style([
+  {
+    cursor: 'cursor',
+    ':hover': {
+      cursor: 'pointer',
+    },
+  },
+])
 globalStyle(`${propertyValue} > .showOnHover`, {
   display: 'none',
 })

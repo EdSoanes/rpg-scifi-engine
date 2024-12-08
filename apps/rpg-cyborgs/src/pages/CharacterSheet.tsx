@@ -1,4 +1,4 @@
-import { Heading } from '@chakra-ui/react'
+import { Drawer, Heading } from '@chakra-ui/react'
 import { StatsBlock } from '../components/stats'
 import { ConditionsBlock, StatesBlock } from '../components/states'
 import {
@@ -12,8 +12,6 @@ import { selectPlayerCharacter } from '../app/graphState/graphSelectors'
 import { useAppSelector } from '../app/hooks'
 import { GearBlock } from '../components/gear'
 import { TimeBlock } from '../components/time'
-import { StepperInput } from '../components/ui/stepper-input'
-import { useState } from 'react'
 
 //import { isEncounterTime } from '../app/utils/is-encounter-time'
 
@@ -21,19 +19,30 @@ export default function CharacterSheet() {
   //const time = useSelector(selectTime)
   const playerCharacter = useSelector(selectPlayerCharacter)
   const { hands, wearing } = useAppSelector((state) => state.gear)
-  const [val, setVal] = useState<string>('10')
+
   return (
     <>
-      <Heading>{playerCharacter?.name ?? 'Nobody'}</Heading>
-      <StepperInput
-        spinOnPress={false}
-        maxW="200px"
-        size={'md'}
-        value={val}
-        onValueChange={(e) => {
-          setVal(e.value)
-        }}
-      />
+      <Drawer.Root /*open={open} onOpenChange={(e) => setOpen(e.open)}*/>
+        <Drawer.Trigger>
+          <Heading>{playerCharacter?.name ?? 'Nobody'}</Heading>
+        </Drawer.Trigger>
+        <Drawer.Content>
+          <Drawer.Header></Drawer.Header>
+          <Drawer.Body>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+              eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            </p>
+          </Drawer.Body>
+          <Drawer.Footer>
+            {/* <Drawer.ActionTrigger asChild>
+              <Button variant="outline">Cancel</Button>
+            </Drawer.ActionTrigger>
+            <Button>Save</Button> */}
+          </Drawer.Footer>
+          <Drawer.CloseTrigger />
+        </Drawer.Content>
+      </Drawer.Root>
       <TimeBlock />
       <StatsBlock />
       <StatesBlock />

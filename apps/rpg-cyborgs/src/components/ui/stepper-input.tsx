@@ -1,4 +1,4 @@
-import { IconButton, NumberInput, VStack } from '@chakra-ui/react'
+import { HStack, IconButton, NumberInput } from '@chakra-ui/react'
 import * as React from 'react'
 import { LuChevronDown, LuChevronUp } from 'react-icons/lu'
 
@@ -14,15 +14,15 @@ export const StepperInput = React.forwardRef<HTMLDivElement, StepperInputProps>(
     return (
       <NumberInput.Root {...rest} unstyled ref={ref}>
         {label && <NumberInput.Label>{label}</NumberInput.Label>}
-        <VStack gap={0}>
-          <IncrementTrigger opacity={hideTriggers ? '0' : '100'} />
+        <HStack gap={0}>
+          <DecrementTrigger opacity={hideTriggers ? '0' : '100'} />
           <NumberInput.ValueText
             textAlign="center"
             textStyle="2xl"
             minW="3ch"
           />
-          <DecrementTrigger opacity={hideTriggers ? '0' : '100'} />
-        </VStack>
+          <IncrementTrigger opacity={hideTriggers ? '0' : '100'} />
+        </HStack>
       </NumberInput.Root>
     )
   }

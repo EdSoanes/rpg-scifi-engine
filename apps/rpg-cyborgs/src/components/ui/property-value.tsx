@@ -1,28 +1,31 @@
 import {
+  Heading,
   HTMLChakraProps,
   NumberInputValueChangeDetails,
+  VStack,
 } from '@chakra-ui/react'
 import { StepperInput } from './stepper-input'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { PropValue } from '@/lib/rpg-api/cyborg-types'
 
 export interface PropertyValueProps extends HTMLChakraProps<'div'> {
-  propValue?: PropValue
+  name: string
+  propValue: PropValue
   onPropValueChanged: (value: number) => void
+  onShowDetails: () => void
 }
 
 export default function PropertyValue(props: PropertyValueProps) {
-  const { propValue, onPropValueChanged } = props
+  const { name, propValue, onPropValueChanged, onShowDetails } = props
   const [hide, setHide] = useState<boolean>(true)
-  const value = useMemo(() => String(propValue?.value), [propValue?.value])
+  //const value = useMemo(() => String(propValue?.value), [propValue?.value])
+  //const [open, setOpen] = useState(false)
 
   const propValueChanged = (e: NumberInputValueChangeDetails) => {
     if (propValue && onPropValueChanged) {
       const newBaseValue =
         propValue.baseValue + Number(e.value) - propValue.value
-      console.log('orgBaseValue', propValue.originalBaseValue)
-      console.log('oldBaseValue', propValue.baseValue)
-      console.log('newBaseValue', newBaseValue)
+
       onPropValueChanged(newBaseValue)
     }
   }
@@ -34,16 +37,42 @@ export default function PropertyValue(props: PropertyValueProps) {
   }
 
   return (
-    <StepperInput
-      hideTriggers={hide}
-      spinOnPress={false}
-      maxW="200px"
-      color={color}
-      size={'md'}
-      value={value}
-      onValueChange={propValueChanged}
-      onMouseOver={() => setHide(false)}
-      onMouseLeave={() => setHide(true)}
-    />
+    <VStack>
+      <Heading onClick={onShowDetails}>{name}</Heading>
+      {/* <DrawerRoot open={open} onOpenChange={(e) => setOpen(e.open)}>
+         <DrawerTrigger asChild>
+          <Heading className={propertyValueTitle} onClick={onShowDetails}>
+            {name}
+          </Heading>
+        </DrawerTrigger>
+        <DrawerContent>
+          <DrawerHeader></DrawerHeader>
+          <DrawerBody>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+              eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            </p>
+          </DrawerBody>
+          <DrawerFooter>
+            <Drawer.ActionTrigger asChild>
+              <Button variant="outline">Cancel</Button>
+            </Drawer.ActionTrigger>
+            <Button>Save</Button>
+          </DrawerFooter>
+          <DrawerCloseTrigger />
+        </DrawerContent>
+      </DrawerRoot>  */}
+      <StepperInput
+        hideTriggers={hide}
+        spinOnPress={false}
+        maxW="200px"
+        color={color}
+        size={'md'}
+        value={String(propValue?.value)}
+        onValueChange={propValueChanged}
+        onMouseOver={() => setHide(false)}
+        onMouseLeave={() => setHide(true)}
+      />
+    </VStack>
   )
 }
