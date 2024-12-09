@@ -1,4 +1,4 @@
-import { ActionTemplate } from '../../lib/rpg-api/types'
+import { ActionTemplate } from '@lib/rpg-api/types'
 import {
   Grid,
   GridItem,
@@ -13,7 +13,7 @@ import {
   PiCheckCircleLight,
   PiQuestionLight,
 } from 'react-icons/pi'
-import BoxButton from '../ui/box-button'
+import BoxButton from '@components/ui/box-button'
 import { useState } from 'react'
 
 export declare interface ActionTemplatePanelProps {

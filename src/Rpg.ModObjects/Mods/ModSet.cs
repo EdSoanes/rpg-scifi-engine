@@ -57,52 +57,6 @@ namespace Rpg.ModObjects.Mods
             Mods.Clear();
         }
 
-        public ModSetDescription Describe()
-        {
-            var res = new ModSetDescription(Name);
-            if (Graph != null)
-            {
-                var entity = Graph.GetObject(OwnerId);
-                if (entity != null)
-                {
-                    var isAdded = entity.ModSets.ContainsKey(Id);
-                    var isApplied = IsApplied;
-
-                    if (!isAdded)
-                    {
-                        entity.AddModSet(this);
-                        Graph.Time.TriggerEvent();
-                    }
-
-                    if (!isApplied)
-                    {
-                        Apply();
-                        Graph.Time.TriggerEvent();
-                    }
-
-                    foreach (var modGroup in Mods.GroupBy(x => x.Target))
-                    {
-                        var val = ModCalculator.Value(Graph, modGroup) ?? Dice.Zero;
-                        res.Set(modGroup.Key, val);
-                    }
-
-                    if (!isApplied)
-                    {
-                        Unapply();
-                        Graph.Time.TriggerEvent();
-                    }
-
-                    if (!isAdded)
-                    {
-                        entity.RemoveModSet(Id);
-                        Graph.Time.TriggerEvent();
-                    }
-                }
-            }
-
-            return res;
-        }
-
         public override void OnCreating(RpgGraph graph, RpgObject? entity = null)
         {
             base.OnCreating(graph, entity);

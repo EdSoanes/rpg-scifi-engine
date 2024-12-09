@@ -54,6 +54,11 @@ export interface State {
   readonly isOnConditionally: boolean
 }
 
+export interface Dice {
+  isConstant: boolean
+  expr?: string
+}
+
 export type RpgArg = Pick<
   components['schemas']['Reflection.Args.RpgArg'],
   keyof components['schemas']['Reflection.Args.RpgArg']
@@ -88,17 +93,52 @@ export type Activity = Pick<
   keyof components['schemas']['Activities.Activity']
 >
 
-export type PropDescription = Pick<
-  components['schemas']['Props.PropDescription'],
-  keyof components['schemas']['Props.PropDescription']
+export type ObjectPropInfo = Pick<
+  components['schemas']['Description.ObjectPropInfo'],
+  keyof components['schemas']['Description.ObjectPropInfo']
 >
 
-export type ModSetDescription = Pick<
-  components['schemas']['Mods.ModSetDescription'],
-  keyof components['schemas']['Mods.ModSetDescription']
+export type PropInfo = Pick<
+  components['schemas']['Description.PropInfo'],
+  keyof components['schemas']['Description.PropInfo']
+>
+
+export type ModInfo = Pick<
+  components['schemas']['Description.ModInfo'],
+  keyof components['schemas']['Description.ModInfo']
+>
+
+export type ModSetValues = Pick<
+  components['schemas']['Description.ModSetValues'],
+  keyof components['schemas']['Description.ModSetValues']
 >
 
 export type ModSet = Pick<
   components['schemas']['Mods.ModSet'],
   keyof components['schemas']['Mods.ModSet']
+>
+
+export type Mod = Pick<
+  components['schemas']['Mods.Mod'],
+  keyof components['schemas']['Mods.Mod']
+>
+
+export type ThresholdMod = Pick<
+  components['schemas']['Mods.Mods.Threshold'],
+  keyof components['schemas']['Mods.Mods.Threshold']
+>
+
+export type BaseMod = Pick<
+  components['schemas']['Mods.Mods.Base'],
+  keyof components['schemas']['Mods.Mods.Base']
+>
+
+export type InitialMod = Pick<
+  components['schemas']['Mods.Mods.Initial'],
+  keyof components['schemas']['Mods.Mods.Initial']
+>
+
+export type OverrideMod = Pick<
+  components['schemas']['Mods.Mods.Override'],
+  keyof components['schemas']['Mods.Mods.Override']
 >

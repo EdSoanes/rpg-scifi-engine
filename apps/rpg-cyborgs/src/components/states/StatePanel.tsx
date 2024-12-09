@@ -1,27 +1,20 @@
-import { useState } from 'react'
-import { ModSetDescription, State } from '../../lib/rpg-api/types'
+// import { useState } from 'react'
+import { State } from '@lib/rpg-api/types'
 import { Grid, GridItem, Heading } from '@chakra-ui/react'
 import {
-  selectGraphState,
+  //selectGraphState,
   selectPlayerCharacter,
-} from '../../app/graphState/graphSelectors'
+} from '@app/graphState/graphSelectors'
 import { useSelector } from 'react-redux'
-import { useAppDispatch } from '../../app/hooks'
-import { toggleState } from '../../app/thunks'
-import { getStateDescription } from '../../lib/rpg-api/fetcher'
-import BoxButton, { BoxButtonState } from '../ui/box-button'
+import { useAppDispatch } from '@app/hooks'
+import { toggleState } from '@app/thunks'
+//import { getStateDescription } from '@lib/rpg-api/fetcher'
+import BoxButton, { BoxButtonState } from '@components/ui/box-button'
 import {
   PiCheckCircleFill,
   PiCheckCircleLight,
   PiQuestionLight,
 } from 'react-icons/pi'
-import {
-  HoverCardArrow,
-  HoverCardContent,
-  HoverCardRoot,
-  HoverCardTrigger,
-} from '../ui/hover-card'
-import ReactJson from 'react-json-view'
 
 export declare interface StateButtonProps {
   className?: string
@@ -32,14 +25,14 @@ function StatePanel(props: StateButtonProps) {
   const { state } = props
 
   const dispatch = useAppDispatch()
-  const graphState = useSelector(selectGraphState)
+  //const graphState = useSelector(selectGraphState)
   const playerCharacter = useSelector(selectPlayerCharacter)
 
-  const [loadingDescribe, setLoadingDescribe] = useState<boolean>(false)
-  const [describe, setDescribe] = useState<
-    ModSetDescription | undefined | null
-  >()
-  const [open, setOpen] = useState(false)
+  // const [loadingDescribe, setLoadingDescribe] = useState<boolean>(false)
+  // const [describe, setDescribe] = useState<
+  //   ModSetDescription | undefined | null
+  // >()
+  //const [open, setOpen] = useState(false)
 
   const onChangeState = (buttonState: BoxButtonState) => {
     console.log('clicked', buttonState)
@@ -55,21 +48,21 @@ function StatePanel(props: StateButtonProps) {
     }
   }
 
-  const onDescribe = async (open: boolean) => {
-    if (state) {
-      if (!describe && !loadingDescribe) {
-        setLoadingDescribe(true)
-        const response = await getStateDescription(
-          state.ownerId,
-          state.name,
-          graphState!
-        )
-        setDescribe(response?.data)
-        setLoadingDescribe(false)
-      }
-      setOpen(open)
-    }
-  }
+  // const onDescribe = async (open: boolean) => {
+  //   if (state) {
+  //     if (!describe && !loadingDescribe) {
+  //       setLoadingDescribe(true)
+  //       const response = await getStateDescription(
+  //         state.ownerId,
+  //         state.name,
+  //         graphState
+  //       )
+  //       setDescribe(response?.data)
+  //       setLoadingDescribe(false)
+  //     }
+  //     setOpen(open)
+  //   }
+  // }
 
   return (
     <>
@@ -93,21 +86,7 @@ function StatePanel(props: StateButtonProps) {
           </GridItem>
         </Grid>
       </BoxButton>
-
-      <HoverCardRoot
-        size="sm"
-        open={open}
-        onOpenChange={async (e) => await onDescribe(e.open)}
-      >
-        <HoverCardTrigger asChild>
-          <PiQuestionLight />
-        </HoverCardTrigger>
-
-        <HoverCardContent>
-          <HoverCardArrow />
-          {describe && <ReactJson src={describe} />}
-        </HoverCardContent>
-      </HoverCardRoot>
+      <PiQuestionLight />
     </>
   )
 }

@@ -1,5 +1,5 @@
 import { Heading, Stack } from '@chakra-ui/react'
-import { RpgContainer, RpgEntity } from '../../lib/rpg-api/types'
+import { RpgContainer, RpgEntity } from '@lib/rpg-api/types'
 import GearPanel from './GearPanel'
 
 export interface GearBlockProps {

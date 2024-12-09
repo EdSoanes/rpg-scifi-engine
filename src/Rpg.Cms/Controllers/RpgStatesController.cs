@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Rpg.ModObjects.Description;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Server;
 using Rpg.ModObjects.Server.Json;
@@ -31,8 +32,8 @@ namespace Rpg.Cms.Controllers
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
         [HttpPost("{system}/state/describe")]
-        [ProducesResponseType(typeof(RpgResponse<ModSetDescription>), StatusCodes.Status200OK)]
-        public IActionResult DescribeState(string system, RpgRequest<DescribeState> request)
+        [ProducesResponseType(typeof(RpgResponse<ModSetValues>), StatusCodes.Status200OK)]
+        public IActionResult StateValues(string system, RpgRequest<DescribeState> request)
         {
             var response = _sessionlessServer.Describe(system, request);
 

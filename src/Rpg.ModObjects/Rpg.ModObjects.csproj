@@ -7,13 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Description\**" />
     <Compile Remove="Refs\**" />
     <Compile Remove="Time\Lifecycles\**" />
-    <EmbeddedResource Remove="Description\**" />
     <EmbeddedResource Remove="Refs\**" />
     <EmbeddedResource Remove="Time\Lifecycles\**" />
-    <None Remove="Description\**" />
     <None Remove="Refs\**" />
     <None Remove="Time\Lifecycles\**" />
   </ItemGroup>

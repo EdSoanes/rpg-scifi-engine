@@ -1,10 +1,10 @@
 import { Box, Button, Heading, Stack } from '@chakra-ui/react'
 import { useSelector } from 'react-redux'
-import { selectTime } from '../../app/graphState/graphSelectors'
-import { PointInTime } from '../../lib/rpg-api/types'
-import { useAppDispatch } from '../../app/hooks'
-import { setGraphTime } from '../../app/thunks'
-import { isEncounterTime } from '../../app/utils/is-encounter-time'
+import { selectTime } from '@app/graphState/graphSelectors'
+import { PointInTime } from '@lib/rpg-api/types'
+import { useAppDispatch } from '@app/hooks'
+import { setGraphTime } from '@app/thunks'
+import { isEncounterTime } from '@app/utils/is-encounter-time'
 
 function TimeBlock() {
   const dispatch = useAppDispatch()

@@ -75,24 +75,24 @@ namespace Rpg.ModObjects.Mods
             return value;
         }
 
-        public ModDescription? Describe()
-        {
-            var value = Value();
-            var modDesc = new ModDescription
-            {
-                ModType = GetType().Name,
-                Behavior = Behavior.GetType().Name,
-                Value = value ?? Dice.Zero,
-                ValueFunction = SourceValueFunc?.FullName,
-                SourceValue = SourceValue,
-            };
+        //public ModDescription? Describe()
+        //{
+        //    var value = Value();
+        //    var modDesc = new ModDescription
+        //    {
+        //        ModType = GetType().Name,
+        //        Behavior = Behavior.GetType().Name,
+        //        Value = value ?? Dice.Zero,
+        //        ValueFunction = SourceValueFunc?.FullName,
+        //        SourceValue = SourceValue,
+        //    };
 
-            var sourceEntity = Graph.GetObject(Source?.EntityId);
-            if (sourceEntity != null)
-                modDesc.SourceProp = sourceEntity.Describe(Source!.Prop);
+        //    var sourceEntity = Graph.GetObject(Source?.EntityId);
+        //    if (sourceEntity != null)
+        //        modDesc.SourceProp = sourceEntity.Describe(Source!.Prop);
 
-            return modDesc;
-        }
+        //    return modDesc;
+        //}
 
         public override LifecycleExpiry OnStartLifecycle()
         {

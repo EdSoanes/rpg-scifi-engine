@@ -1,5 +1,6 @@
 ﻿using Rpg.Core.Tests.Models;
 using Rpg.ModObjects;
+using Rpg.ModObjects.Description;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Props;
@@ -23,34 +24,34 @@ namespace Rpg.Core.Tests
             var person = new TestPerson("Benny");
             var graph = new RpgGraph(person);
 
-            var desc = person.Describe("MeleeAttack");
+            var desc = ObjectPropDescriber.Describe(graph, person, "MeleeAttack");
             Assert.That(desc, Is.Not.Null);
 
             Assert.That(desc.EntityId, Is.EqualTo(person.Id));
-            Assert.That(desc.EntityArchetype, Is.EqualTo(person.Archetype));
-            Assert.That(desc.EntityName, Is.EqualTo(person.Name));
-            Assert.That(desc.Prop, Is.EqualTo("MeleeAttack"));
-            Assert.That(desc.Value.Roll(), Is.EqualTo(2));
-            Assert.That(desc.Mods.Count(), Is.EqualTo(2));
+            Assert.That(desc.Archetype, Is.EqualTo(person.Archetype));
+            Assert.That(desc.Name, Is.EqualTo(person.Name));
+            Assert.That(desc.PropPath, Is.EqualTo("MeleeAttack"));
+            Assert.That(desc.PropInfo.Value.Roll(), Is.EqualTo(2));
+            Assert.That(desc.PropInfo.Mods.Count(), Is.EqualTo(2));
 
-            var initialMod = desc.Mods.FirstOrDefault(x => x.ModType == nameof(Initial));
+            var initialMod = desc.PropInfo.Mods.FirstOrDefault(x => x.ModType == nameof(Initial));
 
             Assert.That(initialMod, Is.Not.Null);
             Assert.That(initialMod.Value.Roll(), Is.EqualTo(1));
 
-            var baseMods = desc.Mods.Where(x => x.ModType == nameof(Base));
+            var baseMods = desc.PropInfo.Mods.Where(x => x.ModType == nameof(Base));
             Assert.That(baseMods.Count(), Is.EqualTo(1));
 
             var baseMod = baseMods.First();
-            Assert.That(baseMod.SourceProp!.Prop, Is.EqualTo("StrengthBonus"));
-            Assert.That(baseMod.SourceProp!.Value.Roll(), Is.EqualTo(1));
-            Assert.That(baseMod.SourceProp!.Mods.Count(), Is.EqualTo(2));
+            Assert.That(baseMod.Source!.Prop, Is.EqualTo("StrengthBonus"));
+            Assert.That(baseMod.Source!.Value.Roll(), Is.EqualTo(1));
+            Assert.That(baseMod.Source!.Mods.Count(), Is.EqualTo(2));
 
-            var scoreMod = baseMod.SourceProp!.Mods.FirstOrDefault(x => x.SourceProp?.Prop == "Strength");
+            var scoreMod = baseMod.Source!.Mods.FirstOrDefault(x => x.Source?.Prop == "Strength");
             Assert.That(scoreMod, Is.Not.Null);
-            Assert.That(scoreMod.SourceProp!.Prop, Is.EqualTo("Strength"));
+            Assert.That(scoreMod.Source!.Prop, Is.EqualTo("Strength"));
             Assert.That(scoreMod.Value.Roll(), Is.EqualTo(1));
-            Assert.That(scoreMod.SourceProp.Value.Roll(), Is.EqualTo(13));
+            Assert.That(scoreMod.Source.Value.Roll(), Is.EqualTo(13));
 
         }
 
@@ -67,7 +68,7 @@ namespace Rpg.Core.Tests
             person.AddModSet(modSet);
             graph.Time.TriggerEvent();
 
-            var desc = modSet.Describe();
+            var desc = ObjectPropDescriber.Values(graph, modSet);
 
             Assert.That(desc, Is.Not.Null);
             Assert.That(desc.Name, Is.EqualTo("Testing"));

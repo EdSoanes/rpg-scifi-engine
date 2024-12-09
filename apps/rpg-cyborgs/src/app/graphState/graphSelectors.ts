@@ -12,7 +12,7 @@ import { PlayerCharacter, PropValue } from '../../lib/rpg-api/cyborg-types'
 export const selectGraphState = (state: RootState): RpgGraphState | undefined =>
   state.graph.graphState
 
-export const selectActionTemplates = (state: RootState): ActionTemplate[] => 
+export const selectActionTemplates = (state: RootState): ActionTemplate[] =>
   state.actionTemplates.actionTemplates
 
 export const selectStateName = (state: RootState, stateName: string) =>
@@ -120,7 +120,7 @@ export const selectActionPoints = createSelector(
   (playerCharacter?: PlayerCharacter): PropValue | undefined => {
     return playerCharacter
       ? ({
-          id: `${playerCharacter.id}/ap`,
+          id: playerCharacter.id,
           value: playerCharacter.currentActionPoints,
           baseValue: playerCharacter.actionPoints,
         } as PropValue)
@@ -133,7 +133,7 @@ export const selectFocusPoints = createSelector(
   (playerCharacter?: PlayerCharacter): PropValue | undefined => {
     return playerCharacter
       ? ({
-          id: `${playerCharacter.id}/fp`,
+          id: playerCharacter.id,
           value: playerCharacter.currentFocusPoints,
           baseValue: playerCharacter.focusPoints,
         } as PropValue)
@@ -146,7 +146,7 @@ export const selectLuckPoints = createSelector(
   (playerCharacter?: PlayerCharacter): PropValue | undefined => {
     return playerCharacter
       ? ({
-          id: `${playerCharacter.id}/lp`,
+          id: playerCharacter.id,
           value: playerCharacter.currentLuckPoints,
           baseValue: playerCharacter.luckPoints,
         } as PropValue)
@@ -159,7 +159,7 @@ export const selectStaminaPoints = createSelector(
   (playerCharacter?: PlayerCharacter): PropValue | undefined => {
     return playerCharacter
       ? ({
-          id: `${playerCharacter.id}/stp`,
+          id: playerCharacter.id,
           value: playerCharacter.currentStaminaPoints,
           baseValue: playerCharacter.staminaPoints,
         } as PropValue)

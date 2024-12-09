@@ -10,13 +10,13 @@ import { useState } from 'react'
 import ActionTemplatePanel from './ActionTemplatePanel'
 
 import { useSelector } from 'react-redux'
-import { selectPlayerCharacter } from '../../app/graphState/graphSelectors'
-import { initiateAction } from '../../app/thunks'
-import { useAppDispatch } from '../../app/hooks'
+import { selectPlayerCharacter } from '@app/graphState/graphSelectors'
+import { initiateAction } from '@app/thunks'
+import { useAppDispatch } from '@app/hooks'
 
-import { ActionTemplate } from '../../lib/rpg-api/types'
+import { ActionTemplate } from '@lib/rpg-api/types'
 import ActionInstancePanel from './ActivityPanel'
-import { selectSkillTemplates } from '../../app/actions/actionTemplatesSelectors'
+import { selectSkillTemplates } from '@app/actions/actionTemplatesSelectors'
 
 function SkillTemplatesBlock() {
   const playerCharacter = useSelector(selectPlayerCharacter)

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ModSetDescription, State } from '../../lib/rpg-api/types'
+import { ModSetDescription, State } from '@lib/rpg-api/types'
 import {
   Button,
   Code,
@@ -11,11 +11,11 @@ import {
 import {
   selectGraphState,
   selectPlayerCharacter,
-} from '../../app/graphState/graphSelectors'
+} from '@app/graphState/graphSelectors'
 import { useSelector } from 'react-redux'
-import { useAppDispatch } from '../../app/hooks'
-import { toggleState } from '../../app/thunks'
-import { getStateDescription } from '../../lib/rpg-api/fetcher'
+import { useAppDispatch } from '@app/hooks'
+import { toggleState } from '@app/thunks'
+import { getStateDescription } from '@lib/rpg-api/fetcher'
 import { PiQuestion } from 'react-icons/pi'
 export declare interface TimePanelProps {
   state: State
@@ -26,7 +26,9 @@ function TimePanel(props: TimePanelProps) {
   const graphState = useSelector(selectGraphState)
   const playerCharacter = useSelector(selectPlayerCharacter)
   const variant = props.state.isOn ? 'solid' : 'outline'
-  const [describe, setDescribe] = useState<ModSetDescription | undefined>()
+  const [describe, setDescribe] = useState<
+    ModSetDescription | undefined | null
+  >()
 
   const { onOpen, onClose } = useDisclosure()
 
@@ -43,11 +45,11 @@ function TimePanel(props: TimePanelProps) {
   }
 
   const onDescribe = async () => {
-    if (props?.state) {
+    if (graphState && props?.state) {
       const response = await getStateDescription(
         props.state.ownerId,
         props.state.name,
-        graphState!
+        graphState
       )
       setDescribe(response?.data)
       onOpen()

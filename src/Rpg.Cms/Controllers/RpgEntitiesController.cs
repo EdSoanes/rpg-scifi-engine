@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Rpg.Cyborgs.Components;
+using Rpg.ModObjects.Description;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Server;
@@ -77,9 +78,9 @@ namespace Rpg.Cms.Controllers
         }
 
         [EnableCors(CorsComposer.AllowAnyOriginPolicyName)]
-        [HttpPost("{system}/modset/describe")]
-        [ProducesResponseType(typeof(RpgResponse<ModSetDescription>), StatusCodes.Status200OK)]
-        public IActionResult DescribeModSet(string system, RpgRequest<DescribeModSet> request)
+        [HttpPost("{system}/modset/values")]
+        [ProducesResponseType(typeof(RpgResponse<ModSetValues>), StatusCodes.Status200OK)]
+        public IActionResult ModSetValues(string system, RpgRequest<DescribeModSet> request)
         {
             var response = _sessionlessServer.Describe(system, request);
 
@@ -88,7 +89,7 @@ namespace Rpg.Cms.Controllers
         }
 
         [HttpPost("{system}/describe")]
-        [ProducesResponseType(typeof(RpgResponse<PropDescription>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(RpgResponse<ObjectPropInfo>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult Describe(string system, RpgRequest<DescribeProp> request)
         {

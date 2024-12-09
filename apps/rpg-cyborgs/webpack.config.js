@@ -1,7 +1,6 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin')
-const { VanillaExtractPlugin } = require('@vanilla-extract/webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
 module.exports = {
@@ -20,11 +19,10 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       title: 'Development',
-      template: path.resolve(__dirname, 'public/index.html'),
+      template: path.resolve(__dirname, 'src/public/index.html'),
       filename: 'index.html',
     }),
     new WebpackManifestPlugin(),
-    new VanillaExtractPlugin(),
     new MiniCssExtractPlugin(),
   ],
   module: {
@@ -46,17 +44,17 @@ module.exports = {
           },
         ],
       },
-      // {
-      //   test: /\.css$/,
-      //   use: [
-      //     {
-      //       loader: 'style-loader',
-      //     },
-      //     {
-      //       loader: 'css-loader',
-      //     },
-      //   ],
-      // },
+      {
+        test: /\.css$/,
+        use: [
+          {
+            loader: 'style-loader',
+          },
+          {
+            loader: 'css-loader',
+          },
+        ],
+      },
       {
         test: /\.(png|j?g|svg|gif)?$/,
         loader: 'file-loader',
@@ -65,6 +63,13 @@ module.exports = {
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
+    alias: {
+      '@components': path.resolve(__dirname, 'src/components'),
+      '@app': path.resolve(__dirname, 'src/app'),
+      '@layout': path.resolve(__dirname, 'src/layout'),
+      '@lib': path.resolve(__dirname, 'src/lib'),
+      '@pages': path.resolve(__dirname, 'src/pages'),
+    },
   },
   output: {
     filename: '[name].js',

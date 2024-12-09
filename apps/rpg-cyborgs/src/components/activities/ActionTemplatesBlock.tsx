@@ -17,14 +17,14 @@ import {
   selectLuckPoints,
   selectPlayerCharacter,
   selectReactions,
-} from '../../app/graphState/graphSelectors'
-import { initiateAction } from '../../app/thunks'
-import { useAppDispatch } from '../../app/hooks'
+} from '@app/graphState/graphSelectors'
+import { initiateAction } from '@app/thunks'
+import { useAppDispatch } from '@app/hooks'
 
-import { ActionTemplate } from '../../lib/rpg-api/types'
+import { ActionTemplate } from '@lib/rpg-api/types'
 import { StatPanel } from '../stats'
 import ActionInstancePanel from './ActivityPanel'
-import { selectActionTemplates } from '../../app/actions/actionTemplatesSelectors'
+import { selectActionTemplates } from '@app/actions/actionTemplatesSelectors'
 
 function ActionTemplatesBlock() {
   const playerCharacter = useSelector(selectPlayerCharacter)
@@ -67,23 +67,27 @@ function ActionTemplatesBlock() {
         </Heading>
         <HStack w={'100%'} alignItems={'stretch'}>
           <StatPanel
-            propName={'Action Points'}
-            propNameAbbr={''}
+            name={'Action Points'}
+            abbreviatedName={''}
+            prop={'CurrentActionPoints'}
             propValue={actionPoints}
           />
           <StatPanel
-            propName={'Focus Points'}
-            propNameAbbr={''}
+            name={'Focus Points'}
+            abbreviatedName={''}
+            prop={'CurrentFocusPoints'}
             propValue={focusPoints}
           />
           <StatPanel
-            propName={'Luck Points'}
-            propNameAbbr={''}
+            name={'Luck Points'}
+            abbreviatedName={''}
+            prop={'CurrentLuckPoints'}
             propValue={luckPoints}
           />
           <StatPanel
-            propName={'Reactions'}
-            propNameAbbr={''}
+            name={'Reactions'}
+            abbreviatedName={''}
+            prop={'Value'}
             propValue={reactions}
           />
         </HStack>

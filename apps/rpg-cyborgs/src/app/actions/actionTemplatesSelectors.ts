@@ -2,7 +2,7 @@ import { createSelector } from '@reduxjs/toolkit'
 import { ActionTemplate } from '../../lib/rpg-api/types'
 import { RootState } from '../store'
 import { ThunkStatus } from '../thunks'
-import { SkillTemplate } from '@/lib/rpg-api/cyborg-types'
+import { SkillTemplate } from '@lib/rpg-api/cyborg-types'
 
 export const selectActionTemplates = (state: RootState): ActionTemplate[] =>
   state.actionTemplates.actionTemplates.filter(

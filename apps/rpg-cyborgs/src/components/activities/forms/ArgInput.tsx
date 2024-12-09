@@ -12,7 +12,7 @@ import { RpgArg } from '../../../lib/rpg-api/types'
 // } from '@chakra-ui/react'
 
 import { Fieldset, Input } from '@chakra-ui/react'
-import { Field } from '../../ui/field'
+import { Field } from '@components/ui/field'
 // import {
 //   NumberInputField,
 //   NumberInputLabel,

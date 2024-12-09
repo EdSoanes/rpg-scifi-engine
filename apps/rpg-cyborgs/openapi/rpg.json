@@ -609,17 +609,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Server.RpgResponse_PropDescription"
+                  "$ref": "#/components/schemas/Server.RpgResponse_ObjectPropInfo"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Server.RpgResponse_PropDescription"
+                  "$ref": "#/components/schemas/Server.RpgResponse_ObjectPropInfo"
                 }
               },
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/Server.RpgResponse_PropDescription"
+                  "$ref": "#/components/schemas/Server.RpgResponse_ObjectPropInfo"
                 }
               }
             }
@@ -804,7 +804,7 @@
         }
       }
     },
-    "/api/rpg/{system}/modset/describe": {
+    "/api/rpg/{system}/modset/values": {
       "post": {
         "tags": [
           "v1"
@@ -849,17 +849,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Server.RpgResponse_ModSetDescription"
+                  "$ref": "#/components/schemas/Server.RpgResponse_ModSetValues"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Server.RpgResponse_ModSetDescription"
+                  "$ref": "#/components/schemas/Server.RpgResponse_ModSetValues"
                 }
               },
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/Server.RpgResponse_ModSetDescription"
+                  "$ref": "#/components/schemas/Server.RpgResponse_ModSetValues"
                 }
               }
             }
@@ -975,17 +975,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Server.RpgResponse_ModSetDescription"
+                  "$ref": "#/components/schemas/Server.RpgResponse_ModSetValues"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Server.RpgResponse_ModSetDescription"
+                  "$ref": "#/components/schemas/Server.RpgResponse_ModSetValues"
                 }
               },
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/Server.RpgResponse_ModSetDescription"
+                  "$ref": "#/components/schemas/Server.RpgResponse_ModSetValues"
                 }
               }
             }
@@ -2820,6 +2820,171 @@
         ],
         "additionalProperties": false
       },
+      "Description.ModInfo": {
+        "required": [
+          "additionalInfo",
+          "behavior",
+          "id",
+          "modType",
+          "name",
+          "value"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "readOnly": true
+          },
+          "modType": {
+            "type": "string",
+            "readOnly": true
+          },
+          "behavior": {
+            "type": "string",
+            "readOnly": true
+          },
+          "value": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Values.Dice"
+              }
+            ],
+            "readOnly": true
+          },
+          "valueFunction": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "additionalInfo": {
+            "type": "object",
+            "additionalProperties": { }
+          },
+          "source": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Description.PropInfo"
+              }
+            ],
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Description.ModSetValues": {
+        "required": [
+          "name",
+          "values"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "values": {
+            "type": "object",
+            "additionalProperties": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Values.Dice"
+                }
+              ]
+            },
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Description.ObjectPropInfo": {
+        "required": [
+          "archetype",
+          "entityId",
+          "name",
+          "propInfo",
+          "propPath"
+        ],
+        "type": "object",
+        "properties": {
+          "entityId": {
+            "type": "string",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "readOnly": true
+          },
+          "archetype": {
+            "type": "string",
+            "readOnly": true
+          },
+          "propPath": {
+            "type": "string",
+            "readOnly": true
+          },
+          "propInfo": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Description.PropInfo"
+              }
+            ],
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Description.PropInfo": {
+        "required": [
+          "archetype",
+          "entityId",
+          "mods",
+          "name",
+          "prop",
+          "value"
+        ],
+        "type": "object",
+        "properties": {
+          "entityId": {
+            "type": "string",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "readOnly": true
+          },
+          "archetype": {
+            "type": "string",
+            "readOnly": true
+          },
+          "prop": {
+            "type": "string",
+            "readOnly": true
+          },
+          "value": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Values.Dice"
+              }
+            ],
+            "readOnly": true
+          },
+          "mods": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Description.ModInfo"
+                }
+              ]
+            },
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
       "Mods.Mod": {
         "required": [
           "behavior",
@@ -2973,30 +3138,6 @@
                 },
                 {
                   "$ref": "#/components/schemas/Mods.Mods.Turn"
-                }
-              ]
-            },
-            "readOnly": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "Mods.ModSetDescription": {
-        "required": [
-          "name",
-          "values"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "values": {
-            "type": "object",
-            "additionalProperties": {
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/Values.Dice"
                 }
               ]
             },
@@ -3221,50 +3362,6 @@
         ],
         "additionalProperties": false
       },
-      "Props.ModDescription": {
-        "required": [
-          "behavior",
-          "modType",
-          "value"
-        ],
-        "type": "object",
-        "properties": {
-          "sourceProp": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/Props.PropDescription"
-              }
-            ],
-            "nullable": true
-          },
-          "modType": {
-            "type": "string"
-          },
-          "behavior": {
-            "type": "string"
-          },
-          "sourceValue": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/Values.Dice"
-              }
-            ],
-            "nullable": true
-          },
-          "value": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/Values.Dice"
-              }
-            ]
-          },
-          "valueFunction": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "Props.Prop": {
         "required": [
           "entityId",
@@ -3330,73 +3427,6 @@
               ]
             },
             "readOnly": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "Props.PropDescription": {
-        "required": [
-          "baseValue",
-          "entityArchetype",
-          "entityId",
-          "entityName",
-          "mods",
-          "prop",
-          "rootEntityArchetype",
-          "rootEntityId",
-          "rootEntityName",
-          "rootProp",
-          "value"
-        ],
-        "type": "object",
-        "properties": {
-          "rootEntityId": {
-            "type": "string"
-          },
-          "rootEntityName": {
-            "type": "string"
-          },
-          "rootEntityArchetype": {
-            "type": "string"
-          },
-          "rootProp": {
-            "type": "string"
-          },
-          "entityId": {
-            "type": "string"
-          },
-          "entityName": {
-            "type": "string"
-          },
-          "entityArchetype": {
-            "type": "string"
-          },
-          "prop": {
-            "type": "string"
-          },
-          "value": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/Values.Dice"
-              }
-            ]
-          },
-          "baseValue": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/Values.Dice"
-              }
-            ]
-          },
-          "mods": {
-            "type": "array",
-            "items": {
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/Props.ModDescription"
-                }
-              ]
-            }
           }
         },
         "additionalProperties": false
@@ -4724,7 +4754,7 @@
         },
         "additionalProperties": false
       },
-      "Server.RpgResponse_ModSetDescription": {
+      "Server.RpgResponse_ModSetValues": {
         "required": [
           "graphState"
         ],
@@ -4740,7 +4770,31 @@
           "data": {
             "oneOf": [
               {
-                "$ref": "#/components/schemas/Mods.ModSetDescription"
+                "$ref": "#/components/schemas/Description.ModSetValues"
+              }
+            ],
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Server.RpgResponse_ObjectPropInfo": {
+        "required": [
+          "graphState"
+        ],
+        "type": "object",
+        "properties": {
+          "graphState": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RpgGraphState"
+              }
+            ]
+          },
+          "data": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Description.ObjectPropInfo"
               }
             ],
             "nullable": true
@@ -4768,30 +4822,6 @@
                 "$ref": "#/components/schemas/Time.PointInTime"
               }
             ]
-          }
-        },
-        "additionalProperties": false
-      },
-      "Server.RpgResponse_PropDescription": {
-        "required": [
-          "graphState"
-        ],
-        "type": "object",
-        "properties": {
-          "graphState": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/RpgGraphState"
-              }
-            ]
-          },
-          "data": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/Props.PropDescription"
-              }
-            ],
-            "nullable": true
           }
         },
         "additionalProperties": false
