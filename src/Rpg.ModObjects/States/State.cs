@@ -35,19 +35,6 @@ namespace Rpg.ModObjects.States
             OwnerArchetype = owner.Archetype;
         }
 
-        public ModSetDescription Describe()
-        {
-            var instance = GetInstances().FirstOrDefault();
-            if (instance == null)
-            {
-                instance = new StateModSet(OwnerId, Name, StateInstanceType.Manual);
-                instance.OnCreating(Graph);
-                FillStateSet(instance);
-            }
-
-            return instance.Describe();
-        }
-
         public void Activate()
         {
             if (!ActivationScheme.Any(x => x.InstanceType == StateInstanceType.Manual))

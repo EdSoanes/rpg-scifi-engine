@@ -1,6 +1,6 @@
 import { Button } from '@chakra-ui/react'
-import { useAppDispatch } from '../../app/hooks'
-import { fetchGraphState } from '../../app/thunks'
+import { useAppDispatch } from '@app/hooks'
+import { fetchGraphState } from '@app/thunks'
 
 function LoadGraphButton() {
   const dispatch = useAppDispatch()

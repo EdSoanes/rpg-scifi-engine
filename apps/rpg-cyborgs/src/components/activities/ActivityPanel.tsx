@@ -8,9 +8,9 @@ import {
   // Tabs,
 } from '@chakra-ui/react'
 import ActionPanel from './ActionPanel'
-import { selectActivity } from '../../app/activity/activitySelectors'
+import { selectActivity } from '@app/activity/activitySelectors'
 import { useSelector } from 'react-redux'
-import { selectActionsStatus } from '../../app/actions/actionTemplatesSelectors'
+import { selectActionsStatus } from '@app/actions/actionTemplatesSelectors'
 
 function ActivityPanel() {
   const activity = useSelector(selectActivity)

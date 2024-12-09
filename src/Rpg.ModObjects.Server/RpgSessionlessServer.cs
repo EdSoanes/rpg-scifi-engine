@@ -1,4 +1,5 @@
 ﻿using Rpg.ModObjects.Activities;
+using Rpg.ModObjects.Description;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Props;
 using Rpg.ModObjects.Reflection.Args;
@@ -78,54 +79,54 @@ namespace Rpg.ModObjects.Server
             };
         }
 
-        public RpgResponse<PropDescription> Describe(string system, RpgRequest<DescribeProp> request)
+        public RpgResponse<ObjectPropInfo> Describe(string system, RpgRequest<DescribeProp> request)
         {
             var graph = _graphService.HydrateGraph(system, request.GraphState);
             var entity = graph.GetObject(request.Op.EntityId)!;
             if (entity == null)
                 throw new InvalidOperationException($"Could not find entity with Id {request.Op.EntityId} in hydrated graph");
 
-            var description = entity.Describe(request.Op.Prop);
+            var description = ObjectPropDescriber.Describe(graph, entity, request.Op.Prop);
             if (description == null)
                 throw new InvalidOperationException($"Desription for Prop {request.Op.EntityId}.{request.Op.Prop} not found");
 
-            return new RpgResponse<PropDescription>
+            return new RpgResponse<ObjectPropInfo>
             {
                 GraphState = _graphService.DehydrateGraph(graph),
                 Data = description!
             };
         }
 
-        public RpgResponse<ModSetDescription> Describe(string system, RpgRequest<DescribeModSet> request)
+        public RpgResponse<ModSetValues> Describe(string system, RpgRequest<DescribeModSet> request)
         {
             var graph = _graphService.HydrateGraph(system, request.GraphState);
             var entity = graph.GetObject(request.Op.EntityId)!;
             if (entity == null)
                 throw new InvalidOperationException($"Could not find entity with Id {request.Op.EntityId} in hydrated graph");
 
-            var description = entity.GetModSet(request.Op.ModSetId)?.Describe();
+            var description = ObjectPropDescriber.Values(graph, entity.GetModSet(request.Op.ModSetId)!);
             if (description == null)
                 throw new InvalidOperationException($"Desription for ModSet {request.Op.EntityId}.{request.Op.ModSetId} not found");
 
-            return new RpgResponse<ModSetDescription>
+            return new RpgResponse<ModSetValues>
             {
                 GraphState = _graphService.DehydrateGraph(graph),
                 Data = description!
             };
         }
 
-        public RpgResponse<ModSetDescription> Describe(string system, RpgRequest<DescribeState> request)
+        public RpgResponse<ModSetValues> Describe(string system, RpgRequest<DescribeState> request)
         {
             var graph = _graphService.HydrateGraph(system, request.GraphState);
             var entity = graph.GetObject(request.Op.EntityId)!;
             if (entity == null)
                 throw new InvalidOperationException($"Could not find entity with Id {request.Op.EntityId} in hydrated graph");
 
-            var description = entity.GetState(request.Op.State)?.Describe();
+            var description = ObjectPropDescriber.Values(graph, entity.GetState(request.Op.State)!);
             if (description == null)
                 throw new InvalidOperationException($"Desription for State {request.Op.EntityId}.{request.Op.State} not found");
 
-            return new RpgResponse<ModSetDescription>
+            return new RpgResponse<ModSetValues>
             {
                 GraphState = _graphService.DehydrateGraph(graph),
                 Data = description!

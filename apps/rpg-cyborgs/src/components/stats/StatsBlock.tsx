@@ -7,7 +7,7 @@ import {
   selectHealth,
   selectInsight,
   selectStrength,
-} from '../../app/graphState/graphSelectors'
+} from '@app/graphState/graphSelectors'
 import { useSelector } from 'react-redux'
 
 function StatsBlock() {
@@ -20,12 +20,42 @@ function StatsBlock() {
 
   return (
     <HStack w={'100%'} alignItems={'stretch'}>
-      <StatPanel propName="Strength" propNameAbbr="STR" propValue={strength} />
-      <StatPanel propName="Agility" propNameAbbr="AGI" propValue={agility} />
-      <StatPanel propName="Health" propNameAbbr="HEL" propValue={health} />
-      <StatPanel propName="Brains" propNameAbbr="BRA" propValue={brains} />
-      <StatPanel propName="Insight" propNameAbbr="INS" propValue={insight} />
-      <StatPanel propName="Charisma" propNameAbbr="CHA" propValue={charisma} />
+      <StatPanel
+        name="Strength"
+        abbreviatedName="STR"
+        prop={'Value'}
+        propValue={strength}
+      />
+      <StatPanel
+        name="Agility"
+        abbreviatedName="AGI"
+        prop={'Value'}
+        propValue={agility}
+      />
+      <StatPanel
+        name="Health"
+        abbreviatedName="HEL"
+        prop={'Value'}
+        propValue={health}
+      />
+      <StatPanel
+        name="Brains"
+        abbreviatedName="BRA"
+        prop={'Value'}
+        propValue={brains}
+      />
+      <StatPanel
+        name="Insight"
+        abbreviatedName="INS"
+        prop={'Value'}
+        propValue={insight}
+      />
+      <StatPanel
+        name="Charisma"
+        abbreviatedName="CHA"
+        prop={'Value'}
+        propValue={charisma}
+      />
     </HStack>
   )
 }

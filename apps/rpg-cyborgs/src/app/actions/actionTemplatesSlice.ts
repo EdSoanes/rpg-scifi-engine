@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { ActionTemplate } from '../../lib/rpg-api/types'
-import { fetchGraphState, ThunkStatus } from '../thunks'
-import { PlayerCharacter } from '../../lib/rpg-api/cyborg-types'
+import { ActionTemplate } from '@lib/rpg-api/types'
+import { fetchGraphState, ThunkStatus } from '@app/thunks'
+import { PlayerCharacter } from '@lib/rpg-api/cyborg-types'
 
 export declare interface ActionTemplatesState {
   actionTemplates: ActionTemplate[]

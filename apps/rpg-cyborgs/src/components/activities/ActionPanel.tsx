@@ -1,4 +1,4 @@
-import { Action } from '../../lib/rpg-api/types'
+import { Action } from '@lib/rpg-api/types'
 import {
   Box,
   Code,
@@ -18,7 +18,7 @@ export declare interface ActionPanelProps {
 function ActionPanel(props: ActionPanelProps) {
   const { action } = props
 
-  const onSubmit = (argValues: Record<string, string | null | undefined>) => {
+  const onSubmit = (argValues: Record<string, unknown>) => {
     console.log('argValues', argValues)
   }
 

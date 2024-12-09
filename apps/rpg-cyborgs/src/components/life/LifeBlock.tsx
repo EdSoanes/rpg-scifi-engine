@@ -14,7 +14,7 @@ import {
   selectRightLeg,
   selectStaminaPoints,
   selectTorso,
-} from '../../app/graphState/graphSelectors'
+} from '@app/graphState/graphSelectors'
 import BodyPartPanel from './components/BodyPartPanel'
 
 function LifeBlock() {

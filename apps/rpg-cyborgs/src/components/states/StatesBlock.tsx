@@ -1,8 +1,8 @@
 import { Heading, Stack, Grid, GridItem } from '@chakra-ui/react'
 import StatePanel from './StatePanel'
-import { selectStates } from '../../app/states/statesSelectors'
+import { selectStates } from '@app/states/statesSelectors'
 import { useSelector } from 'react-redux'
-import { statePanel } from './StatesBlock.css'
+//import { statePanel } from './StatesBlock.css'
 
 function StatesBlock() {
   const states = useSelector(selectStates)
@@ -13,10 +13,10 @@ function StatesBlock() {
       </Heading>
       <Grid templateColumns="repeat(6, 1fr)" gap="6">
         {states
-          .filter((state) => state.isPlayerVisible)
+          .filter((state) => !!state.isPlayerVisible)
           .map((state, i) => (
             <GridItem key={i}>
-              <StatePanel className={statePanel} state={state} />
+              <StatePanel state={state} />
             </GridItem>
           ))}
       </Grid>

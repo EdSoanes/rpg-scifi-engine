@@ -446,9 +446,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["Server.RpgResponse_PropDescription"];
-                        "text/json": components["schemas"]["Server.RpgResponse_PropDescription"];
-                        "text/plain": components["schemas"]["Server.RpgResponse_PropDescription"];
+                        "application/json": components["schemas"]["Server.RpgResponse_ObjectPropInfo"];
+                        "text/json": components["schemas"]["Server.RpgResponse_ObjectPropInfo"];
+                        "text/plain": components["schemas"]["Server.RpgResponse_ObjectPropInfo"];
                     };
                 };
                 /** @description Bad Request */
@@ -597,7 +597,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rpg/{system}/modset/describe": {
+    "/api/rpg/{system}/modset/values": {
         parameters: {
             query?: never;
             header?: never;
@@ -630,9 +630,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["Server.RpgResponse_ModSetDescription"];
-                        "text/json": components["schemas"]["Server.RpgResponse_ModSetDescription"];
-                        "text/plain": components["schemas"]["Server.RpgResponse_ModSetDescription"];
+                        "application/json": components["schemas"]["Server.RpgResponse_ModSetValues"];
+                        "text/json": components["schemas"]["Server.RpgResponse_ModSetValues"];
+                        "text/plain": components["schemas"]["Server.RpgResponse_ModSetValues"];
                     };
                 };
             };
@@ -722,9 +722,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["Server.RpgResponse_ModSetDescription"];
-                        "text/json": components["schemas"]["Server.RpgResponse_ModSetDescription"];
-                        "text/plain": components["schemas"]["Server.RpgResponse_ModSetDescription"];
+                        "application/json": components["schemas"]["Server.RpgResponse_ModSetValues"];
+                        "text/json": components["schemas"]["Server.RpgResponse_ModSetValues"];
+                        "text/plain": components["schemas"]["Server.RpgResponse_ModSetValues"];
                     };
                 };
             };
@@ -1068,6 +1068,39 @@ export interface components {
         "Cyborgs.States.Parrying": components["schemas"]["States.State_Actor"];
         "Cyborgs.States.RangedAttacking": components["schemas"]["States.State_Actor"];
         "Cyborgs.States.VeryFast": components["schemas"]["States.State_Actor"];
+        "Description.ModInfo": {
+            readonly id: string;
+            readonly name: string;
+            readonly modType: string;
+            readonly behavior: string;
+            readonly value: components["schemas"]["Values.Dice"];
+            readonly valueFunction?: string | null;
+            additionalInfo: {
+                [key: string]: unknown;
+            };
+            source?: components["schemas"]["Description.PropInfo"] | null;
+        };
+        "Description.ModSetValues": {
+            name: string;
+            readonly values: {
+                [key: string]: components["schemas"]["Values.Dice"];
+            };
+        };
+        "Description.ObjectPropInfo": {
+            readonly entityId: string;
+            readonly name: string;
+            readonly archetype: string;
+            readonly propPath: string;
+            readonly propInfo: components["schemas"]["Description.PropInfo"];
+        };
+        "Description.PropInfo": {
+            readonly entityId: string;
+            readonly name: string;
+            readonly archetype: string;
+            readonly prop: string;
+            readonly value: components["schemas"]["Values.Dice"];
+            readonly mods: components["schemas"]["Description.ModInfo"][];
+        };
         "Mods.Mod": {
             readonly isApplied: boolean;
             readonly isDisabled: boolean;
@@ -1090,12 +1123,6 @@ export interface components {
             name: string;
             readonly mods: (components["schemas"]["Mods.Mods.Base"] | components["schemas"]["Mods.Mods.Encounter"] | components["schemas"]["Mods.Mods.Initial"] | components["schemas"]["Mods.Mods.Override"] | components["schemas"]["Mods.Mods.Permanent"] | components["schemas"]["Mods.Mods.Threshold"] | components["schemas"]["Mods.Mods.Turn"])[];
         } & components["schemas"]["RpgLifecycleObject"];
-        "Mods.ModSetDescription": {
-            name: string;
-            readonly values: {
-                [key: string]: components["schemas"]["Values.Dice"];
-            };
-        };
         "Mods.ModSets.StateModSet": {
             stateName: string;
             instanceType: components["schemas"]["States.StateInstanceType"];
@@ -1126,14 +1153,6 @@ export interface components {
             readonly sourceValue?: components["schemas"]["Values.Dice"] | null;
         };
         "Mods.Mods.Turn": components["schemas"]["Mods.Mods.Time"];
-        "Props.ModDescription": {
-            sourceProp?: components["schemas"]["Props.PropDescription"] | null;
-            modType: string;
-            behavior: string;
-            sourceValue?: components["schemas"]["Values.Dice"] | null;
-            value: components["schemas"]["Values.Dice"];
-            valueFunction?: string | null;
-        };
         "Props.Prop": {
             readonly entityId: string;
             readonly name: string;
@@ -1141,19 +1160,6 @@ export interface components {
             readonly mods: (components["schemas"]["Mods.Mods.Base"] | components["schemas"]["Mods.Mods.Encounter"] | components["schemas"]["Mods.Mods.Initial"] | components["schemas"]["Mods.Mods.Override"] | components["schemas"]["Mods.Mods.Permanent"] | components["schemas"]["Mods.Mods.Threshold"] | components["schemas"]["Mods.Mods.Turn"])[];
             readonly refs: components["schemas"]["Props.PropObjRef"][];
         } & components["schemas"]["RpgLifecycleObject"];
-        "Props.PropDescription": {
-            rootEntityId: string;
-            rootEntityName: string;
-            rootEntityArchetype: string;
-            rootProp: string;
-            entityId: string;
-            entityName: string;
-            entityArchetype: string;
-            prop: string;
-            value: components["schemas"]["Values.Dice"];
-            baseValue: components["schemas"]["Values.Dice"];
-            mods: components["schemas"]["Props.ModDescription"][];
-        };
         "Props.PropObjRef": {
             entityId: string;
             ownerId?: string | null;
@@ -1363,17 +1369,17 @@ export interface components {
             graphState: components["schemas"]["RpgGraphState"];
             data: boolean;
         };
-        "Server.RpgResponse_ModSetDescription": {
+        "Server.RpgResponse_ModSetValues": {
             graphState: components["schemas"]["RpgGraphState"];
-            data?: components["schemas"]["Mods.ModSetDescription"] | null;
+            data?: components["schemas"]["Description.ModSetValues"] | null;
+        };
+        "Server.RpgResponse_ObjectPropInfo": {
+            graphState: components["schemas"]["RpgGraphState"];
+            data?: components["schemas"]["Description.ObjectPropInfo"] | null;
         };
         "Server.RpgResponse_PointInTime": {
             graphState: components["schemas"]["RpgGraphState"];
             data: components["schemas"]["Time.PointInTime"];
-        };
-        "Server.RpgResponse_PropDescription": {
-            graphState: components["schemas"]["RpgGraphState"];
-            data?: components["schemas"]["Props.PropDescription"] | null;
         };
         "Server.RpgResponse_RpgArg[]": {
             graphState: components["schemas"]["RpgGraphState"];

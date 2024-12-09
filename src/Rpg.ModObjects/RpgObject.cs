@@ -112,35 +112,35 @@ namespace Rpg.ModObjects
 
         #region Props
 
-        public PropDescription? Describe(string propPath)
-        {
-            var (entity, prop) = this.FromPath(propPath);
-            if (entity == null || prop == null)
-                return null;
+        //public PropDescription? Describe(string propPath)
+        //{
+        //    var (entity, prop) = this.FromPath(propPath);
+        //    if (entity == null || prop == null)
+        //        return null;
 
-            var propDesc = new PropDescription
-            {
-                RootEntityId = Id,
-                RootEntityArchetype = Archetype,
-                RootEntityName = Name,
-                RootProp = propPath,
+        //    var propDesc = new PropDescription
+        //    {
+        //        RootEntityId = Id,
+        //        RootEntityArchetype = Archetype,
+        //        RootEntityName = Name,
+        //        RootProp = propPath,
 
-                EntityId = entity!.Id,
-                EntityArchetype = entity.Archetype,
-                EntityName = entity.Name,
-                Prop = prop,
-                Value = ModCalculator.Value(Graph, entity.GetMods(prop)) ?? Dice.Zero,
-                BaseValue = ModCalculator.BaseValue(Graph, entity.GetMods(prop)) ?? Dice.Zero
-            };
+        //        EntityId = entity!.Id,
+        //        EntityArchetype = entity.Archetype,
+        //        EntityName = entity.Name,
+        //        Prop = prop,
+        //        Value = ModCalculator.Value(Graph, entity.GetMods(prop)) ?? Dice.Zero,
+        //        BaseValue = ModCalculator.BaseValue(Graph, entity.GetMods(prop)) ?? Dice.Zero
+        //    };
 
-            propDesc.Mods = ModFilters.Active(entity.GetMods(prop))
-                .Select(x => x.Describe())
-                .Where(x => x != null)
-                .Cast<ModDescription>()
-                .ToList();
+        //    propDesc.Mods = ModFilters.Active(entity.GetMods(prop))
+        //        .Select(x => x.Describe())
+        //        .Where(x => x != null)
+        //        .Cast<ModDescription>()
+        //        .ToList();
 
-            return propDesc;
-        }
+        //    return propDesc;
+        //}
 
         public Dice? Value(string path, bool calculate = false)
         {

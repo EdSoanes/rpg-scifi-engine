@@ -1,5 +1,5 @@
 import { Button, Stack } from '@chakra-ui/react'
-import { RpgArg } from '../../../lib/rpg-api/types'
+import { RpgArg } from '@lib/rpg-api/types'
 import ArgInput from './ArgInput'
 
 export declare interface ArgFormProps {

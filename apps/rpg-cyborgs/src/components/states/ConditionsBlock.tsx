@@ -1,8 +1,8 @@
 import { Heading, Stack, Grid, GridItem } from '@chakra-ui/react'
 import StatePanel from './StatePanel'
-import { selectConditions } from '../../app/states/statesSelectors'
+import { selectConditions } from '@app/states/statesSelectors'
 import { useSelector } from 'react-redux'
-import { statePanel } from './StatesBlock.css'
+//import { statePanel } from './StatesBlock.css'
 
 function ConditionsBlock() {
   const conditions = useSelector(selectConditions)
@@ -16,7 +16,7 @@ function ConditionsBlock() {
           .filter((condition) => condition.isPlayerVisible)
           .map((condition, i) => (
             <GridItem key={i}>
-              <StatePanel className={statePanel} state={condition} />
+              <StatePanel state={condition} />
             </GridItem>
           ))}
       </Grid>

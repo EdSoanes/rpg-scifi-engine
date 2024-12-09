@@ -1,5 +1,5 @@
 import { Heading, Stack } from '@chakra-ui/react'
-import { BodyPart } from '../../../lib/rpg-api/cyborg-types'
+import { BodyPart } from '@lib/rpg-api/cyborg-types'
 
 export interface BodyPartPanelProps {
   bodyPart?: BodyPart

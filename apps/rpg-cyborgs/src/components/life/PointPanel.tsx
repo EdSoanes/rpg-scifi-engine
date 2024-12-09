@@ -1,5 +1,5 @@
 import { Grid, GridItem } from '@chakra-ui/react'
-import { ProgressBar, ProgressRoot } from '../ui/progress'
+import { ProgressBar, ProgressRoot } from '@components/ui/progress'
 
 export declare interface PointPanelProps {
   name: string

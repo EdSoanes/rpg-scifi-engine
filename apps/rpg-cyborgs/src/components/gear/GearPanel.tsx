@@ -1,4 +1,4 @@
-import { RpgEntity } from '../../lib/rpg-api/types'
+import { RpgEntity } from '@lib/rpg-api/types'
 import { Box } from '@chakra-ui/react'
 
 export declare interface GearPanelProps {

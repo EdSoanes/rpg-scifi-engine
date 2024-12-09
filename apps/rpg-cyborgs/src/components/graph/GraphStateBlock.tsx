@@ -1,5 +1,5 @@
 import { Box, Heading, Stack } from '@chakra-ui/react'
-import { selectGraphState } from '../../app/graphState/graphSelectors'
+import { selectGraphState } from '@app/graphState/graphSelectors'
 import { useSelector } from 'react-redux'
 import ReactJson from 'react-json-view'
 
