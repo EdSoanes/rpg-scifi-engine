@@ -40,4 +40,6 @@ export interface Condition extends State {}
 
 export interface SkillTemplate extends ActionTemplate {
   readonly rating: number
+  readonly ratingProp: string
+  readonly isIntrinsic: boolean
 }

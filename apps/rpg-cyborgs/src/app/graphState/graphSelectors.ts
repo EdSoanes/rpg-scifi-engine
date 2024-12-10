@@ -21,6 +21,12 @@ export const selectStateName = (state: RootState, stateName: string) =>
 export const selectActionName = (state: RootState, actionName: string) =>
   actionName
 
+export const selectIsEncounter = (state: RootState): boolean =>
+  (state.graph.graphState?.time?.now &&
+    (state.graph.graphState.time.now.type === 'Turn' ||
+      state.graph.graphState.time.now.type === 'EncounterBegins')) ??
+  false
+
 export const selectTime = createSelector(
   [selectGraphState],
   (graphState?: RpgGraphState): PointInTime | undefined => {

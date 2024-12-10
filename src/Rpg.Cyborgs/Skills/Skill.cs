@@ -6,7 +6,10 @@ namespace Rpg.Cyborgs.Skills
 {
     public abstract class Skill : ActionTemplate<Actor>
     {
-        protected string RatingProp => $"{GetType().Name}_Rating";
+        public string RatingProp { get => $"{GetType().Name}_Rating"; }
+        public int Rating { get => Graph?.GetObject(OwnerId)?.Value(RatingProp)?.Roll() ?? 0; }
+
+        [JsonProperty] public bool IsIntrinsic { get; protected set; }
 
         [JsonConstructor] protected Skill() 
             : base() { }
@@ -16,14 +19,5 @@ namespace Rpg.Cyborgs.Skills
         {
             Classification = "Skill";
         }
-
-        [JsonIgnore]
-        public int Rating
-        {
-            get => Graph?.GetObject(OwnerId)?.Value(RatingProp)?.Roll() ?? 0;
-            set => Graph?.AddMods(new Initial(OwnerId!, RatingProp, value));
-        }
-
-        [JsonProperty] public bool IsIntrinsic { get; protected set; }
     }
 }

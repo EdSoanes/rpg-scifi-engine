@@ -1,4 +1,4 @@
-import { HStack } from '@chakra-ui/react'
+import { Grid, GridItem } from '@chakra-ui/react'
 import StatPanel from './StatPanel'
 import {
   selectAgility,
@@ -19,44 +19,56 @@ function StatsBlock() {
   const charisma = useSelector(selectCharisma)
 
   return (
-    <HStack w={'100%'} alignItems={'stretch'}>
-      <StatPanel
-        name="Strength"
-        abbreviatedName="STR"
-        prop={'Value'}
-        propValue={strength}
-      />
-      <StatPanel
-        name="Agility"
-        abbreviatedName="AGI"
-        prop={'Value'}
-        propValue={agility}
-      />
-      <StatPanel
-        name="Health"
-        abbreviatedName="HEL"
-        prop={'Value'}
-        propValue={health}
-      />
-      <StatPanel
-        name="Brains"
-        abbreviatedName="BRA"
-        prop={'Value'}
-        propValue={brains}
-      />
-      <StatPanel
-        name="Insight"
-        abbreviatedName="INS"
-        prop={'Value'}
-        propValue={insight}
-      />
-      <StatPanel
-        name="Charisma"
-        abbreviatedName="CHA"
-        prop={'Value'}
-        propValue={charisma}
-      />
-    </HStack>
+    <Grid templateColumns={'repeat(1, 1fr)'}>
+      <GridItem>
+        <StatPanel
+          name="Strength"
+          abbreviatedName="STR"
+          prop={'Value'}
+          propValue={strength}
+        />
+      </GridItem>
+      <GridItem>
+        <StatPanel
+          name="Agility"
+          abbreviatedName="AGI"
+          prop={'Value'}
+          propValue={agility}
+        />
+      </GridItem>
+      <GridItem>
+        <StatPanel
+          name="Health"
+          abbreviatedName="HEL"
+          prop={'Value'}
+          propValue={health}
+        />
+      </GridItem>
+      <GridItem margin={0}>
+        <StatPanel
+          name="Brains"
+          abbreviatedName="BRA"
+          prop={'Value'}
+          propValue={brains}
+        />
+      </GridItem>
+      <GridItem>
+        <StatPanel
+          name="Insight"
+          abbreviatedName="INS"
+          prop={'Value'}
+          propValue={insight}
+        />
+      </GridItem>
+      <GridItem>
+        <StatPanel
+          name="Charisma"
+          abbreviatedName="CHA"
+          prop={'Value'}
+          propValue={charisma}
+        />
+      </GridItem>
+    </Grid>
   )
 }
 

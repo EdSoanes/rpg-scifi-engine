@@ -13,7 +13,7 @@ function LoadGraphButton() {
     <div>
       <Button
         colorScheme="teal"
-        variant="outline"
+        variant="surface"
         onClick={async () => await onLoadGraphState()}
       >
         Get Benny

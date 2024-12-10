@@ -15,7 +15,7 @@ function ConditionsBlock() {
         {conditions
           .filter((condition) => condition.isPlayerVisible)
           .map((condition, i) => (
-            <GridItem key={i}>
+            <GridItem colSpan={6} key={i}>
               <StatePanel state={condition} />
             </GridItem>
           ))}

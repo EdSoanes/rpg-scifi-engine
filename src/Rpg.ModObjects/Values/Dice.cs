@@ -16,7 +16,7 @@ namespace Rpg.ModObjects.Values
             get => _expr;
             set
             {
-                _nodes = DiceParser.Simplified(_expr);
+                _nodes = DiceParser.Simplified(value);
                 _expr = ToString();
             }
         }

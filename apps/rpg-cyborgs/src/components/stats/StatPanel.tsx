@@ -29,20 +29,18 @@ function StatPanel(props: StatPanelProps) {
     }
   }
 
-  const onPropShowDetails = (name: string, propValue: PropValue) => {
-    console.log(`Show Details ${name}`, propValue)
-  }
-
   return (
     propValue && (
       <PropertyValue
         name={name}
+        entityId={propValue.id}
         prop={prop}
-        propValue={propValue}
+        value={propValue.value}
+        baseValue={propValue.baseValue}
+        originalBaseValue={propValue.originalBaseValue}
         onPropValueChanged={async (value) =>
           await onPropValueChanged(value, propValue)
         }
-        onShowDetails={() => onPropShowDetails(name, propValue)}
       />
     )
   )

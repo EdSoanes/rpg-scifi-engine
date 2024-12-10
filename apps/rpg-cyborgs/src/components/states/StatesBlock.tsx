@@ -15,7 +15,7 @@ function StatesBlock() {
         {states
           .filter((state) => !!state.isPlayerVisible)
           .map((state, i) => (
-            <GridItem key={i}>
+            <GridItem colSpan={6} key={i}>
               <StatePanel state={state} />
             </GridItem>
           ))}

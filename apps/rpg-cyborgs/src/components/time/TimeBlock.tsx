@@ -1,18 +1,31 @@
-import { Box, Button, Heading, Stack } from '@chakra-ui/react'
+import { Button, Flex, Heading, IconButton } from '@chakra-ui/react'
 import { useSelector } from 'react-redux'
-import { selectTime } from '@app/graphState/graphSelectors'
+import { selectTime, selectIsEncounter } from '@app/graphState/graphSelectors'
 import { PointInTime } from '@lib/rpg-api/types'
 import { useAppDispatch } from '@app/hooks'
 import { setGraphTime } from '@app/thunks'
-import { isEncounterTime } from '@app/utils/is-encounter-time'
+import {
+  GiExtraTime,
+  GiReturnArrow,
+  GiFastForwardButton,
+  GiFastBackwardButton,
+} from 'react-icons/gi'
+
+const roundIconButton = {
+  borderRadius: '30px',
+  backgroundColor: 'cyan.900',
+  width: '60px',
+  height: '60px',
+  color: 'white',
+}
 
 function TimeBlock() {
   const dispatch = useAppDispatch()
   const time = useSelector(selectTime)
-  const variant = time?.isEncounterTime ? 'solid' : 'outline'
+  const isEncounter = useSelector(selectIsEncounter)
 
   const onChangeEncounterTime = async () => {
-    const newTime: PointInTime = isEncounterTime(time)
+    const newTime: PointInTime = isEncounter
       ? {
           type: 'Waiting',
           count: 0,
@@ -55,24 +68,58 @@ function TimeBlock() {
   //Start Encounter
   //Next Turn
   //Prev Turn
-  //End Encounter
-
+  //End Enunter
   return (
-    <Stack direction={'row'}>
-      <div>
-        <Heading size={'md'}>{time?.type}</Heading>
-      </div>
-      <Box>
-        <Button variant={variant} size={'lg'} onClick={onChangeEncounterTime}>
-          {isEncounterTime(time) ? 'End Encounter' : 'Begin Encounter'}
+    <Flex
+      alignItems={'center'}
+      justifyContent={'right'}
+      width={'100%'}
+      padding={'5px'}
+    >
+      <Flex
+        alignItems={'center'}
+        justifyContent={'left'}
+        visibility={isEncounter ? 'hidden' : 'visible'}
+      >
+        <Button variant={'outline'} size={'sm'} onClick={onPrevTurn}>
+          Minute Passes
         </Button>
-      </Box>
-      <Box visibility={isEncounterTime(time) ? 'visible' : 'hidden'}>
-        <Button variant={variant} size={'lg'} onClick={onPrevTurn}></Button>
-        <span>{time?.count}</span>
-        <Button variant={variant} size={'lg'} onClick={onNextTurn}></Button>
-      </Box>
-    </Stack>
+        <Button variant={'outline'} size={'sm'} onClick={onNextTurn}>
+          Hour Passes
+        </Button>
+      </Flex>
+
+      <Flex alignItems={'center'} justifyContent={'right'} gap={'20px'}>
+        {isEncounter && (
+          <>
+            <IconButton
+              disabled={(time?.count ?? 0) < 2}
+              variant={'outline'}
+              size={'xs'}
+              color={'gray.400'}
+              onClick={onPrevTurn}
+            >
+              <GiFastBackwardButton />
+            </IconButton>
+            <Heading size={'md'}>{time?.type}</Heading>
+            <Heading color={'black'} size={'xl'}>
+              {time?.count}
+            </Heading>
+            <IconButton variant={'outline'} size={'lg'} onClick={onNextTurn}>
+              <GiFastForwardButton />
+            </IconButton>
+          </>
+        )}
+        <IconButton
+          css={roundIconButton}
+          onClick={onChangeEncounterTime}
+          size={'lg'}
+          aria-label={isEncounter ? 'End encounter' : 'Start encounter'}
+        >
+          {isEncounter ? <GiReturnArrow /> : <GiExtraTime />}
+        </IconButton>
+      </Flex>
+    </Flex>
   )
 }
 

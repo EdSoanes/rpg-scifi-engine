@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Cyborgs.States;
-using Rpg.ModObjects.Activities;
+using Rpg.ModObjects;
 using Rpg.ModObjects.Mods;
 using Rpg.ModObjects.Mods.Mods;
 using Rpg.ModObjects.Time;
@@ -15,6 +15,12 @@ namespace Rpg.Cyborgs.Skills.Combat
             : base(owner) 
         {
             IsIntrinsic = true;
+        }
+
+        public override void OnCreating(RpgGraph graph, RpgEntity owner)
+        {
+            base.OnCreating(graph, owner);
+            owner.AddMods(new Initial(owner.Id, RatingProp, 1));
         }
 
         public bool OnCanAct(Actor owner)

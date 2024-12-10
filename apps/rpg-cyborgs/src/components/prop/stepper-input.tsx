@@ -9,16 +9,16 @@ export interface StepperInputProps extends NumberInput.RootProps {
 
 export const StepperInput = React.forwardRef<HTMLDivElement, StepperInputProps>(
   function StepperInput(props, ref) {
-    const { label, hideTriggers, ...rest } = props
+    const { label, hideTriggers, textStyle, justifyContent, ...rest } = props
 
     return (
       <NumberInput.Root {...rest} unstyled ref={ref}>
         {label && <NumberInput.Label>{label}</NumberInput.Label>}
-        <HStack gap={0}>
+        <HStack gap={0} width={'100%'} justifyContent={justifyContent}>
           <DecrementTrigger opacity={hideTriggers ? '0' : '100'} />
           <NumberInput.ValueText
             textAlign="center"
-            textStyle="2xl"
+            textStyle={textStyle}
             minW="3ch"
           />
           <IncrementTrigger opacity={hideTriggers ? '0' : '100'} />
