@@ -86,7 +86,7 @@ export const getStateDescription = async (
 }
 
 const get = async (path: string) => {
-  const response = await fetch(`https://localhost:44349/api/rpg/${path}`, {
+  const response = await fetch(path, {
     method: 'GET',
     headers: {
       Accept: 'application/json; charset=utf-8',
@@ -98,7 +98,7 @@ const get = async (path: string) => {
 }
 
 const post = async (path: string, body?: unknown) => {
-  const response = await fetch(`https://localhost:44349/api/rpg/${path}`, {
+  const response = await fetch(path, {
     method: 'POST',
     headers: {
       Accept: 'application/json; charset=utf-8',

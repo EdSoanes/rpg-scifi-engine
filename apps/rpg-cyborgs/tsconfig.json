@@ -20,8 +20,10 @@
   },
   "ts-node": {
     "compilerOptions": {
-      "module": "CommonJS"
+      "module": "CommonJS",
+      "outDir": "./dist",
+      "esModuleInterop": true
     }
   },
-  "include": ["src/*", "src/**/*"]
+  "include": ["src/*", "src/**/*", "server/*", "server/**/*"]
 }
