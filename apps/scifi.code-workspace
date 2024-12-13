@@ -1,0 +1,89 @@
+{
+  "folders": [
+    {
+      "path": "./",
+      "name": "SciFi"
+    }
+  ],
+
+  "extensions": {
+    "recommendations": [
+      "EditorConfig.EditorConfig",
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "hashicorp.terraform",
+      "ms-azuretools.vscode-azurefunctions",
+      "ms-dotnettools.csharp",
+      "ms-dotnettools.csdevkit",
+      "stylelint.vscode-stylelint",
+      "hediet.vscode-drawio",
+      "folder-templates.folder-templates"
+    ]
+  },
+  "settings": {
+    "files.exclude": {
+      "**/node_modules": true
+    },
+
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true,
+
+    "npm.packageManager": "npm",
+
+    "eslint.validate": [
+      "javascript",
+      "javascriptreact",
+      "html",
+      "typescriptreact",
+      "typescript"
+    ],
+
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit"
+    },
+
+    "editor.quickSuggestions": {
+      "strings": true
+    },
+
+    "[javascript]": {
+      "editor.formatOnSave": true,
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+
+    "[typescript]": {
+      "editor.formatOnSave": true,
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+
+    "[typescriptreact]": {
+      "editor.formatOnSave": true,
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+
+    "[scss]": {
+      "editor.formatOnSave": true,
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+
+    "stylelint.enable": true,
+    "stylelint.validate": ["scss", "css"],
+
+    "[terraform]": {
+      "editor.formatOnSave": true,
+      "editor.defaultFormatter": "hashicorp.terraform"
+    },
+
+    "[yaml]": {
+      "editor.tabSize": 2
+    },
+
+    "files.associations": {
+      "*.tfvars": "terraform"
+    },
+
+    "editor.formatOnSave": true,
+    "terraform.experimentalFeatures.validateOnSave": true,
+    "debug.internalConsoleOptions": "neverOpen"
+  }
+}
