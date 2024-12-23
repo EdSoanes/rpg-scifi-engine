@@ -6,7 +6,7 @@ import {
 } from '@chakra-ui/react'
 import { StepperInput } from './stepper-input'
 import { useState } from 'react'
-import { PropValue } from '@/lib/rpg-api/cyborg-types'
+import { PropValue } from '@lib/rpg-api/cyborg-types'
 
 export interface PropertyValueProps extends HTMLChakraProps<'div'> {
   name: string

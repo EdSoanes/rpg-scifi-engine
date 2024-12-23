@@ -54,22 +54,25 @@ function LifeBlock() {
           </GridItem>
           <GridItem colSpan={1} rowSpan={2}>
             <StatPanel
-              propName={'Melee Attack'}
-              propNameAbbr={''}
+              name={'Melee Attack'}
+              prop={'MeleeAttack'}
+              abbreviatedName={''}
               propValue={meleeAttack}
             ></StatPanel>
           </GridItem>
           <GridItem colSpan={1} rowSpan={2}>
             <StatPanel
-              propName={'Ranged Attack'}
-              propNameAbbr={''}
+              name={'Ranged Attack'}
+              prop={'RangedAttack'}
+              abbreviatedName={''}
               propValue={rangedAttack}
             ></StatPanel>
           </GridItem>
           <GridItem colSpan={1} rowSpan={2}>
             <StatPanel
-              propName={'Defence'}
-              propNameAbbr={''}
+              name={'Defence'}
+              prop={'Defence'}
+              abbreviatedName={''}
               propValue={defence}
             ></StatPanel>
           </GridItem>

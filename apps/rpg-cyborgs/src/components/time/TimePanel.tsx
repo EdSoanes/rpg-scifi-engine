@@ -1,8 +1,5 @@
-import { useState } from 'react'
-import { ModSetDescription, State } from '@lib/rpg-api/types'
 import {
   Button,
-  Code,
   IconButton,
   Drawer,
   Stack,
@@ -15,8 +12,9 @@ import {
 import { useSelector } from 'react-redux'
 import { useAppDispatch } from '@app/hooks'
 import { toggleState } from '@app/thunks'
-import { getStateDescription } from '@lib/rpg-api/fetcher'
+//import { getStateDescription } from '@lib/rpg-api/fetcher'
 import { PiQuestion } from 'react-icons/pi'
+import { State } from '@lib/rpg-api/types'
 export declare interface TimePanelProps {
   state: State
 }
@@ -26,9 +24,9 @@ function TimePanel(props: TimePanelProps) {
   const graphState = useSelector(selectGraphState)
   const playerCharacter = useSelector(selectPlayerCharacter)
   const variant = props.state.isOn ? 'solid' : 'outline'
-  const [describe, setDescribe] = useState<
-    ModSetDescription | undefined | null
-  >()
+  // const [describe, setDescribe] = useState<
+  //   ModSetDescription | undefined | null
+  // >()
 
   const { onOpen, onClose } = useDisclosure()
 
@@ -44,14 +42,14 @@ function TimePanel(props: TimePanelProps) {
     }
   }
 
-  const onDescribe = async () => {
+  const onDescribe = () => {
     if (graphState && props?.state) {
-      const response = await getStateDescription(
-        props.state.ownerId,
-        props.state.name,
-        graphState
-      )
-      setDescribe(response?.data)
+      // const response = await getStateDescription(
+      //   props.state.ownerId,
+      //   props.state.name,
+      //   graphState
+      // )
+      //setDescribe(response?.data)
       onOpen()
     }
   }
@@ -74,10 +72,11 @@ function TimePanel(props: TimePanelProps) {
       </Stack>
       <Drawer.Root>
         <Drawer.Content>
-          <Drawer.Header>{describe?.name ?? '-'}</Drawer.Header>
+          {/* <Drawer.Header>{describe?.name ?? '-'}</Drawer.Header> */}
+          <Drawer.Header>{'-'}</Drawer.Header>
           <Drawer.CloseTrigger />
           <Drawer.Body>
-            <Code>{JSON.stringify(describe, null, 2)}</Code>
+            {/* <Code>{JSON.stringify(describe, null, 2)}</Code> */}
           </Drawer.Body>
 
           <Drawer.Footer>

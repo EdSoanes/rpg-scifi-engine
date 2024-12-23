@@ -22,8 +22,9 @@
     "compilerOptions": {
       "module": "CommonJS",
       "outDir": "./dist",
-      "esModuleInterop": true
+      "esModuleInterop": true,
+      "moduleResolution": "node"
     }
   },
-  "include": ["src/*", "src/**/*", "server/*", "server/**/*"]
+  "include": ["src/*", "src/**/*", "server/*", "server/**/*"],
 }

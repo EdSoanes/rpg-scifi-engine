@@ -26,8 +26,8 @@ export type DescribePropRequest = Pick<
 >
 
 export type DescribePropResponse = Pick<
-  components['schemas']['Server.RpgResponse_PropDescription'],
-  keyof components['schemas']['Server.RpgResponse_PropDescription']
+  components['schemas']['Server.RpgResponse_ObjectPropInfo'],
+  keyof components['schemas']['Server.RpgResponse_ObjectPropInfo']
 >
 
 export type ModSetRequest = Pick<
@@ -41,8 +41,8 @@ export type DescribeModSetRequest = Pick<
 >
 
 export type DescribeModSetResponse = Pick<
-  components['schemas']['Server.RpgResponse_ModSetDescription'],
-  keyof components['schemas']['Server.RpgResponse_ModSetDescription']
+  components['schemas']['Server.RpgResponse_ObjectPropInfo'],
+  keyof components['schemas']['Server.RpgResponse_ObjectPropInfo']
 >
 
 export type InitiateActionRequest = Pick<

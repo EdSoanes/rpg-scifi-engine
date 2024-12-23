@@ -28,7 +28,7 @@ import react from 'eslint-plugin-react'
 
 export default tseslint.config(
   {
-    ignores: ['**/*.d.ts', '*.config.{js,mjs}', 'dist/*'],
+    ignores: ['**/*.d.ts', '*.config.{js,mjs}', 'dist/*', 'server/*.js'],
   },
   eslint.configs.recommended,
   tseslint.configs.recommendedTypeChecked,
