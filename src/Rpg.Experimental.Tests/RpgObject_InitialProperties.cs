@@ -1,0 +1,113 @@
+using Rpg.Experimental.Graph;
+using Rpg.Experimental.Mods;
+
+namespace Rpg.Experimental.Tests
+{
+    public class TestObject : RpgObject
+    {
+        public int Strength { get; protected set; } = 10;
+        public int? Intelligence { get; protected set; }
+        public Dice Damage { get; protected set; } = "d6 + 1";
+        public Dice? Initiative { get; protected set; }
+        public RpgObject? Child { get; set; }
+        public List<RpgObject> Children { get; protected set; } = new();
+
+        public override void OnCreating(RpgGraph graph, RpgObject obj)
+        {
+            base.OnCreating(graph, obj);
+            graph
+                .Add(this, x => x.Intelligence, 3)
+                .Add(this, x => x.Damage, x => x.Strength);
+        }
+    }
+
+    public class RpgObject_InitialProperties
+    {
+
+        [Test]
+        public void PropertyValues_EnsureObjectData()
+        {
+            var obj = new TestObject();
+            obj.Child = new TestObject();
+
+            var graph = new RpgGraph(obj);
+            Assert.That(graph.Objects.Count, Is.EqualTo(2));
+            Assert.That(graph.Objects.ContainsKey(obj.Id), Is.True);
+
+            Assert.That(graph.ObjectData.Count, Is.EqualTo(2));
+            Assert.That(graph.ObjectData.ContainsKey(obj.Id), Is.True);
+            Assert.That(graph.ObjectData[obj.Id].Props.Count, Is.EqualTo(6));
+            Assert.That(graph.ObjectData[obj.Child.Id].Props.Count, Is.EqualTo(6));
+
+            var strength = graph.GetPropertyData(obj.Id, "Strength") as RpgPropertyDataModdable;
+            Assert.That(strength, Is.Not.Null);
+            Assert.That(strength.IsNullable, Is.False);
+
+            var intelligence = graph.GetPropertyData(obj.Id, "Intelligence") as RpgPropertyDataModdable;
+            Assert.That(intelligence, Is.Not.Null);
+            Assert.That(intelligence.IsNullable, Is.True);
+
+            var damage = graph.GetPropertyData(obj.Id, "Damage") as RpgPropertyDataModdable;
+            Assert.That(damage, Is.Not.Null);
+            Assert.That(damage.IsNullable, Is.False);
+
+            var initiative = graph.GetPropertyData(obj.Id, "Initiative") as RpgPropertyDataModdable;
+            Assert.That(initiative, Is.Not.Null);
+            Assert.That(initiative.IsNullable, Is.True);
+
+            var child = graph.GetPropertyData(obj.Id, "Child") as RpgPropertyDataObject;
+            Assert.That(child, Is.Not.Null);
+            Assert.That(child.IsNullable, Is.True);
+            Assert.That(child.Refs.Count, Is.EqualTo(1));
+            Assert.That(child.Refs.First().ChildObjectId, Is.EqualTo(obj.Child.Id));
+        }
+
+        [Test]
+        public void RpgObject_AddStrengthMod_EnsurePropValue()
+        {
+            var obj = new TestObject();
+            var graph = new RpgGraph(obj);
+
+            Assert.That(obj.Strength, Is.EqualTo(10));
+            graph.Add(new Mod(ModType.Standard).Set(obj, x => x.Strength, 1));
+            graph.Time.TriggerEvent(TimePointType.Waiting);
+
+            Assert.That(obj.Strength, Is.EqualTo(11));
+        }
+
+
+        [Test]
+        public void RpgObject_AddStrengthMod_EnsureChangeTracker()
+        {
+            var obj = new TestObject();
+            var graph = new RpgGraph(obj);
+
+            Assert.That(obj.Strength, Is.EqualTo(10));
+            graph.Add(new Mod(ModType.Standard).Set(obj, x => x.Strength, 1));
+
+            Assert.That(graph.ChangeTracker.UpdatedProps.Count, Is.EqualTo(1));
+
+            graph.Time.TriggerEvent(TimePointType.Waiting);
+
+            Assert.That(graph.ChangeTracker.UpdatedProps.Count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void RpgObject_MoveChildToChildren_EnsurePropValues()
+        {
+            var obj = new TestObject();
+            var childObj = new TestObject();
+            obj.Child = childObj;
+            var graph = new RpgGraph(obj);
+
+            Assert.That(obj.Child, Is.Not.Null);
+            graph.Move(childObj.Id, obj.Id, nameof(TestObject.Children));
+            graph.Time.TriggerEvent(TimePointType.Waiting);
+
+            Assert.That(obj.Child, Is.Null);
+            Assert.That(obj.Children, Is.Not.Null);
+            Assert.That(obj.Children.Count, Is.EqualTo(1));
+            Assert.That(obj.Children.First().Id, Is.EqualTo(childObj.Id));
+        }
+    }
+}
