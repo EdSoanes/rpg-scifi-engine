@@ -10,6 +10,9 @@ namespace Rpg.Experimental.Time
     public interface ILifecycle
     {
         void OnCreating(RpgGraph graph, RpgObject obj);
-        void OnTimeEvent(TimePoint now);
+        void OnTimeEvent(RpgGraph graph);
+        void Expire(RpgGraph graph, TimePoint expiryTime);
+        void Expire(RpgGraph graph);
+        void ExpireRefsTo(RpgGraph graph, TimePoint expiryTime, string objectId);
     }
 }

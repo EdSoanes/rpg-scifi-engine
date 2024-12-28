@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
 
 namespace Rpg.Experimental.Time
 {
@@ -11,25 +12,40 @@ namespace Rpg.Experimental.Time
 
         public event NotifyTemporalEventHandler? OnTemporalEvent;
 
-        public void TriggerEvent()
+        public void BeginTime()
+            => Transition(TimePointType.TimeBegins);
+
+        public void Refresh()
             => TriggerEvent(Now);
 
-        public void TriggerEvent(TimePoint pointInTime)
+        public void BeginEncounter()
+            => Transition(TimePointType.EncounterBegins);
+
+        public void ToTurn(int turn)
+            => Transition(new TimePoint(TimePointType.Turn, turn));
+
+        public void EndEncounter()
+            => Transition(TimePointType.EncounterEnds);
+
+        public void TimePasses(int count = 0)
+            => Transition(new TimePoint(TimePointType.TimePasses, count));
+
+        private void TriggerEvent(TimePoint pointInTime)
         {
             Now = pointInTime;
             OnTemporalEvent?.Invoke(this, new TemporalEventArgs(Now));
         }
 
-        public void TriggerEvent(TimePointType type, int count = 0)
+        private void TriggerEvent(TimePointType type, int count = 0)
         {
             Now = new TimePoint(type, count);
             OnTemporalEvent?.Invoke(this, new TemporalEventArgs(Now));
         }
 
-        public void Transition(TimePointType type, int count = 0)
-            => Transition(new TimePoint(type, type == TimePointType.Turn ? Math.Max(count, 1) : count));
+        //public void Transition(TimePointType type, int count = 0)
+        //    => Transition(new TimePoint(type, type == TimePointType.Turn ? Math.Max(count, 1) : count));
 
-        public void Transition(TimePoint to)
+        private void Transition(TimePoint to)
         {
             if (to == Now)
                 return;
@@ -41,25 +57,29 @@ namespace Rpg.Experimental.Time
                 throw new InvalidOperationException($"Cannot transition from '{Now}' to '{to}'");
 
             if (Now.Type == TimePointType.BeforeTime)
-            {
-                TriggerEvent(TimePointType.BeforeTime);
                 TriggerEvent(TimePointType.TimeBegins);
-                Transition(to);
-                return;
-            }
 
-            if (Now.Type == TimePointType.TimeBegins)
+            if (Now.Type == TimePointType.TimeBegins && to.Type == TimePointType.TimeBegins)
             {
                 TriggerEvent(TimePointType.Waiting);
-                Transition(to);
                 return;
             }
 
             if (!to.IsEncounterTime && to.Type != TimePointType.EncounterEnds)
             {
-                TriggerEvent(to);
+                if (to.Type == TimePointType.TimePasses)
+                {
+                    for (int i = 0; i <= to.Count; i++)
+                        TriggerEvent(new TimePoint(TimePointType.TimePasses, i));
+                }
+                else
+                {
+                    TriggerEvent(to);
+                }
+
                 if (to.Type != TimePointType.TimeEnds && to.Type != TimePointType.Waiting)
                     TriggerEvent(TimePointType.Waiting);
+
                 return;
             }
 

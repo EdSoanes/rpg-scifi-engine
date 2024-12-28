@@ -21,16 +21,21 @@ namespace Rpg.Experimental.Graph
             IsNullable = true;
         }
 
-        public bool ExpireRefsTo(string objectId, TimePoint now)
+        public void Expire(RpgGraph graph)
+            => Expire(graph, graph.Time.Now);
+        public void Expire(RpgGraph graph, TimePoint expiryTime) { }
+
+        public void ExpireRefsTo(RpgGraph graph, TimePoint expiryTime, string objectId)
         {
             var toExpire = Refs
                 .Where(x => x.ChildObjectId == objectId && x.Expiry == LifecycleExpiry.Active)
                 .ToArray();
 
             foreach (var propRef in toExpire)
-                propRef.Expire(now);
+                propRef.Expire(graph, expiryTime);
 
-            return toExpire.Any();
+            if (toExpire.Any())
+                graph.ChangeTracker.OnPropUpdated(ObjectId, Prop);
         }
 
         public void AddRefTo(string objectId, TimePoint start, TimePoint end)
@@ -61,14 +66,22 @@ namespace Rpg.Experimental.Graph
             }
         }
 
-        public void OnTimeEvent(TimePoint now)
+        public void OnTimeEvent(RpgGraph graph)
         {
+            var updated = false;
             foreach (var objRef in Refs)
-                objRef.OnTimeEvent(now);
+            {
+                var oldExpiry = objRef.Expiry;
+                objRef.OnTimeEvent(graph);
+                updated |= oldExpiry != objRef.Expiry;
+            }
 
             Refs = Refs
                 .Where(x => x.Expiry != LifecycleExpiry.Destroyed)
                 .ToList();
+
+            if (updated)
+                graph.ChangeTracker.OnPropUpdated(ObjectId, Prop);
         }
 
         public void OnSyncProperty(RpgGraph graph)

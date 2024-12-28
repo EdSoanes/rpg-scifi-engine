@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rpg.Experimental
+namespace Rpg.Experimental.Time
 {
     public enum LifecycleExpiry
     {
@@ -21,14 +21,10 @@ namespace Rpg.Experimental
         BeforeTime,
         TimeBegins,
         Waiting,
-
         EncounterBegins,
-        Turn, //Count
+        Turn,
         EncounterEnds,
-        //MinutePasses,
         TimePasses,
-        //DayPasses,
-
         TimeEnds
     }
 }

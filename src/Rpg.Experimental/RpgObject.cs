@@ -1,22 +1,23 @@
-﻿using Rpg.Experimental.Graph;
+﻿using Newtonsoft.Json;
 using Rpg.Experimental.Time;
 
 namespace Rpg.Experimental
 {
     public abstract class RpgObject : Lifespan, ILifecycle
     {
-        public string Id { get; set; }
+        [JsonProperty] public string Archetype { get; private set; }
+        [JsonProperty] public string Name { get; protected set; }
 
         public RpgObject()
             : base()
         {
-            Id = this.NewId();
+            Archetype = GetType().Name;
         }
 
-        public virtual void OnCreating(RpgGraph graph, RpgObject obj) 
-        { }
-
-        public override void OnTimeEvent(TimePoint now)
-            => base.OnTimeEvent(now);
+        public RpgObject(string name)
+            : this()
+        {
+            Name = name;
+        }
     }
 }

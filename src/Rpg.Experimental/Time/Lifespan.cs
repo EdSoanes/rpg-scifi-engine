@@ -1,12 +1,16 @@
 ﻿using Newtonsoft.Json;
+using Rpg.Experimental.Graph;
 
 namespace Rpg.Experimental.Time
 {
-    public class Lifespan
+    public class Lifespan : ILifecycle
     {
+        [JsonProperty] public string Id { get; private set; }
+        [JsonProperty] public string? OwnerId { get; private set; }
+
         private bool Started { get => Start.IsStarted() && End.IsStarted(); }
-        [JsonProperty] public TimePoint Start { get; private set; }
-        [JsonProperty] public TimePoint End { get; private set; }
+        [JsonProperty] public TimePoint Start { get; protected set; }
+        [JsonProperty] public TimePoint End { get; protected set; }
         [JsonProperty] public TimePoint? Expired { get; private set; }
         [JsonProperty] public LifecycleExpiry Expiry { get; private set; } = LifecycleExpiry.Unset;
 
@@ -15,7 +19,9 @@ namespace Rpg.Experimental.Time
             : this(
                 new TimePoint(TimePointType.TimeBegins),
                 new TimePoint(TimePointType.TimeEnds))
-        { }
+        {
+            Id = this.NewId();
+        }
 
         public Lifespan(int startTurn, int duration)
             : this(
@@ -43,79 +49,64 @@ namespace Rpg.Experimental.Time
             return false;
         }
 
-        public void SetStartTime(TimePoint now)
+        public virtual void Expire(RpgGraph graph, TimePoint expiryTime)
+        {
+            Expired = expiryTime;
+            OnTimeEvent(graph);
+        }
+
+        public virtual void Expire(RpgGraph graph)
+            => Expire(graph, graph.Time.Now);
+
+        public virtual void ExpireRefsTo(RpgGraph graph, TimePoint expiryTime, string objectId) { }
+
+        public virtual void OnCreating(RpgGraph graph, RpgObject obj) { }
+
+        public virtual void OnTimeEvent(RpgGraph graph)
         {
             if (!Started)
             {
                 if (Start.Type == TimePointType.Turn)
-                    Start = new TimePoint(Start.Type, Start.Count + now.Count);
+                    Start = new TimePoint(Start.Type, Start.Count + graph.Time.Now.Count);
 
                 if (End.Type == TimePointType.Turn)
-                    End = new TimePoint(End.Type, End.Count + now.Count);
+                    End = new TimePoint(End.Type, End.Count + graph.Time.Now.Count);
             }
-        }
 
-        public virtual void Expire(TimePoint now, TimePoint expiryTime)
-        {
-            Expired = expiryTime;
-            OnTimeEvent(now);
-        }
-
-        public virtual void Expire(TimePoint now)
-        {
-            Expired = now;
-            OnTimeEvent(now);
-        }
-
-        public virtual void OnTimeEvent(TimePoint now)
-        {
-            if (Expired != null)
-            {
-                var newLifespan = new Lifespan(TimePointType.BeforeTime, Expired.Value);
-                newLifespan.OnTimeEvent(now);
-                Expiry = newLifespan.Expiry;
-            }
-            else
-                Expiry = CalculateExpiry(now);
-
-            if (Expiry == LifecycleExpiry.Expired && !now.IsEncounterTime)
+            Expiry = CalculateExpiry(graph, Start, Expired ?? End);
+            if (!graph.Time.Now.IsEncounterTime && Expiry == LifecycleExpiry.Expired)
                 Expiry = LifecycleExpiry.Destroyed;
         }
 
-        private LifecycleExpiry CalculateExpiry(TimePoint now)
+        private static LifecycleExpiry CalculateExpiry(RpgGraph graph, TimePoint start, TimePoint end)
         {
-            if (Start == TimePointType.Waiting && End == TimePointType.TimePasses && now != TimePointType.Waiting)
+            if (start == TimePointType.Waiting && end == TimePointType.TimePasses && graph.Time.Now != TimePointType.Waiting)
                 return LifecycleExpiry.Destroyed;
 
-            if (now.Type == TimePointType.Waiting && Expiry != LifecycleExpiry.Unset)
-                return Expiry;
-
-            if (now.Type == TimePointType.TimePasses && End.Type == TimePointType.TimePasses && now.Count >= End.Count)
+            if (graph.Time.Now.Type == TimePointType.TimePasses && end.Type == TimePointType.TimePasses && graph.Time.Now.Count >= end.Count)
                 return LifecycleExpiry.Expired;
 
-            if (now.Type == TimePointType.Waiting && End.Type == TimePointType.Waiting && now.Count >= End.Count)
+            if (graph.Time.Now.Type == TimePointType.Waiting && end.Type == TimePointType.Waiting && graph.Time.Now.Count >= end.Count)
                 return LifecycleExpiry.Expired;
 
-            if (Start.IsEncounterTime && End.IsAfterEncounterTime && now.Type == TimePointType.EncounterEnds)
-                Start = TimePointType.Waiting;
+            if (start.IsEncounterTime && end.IsAfterEncounterTime && graph.Time.Now.Type == TimePointType.EncounterEnds)
+                start = TimePointType.Waiting;
 
-            if (Start.IsEncounterTime && End.IsAfterEncounterTime && !now.IsEncounterTime)
+            if (start.IsEncounterTime && end.IsAfterEncounterTime && !graph.Time.Now.IsEncounterTime)
                 return LifecycleExpiry.Expired;
 
-            if (Start > now)
+            if (start > graph.Time.Now)
                 return LifecycleExpiry.Pending;
 
-            if (Start <= now && End > now)
+            if (start <= graph.Time.Now && end > graph.Time.Now)
                 return LifecycleExpiry.Active;
 
-            return now.IsEncounterTime
-                ? LifecycleExpiry.Expired
-                : LifecycleExpiry.Destroyed;
+            return LifecycleExpiry.Expired;
         }
 
         public override string ToString()
         {
-            return $"{Start}=>{Expired ?? End}";
+            return $"{Start}=>{Expired ?? End} ({Expiry})";
         }
 
         public override bool Equals(object? obj)

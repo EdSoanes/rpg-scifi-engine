@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Experimental.Mods;
+using Rpg.Experimental.Mods.Behaviors;
 using Rpg.Experimental.Time;
 
 namespace Rpg.Experimental.Graph
@@ -26,16 +27,21 @@ namespace Rpg.Experimental.Graph
         public object? GetValue()
             => Mods;
 
-        public bool ExpireRefsTo(string objectId, TimePoint now)
+        public void Expire(RpgGraph graph)
+            => Expire(graph, graph.Time.Now);
+        public void Expire(RpgGraph graph, TimePoint expiryTime) { }
+
+        public void ExpireRefsTo(RpgGraph graph, TimePoint expiryTime, string objectId)
         {
             var toExpire = Mods.Where(x => x.Source.PropertyRef?.ObjectId == objectId && x.Expiry == LifecycleExpiry.Active);
             foreach (var mod in toExpire)
             {
-                mod.Expire(now);
-                mod.OnTimeEvent(now);
+                mod.Expire(graph, expiryTime);
+                mod.OnTimeEvent(graph);
             }
 
-            return toExpire.Any();
+            if (toExpire.Any())
+                graph.ChangeTracker.OnPropUpdated(ObjectId, Prop);
         }
 
         public void OnCreating(RpgGraph graph, RpgObject obj)
@@ -49,21 +55,36 @@ namespace Rpg.Experimental.Graph
 
             if (dice != null && dice != Dice.Zero)
             {
-                var initial = new Mod(ModType.Initial).Set(obj, Prop, dice.Value);
+                var initial = new Mod(ModType.Initial)
+                    .SetTarget(obj, Prop)
+                    .SetSource(dice.Value)
+                    .Behavior(new Replace());
+
                 Mods.Add(initial);
                 graph.ChangeTracker.OnPropUpdated(ObjectId, Prop);
             }
         }
 
-        public void OnTimeEvent(TimePoint now)
+        public void OnTimeEvent(RpgGraph graph)
         {
-            //Update 
+            var updated = false;
             foreach (var mod in Mods)
-                mod.OnTimeEvent(now);
+            {
+                var oldExpiry = mod.Expiry;
 
+                mod.ModBehavior.OnBeforeTimeEvent(mod, graph, this);
+                mod.OnTimeEvent(graph);
+                mod.ModBehavior.OnAfterTimeEvent(mod, graph, this);
+
+                updated |= oldExpiry != mod.Expiry;
+            }
+                
             Mods = Mods
                 .Where(x => x.Expiry != LifecycleExpiry.Destroyed)
                 .ToList();
+
+            if (updated)
+                graph.ChangeTracker.OnPropUpdated(ObjectId, Prop);
         }
 
         public void OnSyncProperty(RpgGraph graph)

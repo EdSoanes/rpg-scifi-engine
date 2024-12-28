@@ -26,8 +26,6 @@ namespace Rpg.Experimental.Mods
         Base,
         Override,
         Standard,
-        State,
-        ForceState,
         Synced,
         Threshold
     }

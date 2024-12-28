@@ -10,9 +10,9 @@ namespace Rpg.Experimental.Graph
     {
         [JsonProperty] public RpgObject Context { get; private set; }
         [JsonProperty] public Dictionary<string, RpgObjectData> ObjectData { get; private set; } = new();
-        [JsonProperty] public Dictionary<string, RpgObject> Objects { get; private set; } = new();
+        [JsonProperty] public Dictionary<string, Lifespan> Objects { get; private set; } = new();
         [JsonProperty] public Temporal Time { get; private set; } = new();
-        [JsonProperty] public RpgPropertyChangeTracker ChangeTracker { get; private set; } = new();
+        [JsonProperty] public RpgGraphChangeTracker ChangeTracker { get; private set; } = new();
 
         public RpgGraph(RpgObject context)
         {
@@ -22,9 +22,8 @@ namespace Rpg.Experimental.Graph
             Time.OnTemporalEvent += OnTemporalEvent;
 
             Add(Context);
-            Time.TriggerEvent(TimePointType.Waiting);
+            Time.BeginTime();
         }
-
 
         public void Add(string objectId, string toObjectId, string toProp, TimePoint start, TimePoint end)
         {
@@ -43,10 +42,7 @@ namespace Rpg.Experimental.Graph
         {
             var propData = GetObjectData(mod.Target.ObjectId)?.GetPropData<RpgPropertyDataModdable>(mod.Target.Prop);
             if (propData != null && !propData.Mods.Any(x => x.Id == mod.Id))
-            {
-                propData.Mods.Add(mod);
-                ChangeTracker.OnPropUpdated(mod.Target);
-            }
+                mod.ModBehavior.OnAdding(mod, this, propData);
 
             return this;
         }
@@ -54,14 +50,19 @@ namespace Rpg.Experimental.Graph
         public RpgGraph Add<TEntity, TTargetValue>(TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject
         {
-            var mod = new Mod(ModType.Base).Set(entity, targetExpr, dice);
+            var mod = new Mod(ModType.Base)
+                .SetTarget(entity, targetExpr)
+                .SetSource(dice);
             return Add(mod);
         }
 
         public RpgGraph Add<TEntity, TTargetValue, TSourceValue>(TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject
         {
-            var mod = new Mod(ModType.Base).Set(entity, targetExpr, entity, sourceExpr);
+            var mod = new Mod(ModType.Base)
+                .SetTarget(entity, targetExpr)
+                .SetSource(entity, sourceExpr);
+
             return Add(mod);
         }
 
@@ -69,7 +70,10 @@ namespace Rpg.Experimental.Graph
             where TTarget : RpgObject
             where TSource : RpgObject
         {
-            var mod = new Mod(ModType.Base).Set(target, targetExpr, source, sourceExpr);
+            var mod = new Mod(ModType.Base)
+                .SetTarget(target, targetExpr)
+                .SetSource(source, sourceExpr);
+
             return Add(mod);
         }
 
@@ -94,13 +98,7 @@ namespace Rpg.Experimental.Graph
         public void Expire(string objectId, TimePoint expiryTime)
         {
             var objData = GetObjectData(objectId)!;
-            if (objData.ParentId != null)
-            {
-                var parentObjData = GetObjectData(objData.ParentId);
-                var expiredPropRefs = parentObjData?.ExpireRefsTo(objectId, Time.Now) ?? [];
-                ChangeTracker.OnPropUpdated(expiredPropRefs);
-                objData.ParentId = null;
-            }
+            objData?.Expire(this, expiryTime);
         }
 
         public void Expire(string objectId)
@@ -111,17 +109,17 @@ namespace Rpg.Experimental.Graph
 
         public void Expire(Mod mod, TimePoint expiryTime)
         {
-            mod.Expire(expiryTime);
+            mod.Expire(this, expiryTime);
             ChangeTracker.OnPropUpdated(mod.Target);
         }
 
         private void OnTemporalEvent(object? sender, TemporalEventArgs e)
         {
             foreach (var obj in Objects.Values)
-                obj.OnTimeEvent(e.Time);
+                obj.OnTimeEvent(this);
 
             foreach (var objData in ObjectData.Values)
-                objData.OnTimeEvent(e.Time);
+                objData.OnTimeEvent(this);
 
             foreach (var byObjId in ChangeTracker.UpdatedProps.GroupBy(x => x.ObjectId))
             {
@@ -135,7 +133,7 @@ namespace Rpg.Experimental.Graph
 
         public RpgObject? GetObject(string? objectId)
             => objectId != null && Objects.ContainsKey(objectId)
-                ? Objects[objectId] 
+                ? Objects[objectId] as RpgObject
                 : null;
 
         public RpgObjectData? GetObjectData(string? objectId)
@@ -147,7 +145,10 @@ namespace Rpg.Experimental.Graph
             => GetObjectData(objectId)
                 ?.Props.FirstOrDefault(x => x.Prop == prop);
 
-
+        public T? GetPropertyData<T>(string? objectId, string prop)
+            where T : class, IRpgPropertyData
+            => GetObjectData(objectId)
+                ?.Props.FirstOrDefault(x => x.Prop == prop) as T;
 
         private RpgObjectData CreateObject(RpgObject obj, RpgObject? parentObj)
         {

@@ -14,7 +14,6 @@ namespace Rpg.Experimental.Graph
         string Prop { get; }
         RpgPropertyType PropType { get; }
         bool IsNullable { get; }
-        bool ExpireRefsTo(string objectId, TimePoint now);
         void OnSyncProperty(RpgGraph graph);
     }
 }

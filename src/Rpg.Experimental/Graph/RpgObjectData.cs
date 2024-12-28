@@ -19,16 +19,22 @@ namespace Rpg.Experimental.Graph
             Props.AddRange(props);
         }
 
-        public RpgPropertyRef[] ExpireRefsTo(string objectId, TimePoint now)
-        {
-            var expiredProps = new List<RpgPropertyRef>();
-            foreach (var prop in Props)
-            {
-                if (prop.ExpireRefsTo(objectId, now))
-                    expiredProps.Add(new RpgPropertyRef(ObjectId, prop.Prop));
-            }
+        public void Expire(RpgGraph graph)
+            => Expire(graph, graph.Time.Now);
 
-            return expiredProps.ToArray();
+        public void Expire(RpgGraph graph, TimePoint expiryTime)
+        {
+            foreach (var objData in graph.ObjectData.Values)
+                objData.ExpireRefsTo(graph, expiryTime, ObjectId);
+        }
+
+        public void ExpireRefsTo(RpgGraph graph, TimePoint expiryTime, string objectId)
+        {
+            if (ParentId == objectId)
+                ParentId = null;
+
+            foreach (var prop in Props)
+                prop.ExpireRefsTo(graph, expiryTime, objectId);
         }
 
         public void OnCreating(RpgGraph graph, RpgObject obj)
@@ -37,10 +43,10 @@ namespace Rpg.Experimental.Graph
                 prop.OnCreating(graph, obj);
         }
 
-        public void OnTimeEvent(TimePoint now)
+        public void OnTimeEvent(RpgGraph graph)
         {
             foreach (var prop in Props)
-                prop.OnTimeEvent(now);
+                prop.OnTimeEvent(graph);
         }
 
 

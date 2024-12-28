@@ -1,5 +1,7 @@
 using Rpg.Experimental.Graph;
 using Rpg.Experimental.Mods;
+using Rpg.Experimental.Mods.Behaviors;
+using Rpg.Experimental.Time;
 
 namespace Rpg.Experimental.Tests
 {
@@ -69,12 +71,91 @@ namespace Rpg.Experimental.Tests
             var graph = new RpgGraph(obj);
 
             Assert.That(obj.Strength, Is.EqualTo(10));
-            graph.Add(new Mod(ModType.Standard).Set(obj, x => x.Strength, 1));
-            graph.Time.TriggerEvent(TimePointType.Waiting);
+            graph.Add(new Mod(ModType.Standard).SetTarget(obj, x => x.Strength).SetSource(1));
+            graph.Time.Refresh();
 
             Assert.That(obj.Strength, Is.EqualTo(11));
         }
 
+        [Test]
+        public void RpgObject_AddStrengthMod_Combine_EnsurePropValue()
+        {
+            var obj = new TestObject();
+            var graph = new RpgGraph(obj);
+
+            Assert.That(obj.Strength, Is.EqualTo(10));
+            graph.Add(new Mod(ModType.Standard)
+                .SetTarget(obj, x => x.Strength)
+                .SetSource(1)
+                .Behavior(new Combine()));
+
+            graph.Time.Refresh();
+
+            Assert.That(obj.Strength, Is.EqualTo(11));
+            Assert.That(graph.GetPropertyData<RpgPropertyDataModdable>(obj.Id, "Strength")?.Mods.Count, Is.EqualTo(2));
+
+            var combineMod = graph.GetPropertyData<RpgPropertyDataModdable>(obj.Id, "Strength")?.Mods.FirstOrDefault(x => x.ModBehavior is Combine);
+            Assert.That(combineMod, Is.Not.Null);
+            Assert.That(combineMod.Source.Value, Is.EqualTo(new Dice(1)));
+
+            graph.Add(new Mod(ModType.Standard)
+                .SetTarget(obj, x => x.Strength)
+                .SetSource(1)
+                .Behavior(new Combine()));
+
+            graph.Time.Refresh();
+
+            Assert.That(obj.Strength, Is.EqualTo(12));
+            Assert.That(graph.GetPropertyData<RpgPropertyDataModdable>(obj.Id, "Strength")?.Mods.Count, Is.EqualTo(2));
+
+            combineMod = graph.GetPropertyData<RpgPropertyDataModdable>(obj.Id, "Strength")?.Mods.FirstOrDefault(x => x.ModBehavior is Combine);
+            Assert.That(combineMod, Is.Not.Null);
+            Assert.That(combineMod.Source.Value, Is.EqualTo(new Dice(2)));
+
+        }
+
+        [Test]
+        public void RpgObject_AddStrengthMod_OneTurn_EnsurePropValue()
+        {
+            var obj = new TestObject();
+            var graph = new RpgGraph(obj);
+
+            Assert.That(obj.Strength, Is.EqualTo(10));
+            graph.Time.BeginEncounter();
+            graph.Add(new Mod(ModType.Standard)
+                .SetTarget(obj, x => x.Strength)
+                .SetSource(1)
+                .Lifespan(1));
+
+            graph.Time.Refresh();
+            Assert.That(obj.Strength, Is.EqualTo(11));
+
+            graph.Time.ToTurn(2);
+            Assert.That(obj.Strength, Is.EqualTo(10));
+        }
+
+        [Test]
+        public void RpgObject_AddStrengthMod_TimePasses_EnsurePropValue()
+        {
+            var obj = new TestObject();
+            var graph = new RpgGraph(obj);
+
+            Assert.That(obj.Strength, Is.EqualTo(10));
+            graph.Add(new Mod(ModType.Standard)
+                .SetTarget(obj, x => x.Strength)
+                .SetSource(1)
+                .Lifespan(TimePointType.Waiting, new TimePoint(TimePointType.TimePasses, 1)));
+
+            graph.Time.Refresh();
+            Assert.That(obj.Strength, Is.EqualTo(11));
+
+            graph.Time.TimePasses();
+            Assert.That(obj.Strength, Is.EqualTo(11));
+
+            graph.Time.TimePasses(1);
+            Assert.That(obj.Strength, Is.EqualTo(10));
+
+        }
 
         [Test]
         public void RpgObject_AddStrengthMod_EnsureChangeTracker()
@@ -83,11 +164,13 @@ namespace Rpg.Experimental.Tests
             var graph = new RpgGraph(obj);
 
             Assert.That(obj.Strength, Is.EqualTo(10));
-            graph.Add(new Mod(ModType.Standard).Set(obj, x => x.Strength, 1));
+            graph.Add(new Mod(ModType.Standard)
+                .SetTarget(obj, x => x.Strength)
+                .SetSource(1));
 
             Assert.That(graph.ChangeTracker.UpdatedProps.Count, Is.EqualTo(1));
 
-            graph.Time.TriggerEvent(TimePointType.Waiting);
+            graph.Time.Refresh();
 
             Assert.That(graph.ChangeTracker.UpdatedProps.Count, Is.EqualTo(0));
         }
@@ -102,7 +185,7 @@ namespace Rpg.Experimental.Tests
 
             Assert.That(obj.Child, Is.Not.Null);
             graph.Move(childObj.Id, obj.Id, nameof(TestObject.Children));
-            graph.Time.TriggerEvent(TimePointType.Waiting);
+            graph.Time.Refresh();
 
             Assert.That(obj.Child, Is.Null);
             Assert.That(obj.Children, Is.Not.Null);
