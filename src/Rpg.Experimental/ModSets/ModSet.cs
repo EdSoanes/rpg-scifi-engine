@@ -9,16 +9,14 @@ namespace Rpg.Experimental.ModSets
     public class ModSet : Lifespan, ILifecycle
     {
         [JsonProperty] public string Name { get; set; }
-
-        [JsonIgnore] public List<Mod> Mods { get; protected set; } = new();
-        [JsonIgnore] public List<RpgPropertyRef> ModTargets { get; protected set; } = new();
+        [JsonProperty] public List<Mod> Mods { get; protected set; } = new();
 
         [JsonConstructor] protected ModSet() { }
 
-        public ModSet(string? ownerId, string name)
+        public ModSet(string ownerId, string name)
             : base(ownerId)
         {
-            Name = name ?? this.GetType().Name;
+            Name = name ?? GetType().Name;
         }
 
         public ModSet ExtractFor(string objectId)
@@ -57,38 +55,6 @@ namespace Rpg.Experimental.ModSets
             }
         }
 
-        public override void Apply(RpgGraph? graph)
-        {
-            base.Apply(graph);
-            var mods = graph != null ? GetMods(graph).ToList() : Mods; 
-            foreach (var mod in mods.Where(x => !x.IsApplied))
-                mod.Apply(graph);
-        }
-
-        public override void Unapply(RpgGraph? graph)
-        {
-            base.Unapply(graph);
-            var mods = graph != null ? GetMods(graph).ToList() : Mods;
-            foreach (var mod in mods.Where(x => x.IsApplied))
-                mod.Unapply(graph);
-        }
-
-        public override void UserEnabled(RpgGraph? graph)
-        {
-            base.UserEnabled(graph);
-            var mods = graph != null ? GetMods(graph).ToList() : Mods;
-            foreach (var mod in mods.Where(x => x.IsDisabled))
-                mod.UserEnabled(graph);
-        }
-
-        public override void UserDisabled(RpgGraph? graph)
-        {
-            base.UserDisabled(graph);
-            var mods = graph != null ? GetMods(graph).ToList() : Mods;
-            foreach (var mod in mods.Where(x => !x.IsDisabled))
-                mod.UserDisabled(graph);
-        }
-
         private void SyncMods(RpgGraph graph)
         {
             foreach (var mod in Mods)
@@ -96,32 +62,29 @@ namespace Rpg.Experimental.ModSets
                 graph.Add(mod
                     .SetApply(IsApplied)
                     .SetDisabled(IsDisabled));
-
-                if (!ModTargets.Any(x => x.ObjectId == mod.Target.ObjectId && x.Prop == mod.Target.Prop))
-                    ModTargets.Add(mod.Target);
             }
             Mods.Clear();
         }
 
-        private Mod[] GetMods(RpgGraph graph)
-        {
-            var mods = new List<Mod>();
-            foreach (var byObjId in ModTargets.GroupBy(x => x.ObjectId))
-            {
-                var obj = graph.GetObjectData(byObjId.Key);
-                if (obj != null)
-                {
-                    foreach (var propRef in byObjId)
-                    {
-                        var propData = obj.GetPropData<RpgPropertyDataModdable>(propRef.Prop);
-                        var propMods = propData?.Mods.Where(x => x.SyncToObjectId == Id).ToArray() ?? [];
-                        mods.AddRange(propMods);
-                    }
-                }
-            }
+        //private Mod[] GetMods(RpgGraph graph)
+        //{
+        //    var mods = new List<Mod>();
+        //    foreach (var byObjId in ModTargets.GroupBy(x => x.ObjectId))
+        //    {
+        //        var obj = graph.GetObjectData(byObjId.Key);
+        //        if (obj != null)
+        //        {
+        //            foreach (var propRef in byObjId)
+        //            {
+        //                var propData = obj.GetPropData<RpgPropertyDataModdable>(propRef.Prop);
+        //                var propMods = propData?.Mods.Where(x => x.SyncToObjectId == Id).ToArray() ?? [];
+        //                mods.AddRange(propMods);
+        //            }
+        //        }
+        //    }
 
-            return mods.ToArray();
-        }
+        //    return mods.ToArray();
+        //}
     }
 
     public static class ModSetExtensions
