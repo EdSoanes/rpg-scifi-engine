@@ -2,6 +2,7 @@
 using System.Reflection;
 using Newtonsoft.Json;
 using Rpg.Experimental.Mods;
+using Rpg.Experimental.ModSets;
 using Rpg.Experimental.Time;
 
 namespace Rpg.Experimental.Graph
@@ -29,7 +30,7 @@ namespace Rpg.Experimental.Graph
         {
             var propData = GetObjectData(toObjectId)?.GetPropData<RpgPropertyDataObject>(toProp);
             propData?.AddRefTo(objectId, start, end);
-            ChangeTracker.OnPropUpdated(toObjectId, toProp);
+            ChangeTracker.PropUpdated(toObjectId, toProp);
 
             var objData = GetObjectData(objectId)!;
             objData.ParentId = toObjectId;
@@ -42,7 +43,10 @@ namespace Rpg.Experimental.Graph
         {
             var propData = GetObjectData(mod.Target.ObjectId)?.GetPropData<RpgPropertyDataModdable>(mod.Target.Prop);
             if (propData != null && !propData.Mods.Any(x => x.Id == mod.Id))
+            {
+                mod.OnCreating(this, null);
                 mod.ModBehavior.OnAdding(mod, this, propData);
+            }
 
             return this;
         }
@@ -89,6 +93,12 @@ namespace Rpg.Experimental.Graph
             });
         }
 
+        public void Add(ModSet modSet)
+        {
+            Objects.Add(modSet.Id, modSet);
+            modSet.OnCreating(this, null);
+        }
+
         public void Move(string objectId, string toObjectId, string toProp)
         {
             Expire(objectId);
@@ -110,7 +120,7 @@ namespace Rpg.Experimental.Graph
         public void Expire(Mod mod, TimePoint expiryTime)
         {
             mod.Expire(this, expiryTime);
-            ChangeTracker.OnPropUpdated(mod.Target);
+            ChangeTracker.PropsUpdated(mod.Target);
         }
 
         private void OnTemporalEvent(object? sender, TemporalEventArgs e)
@@ -119,7 +129,13 @@ namespace Rpg.Experimental.Graph
                 obj.OnTimeEvent(this);
 
             foreach (var objData in ObjectData.Values)
-                objData.OnTimeEvent(this);
+            {
+                if (!ChangeTracker.IsObjectUpdated(objData.ObjectId))
+                {
+                    objData.OnTimeEvent(this);
+                    ChangeTracker.ObjectUpdated(objData.ObjectId);
+                }
+            }
 
             foreach (var byObjId in ChangeTracker.UpdatedProps.GroupBy(x => x.ObjectId))
             {
@@ -128,13 +144,47 @@ namespace Rpg.Experimental.Graph
                     objData?.GetPropData(propRef.Prop)?.OnSyncProperty(this);
             }
 
-            ChangeTracker.UpdatedProps.Clear();
+            var toDelete = Objects.Values.Where(x => x.Expiry == LifecycleExpiry.Destroyed).ToList();
+            foreach (var obj in toDelete)
+            {
+                Objects.Remove(obj.Id);
+                if (ObjectData.ContainsKey(obj.Id))
+                    ObjectData.Remove(obj.Id);
+            }
+
+            ChangeTracker.Clear();
         }
 
-        public RpgObject? GetObject(string? objectId)
+        public Lifespan? RefreshObject(string objectId)
+        {
+            var obj = GetLifespan(objectId);
+            if (obj != null)
+                RefreshObject(obj);
+
+            return obj;
+        }
+
+        private void RefreshObject(Lifespan obj)
+        {
+            if (obj != null)
+            {
+                obj.OnTimeEvent(this);
+                var objData = GetObjectData(obj.Id);
+                if (objData != null)
+                {
+                    objData.OnTimeEvent(this);
+                    ChangeTracker.ObjectUpdated(obj.Id);
+                }
+            }
+        }
+
+        public Lifespan? GetLifespan(string? objectId)
             => objectId != null && Objects.ContainsKey(objectId)
-                ? Objects[objectId] as RpgObject
+                ? Objects[objectId]
                 : null;
+
+        public RpgObject? GetObject(string? objectId)
+            => GetLifespan(objectId) as RpgObject;
 
         public RpgObjectData? GetObjectData(string? objectId)
             => objectId != null && ObjectData.ContainsKey(objectId)

@@ -23,7 +23,7 @@ namespace Rpg.Experimental.Mods.Behaviors
                     combineMod.Expire(graph);
 
                 propertyData.Mods.Add(mod);
-                graph.ChangeTracker.OnPropUpdated(propertyData.ObjectId, propertyData.Prop);
+                graph.ChangeTracker.PropUpdated(propertyData.ObjectId, propertyData.Prop);
             }
         }
 

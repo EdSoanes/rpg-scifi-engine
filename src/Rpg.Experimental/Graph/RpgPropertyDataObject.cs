@@ -35,7 +35,7 @@ namespace Rpg.Experimental.Graph
                 propRef.Expire(graph, expiryTime);
 
             if (toExpire.Any())
-                graph.ChangeTracker.OnPropUpdated(ObjectId, Prop);
+                graph.ChangeTracker.PropUpdated(ObjectId, Prop);
         }
 
         public void AddRefTo(string objectId, TimePoint start, TimePoint end)
@@ -81,7 +81,7 @@ namespace Rpg.Experimental.Graph
                 .ToList();
 
             if (updated)
-                graph.ChangeTracker.OnPropUpdated(ObjectId, Prop);
+                graph.ChangeTracker.PropUpdated(ObjectId, Prop);
         }
 
         public void OnSyncProperty(RpgGraph graph)
@@ -118,7 +118,7 @@ namespace Rpg.Experimental.Graph
                         oldList.Add(child);
 
                     obj.SetPropertyValue(Prop, oldList);
-                    graph.ChangeTracker.OnPropUpdated(ObjectId, Prop);
+                    graph.ChangeTracker.PropUpdated(ObjectId, Prop);
                 }
             }
             else if (PropType == RpgPropertyType.Child)
@@ -128,7 +128,7 @@ namespace Rpg.Experimental.Graph
                 if (newChild?.Id != oldChild?.Id)
                 {
                     obj.SetPropertyValue<RpgObject>(Prop, newChild);
-                    graph.ChangeTracker.OnPropUpdated(ObjectId, Prop);
+                    graph.ChangeTracker.PropUpdated(ObjectId, Prop);
                 }
             }
         }

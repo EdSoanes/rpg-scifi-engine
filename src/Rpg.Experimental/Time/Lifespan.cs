@@ -6,13 +6,15 @@ namespace Rpg.Experimental.Time
     public class Lifespan : ILifecycle
     {
         [JsonProperty] public string Id { get; private set; }
-        [JsonProperty] public string? OwnerId { get; private set; }
+        [JsonProperty] public string? SyncToObjectId { get; private set; }
 
         private bool Started { get => Start.IsStarted() && End.IsStarted(); }
         [JsonProperty] public TimePoint Start { get; protected set; }
         [JsonProperty] public TimePoint End { get; protected set; }
         [JsonProperty] public TimePoint? Expired { get; private set; }
         [JsonProperty] public LifecycleExpiry Expiry { get; private set; } = LifecycleExpiry.Unset;
+        [JsonProperty] public bool IsApplied { get; protected set; } = true;
+        [JsonProperty] public bool IsDisabled { get; protected set; }
 
         [JsonConstructor]
         public Lifespan()
@@ -35,9 +37,48 @@ namespace Rpg.Experimental.Time
             End = end;
         }
 
+        public Lifespan(string syncToObjectId)
+        {
+            SyncToObjectId = syncToObjectId;
+        }
+
         public static bool operator ==(Lifespan? d1, Lifespan? d2) => d1?.Start == d2?.Start && d1?.End == d2?.End && d1?.Started == d2?.Started;
         public static bool operator !=(Lifespan? d1, Lifespan? d2) => d1?.Start != d2?.Start || d1?.End != d2?.End || d1?.Started != d2?.Started;
 
+        protected bool SyncFromObject(RpgGraph graph)
+        {
+            var synced = false;
+            if (SyncToObjectId != null)
+            {
+                var from = graph.RefreshObject(SyncToObjectId);
+                if (from != null)
+                {
+                    Start = from.Start;
+                    End = from.End;
+                    Expired = from.Expired;
+                    Expiry = from.Expiry;
+                    IsApplied = from.IsApplied;
+                    IsDisabled = from.IsDisabled;
+
+                    synced = true;
+                }
+            }
+
+            return synced;
+        }
+
+        public virtual void Apply(RpgGraph? graph)
+            => IsApplied = true;
+
+        public virtual void Unapply(RpgGraph? graph)
+            => IsApplied = false;
+
+        public virtual void UserEnabled(RpgGraph? graph)
+            => IsDisabled = false;
+
+        public virtual void UserDisabled(RpgGraph? graph)
+            => IsDisabled = true;
+        
         public bool OverlapsWith(Lifespan other)
         {
             if (Start <= other.Start && End > other.Start)
@@ -60,22 +101,29 @@ namespace Rpg.Experimental.Time
 
         public virtual void ExpireRefsTo(RpgGraph graph, TimePoint expiryTime, string objectId) { }
 
-        public virtual void OnCreating(RpgGraph graph, RpgObject obj) { }
+        public virtual void OnCreating(RpgGraph graph, RpgObject? obj) { }
 
         public virtual void OnTimeEvent(RpgGraph graph)
         {
-            if (!Started)
+            if (!SyncFromObject(graph))
             {
-                if (Start.Type == TimePointType.Turn)
-                    Start = new TimePoint(Start.Type, Start.Count + graph.Time.Now.Count);
+                if (!Started)
+                {
+                    if (Start.Type == TimePointType.Turn)
+                        Start = new TimePoint(Start.Type, Start.Count + graph.Time.Now.Count);
 
-                if (End.Type == TimePointType.Turn)
-                    End = new TimePoint(End.Type, End.Count + graph.Time.Now.Count);
+                    if (End.Type == TimePointType.Turn)
+                        End = new TimePoint(End.Type, End.Count + graph.Time.Now.Count);
+                }
+
+                Expiry = CalculateExpiry(graph, Start, Expired ?? End);
+
+                if (!graph.Time.Now.IsEncounterTime && Expiry == LifecycleExpiry.Expired)
+                    Expiry = LifecycleExpiry.Destroyed;
+
+                if (Expiry == LifecycleExpiry.Active && (!IsApplied || IsDisabled))
+                    Expiry = LifecycleExpiry.Suspended;
             }
-
-            Expiry = CalculateExpiry(graph, Start, Expired ?? End);
-            if (!graph.Time.Now.IsEncounterTime && Expiry == LifecycleExpiry.Expired)
-                Expiry = LifecycleExpiry.Destroyed;
         }
 
         private static LifecycleExpiry CalculateExpiry(RpgGraph graph, TimePoint start, TimePoint end)

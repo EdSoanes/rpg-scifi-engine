@@ -15,7 +15,7 @@ namespace Rpg.Experimental.Mods.Behaviors
             {
                 mod.OnTimeEvent(graph);
                 propertyData.Mods.Add(mod);
-                graph.ChangeTracker.OnPropUpdated(propertyData.ObjectId, propertyData.Prop);
+                graph.ChangeTracker.PropUpdated(propertyData.ObjectId, propertyData.Prop);
             }
         }
 

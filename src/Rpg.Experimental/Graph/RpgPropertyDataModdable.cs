@@ -41,7 +41,7 @@ namespace Rpg.Experimental.Graph
             }
 
             if (toExpire.Any())
-                graph.ChangeTracker.OnPropUpdated(ObjectId, Prop);
+                graph.ChangeTracker.PropUpdated(ObjectId, Prop);
         }
 
         public void OnCreating(RpgGraph graph, RpgObject obj)
@@ -61,7 +61,7 @@ namespace Rpg.Experimental.Graph
                     .Behavior(new Replace());
 
                 Mods.Add(initial);
-                graph.ChangeTracker.OnPropUpdated(ObjectId, Prop);
+                graph.ChangeTracker.PropUpdated(ObjectId, Prop);
             }
         }
 
@@ -71,6 +71,9 @@ namespace Rpg.Experimental.Graph
             foreach (var mod in Mods)
             {
                 var oldExpiry = mod.Expiry;
+
+                if (mod.Source.PropertyRef != null && !graph.ChangeTracker.IsObjectUpdated(mod.Source.PropertyRef.ObjectId))
+                    graph.RefreshObject(mod.Source.PropertyRef.ObjectId);
 
                 mod.ModBehavior.OnBeforeTimeEvent(mod, graph, this);
                 mod.OnTimeEvent(graph);
@@ -84,7 +87,7 @@ namespace Rpg.Experimental.Graph
                 .ToList();
 
             if (updated)
-                graph.ChangeTracker.OnPropUpdated(ObjectId, Prop);
+                graph.ChangeTracker.PropUpdated(ObjectId, Prop);
         }
 
         public void OnSyncProperty(RpgGraph graph)

@@ -72,6 +72,18 @@ namespace Rpg.Experimental.Mods
             return this;
         }
 
+        public Mod SetApply(bool apply)
+        {
+            IsApplied = apply;
+            return this;
+        }
+
+        public Mod SetDisabled(bool disabled)
+        {
+            IsDisabled = disabled;
+            return this;
+        }
+
         public Mod SetTarget(RpgPropertyRef target)
         {
             Target = target;
@@ -98,6 +110,12 @@ namespace Rpg.Experimental.Mods
             return this;
         }
 
+        public Mod SetSource(RpgPropertyRefValue source, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
+        {
+            Source = source;
+            
+            return this;
+        }
 
         public Mod SetSource<TSource, TSourceVal>(TSource source, Expression<Func<TSource, TSourceVal>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TSource : RpgObject

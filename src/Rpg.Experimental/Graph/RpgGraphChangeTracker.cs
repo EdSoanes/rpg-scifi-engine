@@ -6,21 +6,40 @@ using System.Threading.Tasks;
 
 namespace Rpg.Experimental.Graph
 {
-    public class RpgPropertyChangeTracker
+    public class RpgGraphChangeTracker
     {
-        public List<RpgPropertyRef> UpdatedProps = new List<RpgPropertyRef>();
+        public List<RpgPropertyRef> UpdatedProps = new();
+        public List<string> UpdatedObjects = new();
 
-        public void OnPropUpdated(string objectId, string prop)
-            => OnPropUpdated(new RpgPropertyRef(objectId, prop));
+        public void PropUpdated(string objectId, string prop)
+            => PropsUpdated(new RpgPropertyRef(objectId, prop));
 
-        public void OnPropUpdated(params RpgPropertyRef[] propRefs)
+        public void PropsUpdated(params RpgPropertyRef[] propRefs)
             => UpdatedProps.Merge(propRefs);
 
-        public void OnPropsUpdated(RpgGraph graph)
+        public void AllPropsUpdated(RpgGraph graph)
         {
             foreach (var objData in graph.ObjectData.Values)
                 foreach (var prop in objData.Props)
                     UpdatedProps.Merge(new RpgPropertyRef(prop.ObjectId, prop.Prop));
+        }
+
+        public bool ObjectNeedsUpdating(string objectId)
+            => UpdatedProps.Any(x => x.ObjectId == objectId);
+
+        public bool IsObjectUpdated(string objectId)
+            => UpdatedObjects.Any(x => x == objectId);
+
+        public void ObjectUpdated(string objectId)
+        {
+            if (!IsObjectUpdated(objectId))
+                UpdatedObjects.Add(objectId);
+        }
+
+        public void Clear()
+        {
+            UpdatedProps.Clear();
+            UpdatedObjects.Clear();
         }
     }
 
