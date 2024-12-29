@@ -1,10 +1,8 @@
-﻿using Rpg.ModObjects.Meta;
-using Rpg.ModObjects.Values;
-using System.Reflection;
+﻿using System.Reflection;
 
-namespace Rpg.ModObjects.Reflection
+namespace Rpg.Experimental.Graph
 {
-    public static class RpgTypeScan
+    public static class RpgTypeUtilities
     {
         internal static readonly Type[] RpgPropertyTypes =
         [
@@ -26,6 +24,18 @@ namespace Rpg.ModObjects.Reflection
         };
 
         private static List<Assembly> _scanAssemblies = new List<Assembly>();
+
+        public static bool PropertyOfType(PropertyInfo? propertyInfo, Type valueType)
+            => propertyInfo != null && PropertyOfType(propertyInfo.PropertyType, valueType);
+
+        public static bool PropertyOfType(Type propertyType, Type valueType)
+            => propertyType.IsAssignableTo(valueType) || PropertyOfNullableType(propertyType, valueType);
+
+        public static bool PropertyOfNullableType(Type propertyType, Type valueType)
+        {
+            var underlyingType = Nullable.GetUnderlyingType(propertyType);
+            return underlyingType?.IsAssignableTo(valueType) ?? false;
+        }
 
         public static bool TypeNotExcluded(Type type)
             => !ExcludeAssembliesWith.Any(x => type.Name.StartsWith(x));
@@ -112,7 +122,7 @@ namespace Rpg.ModObjects.Reflection
             try
             {
                 var assemblies = GetScanAssemblies();
-                return ForTypes<T>(assemblies);
+                return ForTypes<T>([..assemblies]);
             }
             catch
             {
@@ -148,8 +158,8 @@ namespace Rpg.ModObjects.Reflection
         {
             if (_scanAssemblies.Any())
             {
-                if (!_scanAssemblies.Contains(typeof(IMetaSystem).Assembly))
-                    _scanAssemblies.Add(typeof(IMetaSystem).Assembly);
+                //if (!_scanAssemblies.Contains(typeof(IMetaSystem).Assembly))
+                //    _scanAssemblies.Add(typeof(IMetaSystem).Assembly);
 
                 return _scanAssemblies;
             }
@@ -159,7 +169,7 @@ namespace Rpg.ModObjects.Reflection
                 .ToList();
         }
 
-        internal static IEnumerable<Type> ForTypes<T>(IEnumerable<Assembly> assemblies)
+        internal static IEnumerable<Type> ForTypes<T>(params Assembly[] assemblies)
         {
             var res = new List<Type>();
 

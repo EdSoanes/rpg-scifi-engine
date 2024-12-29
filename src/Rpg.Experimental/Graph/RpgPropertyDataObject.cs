@@ -50,8 +50,9 @@ namespace Rpg.Experimental.Graph
             }
         }
 
-        public void OnCreating(RpgGraph graph, RpgObject obj)
+        public void OnCreating(RpgGraph graph, RpgObject? obj)
         {
+            if (obj == null) return;
             if (PropType == RpgPropertyType.Child)
             {
                 var child = obj.Value<RpgObject>(Prop);

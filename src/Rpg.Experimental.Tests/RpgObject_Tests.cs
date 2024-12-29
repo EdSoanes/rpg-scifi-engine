@@ -1,30 +1,19 @@
 using Rpg.Experimental.Graph;
 using Rpg.Experimental.Mods;
 using Rpg.Experimental.Mods.Behaviors;
+using Rpg.Experimental.Tests.Models;
 using Rpg.Experimental.Time;
 
 namespace Rpg.Experimental.Tests
 {
-    public class TestObject : RpgObject
-    {
-        public int Strength { get; protected set; } = 10;
-        public int? Intelligence { get; protected set; }
-        public Dice Damage { get; protected set; } = "d6 + 1";
-        public Dice? Initiative { get; protected set; }
-        public RpgObject? Child { get; set; }
-        public List<RpgObject> Children { get; protected set; } = new();
-
-        public override void OnCreating(RpgGraph graph, RpgObject obj)
-        {
-            base.OnCreating(graph, obj);
-            graph
-                .Add(this, x => x.Intelligence, 3)
-                .Add(this, x => x.Damage, x => x.Strength);
-        }
-    }
 
     public class RpgObject_Tests
     {
+        [SetUp]
+        public void Setup()
+        {
+            RpgTypeUtilities.RegisterAssembly(typeof(TestObject).Assembly);
+        }
 
         [Test]
         public void PropertyValues_EnsureObjectData()
@@ -33,7 +22,7 @@ namespace Rpg.Experimental.Tests
             obj.Child = new TestObject();
 
             var graph = new RpgGraph(obj);
-            Assert.That(graph.Objects.Count, Is.EqualTo(2));
+            Assert.That(graph.Objects.Count, Is.EqualTo(4));
             Assert.That(graph.Objects.ContainsKey(obj.Id), Is.True);
 
             Assert.That(graph.ObjectData.Count, Is.EqualTo(2));
@@ -43,18 +32,22 @@ namespace Rpg.Experimental.Tests
 
             var strength = graph.GetPropertyData(obj.Id, "Strength") as RpgPropertyDataModdable;
             Assert.That(strength, Is.Not.Null);
+            Assert.That(strength.PropType, Is.EqualTo(RpgPropertyType.Int));
             Assert.That(strength.IsNullable, Is.False);
 
             var intelligence = graph.GetPropertyData(obj.Id, "Intelligence") as RpgPropertyDataModdable;
             Assert.That(intelligence, Is.Not.Null);
+            Assert.That(intelligence.PropType, Is.EqualTo(RpgPropertyType.Int));
             Assert.That(intelligence.IsNullable, Is.True);
 
             var damage = graph.GetPropertyData(obj.Id, "Damage") as RpgPropertyDataModdable;
             Assert.That(damage, Is.Not.Null);
+            Assert.That(damage.PropType, Is.EqualTo(RpgPropertyType.Dice));
             Assert.That(damage.IsNullable, Is.False);
 
             var initiative = graph.GetPropertyData(obj.Id, "Initiative") as RpgPropertyDataModdable;
             Assert.That(initiative, Is.Not.Null);
+            Assert.That(initiative.PropType, Is.EqualTo(RpgPropertyType.Dice));
             Assert.That(initiative.IsNullable, Is.True);
 
             var child = graph.GetPropertyData(obj.Id, "Child") as RpgPropertyDataObject;

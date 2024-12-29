@@ -44,7 +44,7 @@ namespace Rpg.Experimental.Graph
                 graph.ChangeTracker.PropUpdated(ObjectId, Prop);
         }
 
-        public void OnCreating(RpgGraph graph, RpgObject obj)
+        public void OnCreating(RpgGraph graph, RpgObject? obj)
         {
             Dice? dice = PropType switch
             {

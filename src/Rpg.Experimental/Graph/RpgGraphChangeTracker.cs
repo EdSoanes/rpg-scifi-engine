@@ -44,6 +44,18 @@ namespace Rpg.Experimental.Graph
                 UpdatedObjects.Add(objectId);
         }
 
+        public void Update(RpgGraph graph)
+        {
+            foreach (var byObjId in UpdatedProps.GroupBy(x => x.ObjectId))
+            {
+                var objData = graph.GetObjectData(byObjId.Key);
+                foreach (var propRef in byObjId)
+                    objData?.GetPropData(propRef.Prop)?.OnSyncProperty(graph);
+            }
+
+            Clear();
+        }
+
         public void Clear()
         {
             UpdatedProps.Clear();

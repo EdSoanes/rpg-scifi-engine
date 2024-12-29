@@ -8,7 +8,6 @@ namespace Rpg.Experimental.Mods
 {
     public class Mod : Lifespan
     {
-        [JsonProperty] public string Id { get; private set; }
         [JsonProperty] public ModType ModType { get; private set; } = ModType.Standard;
         [JsonProperty] public IModBehavior ModBehavior { get; private set; } = new Standard();
         [JsonProperty] public string? Name { get; internal set; }
@@ -20,12 +19,11 @@ namespace Rpg.Experimental.Mods
         public bool IsDisabled {  get; set; }
 
         [JsonConstructor] protected Mod() 
-        {
-            Id = this.NewId();
-        }
+            : base()
+        { }
 
         public Mod(ModType modType)
-            : this()
+            : base()
                 => ModType = modType;
 
         public Mod SetName(string name)

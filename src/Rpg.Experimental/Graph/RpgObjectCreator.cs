@@ -4,13 +4,13 @@ using Rpg.Experimental.Time;
 
 namespace Rpg.Experimental.Graph
 {
-    public class RpgObjectTraverser
+    public class RpgObjectCreator
     {
         private Type[] _nonTraversibleTypes;
 
         private List<RpgObject> _objects = new();
 
-        public RpgObjectTraverser()
+        public RpgObjectCreator()
         {
             var res = GetType().Assembly.GetTypes()
                 .Where(x => x.IsClass

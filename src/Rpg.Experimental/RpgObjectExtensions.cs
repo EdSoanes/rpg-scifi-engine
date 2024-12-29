@@ -28,7 +28,7 @@ namespace Rpg.Experimental
             {
                 var propInfo = propObj.GetType().GetProperty(prop);
                 var setMethod = propInfo?.GetSetMethod(true);
-                if (propInfo != null && setMethod != null && propInfo.PropertyOfType(typeof(T)))
+                if (propInfo != null && setMethod != null && RpgTypeUtilities.PropertyOfType(propInfo, typeof(T)))
                     setMethod.Invoke(propObj, [value]);
             }
         }

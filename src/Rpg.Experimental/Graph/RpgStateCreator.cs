@@ -1,43 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 using Rpg.Experimental.States;
 
 namespace Rpg.Experimental.Graph
 {
     public class RpgStateCreator
     {
-        public State[] CreateStates()
+        public State[] CreateStates(RpgGraph graph, RpgObject owner)
         {
+            var types = RpgTypeUtilities.ForTypes<State>()
+                .Where(x => IsOwnerStateType(owner, x));
 
-        }
-
-        private void OnCreatingStates()
-        {
-            var types = RpgTypeScan.ForTypes<State>()
-                .Where(x => IsOwnerStateType(this, x));
-
+            var states = new List<State>();
             foreach (var type in types)
             {
-                var state = (State)Activator.CreateInstance(type, [this])!;
-                if (this.IsA(state.OwnerArchetype!))
-                {
-                    state.OnCreating(Graph);
-                    States.Add(state.Name, state);
-                }
+                var state = (State)Activator.CreateInstance(type, [owner])!;
+                states.Add(state);
             }
+
+            return states.ToArray();
         }
 
-        private bool IsOwnerStateType(RpgObject entity, Type? stateType)
+        private bool IsOwnerStateType(RpgObject obj, Type? stateType)
         {
             while (stateType != null)
             {
                 if (stateType.IsGenericType)
                 {
                     var genericTypes = stateType.GetGenericArguments();
-                    if (genericTypes.Length == 1 && entity.GetType().IsAssignableTo(genericTypes[0]))
+                    if (genericTypes.Length == 1 && obj.GetType().IsAssignableTo(genericTypes[0]))
                         return true;
                 }
 

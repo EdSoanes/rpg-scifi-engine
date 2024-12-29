@@ -31,13 +31,15 @@ namespace Rpg.Experimental.Time
                   new TimePoint(TimePointType.Turn, startTurn + duration))
         { }
 
-        public Lifespan(TimePoint start, TimePoint end, bool started = false)
+        public Lifespan(TimePoint start, TimePoint end)
         {
+            Id = this.NewId();
             Start = start;
             End = end;
         }
 
         public Lifespan(string ownerId, bool syncToOwner)
+            : this(TimePointType.TimeBegins, TimePointType.TimeEnds)
         {
             OwnerId = ownerId;
             SyncToOwner = syncToOwner;
@@ -50,8 +52,8 @@ namespace Rpg.Experimental.Time
                   new TimePoint(TimePointType.Turn, startTurn + duration))
         { }
 
-        public Lifespan(string ownerId, TimePoint start, TimePoint end, bool started = false)
-            : this(start, end, started)
+        public Lifespan(string ownerId, TimePoint start, TimePoint end)
+            : this(start, end)
         {
             OwnerId = ownerId;
         }

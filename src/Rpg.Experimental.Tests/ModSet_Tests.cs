@@ -1,13 +1,17 @@
 using Rpg.Experimental.Graph;
-using Rpg.Experimental.Mods;
-using Rpg.Experimental.Mods.Behaviors;
 using Rpg.Experimental.ModSets;
+using Rpg.Experimental.Tests.Models;
 using Rpg.Experimental.Time;
 
 namespace Rpg.Experimental.Tests
 {
     public class ModSet_Tests
     {
+        [SetUp]
+        public void Setup()
+        {
+            RpgTypeUtilities.RegisterAssembly(typeof(TestObject).Assembly);
+        }
 
         [Test]
         public void ModSet_StrengthMod_EnsureObjectData()
@@ -48,7 +52,7 @@ namespace Rpg.Experimental.Tests
             graph.Time.Refresh();
 
             Assert.That(modSet.Mods.Count, Is.EqualTo(0));
-            Assert.That(graph.Objects.Count, Is.EqualTo(3));
+            Assert.That(graph.Objects.Count, Is.EqualTo(5));
             Assert.That(objData?.GetPropData<RpgPropertyDataModdable>("Strength")?.Mods.Count, Is.EqualTo(2));
             Assert.That(obj.Strength, Is.EqualTo(11));
 
@@ -56,7 +60,7 @@ namespace Rpg.Experimental.Tests
             graph.Time.Refresh();
 
             Assert.That(modSet.Expiry, Is.EqualTo(LifecycleExpiry.Destroyed));
-            Assert.That(graph.Objects.Count, Is.EqualTo(2));
+            Assert.That(graph.Objects.Count, Is.EqualTo(4));
             Assert.That(objData?.GetPropData<RpgPropertyDataModdable>("Strength")?.Mods.Count, Is.EqualTo(1));
             Assert.That(obj.Strength, Is.EqualTo(10));
         }
@@ -111,14 +115,14 @@ namespace Rpg.Experimental.Tests
             graph.Time.Refresh();
 
             Assert.That(modSet.Mods.Count, Is.EqualTo(0));
-            Assert.That(graph.Objects.Count, Is.EqualTo(3));
+            Assert.That(graph.Objects.Count, Is.EqualTo(5));
             Assert.That(objData?.GetPropData<RpgPropertyDataModdable>("Strength")?.Mods.Count, Is.EqualTo(2));
             Assert.That(obj.Strength, Is.EqualTo(11));
 
             graph.Time.ToTurn(2);
 
             Assert.That(modSet.Expiry, Is.EqualTo(LifecycleExpiry.Expired));
-            Assert.That(graph.Objects.Count, Is.EqualTo(3));
+            Assert.That(graph.Objects.Count, Is.EqualTo(5));
             Assert.That(objData?.GetPropData<RpgPropertyDataModdable>("Strength")?.Mods.Count, Is.EqualTo(2));
             Assert.That(obj.Strength, Is.EqualTo(10));
         }
