@@ -3,6 +3,7 @@ using System.Reflection;
 using Newtonsoft.Json;
 using Rpg.Experimental.Mods;
 using Rpg.Experimental.ModSets;
+using Rpg.Experimental.States;
 using Rpg.Experimental.Time;
 
 namespace Rpg.Experimental.Graph
@@ -83,14 +84,28 @@ namespace Rpg.Experimental.Graph
 
         public void Add(RpgObject obj)
         {
-            var objects = new RpgObjectTraverser().Build(obj, (rpgObj, parentObj) =>
+            var stateCreator = new RpgStateCreator();
+            var objects = new RpgObjectCreator().Build(obj, (rpgObj, parentObj) =>
             {
                 if (!Objects.ContainsKey(rpgObj.Id))
                 {
                     Objects.Add(rpgObj.Id, rpgObj);
-                    ObjectData.Add(rpgObj.Id, CreateObject(rpgObj, parentObj));
+
+                    var props = CreateProperties(obj);
+                    var objectData = new RpgObjectData(obj.Id, parentObj?.Id, props);
+                    ObjectData.Add(rpgObj.Id, objectData);
+
+                    objectData.OnCreating(this, obj);
+                    obj.OnCreating(this, obj);
                 }
             });
+
+            foreach (var rpgObj in objects)
+            {
+                var states = stateCreator.CreateStates(this, rpgObj);
+                foreach (var state in states)
+                    Add(state);
+            }
         }
 
         public void Add(ModSet modSet)
@@ -125,7 +140,10 @@ namespace Rpg.Experimental.Graph
 
         private void OnTemporalEvent(object? sender, TemporalEventArgs e)
         {
-            foreach (var obj in Objects.Values)
+            foreach (var obj in Objects.Values.Where(x => x is ModSet && !(x is State)))
+                obj.OnTimeEvent(this);
+
+            foreach (var obj in Objects.Values.Where(x => x is RpgObject))
                 obj.OnTimeEvent(this);
 
             foreach (var objData in ObjectData.Values)
@@ -137,12 +155,12 @@ namespace Rpg.Experimental.Graph
                 }
             }
 
-            foreach (var byObjId in ChangeTracker.UpdatedProps.GroupBy(x => x.ObjectId))
-            {
-                var objData = GetObjectData(byObjId.Key);
-                foreach (var propRef in byObjId)
-                    objData?.GetPropData(propRef.Prop)?.OnSyncProperty(this);
-            }
+            ChangeTracker.Update(this);
+
+            foreach (var obj in Objects.Values.Where(x => x is State))
+                obj.OnTimeEvent(this);
+
+            ChangeTracker.Update(this);
 
             var toDelete = Objects.Values.Where(x => x.Expiry == LifecycleExpiry.Destroyed).ToList();
             foreach (var obj in toDelete)
@@ -151,8 +169,6 @@ namespace Rpg.Experimental.Graph
                 if (ObjectData.ContainsKey(obj.Id))
                     ObjectData.Remove(obj.Id);
             }
-
-            ChangeTracker.Clear();
         }
 
         public Lifespan? RefreshObject(string objectId)
@@ -184,6 +200,12 @@ namespace Rpg.Experimental.Graph
 
         public RpgObject? GetObject(string? objectId)
             => GetLifespan(objectId) as RpgObject;
+
+        public State? GetObjectState(string? objectId, string stateName)
+        {
+            var state = Objects.Values.FirstOrDefault(x => x is State state && state.OwnerId == objectId && state.Name == stateName) as State;
+            return state;
+        }
 
         public RpgObjectData? GetObjectData(string? objectId)
             => objectId != null && ObjectData.ContainsKey(objectId)
@@ -231,16 +253,16 @@ namespace Rpg.Experimental.Graph
             if (propertyInfo.SetMethod == null)
                 return null;
 
-            if (propertyInfo.PropertyOfType(typeof(int)))
-                return new RpgPropertyDataModdable(objectId, propertyInfo.Name, RpgPropertyType.Int, propertyInfo.PropertyType.PropertyOfNullableType(typeof(int)));
+            if (RpgTypeUtilities.PropertyOfType(propertyInfo, typeof(int)))
+                return new RpgPropertyDataModdable(objectId, propertyInfo.Name, RpgPropertyType.Int, RpgTypeUtilities.PropertyOfNullableType(propertyInfo.PropertyType, typeof(int)));
 
-            if (propertyInfo.PropertyOfType(typeof(Dice)))
-                return new RpgPropertyDataModdable(objectId, propertyInfo.Name, RpgPropertyType.Dice, propertyInfo.PropertyType.PropertyOfNullableType(typeof(Dice)));
+            if (RpgTypeUtilities.PropertyOfType(propertyInfo, typeof(Dice)))
+                return new RpgPropertyDataModdable(objectId, propertyInfo.Name, RpgPropertyType.Dice, RpgTypeUtilities.PropertyOfNullableType(propertyInfo.PropertyType, typeof(Dice)));
 
-            if (propertyInfo.PropertyOfType(typeof(RpgObject)))
+            if (RpgTypeUtilities.PropertyOfType(propertyInfo, typeof(RpgObject)))
                 return new RpgPropertyDataObject(objectId, propertyInfo.Name, RpgPropertyType.Child);
 
-            if (propertyInfo.PropertyOfType(typeof(ICollection<RpgObject>)))
+            if (RpgTypeUtilities.PropertyOfType(propertyInfo, typeof(ICollection<RpgObject>)))
                 return new RpgPropertyDataObject(objectId, propertyInfo.Name, RpgPropertyType.Children);
 
             return null;
