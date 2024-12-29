@@ -14,8 +14,6 @@ namespace Rpg.Experimental.Mods.Behaviors
         {
             if (!propertyData.Mods.Any(x => x.Id == mod.Id))
             {
-                mod.OnTimeEvent(graph);
-
                 var replaceMods = ModFilters.Active(propertyData.Mods)
                     .Where(x => x.ModBehavior is Replace && (x.ModType == ModType.Standard || x.ModType == ModType.Synced))
                     .ToList();

@@ -13,7 +13,6 @@ namespace Rpg.Experimental.Mods.Behaviors
         {
             if (!propertyData.Mods.Any(x => x.Id == mod.Id))
             {
-                mod.OnTimeEvent(graph);
                 propertyData.Mods.Add(mod);
                 graph.ChangeTracker.PropUpdated(propertyData.ObjectId, propertyData.Prop);
             }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Rpg.Experimental.Graph
 {
@@ -15,7 +16,14 @@ namespace Rpg.Experimental.Graph
             => PropsUpdated(new RpgPropertyRef(objectId, prop));
 
         public void PropsUpdated(params RpgPropertyRef[] propRefs)
-            => UpdatedProps.Merge(propRefs);
+        {
+            UpdatedProps.Merge(propRefs);
+            foreach (var propRef in propRefs)
+            {
+                if (UpdatedObjects.Contains(propRef.ObjectId))
+                    UpdatedObjects.Remove(propRef.ObjectId);
+            }
+        }
 
         public void AllPropsUpdated(RpgGraph graph)
         {

@@ -37,7 +37,7 @@ namespace Rpg.Experimental.Graph
                 prop.ExpireRefsTo(graph, expiryTime, objectId);
         }
 
-        public void OnCreating(RpgGraph graph, RpgObject obj)
+        public void OnCreating(RpgGraph graph, RpgObject? obj)
         {
             foreach (var prop in Props)
                 prop.OnCreating(graph, obj);

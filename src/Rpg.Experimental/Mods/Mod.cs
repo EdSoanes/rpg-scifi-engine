@@ -12,8 +12,6 @@ namespace Rpg.Experimental.Mods
         [JsonProperty] public ModType ModType { get; private set; } = ModType.Standard;
         [JsonProperty] public IModBehavior ModBehavior { get; private set; } = new Standard();
         [JsonProperty] public string? Name { get; internal set; }
-        [JsonProperty] public string? OwnerId { get; private set; }
-        [JsonProperty] public ModOwnerType OwnerType { get; private set; } = ModOwnerType.None;
         [JsonProperty] public RpgPropertyRef Target { get; private set; }
         [JsonProperty] public RpgPropertyRefValue Source { get; internal set; }
         //[JsonProperty] internal RpgMethod<RpgObject, Dice>? SourceValueFunc { get; set; }
@@ -30,12 +28,6 @@ namespace Rpg.Experimental.Mods
             : this()
                 => ModType = modType;
 
-        public Mod(ModType modType, string ownerId, ModOwnerType ownerType)
-            : this(modType)
-        {
-            OwnerId = ownerId;
-            OwnerType = ownerType;
-        }
         public Mod SetName(string name)
         {
             Name = name;
@@ -69,6 +61,13 @@ namespace Rpg.Experimental.Mods
             Start = start;
             End = end;
 
+            return this;
+        }
+
+        public Mod SetOwner(string ownerId, bool syncToOwner)
+        {
+            OwnerId = ownerId;
+            SyncToOwner = syncToOwner;
             return this;
         }
 

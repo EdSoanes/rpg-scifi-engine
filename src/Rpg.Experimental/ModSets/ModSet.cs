@@ -6,17 +6,39 @@ using Rpg.Experimental.Time;
 
 namespace Rpg.Experimental.ModSets
 {
-    public class ModSet : Lifespan, ILifecycle
+    public class ModSet : Lifespan
     {
         [JsonProperty] public string Name { get; set; }
         [JsonProperty] public List<Mod> Mods { get; protected set; } = new();
 
-        [JsonConstructor] protected ModSet() { }
+        [JsonConstructor] public ModSet() { }
 
-        public ModSet(string ownerId, string name)
-            : base(ownerId)
+        public ModSet(string ownerId, bool syncToOwner)
+            : base(ownerId, syncToOwner)
+        { }
+
+        public ModSet Lifespan(int duration)
         {
-            Name = name ?? GetType().Name;
+            Start = new TimePoint(TimePointType.Turn, 0);
+            End = new TimePoint(TimePointType.Turn, duration);
+
+            return this;
+        }
+
+        public ModSet Lifespan(int startsIn, int duration)
+        {
+            Start = new TimePoint(TimePointType.Turn, startsIn);
+            End = new TimePoint(TimePointType.Turn, startsIn + duration);
+
+            return this;
+        }
+
+        public ModSet Lifespan(TimePoint start, TimePoint end)
+        {
+            Start = start;
+            End = end;
+
+            return this;
         }
 
         public ModSet ExtractFor(string objectId)
@@ -28,7 +50,7 @@ namespace Rpg.Experimental.ModSets
 
             Mods = Mods.Where(x => x.Target.ObjectId != objectId).ToList();
 
-            var res = new ModSet(objectId, Name);
+            var res = new ModSet(objectId, false);
             res.Mods = mods;
             return res;
         }
@@ -93,9 +115,10 @@ namespace Rpg.Experimental.ModSets
             where T : ModSet
             where TEntity : RpgObject
         {
-            modSet.Add(new Mod(ModType.Standard, modSet.Id, ModOwnerType.ModSet)
+            modSet.Add(new Mod(ModType.Standard)
                 .SetTarget(entity, targetProp)
-                .SetSource(dice, valueCalc));
+                .SetSource(dice, valueCalc)
+                .SetOwner(modSet.Id, true));
 
             return modSet;
         }
@@ -106,7 +129,8 @@ namespace Rpg.Experimental.ModSets
         {
             mod
                 .SetTarget(target, targetProp)
-                .SetSource(dice, valueCalc);
+                .SetSource(dice, valueCalc)
+                .SetOwner(modSet.Id, true);
 
             modSet.Add(mod);
             return modSet;
@@ -116,9 +140,10 @@ namespace Rpg.Experimental.ModSets
             where T : ModSet
             where TEntity : RpgObject
         {
-            modSet.Add(new Mod(ModType.Standard, modSet.Id, ModOwnerType.ModSet)
+            modSet.Add(new Mod(ModType.Standard)
                 .SetTarget(entity, targetExpr)
-                .SetSource(entity, sourceExpr, valueCalc));
+                .SetSource(entity, sourceExpr, valueCalc)
+                .SetOwner(modSet.Id, true));
 
             return modSet;
         }
@@ -129,9 +154,10 @@ namespace Rpg.Experimental.ModSets
             where TTarget : RpgObject
             where TSource : RpgObject
         {
-            modSet.Add(new Mod(ModType.Standard, modSet.Id, ModOwnerType.ModSet)
+            modSet.Add(new Mod(ModType.Standard)
                 .SetTarget(target, targetExpr)
-                .SetSource(source, sourceExpr, valueCalc));
+                .SetSource(source, sourceExpr, valueCalc)
+                .SetOwner(modSet.Id, true));
 
             return modSet;
         }
@@ -143,7 +169,8 @@ namespace Rpg.Experimental.ModSets
         {
             mod
                 .SetTarget(target, targetExpr)
-                .SetSource(source, sourceExpr, valueFunc);
+                .SetSource(source, sourceExpr, valueFunc)
+                .SetOwner(modSet.Id, true);
 
             modSet.Add(mod);
             return modSet;
@@ -153,9 +180,10 @@ namespace Rpg.Experimental.ModSets
             where T : ModSet
             where TEntity : RpgObject
         {
-            modSet.Add(new Mod(ModType.Standard, modSet.Id, ModOwnerType.ModSet)
+            modSet.Add(new Mod(ModType.Standard)
                 .SetTarget(entity, targetProp)
-                .SetSource(entity, sourceExpr, valueCalc));
+                .SetSource(entity, sourceExpr, valueCalc)
+                .SetOwner(modSet.Id, true));
 
             return modSet;
         }
@@ -166,7 +194,8 @@ namespace Rpg.Experimental.ModSets
         {
             mod
                 .SetTarget(target, targetProp)
-                .SetSource(target, sourceExpr, valueFunc);
+                .SetSource(target, sourceExpr, valueFunc)
+                .SetOwner(modSet.Id, true);
 
             modSet.Add(mod);
             return modSet;
@@ -177,9 +206,10 @@ namespace Rpg.Experimental.ModSets
             where TTarget : RpgObject
             where TSource : RpgObject
         {
-            modSet.Add(new Mod(ModType.Standard, modSet.Id, ModOwnerType.ModSet)
+            modSet.Add(new Mod(ModType.Standard)
                 .SetTarget(target, targetProp)
-                .SetSource(source, sourceExpr, valueFunc));
+                .SetSource(source, sourceExpr, valueFunc)
+                .SetOwner(modSet.Id, true));
 
             return modSet;
         }
@@ -191,7 +221,8 @@ namespace Rpg.Experimental.ModSets
         {
             mod
                 .SetTarget(target, targetProp)
-                .SetSource(source, sourceExpr, valueFunc);
+                .SetSource(source, sourceExpr, valueFunc)
+                .SetOwner(modSet.Id, true);
 
             modSet.Add(mod);
             return modSet;
@@ -203,7 +234,8 @@ namespace Rpg.Experimental.ModSets
         {
             mod
                 .SetTarget(target, targetExpr)
-                .SetSource(dice, valueFunc);
+                .SetSource(dice, valueFunc)
+                .SetOwner(modSet.Id, true);
 
             modSet.Add(mod);
             return modSet;
@@ -213,9 +245,10 @@ namespace Rpg.Experimental.ModSets
             where T : ModSet
             where TEntity : RpgObject
         {
-            modSet.Add(new Mod(ModType.Standard, modSet.Id, ModOwnerType.ModSet)
+            modSet.Add(new Mod(ModType.Standard)
                 .SetTarget(entity, targetExpr)
-                .SetSource(dice, valueCalc));
+                .SetSource(dice, valueCalc)
+                .SetOwner(modSet.Id, true));
 
             return modSet;
         }
@@ -224,9 +257,10 @@ namespace Rpg.Experimental.ModSets
             where T : ModSet
             where TEntity : RpgObject
         {
-            modSet.Add(new Mod(ModType.Standard, modSet.Id, ModOwnerType.ModSet)
+            modSet.Add(new Mod(ModType.Standard)
                 .SetTarget(entity, targetExpr)
-                .SetSource(entity, sourceExpr, valueCalc));
+                .SetSource(entity, sourceExpr, valueCalc)
+                .SetOwner(modSet.Id, true));
 
             return modSet;
         }

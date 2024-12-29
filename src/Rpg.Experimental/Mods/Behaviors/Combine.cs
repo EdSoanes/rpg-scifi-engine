@@ -9,14 +9,16 @@ namespace Rpg.Experimental.Mods.Behaviors
         {
             if (!propertyData.Mods.Any(x => x.Id == mod.Id))
             {
-                mod.OnTimeEvent(graph);
+                var modValue = ModCalculator.Value(graph, mod);
                 var combineMods = ModFilters.Active(propertyData.Mods)
                     .Where(x => x.ModBehavior is Combine && (x.ModType == ModType.Standard || x.ModType == ModType.Synced))
                     .ToList();
 
-                combineMods.Add(mod);
-                
-                var val = ModCalculator.Value(graph, combineMods);
+                var oldVal = ModCalculator.Value(graph, combineMods);
+                var val = oldVal == null
+                    ? modValue
+                    : modValue + oldVal;
+
                 mod.Source = new RpgPropertyRefValue(null, val);
 
                 foreach (var combineMod in combineMods.Where(x => x.Id != mod.Id))

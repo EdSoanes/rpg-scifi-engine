@@ -52,15 +52,5 @@ namespace Rpg.Experimental.Mods
 
         public static Mod? ActiveThreshold(IEnumerable<Mod> mods)
             => Active(mods).FirstOrDefault(x => x.ModType == ModType.Threshold);
-
-        public static IEnumerable<Mod> ActiveByOwner(IEnumerable<Mod> mods, string? ownerId)
-            => ownerId == null
-            ? []
-            : Active(mods).Where(x => x.OwnerId == ownerId);
-
-        public static IEnumerable<Mod> SyncedToOwner(IEnumerable<Mod> mods, string? ownerId)
-            => ownerId == null
-            ? []
-            : Active(mods).Where(x => x.OwnerId == ownerId);
     }
 }

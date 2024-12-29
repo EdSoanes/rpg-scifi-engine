@@ -6,8 +6,8 @@ namespace Rpg.Experimental.Time
     public class Lifespan : ILifecycle
     {
         [JsonProperty] public string Id { get; private set; }
-        [JsonProperty] public string? SyncToObjectId { get; private set; }
-
+        [JsonProperty] public string? OwnerId { get; protected set; }
+        [JsonProperty] public bool SyncToOwner { get; protected set; }
         private bool Started { get => Start.IsStarted() && End.IsStarted(); }
         [JsonProperty] public TimePoint Start { get; protected set; }
         [JsonProperty] public TimePoint End { get; protected set; }
@@ -37,20 +37,34 @@ namespace Rpg.Experimental.Time
             End = end;
         }
 
-        public Lifespan(string syncToObjectId)
+        public Lifespan(string ownerId, bool syncToOwner)
         {
-            SyncToObjectId = syncToObjectId;
+            OwnerId = ownerId;
+            SyncToOwner = syncToOwner;
+        }
+
+        public Lifespan(string ownerId, int startTurn, int duration)
+            : this(
+                  ownerId,
+                  new TimePoint(TimePointType.Turn, startTurn),
+                  new TimePoint(TimePointType.Turn, startTurn + duration))
+        { }
+
+        public Lifespan(string ownerId, TimePoint start, TimePoint end, bool started = false)
+            : this(start, end, started)
+        {
+            OwnerId = ownerId;
         }
 
         public static bool operator ==(Lifespan? d1, Lifespan? d2) => d1?.Start == d2?.Start && d1?.End == d2?.End && d1?.Started == d2?.Started;
         public static bool operator !=(Lifespan? d1, Lifespan? d2) => d1?.Start != d2?.Start || d1?.End != d2?.End || d1?.Started != d2?.Started;
 
-        protected bool SyncFromObject(RpgGraph graph)
+        protected bool SyncLifespanFromOwner(RpgGraph graph)
         {
             var synced = false;
-            if (SyncToObjectId != null)
+            if (OwnerId != null && SyncToOwner)
             {
-                var from = graph.RefreshObject(SyncToObjectId);
+                var from = graph.RefreshObject(OwnerId);
                 if (from != null)
                 {
                     Start = from.Start;
@@ -105,7 +119,7 @@ namespace Rpg.Experimental.Time
 
         public virtual void OnTimeEvent(RpgGraph graph)
         {
-            if (!SyncFromObject(graph))
+            if (!SyncLifespanFromOwner(graph))
             {
                 if (!Started)
                 {
@@ -117,44 +131,57 @@ namespace Rpg.Experimental.Time
                 }
 
                 Expiry = CalculateExpiry(graph, Start, Expired ?? End);
-
-                if (!graph.Time.Now.IsEncounterTime && Expiry == LifecycleExpiry.Expired)
-                    Expiry = LifecycleExpiry.Destroyed;
-
-                if (Expiry == LifecycleExpiry.Active && (!IsApplied || IsDisabled))
-                    Expiry = LifecycleExpiry.Suspended;
             }
         }
 
-        private static LifecycleExpiry CalculateExpiry(RpgGraph graph, TimePoint start, TimePoint end)
+        protected virtual LifecycleExpiry CalculateExpiry(RpgGraph graph, TimePoint start, TimePoint end)
         {
+            var expiry = LifecycleExpiry.Expired;
+
             if (start == TimePointType.Waiting && end == TimePointType.TimePasses && graph.Time.Now != TimePointType.Waiting)
-                return LifecycleExpiry.Destroyed;
+                expiry = LifecycleExpiry.Destroyed;
 
-            if (graph.Time.Now.Type == TimePointType.TimePasses && end.Type == TimePointType.TimePasses && graph.Time.Now.Count >= end.Count)
-                return LifecycleExpiry.Expired;
+            else if (graph.Time.Now.Type == TimePointType.TimePasses && end.Type == TimePointType.TimePasses && graph.Time.Now.Count >= end.Count)
+                expiry = LifecycleExpiry.Expired;
 
-            if (graph.Time.Now.Type == TimePointType.Waiting && end.Type == TimePointType.Waiting && graph.Time.Now.Count >= end.Count)
-                return LifecycleExpiry.Expired;
+            else if (graph.Time.Now.Type == TimePointType.Waiting && end.Type == TimePointType.Waiting && graph.Time.Now.Count >= end.Count)
+                expiry = LifecycleExpiry.Expired;
 
-            if (start.IsEncounterTime && end.IsAfterEncounterTime && graph.Time.Now.Type == TimePointType.EncounterEnds)
-                start = TimePointType.Waiting;
+            else
+            {
+                if (start.IsEncounterTime && end.IsAfterEncounterTime && graph.Time.Now.Type == TimePointType.EncounterEnds)
+                    start = TimePointType.Waiting;
 
-            if (start.IsEncounterTime && end.IsAfterEncounterTime && !graph.Time.Now.IsEncounterTime)
-                return LifecycleExpiry.Expired;
+                if (start.IsEncounterTime && end.IsAfterEncounterTime && !graph.Time.Now.IsEncounterTime)
+                    expiry = LifecycleExpiry.Expired;
 
-            if (start > graph.Time.Now)
-                return LifecycleExpiry.Pending;
+                else if (start > graph.Time.Now)
+                    expiry = LifecycleExpiry.Pending;
 
-            if (start <= graph.Time.Now && end > graph.Time.Now)
-                return LifecycleExpiry.Active;
+                else if (start <= graph.Time.Now && end > graph.Time.Now)
+                    expiry = LifecycleExpiry.Active;
 
-            return LifecycleExpiry.Expired;
+                else
+                    expiry = LifecycleExpiry.Expired;
+
+            }
+
+            if (!graph.Time.Now.IsEncounterTime && expiry == LifecycleExpiry.Expired)
+                expiry = LifecycleExpiry.Destroyed;
+
+            if (expiry == LifecycleExpiry.Active && (!IsApplied || IsDisabled))
+                expiry = LifecycleExpiry.Suspended;
+
+            return expiry;
         }
 
         public override string ToString()
         {
-            return $"{Start}=>{Expired ?? End} ({Expiry})";
+            var expiry = Expiry.ToString();
+            if (OwnerId != null)
+                expiry += $"{expiry} from {OwnerId}";
+
+            return $"{Start}=>{Expired ?? End} ({expiry})";
         }
 
         public override bool Equals(object? obj)

@@ -23,7 +23,7 @@ namespace Rpg.Experimental.Tests
         }
     }
 
-    public class RpgObject_InitialProperties
+    public class RpgObject_Tests
     {
 
         [Test]

@@ -166,15 +166,14 @@ namespace Rpg.Experimental.Graph
 
         private void RefreshObject(Lifespan obj)
         {
-            if (obj != null)
+            if (obj != null && !ChangeTracker.IsObjectUpdated(obj.Id))
             {
+                ChangeTracker.ObjectUpdated(obj.Id);
+
                 obj.OnTimeEvent(this);
                 var objData = GetObjectData(obj.Id);
                 if (objData != null)
-                {
                     objData.OnTimeEvent(this);
-                    ChangeTracker.ObjectUpdated(obj.Id);
-                }
             }
         }
 
