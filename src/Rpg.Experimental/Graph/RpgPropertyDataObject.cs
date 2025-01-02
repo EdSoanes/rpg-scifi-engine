@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.Experimental.Reflection.Args;
 using Rpg.Experimental.Time;
 
 namespace Rpg.Experimental.Graph
@@ -21,8 +22,29 @@ namespace Rpg.Experimental.Graph
             IsNullable = true;
         }
 
+        public T? GetValue<T>(RpgGraph graph)
+        {
+            var refs = Refs
+                .Where(x => x.Expiry == LifecycleExpiry.Active)
+                .Select(x => graph.GetObject(x.ChildObjectId))
+                .Where(x => x != null);
+
+            if (PropType == RpgPropertyType.Child)
+            {
+                var val = refs.FirstOrDefault();
+                return val is T ? (T)(object)val : default;
+            }
+
+            return refs is T
+                ? (T)refs
+                : default;
+        }
+
+        public void Expire(TimePoint expiryTime) { }
+
         public void Expire(RpgGraph graph)
             => Expire(graph, graph.Time.Now);
+
         public void Expire(RpgGraph graph, TimePoint expiryTime) { }
 
         public void ExpireRefsTo(RpgGraph graph, TimePoint expiryTime, string objectId)
@@ -55,16 +77,26 @@ namespace Rpg.Experimental.Graph
             if (obj == null) return;
             if (PropType == RpgPropertyType.Child)
             {
-                var child = obj.Value<RpgObject>(Prop);
+                var child = graph.GetPropertyValue<RpgObject>(obj, Prop);
                 if (child != null)
                     Refs.Add(new RpgObjectRef(obj.Id, child.Id, TimePointType.TimeBegins, TimePointType.TimeEnds));
             }
             else if (PropType == RpgPropertyType.Children)
             {
-                var children = obj.Value<IEnumerable<RpgObject>>(Prop);
+                var children = graph.GetPropertyValue<ICollection<RpgObject>>(obj, Prop);
                 if (children != null && children.Any())
                     Refs.AddRange(children.Select(x => new RpgObjectRef(obj.Id, x.Id, TimePointType.TimeBegins, TimePointType.TimeEnds)));
             }
+        }
+
+        public void OnRestoring(RpgGraph graph) { }
+
+        public void OnCreatingVirtual(RpgGraph graph, object? value)
+        {
+            var obj = graph.GetObject(ObjectId)?.ResolvePropertyNameToObject(graph, Prop);
+            if (obj == null) return;
+
+            AddRefTo(obj.Id, obj.Start, obj.End);
         }
 
         public void OnTimeEvent(RpgGraph graph)
@@ -103,7 +135,7 @@ namespace Rpg.Experimental.Graph
 
             if (PropType == RpgPropertyType.Children)
             {
-                var oldList = obj.Value<ICollection<RpgObject>>(Prop);
+                var oldList = graph.GetPropertyValue<ICollection<RpgObject>>(obj, Prop);
                 if (oldList == null)
                 {
                     var propInfo = obj.GetType().GetProperty(Prop)!;
@@ -118,17 +150,17 @@ namespace Rpg.Experimental.Graph
                     foreach (var child in children)
                         oldList.Add(child);
 
-                    obj.SetPropertyValue(Prop, oldList);
+                    graph.SetPropertyValue(obj, Prop, oldList);
                     graph.ChangeTracker.PropUpdated(ObjectId, Prop);
                 }
             }
             else if (PropType == RpgPropertyType.Child)
             {
                 var newChild = children.FirstOrDefault();
-                var oldChild = obj.Value<RpgObject>(Prop);
+                var oldChild = graph.GetPropertyValue<RpgObject>(obj, Prop);
                 if (newChild?.Id != oldChild?.Id)
                 {
-                    obj.SetPropertyValue<RpgObject>(Prop, newChild);
+                    graph.SetPropertyValue(obj, Prop, newChild);
                     graph.ChangeTracker.PropUpdated(ObjectId, Prop);
                 }
             }

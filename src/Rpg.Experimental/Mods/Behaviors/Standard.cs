@@ -18,12 +18,12 @@ namespace Rpg.Experimental.Mods.Behaviors
             }
         }
 
-        public void OnAfterTimeEvent(Mod mod, RpgGraph graph, RpgPropertyDataModdable propertyData)
+        public void OnAfterTimeEvent(Mod mod, RpgGraph graph)
         {
             
         }
 
-        public void OnBeforeTimeEvent(Mod mod, RpgGraph graph, RpgPropertyDataModdable propertyData)
+        public void OnBeforeTimeEvent(Mod mod, RpgGraph graph)
         {
             
         }

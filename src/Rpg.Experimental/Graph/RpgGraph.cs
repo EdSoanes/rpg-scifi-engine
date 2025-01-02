@@ -1,24 +1,35 @@
-﻿using System.Linq.Expressions;
-using System.Reflection;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using Rpg.Experimental.Activities;
 using Rpg.Experimental.Mods;
 using Rpg.Experimental.ModSets;
+using Rpg.Experimental.Reflection;
+using Rpg.Experimental.Reflection.Args;
 using Rpg.Experimental.States;
 using Rpg.Experimental.Time;
+using System.Diagnostics;
+using System.Linq.Expressions;
 
 namespace Rpg.Experimental.Graph
 {
     public class RpgGraph
     {
         [JsonProperty] public RpgObject Context { get; private set; }
+        [JsonProperty] public RpgObject Actor { get; private set; }
         [JsonProperty] public Dictionary<string, RpgObjectData> ObjectData { get; private set; } = new();
         [JsonProperty] public Dictionary<string, Lifespan> Objects { get; private set; } = new();
         [JsonProperty] public Temporal Time { get; private set; } = new();
         [JsonProperty] public RpgGraphChangeTracker ChangeTracker { get; private set; } = new();
+        public RpgPropertyRefCreator PropertyRefs { get; private set; }
 
         public RpgGraph(RpgObject context)
+            : this(context, context)
+        { }
+
+        public RpgGraph(RpgObject context, RpgObject actor)
         {
+            PropertyRefs = new RpgPropertyRefCreator(this);
             Context = context;
+            Actor = actor;
             Objects.Clear();
             ObjectData.Clear();
             Time.OnTemporalEvent += OnTemporalEvent;
@@ -27,26 +38,37 @@ namespace Rpg.Experimental.Graph
             Time.BeginTime();
         }
 
-        public void Add(string objectId, string toObjectId, string toProp, TimePoint start, TimePoint end)
+        public void AddTo(string parentId, string parentProp, string childId, TimePoint start, TimePoint end)
         {
-            var propData = GetObjectData(toObjectId)?.GetPropData<RpgPropertyDataObject>(toProp);
-            propData?.AddRefTo(objectId, start, end);
-            ChangeTracker.PropUpdated(toObjectId, toProp);
+            var propData = GetObjectData(parentId)?.GetPropData<RpgPropertyDataObject>(parentProp);
+            propData?.AddRefTo(childId, start, end);
+            ChangeTracker.PropUpdated(parentId, parentProp);
 
-            var objData = GetObjectData(objectId)!;
-            objData.ParentId = toObjectId;
+            var objData = GetObjectData(childId)!;
+            objData.ParentId = parentId;
         }
 
-        public void Add(string objectId, string toObjectId, string toProp, TimePoint now)
-            => Add(objectId, toObjectId, toProp, now, TimePointType.TimeEnds);
+        public void AddTo(string parentId, string parentProp, string childId, TimePoint now)
+            => AddTo(parentId, parentProp, childId, now, TimePointType.TimeEnds);
+
+        public void Move(string parentId, string toProp, string childId)
+        {
+            Expire(childId);
+            AddTo(parentId, toProp, childId, Time.Now);
+        }
 
         public RpgGraph Add(Mod mod)
         {
-            var propData = GetObjectData(mod.Target.ObjectId)?.GetPropData<RpgPropertyDataModdable>(mod.Target.Prop);
-            if (propData != null && !propData.Mods.Any(x => x.Id == mod.Id))
+            var targetRef = PropertyRefs.Create(mod.Target.ObjectId, mod.Target.Path);
+            if (targetRef != null)
             {
-                mod.OnCreating(this, null);
-                mod.ModBehavior.OnAdding(mod, this, propData);
+                mod.SetTarget(targetRef);
+                var propData = GetObjectData(targetRef.ObjectId)?.GetPropData<RpgPropertyDataModdable>(targetRef.Path);
+                if (propData != null && !propData.Mods.Any(x => x.Id == mod.Id))
+                {
+                    mod.OnCreating(this, null);
+                    mod.ModBehavior.OnAdding(mod, this, propData);
+                }
             }
 
             return this;
@@ -55,7 +77,7 @@ namespace Rpg.Experimental.Graph
         public RpgGraph Add<TEntity, TTargetValue>(TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject
         {
-            var mod = new Mod(ModType.Base)
+            var mod = new Mod(ModType.Standard)
                 .SetTarget(entity, targetExpr)
                 .SetSource(dice);
             return Add(mod);
@@ -64,7 +86,7 @@ namespace Rpg.Experimental.Graph
         public RpgGraph Add<TEntity, TTargetValue, TSourceValue>(TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject
         {
-            var mod = new Mod(ModType.Base)
+            var mod = new Mod(ModType.Standard)
                 .SetTarget(entity, targetExpr)
                 .SetSource(entity, sourceExpr);
 
@@ -75,37 +97,65 @@ namespace Rpg.Experimental.Graph
             where TTarget : RpgObject
             where TSource : RpgObject
         {
-            var mod = new Mod(ModType.Base)
+            var mod = new Mod(ModType.Standard)
                 .SetTarget(target, targetExpr)
                 .SetSource(source, sourceExpr);
 
             return Add(mod);
         }
 
-        public void Add(RpgObject obj)
+        public void Add(RpgObject rootObj)
         {
+            var propertyCreator = new RpgPropertyDataCreator();
             var stateCreator = new RpgStateCreator();
-            var objects = new RpgObjectCreator().Build(obj, (rpgObj, parentObj) =>
+            var actionCreator = new RpgActionCreator();
+            var objects = new List<Lifespan>();
+
+            Action<Lifespan, Lifespan?> OnAdding = (obj, parentObj) =>
             {
-                if (!Objects.ContainsKey(rpgObj.Id))
+                if (!Objects.ContainsKey(obj.Id))
                 {
-                    Objects.Add(rpgObj.Id, rpgObj);
-
-                    var props = CreateProperties(obj);
-                    var objectData = new RpgObjectData(obj.Id, parentObj?.Id, props);
-                    ObjectData.Add(rpgObj.Id, objectData);
-
-                    objectData.OnCreating(this, obj);
-                    obj.OnCreating(this, obj);
+                    objects.Add(obj);
+                    Objects.Add(obj.Id, obj);
+                    if (obj is RpgObject rpgObj)
+                    {
+                        var props = propertyCreator.CreatePropertyData(rpgObj);
+                        var objectData = new RpgObjectData(rpgObj.Id, parentObj?.Id, props);
+                        ObjectData.Add(rpgObj.Id, objectData);
+                    }
                 }
+            };
+
+            new RpgObjectCreator().Build(rootObj, (rpgObj, parentObj) =>
+            {
+                OnAdding(rpgObj, parentObj);
+                var states = stateCreator.CreateStates(rpgObj);
+                foreach (var state in states)
+                    OnAdding(state, rpgObj);
+
+                var actions = actionCreator.CreateActions(rpgObj);
+                foreach (var action in actions)
+                    OnAdding(action, rpgObj);
             });
 
-            foreach (var rpgObj in objects)
+            foreach (var obj in objects)
+                GetObjectData(obj.Id)?.OnCreating(this, obj as RpgObject);
+
+            foreach (var obj in objects)
+                obj.OnCreating(this, obj as RpgObject);
+        }
+
+        public IRpgPropertyData Add(IRpgPropertyData propertyData)
+        {
+            var obj = GetObject(propertyData.ObjectId);
+            var objData = GetObjectData(propertyData.ObjectId);
+            if (obj != null && objData != null && !objData.Props.Any(x => x.Prop == propertyData.Prop))
             {
-                var states = stateCreator.CreateStates(this, rpgObj);
-                foreach (var state in states)
-                    Add(state);
+                objData.Props.Add(propertyData);
+                propertyData.OnCreating(this, obj);
             }
+
+            return propertyData;
         }
 
         public void Add(ModSet modSet)
@@ -114,11 +164,32 @@ namespace Rpg.Experimental.Graph
             modSet.OnCreating(this, null);
         }
 
-        public void Move(string objectId, string toObjectId, string toProp)
+        public IRpgPropertyData? CreateVirtualProperty(string objectId, string prop, string propType, bool isNullable, object? value = null)
         {
-            Expire(objectId);
-            Add(objectId, toObjectId, toProp, Time.Now);
+            var propData = GetPropertyData(objectId, prop);
+            if (propData == null)
+            {
+                propData = propType switch
+                {
+                    nameof(Int32) => new RpgPropertyDataModdable(objectId, prop, RpgPropertyType.Int, isNullable),
+                    nameof(Dice) => new RpgPropertyDataModdable(objectId, prop, RpgPropertyType.Dice, isNullable),
+                    _ => RpgTypeUtilities.IsOftype<RpgObject>(propType)
+                        ? new RpgPropertyDataObject(objectId, prop, RpgPropertyType.Child)
+                        : null
+                };
+
+                if (propData != null)
+                {
+                    propData.OnCreatingVirtual(this, value);
+                    propData = Add(propData);
+                }
+            }
+
+            return propData;
         }
+
+        public IRpgPropertyData? CreateVirtualProperty(string objectId, RpgArg arg)
+            => CreateVirtualProperty(objectId, arg.Name, arg.Type, arg.IsNullable, arg.Value);
 
         public void Expire(string objectId, TimePoint expiryTime)
         {
@@ -140,27 +211,29 @@ namespace Rpg.Experimental.Graph
 
         private void OnTemporalEvent(object? sender, TemporalEventArgs e)
         {
-            foreach (var obj in Objects.Values.Where(x => x is ModSet && !(x is State)))
-                obj.OnTimeEvent(this);
+            var modSets = Objects.Values.Where(x => x is ModSet && !(x is State));
+            OnTemporalEvent(modSets);
 
-            foreach (var obj in Objects.Values.Where(x => x is RpgObject))
-                obj.OnTimeEvent(this);
+            var objects = Objects.Values.Where(x => x is RpgObject && !(x is RpgAction) && !(x is RpgActivity) && !(x is RpgActivityAction));
+            OnTemporalEvent(objects);
 
-            foreach (var objData in ObjectData.Values)
-            {
-                if (!ChangeTracker.IsObjectUpdated(objData.ObjectId))
-                {
-                    objData.OnTimeEvent(this);
-                    ChangeTracker.ObjectUpdated(objData.ObjectId);
-                }
-            }
+            ChangeTracker.SyncProperties(this);
 
-            ChangeTracker.Update(this);
+            var states = Objects.Values.Where(x => x is State);
+            OnTemporalEvent(states);
 
-            foreach (var obj in Objects.Values.Where(x => x is State))
-                obj.OnTimeEvent(this);
+            ChangeTracker.SyncProperties(this);
 
-            ChangeTracker.Update(this);
+            var actions = Objects.Values.Where(x => x is RpgAction);
+            OnTemporalEvent(actions);
+
+            var activities = Objects.Values.Where(x => x is RpgActivity);
+            OnTemporalEvent(activities);
+
+            var activityActions = Objects.Values.Where(x => x is RpgActivityAction);
+            OnTemporalEvent(activityActions);
+
+            ChangeTracker.SyncProperties(this);
 
             var toDelete = Objects.Values.Where(x => x.Expiry == LifecycleExpiry.Destroyed).ToList();
             foreach (var obj in toDelete)
@@ -171,26 +244,31 @@ namespace Rpg.Experimental.Graph
             }
         }
 
-        public Lifespan? RefreshObject(string objectId)
+        public void OnTemporalEvent(IEnumerable<Lifespan> objects)
         {
-            var obj = GetLifespan(objectId);
-            if (obj != null)
-                RefreshObject(obj);
-
-            return obj;
-        }
-
-        private void RefreshObject(Lifespan obj)
-        {
-            if (obj != null && !ChangeTracker.IsObjectUpdated(obj.Id))
-            {
-                ChangeTracker.ObjectUpdated(obj.Id);
-
+            foreach (var obj in objects)
                 obj.OnTimeEvent(this);
+
+            foreach (var obj in objects)
+            {
                 var objData = GetObjectData(obj.Id);
-                if (objData != null)
+                if (objData != null && ChangeTracker.AddTimeEventObject(objData.ObjectId))
                     objData.OnTimeEvent(this);
             }
+        }
+
+        public void OnTimeEvent(string objectId)
+        {
+            var objData = GetObjectData(objectId);
+            if (objData != null && ChangeTracker.AddTimeEventObject(objectId))
+                objData?.OnTimeEvent(this);
+        }
+
+        public void OnSyncProperties(string objectId)
+        {
+            var objData = GetObjectData(objectId);
+            if (objData != null && ChangeTracker.UnsyncedProperties(objectId))
+                ChangeTracker.SyncProperties(this, objectId);
         }
 
         public Lifespan? GetLifespan(string? objectId)
@@ -201,10 +279,89 @@ namespace Rpg.Experimental.Graph
         public RpgObject? GetObject(string? objectId)
             => GetLifespan(objectId) as RpgObject;
 
+        public T[] GetOwnerObjects<T>(string? objectId)
+            where T : Lifespan
+                => Objects.Values
+                    .Where(x => x.OwnerId == objectId && x is T)
+                    .Cast<T>()
+                    .ToArray();
+
+        public RpgObject[] GetOwnerObjects(string? objectId)
+            => Objects.Values
+                .Where(x => x.OwnerId == objectId && x is RpgObject)
+                .Cast<RpgObject>()
+                .ToArray();
+
+        public ModSet[] GetOwnerModSets(string? objectId)
+            => Objects.Values
+                .Where(x => x is ModSet && !(x is State) && x.OwnerId == objectId)
+                .Cast<ModSet>()
+                .ToArray();
+
+        public State[] GetObjectStates(string? objectId)
+            => GetOwnerObjects<State>(objectId);
+
+        public string? ActivateState(string ownerId, string stateName, int duration)
+        {
+            var owner = GetObject(ownerId);
+            var activation = owner?.CreateStateActivation(stateName, duration, true);
+            if (activation != null)
+            {
+                Add(activation);
+                return activation.Id;
+            }
+
+            return null;
+        }
+
+        public void DeactivateState(string ownerId, string activationId)
+        {
+            var objData = GetObjectData(ownerId);
+            if (objData != null)
+            {
+                foreach (var propData in objData.Props.Where(x => x is RpgPropertyDataModdable).Select(x => x as RpgPropertyDataModdable))
+                {
+                    var stateMod = propData?.Mods.FirstOrDefault(x => x.Id == activationId && x.Expiry == LifecycleExpiry.Active);
+                    if (stateMod != null)
+                    {
+                        stateMod.Expire(TimePointType.BeforeTime);
+                        return;
+                    }
+                }
+            }
+        }
+
         public State? GetObjectState(string? objectId, string stateName)
         {
             var state = Objects.Values.FirstOrDefault(x => x is State state && state.OwnerId == objectId && state.Name == stateName) as State;
             return state;
+        }
+
+        public RpgAction[] GetObjectActions(string? objectId)
+        {
+            var actions = Objects.Values
+                .Where(x => x is RpgAction action && action.OwnerId == objectId)
+                .Cast<RpgAction>()
+                .ToArray();
+
+            return actions;
+        }
+
+        public RpgAction? GetObjectAction(string? objectId, string actionName)
+        {
+            var action = Objects.Values.FirstOrDefault(x => x is RpgAction action && action.OwnerId == objectId && action.Name == actionName) as RpgAction;
+            return action;
+        }
+
+        public Mod[] GetOwnerMods(string? id)
+        {
+            var res = new List<Mod>();
+            foreach (var objData in ObjectData.Values)
+                foreach (var propData in objData.Props)
+                    if (propData is RpgPropertyDataModdable modPropData)
+                        modPropData.Mods.Where(x => x.OwnerId == id);
+
+            return res.ToArray();
         }
 
         public RpgObjectData? GetObjectData(string? objectId)
@@ -221,51 +378,87 @@ namespace Rpg.Experimental.Graph
             => GetObjectData(objectId)
                 ?.Props.FirstOrDefault(x => x.Prop == prop) as T;
 
-        private RpgObjectData CreateObject(RpgObject obj, RpgObject? parentObj)
+        public void SetPropertyValue<T>(RpgObject? obj, string path, T? value)
         {
-            var props = CreateProperties(obj);
+            var (propObj, prop) = PropertyRefs.GetObjectForPath(obj, path);
+            if (propObj != null && prop != null)
+            {
+                var propInfo = propObj.GetType().GetProperty(prop);
+                var setMethod = propInfo?.GetSetMethod(true);
+                if (propInfo != null && setMethod != null && RpgTypeUtilities.PropertyOfType(propInfo, typeof(T)))
+                    setMethod.Invoke(propObj, [value]);
+            }
+        }
+
+        public T? GetPropertyValue<T>(RpgObject? obj, string path)
+        {
+            var (propObj, prop) = PropertyRefs.GetObjectForPath(obj, path);
+            if (propObj != null && prop != null)
+            {
+                var propInfo = propObj.GetType().GetProperty(prop);
+                if (propInfo != null)
+                {
+                    var value = propInfo.GetValue(propObj);
+                    if (value is T)
+                        return (T)value;
+                }
+
+                //Virtual property...?
+                else
+                {
+                    var propData = GetPropertyData(propObj.Id, prop);
+                    if (propData != null)
+                        return propData!.GetValue<T>(this);
+                }
+            }
+
+            return default;
+        }
+
+        public RpgActivity GetObjectActivity(string ownerId, string? actionOwnerId = null, string? actionName = null)
+        {
+            var owner = GetObject(ownerId);
+            if (owner == null) throw new ArgumentException("Owner not found for activity");
+
+            var activity = GetOwnerObjects<RpgActivity>(ownerId)
+                .FirstOrDefault(x => x.Expiry == LifecycleExpiry.Active);
+
+            if (activity == null)
+            {
+                var end = Time.Now.IsEncounterTime
+                    ? new TimePoint(TimePointType.Turn, Time.Now.Count + 1)
+                    : new TimePoint(TimePointType.TimePasses);
+
+                activity = new RpgActivity(owner, Time.Now, end);
+                Add(activity);
+            }
+
+            return actionOwnerId != null && actionName != null
+                ? CreateActivityAction(ownerId, actionOwnerId, actionName)
+                : activity;
+        }
+
+        public RpgActivity CreateActivityAction(string ownerId, string actionOwnerId, string actionName)
+        {
+            var activity = GetOwnerObjects<RpgActivity>(ownerId)
+                .FirstOrDefault(x => x.Expiry == LifecycleExpiry.Active);
+
+            if (activity == null)
+                throw new ArgumentException("Could not find activity");
+
+            var action = GetOwnerObjects<RpgAction>(actionOwnerId).FirstOrDefault(x => x.Name == actionName);
+            if (action == null)
+                throw new ArgumentException("Could not find action");
+
+            var activityAction = new RpgActivityAction(activity, action);
+            Add(activityAction);
+            AddTo(activity.Id, nameof(RpgActivity.ActivityActions), activityAction.Id, activity.Start, activity.End);
             
-            var objectData = new RpgObjectData(obj.Id, parentObj?.Id, props);
-            objectData.OnCreating(this, obj);
-            obj.OnCreating(this, obj);
+            OnTemporalEvent([activityAction, activity]);
+            ChangeTracker.SyncProperties(this, activityAction.Id);
+            ChangeTracker.SyncProperties(this, activity.Id);
 
-            return objectData;
-        }
-
-        private IRpgPropertyData[] CreateProperties(RpgObject obj)
-        {
-            return obj.GetType()
-                .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Select(x => CreatePropertyData(obj.Id, x))
-                .Where(x => x != null)
-                .Cast<IRpgPropertyData>()
-                .ToArray();
-        }
-
-        private IRpgPropertyData? CreatePropertyData(string objectId, PropertyInfo? propertyInfo)
-        {
-            if (propertyInfo == null)
-                return null;
-
-            if (propertyInfo.GetMethod == null || !propertyInfo.GetMethod.IsPublic)
-                return null;
-
-            if (propertyInfo.SetMethod == null)
-                return null;
-
-            if (RpgTypeUtilities.PropertyOfType(propertyInfo, typeof(int)))
-                return new RpgPropertyDataModdable(objectId, propertyInfo.Name, RpgPropertyType.Int, RpgTypeUtilities.PropertyOfNullableType(propertyInfo.PropertyType, typeof(int)));
-
-            if (RpgTypeUtilities.PropertyOfType(propertyInfo, typeof(Dice)))
-                return new RpgPropertyDataModdable(objectId, propertyInfo.Name, RpgPropertyType.Dice, RpgTypeUtilities.PropertyOfNullableType(propertyInfo.PropertyType, typeof(Dice)));
-
-            if (RpgTypeUtilities.PropertyOfType(propertyInfo, typeof(RpgObject)))
-                return new RpgPropertyDataObject(objectId, propertyInfo.Name, RpgPropertyType.Child);
-
-            if (RpgTypeUtilities.PropertyOfType(propertyInfo, typeof(ICollection<RpgObject>)))
-                return new RpgPropertyDataObject(objectId, propertyInfo.Name, RpgPropertyType.Children);
-
-            return null;
+            return activity;
         }
     }
 }

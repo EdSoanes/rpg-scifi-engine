@@ -1,6 +1,7 @@
 using Rpg.Experimental.Graph;
 using Rpg.Experimental.Mods;
 using Rpg.Experimental.Mods.Behaviors;
+using Rpg.Experimental.Reflection;
 using Rpg.Experimental.Tests.Models;
 using Rpg.Experimental.Time;
 
@@ -22,13 +23,13 @@ namespace Rpg.Experimental.Tests
             obj.Child = new TestObject();
 
             var graph = new RpgGraph(obj);
-            Assert.That(graph.Objects.Count, Is.EqualTo(4));
+            Assert.That(graph.Objects.Count, Is.EqualTo(6));
             Assert.That(graph.Objects.ContainsKey(obj.Id), Is.True);
 
-            Assert.That(graph.ObjectData.Count, Is.EqualTo(2));
+            Assert.That(graph.ObjectData.Count, Is.EqualTo(4));
             Assert.That(graph.ObjectData.ContainsKey(obj.Id), Is.True);
-            Assert.That(graph.ObjectData[obj.Id].Props.Count, Is.EqualTo(6));
-            Assert.That(graph.ObjectData[obj.Child.Id].Props.Count, Is.EqualTo(6));
+            Assert.That(graph.ObjectData[obj.Id].Props.Count, Is.EqualTo(7));
+            Assert.That(graph.ObjectData[obj.Child.Id].Props.Count, Is.EqualTo(7));
 
             var strength = graph.GetPropertyData(obj.Id, "Strength") as RpgPropertyDataModdable;
             Assert.That(strength, Is.Not.Null);
@@ -171,13 +172,13 @@ namespace Rpg.Experimental.Tests
         [Test]
         public void RpgObject_MoveChildToChildren_EnsurePropValues()
         {
-            var obj = new TestObject();
-            var childObj = new TestObject();
+            var obj = new TestObject("ParentObj");
+            var childObj = new TestObject("ChildObj");
             obj.Child = childObj;
             var graph = new RpgGraph(obj);
 
             Assert.That(obj.Child, Is.Not.Null);
-            graph.Move(childObj.Id, obj.Id, nameof(TestObject.Children));
+            graph.Move(obj.Id, nameof(TestObject.Children), childObj.Id);
             graph.Time.Refresh();
 
             Assert.That(obj.Child, Is.Null);

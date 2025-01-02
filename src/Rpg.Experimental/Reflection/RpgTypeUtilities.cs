@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Rpg.Experimental.Graph
+namespace Rpg.Experimental.Reflection
 {
     public static class RpgTypeUtilities
     {
@@ -24,6 +24,53 @@ namespace Rpg.Experimental.Graph
         };
 
         private static List<Assembly> _scanAssemblies = new List<Assembly>();
+
+        public static bool IsOftype<T>(string typeName)
+        {
+            var type = ForTypeByName(typeName);
+            return type?.IsAssignableTo(typeof(T)) ?? false;
+        }
+
+        public static string[] GetArchetypes(string typeName)
+        {
+            var type = ForTypeByName(typeName);
+            if (type == null) return [];
+
+            var res = new List<string>();
+            if (type.IsAssignableTo(typeof(RpgObject)))
+            {
+                while (type != null)
+                {
+                    res.Add(type.Name);
+                    if (type == typeof(RpgObject) || type.BaseType == null)
+                        break;
+
+                    type = type.BaseType;
+                }
+            }
+
+            res.Reverse();
+            return res.ToArray();
+        }
+
+        public static string[] GetArchetypes(Type type)
+        {
+            var res = new List<string>();
+            if (type.IsAssignableTo(typeof(RpgObject)))
+            {
+                while (type != null)
+                {
+                    res.Add(type.Name);
+                    if (type == typeof(RpgObject) || type.BaseType == null)
+                        break;
+
+                    type = type.BaseType;
+                }
+            }
+
+            res.Reverse();
+            return res.ToArray();
+        }
 
         public static bool PropertyOfType(PropertyInfo? propertyInfo, Type valueType)
             => propertyInfo != null && PropertyOfType(propertyInfo.PropertyType, valueType);
@@ -122,7 +169,7 @@ namespace Rpg.Experimental.Graph
             try
             {
                 var assemblies = GetScanAssemblies();
-                return ForTypes<T>([..assemblies]);
+                return ForTypes<T>([.. assemblies]);
             }
             catch
             {

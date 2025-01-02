@@ -1,11 +1,12 @@
 ﻿using System.Reflection;
+using Rpg.Experimental.Reflection;
 using Rpg.Experimental.States;
 
 namespace Rpg.Experimental.Graph
 {
     public class RpgStateCreator
     {
-        public State[] CreateStates(RpgGraph graph, RpgObject owner)
+        public State[] CreateStates(RpgObject owner)
         {
             var types = RpgTypeUtilities.ForTypes<State>()
                 .Where(x => IsOwnerStateType(owner, x));

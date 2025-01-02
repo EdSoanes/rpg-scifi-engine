@@ -15,7 +15,7 @@ namespace Rpg.Experimental.Mods.Behaviors
             if (!propertyData.Mods.Any(x => x.Id == mod.Id))
             {
                 var replaceMods = ModFilters.Active(propertyData.Mods)
-                    .Where(x => x.ModBehavior is Replace && (x.ModType == ModType.Standard || x.ModType == ModType.Synced))
+                    .Where(x => x.ModBehavior is Replace && x.ModType == mod.ModType)
                     .ToList();
 
                 foreach (var replaceMod in replaceMods)
@@ -26,13 +26,13 @@ namespace Rpg.Experimental.Mods.Behaviors
             }
         }
 
-        public void OnAfterTimeEvent(Mod mod, RpgGraph graph, RpgPropertyDataModdable propertyData)
+        public void OnAfterTimeEvent(Mod mod, RpgGraph graph)
         {
             if (mod.Expiry == Time.LifecycleExpiry.Active && graph.Time.Now.IsAfterEncounterTime && (mod.Start != TimePointType.TimeBegins || mod.End != TimePointType.TimeEnds))
                 mod.Lifespan(TimePointType.TimeBegins, TimePointType.TimeEnds);
         }
 
-        public void OnBeforeTimeEvent(Mod mod, RpgGraph graph, RpgPropertyDataModdable propertyData)
+        public void OnBeforeTimeEvent(Mod mod, RpgGraph graph)
         {
             
         }

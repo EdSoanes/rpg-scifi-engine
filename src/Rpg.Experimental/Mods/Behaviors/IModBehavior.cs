@@ -10,7 +10,7 @@ namespace Rpg.Experimental.Mods.Behaviors
     public interface IModBehavior
     {
         void OnAdding(Mod mod, RpgGraph graph, RpgPropertyDataModdable propertyData);
-        void OnBeforeTimeEvent(Mod mod, RpgGraph graph, RpgPropertyDataModdable propertyData);
-        void OnAfterTimeEvent(Mod mod, RpgGraph graph, RpgPropertyDataModdable propertyData);
+        void OnBeforeTimeEvent(Mod mod, RpgGraph graph);
+        void OnAfterTimeEvent(Mod mod, RpgGraph graph);
     }
 }

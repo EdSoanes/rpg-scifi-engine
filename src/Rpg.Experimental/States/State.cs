@@ -7,9 +7,11 @@ namespace Rpg.Experimental.States
 {
     public abstract class State : ModSet
     {
+        internal static string StatePropName(string stateName)
+            => $"State/{stateName}";
+
         [JsonProperty] public string? OwnerArchetype { get; protected set; }
         [JsonProperty] public bool IsPlayerVisible { get; protected set; } = true;
-        [JsonProperty] public List<Lifespan> TimedActivations { get; protected set; } = new();
 
         [JsonConstructor] protected State() { }
 
@@ -19,43 +21,6 @@ namespace Rpg.Experimental.States
             Name = this.GetType().Name;
             OwnerArchetype = ownerArchetype;
             IsDisabled = true;
-        }
-
-        public string Activate(string ownerId, TimePoint start, TimePoint end)
-        {
-            var lifespan = TimedActivations.FirstOrDefault(x => x.OwnerId == ownerId && x.Start == start && x.End == end);
-            if (lifespan == null)
-            {
-                lifespan = new Lifespan(ownerId, start, end);
-                TimedActivations.Add(lifespan);
-            }
-
-            return lifespan.Id;
-        }
-
-        public void Deactivate(string lifespanId)
-        {
-            var lifespan = TimedActivations.FirstOrDefault(x => x.Id == lifespanId);
-            if (lifespan != null)
-                TimedActivations.Remove(lifespan);
-        }
-
-        public void Deactivate(string ownerId, TimePoint start, TimePoint end)
-        {
-            var lifespan = TimedActivations.FirstOrDefault(x => x.OwnerId == ownerId && x.Start == start && x.End == end);
-            if (lifespan != null)
-                TimedActivations.Remove(lifespan);
-        }
-
-        public override void OnTimeEvent(RpgGraph graph)
-        {
-            foreach (var activation in TimedActivations)
-                activation.OnTimeEvent(graph);
-
-            var oldExpiry = Expiry;
-            base.OnTimeEvent(graph);
-            if (OwnerId != null && oldExpiry != Expiry && (oldExpiry == LifecycleExpiry.Active || Expiry == LifecycleExpiry.Active))
-                graph.RefreshObject(OwnerId);
         }
     }
 
@@ -74,10 +39,12 @@ namespace Rpg.Experimental.States
 
         protected override LifecycleExpiry CalculateExpiry(RpgGraph graph, TimePoint start, TimePoint end)
         {
-            var owner = graph.RefreshObject(OwnerId!) as T;
+            var owner = graph.GetObject(OwnerId) as T;
             if (owner == null)
                 return LifecycleExpiry.Destroyed;
-            
+
+            graph.OnSyncProperties(OwnerId!);
+
             if (owner.Expiry != LifecycleExpiry.Active)
                 return owner.Expiry;
 
@@ -90,8 +57,12 @@ namespace Rpg.Experimental.States
             if (IsOnWhen(owner))
                 return LifecycleExpiry.Active;
 
-            if (TimedActivations.Any(x => x.Expiry == LifecycleExpiry.Active))
+            var activations = graph.GetPropertyValue<int>(owner, StatePropName(Name ?? GetType().Name));
+            if (activations > 0)
                 return LifecycleExpiry.Active;
+
+            //if (TimedActivations.Any(x => x.Expiry == LifecycleExpiry.Active))
+            //    return LifecycleExpiry.Active;
 
 
             return LifecycleExpiry.Suspended;

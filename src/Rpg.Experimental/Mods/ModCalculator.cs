@@ -86,11 +86,11 @@ namespace Rpg.Experimental.Mods
 
         public static Dice? ModValue(RpgGraph graph, Mod mod)
         {
-            var dice = ValueToDice(mod.Source.Value);
-            if (dice == null)
+            var dice = ValueToDice(mod.Source?.Value);
+            if (dice == null && mod.Source?.PropRef?.Path != null)
             {
-                var obj = graph.GetObject(mod.Source.PropertyRef!.ObjectId);
-                dice = ValueToDice(obj?.PropertyRefValue(mod.Source.PropertyRef!.Prop)?.Value);
+                var obj = graph.GetPropertyData(mod.Source.PropRef.ObjectId, mod.Source.PropRef.Path)?.GetValue<object?>(graph);
+                dice = ValueToDice(obj);
             }
 
             return dice;

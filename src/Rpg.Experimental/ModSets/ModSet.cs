@@ -8,14 +8,23 @@ namespace Rpg.Experimental.ModSets
 {
     public class ModSet : Lifespan
     {
-        [JsonProperty] public string Name { get; set; }
-        [JsonProperty] public List<Mod> Mods { get; protected set; } = new();
+        private List<Mod> _newMods = new();
+        private List<Mod> _existingMods = new();
+
+        [JsonProperty] public string? Name { get; set; }
+        [JsonIgnore] public Mod[] Mods { get => _existingMods.Concat(_newMods).ToArray(); }
 
         [JsonConstructor] public ModSet() { }
 
         public ModSet(string ownerId, bool syncToOwner)
             : base(ownerId, syncToOwner)
         { }
+
+        public ModSet(string name, string ownerId, bool syncToOwner)
+            : base(ownerId, syncToOwner)
+        {
+            Name = name;
+        }
 
         public ModSet Lifespan(int duration)
         {
@@ -43,226 +52,217 @@ namespace Rpg.Experimental.ModSets
 
         public ModSet ExtractFor(string objectId)
         {
-            var mods = Mods
-                .Where(x => x.Target.ObjectId == objectId)
+            var mods = _newMods
+                .Where(x => x.Target?.ObjectId == objectId)
                 .Select(x => new Mod(ModType.Standard).SetTarget(x.Target).SetSource(x.Source))
                 .ToList();
 
-            Mods = Mods.Where(x => x.Target.ObjectId != objectId).ToList();
+            _newMods = _newMods.Where(x => x.Target?.ObjectId != objectId).ToList();
 
             var res = new ModSet(objectId, false);
-            res.Mods = mods;
+            res._newMods = mods;
             return res;
         }
 
         public override void OnCreating(RpgGraph graph, RpgObject? obj)
         {
             base.OnCreating(graph, obj);
-            SyncMods(graph);
+            Sync(graph);
+        }
+
+        public override void OnRestoring(RpgGraph graph)
+        {
+            base.OnRestoring(graph);
+            _existingMods = graph.GetOwnerMods(Id).ToList();
         }
 
         public override void OnTimeEvent(RpgGraph graph)
         {
-            SyncMods(graph);
+            Sync(graph);
             base.OnTimeEvent(graph);
         }
 
         public void Add(Mod mod)
         {
-            if (!Mods.Any(x => x.Id == mod.Id))
+            if (!_newMods.Any(x => x.Id == mod.Id))
             {
-                Mods.Add(mod
+                _newMods.Add(mod
                     .SetApply(IsApplied)
                     .SetDisabled(IsDisabled));
             }
         }
 
-        private void SyncMods(RpgGraph graph)
+        private void Sync(RpgGraph graph)
         {
-            foreach (var mod in Mods)
+            var newMods = _newMods.ToArray();
+            _newMods.Clear();
+
+            foreach (var mod in newMods)
             {
                 graph.Add(mod
                     .SetApply(IsApplied)
                     .SetDisabled(IsDisabled));
             }
-            Mods.Clear();
+
+            _existingMods.AddRange(newMods);
+
+            foreach (var mod in _existingMods)
+            {
+                if (IsApplied && !mod.IsApplied) mod.Apply();
+                else if (!IsApplied && mod.IsApplied) mod.Unapply();
+
+                if (IsDisabled && !mod.IsDisabled) mod.UserDisabled();
+                else if (!IsDisabled && mod.IsDisabled) mod.UserEnabled();
+            }
         }
 
-        //private Mod[] GetMods(RpgGraph graph)
-        //{
-        //    var mods = new List<Mod>();
-        //    foreach (var byObjId in ModTargets.GroupBy(x => x.ObjectId))
-        //    {
-        //        var obj = graph.GetObjectData(byObjId.Key);
-        //        if (obj != null)
-        //        {
-        //            foreach (var propRef in byObjId)
-        //            {
-        //                var propData = obj.GetPropData<RpgPropertyDataModdable>(propRef.Prop);
-        //                var propMods = propData?.Mods.Where(x => x.SyncToObjectId == Id).ToArray() ?? [];
-        //                mods.AddRange(propMods);
-        //            }
-        //        }
-        //    }
+        public void Reset()
+        {
+            foreach (var mod in Mods)
+                mod.Expire(TimePointType.TimeBegins);
+        }
 
-        //    return mods.ToArray();
-        //}
-    }
+        public ModSet Add<TEntity>(TEntity entity, string targetProp, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
 
-    public static class ModSetExtensions
-    {
-        public static T Add<T, TEntity>(this T modSet, TEntity entity, string targetProp, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
-            where T : ModSet
             where TEntity : RpgObject
         {
-            modSet.Add(new Mod(ModType.Standard)
+            Add(new Mod(ModType.Standard)
                 .SetTarget(entity, targetProp)
                 .SetSource(dice, valueCalc)
-                .SetOwner(modSet.Id, true));
+                .SetOwner(Id, true));
 
-            return modSet;
+            return this;
         }
 
-        public static T Add<T, TEntity>(this T modSet, Mod mod, TEntity target, string targetProp, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
-            where T : ModSet
+        public ModSet Add<TEntity>(Mod mod, TEntity target, string targetProp, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject
         {
             mod
                 .SetTarget(target, targetProp)
                 .SetSource(dice, valueCalc)
-                .SetOwner(modSet.Id, true);
+                .SetOwner(Id, true);
 
-            modSet.Add(mod);
-            return modSet;
+            Add(mod);
+            return this;
         }
 
-        public static T Add<T, TEntity, TTargetValue, TSourceValue>(this T modSet, TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
-            where T : ModSet
+        public ModSet Add<TEntity, TTargetValue, TSourceValue>(TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject
         {
-            modSet.Add(new Mod(ModType.Standard)
+            Add(new Mod(ModType.Standard)
                 .SetTarget(entity, targetExpr)
                 .SetSource(entity, sourceExpr, valueCalc)
-                .SetOwner(modSet.Id, true));
+                .SetOwner(Id, true));
 
-            return modSet;
+            return this;
         }
 
 
-        public static T Add<T, TTarget, TTargetValue, TSource, TSourceValue>(this T modSet, TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
-            where T : ModSet
+        public ModSet Add<TTarget, TTargetValue, TSource, TSourceValue>(TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TTarget : RpgObject
             where TSource : RpgObject
         {
-            modSet.Add(new Mod(ModType.Standard)
+            Add(new Mod(ModType.Standard)
                 .SetTarget(target, targetExpr)
                 .SetSource(source, sourceExpr, valueCalc)
-                .SetOwner(modSet.Id, true));
+                .SetOwner(Id, true));
 
-            return modSet;
+            return this;
         }
 
-        public static T Add<T, TTarget, TTargetVal, TSource, TSourceVal>(this T modSet, Mod mod, TTarget target, Expression<Func<TTarget, TTargetVal>> targetExpr, TSource source, Expression<Func<TSource, TSourceVal>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-            where T : ModSet
+        public ModSet Add<TTarget, TTargetVal, TSource, TSourceVal>(Mod mod, TTarget target, Expression<Func<TTarget, TTargetVal>> targetExpr, TSource source, Expression<Func<TSource, TSourceVal>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TSource : RpgObject
             where TTarget : RpgObject
         {
             mod
                 .SetTarget(target, targetExpr)
                 .SetSource(source, sourceExpr, valueFunc)
-                .SetOwner(modSet.Id, true);
+                .SetOwner(Id, true);
 
-            modSet.Add(mod);
-            return modSet;
+            Add(mod);
+            return this;
         }
 
-        public static T Add<T, TEntity, TSourceValue>(this T modSet, TEntity entity, string targetProp, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
-            where T : ModSet
+        public ModSet Add<TEntity, TSourceValue>(TEntity entity, string targetProp, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject
         {
-            modSet.Add(new Mod(ModType.Standard)
+            Add(new Mod(ModType.Standard)
                 .SetTarget(entity, targetProp)
                 .SetSource(entity, sourceExpr, valueCalc)
-                .SetOwner(modSet.Id, true));
+                .SetOwner(Id, true));
 
-            return modSet;
+            return this;
         }
 
-        public static T Add<T, TTarget, TSourceValue>(this T modSet, Mod mod, TTarget target, string targetProp, Expression<Func<TTarget, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-            where T : ModSet
+        public ModSet Add<TTarget, TSourceValue>(Mod mod, TTarget target, string targetProp, Expression<Func<TTarget, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TTarget : RpgObject
         {
             mod
                 .SetTarget(target, targetProp)
                 .SetSource(target, sourceExpr, valueFunc)
-                .SetOwner(modSet.Id, true);
+                .SetOwner(Id, true);
 
-            modSet.Add(mod);
-            return modSet;
+            Add(mod);
+            return this;
         }
 
-        public static T Add<T, TTarget, TSource, TSourceValue>(this T modSet, TTarget target, string targetProp, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-            where T : ModSet
+        public ModSet Add<TTarget, TSource, TSourceValue>(TTarget target, string targetProp, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TTarget : RpgObject
             where TSource : RpgObject
         {
-            modSet.Add(new Mod(ModType.Standard)
+            Add(new Mod(ModType.Standard)
                 .SetTarget(target, targetProp)
                 .SetSource(source, sourceExpr, valueFunc)
-                .SetOwner(modSet.Id, true));
+                .SetOwner(Id, true));
 
-            return modSet;
+            return this;
         }
 
-        public static T Add<T, TTarget, TSource, TSourceValue>(this T modSet, Mod mod, TTarget target, string targetProp, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-            where T : ModSet
+        public ModSet Add<TTarget, TSource, TSourceValue>(Mod mod, TTarget target, string targetProp, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TTarget : RpgObject
             where TSource : RpgObject
         {
             mod
                 .SetTarget(target, targetProp)
                 .SetSource(source, sourceExpr, valueFunc)
-                .SetOwner(modSet.Id, true);
+                .SetOwner(Id, true);
 
-            modSet.Add(mod);
-            return modSet;
+            Add(mod);
+            return this;
         }
 
-        public static T Add<T, TTarget, TTargetValue>(this T modSet, Mod mod, TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
-            where T : ModSet
+        public ModSet Add<TTarget, TTargetValue>(Mod mod, TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TTarget : RpgObject
         {
             mod
                 .SetTarget(target, targetExpr)
                 .SetSource(dice, valueFunc)
-                .SetOwner(modSet.Id, true);
+                .SetOwner(Id, true);
 
-            modSet.Add(mod);
-            return modSet;
+            Add(mod);
+            return this;
         }
 
-        public static T Add<T, TEntity, TTargetValue>(this T modSet, TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
-            where T : ModSet
+        public ModSet Add<TEntity, TTargetValue>(TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject
         {
-            modSet.Add(new Mod(ModType.Standard)
+            Add(new Mod(ModType.Standard)
                 .SetTarget(entity, targetExpr)
                 .SetSource(dice, valueCalc)
-                .SetOwner(modSet.Id, true));
+                .SetOwner(Id, true));
 
-            return modSet;
+            return this;
         }
 
-        public static T Add<T, TEntity, TTarget, TTargetValue, TSourceValue>(this T modSet, TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
-            where T : ModSet
+        public ModSet Add<TEntity, TTarget, TTargetValue, TSourceValue>(TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject
         {
-            modSet.Add(new Mod(ModType.Standard)
+            Add(new Mod(ModType.Standard)
                 .SetTarget(entity, targetExpr)
                 .SetSource(entity, sourceExpr, valueCalc)
-                .SetOwner(modSet.Id, true));
+                .SetOwner(Id, true));
 
-            return modSet;
+            return this;
         }
     }
 }

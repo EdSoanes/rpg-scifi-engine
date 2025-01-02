@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Rpg.Experimental.Reflection.Args;
 using Rpg.Experimental.Time;
 
 namespace Rpg.Experimental.Graph
@@ -14,6 +9,8 @@ namespace Rpg.Experimental.Graph
         string Prop { get; }
         RpgPropertyType PropType { get; }
         bool IsNullable { get; }
+        T? GetValue<T>(RpgGraph graph);
+        void OnCreatingVirtual(RpgGraph graph, object? value);
         void OnSyncProperty(RpgGraph graph);
     }
 }

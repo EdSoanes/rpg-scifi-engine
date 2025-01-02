@@ -66,8 +66,9 @@ namespace Rpg.Experimental.Time
             var synced = false;
             if (OwnerId != null && SyncToOwner)
             {
-                var from = graph.RefreshObject(OwnerId);
-                if (from != null)
+                var from = graph.GetLifespan(OwnerId);
+                graph.OnSyncProperties(OwnerId);
+                if (from != null && (from.Expired == Expired || Expired == null))
                 {
                     Start = from.Start;
                     End = from.End;
@@ -83,16 +84,16 @@ namespace Rpg.Experimental.Time
             return synced;
         }
 
-        public virtual void Apply(RpgGraph? graph)
+        public virtual void Apply()
             => IsApplied = true;
 
-        public virtual void Unapply(RpgGraph? graph)
+        public virtual void Unapply()
             => IsApplied = false;
 
-        public virtual void UserEnabled(RpgGraph? graph)
+        public virtual void UserEnabled()
             => IsDisabled = false;
 
-        public virtual void UserDisabled(RpgGraph? graph)
+        public virtual void UserDisabled()
             => IsDisabled = true;
         
         public bool OverlapsWith(Lifespan other)
@@ -106,6 +107,9 @@ namespace Rpg.Experimental.Time
             return false;
         }
 
+        public virtual void Expire(TimePoint expiryTime)
+            => Expired = expiryTime;
+
         public virtual void Expire(RpgGraph graph, TimePoint expiryTime)
         {
             Expired = expiryTime;
@@ -117,9 +121,16 @@ namespace Rpg.Experimental.Time
 
         public virtual void ExpireRefsTo(RpgGraph graph, TimePoint expiryTime, string objectId) { }
 
-        public virtual void OnCreating(RpgGraph graph, RpgObject? obj) { }
+        public virtual void OnCreating(RpgGraph graph, RpgObject? obj)
+            => OnCalculateExpiry(graph);
+
+        public virtual void OnRestoring(RpgGraph graph)
+            => OnCalculateExpiry(graph);
 
         public virtual void OnTimeEvent(RpgGraph graph)
+            => OnCalculateExpiry(graph);
+
+        private void OnCalculateExpiry(RpgGraph graph)
         {
             if (!SyncLifespanFromOwner(graph))
             {
@@ -132,12 +143,22 @@ namespace Rpg.Experimental.Time
                         End = new TimePoint(End.Type, End.Count + graph.Time.Now.Count);
                 }
 
-                Expiry = CalculateExpiry(graph, Start, Expired ?? End);
+                var start = (Expired != null && Expired < Start) ? Expired.Value : Start;
+                var end = Expired ?? End;
+
+                Expiry = CalculateExpiry(graph, start, end);
             }
         }
 
         protected virtual LifecycleExpiry CalculateExpiry(RpgGraph graph, TimePoint start, TimePoint end)
         {
+            if (graph.Time.Now == TimePointType.BeforeTime)
+            {
+                return start.IsEncounterTime || start != TimePointType.TimeBegins
+                    ? LifecycleExpiry.Pending
+                    : LifecycleExpiry.Active;
+            }
+
             var expiry = LifecycleExpiry.Expired;
 
             if (start == TimePointType.Waiting && end == TimePointType.TimePasses && graph.Time.Now != TimePointType.Waiting)

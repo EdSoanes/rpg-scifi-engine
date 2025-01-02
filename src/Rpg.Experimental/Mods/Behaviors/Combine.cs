@@ -11,7 +11,7 @@ namespace Rpg.Experimental.Mods.Behaviors
             {
                 var modValue = ModCalculator.Value(graph, mod);
                 var combineMods = ModFilters.Active(propertyData.Mods)
-                    .Where(x => x.ModBehavior is Combine && (x.ModType == ModType.Standard || x.ModType == ModType.Synced))
+                    .Where(x => x.ModBehavior is Combine && x.ModType == mod.ModType)
                     .ToList();
 
                 var oldVal = ModCalculator.Value(graph, combineMods);
@@ -19,7 +19,7 @@ namespace Rpg.Experimental.Mods.Behaviors
                     ? modValue
                     : modValue + oldVal;
 
-                mod.Source = new RpgPropertyRefValue(null, val);
+                mod.SetSource(val ?? Dice.Zero);
 
                 foreach (var combineMod in combineMods.Where(x => x.Id != mod.Id))
                     combineMod.Expire(graph);
@@ -29,13 +29,13 @@ namespace Rpg.Experimental.Mods.Behaviors
             }
         }
 
-        public void OnAfterTimeEvent(Mod mod, RpgGraph graph, RpgPropertyDataModdable propertyData)
+        public void OnAfterTimeEvent(Mod mod, RpgGraph graph)
         {
             if (mod.Expiry == Time.LifecycleExpiry.Active && graph.Time.Now.IsAfterEncounterTime && (mod.Start != TimePointType.TimeBegins || mod.End != TimePointType.TimeEnds))
                 mod.Lifespan(TimePointType.TimeBegins, TimePointType.TimeEnds);
         }
 
-        public void OnBeforeTimeEvent(Mod mod, RpgGraph graph, RpgPropertyDataModdable propertyData)
+        public void OnBeforeTimeEvent(Mod mod, RpgGraph graph)
         {
             
         }

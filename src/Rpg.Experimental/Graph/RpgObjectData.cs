@@ -19,6 +19,8 @@ namespace Rpg.Experimental.Graph
             Props.AddRange(props);
         }
 
+        public void Expire(TimePoint expiryTime) { }
+
         public void Expire(RpgGraph graph)
             => Expire(graph, graph.Time.Now);
 
@@ -42,6 +44,8 @@ namespace Rpg.Experimental.Graph
             foreach (var prop in Props)
                 prop.OnCreating(graph, obj);
         }
+
+        public void OnRestoring(RpgGraph graph) { }
 
         public void OnTimeEvent(RpgGraph graph)
         {

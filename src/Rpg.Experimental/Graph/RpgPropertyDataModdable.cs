@@ -24,16 +24,34 @@ namespace Rpg.Experimental.Graph
             IsNullable = isNullable;
         }
 
-        public object? GetValue()
-            => Mods;
+        public T? GetValue<T>(RpgGraph graph)
+        {
+            var dice = ModCalculator.Value(graph, Mods);
+            if (typeof(T) == typeof(int))
+                return (T)(object)(dice?.Roll() ?? 0);
+            
+            if (typeof(T) == typeof(int?))
+                return (T?)(object?)dice?.Roll();
+
+            if (typeof(T) == typeof(Dice) || typeof(T) == typeof(Dice?))
+                return (T?)(object?)dice;
+
+            if (typeof(T) == typeof(object))
+                return (T?)(object?)dice;
+
+            return default;
+        }
+
+        public void Expire(TimePoint expiryTime) { }
 
         public void Expire(RpgGraph graph)
             => Expire(graph, graph.Time.Now);
+
         public void Expire(RpgGraph graph, TimePoint expiryTime) { }
 
         public void ExpireRefsTo(RpgGraph graph, TimePoint expiryTime, string objectId)
         {
-            var toExpire = Mods.Where(x => x.Source.PropertyRef?.ObjectId == objectId && x.Expiry == LifecycleExpiry.Active);
+            var toExpire = Mods.Where(x => x.Source?.PropRef?.ObjectId == objectId && x.Expiry == LifecycleExpiry.Active);
             foreach (var mod in toExpire)
             {
                 mod.Expire(graph, expiryTime);
@@ -48,15 +66,15 @@ namespace Rpg.Experimental.Graph
         {
             Dice? dice = PropType switch
             {
-                RpgPropertyType.Int => new Dice(obj.Value<int>(Prop)),
-                RpgPropertyType.Dice => obj.Value<Dice>(Prop),
+                RpgPropertyType.Int => new Dice(graph.GetPropertyValue<int>(obj, Prop)),
+                RpgPropertyType.Dice => graph.GetPropertyValue<Dice>(obj, Prop),
                 _ => null,
             };
 
-            if (dice != null && dice != Dice.Zero)
+            if (obj != null && dice != null && dice != Dice.Zero)
             {
                 var initial = new Mod(ModType.Initial)
-                    .SetTarget(obj, Prop)
+                    .SetTarget(graph.PropertyRefs.Create(obj.Id, Prop)!)
                     .SetSource(dice.Value)
                     .Behavior(new Replace());
 
@@ -65,20 +83,33 @@ namespace Rpg.Experimental.Graph
             }
         }
 
+        public void OnRestoring(RpgGraph graph) { }
+
+        public void OnCreatingVirtual(RpgGraph graph, object? value)
+        {
+            var obj = graph.GetObject(ObjectId);
+            if (obj == null) return;
+
+            var propRef = ResolvePropertyNameToPropRef(graph, obj);
+            var mod = new Mod(ModType.Base).SetTarget(ObjectId, Prop);
+            if (propRef != null)
+                mod.SetSource(propRef);
+            else if (value is int val)
+                mod.SetSource(val);
+            else if (value is Dice dice)
+                mod.SetSource(dice);
+
+            if (mod.Source != null)
+                Mods.Add(mod);
+        }
+
         public void OnTimeEvent(RpgGraph graph)
         {
             var updated = false;
             foreach (var mod in Mods)
             {
                 var oldExpiry = mod.Expiry;
-
-                if (mod.Source.PropertyRef != null && !graph.ChangeTracker.IsObjectUpdated(mod.Source.PropertyRef.ObjectId))
-                    graph.RefreshObject(mod.Source.PropertyRef.ObjectId);
-
-                mod.ModBehavior.OnBeforeTimeEvent(mod, graph, this);
                 mod.OnTimeEvent(graph);
-                mod.ModBehavior.OnAfterTimeEvent(mod, graph, this);
-
                 updated |= oldExpiry != mod.Expiry;
             }
                 
@@ -99,23 +130,35 @@ namespace Rpg.Experimental.Graph
             if (obj.Id != ObjectId)
                 throw new ArgumentException($"Invalid object id {obj.Id}", "obj");
 
-            var value = ModCalculator.Value(graph, Mods);
             if (PropType == RpgPropertyType.Int)
             {
-                var newVal = value?.Roll();
-                var oldVal = obj.Value<int?>(Prop);
-
+                var newVal = GetValue<int?>(graph);
+                var oldVal = graph.GetPropertyValue<int?>(obj, Prop);
                 if (newVal != oldVal)
-                    obj.SetPropertyValue(Prop, IsNullable ? newVal : newVal ?? 0);
+                    graph.SetPropertyValue(obj, Prop, IsNullable ? newVal : newVal ?? 0);
             }
             else if (PropType == RpgPropertyType.Dice)
             {
-                var newVal = value;
-                var oldVal = obj.Value<Dice?>(Prop);
-
+                var newVal = GetValue<Dice?>(graph);
+                var oldVal = graph.GetPropertyValue<Dice?>(obj, Prop);
                 if (newVal != oldVal)
-                    obj.SetPropertyValue(Prop, IsNullable ? newVal : newVal ?? Dice.Zero);
+                    graph.SetPropertyValue(obj, Prop, IsNullable ? newVal : newVal ?? Dice.Zero);
             }
+        }
+
+        private RpgPropertyRef? ResolvePropertyNameToPropRef(RpgGraph graph, RpgObject obj)
+        {
+            var propParts = Prop.Split('_');
+            var propName = propParts[0];
+            var argObj = obj.ResolvePropertyNameToObject(graph, propName);
+
+            if (argObj is RpgObject rpgObj && propParts.Length > 1)
+            {
+                var path = string.Join('.', propParts.Skip(1));
+                return graph.PropertyRefs.Create(argObj.Id, path);
+            }
+
+            return null;
         }
 
         public override string ToString()

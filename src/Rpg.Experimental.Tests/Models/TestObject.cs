@@ -16,13 +16,17 @@ namespace Rpg.Experimental.Tests.Models
         public RpgObject? Child { get; set; }
         public List<RpgObject> Children { get; protected set; } = new();
 
+        public TestObject() : base() { }
+
+        public TestObject(string name)
+            : base(name) { }
+
         public override void OnCreating(RpgGraph graph, RpgObject obj)
         {
+            base.OnCreating(graph, obj);
             graph
                 .Add(this, x => x.Intelligence, 3)
                 .Add(this, x => x.Damage, x => x.Strength);
-
-            base.OnCreating(graph, obj);
         }
     }
 }

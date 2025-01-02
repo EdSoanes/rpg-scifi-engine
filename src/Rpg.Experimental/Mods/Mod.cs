@@ -1,8 +1,9 @@
-﻿using System.Linq.Expressions;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Rpg.Experimental.Graph;
 using Rpg.Experimental.Mods.Behaviors;
+using Rpg.Experimental.Reflection;
 using Rpg.Experimental.Time;
+using System.Linq.Expressions;
 
 namespace Rpg.Experimental.Mods
 {
@@ -11,12 +12,8 @@ namespace Rpg.Experimental.Mods
         [JsonProperty] public ModType ModType { get; private set; } = ModType.Standard;
         [JsonProperty] public IModBehavior ModBehavior { get; private set; } = new Standard();
         [JsonProperty] public string? Name { get; internal set; }
-        [JsonProperty] public RpgPropertyRef Target { get; private set; }
-        [JsonProperty] public RpgPropertyRefValue Source { get; internal set; }
-        //[JsonProperty] internal RpgMethod<RpgObject, Dice>? SourceValueFunc { get; set; }
-
-        public bool IsApplied { get; set; } = true;
-        public bool IsDisabled {  get; set; }
+        [JsonProperty] public RpgPropertyRef? Target { get; private set; }
+        [JsonProperty] public ModSource? Source { get; private set; }
 
         [JsonConstructor] protected Mod() 
             : base()
@@ -24,7 +21,21 @@ namespace Rpg.Experimental.Mods
 
         public Mod(ModType modType)
             : base()
-                => ModType = modType;
+        {
+            ModType = modType;
+            if (modType == ModType.Initial || modType == ModType.Base)
+                ModBehavior = new Replace();
+        }
+
+        public override void OnTimeEvent(RpgGraph graph)
+        {
+            if (Source?.PropRef?.ObjectId != null)
+                graph.OnTimeEvent(Source.PropRef.ObjectId);
+
+            ModBehavior.OnBeforeTimeEvent(this, graph);
+            base.OnTimeEvent(graph);
+            ModBehavior.OnAfterTimeEvent(this, graph);
+        }
 
         public Mod SetName(string name)
         {
@@ -38,26 +49,29 @@ namespace Rpg.Experimental.Mods
             return this;
         }
 
-        public Mod Lifespan(int duration)
+        public Mod Lifespan(int duration, bool isApplied = true)
         {
             Start = new TimePoint(TimePointType.Turn, 0);
             End = new TimePoint(TimePointType.Turn, duration);
+            IsApplied = isApplied;
 
             return this;
         }
 
-        public Mod Lifespan(int startsIn, int duration)
+        public Mod Lifespan(int startsIn, int duration, bool isApplied = true)
         {
             Start = new TimePoint(TimePointType.Turn, startsIn);
             End = new TimePoint(TimePointType.Turn, startsIn + duration);
+            IsApplied = isApplied;
 
             return this;
         }
 
-        public Mod Lifespan(TimePoint start, TimePoint end)
+        public Mod Lifespan(TimePoint start, TimePoint end, bool isApplied = true)
         {
             Start = start;
             End = end;
+            IsApplied = isApplied;
 
             return this;
         }
@@ -81,7 +95,10 @@ namespace Rpg.Experimental.Mods
             return this;
         }
 
-        public Mod SetTarget(RpgPropertyRef target)
+        public Mod SetTarget(string objectId, string prop)
+            => SetTarget(new RpgPropertyRef(objectId, prop));
+
+        public Mod SetTarget(RpgPropertyRef? target)
         {
             Target = target;
             return this;
@@ -90,35 +107,36 @@ namespace Rpg.Experimental.Mods
         public Mod SetTarget<TTarget>(TTarget target, string targetProp)
             where TTarget : RpgObject
         {
-            Target = target.PropertyRef(targetProp)!;
+            Target = new RpgPropertyRef(target.Id, targetProp);
             return this;
         }
 
         public Mod SetTarget<TTarget, TTargetVal>(TTarget target, Expression<Func<TTarget, TTargetVal>> targetExpr)
             where TTarget : RpgObject
         {
-            Target = target.PropertyRef(targetExpr)!;
+            Target = new RpgPropertyRef(target.Id, RpgMemberUtilities.ExpressionToPath(targetExpr));
             return this;
         }
 
         public Mod SetSource(Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
-        {
-            Source = new RpgPropertyRefValue(null, dice);
-            return this;
-        }
+            => SetSource(new ModSource(dice, valueCalc));
 
-        public Mod SetSource(RpgPropertyRefValue source, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
+        public Mod SetSource(RpgPropertyRef propRef, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
+            => SetSource(new ModSource(propRef, valueCalc));
+
+        public Mod SetSource(ModSource? source)
         {
-            Source = source;
-            
+            Source = source;   
             return this;
         }
 
         public Mod SetSource<TSource, TSourceVal>(TSource source, Expression<Func<TSource, TSourceVal>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TSource : RpgObject
+            => SetSource(new RpgPropertyRef(source.Id, RpgMemberUtilities.ExpressionToPath(sourceExpr)), valueFunc);
+
+        public override string ToString()
         {
-            Source = source.PropertyRefValue(sourceExpr);
-            return this;
+            return $"{base.ToString()} = {Source?.ToString()}";
         }
     }
 }
