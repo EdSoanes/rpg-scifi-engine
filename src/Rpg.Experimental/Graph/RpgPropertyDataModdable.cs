@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Experimental.Mods;
-using Rpg.Experimental.Mods.Behaviors;
 using Rpg.Experimental.Time;
 
 namespace Rpg.Experimental.Graph
@@ -73,10 +72,7 @@ namespace Rpg.Experimental.Graph
 
             if (obj != null && dice != null && dice != Dice.Zero)
             {
-                var initial = new Mod(ModType.Initial)
-                    .SetTarget(graph.PropertyRefs.Create(obj.Id, Prop)!)
-                    .SetSource(dice.Value)
-                    .Behavior(new Replace());
+                var initial = new Initial(graph.PropertyRefs.Create(obj.Id, Prop)!, dice.Value);
 
                 Mods.Add(initial);
                 graph.ChangeTracker.PropUpdated(ObjectId, Prop);
@@ -90,8 +86,8 @@ namespace Rpg.Experimental.Graph
             var obj = graph.GetObject(ObjectId);
             if (obj == null) return;
 
+            var mod = new Base(new RpgPropertyRef(ObjectId, Prop));
             var propRef = ResolvePropertyNameToPropRef(graph, obj);
-            var mod = new Mod(ModType.Base).SetTarget(ObjectId, Prop);
             if (propRef != null)
                 mod.SetSource(propRef);
             else if (value is int val)
@@ -112,7 +108,13 @@ namespace Rpg.Experimental.Graph
                 mod.OnTimeEvent(graph);
                 updated |= oldExpiry != mod.Expiry;
             }
-                
+            
+            if (!graph.Time.Now.IsEncounterTime)
+            {
+                CombineMods(graph);
+                ReplaceMods(graph);
+            }
+
             Mods = Mods
                 .Where(x => x.Expiry != LifecycleExpiry.Destroyed)
                 .ToList();
@@ -159,6 +161,31 @@ namespace Rpg.Experimental.Graph
             }
 
             return null;
+        }
+
+        private void CombineMods(RpgGraph graph)
+        {
+            var combineMods = ModFilters.Active(Mods)
+                .Where(x => x is Combine && x.ModType == ModType.Standard)
+                .ToList();
+
+            var val = ModCalculator.Value(graph, combineMods);
+            foreach (var mod in combineMods)
+                mod.Expire(graph);
+
+            if (val != null && val != Dice.Zero)
+                graph.Add(new Combine()
+                    .SetTarget(ObjectId, Prop)
+                    .SetSource(val!.Value));
+        }
+
+        private void ReplaceMods(RpgGraph graph)
+        {
+            var mods = ModFilters.FilterReplacements(Mods);
+            foreach (var mod in mods.Where(x => x is Replace))
+                (mod as Replace)?.SetOrder(0);
+
+            Mods = mods.ToList();
         }
 
         public override string ToString()

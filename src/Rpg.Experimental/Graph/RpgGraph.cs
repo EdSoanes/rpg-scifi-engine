@@ -67,7 +67,8 @@ namespace Rpg.Experimental.Graph
                 if (propData != null && !propData.Mods.Any(x => x.Id == mod.Id))
                 {
                     mod.OnCreating(this, null);
-                    mod.ModBehavior.OnAdding(mod, this, propData);
+                    propData.Mods.Add(mod);
+                    ChangeTracker.PropUpdated(targetRef.ObjectId, targetRef.Path);
                 }
             }
 
@@ -77,7 +78,7 @@ namespace Rpg.Experimental.Graph
         public RpgGraph Add<TEntity, TTargetValue>(TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject
         {
-            var mod = new Mod(ModType.Standard)
+            var mod = new Standard()
                 .SetTarget(entity, targetExpr)
                 .SetSource(dice);
             return Add(mod);
@@ -86,7 +87,7 @@ namespace Rpg.Experimental.Graph
         public RpgGraph Add<TEntity, TTargetValue, TSourceValue>(TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject
         {
-            var mod = new Mod(ModType.Standard)
+            var mod = new Standard()
                 .SetTarget(entity, targetExpr)
                 .SetSource(entity, sourceExpr);
 
@@ -97,7 +98,7 @@ namespace Rpg.Experimental.Graph
             where TTarget : RpgObject
             where TSource : RpgObject
         {
-            var mod = new Mod(ModType.Standard)
+            var mod = new Standard()
                 .SetTarget(target, targetExpr)
                 .SetSource(source, sourceExpr);
 
@@ -450,7 +451,7 @@ namespace Rpg.Experimental.Graph
             if (action == null)
                 throw new ArgumentException("Could not find action");
 
-            var activityAction = new RpgActivityAction(activity, action);
+            var activityAction = new RpgActivityAction(activity, action, activity.ActivityActions.Count() + 1);
             Add(activityAction);
             AddTo(activity.Id, nameof(RpgActivity.ActivityActions), activityAction.Id, activity.Start, activity.End);
             

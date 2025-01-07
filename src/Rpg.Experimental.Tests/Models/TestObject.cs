@@ -21,7 +21,7 @@ namespace Rpg.Experimental.Tests.Models
         public TestObject(string name)
             : base(name) { }
 
-        public override void OnCreating(RpgGraph graph, RpgObject obj)
+        public override void OnCreating(RpgGraph graph, RpgObject? obj)
         {
             base.OnCreating(graph, obj);
             graph

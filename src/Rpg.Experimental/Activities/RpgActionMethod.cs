@@ -5,7 +5,7 @@ using Rpg.Experimental.Reflection.Args;
 
 namespace Rpg.Experimental.Activities
 {
-    public sealed class RpgActivityActionMethod
+    public sealed class RpgActionMethod
     {
         private RpgAction? _action;
         private RpgMethod<RpgAction, bool>? _method;
@@ -49,22 +49,6 @@ namespace Rpg.Experimental.Activities
         public void OnRestoring(RpgActivityAction activityAction)
         {
             _action = activityAction.GetAction();
-        }
-
-        public void OnTimeEvent(RpgGraph graph, RpgActivityAction activityAction)
-        {
-            foreach (var arg in Args)
-            {
-                var obj = activityAction.ResolvePropertyNameToObject(graph, arg.Name);
-                if (obj != null)
-                    arg.SetValue(obj);
-                else
-                {
-                    var val = graph.GetPropertyData(activityAction.Id, arg.Name)?.GetValue<object?>(graph);
-                    if (val != null)
-                        arg.SetValue(val);
-                }
-            }
         }
     }
 }

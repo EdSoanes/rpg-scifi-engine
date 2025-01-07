@@ -57,7 +57,10 @@ namespace Rpg.Experimental.Time
                 throw new InvalidOperationException($"Cannot transition from '{Now}' to '{to}'");
 
             if (Now.Type == TimePointType.BeforeTime)
+            {
+                TriggerEvent(TimePointType.BeforeTime);
                 TriggerEvent(TimePointType.TimeBegins);
+            }
 
             if (Now.Type == TimePointType.TimeBegins && to.Type == TimePointType.TimeBegins)
             {
@@ -101,7 +104,7 @@ namespace Rpg.Experimental.Time
                 if (Now.Type == TimePointType.EncounterEnds)
                     TriggerEvent(TimePointType.Waiting);
 
-                if (Now.Type == TimePointType.Waiting)
+                if (Now.Type == TimePointType.TimeBegins || Now.Type == TimePointType.Waiting)
                     TriggerEvent(TimePointType.EncounterBegins);
 
                 if (Now.Type == TimePointType.EncounterBegins || Now.Type == TimePointType.Turn)
@@ -112,7 +115,7 @@ namespace Rpg.Experimental.Time
 
             if (to.Type == TimePointType.EncounterEnds)
             {
-                if (Now.Type == TimePointType.Waiting)
+                if (Now.Type == TimePointType.TimeBegins || Now.Type == TimePointType.Waiting)
                     TriggerEvent(TimePointType.EncounterBegins);
 
                 if (Now.Type == TimePointType.EncounterBegins || Now.Type == TimePointType.Turn)

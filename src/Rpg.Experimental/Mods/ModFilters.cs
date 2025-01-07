@@ -42,8 +42,8 @@ namespace Rpg.Experimental.Mods
                     .Where(x => IsOverride(x) || IsThreshold(x) || !IsBase(x))
                     .ToArray();
 
-            return mods
-                .Where(IsActive)
+            return FilterReplacements(mods
+                .Where(IsActive))
                 .ToArray();
         }
 
@@ -52,5 +52,20 @@ namespace Rpg.Experimental.Mods
 
         public static Mod? ActiveThreshold(IEnumerable<Mod> mods)
             => Active(mods).FirstOrDefault(x => x.ModType == ModType.Threshold);
+
+        public static IEnumerable<Mod> FilterReplacements(IEnumerable<Mod> mods)
+        {
+            var res = mods.Where(x => !(x is Replace)).ToList();
+
+            var groups = mods.Where(x => x is Replace).GroupBy(x => x.ModType);
+            foreach (var group in groups)
+            {
+                var prio = group.OrderBy(x => (x as Replace)?.Order ?? -1).LastOrDefault();
+                if (prio != null)
+                    res.Add(prio);
+            }
+
+            return res;
+        }
     }
 }

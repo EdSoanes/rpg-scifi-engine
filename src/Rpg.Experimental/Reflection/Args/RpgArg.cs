@@ -27,20 +27,38 @@ namespace Rpg.Experimental.Reflection.Args
         public abstract void SetValue(object? value, RpgGraph? graph = null);
         public abstract void FillValue(object? value, RpgGraph? graph = null);
 
+        public static RpgArg[] SyncArgs(RpgArg[] existing, params RpgArg[]?[] argsList)
+        {
+            var additions = new List<RpgArg>();
+            foreach (var args in argsList.Where(x => x != null))
+            {
+                var cloned = args.CloneArgs();
+                foreach (var arg in cloned)
+                    if (!existing.Any(x => x.Name == arg.Name) && !additions.Any(x => x.Name == arg.Name))
+                        additions.Add(arg);
+            }
+
+            var res = existing.ToList();
+            res.AddRange(additions);
+
+
+            var allArgs = res.ToArray();
+            foreach (var args in argsList.Where(x => x != null))
+                allArgs.Set(args!);
+
+            return allArgs;
+        }
     }
 
     public static class RpgArgExtensions
     {
-        public static bool IsComplete(this RpgArg? arg)
-            => arg != null && (arg.IsNullable || arg.Value != null);
-
         public static bool IsComplete(this RpgArg[]? rpgArgs, string? group = null)
         {
             if (rpgArgs == null) return false;
             
             foreach (var arg in rpgArgs.Where(x => group == null || x.Groups.Contains(group)))
             {
-                if (!arg.IsComplete())
+                if (!arg.IsNullable && arg.Value == null)
                     return false;
             }
 
@@ -69,11 +87,24 @@ namespace Rpg.Experimental.Reflection.Args
             return res;
         }
 
-        public static bool Has(this RpgArg[]? rpgArgs, string argName)
-            => rpgArgs?.Any(x => x.Name == argName) ?? false;
-
-        public static object? Val(this RpgArg[]? rpgArgs, string argName)
-            => rpgArgs.Find(argName)?.Value;
+        public static void SetFromObjectProperties(this RpgArg[]? rpgArgs, RpgGraph graph, RpgObject obj)
+        {
+            if (rpgArgs != null)
+            {
+                foreach (var arg in rpgArgs)
+                {
+                    var argObj = obj.ResolvePropertyNameToObject(graph, arg.Name);
+                    if (argObj != null)
+                        arg.SetValue(argObj);
+                    else
+                    {
+                        var val = graph.GetPropertyData(obj.Id, arg.Name)?.GetValue<object?>(graph);
+                        if (val != null)
+                            arg.SetValue(val);
+                    }
+                }
+            }
+        }
 
         public static void Set(this RpgArg[]? rpgArgs, string argName, object? value, RpgGraph? graph = null)
             => rpgArgs.Find(argName)?.SetValue(value, graph);
@@ -96,6 +127,15 @@ namespace Rpg.Experimental.Reflection.Args
             return rpgArgs.ToArray();
         }
 
+        public static RpgArg[] Set(this RpgArg[] rpgArgs, RpgArg[]? from, RpgGraph? graph = null)
+        {
+            if (from != null)
+                foreach (var arg in from)
+                    rpgArgs.Set(arg.Name, arg.Value, graph);
+
+            return rpgArgs.ToArray();
+        }
+
         public static void Fill(this RpgArg[]? rpgArgs, string argName, object? value, RpgGraph? graph = null)
             => rpgArgs.Find(argName)?.FillValue(value, graph);
 
@@ -107,25 +147,5 @@ namespace Rpg.Experimental.Reflection.Args
                 ?.Where(x => group == null || x.Groups.Contains(group))
                 .Select(x => x.Clone())
                 .ToArray() ?? [];
-
-        public static RpgArg[] CloneFor(this RpgArg[]? rpgArgs, params RpgArg[]? matching)
-        {
-            var res = new List<RpgArg>();
-            if (matching != null)
-            {
-                foreach (var match in matching)
-                {
-                    var newArg = match.Clone();
-
-                    var rpgArg = rpgArgs.Find(match.Name);
-                    if (rpgArg != null)
-                        newArg.SetValue(rpgArg.Value);
-
-                    res.Add(newArg);
-                }
-            }
-
-            return res.ToArray();
-        }
     }
 }

@@ -7,18 +7,19 @@ namespace Rpg.Experimental.Activities
 {
     public sealed class RpgActivityAction : RpgObject
     {
-        private RpgActivity? _activity;
         private RpgAction? _action;
 
         [JsonIgnore] public ModSet Outcome { get; private set; }
         [JsonProperty] public string ActionId { get; private set; }
         [JsonProperty] public string ActionOwnerId { get; private set; }
+        [JsonProperty] public int ActivityActionNo { get; private set; }
 
-        [JsonProperty] public RpgActivityActionMethod CostMethod = new RpgActivityActionMethod();
 
-        [JsonProperty] public RpgActivityActionMethod PerformMethod = new RpgActivityActionMethod();
+        [JsonProperty] public RpgActionMethod CostMethod = new RpgActionMethod();
 
-        [JsonProperty] public RpgActivityActionMethod OutcomeMethod = new RpgActivityActionMethod();
+        [JsonProperty] public RpgActionMethod PerformMethod = new RpgActionMethod();
+
+        [JsonProperty] public RpgActionMethod OutcomeMethod = new RpgActionMethod();
 
         [JsonProperty] public List<string> RecommendedActions { get; private set; } = new();
 
@@ -30,14 +31,14 @@ namespace Rpg.Experimental.Activities
 
         [JsonConstructor] private RpgActivityAction() { }
 
-        public RpgActivityAction(RpgActivity owner, RpgAction action)
+        public RpgActivityAction(RpgActivity owner, RpgAction action, int activityActionNo)
             : base(owner.Id, true)
         {
             _action = action;
-            _activity = owner;
 
             ActionId = action.Id;
             ActionOwnerId = action.OwnerId!;
+            ActivityActionNo = activityActionNo;
         }
 
         public void Reset(string methodName)
@@ -71,7 +72,6 @@ namespace Rpg.Experimental.Activities
         {
             base.OnRestoring(graph);
 
-            _activity = graph.GetObject(OwnerId) as RpgActivity;
             _action = graph.GetObject(ActionId) as RpgAction;
 
             CostMethod.OnRestoring(this);
@@ -85,9 +85,9 @@ namespace Rpg.Experimental.Activities
         {
             base.OnTimeEvent(graph);
 
-            CostMethod.OnTimeEvent(graph, this);
-            PerformMethod.OnTimeEvent(graph, this);
-            OutcomeMethod.OnTimeEvent(graph, this);
+            CostMethod.Args.SetFromObjectProperties(graph, this);
+            PerformMethod.Args.SetFromObjectProperties(graph, this);
+            OutcomeMethod.Args.SetFromObjectProperties(graph, this);
         }
 
         public override RpgObject? ResolvePropertyNameToObject(RpgGraph graph, string prop)

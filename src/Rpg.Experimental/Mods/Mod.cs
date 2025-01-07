@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Experimental.Graph;
-using Rpg.Experimental.Mods.Behaviors;
 using Rpg.Experimental.Reflection;
 using Rpg.Experimental.Time;
 using System.Linq.Expressions;
@@ -10,7 +9,6 @@ namespace Rpg.Experimental.Mods
     public class Mod : Lifespan
     {
         [JsonProperty] public ModType ModType { get; private set; } = ModType.Standard;
-        [JsonProperty] public IModBehavior ModBehavior { get; private set; } = new Standard();
         [JsonProperty] public string? Name { get; internal set; }
         [JsonProperty] public RpgPropertyRef? Target { get; private set; }
         [JsonProperty] public ModSource? Source { get; private set; }
@@ -23,8 +21,6 @@ namespace Rpg.Experimental.Mods
             : base()
         {
             ModType = modType;
-            if (modType == ModType.Initial || modType == ModType.Base)
-                ModBehavior = new Replace();
         }
 
         public override void OnTimeEvent(RpgGraph graph)
@@ -32,20 +28,12 @@ namespace Rpg.Experimental.Mods
             if (Source?.PropRef?.ObjectId != null)
                 graph.OnTimeEvent(Source.PropRef.ObjectId);
 
-            ModBehavior.OnBeforeTimeEvent(this, graph);
             base.OnTimeEvent(graph);
-            ModBehavior.OnAfterTimeEvent(this, graph);
         }
 
         public Mod SetName(string name)
         {
             Name = name;
-            return this;
-        }
-
-        public Mod Behavior(IModBehavior behavior)
-        {
-            ModBehavior = behavior;
             return this;
         }
 

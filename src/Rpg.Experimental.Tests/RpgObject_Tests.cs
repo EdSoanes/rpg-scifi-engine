@@ -1,6 +1,5 @@
 using Rpg.Experimental.Graph;
 using Rpg.Experimental.Mods;
-using Rpg.Experimental.Mods.Behaviors;
 using Rpg.Experimental.Reflection;
 using Rpg.Experimental.Tests.Models;
 using Rpg.Experimental.Time;
@@ -65,7 +64,9 @@ namespace Rpg.Experimental.Tests
             var graph = new RpgGraph(obj);
 
             Assert.That(obj.Strength, Is.EqualTo(10));
-            graph.Add(new Mod(ModType.Standard).SetTarget(obj, x => x.Strength).SetSource(1));
+            graph.Add(new Standard()
+                .SetTarget(obj, x => x.Strength)
+                .SetSource(1));
             graph.Time.Refresh();
 
             Assert.That(obj.Strength, Is.EqualTo(11));
@@ -78,34 +79,31 @@ namespace Rpg.Experimental.Tests
             var graph = new RpgGraph(obj);
 
             Assert.That(obj.Strength, Is.EqualTo(10));
-            graph.Add(new Mod(ModType.Standard)
+            graph.Add(new Combine()
                 .SetTarget(obj, x => x.Strength)
-                .SetSource(1)
-                .Behavior(new Combine()));
+                .SetSource(1));
 
             graph.Time.Refresh();
 
             Assert.That(obj.Strength, Is.EqualTo(11));
             Assert.That(graph.GetPropertyData<RpgPropertyDataModdable>(obj.Id, "Strength")?.Mods.Count, Is.EqualTo(2));
 
-            var combineMod = graph.GetPropertyData<RpgPropertyDataModdable>(obj.Id, "Strength")?.Mods.FirstOrDefault(x => x.ModBehavior is Combine);
+            var combineMod = graph.GetPropertyData<RpgPropertyDataModdable>(obj.Id, "Strength")?.Mods.FirstOrDefault(x => x is Combine);
             Assert.That(combineMod, Is.Not.Null);
-            Assert.That(combineMod.Source.Value, Is.EqualTo(new Dice(1)));
+            Assert.That(combineMod.Source?.Value, Is.EqualTo(new Dice(1)));
 
-            graph.Add(new Mod(ModType.Standard)
+            graph.Add(new Combine()
                 .SetTarget(obj, x => x.Strength)
-                .SetSource(1)
-                .Behavior(new Combine()));
+                .SetSource(1));
 
             graph.Time.Refresh();
 
             Assert.That(obj.Strength, Is.EqualTo(12));
             Assert.That(graph.GetPropertyData<RpgPropertyDataModdable>(obj.Id, "Strength")?.Mods.Count, Is.EqualTo(2));
 
-            combineMod = graph.GetPropertyData<RpgPropertyDataModdable>(obj.Id, "Strength")?.Mods.FirstOrDefault(x => x.ModBehavior is Combine);
+            combineMod = graph.GetPropertyData<RpgPropertyDataModdable>(obj.Id, "Strength")?.Mods.FirstOrDefault(x => x is Combine);
             Assert.That(combineMod, Is.Not.Null);
-            Assert.That(combineMod.Source.Value, Is.EqualTo(new Dice(2)));
-
+            Assert.That(combineMod.Source?.Value, Is.EqualTo(new Dice(2)));
         }
 
         [Test]
@@ -116,7 +114,7 @@ namespace Rpg.Experimental.Tests
 
             Assert.That(obj.Strength, Is.EqualTo(10));
             graph.Time.BeginEncounter();
-            graph.Add(new Mod(ModType.Standard)
+            graph.Add(new Standard()
                 .SetTarget(obj, x => x.Strength)
                 .SetSource(1)
                 .Lifespan(1));
@@ -135,7 +133,7 @@ namespace Rpg.Experimental.Tests
             var graph = new RpgGraph(obj);
 
             Assert.That(obj.Strength, Is.EqualTo(10));
-            graph.Add(new Mod(ModType.Standard)
+            graph.Add(new Standard()
                 .SetTarget(obj, x => x.Strength)
                 .SetSource(1)
                 .Lifespan(TimePointType.Waiting, new TimePoint(TimePointType.TimePasses, 1)));
@@ -158,7 +156,7 @@ namespace Rpg.Experimental.Tests
             var graph = new RpgGraph(obj);
 
             Assert.That(obj.Strength, Is.EqualTo(10));
-            graph.Add(new Mod(ModType.Standard)
+            graph.Add(new Standard()
                 .SetTarget(obj, x => x.Strength)
                 .SetSource(1));
 
