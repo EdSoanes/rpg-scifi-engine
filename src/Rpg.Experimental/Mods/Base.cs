@@ -5,7 +5,7 @@ namespace Rpg.Experimental.Mods
     public class Base : Mod
     {
         public Base()
-            : base(ModType.Base)
+            : base(ModType.Base, ModBehavior.Standard)
         {
         }
 

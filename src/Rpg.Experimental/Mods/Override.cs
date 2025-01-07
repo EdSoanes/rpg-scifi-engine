@@ -2,10 +2,10 @@
 
 namespace Rpg.Experimental.Mods
 {
-    public class Override : Replace
+    public class Override : Mod
     {
         public Override()
-            : base(ModType.Override)
+            : base(ModType.Override, ModBehavior.Replace)
         { }
 
         public Override(RpgPropertyRef? target)

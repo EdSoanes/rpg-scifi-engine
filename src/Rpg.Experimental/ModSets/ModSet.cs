@@ -54,7 +54,7 @@ namespace Rpg.Experimental.ModSets
         {
             var mods = _newMods
                 .Where(x => x.Target?.ObjectId == objectId)
-                .Select(x => new Mod(ModType.Standard).SetTarget(x.Target).SetSource(x.Source))
+                .Select(x => new Standard().SetTarget(x.Target).SetSource(x.Source))
                 .ToList();
 
             _newMods = _newMods.Where(x => x.Target?.ObjectId != objectId).ToList();
@@ -126,7 +126,7 @@ namespace Rpg.Experimental.ModSets
 
             where TEntity : RpgObject
         {
-            Add(new Mod(ModType.Standard)
+            Add(new Standard()
                 .SetTarget(entity, targetProp)
                 .SetSource(dice, valueCalc)
                 .SetOwner(Id, true));
@@ -149,7 +149,7 @@ namespace Rpg.Experimental.ModSets
         public ModSet Add<TEntity, TTargetValue, TSourceValue>(TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject
         {
-            Add(new Mod(ModType.Standard)
+            Add(new Standard()
                 .SetTarget(entity, targetExpr)
                 .SetSource(entity, sourceExpr, valueCalc)
                 .SetOwner(Id, true));
@@ -162,7 +162,7 @@ namespace Rpg.Experimental.ModSets
             where TTarget : RpgObject
             where TSource : RpgObject
         {
-            Add(new Mod(ModType.Standard)
+            Add(new Standard()
                 .SetTarget(target, targetExpr)
                 .SetSource(source, sourceExpr, valueCalc)
                 .SetOwner(Id, true));
@@ -186,7 +186,7 @@ namespace Rpg.Experimental.ModSets
         public ModSet Add<TEntity, TSourceValue>(TEntity entity, string targetProp, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject
         {
-            Add(new Mod(ModType.Standard)
+            Add(new Standard()
                 .SetTarget(entity, targetProp)
                 .SetSource(entity, sourceExpr, valueCalc)
                 .SetOwner(Id, true));
@@ -210,7 +210,7 @@ namespace Rpg.Experimental.ModSets
             where TTarget : RpgObject
             where TSource : RpgObject
         {
-            Add(new Mod(ModType.Standard)
+            Add(new Standard()
                 .SetTarget(target, targetProp)
                 .SetSource(source, sourceExpr, valueFunc)
                 .SetOwner(Id, true));
@@ -246,7 +246,7 @@ namespace Rpg.Experimental.ModSets
         public ModSet Add<TEntity, TTargetValue>(TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject
         {
-            Add(new Mod(ModType.Standard)
+            Add(new Standard()
                 .SetTarget(entity, targetExpr)
                 .SetSource(dice, valueCalc)
                 .SetOwner(Id, true));
@@ -257,7 +257,7 @@ namespace Rpg.Experimental.ModSets
         public ModSet Add<TEntity, TTarget, TTargetValue, TSourceValue>(TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject
         {
-            Add(new Mod(ModType.Standard)
+            Add(new Standard()
                 .SetTarget(entity, targetExpr)
                 .SetSource(entity, sourceExpr, valueCalc)
                 .SetOwner(Id, true));

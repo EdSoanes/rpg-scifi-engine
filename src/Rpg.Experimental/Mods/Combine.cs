@@ -5,7 +5,7 @@ namespace Rpg.Experimental.Mods
     public class Combine : Mod
     {
         public Combine()
-            : base(ModType.Standard)
+            : base(ModType.Standard, ModBehavior.Combine)
         { }
 
         public Combine(RpgPropertyRef? target)

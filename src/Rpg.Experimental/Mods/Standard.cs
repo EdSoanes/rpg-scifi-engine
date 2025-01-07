@@ -5,7 +5,7 @@ namespace Rpg.Experimental.Mods
     public class Standard : Mod
     {
         public Standard()
-            : base(ModType.Standard)
+            : base()
         { }
 
         public Standard(RpgPropertyRef? target)

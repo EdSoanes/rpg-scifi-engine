@@ -58,7 +58,7 @@ namespace Rpg.Experimental
             => CreateStateMod(stateName).Lifespan(start, end.Count, applied);
 
         private Mod CreateStateMod(string stateName)
-            => new Mod(ModType.Standard)
+            => new Standard()
                 .SetTarget(Id, State.StatePropName(stateName))
                 .SetSource(1);
 

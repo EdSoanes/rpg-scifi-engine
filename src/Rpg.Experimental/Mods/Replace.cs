@@ -5,14 +5,8 @@ namespace Rpg.Experimental.Mods
 {
     public class Replace : Mod
     {
-        [JsonProperty] public int Order { get; private set; }
-
         public Replace()
-            : base(ModType.Standard)
-        { }
-
-        protected Replace(ModType modType)
-            : base(modType)
+            : base(ModType.Standard, ModBehavior.Replace)
         { }
 
         public Replace(RpgPropertyRef? target)
@@ -44,20 +38,5 @@ namespace Rpg.Experimental.Mods
         public Replace(RpgObject target, string targetProp, RpgObject source, string sourceProp)
             : this(new RpgPropertyRef(target.Id, targetProp), new RpgPropertyRef(source.Id, sourceProp))
         { }
-
-        public override void OnCreating(RpgGraph graph, RpgObject? obj)
-        {
-            base.OnCreating(graph, obj);
-            Order = graph.GetPropertyData<RpgPropertyDataModdable>(Target!.ObjectId, Target!.Path)
-                ?.Mods
-                .Where(x => x is Replace && x.ModType == ModType)
-                .Max(x => (x as Replace)?.Order ?? 0) + 1 ?? 0;
-        }
-
-        public Replace SetOrder(int order)
-        {
-            Order = order;
-            return this;
-        }
     }
 }

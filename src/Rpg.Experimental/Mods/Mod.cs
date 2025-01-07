@@ -8,7 +8,10 @@ namespace Rpg.Experimental.Mods
 {
     public class Mod : Lifespan
     {
-        [JsonProperty] public ModType ModType { get; private set; } = ModType.Standard;
+        [JsonProperty] public ModType Type { get; private set; } = ModType.Standard;
+        [JsonProperty] public ModBehavior Behavior { get; private set; } = ModBehavior.Standard;
+        [JsonProperty] public int Version { get; private set; }
+
         [JsonProperty] public string? Name { get; internal set; }
         [JsonProperty] public RpgPropertyRef? Target { get; private set; }
         [JsonProperty] public ModSource? Source { get; private set; }
@@ -17,10 +20,17 @@ namespace Rpg.Experimental.Mods
             : base()
         { }
 
-        public Mod(ModType modType)
+        public Mod(ModType modType, ModBehavior behavior)
             : base()
         {
-            ModType = modType;
+            Type = modType;
+            Behavior = behavior;
+        }
+
+        public override void OnCreating(RpgGraph graph, RpgObject? obj)
+        {
+            base.OnCreating(graph, obj);
+            OnCreatingVersion(graph);
         }
 
         public override void OnTimeEvent(RpgGraph graph)
@@ -61,6 +71,12 @@ namespace Rpg.Experimental.Mods
             End = end;
             IsApplied = isApplied;
 
+            return this;
+        }
+
+        public Mod SetVersion(int version)
+        {
+            Version = version;
             return this;
         }
 
@@ -125,6 +141,20 @@ namespace Rpg.Experimental.Mods
         public override string ToString()
         {
             return $"{base.ToString()} = {Source?.ToString()}";
+        }
+
+        private void OnCreatingVersion(RpgGraph graph)
+        {
+            if (Behavior == ModBehavior.Replace)
+            {
+                var propData = graph.GetPropertyData<RpgPropertyDataModdable>(Target!.ObjectId, Target!.Path);
+                var versions = propData?
+                    .Mods
+                    .Where(x => x.Type == Type)
+                    .Select(x => x.Version) ?? [];
+
+                Version = versions.Any() ? versions.Max() : 0;
+            }
         }
     }
 }

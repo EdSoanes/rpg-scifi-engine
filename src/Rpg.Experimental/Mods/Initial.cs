@@ -3,10 +3,10 @@ using Rpg.Experimental.Graph;
 
 namespace Rpg.Experimental.Mods
 {
-    public class Initial : Replace
+    public class Initial : Mod
     {
         [JsonConstructor] private Initial()
-            : base(ModType.Initial)
+            : base(ModType.Initial, ModBehavior.Replace)
         {
         }
 

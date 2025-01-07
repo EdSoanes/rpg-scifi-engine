@@ -13,9 +13,9 @@ namespace Rpg.Experimental.Mods
         ChildObjects
     }
 
-    public enum ModMerging
+    public enum ModBehavior
     {
-        Add,
+        Standard,
         Combine,
         Replace
     }

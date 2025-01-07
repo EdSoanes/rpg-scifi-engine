@@ -73,10 +73,97 @@ namespace Rpg.Experimental.Tests
         }
 
         [Test]
+        public void RpgObject_AddStrengthMod_Replace_EnsurePropValue()
+        {
+            var obj = new TestObject();
+            var graph = new RpgGraph(obj);
+            var strPropData = graph.GetPropertyData<RpgPropertyDataModdable>(obj.Id, "Strength");
+
+            Assert.That(strPropData, Is.Not.Null);
+            Assert.That(obj.Strength, Is.EqualTo(10));
+
+            graph.Add(new Replace()
+                .SetTarget(obj, x => x.Strength)
+                .SetSource(1));
+
+            graph.Time.Refresh();
+
+            Assert.That(obj.Strength, Is.EqualTo(11));
+            Assert.That(strPropData.Mods.Count, Is.EqualTo(2));
+
+            var replaceMods = strPropData.Mods.Where(x => x is Replace);
+            var replaceMod = replaceMods.FirstOrDefault();
+
+            Assert.That(replaceMods.Count(), Is.EqualTo(1));
+            Assert.That(replaceMod, Is.Not.Null);
+            Assert.That(replaceMod.Source?.Value, Is.EqualTo(new Dice(1)));
+
+            graph.Add(new Replace()
+                .SetTarget(obj, x => x.Strength)
+                .SetSource(2));
+
+            graph.Time.Refresh();
+
+            Assert.That(obj.Strength, Is.EqualTo(12));
+            Assert.That(strPropData.Mods.Count, Is.EqualTo(2));
+
+            replaceMods = strPropData.Mods.Where(x => x is Replace);
+            replaceMod = strPropData.Mods.FirstOrDefault(x => x is Replace);
+            Assert.That(replaceMods.Count(), Is.EqualTo(1));
+            Assert.That(replaceMod?.Version, Is.EqualTo(0));
+            Assert.That(replaceMod?.Source?.Value, Is.EqualTo(new Dice(2)));
+        }
+
+        [Test]
+        public void RpgObject_AddStrengthMod_Replace_EndEncounter()
+        {
+            var obj = new TestObject();
+            var graph = new RpgGraph(obj);
+            var strPropData = graph.GetPropertyData<RpgPropertyDataModdable>(obj.Id, "Strength");
+
+            graph.Time.BeginEncounter();
+
+            Assert.That(strPropData, Is.Not.Null);
+            Assert.That(obj.Strength, Is.EqualTo(10));
+
+            graph.Add(new Replace()
+                .SetTarget(obj, x => x.Strength)
+                .SetSource(1));
+
+            graph.Time.Refresh();
+
+            Assert.That(obj.Strength, Is.EqualTo(11));
+            Assert.That(strPropData.Mods.Count, Is.EqualTo(2));
+
+            var replaceMods = strPropData.Mods.Where(x => x is Replace);
+            var replaceMod = replaceMods.FirstOrDefault();
+
+            Assert.That(replaceMods.Count(), Is.EqualTo(1));
+            Assert.That(replaceMod, Is.Not.Null);
+            Assert.That(replaceMod.Source?.Value, Is.EqualTo(new Dice(1)));
+
+            graph.Add(new Replace()
+                .SetTarget(obj, x => x.Strength)
+                .SetSource(2));
+
+            graph.Time.Refresh();
+
+            Assert.That(obj.Strength, Is.EqualTo(12));
+            Assert.That(strPropData.Mods.Count, Is.EqualTo(3));
+
+            replaceMods = strPropData.Mods.Where(x => x is Replace);
+            replaceMod = strPropData.Mods.FirstOrDefault(x => x is Replace);
+            Assert.That(replaceMods.Count(), Is.EqualTo(2));
+            Assert.That(replaceMods.Count(x => x.Version == 0), Is.EqualTo(1));
+            Assert.That(replaceMods.Count(x => x.Version == 1), Is.EqualTo(1));
+        }
+
+        [Test]
         public void RpgObject_AddStrengthMod_Combine_EnsurePropValue()
         {
             var obj = new TestObject();
             var graph = new RpgGraph(obj);
+            var strPropData = graph.GetPropertyData<RpgPropertyDataModdable>(obj.Id, "Strength");
 
             Assert.That(obj.Strength, Is.EqualTo(10));
             graph.Add(new Combine()
@@ -86,9 +173,13 @@ namespace Rpg.Experimental.Tests
             graph.Time.Refresh();
 
             Assert.That(obj.Strength, Is.EqualTo(11));
-            Assert.That(graph.GetPropertyData<RpgPropertyDataModdable>(obj.Id, "Strength")?.Mods.Count, Is.EqualTo(2));
+            Assert.That(strPropData, Is.Not.Null);
+            Assert.That(strPropData.Mods.Count, Is.EqualTo(2));
 
-            var combineMod = graph.GetPropertyData<RpgPropertyDataModdable>(obj.Id, "Strength")?.Mods.FirstOrDefault(x => x is Combine);
+            var combineMods = strPropData.Mods.Where(x => x is Combine);
+            var combineMod = combineMods.FirstOrDefault();
+
+            Assert.That(combineMods.Count(), Is.EqualTo(1));
             Assert.That(combineMod, Is.Not.Null);
             Assert.That(combineMod.Source?.Value, Is.EqualTo(new Dice(1)));
 
@@ -99,11 +190,11 @@ namespace Rpg.Experimental.Tests
             graph.Time.Refresh();
 
             Assert.That(obj.Strength, Is.EqualTo(12));
-            Assert.That(graph.GetPropertyData<RpgPropertyDataModdable>(obj.Id, "Strength")?.Mods.Count, Is.EqualTo(2));
 
-            combineMod = graph.GetPropertyData<RpgPropertyDataModdable>(obj.Id, "Strength")?.Mods.FirstOrDefault(x => x is Combine);
-            Assert.That(combineMod, Is.Not.Null);
-            Assert.That(combineMod.Source?.Value, Is.EqualTo(new Dice(2)));
+            combineMods = strPropData.Mods.Where(x => x is Combine);
+
+            Assert.That(combineMods.Count(), Is.EqualTo(1));
+            Assert.That(combineMods.All(x => x.Source?.Value == new Dice(2)), Is.True);
         }
 
         [Test]

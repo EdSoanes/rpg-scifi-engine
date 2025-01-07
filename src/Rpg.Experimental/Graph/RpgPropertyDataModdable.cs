@@ -166,7 +166,7 @@ namespace Rpg.Experimental.Graph
         private void CombineMods(RpgGraph graph)
         {
             var combineMods = ModFilters.Active(Mods)
-                .Where(x => x is Combine && x.ModType == ModType.Standard)
+                .Where(x => x is Combine && x.Type == ModType.Standard)
                 .ToList();
 
             var val = ModCalculator.Value(graph, combineMods);
@@ -183,7 +183,7 @@ namespace Rpg.Experimental.Graph
         {
             var mods = ModFilters.FilterReplacements(Mods);
             foreach (var mod in mods.Where(x => x is Replace))
-                (mod as Replace)?.SetOrder(0);
+                mod.SetVersion(0);
 
             Mods = mods.ToList();
         }
