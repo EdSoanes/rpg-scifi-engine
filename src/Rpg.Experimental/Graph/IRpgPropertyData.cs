@@ -11,6 +11,6 @@ namespace Rpg.Experimental.Graph
         bool IsNullable { get; }
         T? GetValue<T>(RpgGraph graph);
         void OnCreatingVirtual(RpgGraph graph, object? value);
-        void OnSyncProperty(RpgGraph graph);
+        void OnSyncProperty(RpgGraph graph, string prop);
     }
 }

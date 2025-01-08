@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Rpg.Experimental.Reflection.Args;
 using Rpg.Experimental.Time;
 
 namespace Rpg.Experimental.Graph
@@ -117,7 +116,7 @@ namespace Rpg.Experimental.Graph
                 graph.ChangeTracker.PropUpdated(ObjectId, Prop);
         }
 
-        public void OnSyncProperty(RpgGraph graph)
+        public void OnSyncProperty(RpgGraph graph, string prop)
         {
             var obj = graph.GetObject(ObjectId)!;
             if (obj == null)
@@ -151,7 +150,6 @@ namespace Rpg.Experimental.Graph
                         oldList.Add(child);
 
                     graph.SetPropertyValue(obj, Prop, oldList);
-                    graph.ChangeTracker.PropUpdated(ObjectId, Prop);
                 }
             }
             else if (PropType == RpgPropertyType.Child)
@@ -161,7 +159,6 @@ namespace Rpg.Experimental.Graph
                 if (newChild?.Id != oldChild?.Id)
                 {
                     graph.SetPropertyValue(obj, Prop, newChild);
-                    graph.ChangeTracker.PropUpdated(ObjectId, Prop);
                 }
             }
         }

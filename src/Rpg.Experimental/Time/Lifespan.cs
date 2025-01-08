@@ -130,6 +130,9 @@ namespace Rpg.Experimental.Time
         public virtual void OnTimeEvent(RpgGraph graph)
             => OnCalculateExpiry(graph);
 
+        public virtual void OnSyncProperty(RpgGraph graph, string prop)
+        { }
+
         private void OnCalculateExpiry(RpgGraph graph)
         {
             if (!SyncLifespanFromOwner(graph))

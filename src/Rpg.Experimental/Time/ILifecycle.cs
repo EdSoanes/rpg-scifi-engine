@@ -12,6 +12,8 @@ namespace Rpg.Experimental.Time
         void OnCreating(RpgGraph graph, RpgObject? obj);
         void OnRestoring(RpgGraph graph);
         void OnTimeEvent(RpgGraph graph);
+        void OnSyncProperty(RpgGraph graph, string prop);
+        
         void Expire(TimePoint expiryTime);
         void Expire(RpgGraph graph, TimePoint expiryTime);
         void Expire(RpgGraph graph);

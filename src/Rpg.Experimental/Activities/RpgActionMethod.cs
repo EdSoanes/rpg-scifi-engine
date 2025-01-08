@@ -18,7 +18,7 @@ namespace Rpg.Experimental.Activities
         {
             if (!CanAutoComplete) return false;
 
-            var args = Args.ToDictionary(graph);
+            var args = RpgArg.CreateDictionary(graph, Args);
             var result = _method?.Execute(_action!, args) ?? true;
 
             IsDone = true;
@@ -43,7 +43,7 @@ namespace Rpg.Experimental.Activities
                 _ => null
             };
 
-            Args = _action?.ActionArgs.CloneArgs(methodName) ?? [];
+            Args = _action?.Args.CloneArgs(methodName) ?? [];
         }
 
         public void OnRestoring(RpgActivityAction activityAction)

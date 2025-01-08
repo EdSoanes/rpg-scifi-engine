@@ -36,11 +36,21 @@
 
         public void SyncProperties(RpgGraph graph)
         {
-            foreach (var byObjId in UpdatedProps.GroupBy(x => x.ObjectId))
+            var groups = UpdatedProps.GroupBy(x => x.ObjectId);
+            foreach (var byObjId in groups)
             {
                 var objData = graph.GetObjectData(byObjId.Key);
-                foreach (var propRef in byObjId)
-                    objData?.GetPropData(propRef.Path)?.OnSyncProperty(graph);
+                if (objData != null)
+                    foreach (var propRef in byObjId)
+                        objData.OnSyncProperty(graph, propRef.Path);
+            }
+
+            foreach (var byObjId in groups)
+            {
+                var obj = graph.GetObject(byObjId.Key);
+                if (obj != null)
+                    foreach (var propRef in byObjId)
+                        obj.OnSyncProperty(graph, propRef.Path);
             }
 
             UpdatedProps.Clear();
@@ -55,11 +65,15 @@
             if (propRefs.Any())
             {
                 var objData = graph.GetObjectData(objectId);
+                if (objData != null)
+                    foreach (var propRef in propRefs)
+                    {
+                        objData?.OnSyncProperty(graph, propRef.Path);
+                        UpdatedProps.Remove(propRef);
+                    }
+
                 foreach (var propRef in propRefs)
-                {
-                    objData?.GetPropData(propRef.Path)?.OnSyncProperty(graph);
-                    UpdatedProps.Remove(propRef);
-                }
+                    graph.GetObject(objectId)?.OnSyncProperty(graph, propRef.Path);
 
                 if (TimeEventObjects.Contains(objectId))
                     TimeEventObjects.Remove(objectId);

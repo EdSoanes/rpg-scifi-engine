@@ -15,12 +15,12 @@ namespace Rpg.Experimental.Activities
         [JsonProperty] public RpgMethod<RpgAction, bool>? CostMethod { get; protected init; }
         [JsonProperty] public RpgMethod<RpgAction, bool>? PerformMethod { get; protected init; }
         [JsonProperty] public RpgMethod<RpgAction, bool> OutcomeMethod { get; protected init; }
-        [JsonProperty] public RpgArg[] ActionArgs { get; protected set; } = [];
+        [JsonProperty] public RpgArg[] Args { get; protected set; } = [];
 
-        public bool CanPerformArgsComplete { get => ActionArgs.IsComplete(MethodNames.CanPerform); }
-        public bool CostArgsComplete { get => ActionArgs.IsComplete(MethodNames.Cost); }
-        public bool PerformComplete { get => ActionArgs.IsComplete(MethodNames.Perform); }
-        public bool OutcomeComplete { get => ActionArgs.IsComplete(MethodNames.Outcome); }
+        public bool CanPerformArgsComplete { get => Args.IsComplete(MethodNames.CanPerform); }
+        public bool CostArgsComplete { get => Args.IsComplete(MethodNames.Cost); }
+        public bool PerformComplete { get => Args.IsComplete(MethodNames.Perform); }
+        public bool OutcomeComplete { get => Args.IsComplete(MethodNames.Outcome); }
 
         [JsonConstructor] protected RpgAction() { }
 
@@ -42,14 +42,14 @@ namespace Rpg.Experimental.Activities
 
         public override void OnCreating(RpgGraph graph, RpgObject? owner)
         {
-            var actionArgs = new List<RpgArg>(ActionArgs);
+            var actionArgs = new List<RpgArg>();
 
             OnCreatingProperties(graph, actionArgs, MethodNames.CanPerform, CanPerformMethod?.Args);
             OnCreatingProperties(graph, actionArgs, MethodNames.Cost, CostMethod?.Args);
             OnCreatingProperties(graph, actionArgs, MethodNames.Perform, PerformMethod?.Args);
             OnCreatingProperties(graph, actionArgs, MethodNames.Outcome, OutcomeMethod?.Args);
 
-            ActionArgs = actionArgs.ToArray();
+            Args = actionArgs.ToArray();
 
             base.OnCreating(graph, owner);
         }
@@ -113,11 +113,11 @@ namespace Rpg.Experimental.Activities
 
         private void OnTimeEventArgs(RpgGraph graph)
         {
-            foreach (var arg in ActionArgs)
+            foreach (var arg in Args)
             {
                 var val = graph.GetPropertyData(Id, arg.Name)?.GetValue<object?>(graph);
                 if (val != null)
-                    arg.SetValue(val);
+                    RpgArg.SetValue(graph, Args, arg.Name, val);
             }
         }
 
@@ -130,11 +130,11 @@ namespace Rpg.Experimental.Activities
             {
                 var args = CanPerformMethod.Args
                     ?.CloneArgs()
-                    .Fill(ActionArgs, graph);
+                    .Fill(Args, graph);
 
                 IsPerformable = !args.IsComplete()
                     ? false
-                    : CanPerformMethod.Execute(this, args.ToDictionary(graph));
+                    : CanPerformMethod.Execute(this, RpgArg.CreateDictionary(graph, args));
             }
         }
     }

@@ -123,7 +123,7 @@ namespace Rpg.Experimental.Graph
                 graph.ChangeTracker.PropUpdated(ObjectId, Prop);
         }
 
-        public void OnSyncProperty(RpgGraph graph)
+        public void OnSyncProperty(RpgGraph graph, string prop)
         {
             var obj = graph.GetObject(ObjectId)!;
             if (obj == null)

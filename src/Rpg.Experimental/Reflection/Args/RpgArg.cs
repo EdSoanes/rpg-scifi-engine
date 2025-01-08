@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Rpg.Experimental.Graph;
 using System.Reflection;
 
@@ -27,7 +28,7 @@ namespace Rpg.Experimental.Reflection.Args
         public abstract void SetValue(object? value, RpgGraph? graph = null);
         public abstract void FillValue(object? value, RpgGraph? graph = null);
 
-        public static RpgArg[] SyncArgs(RpgArg[] existing, params RpgArg[]?[] argsList)
+        public static RpgArg[] CreateArgs(RpgGraph graph, RpgArg[] existing, params RpgArg[]?[] argsList)
         {
             var additions = new List<RpgArg>();
             foreach (var args in argsList.Where(x => x != null))
@@ -44,28 +45,12 @@ namespace Rpg.Experimental.Reflection.Args
 
             var allArgs = res.ToArray();
             foreach (var args in argsList.Where(x => x != null))
-                allArgs.Set(args!);
+                SetValues(graph, allArgs, args!);
 
             return allArgs;
         }
-    }
 
-    public static class RpgArgExtensions
-    {
-        public static bool IsComplete(this RpgArg[]? rpgArgs, string? group = null)
-        {
-            if (rpgArgs == null) return false;
-            
-            foreach (var arg in rpgArgs.Where(x => group == null || x.Groups.Contains(group)))
-            {
-                if (!arg.IsNullable && arg.Value == null)
-                    return false;
-            }
-
-            return true;
-        }
-
-        public static Dictionary<string, object?> ToDictionary(this RpgArg[]? rpgArgs, RpgGraph graph)
+        public static Dictionary<string, object?> CreateDictionary(RpgGraph graph, RpgArg[]? rpgArgs)
         {
             var res = new Dictionary<string, object?>();
             if (rpgArgs != null)
@@ -87,7 +72,7 @@ namespace Rpg.Experimental.Reflection.Args
             return res;
         }
 
-        public static void SetFromObjectProperties(this RpgArg[]? rpgArgs, RpgGraph graph, RpgObject obj)
+        public static void SetValues(RpgGraph graph, RpgArg[]? rpgArgs, RpgObject obj)
         {
             if (rpgArgs != null)
             {
@@ -106,38 +91,57 @@ namespace Rpg.Experimental.Reflection.Args
             }
         }
 
-        public static void Set(this RpgArg[]? rpgArgs, string argName, object? value, RpgGraph? graph = null)
+        public static void SetValues(RpgGraph graph, RpgArg[] rpgArgs, RpgArg[]? from)
+        {
+            if (from != null)
+                foreach (var arg in from)
+                    SetValue(graph, rpgArgs, arg.Name, arg.Value);
+        }
+
+        public static void SetValue(RpgGraph graph, RpgArg[] rpgArgs, string argName, object? value)
             => rpgArgs.Find(argName)?.SetValue(value, graph);
+
+        public static void SetValue(RpgGraph graph, RpgArg[] rpgArgs, (string, object?)[]? from)
+        {
+            if (from != null)
+                foreach (var arg in from)
+                    SetValue(graph, rpgArgs, arg.Item1, arg.Item2);
+        }
+    }
+
+    public static class RpgArgExtensions
+    {
+        public static bool IsComplete(this RpgArg[]? rpgArgs, string? group = null)
+        {
+            if (rpgArgs == null) return false;
+            
+            foreach (var arg in rpgArgs.Where(x => group == null || x.Groups.Contains(group)))
+            {
+                if (!arg.IsNullable && arg.Value == null)
+                    return false;
+            }
+
+            return true;
+        }
+
+
+
+
 
         public static RpgArg[] Fill(this RpgArg[] rpgArgs, RpgArg[]? from, RpgGraph? graph = null)
         {
             if (from != null)
                 foreach (var arg in from)
-                    rpgArgs.Fill(arg.Name, arg.Value, graph);
+                    rpgArgs.Find(arg.Name)?.FillValue(arg.Value, graph);
 
             return rpgArgs.ToArray();
         }
 
-        public static RpgArg[] Set(this RpgArg[] rpgArgs, (string, object?)[]? from, RpgGraph? graph = null)
-        {
-            if (from != null)
-                foreach (var arg in from)
-                    rpgArgs.Set(arg.Item1, arg.Item2, graph);
 
-            return rpgArgs.ToArray();
-        }
 
-        public static RpgArg[] Set(this RpgArg[] rpgArgs, RpgArg[]? from, RpgGraph? graph = null)
-        {
-            if (from != null)
-                foreach (var arg in from)
-                    rpgArgs.Set(arg.Name, arg.Value, graph);
 
-            return rpgArgs.ToArray();
-        }
 
-        public static void Fill(this RpgArg[]? rpgArgs, string argName, object? value, RpgGraph? graph = null)
-            => rpgArgs.Find(argName)?.FillValue(value, graph);
+
 
         public static RpgArg? Find(this RpgArg[]? rpgArgs, string argName)
             => rpgArgs?.FirstOrDefault(x => x.Name == argName);

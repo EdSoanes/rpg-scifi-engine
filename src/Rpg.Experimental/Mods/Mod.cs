@@ -153,7 +153,7 @@ namespace Rpg.Experimental.Mods
                     .Where(x => x.Type == Type)
                     .Select(x => x.Version) ?? [];
 
-                Version = versions.Any() ? versions.Max() : 0;
+                Version = versions.Any() ? versions.Max() + 1 : 0;
             }
         }
     }

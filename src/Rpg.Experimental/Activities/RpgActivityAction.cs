@@ -8,17 +8,15 @@ namespace Rpg.Experimental.Activities
     public sealed class RpgActivityAction : RpgObject
     {
         private RpgAction? _action;
+        private RpgActivity? _activity;
 
         [JsonIgnore] public ModSet Outcome { get; private set; }
         [JsonProperty] public string ActionId { get; private set; }
         [JsonProperty] public string ActionOwnerId { get; private set; }
         [JsonProperty] public int ActivityActionNo { get; private set; }
 
-
         [JsonProperty] public RpgActionMethod CostMethod = new RpgActionMethod();
-
         [JsonProperty] public RpgActionMethod PerformMethod = new RpgActionMethod();
-
         [JsonProperty] public RpgActionMethod OutcomeMethod = new RpgActionMethod();
 
         [JsonProperty] public List<string> RecommendedActions { get; private set; } = new();
@@ -28,6 +26,7 @@ namespace Rpg.Experimental.Activities
         public bool CanAutoComplete { get => _action != null && !IsComplete && AllStepArgsComplete; }
         public bool AllStepsComplete { get => CostMethod.IsDone && PerformMethod.IsDone && OutcomeMethod.IsDone; }
         public bool AllStepArgsComplete { get => CostMethod.Args.IsComplete() && PerformMethod.Args.IsComplete() && OutcomeMethod.Args.IsComplete(); }
+        public RpgArg[] Args { get; private set; } = [];
 
         [JsonConstructor] private RpgActivityAction() { }
 
@@ -35,6 +34,7 @@ namespace Rpg.Experimental.Activities
             : base(owner.Id, true)
         {
             _action = action;
+            _activity = owner;
 
             ActionId = action.Id;
             ActionOwnerId = action.OwnerId!;
@@ -65,6 +65,7 @@ namespace Rpg.Experimental.Activities
             PerformMethod.OnCreating(this, MethodNames.Perform);
             OutcomeMethod.OnCreating(this, MethodNames.Outcome);
 
+            Args = RpgArg.CreateArgs(graph, Args, CostMethod.Args, PerformMethod.Args, OutcomeMethod.Args);
             RestoreOutcome(graph);
         }
 
@@ -73,11 +74,13 @@ namespace Rpg.Experimental.Activities
             base.OnRestoring(graph);
 
             _action = graph.GetObject(ActionId) as RpgAction;
+            _activity = graph.GetObject(OwnerId) as RpgActivity;
 
             CostMethod.OnRestoring(this);
             PerformMethod.OnRestoring(this);
             OutcomeMethod.OnRestoring(this);
 
+            Args = RpgArg.CreateArgs(graph, Args, CostMethod.Args, PerformMethod.Args, OutcomeMethod.Args);
             RestoreOutcome(graph);
         }
 
@@ -85,9 +88,11 @@ namespace Rpg.Experimental.Activities
         {
             base.OnTimeEvent(graph);
 
-            CostMethod.Args.SetFromObjectProperties(graph, this);
-            PerformMethod.Args.SetFromObjectProperties(graph, this);
-            OutcomeMethod.Args.SetFromObjectProperties(graph, this);
+            RpgArg.SetValues(graph, CostMethod.Args, this);
+            RpgArg.SetValues(graph, PerformMethod.Args, this);
+            RpgArg.SetValues(graph, OutcomeMethod.Args, this);
+
+            Args = RpgArg.CreateArgs(graph, Args, CostMethod.Args, PerformMethod.Args, OutcomeMethod.Args);
         }
 
         public override RpgObject? ResolvePropertyNameToObject(RpgGraph graph, string prop)
@@ -135,9 +140,9 @@ namespace Rpg.Experimental.Activities
 
         public void AutoComplete(RpgGraph graph, params (string, object?)[]? args)
         {
-            CostMethod.Args.Set(args);
-            PerformMethod.Args.Set(args);
-            OutcomeMethod.Args.Set(args);
+            RpgArg.SetValue(graph, CostMethod.Args, args);
+            RpgArg.SetValue(graph, PerformMethod.Args, args);
+            RpgArg.SetValue(graph, OutcomeMethod.Args, args);
 
             if (CanAutoComplete)
             {

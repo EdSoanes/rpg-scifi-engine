@@ -31,7 +31,7 @@ namespace Rpg.Experimental.Tests
             Assert.That(testAction.PerformMethod, Is.Not.Null);
             Assert.That(testAction.OutcomeMethod, Is.Not.Null);
 
-            Assert.That(testAction.ActionArgs.Length, Is.EqualTo(5));
+            Assert.That(testAction.Args.Length, Is.EqualTo(5));
         }
 
         [Test]
@@ -68,7 +68,7 @@ namespace Rpg.Experimental.Tests
         {
             var obj = new TestObject();
             var graph = new RpgGraph(obj);
-            var activity = graph.GetObjectActivity(obj.Id, obj.Id, nameof(TestAction));
+            var activity = graph.CreateActivity(obj.Id, obj.Id, nameof(TestAction));
 
             Assert.That(activity, Is.Not.Null);
             Assert.That(activity.ActivityActions.Count, Is.EqualTo(1));
@@ -79,7 +79,7 @@ namespace Rpg.Experimental.Tests
         {
             var obj = new TestObject();
             var graph = new RpgGraph(obj);
-            var activity = graph.GetObjectActivity(obj.Id, obj.Id, nameof(TestAction));
+            var activity = graph.CreateActivity(obj.Id, obj.Id, nameof(TestAction));
             var activityAction = activity.ActivityActions.First() as RpgActivityAction;
 
             Assert.That(activityAction, Is.Not.Null);
@@ -87,17 +87,53 @@ namespace Rpg.Experimental.Tests
             Assert.That(activityAction.CostMethod.Args.IsComplete(), Is.True);
             Assert.That(activityAction.CostMethod.Execute(graph), Is.True);
 
-            activityAction.PerformMethod.Args.Set("value", 1);
+            RpgArg.SetValue(graph, activityAction.PerformMethod.Args, "value", 1);
             Assert.That(activityAction.PerformMethod.Args.IsComplete(), Is.True);
             Assert.That(activityAction.PerformMethod.Execute(graph), Is.True);
 
-            activityAction.OutcomeMethod.Args.Set("value", 1);
+            RpgArg.SetValue(graph, activityAction.OutcomeMethod.Args, "value", 1);
             Assert.That(activityAction.OutcomeMethod.Args.IsComplete(), Is.True);
             Assert.That(activityAction.OutcomeMethod.Execute(graph), Is.True);
 
             Assert.That(activityAction.AllStepsComplete, Is.True);
             Assert.That(activityAction.IsComplete, Is.False);
             
+            activityAction.Complete();
+            graph.Time.Refresh();
+
+            Assert.That(activityAction.IsComplete, Is.True);
+            Assert.That(activityAction.Outcome.IsApplied, Is.True);
+            Assert.That(activityAction.Outcome.Mods.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void TestAction_CreateActivity_Perform_AssertActivityArgs()
+        {
+            var obj = new TestObject();
+            var graph = new RpgGraph(obj);
+            var activity = graph.CreateActivity(obj.Id, obj.Id, nameof(TestAction));
+            var activityAction = activity.ActivityActions.First() as RpgActivityAction;
+
+            Assert.That(activity, Is.Not.Null);
+            Assert.That(activityAction, Is.Not.Null);
+
+            Assert.That(activity.Args.Count(), Is.EqualTo(5));
+            Assert.That(activityAction.Args.Count(), Is.EqualTo(5));
+
+            Assert.That(activityAction.CostMethod.Args.IsComplete(), Is.True);
+            Assert.That(activityAction.CostMethod.Execute(graph), Is.True);
+
+            RpgArg.SetValue(graph, activityAction.PerformMethod.Args, "value", 1);
+            Assert.That(activityAction.PerformMethod.Args.IsComplete(), Is.True);
+            Assert.That(activityAction.PerformMethod.Execute(graph), Is.True);
+
+            RpgArg.SetValue(graph, activityAction.OutcomeMethod.Args, "value", 1);
+            Assert.That(activityAction.OutcomeMethod.Args.IsComplete(), Is.True);
+            Assert.That(activityAction.OutcomeMethod.Execute(graph), Is.True);
+
+            Assert.That(activityAction.AllStepsComplete, Is.True);
+            Assert.That(activityAction.IsComplete, Is.False);
+
             activityAction.Complete();
             graph.Time.Refresh();
 

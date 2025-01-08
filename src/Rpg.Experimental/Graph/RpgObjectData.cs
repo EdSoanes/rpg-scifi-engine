@@ -53,49 +53,8 @@ namespace Rpg.Experimental.Graph
                 prop.OnTimeEvent(graph);
         }
 
-
-        //public void Add(string objectId, string prop, TimePoint start, TimePoint end)
-        //{
-        //    var propData = GetPropData<RpgPropertyDataObject>(prop);
-        //    propData?.AddRefTo(objectId, start, end);
-        //}
-
-        //public void Add(string objectId, string prop, TimePoint now)
-        //{
-        //    var propData = GetPropData<RpgPropertyDataObject>(prop);
-        //    propData?.AddRefTo(objectId, now, TimePointType.TimeEnds);
-        //}
-
-        //public RpgObjectData Add(Mod mod)
-        //{
-        //    var propData = GetPropData<RpgPropertyDataModdable>(mod.Target.Prop);
-        //    if (propData != null)
-        //        propData.Mods.Add(mod);
-
-        //    return this;
-        //}
-
-        //public RpgObjectData Add<TEntity, TTargetValue>(TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
-        //    where TEntity : RpgObject
-        //{
-        //    var mod = new Mod(ModType.Base).Set(entity, targetExpr, dice);
-        //    return Add(mod);
-        //}
-
-        //public RpgObjectData Add<TEntity, TTargetValue, TSourceValue>(TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
-        //    where TEntity : RpgObject
-        //{
-        //    var mod = new Mod(ModType.Base).Set(entity, targetExpr, entity, sourceExpr);
-        //    return Add(mod);
-        //}
-
-        //public RpgObjectData Add<TTarget, TTargetValue, TSource, TSourceValue>(TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
-        //    where TTarget : RpgObject
-        //    where TSource : RpgObject
-        //{
-        //    var mod = new Mod(ModType.Base).Set(target, targetExpr, source, sourceExpr);
-        //    return Add(mod);
-        //}
+        public void OnSyncProperty(RpgGraph graph, string prop)
+            => GetPropData(prop)?.OnSyncProperty(graph, prop);
 
         public IRpgPropertyData? GetPropData(string prop)
             => Props.FirstOrDefault(x => x.Prop == prop);

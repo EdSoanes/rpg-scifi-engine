@@ -8,7 +8,7 @@ using Rpg.Experimental.Time;
 
 namespace Rpg.Experimental
 {
-    public abstract class RpgObject : Lifespan, ILifecycle
+    public abstract class RpgObject : Lifespan
     {
         [JsonProperty] public string Archetype { get; private set; }
         [JsonProperty] public string[] Archetypes { get; private set; }

@@ -403,8 +403,6 @@ namespace Rpg.Experimental.Graph
                     if (value is T)
                         return (T)value;
                 }
-
-                //Virtual property...?
                 else
                 {
                     var propData = GetPropertyData(propObj.Id, prop);
@@ -416,12 +414,31 @@ namespace Rpg.Experimental.Graph
             return default;
         }
 
-        public RpgActivity GetObjectActivity(string ownerId, string? actionOwnerId = null, string? actionName = null)
+        public RpgActivity CreateActivity(string activityOwnerId, string actionOwnerId, string actionName)
         {
-            var owner = GetObject(ownerId);
-            if (owner == null) throw new ArgumentException("Owner not found for activity");
+            var action = GetOwnerObjects<RpgAction>(actionOwnerId).FirstOrDefault(x => x.Name == actionName);
+            if (action == null)
+                throw new ArgumentException($"Could not find action {actionOwnerId} {actionName}");
 
-            var activity = GetOwnerObjects<RpgActivity>(ownerId)
+            var activity = CreateActivity(activityOwnerId);
+
+            var activityAction = new RpgActivityAction(activity, action, activity.ActivityActions.Count() + 1);
+            Add(activityAction);
+            AddTo(activity.Id, nameof(RpgActivity.ActivityActions), activityAction.Id, activity.Start, activity.End);
+
+            OnTemporalEvent([activityAction, activity]);
+            ChangeTracker.SyncProperties(this, activityAction.Id);
+            ChangeTracker.SyncProperties(this, activity.Id);
+
+            return activity;
+        }
+
+        private RpgActivity CreateActivity(string activityOwnerId)
+        {
+            var owner = GetObject(activityOwnerId);
+            if (owner == null) throw new ArgumentException($"Activity Owner {activityOwnerId} not found for activity");
+
+            var activity = GetOwnerObjects<RpgActivity>(activityOwnerId)
                 .FirstOrDefault(x => x.Expiry == LifecycleExpiry.Active);
 
             if (activity == null)
@@ -433,31 +450,6 @@ namespace Rpg.Experimental.Graph
                 activity = new RpgActivity(owner, Time.Now, end);
                 Add(activity);
             }
-
-            return actionOwnerId != null && actionName != null
-                ? CreateActivityAction(ownerId, actionOwnerId, actionName)
-                : activity;
-        }
-
-        public RpgActivity CreateActivityAction(string ownerId, string actionOwnerId, string actionName)
-        {
-            var activity = GetOwnerObjects<RpgActivity>(ownerId)
-                .FirstOrDefault(x => x.Expiry == LifecycleExpiry.Active);
-
-            if (activity == null)
-                throw new ArgumentException("Could not find activity");
-
-            var action = GetOwnerObjects<RpgAction>(actionOwnerId).FirstOrDefault(x => x.Name == actionName);
-            if (action == null)
-                throw new ArgumentException("Could not find action");
-
-            var activityAction = new RpgActivityAction(activity, action, activity.ActivityActions.Count() + 1);
-            Add(activityAction);
-            AddTo(activity.Id, nameof(RpgActivity.ActivityActions), activityAction.Id, activity.Start, activity.End);
-            
-            OnTemporalEvent([activityAction, activity]);
-            ChangeTracker.SyncProperties(this, activityAction.Id);
-            ChangeTracker.SyncProperties(this, activity.Id);
 
             return activity;
         }
