@@ -42,22 +42,20 @@ namespace Rpg.Experimental.Activities
 
         public override void OnCreating(RpgGraph graph, RpgObject? owner)
         {
-            var actionArgs = new List<RpgArg>();
-
-            OnCreatingProperties(graph, actionArgs, MethodNames.CanPerform, CanPerformMethod?.Args);
-            OnCreatingProperties(graph, actionArgs, MethodNames.Cost, CostMethod?.Args);
-            OnCreatingProperties(graph, actionArgs, MethodNames.Perform, PerformMethod?.Args);
-            OnCreatingProperties(graph, actionArgs, MethodNames.Outcome, OutcomeMethod?.Args);
-
-            Args = actionArgs.ToArray();
-
             base.OnCreating(graph, owner);
+            Args = RpgArg.CreateArgs(graph, CanPerformMethod, CostMethod, PerformMethod, OutcomeMethod);
         }
 
         public override void OnTimeEvent(RpgGraph graph)
         {
             base.OnTimeEvent(graph);
-            OnTimeEventArgs(graph);
+
+            RpgArg.SetValues(graph, Args, this);
+            RpgArg.SetValues(graph, CanPerformMethod?.Args, Args);
+            RpgArg.SetValues(graph, CostMethod?.Args, Args);
+            RpgArg.SetValues(graph, PerformMethod?.Args, Args);
+            RpgArg.SetValues(graph, OutcomeMethod?.Args, Args);
+
             OnTimeEventPerformable(graph);
         }
 
@@ -92,33 +90,6 @@ namespace Rpg.Experimental.Activities
             }
 
             return null;
-        }
-
-        private void OnCreatingProperties(RpgGraph graph, List<RpgArg> res, string argGroup, RpgArg[]? args)
-        {
-            if (args == null) return;
-            foreach (var arg in args)
-            {
-                var propData = graph.CreateVirtualProperty(Id, arg);
-                var clonedArg = res.FirstOrDefault(x => x.Name == arg.Name);
-                if (clonedArg == null)
-                {
-                    clonedArg = arg.Clone();
-                    res.Add(clonedArg);
-                }
-
-                clonedArg.Groups = [.. clonedArg.Groups, argGroup];
-            }
-        }
-
-        private void OnTimeEventArgs(RpgGraph graph)
-        {
-            foreach (var arg in Args)
-            {
-                var val = graph.GetPropertyData(Id, arg.Name)?.GetValue<object?>(graph);
-                if (val != null)
-                    RpgArg.SetValue(graph, Args, arg.Name, val);
-            }
         }
 
         private void OnTimeEventPerformable(RpgGraph graph)

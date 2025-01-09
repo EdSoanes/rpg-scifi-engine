@@ -60,7 +60,7 @@ namespace Rpg.Experimental.Tests
             Assert.That(obj.Intelligence, Is.EqualTo(3));
             Assert.That(obj.Initiative, Is.EqualTo(new Dice(1)));
 
-            testState.UserDisabled();
+            testState.UserEnabledReset();
             graph.Time.Refresh();
 
             Assert.That(testState.Expiry, Is.EqualTo(LifecycleExpiry.Suspended));

@@ -29,7 +29,7 @@ namespace Rpg.Experimental.Tests.Models
 
         public bool Outcome(RpgActivityAction activityAction, TestObject initiator, int value)
         {
-            activityAction.Outcome.Add(initiator.CreateStateActivation(nameof(TestState), 1, false).SetOwner(activityAction.Id, false));
+            activityAction.Result.Add(initiator.CreateStateActivation(nameof(TestState), 1, false).SetOwner(activityAction.Id, false));
             return true;
         }
     }

@@ -10,14 +10,15 @@ namespace Rpg.Experimental.Activities
         private RpgAction? _action;
         private RpgActivity? _activity;
 
-        [JsonIgnore] public ModSet Outcome { get; private set; }
+        [JsonIgnore] public ModSet Result { get; private set; }
         [JsonProperty] public string ActionId { get; private set; }
         [JsonProperty] public string ActionOwnerId { get; private set; }
         [JsonProperty] public int ActivityActionNo { get; private set; }
 
-        [JsonProperty] public RpgActionMethod CostMethod = new RpgActionMethod();
-        [JsonProperty] public RpgActionMethod PerformMethod = new RpgActionMethod();
-        [JsonProperty] public RpgActionMethod OutcomeMethod = new RpgActionMethod();
+        [JsonProperty] public RpgActionMethod CostMethod { get; private set; } = new RpgActionMethod();
+        [JsonProperty] public RpgActionMethod PerformMethod { get; private set; } = new RpgActionMethod();
+        [JsonProperty] public RpgActionMethod OutcomeMethod { get; private set; } = new RpgActionMethod();
+        [JsonProperty] public RpgArg[] Args { get; private set; } = [];
 
         [JsonProperty] public List<string> RecommendedActions { get; private set; } = new();
 
@@ -26,7 +27,6 @@ namespace Rpg.Experimental.Activities
         public bool CanAutoComplete { get => _action != null && !IsComplete && AllStepArgsComplete; }
         public bool AllStepsComplete { get => CostMethod.IsDone && PerformMethod.IsDone && OutcomeMethod.IsDone; }
         public bool AllStepArgsComplete { get => CostMethod.Args.IsComplete() && PerformMethod.Args.IsComplete() && OutcomeMethod.Args.IsComplete(); }
-        public RpgArg[] Args { get; private set; } = [];
 
         [JsonConstructor] private RpgActivityAction() { }
 
@@ -39,6 +39,51 @@ namespace Rpg.Experimental.Activities
             ActionId = action.Id;
             ActionOwnerId = action.OwnerId!;
             ActivityActionNo = activityActionNo;
+        }
+
+        public bool Cost(RpgGraph graph, params (string, object?)[] args)
+        {
+            RpgArg.SetValues(graph, CostMethod.Args, args);
+            RpgArg.SetValues(graph, PerformMethod.Args, args);
+            RpgArg.SetValues(graph, OutcomeMethod.Args, args);
+
+            if (!CostMethod.Args.IsComplete())
+                return false;
+
+            if (CostMethod.IsDone)
+                return true;
+
+            var res = CostMethod.Execute(graph);
+            graph.Time.Refresh();
+
+            return res;
+        }
+
+        public bool Perform(RpgGraph graph, params (string, object?)[] args)
+        {
+            RpgArg.SetValues(graph, PerformMethod.Args, args);
+            RpgArg.SetValues(graph, OutcomeMethod.Args, args);
+
+            if (!PerformMethod.Args.IsComplete())
+                return false;
+
+            var res = PerformMethod.Execute(graph);
+            graph.Time.Refresh();
+
+            return res;
+        }
+
+        public bool Outcome(RpgGraph graph, params (string, object?)[] args)
+        {
+            RpgArg.SetValues(graph, OutcomeMethod.Args, args);
+
+            if (!OutcomeMethod.Args.IsComplete())
+                return false;
+
+            var res = OutcomeMethod.Execute(graph);
+            graph.Time.Refresh();
+
+            return res;
         }
 
         public void Reset(string methodName)
@@ -61,9 +106,9 @@ namespace Rpg.Experimental.Activities
         {
             base.OnCreating(graph, obj);
 
-            CostMethod.OnCreating(this, MethodNames.Cost);
-            PerformMethod.OnCreating(this, MethodNames.Perform);
-            OutcomeMethod.OnCreating(this, MethodNames.Outcome);
+            CostMethod.OnCreating(graph, _action, _action?.CostMethod);
+            PerformMethod.OnCreating(graph, _action, _action?.PerformMethod);
+            OutcomeMethod.OnCreating(graph, _action, _action?.OutcomeMethod);
 
             Args = RpgArg.CreateArgs(graph, Args, CostMethod.Args, PerformMethod.Args, OutcomeMethod.Args);
             RestoreOutcome(graph);
@@ -76,9 +121,9 @@ namespace Rpg.Experimental.Activities
             _action = graph.GetObject(ActionId) as RpgAction;
             _activity = graph.GetObject(OwnerId) as RpgActivity;
 
-            CostMethod.OnRestoring(this);
-            PerformMethod.OnRestoring(this);
-            OutcomeMethod.OnRestoring(this);
+            CostMethod.OnRestoring(graph, _action, _action?.CostMethod);
+            PerformMethod.OnRestoring(graph, _action, _action?.PerformMethod);
+            OutcomeMethod.OnRestoring(graph, _action, _action?.OutcomeMethod);
 
             Args = RpgArg.CreateArgs(graph, Args, CostMethod.Args, PerformMethod.Args, OutcomeMethod.Args);
             RestoreOutcome(graph);
@@ -113,19 +158,19 @@ namespace Rpg.Experimental.Activities
 
         private void RestoreOutcome(RpgGraph graph)
         {
-            if (Outcome == null)
+            if (Result == null)
             {
-                var outcome = graph.GetOwnerModSets(Id)?.FirstOrDefault(x => x.Name == MethodNames.Outcome);
-                if (outcome == null)
+                var resultSet = graph.GetOwnerModSets(Id)?.FirstOrDefault(x => x.Name == MethodNames.Outcome);
+                if (resultSet == null)
                 {
-                    outcome = new ModSet(MethodNames.Outcome, Id, false)
+                    resultSet = new ModSet(MethodNames.Outcome, Id, false)
                         .Lifespan(Start, End);
 
-                    outcome.Unapply();
-                    graph.Add(outcome);
+                    resultSet.Unapply();
+                    graph.Add(resultSet);
                 }
 
-                Outcome = outcome;
+                Result = resultSet;
             }
         }
 
@@ -133,7 +178,7 @@ namespace Rpg.Experimental.Activities
         {
             if (AllStepsComplete)
             {
-                Outcome.Apply();
+                Result.Apply();
                 IsComplete = true;
             }
         }
@@ -164,7 +209,7 @@ namespace Rpg.Experimental.Activities
             CostMethod.Reset(this);
             PerformMethod.Reset(this);
             OutcomeMethod.Reset(this);
-            Outcome.Reset();
+
             RecommendedActions.Clear();
             IsComplete = false;
         }

@@ -102,8 +102,8 @@ namespace Rpg.Experimental.Tests
             graph.Time.Refresh();
 
             Assert.That(activityAction.IsComplete, Is.True);
-            Assert.That(activityAction.Outcome.IsApplied, Is.True);
-            Assert.That(activityAction.Outcome.Mods.Count, Is.EqualTo(1));
+            Assert.That(activityAction.Result.IsApplied, Is.True);
+            Assert.That(activityAction.Result.Mods.Count, Is.EqualTo(1));
         }
 
         [Test]
@@ -117,29 +117,20 @@ namespace Rpg.Experimental.Tests
             Assert.That(activity, Is.Not.Null);
             Assert.That(activityAction, Is.Not.Null);
 
-            Assert.That(activity.Args.Count(), Is.EqualTo(5));
             Assert.That(activityAction.Args.Count(), Is.EqualTo(5));
+            Assert.That(activity.Args.Count(), Is.EqualTo(5));
+            Assert.That(activityAction.Args.Find("value")?.Value, Is.Null);
+            Assert.That(activity.Args.Find("value")?.Value, Is.Null);
 
-            Assert.That(activityAction.CostMethod.Args.IsComplete(), Is.True);
-            Assert.That(activityAction.CostMethod.Execute(graph), Is.True);
+            Assert.That(activityAction.Cost(graph), Is.True);
 
-            RpgArg.SetValue(graph, activityAction.PerformMethod.Args, "value", 1);
-            Assert.That(activityAction.PerformMethod.Args.IsComplete(), Is.True);
-            Assert.That(activityAction.PerformMethod.Execute(graph), Is.True);
+            Assert.That(activityAction.Perform(graph, ("value", 1)), Is.True);
+            Assert.That(activityAction.Args.Find("value")?.Value, Is.EqualTo(1));
+            Assert.That(activity.Args.Find("value")?.Value, Is.EqualTo(1));
 
-            RpgArg.SetValue(graph, activityAction.OutcomeMethod.Args, "value", 1);
-            Assert.That(activityAction.OutcomeMethod.Args.IsComplete(), Is.True);
-            Assert.That(activityAction.OutcomeMethod.Execute(graph), Is.True);
-
-            Assert.That(activityAction.AllStepsComplete, Is.True);
-            Assert.That(activityAction.IsComplete, Is.False);
-
-            activityAction.Complete();
-            graph.Time.Refresh();
-
-            Assert.That(activityAction.IsComplete, Is.True);
-            Assert.That(activityAction.Outcome.IsApplied, Is.True);
-            Assert.That(activityAction.Outcome.Mods.Count, Is.EqualTo(1));
+            Assert.That(activityAction.Outcome(graph, ("value", 2)), Is.True);
+            Assert.That(activityAction.Args.Find("value")?.Value, Is.EqualTo(2));
+            Assert.That(activity.Args.Find("value")?.Value, Is.EqualTo(2));
         }
     }
 }

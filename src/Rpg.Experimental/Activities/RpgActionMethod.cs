@@ -28,27 +28,22 @@ namespace Rpg.Experimental.Activities
 
         public void Reset(RpgActivityAction activityAction)
         {
-            IsDone = false;
+            IsDone = _method == null;
             //Reset relevant mod sets here...
         }
 
-        public void OnCreating(RpgActivityAction activityAction, string methodName)
+        public void OnCreating(RpgGraph graph, RpgAction? action, RpgMethod<RpgAction, bool>? method)
         {
-            _action = activityAction.GetAction();
-            _method = methodName switch
-            {
-                MethodNames.Cost => _action?.CostMethod,
-                MethodNames.Perform => _action?.PerformMethod,
-                MethodNames.Outcome => _action?.OutcomeMethod,
-                _ => null
-            };
-
-            Args = _action?.Args.CloneArgs(methodName) ?? [];
+            _action = action;
+            _method = method;
+            IsDone = _method == null;
+            Args = RpgArg.CreateArgs(graph, _method);
         }
 
-        public void OnRestoring(RpgActivityAction activityAction)
+        public void OnRestoring(RpgGraph graph, RpgAction? action, RpgMethod<RpgAction, bool>? method)
         {
-            _action = activityAction.GetAction();
+            _action = action;
+            _method = method;
         }
     }
 }

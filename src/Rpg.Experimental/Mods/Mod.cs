@@ -93,9 +93,9 @@ namespace Rpg.Experimental.Mods
             return this;
         }
 
-        public Mod SetDisabled(bool disabled)
+        public Mod SetUserEnabled(bool? enabled)
         {
-            IsDisabled = disabled;
+            IsUserEnabled = enabled;
             return this;
         }
 

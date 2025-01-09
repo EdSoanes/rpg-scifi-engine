@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Rpg.Experimental.Activities;
 using Rpg.Experimental.Graph;
 using System.Reflection;
 
@@ -27,6 +28,26 @@ namespace Rpg.Experimental.Reflection.Args
         public abstract RpgArg Clone();
         public abstract void SetValue(object? value, RpgGraph? graph = null);
         public abstract void FillValue(object? value, RpgGraph? graph = null);
+
+        public static RpgArg[] CreateArgs(RpgGraph graph, params RpgMethod<RpgAction, bool>?[] methods)
+        {
+            var res = new List<RpgArg>();
+
+            foreach (var method in methods.Where(x => x != null))
+            foreach (var arg in method!.Args)
+            {
+                var clonedArg = res.FirstOrDefault(x => x.Name == arg.Name);
+                if (clonedArg == null)
+                {
+                    clonedArg = arg.Clone();
+                    res.Add(clonedArg);
+                }
+
+                clonedArg.Groups = [.. clonedArg.Groups, method.MethodName];
+            }
+
+            return res.ToArray();
+        }
 
         public static RpgArg[] CreateArgs(RpgGraph graph, RpgArg[] existing, params RpgArg[]?[] argsList)
         {
@@ -78,9 +99,17 @@ namespace Rpg.Experimental.Reflection.Args
             {
                 foreach (var arg in rpgArgs)
                 {
-                    var argObj = obj.ResolvePropertyNameToObject(graph, arg.Name);
+                    var parts = arg.Name.Split("_");
+                    var prop = parts[0];
+                    var argObj = obj.ResolvePropertyNameToObject(graph, prop);
                     if (argObj != null)
-                        arg.SetValue(argObj);
+                    {
+                        var val = parts.Length > 1
+                            ? graph.GetPropertyValue<object>(argObj, string.Join(".", parts.Skip(1)))
+                            : argObj;
+
+                        arg.SetValue(val);
+                    }
                     else
                     {
                         var val = graph.GetPropertyData(obj.Id, arg.Name)?.GetValue<object?>(graph);
@@ -91,11 +120,18 @@ namespace Rpg.Experimental.Reflection.Args
             }
         }
 
-        public static void SetValues(RpgGraph graph, RpgArg[] rpgArgs, RpgArg[]? from)
+        public static void SetValues(RpgGraph graph, RpgArg[]? rpgArgs, RpgArg[]? from)
+        {
+            if (rpgArgs != null && from != null)
+                foreach (var arg in from)
+                    SetValue(graph, rpgArgs, arg.Name, arg.Value);
+        }
+
+        public static void SetValues(RpgGraph graph, RpgArg[] rpgArgs, (string, object?)[]? from)
         {
             if (from != null)
                 foreach (var arg in from)
-                    SetValue(graph, rpgArgs, arg.Name, arg.Value);
+                    SetValue(graph, rpgArgs, arg.Item1, arg.Item2);
         }
 
         public static void SetValue(RpgGraph graph, RpgArg[] rpgArgs, string argName, object? value)
@@ -106,6 +142,21 @@ namespace Rpg.Experimental.Reflection.Args
             if (from != null)
                 foreach (var arg in from)
                     SetValue(graph, rpgArgs, arg.Item1, arg.Item2);
+        }
+
+        private static RpgPropertyRef? ResolvePropertyNameToPropRef(RpgGraph graph, RpgObject obj, string prop)
+        {
+            var propParts = prop.Split('_');
+            var propName = propParts[0];
+            var argObj = obj.ResolvePropertyNameToObject(graph, propName);
+
+            if (argObj is RpgObject rpgObj && propParts.Length > 1)
+            {
+                var path = string.Join('.', propParts.Skip(1));
+                return graph.PropertyRefs.Create(argObj.Id, path);
+            }
+
+            return null;
         }
     }
 
@@ -124,10 +175,6 @@ namespace Rpg.Experimental.Reflection.Args
             return true;
         }
 
-
-
-
-
         public static RpgArg[] Fill(this RpgArg[] rpgArgs, RpgArg[]? from, RpgGraph? graph = null)
         {
             if (from != null)
@@ -136,12 +183,6 @@ namespace Rpg.Experimental.Reflection.Args
 
             return rpgArgs.ToArray();
         }
-
-
-
-
-
-
 
         public static RpgArg? Find(this RpgArg[]? rpgArgs, string argName)
             => rpgArgs?.FirstOrDefault(x => x.Name == argName);

@@ -228,11 +228,11 @@ namespace Rpg.Experimental.Graph
             var actions = Objects.Values.Where(x => x is RpgAction);
             OnTemporalEvent(actions);
 
-            var activities = Objects.Values.Where(x => x is RpgActivity);
-            OnTemporalEvent(activities);
-
             var activityActions = Objects.Values.Where(x => x is RpgActivityAction);
             OnTemporalEvent(activityActions);
+
+            var activities = Objects.Values.Where(x => x is RpgActivity);
+            OnTemporalEvent(activities);
 
             ChangeTracker.SyncProperties(this);
 

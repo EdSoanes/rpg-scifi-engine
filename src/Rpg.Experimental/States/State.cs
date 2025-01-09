@@ -20,7 +20,6 @@ namespace Rpg.Experimental.States
         {
             Name = this.GetType().Name;
             OwnerArchetype = ownerArchetype;
-            IsDisabled = true;
         }
     }
 
@@ -51,8 +50,13 @@ namespace Rpg.Experimental.States
             if (!IsApplied)
                 return LifecycleExpiry.Suspended;
 
-            if (!IsDisabled)
-                return LifecycleExpiry.Active;
+            if (IsUserEnabled != null)
+            {
+                if (IsUserEnabled == true)
+                    return LifecycleExpiry.Active;
+                else
+                    return LifecycleExpiry.Suspended;
+            }
 
             if (IsOnWhen(owner))
                 return LifecycleExpiry.Active;

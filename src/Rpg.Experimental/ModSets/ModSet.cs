@@ -67,7 +67,7 @@ namespace Rpg.Experimental.ModSets
         public override void OnCreating(RpgGraph graph, RpgObject? obj)
         {
             base.OnCreating(graph, obj);
-            Sync(graph);
+            SyncMods(graph);
         }
 
         public override void OnRestoring(RpgGraph graph)
@@ -78,8 +78,9 @@ namespace Rpg.Experimental.ModSets
 
         public override void OnTimeEvent(RpgGraph graph)
         {
-            Sync(graph);
+            SyncMods(graph);
             base.OnTimeEvent(graph);
+            SyncActivations(graph);
         }
 
         public void Add(Mod mod)
@@ -88,11 +89,11 @@ namespace Rpg.Experimental.ModSets
             {
                 _newMods.Add(mod
                     .SetApply(IsApplied)
-                    .SetDisabled(IsDisabled));
+                    .SetUserEnabled(IsUserEnabled));
             }
         }
 
-        private void Sync(RpgGraph graph)
+        private void SyncMods(RpgGraph graph)
         {
             var newMods = _newMods.ToArray();
             _newMods.Clear();
@@ -101,18 +102,40 @@ namespace Rpg.Experimental.ModSets
             {
                 graph.Add(mod
                     .SetApply(IsApplied)
-                    .SetDisabled(IsDisabled));
+                    .SetUserEnabled(IsUserEnabled));
             }
 
             _existingMods.AddRange(newMods);
 
             foreach (var mod in _existingMods)
             {
-                if (IsApplied && !mod.IsApplied) mod.Apply();
-                else if (!IsApplied && mod.IsApplied) mod.Unapply();
+                if (IsApplied && !mod.IsApplied)
+                {
+                    mod.Apply();
+                    graph.ChangeTracker.PropsUpdated(mod.Target);
+                }
+                else if (!IsApplied && mod.IsApplied)
+                {
+                    mod.Unapply();
+                    graph.ChangeTracker.PropsUpdated(mod.Target);
+                }
+                if (IsUserEnabled != mod.IsUserEnabled)
+                {
+                    mod.SetUserEnabled(IsUserEnabled);
+                    graph.ChangeTracker.PropsUpdated(mod.Target);
+                }
+            }
+        }
 
-                if (IsDisabled && !mod.IsDisabled) mod.UserDisabled();
-                else if (!IsDisabled && mod.IsDisabled) mod.UserEnabled();
+        private void SyncActivations(RpgGraph graph)
+        {
+            foreach (var mod in _existingMods)
+            {
+                if (mod.Expiry != Expiry)
+                {
+                    mod.OnTimeEvent(graph);
+                    graph.ChangeTracker.PropsUpdated(mod.Target);
+                }
             }
         }
 

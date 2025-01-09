@@ -14,7 +14,7 @@ namespace Rpg.Experimental.Time
         [JsonProperty] public TimePoint? Expired { get; private set; }
         [JsonProperty] public LifecycleExpiry Expiry { get; private set; } = LifecycleExpiry.Unset;
         [JsonProperty] public bool IsApplied { get; protected set; } = true;
-        [JsonProperty] public bool IsDisabled { get; protected set; }
+        [JsonProperty] public bool? IsUserEnabled { get; protected set; } = null;
 
         [JsonConstructor]
         public Lifespan()
@@ -75,7 +75,7 @@ namespace Rpg.Experimental.Time
                     Expired = from.Expired;
                     Expiry = from.Expiry;
                     IsApplied = from.IsApplied;
-                    IsDisabled = from.IsDisabled;
+                    IsUserEnabled = from.IsUserEnabled;
 
                     synced = true;
                 }
@@ -91,11 +91,14 @@ namespace Rpg.Experimental.Time
             => IsApplied = false;
 
         public virtual void UserEnabled()
-            => IsDisabled = false;
+            => IsUserEnabled = true;
 
         public virtual void UserDisabled()
-            => IsDisabled = true;
-        
+            => IsUserEnabled = false;
+
+        public virtual void UserEnabledReset()
+            => IsUserEnabled = null;
+
         public bool OverlapsWith(Lifespan other)
         {
             if (Start <= other.Start && End > other.Start)
@@ -162,6 +165,14 @@ namespace Rpg.Experimental.Time
                     : LifecycleExpiry.Active;
             }
 
+            if (IsUserEnabled != null)
+            {
+                if (IsUserEnabled == true)
+                    return LifecycleExpiry.Active;
+                else
+                    return LifecycleExpiry.Suspended;
+            }
+
             var expiry = LifecycleExpiry.Expired;
 
             if (start == TimePointType.Waiting && end == TimePointType.TimePasses && graph.Time.Now != TimePointType.Waiting)
@@ -195,7 +206,7 @@ namespace Rpg.Experimental.Time
             if (!graph.Time.Now.IsEncounterTime && expiry == LifecycleExpiry.Expired)
                 expiry = LifecycleExpiry.Destroyed;
 
-            if (expiry == LifecycleExpiry.Active && (!IsApplied || IsDisabled))
+            if (expiry == LifecycleExpiry.Active && !IsApplied)
                 expiry = LifecycleExpiry.Suspended;
 
             return expiry;

@@ -19,7 +19,7 @@
         public void PropUpdated(string objectId, string prop)
             => PropsUpdated(new RpgPropertyRef(objectId, prop));
 
-        public void PropsUpdated(params RpgPropertyRef[] propRefs)
+        public void PropsUpdated(params RpgPropertyRef?[] propRefs)
         {
             UpdatedProps.Merge(propRefs);
         }
@@ -89,10 +89,10 @@
                 target.Add(propRef);
         }
 
-        internal static void Merge(this List<RpgPropertyRef> target, IEnumerable<RpgPropertyRef> source)
+        internal static void Merge(this List<RpgPropertyRef> target, IEnumerable<RpgPropertyRef?> source)
         {
-            foreach (var a in source)
-                target.Merge(a);
+            foreach (var a in source.Where(x => x != null))
+                target.Merge(a!);
         }
     }
 }
