@@ -1,9 +1,9 @@
 ﻿using Rpg.Experimental.Activities;
 using Rpg.Experimental.Reflection;
 
-namespace Rpg.Experimental.Graph
+namespace Rpg.Experimental.Graph.Factories
 {
-    public class RpgActionCreator
+    public class RpgActionFactory
     {
         public RpgAction[] CreateActions(RpgObject obj)
         {

@@ -2,9 +2,9 @@
 using Rpg.Experimental.Reflection;
 using Rpg.Experimental.States;
 
-namespace Rpg.Experimental.Graph
+namespace Rpg.Experimental.Graph.Factories
 {
-    public class RpgStateCreator
+    public class RpgStateFactory
     {
         public State[] CreateStates(RpgObject owner)
         {

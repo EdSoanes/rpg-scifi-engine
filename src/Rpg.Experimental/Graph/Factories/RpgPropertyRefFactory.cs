@@ -2,13 +2,13 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Rpg.Experimental.Graph
+namespace Rpg.Experimental.Graph.Factories
 {
-    public class RpgPropertyRefCreator
+    public class RpgPropertyRefFactory
     {
         private readonly RpgGraph Graph;
 
-        public RpgPropertyRefCreator(RpgGraph graph)
+        public RpgPropertyRefFactory(RpgGraph graph)
         {
             Graph = graph;
         }

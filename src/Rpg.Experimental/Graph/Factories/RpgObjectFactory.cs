@@ -2,15 +2,15 @@
 using System.Reflection;
 using Rpg.Experimental.Time;
 
-namespace Rpg.Experimental.Graph
+namespace Rpg.Experimental.Graph.Factories
 {
-    public class RpgObjectCreator
+    public class RpgObjectFactory
     {
         private Type[] _nonTraversibleTypes;
 
         private List<RpgObject> _objects = new();
 
-        public RpgObjectCreator()
+        public RpgObjectFactory()
         {
             var res = GetType().Assembly.GetTypes()
                 .Where(x => x.IsClass

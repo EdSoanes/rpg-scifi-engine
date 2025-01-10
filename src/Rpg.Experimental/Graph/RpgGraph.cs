@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Experimental.Activities;
+using Rpg.Experimental.Graph.Factories;
 using Rpg.Experimental.Mods;
 using Rpg.Experimental.ModSets;
 using Rpg.Experimental.Reflection;
@@ -19,7 +20,7 @@ namespace Rpg.Experimental.Graph
         [JsonProperty] public Dictionary<string, Lifespan> Objects { get; private set; } = new();
         [JsonProperty] public Temporal Time { get; private set; } = new();
         [JsonProperty] public RpgGraphChangeTracker ChangeTracker { get; private set; } = new();
-        public RpgPropertyRefCreator PropertyRefs { get; private set; }
+        public RpgPropertyRefFactory PropertyRefs { get; private set; }
 
         public RpgGraph(RpgObject context)
             : this(context, context)
@@ -27,7 +28,7 @@ namespace Rpg.Experimental.Graph
 
         public RpgGraph(RpgObject context, RpgObject actor)
         {
-            PropertyRefs = new RpgPropertyRefCreator(this);
+            PropertyRefs = new RpgPropertyRefFactory(this);
             Context = context;
             Actor = actor;
             Objects.Clear();
@@ -107,9 +108,9 @@ namespace Rpg.Experimental.Graph
 
         public void Add(RpgObject rootObj)
         {
-            var propertyCreator = new RpgPropertyDataCreator();
-            var stateCreator = new RpgStateCreator();
-            var actionCreator = new RpgActionCreator();
+            var propertyCreator = new RpgPropertyDataFactory();
+            var stateCreator = new RpgStateFactory();
+            var actionCreator = new RpgActionFactory();
             var objects = new List<Lifespan>();
 
             Action<Lifespan, Lifespan?> OnAdding = (obj, parentObj) =>
@@ -127,7 +128,7 @@ namespace Rpg.Experimental.Graph
                 }
             };
 
-            new RpgObjectCreator().Build(rootObj, (rpgObj, parentObj) =>
+            new RpgObjectFactory().Build(rootObj, (rpgObj, parentObj) =>
             {
                 OnAdding(rpgObj, parentObj);
                 var states = stateCreator.CreateStates(rpgObj);
