@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace Rpg.Experimental.Meta.Props
 {
-    public class ComponentAttribute : MetaPropAttribute
+    public class ComponentAttribute : RpgPropertyAttribute
     {
         public ComponentAttribute()
             : base()
         {
-            Ignore = true;
+            Editor = EditorType.None;
         }
     }
 }

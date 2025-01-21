@@ -21,12 +21,12 @@ namespace Rpg.Experimental.Meta
         {
             var systemAssemblies = DiscoverSystemAssemblies(system);
 
-            var propUIs = RpgTypeUtilities.ForTypes<MetaPropAttribute>(systemAssemblies)
-                .Select(x => (MetaPropAttribute)Activator.CreateInstance(x)!)
+            var propAttrs = RpgTypeUtilities.ForTypes<RpgPropertyAttribute>(systemAssemblies)
+                .Select(x => (RpgPropertyAttribute)Activator.CreateInstance(x)!)
                 .ToArray();
 
             var actions = RpgTypeUtilities.ForTypes<RpgAction>(systemAssemblies)
-                .Select(x => new MetaAction(x))
+                .Select(x => CreateAction(x))
                 .ToArray();
 
             var states = RpgTypeUtilities.ForTypes<States.State>(systemAssemblies)
@@ -36,22 +36,30 @@ namespace Rpg.Experimental.Meta
             var objectTypes = RpgTypeUtilities.ForTypes<RpgObject>(systemAssemblies);
             var res = objectTypes
                 .Where(x => !x.IsAssignableTo(typeof(RpgAction)))
-                .Select(x => Object(x, actions, states))
+                .Select(x => CreateObject(x, actions, states))
                 .ToArray();
 
             system.Objects = res;
             system.Actions = actions;
             system.States = states;
-            system.PropUIs = propUIs.Select(x => x.GetValues()).ToArray();
+            system.PropertyAttributes = propAttrs.Select(x => x.GetValues()).ToArray();
             system.Namespaces = Namespaces(objectTypes);
            
             return system;
         }
 
-        public MetaObj Object(Type type, MetaAction[] actions, MetaState[] states)
+        public MetaObject CreateObject(Type type, MetaAction[] actions, MetaState[] states)
         {
-            var obj = new MetaObj(type);
-            FillMetaObject(obj, type, actions, states);
+            var obj = new MetaObject
+            {
+                Archetype = type.Name,
+                Archetypes = RpgTypeUtilities.GetArchetypes(type)
+            };
+
+            var props = CreateProperties(type);
+            obj.Properties.AddRange(props);
+            obj.AllowedActions.AddRange(actions.Where(x => obj.Archetypes.Contains(x.OwnerArchetype)));
+            obj.AllowedStates.AddRange(states.Where(x => obj.Archetypes.Contains(x.Archetype)));
 
             return obj;
         }
@@ -72,47 +80,75 @@ namespace Rpg.Experimental.Meta
             return ns.ToArray();
         }
 
-        private void FillMetaObject(MetaObj obj, Type type, MetaAction[] actions, MetaState[] states)
+        public List<MetaProperty> CreateProperties(Type type)
         {
-            var props = Props(type);
-            obj.Props.AddRange(Props(type));
-            obj.AllowedActions.AddRange(actions.Where(x => obj.Archetypes.Contains(x.OwnerArchetype)));
-            obj.AllowedStates.AddRange(states.Where(x => obj.Archetypes.Contains(x.Archetype)));
-        }
-
-        public List<MetaProp> Props(Type type)
-        {
-            var metaProps = new List<MetaProp>();
+            var metaProps = new List<MetaProperty>();
             var propStack = new Stack<string>();
             foreach (var propInfo in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
-                Prop(metaProps, propStack, propInfo, null, null);
+            {
+                var metaProp = CreateProperty(propStack, propInfo);
+                if (metaProp != null)
+                    metaProps.Add(metaProp);
+            }
 
             return metaProps;
         }
 
-        private void Prop(List<MetaProp> metaProps, Stack<string> propStack, PropertyInfo propInfo, string? tab, string? group)
+        private MetaProperty? CreateProperty(Stack<string> propStack, PropertyInfo propInfo)
         {
-            var propUI = propInfo.GetPropUI();
-            if (propUI == null)
-                return;
+            var propAttr = GetRpgPropertyAttribute(propInfo);
+            if (propAttr == null)
+                return null;
 
-            tab = (!string.IsNullOrEmpty(propUI.Tab) ? propUI.Tab : tab) ?? string.Empty;
-            group = (!string.IsNullOrEmpty(propUI.Group) ? propUI.Group : group) ?? string.Empty;
-
-            if (propUI is ComponentAttribute)
+            var metaProp = new MetaProperty
             {
-                propStack.Push(propInfo.Name);
+                Path = propStack.ToList(),
+                Prop = propInfo.Name,
+                Editor = propAttr.Editor,
+                DisplayName = propAttr.DisplayName ?? string.Join(" ", [.. propStack, propInfo.Name]),
+                Tab = propAttr.Tab,
+                Group = propAttr.Group,
+                Properties = propAttr.GetValues()
+            };
 
-                foreach (var childPropInfo in propInfo.PropertyType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
-                    Prop(metaProps, propStack, childPropInfo, tab, group);
+            return metaProp;
+        }
 
-                propStack.Pop();
-            }
-            else
+        private MetaAction CreateAction(Type actionType)
+        {
+            var action = (RpgAction)Activator.CreateInstance(actionType, true)!;
+            var metaAction = new MetaAction
             {
-                var metaProp = new MetaProp(propInfo, propUI, propStack, tab, group);
-                metaProps.Add(metaProp);
+                Name = actionType.Name,
+                //OwnerArchetype =
+                Cost = action.CostMethod,
+                Perform = action.PerformMethod,
+                Outcome = action.OutcomeMethod,
+            };
+
+            return metaAction;
+        }
+
+        private RpgPropertyAttribute? GetRpgPropertyAttribute(PropertyInfo propertyInfo)
+        {
+            var propAttr = propertyInfo.GetCustomAttributes(true)
+                .FirstOrDefault(x => x.GetType().IsAssignableTo(typeof(RpgPropertyAttribute))) as RpgPropertyAttribute;
+
+            if (propAttr == null)
+            {
+                propAttr = propertyInfo.PropertyType.Name switch
+                {
+                    nameof(Int32) => new IntegerAttribute { Editor = EditorType.None },
+                    nameof(Dice) => new DiceAttribute { Editor = EditorType.None },
+                    nameof(String) => new TextAttribute { Editor = EditorType.None },
+                    _ => null
+                };
             }
+
+            if (propAttr == null && propertyInfo.PropertyType.IsAssignableTo(typeof(RpgObject)))
+                propAttr = new ComponentAttribute { Editor = EditorType.None };
+
+            return propAttr;
         }
 
         private Assembly[] DiscoverSystemAssemblies(IMetaSystem system)

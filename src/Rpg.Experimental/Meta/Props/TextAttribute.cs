@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Rpg.Experimental.Meta.Props
 {
-    public class TextAttribute : MetaPropAttribute
+    public class TextAttribute : RpgPropertyAttribute
     {
         public TextAttribute()
             : base()

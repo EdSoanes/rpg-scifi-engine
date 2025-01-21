@@ -1,46 +1,19 @@
-﻿using Rpg.Experimental.Meta.Attributes;
-using Rpg.Experimental.Reflection;
-using System.Reflection;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Rpg.Experimental.Activities;
-using Rpg.Experimental.Mods;
+using Rpg.Experimental.Reflection;
 
 namespace Rpg.Experimental.Meta
 {
     public class MetaAction
     {
-        [JsonProperty] public string Name { get; private set; }
-        [JsonProperty] public string OwnerArchetype { get; private set; }
-        [JsonProperty] public bool Required { get; private set; }
-        [JsonProperty] public string? Category { get; private set; }
-        [JsonProperty] public string? SubCategory { get; private set; }
-        [JsonProperty] public string[]? NextActionHints { get; private set; }
+        [JsonProperty] public string Name { get; init; }
+        [JsonProperty] public string OwnerArchetype { get; init; }
 
-        [JsonProperty] private RpgMethod<RpgAction, bool>? Cost { get; set; }
-        [JsonProperty] private RpgMethod<RpgAction, bool>? Perform { get; set; }
-        [JsonProperty] private RpgMethod<RpgAction, bool> Outcome { get; set; }
+        [JsonProperty] public RpgMethod<RpgAction, bool>? Cost { get; init; }
+        [JsonProperty] public RpgMethod<RpgAction, bool>? Perform { get; init; }
+        [JsonProperty] public RpgMethod<RpgAction, bool> Outcome { get; init; }
 
-        [JsonConstructor] private MetaAction() { }
-
-        public MetaAction(Type actionType)
-        {
-            var actionTemplate = (RpgAction)Activator.CreateInstance(actionType, true)!;
-
-            Name = actionType.Name;
-            //OwnerArchetype =
-            Cost = actionTemplate.CostMethod;
-            Perform = actionTemplate.PerformMethod;
-            Outcome = actionTemplate.OutcomeMethod;
-
-            var attr = actionType.GetCustomAttribute<ActionAttribute>();
-            if (attr != null)
-            {
-                Required = attr.Required;
-                Category = attr.Category;
-                SubCategory = attr.SubCategory;
-                NextActionHints = attr.NextActionHints;
-            }
-        }
+        [JsonConstructor] public MetaAction() { }
 
         public override string ToString()
         {

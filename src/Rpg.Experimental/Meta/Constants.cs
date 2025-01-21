@@ -6,16 +6,9 @@ using System.Threading.Tasks;
 
 namespace Rpg.Experimental.Meta
 {
-    public enum MetaObjectType
-    {
-        None,
-        Entity,
-        Component,
-        EntityTemplate,
-        ComponentTemplate
-    }
     public enum EditorType
     {
+        None,
         Int32,
         Text,
         RichText,

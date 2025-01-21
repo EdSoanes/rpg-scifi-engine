@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Rpg.Experimental.Meta.Props
 {
-    public class IntegerAttribute : MetaPropAttribute
+    public class IntegerAttribute : RpgPropertyAttribute
     {
         public string Unit { get; protected set; } = nameof(Int32);
         public int Min { get; set; } = int.MinValue;

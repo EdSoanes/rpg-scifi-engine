@@ -1,6 +1,6 @@
 ﻿namespace Rpg.Experimental.Meta.Props
 {
-    public class DiceAttribute : MetaPropAttribute
+    public class DiceAttribute : RpgPropertyAttribute
     {
         public DiceAttribute()
             : base()

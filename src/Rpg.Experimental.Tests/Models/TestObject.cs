@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Rpg.Experimental.Graph;
+﻿using Rpg.Experimental.Graph;
+using Rpg.Experimental.Meta.Props;
 
 namespace Rpg.Experimental.Tests.Models
 {
     public class TestObject : RpgObject
     {
         public int Strength { get; protected set; } = 10;
+
+        [Integer(DisplayName = "Str", Min = 3, Max = 18)]
         public int? Intelligence { get; protected set; }
+
         public Dice Damage { get; protected set; } = "d6 + 1";
         public Dice? Initiative { get; protected set; }
         public RpgObject? Child { get; set; }

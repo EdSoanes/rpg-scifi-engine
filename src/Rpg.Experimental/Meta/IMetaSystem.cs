@@ -7,10 +7,9 @@
         string Name { get; }
         string Version { get; }
         string Description { get; }
-        MetaObj[] Objects { get; set; }
+        MetaObject[] Objects { get; set; }
         MetaAction[] Actions { get; set; }
         MetaState[] States { get; set; }
-        MetaPropAttr[] PropUIs { get; set; }
-        MetaObj AsContentTemplate(MetaObj obj);
+        Dictionary<string, object?>[] PropertyAttributes { get; set; }
     }
 }
