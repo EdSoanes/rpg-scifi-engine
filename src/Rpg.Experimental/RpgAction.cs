@@ -3,7 +3,7 @@ using Rpg.Experimental.Graph;
 using Rpg.Experimental.Reflection;
 using Rpg.Experimental.Reflection.Args;
 
-namespace Rpg.Experimental.Activities
+namespace Rpg.Experimental
 {
     public abstract class RpgAction : RpgObject
     {
@@ -17,20 +17,20 @@ namespace Rpg.Experimental.Activities
         [JsonProperty] public RpgMethod<RpgAction, bool> OutcomeMethod { get; protected init; }
         [JsonProperty] public RpgArg[] Args { get; protected set; } = [];
 
-        public bool CanPerformArgsComplete { get => Args.IsComplete(MethodNames.CanPerform); }
-        public bool CostArgsComplete { get => Args.IsComplete(MethodNames.Cost); }
-        public bool PerformComplete { get => Args.IsComplete(MethodNames.Perform); }
-        public bool OutcomeComplete { get => Args.IsComplete(MethodNames.Outcome); }
+        public bool CanPerformArgsComplete { get => Args.IsComplete(ActionMethodNames.CanPerform); }
+        public bool CostArgsComplete { get => Args.IsComplete(ActionMethodNames.Cost); }
+        public bool PerformComplete { get => Args.IsComplete(ActionMethodNames.Perform); }
+        public bool OutcomeComplete { get => Args.IsComplete(ActionMethodNames.Outcome); }
 
         [JsonConstructor] protected RpgAction() { }
 
         public RpgAction(RpgObject owner)
             : this(owner, false)
         {
-            CanPerformMethod = RpgMethodFactory.Create<RpgAction, bool>(this, MethodNames.CanPerform);
-            CostMethod = RpgMethodFactory.Create<RpgAction, bool>(this, MethodNames.Cost);
-            PerformMethod = RpgMethodFactory.Create<RpgAction, bool>(this, MethodNames.Perform);
-            OutcomeMethod = RpgMethodFactory.Create<RpgAction, bool>(this, MethodNames.Outcome)!;
+            CanPerformMethod = RpgMethodFactory.Create<RpgAction, bool>(this, ActionMethodNames.CanPerform);
+            CostMethod = RpgMethodFactory.Create<RpgAction, bool>(this, ActionMethodNames.Cost);
+            PerformMethod = RpgMethodFactory.Create<RpgAction, bool>(this, ActionMethodNames.Perform);
+            OutcomeMethod = RpgMethodFactory.Create<RpgAction, bool>(this, ActionMethodNames.Outcome)!;
         }
 
         protected RpgAction(RpgObject owner, bool syncToOwner)
@@ -66,7 +66,7 @@ namespace Rpg.Experimental.Activities
             {
                 return prop switch
                 {
-                    ReservedArgs.Action => this,
+                    ActionReservedArgs.Action => this,
                     _ => null
                 };
             }
@@ -113,7 +113,8 @@ namespace Rpg.Experimental.Activities
     public abstract class RpgAction<TOwner> : RpgAction
         where TOwner : RpgObject
     {
-        [JsonConstructor] protected RpgAction() 
+        [JsonConstructor]
+        protected RpgAction()
             : base() { }
 
         public RpgAction(TOwner owner)

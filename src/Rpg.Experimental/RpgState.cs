@@ -1,11 +1,10 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Experimental.Graph;
-using Rpg.Experimental.ModSets;
 using Rpg.Experimental.Time;
 
-namespace Rpg.Experimental.States
+namespace Rpg.Experimental
 {
-    public abstract class State : ModSet
+    public abstract class RpgState : RpgModSet
     {
         internal static string StatePropName(string stateName)
             => $"State/{stateName}";
@@ -13,22 +12,22 @@ namespace Rpg.Experimental.States
         [JsonProperty] public string? OwnerArchetype { get; protected set; }
         [JsonProperty] public bool IsPlayerVisible { get; protected set; } = true;
 
-        [JsonConstructor] protected State() { }
+        [JsonConstructor] protected RpgState() { }
 
-        protected State(string ownerId, string ownerArchetype)
+        protected RpgState(string ownerId, string ownerArchetype)
             : base(ownerId, false)
         {
-            Name = this.GetType().Name;
+            Name = GetType().Name;
             OwnerArchetype = ownerArchetype;
         }
     }
 
-    public abstract class State<T> : State
+    public abstract class RpgState<T> : RpgState
         where T : RpgObject
     {
-        [JsonConstructor] protected State() { }
+        [JsonConstructor] protected RpgState() { }
 
-        public State(T owner)
+        public RpgState(T owner)
             : base(owner.Id, owner.Archetype)
         {
         }

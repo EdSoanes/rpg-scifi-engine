@@ -1,5 +1,4 @@
 using Rpg.Experimental.Graph;
-using Rpg.Experimental.ModSets;
 using Rpg.Experimental.Reflection;
 using Rpg.Experimental.Tests.Models;
 using Rpg.Experimental.Time;
@@ -23,7 +22,7 @@ namespace Rpg.Experimental.Tests
             var graph = new RpgGraph(obj);
             var objData = graph.GetObjectData(obj.Id);
 
-            var modSet = new ModSet();
+            var modSet = new RpgModSet();
             modSet.Add(obj, x => x.Strength, 1);
 
             Assert.That(modSet.Mods.Count, Is.EqualTo(1));
@@ -47,7 +46,7 @@ namespace Rpg.Experimental.Tests
             var graph = new RpgGraph(obj);
             var objData = graph.GetObjectData(obj.Id);
 
-            var modSet = new ModSet();
+            var modSet = new RpgModSet();
             modSet.Add(obj, x => x.Strength, 1);
             graph.Add(modSet);
             graph.Time.Refresh();
@@ -76,7 +75,7 @@ namespace Rpg.Experimental.Tests
             var graph = new RpgGraph(obj);
             var objData = graph.GetObjectData(obj.Id);
 
-            var modSet = new ModSet();
+            var modSet = new RpgModSet();
             modSet.Add(obj, x => x.Strength, 1);
             graph.Add(modSet);
             graph.Time.Refresh();
@@ -111,7 +110,7 @@ namespace Rpg.Experimental.Tests
 
             graph.Time.BeginEncounter();
 
-            var modSet = new ModSet().Lifespan(1);
+            var modSet = new RpgModSet().Lifespan(1);
             modSet.Add(obj, x => x.Strength, 1);
             graph.Add(modSet);
             graph.Time.Refresh();

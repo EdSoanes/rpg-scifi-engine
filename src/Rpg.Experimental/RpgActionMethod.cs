@@ -3,7 +3,7 @@ using Rpg.Experimental.Graph;
 using Rpg.Experimental.Reflection;
 using Rpg.Experimental.Reflection.Args;
 
-namespace Rpg.Experimental.Activities
+namespace Rpg.Experimental
 {
     public sealed class RpgActionMethod
     {

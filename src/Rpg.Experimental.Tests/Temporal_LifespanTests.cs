@@ -19,7 +19,7 @@ namespace Rpg.Experimental.Tests
         [Test]
         public void SpanOfTime_WaitingToTimePasses_EncounterBegins_Destroyed()
         {
-            var span = new Lifespan(TimePointType.Waiting, TimePointType.TimePasses);
+            var span = new RpgLifecycleObject(TimePointType.Waiting, TimePointType.TimePasses);
             _graph.Time.BeginEncounter();
             span.OnTimeEvent(_graph);
 
@@ -29,7 +29,7 @@ namespace Rpg.Experimental.Tests
         [Test]
         public void SpanOfTime_Encounter_TimePassing_Pending()
         {
-            var span = new Lifespan(TimePointType.EncounterBegins, TimePointType.EncounterEnds);
+            var span = new RpgLifecycleObject(TimePointType.EncounterBegins, TimePointType.EncounterEnds);
             _graph.Time.Refresh();
             span.OnTimeEvent(_graph);
 
@@ -38,7 +38,7 @@ namespace Rpg.Experimental.Tests
 
         public void SpanOfTime_Encounter_EncounterBegins_Active()
         {
-            var span = new Lifespan(TimePointType.EncounterBegins, TimePointType.EncounterEnds);
+            var span = new RpgLifecycleObject(TimePointType.EncounterBegins, TimePointType.EncounterEnds);
             _graph.Time.BeginEncounter();
             span.OnTimeEvent(_graph);
 
@@ -48,7 +48,7 @@ namespace Rpg.Experimental.Tests
         [Test]
         public void SpanOfTime_Encounter_Turn1_Active()
         {
-            var span = new Lifespan(TimePointType.EncounterBegins, TimePointType.EncounterEnds);
+            var span = new RpgLifecycleObject(TimePointType.EncounterBegins, TimePointType.EncounterEnds);
             _graph.Time.BeginEncounter();
             span.OnTimeEvent(_graph);
 
@@ -58,7 +58,7 @@ namespace Rpg.Experimental.Tests
         [Test]
         public void SpanOfTime_Encounter_EncounterEnds_Pending()
         {
-            var span = new Lifespan(TimePointType.EncounterBegins, TimePointType.EncounterEnds);
+            var span = new RpgLifecycleObject(TimePointType.EncounterBegins, TimePointType.EncounterEnds);
             _graph.Time.EndEncounter();
             span.OnTimeEvent(_graph);
 
@@ -69,7 +69,7 @@ namespace Rpg.Experimental.Tests
         [Test]
         public void SpanOfTime_TwoTurns_OnTurnThree_Expired()
         {
-            var span = new Lifespan(new TimePoint(TimePointType.Turn, 1), new TimePoint(TimePointType.Turn, 3));
+            var span = new RpgLifecycleObject(new TimePoint(TimePointType.Turn, 1), new TimePoint(TimePointType.Turn, 3));
             _graph.Time.ToTurn(3);
             span.OnTimeEvent(_graph);
 
@@ -79,8 +79,8 @@ namespace Rpg.Experimental.Tests
         [Test]
         public void SpanOfTime_Encounter_OverlapsWith_TimePassingEncounterBegins_False()
         {
-            var span1 = new Lifespan(TimePointType.EncounterBegins, TimePointType.EncounterEnds);
-            var span2 = new Lifespan(TimePointType.Waiting, TimePointType.EncounterBegins);
+            var span1 = new RpgLifecycleObject(TimePointType.EncounterBegins, TimePointType.EncounterEnds);
+            var span2 = new RpgLifecycleObject(TimePointType.Waiting, TimePointType.EncounterBegins);
 
             Assert.That(span2.OverlapsWith(span1), Is.False);
         }
@@ -88,8 +88,8 @@ namespace Rpg.Experimental.Tests
         [Test]
         public void SpanOfTime_Encounter_OverlapsWith_TimePassingTurn1_False()
         {
-            var span1 = new Lifespan(TimePointType.EncounterBegins, TimePointType.EncounterEnds);
-            var span2 = new Lifespan(TimePointType.Waiting, 1);
+            var span1 = new RpgLifecycleObject(TimePointType.EncounterBegins, TimePointType.EncounterEnds);
+            var span2 = new RpgLifecycleObject(TimePointType.Waiting, 1);
 
             Assert.That(span2.OverlapsWith(span1), Is.True);
         }
@@ -97,8 +97,8 @@ namespace Rpg.Experimental.Tests
         [Test]
         public void SpanOfTime_Encounter_OverlapsWith_Turn_True()
         {
-            var span1 = new Lifespan(TimePointType.EncounterBegins, TimePointType.EncounterEnds);
-            var span2 = new Lifespan(1, 2);
+            var span1 = new RpgLifecycleObject(TimePointType.EncounterBegins, TimePointType.EncounterEnds);
+            var span2 = new RpgLifecycleObject(1, 2);
 
             Assert.That(span2.OverlapsWith(span1), Is.True);
         }
@@ -106,8 +106,8 @@ namespace Rpg.Experimental.Tests
         [Test]
         public void SpanOfTime_Turn1_OverlapsWith_Turn2_False()
         {
-            var span1 = new Lifespan(1, 1);
-            var span2 = new Lifespan(2, 1);
+            var span1 = new RpgLifecycleObject(1, 1);
+            var span2 = new RpgLifecycleObject(2, 1);
 
             Assert.That(span2.OverlapsWith(span1), Is.False);
         }

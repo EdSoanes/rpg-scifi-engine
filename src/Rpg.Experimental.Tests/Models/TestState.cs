@@ -1,9 +1,8 @@
 ﻿using Newtonsoft.Json;
-using Rpg.Experimental.States;
 
 namespace Rpg.Experimental.Tests.Models
 {
-    public class TestState : State<TestObject>
+    public class TestState : RpgState<TestObject>
     {
         [JsonConstructor] private TestState() { }
 

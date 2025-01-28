@@ -27,7 +27,7 @@ namespace Rpg.Experimental.Graph.Factories
                 //typeof(ActionTemplate)
             ]);
 
-            res.Remove(typeof(Lifespan));
+            res.Remove(typeof(RpgLifecycleObject));
 
             _nonTraversibleTypes = res.ToArray();
         }

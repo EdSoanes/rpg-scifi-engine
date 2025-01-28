@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Rpg.Experimental.Activities;
 
 namespace Rpg.Experimental.Tests.Models
 {

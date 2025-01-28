@@ -3,7 +3,7 @@ using Rpg.Experimental.Time;
 
 namespace Rpg.Experimental.Graph
 {
-    public sealed class RpgObjectRef : Lifespan
+    public sealed class RpgObjectRef : RpgLifecycleObject
     {
         [JsonProperty] public string ParentObjectId { get; private set; }
         [JsonProperty] public string ChildObjectId { get; private set; }

@@ -22,13 +22,15 @@ namespace Rpg.Experimental.Tests
             obj.Child = new TestObject();
 
             var graph = new RpgGraph(obj);
+            graph.Time.Refresh();
+
             Assert.That(graph.Objects.Count, Is.EqualTo(6));
             Assert.That(graph.Objects.ContainsKey(obj.Id), Is.True);
 
             Assert.That(graph.ObjectData.Count, Is.EqualTo(4));
             Assert.That(graph.ObjectData.ContainsKey(obj.Id), Is.True);
-            Assert.That(graph.ObjectData[obj.Id].Props.Count, Is.EqualTo(7));
-            Assert.That(graph.ObjectData[obj.Child.Id].Props.Count, Is.EqualTo(7));
+            Assert.That(graph.ObjectData[obj.Id].Props.Count, Is.EqualTo(9));
+            Assert.That(graph.ObjectData[obj.Child.Id].Props.Count, Is.EqualTo(9));
 
             var strength = graph.GetPropertyData(obj.Id, "Strength") as RpgPropertyDataModdable;
             Assert.That(strength, Is.Not.Null);

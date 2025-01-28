@@ -1,16 +1,15 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Experimental.Graph;
-using Rpg.Experimental.ModSets;
 using Rpg.Experimental.Reflection.Args;
 
-namespace Rpg.Experimental.Activities
+namespace Rpg.Experimental
 {
     public sealed class RpgActivityAction : RpgObject
     {
         private RpgAction? _action;
         private RpgActivity? _activity;
 
-        [JsonIgnore] public ModSet Result { get; private set; }
+        [JsonIgnore] public RpgModSet Result { get; private set; }
         [JsonProperty] public string ActionId { get; private set; }
         [JsonProperty] public string ActionOwnerId { get; private set; }
         [JsonProperty] public int ActivityActionNo { get; private set; }
@@ -89,14 +88,14 @@ namespace Rpg.Experimental.Activities
         public void Reset(string methodName)
         {
             OutcomeMethod.Reset(this);
-            if (methodName == MethodNames.Perform)
+            if (methodName == ActionMethodNames.Perform)
                 PerformMethod.Reset(this);
 
-            if (methodName == MethodNames.Cost)
+            if (methodName == ActionMethodNames.Cost)
             {
                 CostMethod.Reset(this);
                 PerformMethod.Reset(this);
-            }    
+            }
         }
 
         public RpgAction? GetAction()
@@ -144,12 +143,12 @@ namespace Rpg.Experimental.Activities
         {
             RpgObject? obj = prop switch
             {
-                ReservedArgs.Context => graph.Context,
-                ReservedArgs.Owner => graph.GetObject(ActionOwnerId),
-                ReservedArgs.Initiator => graph.Actor,
-                ReservedArgs.Action => graph.GetObject(ActionId),
-                ReservedArgs.Activity => graph.GetObject(OwnerId),
-                ReservedArgs.ActivityAction => this,
+                ActionReservedArgs.Context => graph.Context,
+                ActionReservedArgs.Owner => graph.GetObject(ActionOwnerId),
+                ActionReservedArgs.Initiator => graph.Actor,
+                ActionReservedArgs.Action => graph.GetObject(ActionId),
+                ActionReservedArgs.Activity => graph.GetObject(OwnerId),
+                ActionReservedArgs.ActivityAction => this,
                 _ => null
             };
 
@@ -160,10 +159,10 @@ namespace Rpg.Experimental.Activities
         {
             if (Result == null)
             {
-                var resultSet = graph.GetOwnerModSets(Id)?.FirstOrDefault(x => x.Name == MethodNames.Outcome);
+                var resultSet = graph.GetOwnerModSets(Id)?.FirstOrDefault(x => x.Name == ActionMethodNames.Outcome);
                 if (resultSet == null)
                 {
-                    resultSet = new ModSet(MethodNames.Outcome, Id, false)
+                    resultSet = new RpgModSet(ActionMethodNames.Outcome, Id, false)
                         .Lifespan(Start, End);
 
                     resultSet.Unapply();

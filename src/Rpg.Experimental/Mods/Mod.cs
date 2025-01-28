@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace Rpg.Experimental.Mods
 {
-    public class Mod : Lifespan
+    public class Mod : RpgLifecycleObject
     {
         [JsonProperty] public ModType Type { get; private set; } = ModType.Standard;
         [JsonProperty] public ModBehavior Behavior { get; private set; } = ModBehavior.Standard;

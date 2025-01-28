@@ -1,20 +1,19 @@
 ﻿using System.Reflection;
 using Rpg.Experimental.Reflection;
-using Rpg.Experimental.States;
 
 namespace Rpg.Experimental.Graph.Factories
 {
     public class RpgStateFactory
     {
-        public State[] CreateStates(RpgObject owner)
+        public RpgState[] CreateStates(RpgObject owner)
         {
-            var types = RpgTypeUtilities.ForTypes<State>()
+            var types = RpgTypeUtilities.ForTypes<RpgState>()
                 .Where(x => IsOwnerStateType(owner, x));
 
-            var states = new List<State>();
+            var states = new List<RpgState>();
             foreach (var type in types)
             {
-                var state = (State)Activator.CreateInstance(type, [owner])!;
+                var state = (RpgState)Activator.CreateInstance(type, [owner])!;
                 states.Add(state);
             }
 

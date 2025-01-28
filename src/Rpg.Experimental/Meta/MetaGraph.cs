@@ -1,5 +1,4 @@
-﻿using Rpg.Experimental.Activities;
-using Rpg.Experimental.Meta.Props;
+﻿using Rpg.Experimental.Meta.Props;
 using Rpg.Experimental.Reflection;
 using System.Data;
 using System.Reflection;
@@ -29,7 +28,7 @@ namespace Rpg.Experimental.Meta
                 .Select(x => CreateAction(x))
                 .ToArray();
 
-            var states = RpgTypeUtilities.ForTypes<States.State>(systemAssemblies)
+            var states = RpgTypeUtilities.ForTypes<RpgState>(systemAssemblies)
                 .Select(x => new MetaState(x))
                 .ToArray();
 

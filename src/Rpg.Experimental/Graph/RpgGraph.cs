@@ -1,13 +1,9 @@
 ﻿using Newtonsoft.Json;
-using Rpg.Experimental.Activities;
 using Rpg.Experimental.Graph.Factories;
 using Rpg.Experimental.Mods;
-using Rpg.Experimental.ModSets;
 using Rpg.Experimental.Reflection;
 using Rpg.Experimental.Reflection.Args;
-using Rpg.Experimental.States;
 using Rpg.Experimental.Time;
-using System.Diagnostics;
 using System.Linq.Expressions;
 
 namespace Rpg.Experimental.Graph
@@ -17,7 +13,7 @@ namespace Rpg.Experimental.Graph
         [JsonProperty] public RpgObject Context { get; private set; }
         [JsonProperty] public RpgObject Actor { get; private set; }
         [JsonProperty] public Dictionary<string, RpgObjectData> ObjectData { get; private set; } = new();
-        [JsonProperty] public Dictionary<string, Lifespan> Objects { get; private set; } = new();
+        [JsonProperty] public Dictionary<string, RpgLifecycleObject> Objects { get; private set; } = new();
         [JsonProperty] public Temporal Time { get; private set; } = new();
         [JsonProperty] public RpgGraphChangeTracker ChangeTracker { get; private set; } = new();
         public RpgPropertyRefFactory PropertyRefs { get; private set; }
@@ -78,30 +74,38 @@ namespace Rpg.Experimental.Graph
 
         public RpgGraph Add<TEntity, TTargetValue>(TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject
-        {
-            var mod = new Standard()
-                .SetTarget(entity, targetExpr)
-                .SetSource(dice);
-            return Add(mod);
-        }
+                => Add(new Standard(), entity, targetExpr, dice, valueCalc);
 
         public RpgGraph Add<TEntity, TTargetValue, TSourceValue>(TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject
+                => Add(new Standard(), entity, targetExpr, sourceExpr, valueCalc);
+
+        public RpgGraph Add<TEntity, TTargetValue>(Mod mod, TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
+            where TEntity : RpgObject
         {
-            var mod = new Standard()
+            mod
                 .SetTarget(entity, targetExpr)
-                .SetSource(entity, sourceExpr);
+                .SetSource(dice, valueCalc);
+            return Add(mod);
+        }
+
+        public RpgGraph Add<TEntity, TTargetValue, TSourceValue>(Mod mod, TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
+            where TEntity : RpgObject
+        {
+            mod
+                .SetTarget(entity, targetExpr)
+                .SetSource(entity, sourceExpr, valueCalc);
 
             return Add(mod);
         }
 
-        public RpgGraph Add<TTarget, TTargetValue, TSource, TSourceValue>(TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
+        public RpgGraph Add<TTarget, TTargetValue, TSource, TSourceValue>(Mod mod, TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TTarget : RpgObject
             where TSource : RpgObject
         {
-            var mod = new Standard()
+            mod
                 .SetTarget(target, targetExpr)
-                .SetSource(source, sourceExpr);
+                .SetSource(source, sourceExpr, valueCalc);
 
             return Add(mod);
         }
@@ -111,9 +115,9 @@ namespace Rpg.Experimental.Graph
             var propertyCreator = new RpgPropertyDataFactory();
             var stateCreator = new RpgStateFactory();
             var actionCreator = new RpgActionFactory();
-            var objects = new List<Lifespan>();
+            var objects = new List<RpgLifecycleObject>();
 
-            Action<Lifespan, Lifespan?> OnAdding = (obj, parentObj) =>
+            Action<RpgLifecycleObject, RpgLifecycleObject?> OnAdding = (obj, parentObj) =>
             {
                 if (!Objects.ContainsKey(obj.Id))
                 {
@@ -160,7 +164,7 @@ namespace Rpg.Experimental.Graph
             return propertyData;
         }
 
-        public void Add(ModSet modSet)
+        public void Add(RpgModSet modSet)
         {
             Objects.Add(modSet.Id, modSet);
             modSet.OnCreating(this, null);
@@ -213,7 +217,7 @@ namespace Rpg.Experimental.Graph
 
         private void OnTemporalEvent(object? sender, TemporalEventArgs e)
         {
-            var modSets = Objects.Values.Where(x => x is ModSet && !(x is State));
+            var modSets = Objects.Values.Where(x => x is RpgModSet && !(x is RpgState));
             OnTemporalEvent(modSets);
 
             var objects = Objects.Values.Where(x => x is RpgObject && !(x is RpgAction) && !(x is RpgActivity) && !(x is RpgActivityAction));
@@ -221,7 +225,7 @@ namespace Rpg.Experimental.Graph
 
             ChangeTracker.SyncProperties(this);
 
-            var states = Objects.Values.Where(x => x is State);
+            var states = Objects.Values.Where(x => x is RpgState);
             OnTemporalEvent(states);
 
             ChangeTracker.SyncProperties(this);
@@ -246,7 +250,7 @@ namespace Rpg.Experimental.Graph
             }
         }
 
-        public void OnTemporalEvent(IEnumerable<Lifespan> objects)
+        public void OnTemporalEvent(IEnumerable<RpgLifecycleObject> objects)
         {
             foreach (var obj in objects)
                 obj.OnTimeEvent(this);
@@ -273,7 +277,7 @@ namespace Rpg.Experimental.Graph
                 ChangeTracker.SyncProperties(this, objectId);
         }
 
-        public Lifespan? GetLifespan(string? objectId)
+        public RpgLifecycleObject? GetLifespan(string? objectId)
             => objectId != null && Objects.ContainsKey(objectId)
                 ? Objects[objectId]
                 : null;
@@ -282,7 +286,7 @@ namespace Rpg.Experimental.Graph
             => GetLifespan(objectId) as RpgObject;
 
         public T[] GetOwnerObjects<T>(string? objectId)
-            where T : Lifespan
+            where T : RpgLifecycleObject
                 => Objects.Values
                     .Where(x => x.OwnerId == objectId && x is T)
                     .Cast<T>()
@@ -294,14 +298,14 @@ namespace Rpg.Experimental.Graph
                 .Cast<RpgObject>()
                 .ToArray();
 
-        public ModSet[] GetOwnerModSets(string? objectId)
+        public RpgModSet[] GetOwnerModSets(string? objectId)
             => Objects.Values
-                .Where(x => x is ModSet && !(x is State) && x.OwnerId == objectId)
-                .Cast<ModSet>()
+                .Where(x => x is RpgModSet && !(x is RpgState) && x.OwnerId == objectId)
+                .Cast<RpgModSet>()
                 .ToArray();
 
-        public State[] GetObjectStates(string? objectId)
-            => GetOwnerObjects<State>(objectId);
+        public RpgState[] GetObjectStates(string? objectId)
+            => GetOwnerObjects<RpgState>(objectId);
 
         public string? ActivateState(string ownerId, string stateName, int duration)
         {
@@ -333,9 +337,9 @@ namespace Rpg.Experimental.Graph
             }
         }
 
-        public State? GetObjectState(string? objectId, string stateName)
+        public RpgState? GetObjectState(string? objectId, string stateName)
         {
-            var state = Objects.Values.FirstOrDefault(x => x is State state && state.OwnerId == objectId && state.Name == stateName) as State;
+            var state = Objects.Values.FirstOrDefault(x => x is RpgState state && state.OwnerId == objectId && state.Name == stateName) as RpgState;
             return state;
         }
 

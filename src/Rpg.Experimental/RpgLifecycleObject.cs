@@ -1,10 +1,18 @@
-﻿using Newtonsoft.Json;
+﻿using NanoidDotNet;
+using Newtonsoft.Json;
 using Rpg.Experimental.Graph;
+using Rpg.Experimental.Time;
 
-namespace Rpg.Experimental.Time
+namespace Rpg.Experimental
 {
-    public class Lifespan : ILifecycle
+    public class RpgLifecycleObject : ILifecycle
     {
+        private const string Alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        private const int Size = 10;
+
+        private string NewId()
+            => $"{GetType().Name}[{Nanoid.Generate(Alphabet, Size)}]";
+
         [JsonProperty] public string Id { get; private set; }
         [JsonProperty] public string? OwnerId { get; protected set; }
         [JsonProperty] public bool SyncToOwner { get; protected set; }
@@ -17,49 +25,52 @@ namespace Rpg.Experimental.Time
         [JsonProperty] public bool? IsUserEnabled { get; protected set; } = null;
 
         [JsonConstructor]
-        public Lifespan()
+        public RpgLifecycleObject()
             : this(
                 new TimePoint(TimePointType.TimeBegins),
                 new TimePoint(TimePointType.TimeEnds))
         {
-            Id = this.NewId();
+            Id = NewId();
         }
 
-        public Lifespan(int startTurn, int duration)
+        public RpgLifecycleObject(int startTurn, int duration)
             : this(
                   new TimePoint(TimePointType.Turn, startTurn),
                   new TimePoint(TimePointType.Turn, startTurn + duration))
         { }
 
-        public Lifespan(TimePoint start, TimePoint end)
-        {
-            Id = this.NewId();
-            Start = start;
-            End = end;
-        }
-
-        public Lifespan(string ownerId, bool syncToOwner)
+        public RpgLifecycleObject(string ownerId, bool syncToOwner)
             : this(TimePointType.TimeBegins, TimePointType.TimeEnds)
         {
             OwnerId = ownerId;
             SyncToOwner = syncToOwner;
         }
 
-        public Lifespan(string ownerId, int startTurn, int duration)
+        public RpgLifecycleObject(string ownerId, int startTurn, int duration)
             : this(
                   ownerId,
                   new TimePoint(TimePointType.Turn, startTurn),
                   new TimePoint(TimePointType.Turn, startTurn + duration))
         { }
 
-        public Lifespan(string ownerId, TimePoint start, TimePoint end)
+        public RpgLifecycleObject(string ownerId, TimePoint start, TimePoint end)
             : this(start, end)
         {
             OwnerId = ownerId;
         }
 
-        public static bool operator ==(Lifespan? d1, Lifespan? d2) => d1?.Start == d2?.Start && d1?.End == d2?.End && d1?.Started == d2?.Started;
-        public static bool operator !=(Lifespan? d1, Lifespan? d2) => d1?.Start != d2?.Start || d1?.End != d2?.End || d1?.Started != d2?.Started;
+        public RpgLifecycleObject(TimePoint start, TimePoint end)
+        {
+            Id = NewId();
+            Start = start;
+            End = end;
+
+            if (Start == TimePointType.TimeBegins && End == TimePointType.TimeEnds && !SyncToOwner)
+                Expiry = LifecycleExpiry.Active;
+        }
+
+        public static bool operator ==(RpgLifecycleObject? d1, RpgLifecycleObject? d2) => d1?.Start == d2?.Start && d1?.End == d2?.End && d1?.Started == d2?.Started;
+        public static bool operator !=(RpgLifecycleObject? d1, RpgLifecycleObject? d2) => d1?.Start != d2?.Start || d1?.End != d2?.End || d1?.Started != d2?.Started;
 
         protected bool SyncLifespanFromOwner(RpgGraph graph)
         {
@@ -99,7 +110,7 @@ namespace Rpg.Experimental.Time
         public virtual void UserEnabledReset()
             => IsUserEnabled = null;
 
-        public bool OverlapsWith(Lifespan other)
+        public bool OverlapsWith(RpgLifecycleObject other)
         {
             if (Start <= other.Start && End > other.Start)
                 return true;
@@ -226,7 +237,7 @@ namespace Rpg.Experimental.Time
             if (obj == null)
                 return false;
 
-            if (obj is Lifespan lifespan)
+            if (obj is RpgLifecycleObject lifespan)
                 return lifespan.Start == Start && lifespan.End == End && lifespan.Started == Started;
 
             return false;

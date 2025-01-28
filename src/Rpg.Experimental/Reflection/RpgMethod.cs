@@ -26,6 +26,18 @@ namespace Rpg.Experimental.Reflection
         public TReturn Execute(TOwner owner, Dictionary<string, object?> args)
             => ExecuteMethod(owner, MethodName, args)!;
 
+        public TReturn? ExecuteStatic(Dictionary<string, object?> args)
+        {
+            var methodInfo = RpgTypeUtilities.ForMethod($"{ClassName}.{MethodName}");
+            if (methodInfo != null)
+            {
+                var methodArgs = GetValidatedMethodArgs(methodInfo, args);
+                return (TReturn?)methodInfo.Invoke(null, methodArgs);
+            }
+
+            return default;
+        }
+
         internal static TReturn? ExecuteMethod(object obj, string methodName, Dictionary<string, object?> args)
         {
             var methodInfo = RpgTypeUtilities.ForMethod(obj.GetType(), methodName);

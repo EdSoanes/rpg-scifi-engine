@@ -3,7 +3,7 @@ using Rpg.Experimental.Graph;
 using Rpg.Experimental.Reflection.Args;
 using Rpg.Experimental.Time;
 
-namespace Rpg.Experimental.Activities
+namespace Rpg.Experimental
 {
     public class RpgActivity : RpgObject
     {
@@ -19,7 +19,7 @@ namespace Rpg.Experimental.Activities
         public override void OnTimeEvent(RpgGraph graph)
         {
             base.OnTimeEvent(graph);
-                Args = RpgArg.CreateArgs(graph, Args, [.. ActivityActions.Cast<RpgActivityAction>().Select(x => x.Args)]);
+            Args = RpgArg.CreateArgs(graph, Args, [.. ActivityActions.Cast<RpgActivityAction>().Select(x => x.Args)]);
         }
 
         public override void OnSyncProperty(RpgGraph graph, string prop)

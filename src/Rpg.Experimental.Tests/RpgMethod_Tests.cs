@@ -1,5 +1,4 @@
-﻿using Rpg.Experimental.ModSets;
-using Rpg.Experimental.Reflection;
+﻿using Rpg.Experimental.Reflection;
 
 namespace Rpg.Experimental.Tests
 {
@@ -8,7 +7,7 @@ namespace Rpg.Experimental.Tests
         public int GetInt(int i) { return i * 2; }
         public int GetIntNullable(int? i) { return i ?? 0; }
         public Dice GetDice(Dice dice) { return dice; }
-        public ModSet GetObject(RpgObject obj) { return new ModSet("ModSet", "owner-id", false); }
+        public RpgModSet GetObject(RpgObject obj) { return new RpgModSet("ModSet", "owner-id", false); }
 
     }
 
@@ -68,11 +67,11 @@ namespace Rpg.Experimental.Tests
         [Test]
         public void Method_GetObject_EnsureMethodModel()
         {
-            var method = RpgMethodFactory.Create<TestMethodClass, ModSet>(_testMethodClass, nameof(TestMethodClass.GetObject));
+            var method = RpgMethodFactory.Create<TestMethodClass, RpgModSet>(_testMethodClass, nameof(TestMethodClass.GetObject));
             Assert.That(method, Is.Not.Null);
             Assert.That(method.MethodName, Is.EqualTo(nameof(TestMethodClass.GetObject)));
             Assert.That(method.ClassName, Is.Null);
-            Assert.That(method.ReturnTypeName, Is.EqualTo(nameof(ModSet)));
+            Assert.That(method.ReturnTypeName, Is.EqualTo(nameof(RpgModSet)));
             Assert.That(method.Args.Count(), Is.EqualTo(1));
             Assert.That(method.Args[0].Name, Is.EqualTo("obj"));
             Assert.That(method.Args[0].Type, Is.EqualTo("RpgObject"));

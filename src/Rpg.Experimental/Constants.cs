@@ -1,13 +1,37 @@
 ﻿using Rpg.Experimental.Graph;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Rpg.Experimental.Activities
+namespace Rpg.Experimental
 {
-    public class MethodNames
+    public enum LifecycleExpiry
+    {
+        Unset,
+        Pending,
+        Active,
+        Suspended,
+        Expired,
+        Destroyed
+    }
+
+    public enum TimePointType
+    {
+        BeforeTime,
+        TimeBegins,
+        Waiting,
+        EncounterBegins,
+        Turn,
+        EncounterEnds,
+        TimePasses,
+        TimeEnds
+    }
+
+    public enum StateInstanceType
+    {
+        Manual,
+        Conditional,
+        Timed,
+    }
+
+    public class ActionMethodNames
     {
         public const string CanPerform = "CanPerform";
         public const string Cost = "Cost";
@@ -15,7 +39,7 @@ namespace Rpg.Experimental.Activities
         public const string Outcome = "Outcome";
     }
 
-    public class ReservedArgs
+    public class ActionReservedArgs
     {
         public const string Owner = "owner";
         public const string Initiator = "initiator";

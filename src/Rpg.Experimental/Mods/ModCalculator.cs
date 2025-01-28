@@ -1,4 +1,5 @@
 ﻿using Rpg.Experimental.Graph;
+using Rpg.Experimental.Reflection.Args;
 
 namespace Rpg.Experimental.Mods
 {
@@ -9,20 +10,30 @@ namespace Rpg.Experimental.Mods
             if (graph == null)
                 return null;
 
-            var value = ModValue(graph, mod);
+            var dice = ValueToDice(mod.Source?.Value);
+            if (dice == null && mod.Source?.PropRef?.Path != null)
+            {
+                var obj = graph.GetPropertyData(mod.Source.PropRef.ObjectId, mod.Source.PropRef.Path)?.GetValue<object?>(graph);
+                dice = ValueToDice(obj);
+            }
 
-            //if (value != null && mod.SourceValueFunc != null)
-            //{
-            //    var args = new Dictionary<string, object?>();
-            //    args.Add(mod.SourceValueFunc.Args.First().Name, value);
+            var calc = mod.Source?.Calc;
+            if (calc == null)
+                return dice;
 
-            //    var entity = graph.GetObject(mod.SourceValueFunc.EntityId);
-            //    value = entity != null
-            //        ? mod.SourceValueFunc.Execute(entity, args)
-            //        : mod.SourceValueFunc.Execute(args);
-            //}
+            var args = calc.Args.CloneArgs();
+            args[0].SetValue(dice);
+            var dict = RpgArg.CreateDictionary(graph, args);
 
-            return value;
+            if (calc.IsStatic)
+            {
+                return calc.ExecuteStatic(dict);
+            }
+            else
+            {
+                var obj = graph.GetObject(calc.EntityId)!;
+                return calc.Execute(obj, dict);
+            }
         }
 
         public static Dice? InitialValue(RpgGraph graph, IEnumerable<Mod> mods)
@@ -80,18 +91,6 @@ namespace Rpg.Experimental.Mods
             //    else if (dice.Roll() > isThreshold.Max)
             //        dice = isThreshold.Max;
             //}
-
-            return dice;
-        }
-
-        public static Dice? ModValue(RpgGraph graph, Mod mod)
-        {
-            var dice = ValueToDice(mod.Source?.Value);
-            if (dice == null && mod.Source?.PropRef?.Path != null)
-            {
-                var obj = graph.GetPropertyData(mod.Source.PropRef.ObjectId, mod.Source.PropRef.Path)?.GetValue<object?>(graph);
-                dice = ValueToDice(obj);
-            }
 
             return dice;
         }

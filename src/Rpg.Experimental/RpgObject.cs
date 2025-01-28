@@ -1,14 +1,12 @@
 ﻿using Newtonsoft.Json;
-using Rpg.Experimental.Activities;
 using Rpg.Experimental.Graph;
 using Rpg.Experimental.Mods;
 using Rpg.Experimental.Reflection;
-using Rpg.Experimental.States;
 using Rpg.Experimental.Time;
 
 namespace Rpg.Experimental
 {
-    public abstract class RpgObject : Lifespan
+    public abstract class RpgObject : RpgLifecycleObject
     {
         [JsonProperty] public string Archetype { get; private set; }
         [JsonProperty] public string[] Archetypes { get; private set; }
@@ -59,7 +57,7 @@ namespace Rpg.Experimental
 
         private Mod CreateStateMod(string stateName)
             => new Standard()
-                .SetTarget(Id, State.StatePropName(stateName))
+                .SetTarget(Id, RpgState.StatePropName(stateName))
                 .SetSource(1);
 
         public override void OnCreating(RpgGraph graph, RpgObject? owner)
@@ -67,7 +65,7 @@ namespace Rpg.Experimental
             var states = graph.GetObjectStates(Id);
 
             foreach (var state in states)
-                graph.CreateVirtualProperty(Id, State.StatePropName(state.Name ?? state.GetType().Name), nameof(Int32), false, 0);
+                graph.CreateVirtualProperty(Id, RpgState.StatePropName(state.Name ?? state.GetType().Name), nameof(Int32), false, 0);
 
             base.OnCreating(graph, owner);
         }
@@ -76,9 +74,9 @@ namespace Rpg.Experimental
         {
             RpgObject? obj = prop switch
             {
-                ReservedArgs.Owner => graph.GetObject(OwnerId),
-                ReservedArgs.Initiator => graph.Actor,
-                ReservedArgs.Context => graph.Context,
+                ActionReservedArgs.Owner => graph.GetObject(OwnerId),
+                ActionReservedArgs.Initiator => graph.Actor,
+                ActionReservedArgs.Context => graph.Context,
                 _ => null
             };
 

@@ -4,9 +4,9 @@ using Rpg.Experimental.Graph;
 using Rpg.Experimental.Mods;
 using Rpg.Experimental.Time;
 
-namespace Rpg.Experimental.ModSets
+namespace Rpg.Experimental
 {
-    public class ModSet : Lifespan
+    public class RpgModSet : RpgLifecycleObject
     {
         private List<Mod> _newMods = new();
         private List<Mod> _existingMods = new();
@@ -14,19 +14,19 @@ namespace Rpg.Experimental.ModSets
         [JsonProperty] public string? Name { get; set; }
         [JsonIgnore] public Mod[] Mods { get => _existingMods.Concat(_newMods).ToArray(); }
 
-        [JsonConstructor] public ModSet() { }
+        [JsonConstructor] public RpgModSet() { }
 
-        public ModSet(string ownerId, bool syncToOwner)
+        public RpgModSet(string ownerId, bool syncToOwner)
             : base(ownerId, syncToOwner)
         { }
 
-        public ModSet(string name, string ownerId, bool syncToOwner)
+        public RpgModSet(string name, string ownerId, bool syncToOwner)
             : base(ownerId, syncToOwner)
         {
             Name = name;
         }
 
-        public ModSet Lifespan(int duration)
+        public RpgModSet Lifespan(int duration)
         {
             Start = new TimePoint(TimePointType.Turn, 0);
             End = new TimePoint(TimePointType.Turn, duration);
@@ -34,7 +34,7 @@ namespace Rpg.Experimental.ModSets
             return this;
         }
 
-        public ModSet Lifespan(int startsIn, int duration)
+        public RpgModSet Lifespan(int startsIn, int duration)
         {
             Start = new TimePoint(TimePointType.Turn, startsIn);
             End = new TimePoint(TimePointType.Turn, startsIn + duration);
@@ -42,7 +42,7 @@ namespace Rpg.Experimental.ModSets
             return this;
         }
 
-        public ModSet Lifespan(TimePoint start, TimePoint end)
+        public RpgModSet Lifespan(TimePoint start, TimePoint end)
         {
             Start = start;
             End = end;
@@ -50,7 +50,7 @@ namespace Rpg.Experimental.ModSets
             return this;
         }
 
-        public ModSet ExtractFor(string objectId)
+        public RpgModSet ExtractFor(string objectId)
         {
             var mods = _newMods
                 .Where(x => x.Target?.ObjectId == objectId)
@@ -59,7 +59,7 @@ namespace Rpg.Experimental.ModSets
 
             _newMods = _newMods.Where(x => x.Target?.ObjectId != objectId).ToList();
 
-            var res = new ModSet(objectId, false);
+            var res = new RpgModSet(objectId, false);
             res._newMods = mods;
             return res;
         }
@@ -145,7 +145,7 @@ namespace Rpg.Experimental.ModSets
                 mod.Expire(TimePointType.TimeBegins);
         }
 
-        public ModSet Add<TEntity>(TEntity entity, string targetProp, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
+        public RpgModSet Add<TEntity>(TEntity entity, string targetProp, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
 
             where TEntity : RpgObject
         {
@@ -157,7 +157,7 @@ namespace Rpg.Experimental.ModSets
             return this;
         }
 
-        public ModSet Add<TEntity>(Mod mod, TEntity target, string targetProp, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
+        public RpgModSet Add<TEntity>(Mod mod, TEntity target, string targetProp, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject
         {
             mod
@@ -169,7 +169,7 @@ namespace Rpg.Experimental.ModSets
             return this;
         }
 
-        public ModSet Add<TEntity, TTargetValue, TSourceValue>(TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
+        public RpgModSet Add<TEntity, TTargetValue, TSourceValue>(TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject
         {
             Add(new Standard()
@@ -181,7 +181,7 @@ namespace Rpg.Experimental.ModSets
         }
 
 
-        public ModSet Add<TTarget, TTargetValue, TSource, TSourceValue>(TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
+        public RpgModSet Add<TTarget, TTargetValue, TSource, TSourceValue>(TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TTarget : RpgObject
             where TSource : RpgObject
         {
@@ -193,7 +193,7 @@ namespace Rpg.Experimental.ModSets
             return this;
         }
 
-        public ModSet Add<TTarget, TTargetVal, TSource, TSourceVal>(Mod mod, TTarget target, Expression<Func<TTarget, TTargetVal>> targetExpr, TSource source, Expression<Func<TSource, TSourceVal>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+        public RpgModSet Add<TTarget, TTargetVal, TSource, TSourceVal>(Mod mod, TTarget target, Expression<Func<TTarget, TTargetVal>> targetExpr, TSource source, Expression<Func<TSource, TSourceVal>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TSource : RpgObject
             where TTarget : RpgObject
         {
@@ -206,7 +206,7 @@ namespace Rpg.Experimental.ModSets
             return this;
         }
 
-        public ModSet Add<TEntity, TSourceValue>(TEntity entity, string targetProp, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
+        public RpgModSet Add<TEntity, TSourceValue>(TEntity entity, string targetProp, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject
         {
             Add(new Standard()
@@ -217,7 +217,7 @@ namespace Rpg.Experimental.ModSets
             return this;
         }
 
-        public ModSet Add<TTarget, TSourceValue>(Mod mod, TTarget target, string targetProp, Expression<Func<TTarget, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+        public RpgModSet Add<TTarget, TSourceValue>(Mod mod, TTarget target, string targetProp, Expression<Func<TTarget, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TTarget : RpgObject
         {
             mod
@@ -229,7 +229,7 @@ namespace Rpg.Experimental.ModSets
             return this;
         }
 
-        public ModSet Add<TTarget, TSource, TSourceValue>(TTarget target, string targetProp, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+        public RpgModSet Add<TTarget, TSource, TSourceValue>(TTarget target, string targetProp, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TTarget : RpgObject
             where TSource : RpgObject
         {
@@ -241,7 +241,7 @@ namespace Rpg.Experimental.ModSets
             return this;
         }
 
-        public ModSet Add<TTarget, TSource, TSourceValue>(Mod mod, TTarget target, string targetProp, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+        public RpgModSet Add<TTarget, TSource, TSourceValue>(Mod mod, TTarget target, string targetProp, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TTarget : RpgObject
             where TSource : RpgObject
         {
@@ -254,7 +254,7 @@ namespace Rpg.Experimental.ModSets
             return this;
         }
 
-        public ModSet Add<TTarget, TTargetValue>(Mod mod, TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
+        public RpgModSet Add<TTarget, TTargetValue>(Mod mod, TTarget target, Expression<Func<TTarget, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueFunc = null)
             where TTarget : RpgObject
         {
             mod
@@ -266,7 +266,7 @@ namespace Rpg.Experimental.ModSets
             return this;
         }
 
-        public ModSet Add<TEntity, TTargetValue>(TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
+        public RpgModSet Add<TEntity, TTargetValue>(TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject
         {
             Add(new Standard()
@@ -277,7 +277,7 @@ namespace Rpg.Experimental.ModSets
             return this;
         }
 
-        public ModSet Add<TEntity, TTarget, TTargetValue, TSourceValue>(TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
+        public RpgModSet Add<TEntity, TTarget, TTargetValue, TSourceValue>(TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Expression<Func<TEntity, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject
         {
             Add(new Standard()
