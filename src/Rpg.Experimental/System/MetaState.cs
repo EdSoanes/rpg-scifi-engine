@@ -1,8 +1,8 @@
-﻿using Rpg.Experimental.Meta.Attributes;
+﻿using Newtonsoft.Json;
+using Rpg.Experimental.System.Attributes;
 using System.Reflection;
-using Newtonsoft.Json;
 
-namespace Rpg.Experimental.Meta
+namespace Rpg.Experimental.System
 {
     public class MetaState
     {

@@ -2,6 +2,15 @@
 
 namespace Rpg.Experimental
 {
+    public enum RpgPropertyType
+    {
+        Int,
+        Dice,
+        Child,
+        Children,
+        Text
+    }
+
     public enum LifecycleExpiry
     {
         Unset,

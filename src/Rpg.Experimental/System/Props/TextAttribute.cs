@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Rpg.Experimental.Meta.Props
+﻿namespace Rpg.Experimental.System.Props
 {
     public class TextAttribute : RpgPropertyAttribute
     {
         public TextAttribute()
             : base()
         {
+            PropertyType = RpgPropertyType.Text;
             Editor = EditorType.Text;
         }
     }

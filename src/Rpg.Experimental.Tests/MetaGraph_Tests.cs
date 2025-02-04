@@ -1,5 +1,6 @@
-using Rpg.Experimental.Meta;
+using Rpg.Experimental.Graph;
 using Rpg.Experimental.Reflection;
+using Rpg.Experimental.System;
 using Rpg.Experimental.Tests.Models;
 
 namespace Rpg.Experimental.Tests
@@ -15,10 +16,22 @@ namespace Rpg.Experimental.Tests
         [Test]
         public void LoadGraph_EnsureValues()
         {
-            var meta = new MetaGraph();
-            var system = meta.Build();
+            var meta = RpgSystemFactory.Build();
 
-            Assert.That(system, Is.Not.Null);
+            Assert.That(meta, Is.Not.Null);
+        }
+
+        [Test]
+        public void GetObjectProperties_EnsureValues()
+        {
+            var obj = new TestObject();
+            obj.Child = new TestObject();
+
+            var graph = new RpgGraph(obj);
+            graph.Time.Refresh();
+
+            var properties = graph.GetProperties(obj.Id);
+            Assert.That(properties.Any(), Is.True);
         }
     }
 }

@@ -8,6 +8,9 @@ namespace Rpg.Experimental.Graph
         string Prop { get; }
         RpgPropertyType PropType { get; }
         bool IsNullable { get; }
+        bool IsVirtual { get; }
+
+        RpgProperty GetProperty(RpgGraph graph);
         T? GetValue<T>(RpgGraph graph);
         void OnCreatingVirtual(RpgGraph graph, object? value);
         void OnSyncProperty(RpgGraph graph, string prop);

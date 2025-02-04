@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Rpg.Experimental.Graph.Factories
+namespace Rpg.Experimental.Graph
 {
     public class RpgPropertyRefFactory
     {
@@ -37,45 +37,6 @@ namespace Rpg.Experimental.Graph.Factories
             var path = RpgMemberUtilities.ExpressionToPath(expression);
             return Create(obj, path);
         }
-
-
-
-        //public RpgPropertyRefValue CreateWithValue<T, TResult>(T obj, Expression<Func<T, TResult>> expression)
-        //    where T : RpgObject
-        //{
-        //    var propRef = Create(obj, expression);
-
-        //    var memberExpression = expression.Body as MemberExpression;
-        //    if (memberExpression == null)
-        //        throw new ArgumentException($"Invalid path expression. {expression.Name} not a member expression");
-
-        //    var pathSegs = new List<string>();
-        //    pathSegs.Add(memberExpression.Member.Name);
-        //    while (memberExpression != null)
-        //    {
-        //        memberExpression = memberExpression.Expression as MemberExpression;
-        //        if (memberExpression != null)
-        //            pathSegs.Add(memberExpression.Member.Name);
-        //    }
-
-        //    pathSegs.Reverse();
-        //    var path = string.Join(".", pathSegs);
-
-        //    return CreateWithValue(obj, path);
-        //}
-
-        //public RpgPropertyRefValue CreateWithValue(object? obj, string path, Type? valueType = null)
-        //{
-        //    var (propObj, prop) = GetObjectByPath(obj, path);
-        //    if (propObj != null && prop != null)
-        //    {
-        //        var propInfo = propObj.GetType().GetProperty(prop);
-        //        if (propInfo != null && (valueType == null || IsPropertyTypeMatch(propInfo.PropertyType, valueType)))
-        //            return new RpgPropertyRefValue(new RpgPropertyRef(propObj.Id, propInfo.Name), propObj.Value<object>(prop));
-        //    }
-
-        //    return new RpgPropertyRefValue(null, null);
-        //}
 
         public (RpgObject?, string?) GetObjectForPath(object? obj, string path)
         {
@@ -114,6 +75,5 @@ namespace Rpg.Experimental.Graph.Factories
 
         private static bool IsPropertyTypeMatch(Type propertyType, Type valueType)
             => valueType.IsAssignableTo(propertyType) || (Nullable.GetUnderlyingType(propertyType)?.IsAssignableFrom(valueType) ?? false);
-
     }
 }

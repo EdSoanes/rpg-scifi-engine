@@ -1,11 +1,12 @@
-﻿namespace Rpg.Experimental.Meta.Props
+﻿namespace Rpg.Experimental.System.Props
 {
     public class DiceAttribute : RpgPropertyAttribute
     {
         public DiceAttribute()
             : base()
         {
-            Editor = EditorType.Text;
+            PropertyType = RpgPropertyType.Dice;
+            Editor = EditorType.Dice;
         }
     }
 }

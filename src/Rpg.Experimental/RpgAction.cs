@@ -22,22 +22,28 @@ namespace Rpg.Experimental
         public bool PerformComplete { get => Args.IsComplete(ActionMethodNames.Perform); }
         public bool OutcomeComplete { get => Args.IsComplete(ActionMethodNames.Outcome); }
 
-        [JsonConstructor] protected RpgAction() { }
-
-        public RpgAction(RpgObject owner)
-            : this(owner, false)
+        [JsonConstructor] protected RpgAction() 
         {
+            OwnerArchetype = GetOwnerArchetype()!;
             CanPerformMethod = RpgMethodFactory.Create<RpgAction, bool>(this, ActionMethodNames.CanPerform);
             CostMethod = RpgMethodFactory.Create<RpgAction, bool>(this, ActionMethodNames.Cost);
             PerformMethod = RpgMethodFactory.Create<RpgAction, bool>(this, ActionMethodNames.Perform);
             OutcomeMethod = RpgMethodFactory.Create<RpgAction, bool>(this, ActionMethodNames.Outcome)!;
         }
 
+        public RpgAction(RpgObject owner)
+            : this(owner, false)
+        { }
+
         protected RpgAction(RpgObject owner, bool syncToOwner)
             : base(owner.Id, syncToOwner)
         {
             Name = GetType().Name;
             OwnerArchetype = GetOwnerArchetype()!;
+            CanPerformMethod = RpgMethodFactory.Create<RpgAction, bool>(this, ActionMethodNames.CanPerform);
+            CostMethod = RpgMethodFactory.Create<RpgAction, bool>(this, ActionMethodNames.Cost);
+            PerformMethod = RpgMethodFactory.Create<RpgAction, bool>(this, ActionMethodNames.Perform);
+            OutcomeMethod = RpgMethodFactory.Create<RpgAction, bool>(this, ActionMethodNames.Outcome)!;
         }
 
         public override void OnCreating(RpgGraph graph, RpgObject? owner)

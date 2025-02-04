@@ -27,7 +27,7 @@ namespace Rpg.Experimental.Tests
             Assert.That(graph.Objects.Count, Is.EqualTo(6));
             Assert.That(graph.Objects.ContainsKey(obj.Id), Is.True);
 
-            Assert.That(graph.ObjectData.Count, Is.EqualTo(4));
+            Assert.That(graph.ObjectData.Count, Is.EqualTo(2));
             Assert.That(graph.ObjectData.ContainsKey(obj.Id), Is.True);
             Assert.That(graph.ObjectData[obj.Id].Props.Count, Is.EqualTo(9));
             Assert.That(graph.ObjectData[obj.Child.Id].Props.Count, Is.EqualTo(9));

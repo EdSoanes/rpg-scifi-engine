@@ -1,6 +1,6 @@
 ﻿using Rpg.Experimental.Graph;
-using Rpg.Experimental.Meta.Props;
 using Rpg.Experimental.Mods;
+using Rpg.Experimental.System.Props;
 
 namespace Rpg.Experimental.Tests.Models
 {

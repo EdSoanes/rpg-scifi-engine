@@ -1,21 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Rpg.Experimental.Meta
+﻿namespace Rpg.Experimental.System
 {
     public enum EditorType
     {
         None,
         Int32,
+        Dice,
         Text,
         RichText,
         Boolean,
         Select,
         CheckBoxList,
-        Container,
+        Child,
+        Children,
         LongText
     }
 }

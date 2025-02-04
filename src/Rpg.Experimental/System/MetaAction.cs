@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Experimental.Reflection;
 
-namespace Rpg.Experimental.Meta
+namespace Rpg.Experimental.System
 {
     public class MetaAction
     {

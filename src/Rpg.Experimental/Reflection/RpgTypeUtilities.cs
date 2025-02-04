@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections;
+using System.Reflection;
 
 namespace Rpg.Experimental.Reflection
 {
@@ -82,6 +83,36 @@ namespace Rpg.Experimental.Reflection
         {
             var underlyingType = Nullable.GetUnderlyingType(propertyType);
             return underlyingType?.IsAssignableTo(valueType) ?? false;
+        }
+
+        public static bool PropertyIsNullableValueType(Type propertyType)
+        {
+            var underlyingType = Nullable.GetUnderlyingType(propertyType);
+            return underlyingType != null;
+        }
+
+        public static bool PropertyIsEnumerableOfType(Type propertyType, Type baseType)
+        {
+            if (typeof(IEnumerable).IsAssignableFrom(propertyType) && propertyType.GenericTypeArguments.Any())
+            {
+                var genericType = propertyType.GenericTypeArguments[0];
+                return baseType.IsAssignableFrom(genericType);
+            }
+
+            return false;
+        }
+
+        public static Type? GenericType(Type? type)
+        {
+            while (type != null)
+            {
+                if (type.IsGenericType)
+                    return type.GenericTypeArguments.First();
+
+                type = type.BaseType;
+            }
+
+            return null;
         }
 
         public static bool TypeNotExcluded(Type type)

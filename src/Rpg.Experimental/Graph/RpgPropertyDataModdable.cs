@@ -1,26 +1,56 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Experimental.Mods;
+using Rpg.Experimental.System;
 using Rpg.Experimental.Time;
 
 namespace Rpg.Experimental.Graph
 {
     public sealed class RpgPropertyDataModdable : IRpgPropertyData
     {
+        private MetaProperty? _metaProperty;
+
         [JsonProperty] public string ObjectId { get; private set; }
         [JsonProperty] public string Prop { get; private set; }
         [JsonProperty] public RpgPropertyType PropType { get; private set; }
         [JsonProperty] public bool IsNullable { get; private set; }
-
+        [JsonProperty] public bool IsVirtual { get; private set; }
         [JsonProperty] public List<Mod> Mods { get; private set; } = new();
 
         [JsonConstructor] private RpgPropertyDataModdable() { }
 
-        public RpgPropertyDataModdable(string objectId, string prop, RpgPropertyType propType, bool isNullable)
+        public RpgPropertyDataModdable(string objectId, MetaProperty metaProperty)
+        {
+            ObjectId = objectId;
+            Prop = metaProperty.Prop;
+            PropType = metaProperty.PropertyType;
+            IsNullable = metaProperty.IsNullable;
+        }
+
+        public RpgPropertyDataModdable(string objectId, string prop, RpgPropertyType propType, bool isNullable, bool isVirtual)
         {
             ObjectId = objectId;
             Prop = prop;
             PropType = propType;
             IsNullable = isNullable;
+            IsVirtual = isVirtual;
+        }
+
+        public RpgProperty GetProperty(RpgGraph graph)
+        {
+            var rpgProperty = _metaProperty?.CloneAsProperty() ?? new RpgProperty
+            {
+                Prop = Prop,
+                Editor = PropType == RpgPropertyType.Int ? EditorType.Int32 : EditorType.Dice,
+                DisplayName = Prop,
+            };
+
+            rpgProperty.ObjectId = ObjectId;
+            rpgProperty.IsNullable = IsNullable;
+            rpgProperty.Value = graph.GetPropertyValue<Dice>(ObjectId, Prop);
+            rpgProperty.BaseValue = ModCalculator.BaseValue(graph, Mods) ?? Dice.Zero;
+            rpgProperty.OriginalBaseValue = ModCalculator.OriginalBaseValue(graph, Mods) ?? Dice.Zero;
+
+            return rpgProperty;
         }
 
         public T? GetValue<T>(RpgGraph graph)
@@ -63,6 +93,8 @@ namespace Rpg.Experimental.Graph
 
         public void OnCreating(RpgGraph graph, RpgObject? obj)
         {
+            _metaProperty = graph.GetMetaProperty(ObjectId, Prop);
+
             Dice? dice = PropType switch
             {
                 RpgPropertyType.Int => new Dice(graph.GetPropertyValue<int>(obj, Prop)),
@@ -79,7 +111,10 @@ namespace Rpg.Experimental.Graph
             }
         }
 
-        public void OnRestoring(RpgGraph graph) { }
+        public void OnRestoring(RpgGraph graph) 
+        {
+            _metaProperty = graph.GetMetaProperty(ObjectId, Prop);
+        }
 
         public void OnCreatingVirtual(RpgGraph graph, object? value)
         {

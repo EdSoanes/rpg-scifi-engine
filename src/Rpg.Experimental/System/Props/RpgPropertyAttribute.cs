@@ -1,17 +1,19 @@
 ﻿using Rpg.Experimental.Reflection;
 using System.Reflection;
 
-namespace Rpg.Experimental.Meta.Props
+namespace Rpg.Experimental.System.Props
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public abstract class RpgPropertyAttribute : Attribute
     {
         private static string[] IgnoreProps = ["Editor", "DisplayName", "Tab", "Group", "TypeId", "Values"];
 
+        public RpgPropertyType PropertyType { get; set; }
         public EditorType Editor { get; set; }
         public string? DisplayName { get; set; }
         public string Tab { get; set; } = string.Empty;
         public string Group { get; set; } = string.Empty;
+        public bool IsNullable { get; set; } = true;
 
         public Dictionary<string, object?> GetValues()
         {

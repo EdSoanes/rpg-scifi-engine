@@ -1,24 +1,56 @@
 ﻿using Newtonsoft.Json;
+using Rpg.Experimental.System;
 using Rpg.Experimental.Time;
 
 namespace Rpg.Experimental.Graph
 {
     public sealed class RpgPropertyDataObject : IRpgPropertyData
     {
+        private MetaProperty? _metaProperty;
+
         [JsonProperty] public string ObjectId { get; private set; }
         [JsonProperty] public string Prop { get; private set; }
         [JsonProperty] public RpgPropertyType PropType { get; private set; }
         [JsonProperty] public bool IsNullable { get; private set; }
+        [JsonProperty] public bool IsVirtual { get; private set; }
         [JsonProperty] public List<RpgObjectRef> Refs { get; private set; } = new();
 
         [JsonConstructor] private RpgPropertyDataObject() { }
 
-        public RpgPropertyDataObject(string objectId, string prop, RpgPropertyType propType)
+        public RpgPropertyDataObject(string objectId, MetaProperty metaProperty)
+        {
+            ObjectId = objectId;
+            Prop = metaProperty.Prop;
+            PropType = metaProperty.PropertyType;
+            IsNullable = metaProperty.IsNullable;
+        }
+
+        public RpgPropertyDataObject(string objectId, string prop, RpgPropertyType propType, bool isVirtual)
         {
             ObjectId = objectId;
             Prop = prop;
             PropType = propType;
             IsNullable = true;
+            IsVirtual = isVirtual;
+        }
+
+        public RpgProperty GetProperty(RpgGraph graph)
+        {
+            var rpgProperty = _metaProperty?.CloneAsProperty() ?? new RpgProperty
+            {
+                Prop = Prop,
+                Editor = PropType == RpgPropertyType.Child ? EditorType.Child : EditorType.Children,
+                DisplayName = Prop,
+            };
+
+            rpgProperty.IsNullable = IsNullable;
+            rpgProperty.ObjectId = ObjectId;
+            rpgProperty.ChildObjectIds = Refs
+                .Where(x => x.Expiry == LifecycleExpiry.Active)
+                .Select(x => x.ChildObjectId)
+                .ToArray();
+
+            return rpgProperty;
         }
 
         public T? GetValue<T>(RpgGraph graph)
@@ -73,6 +105,8 @@ namespace Rpg.Experimental.Graph
 
         public void OnCreating(RpgGraph graph, RpgObject? obj)
         {
+            _metaProperty = graph.GetMetaProperty(ObjectId, Prop);
+
             if (obj == null) return;
             if (PropType == RpgPropertyType.Child)
             {
@@ -88,7 +122,10 @@ namespace Rpg.Experimental.Graph
             }
         }
 
-        public void OnRestoring(RpgGraph graph) { }
+        public void OnRestoring(RpgGraph graph) 
+        {
+            _metaProperty = graph.GetMetaProperty(ObjectId, Prop);
+        }
 
         public void OnCreatingVirtual(RpgGraph graph, object? value)
         {

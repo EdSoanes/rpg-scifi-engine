@@ -1,15 +1,19 @@
 ﻿using Newtonsoft.Json;
-using Rpg.Experimental.Graph.Factories;
 using Rpg.Experimental.Mods;
 using Rpg.Experimental.Reflection;
 using Rpg.Experimental.Reflection.Args;
+using Rpg.Experimental.System;
 using Rpg.Experimental.Time;
+using System.Collections;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Rpg.Experimental.Graph
 {
     public class RpgGraph
     {
+        private RpgSystem _rpgSystem;
+
         [JsonProperty] public RpgObject Context { get; private set; }
         [JsonProperty] public RpgObject Actor { get; private set; }
         [JsonProperty] public Dictionary<string, RpgObjectData> ObjectData { get; private set; } = new();
@@ -18,12 +22,16 @@ namespace Rpg.Experimental.Graph
         [JsonProperty] public RpgGraphChangeTracker ChangeTracker { get; private set; } = new();
         public RpgPropertyRefFactory PropertyRefs { get; private set; }
 
-        public RpgGraph(RpgObject context)
-            : this(context, context)
+        public RpgGraph(RpgObject context, RpgSystem? metaGraph = null)
+            : this(context, context, metaGraph)
         { }
 
-        public RpgGraph(RpgObject context, RpgObject actor)
+        public RpgGraph(RpgObject context, RpgObject actor, RpgSystem? rpgSystem = null)
         {
+            CreateNonTraversibleTypes();
+
+            _rpgSystem = rpgSystem ?? RpgSystemFactory.Build();
+
             PropertyRefs = new RpgPropertyRefFactory(this);
             Context = context;
             Actor = actor;
@@ -33,6 +41,48 @@ namespace Rpg.Experimental.Graph
 
             Add(Context);
             Time.BeginTime();
+        }
+
+        public RpgGraph(RpgGraphState graphState, RpgSystem rpgSystem)
+        {
+            CreateNonTraversibleTypes();
+
+            _rpgSystem = rpgSystem;
+
+            PropertyRefs = new RpgPropertyRefFactory(this);
+            Context = (RpgObject)graphState.Objects.First(x => x.Id == graphState.ContextId);
+            Actor = (RpgObject)graphState.Objects.First(x => x.Id == graphState.InitiatorId);
+
+            Objects.Clear();
+            foreach (var obj in graphState.Objects)
+                Objects.Add(obj.Id, obj);
+            
+            ObjectData.Clear();
+            foreach (var objData in graphState.ObjectData)
+                ObjectData.Add(objData.ObjectId, objData);
+
+            Time = graphState.Time;
+            Time.OnTemporalEvent += OnTemporalEvent;
+
+            Add(Context);
+            Time.BeginTime();
+        }
+
+        public RpgSystem GetSystem()
+            => _rpgSystem;
+
+        public RpgGraphState GetGraphState()
+        {
+            var graphState = new RpgGraphState
+            {
+                Objects = Objects.Values.ToList(),
+                ObjectData = ObjectData.Values.ToList(),
+                ContextId = Context.Id,
+                InitiatorId = Actor.Id,
+                Time = Time
+            };
+
+            return graphState;
         }
 
         public void AddTo(string parentId, string parentProp, string childId, TimePoint start, TimePoint end)
@@ -112,43 +162,26 @@ namespace Rpg.Experimental.Graph
 
         public void Add(RpgObject rootObj)
         {
-            var propertyCreator = new RpgPropertyDataFactory();
-            var stateCreator = new RpgStateFactory();
-            var actionCreator = new RpgActionFactory();
-            var objects = new List<RpgLifecycleObject>();
-
-            Action<RpgLifecycleObject, RpgLifecycleObject?> OnAdding = (obj, parentObj) =>
+            var objects = GetDescendantObjects(rootObj);
+            foreach (var pair in objects)
             {
-                if (!Objects.ContainsKey(obj.Id))
+                if (!Objects.ContainsKey(pair.Item1.Id))
                 {
-                    objects.Add(obj);
-                    Objects.Add(obj.Id, obj);
-                    if (obj is RpgObject rpgObj)
+                    Objects.Add(pair.Item1.Id, pair.Item1);
+                    if (pair.Item1 is RpgObject rpgObj)
                     {
-                        var props = propertyCreator.CreatePropertyData(rpgObj);
-                        var objectData = new RpgObjectData(rpgObj.Id, parentObj?.Id, props);
-                        ObjectData.Add(rpgObj.Id, objectData);
+                        var objectData = CreateObjectData(rpgObj, pair.Item2);
+                        if (objectData != null)
+                            ObjectData.Add(rpgObj.Id, objectData);
                     }
                 }
-            };
+            }
 
-            new RpgObjectFactory().Build(rootObj, (rpgObj, parentObj) =>
-            {
-                OnAdding(rpgObj, parentObj);
-                var states = stateCreator.CreateStates(rpgObj);
-                foreach (var state in states)
-                    OnAdding(state, rpgObj);
+            foreach (var pair in objects)
+                GetObjectData(pair.Item1.Id)?.OnCreating(this, pair.Item1 as RpgObject);
 
-                var actions = actionCreator.CreateActions(rpgObj);
-                foreach (var action in actions)
-                    OnAdding(action, rpgObj);
-            });
-
-            foreach (var obj in objects)
-                GetObjectData(obj.Id)?.OnCreating(this, obj as RpgObject);
-
-            foreach (var obj in objects)
-                obj.OnCreating(this, obj as RpgObject);
+            foreach (var pair in objects)
+                pair.Item1.OnCreating(this, pair.Item1 as RpgObject);
         }
 
         public IRpgPropertyData Add(IRpgPropertyData propertyData)
@@ -177,10 +210,10 @@ namespace Rpg.Experimental.Graph
             {
                 propData = propType switch
                 {
-                    nameof(Int32) => new RpgPropertyDataModdable(objectId, prop, RpgPropertyType.Int, isNullable),
-                    nameof(Dice) => new RpgPropertyDataModdable(objectId, prop, RpgPropertyType.Dice, isNullable),
+                    nameof(Int32) => new RpgPropertyDataModdable(objectId, prop, RpgPropertyType.Int, isNullable, true),
+                    nameof(Dice) => new RpgPropertyDataModdable(objectId, prop, RpgPropertyType.Dice, isNullable, true),
                     _ => RpgTypeUtilities.IsOftype<RpgObject>(propType)
-                        ? new RpgPropertyDataObject(objectId, prop, RpgPropertyType.Child)
+                        ? new RpgPropertyDataObject(objectId, prop, RpgPropertyType.Child, true)
                         : null
                 };
 
@@ -213,6 +246,37 @@ namespace Rpg.Experimental.Graph
         {
             mod.Expire(this, expiryTime);
             ChangeTracker.PropsUpdated(mod.Target);
+        }
+
+        public RpgProperty[] GetProperties(string objectId)
+        {
+            var res = GetObjectData(objectId)?.Props
+                .Where(x => !x.IsVirtual)
+                .Select(x => x.GetProperty(this))
+                .ToArray() ?? [];
+
+            return res;
+        }
+
+        internal MetaProperty[] GetMetaProperties(string objectId)
+        {
+            var obj = GetObject(objectId);
+            return GetMetaProperties(obj);
+        }
+
+        internal MetaProperty[] GetMetaProperties(RpgObject? obj)
+        {
+            var metaObject = _rpgSystem?.Objects.FirstOrDefault(x => x.Archetypes.Contains(obj?.Archetype));
+            return metaObject?.Properties.ToArray() ?? [];
+        }
+    
+        internal MetaProperty? GetMetaProperty(string objectId, string prop)
+        {
+            var obj = GetObject(objectId);
+            var metaObject = _rpgSystem?.Objects.FirstOrDefault(x => x.Archetypes.Contains(obj?.Archetype));
+            var metaProperty = metaObject?.Properties.FirstOrDefault(x => x.Prop == prop);
+
+            return metaProperty;
         }
 
         private void OnTemporalEvent(object? sender, TemporalEventArgs e)
@@ -396,6 +460,12 @@ namespace Rpg.Experimental.Graph
             }
         }
 
+        public T? GetPropertyValue<T>(string objectId, string path)
+        {
+            var obj = GetObject(objectId);
+            return GetPropertyValue<T>(obj, path);
+        }
+
         public T? GetPropertyValue<T>(RpgObject? obj, string path)
         {
             var (propObj, prop) = PropertyRefs.GetObjectForPath(obj, path);
@@ -458,5 +528,229 @@ namespace Rpg.Experimental.Graph
 
             return activity;
         }
+
+        #region Create Object Data
+
+        private Type[] _nonTraversibleTypes = [];
+
+        private void CreateNonTraversibleTypes()
+        {
+            if (_nonTraversibleTypes == null)
+            {
+                var res = typeof(RpgSystem).Assembly.GetTypes()
+                    .Where(x => x.IsClass
+                        && !x.IsAssignableTo(typeof(RpgObject)))
+                    .ToList();
+
+                res.AddRange([
+                    typeof(string),
+                    typeof(DateTime),
+                    typeof(Guid),
+                    //typeof(Mod),
+                    //typeof(ModSet),
+                    //typeof(State),
+                    //typeof(ActionTemplate)
+                ]);
+
+                res.Remove(typeof(RpgLifecycleObject));
+
+                _nonTraversibleTypes = res.ToArray();
+            }
+        }
+
+        private (RpgLifecycleObject, RpgLifecycleObject?)[] GetDescendantObjects(RpgObject root)
+        {
+            var objects = new List<(RpgLifecycleObject, RpgLifecycleObject?)>();
+
+            TraverseObjects(objects, root, null);
+
+            return objects.ToArray();
+        }
+
+        private void TraverseObjects(List<(RpgLifecycleObject, RpgLifecycleObject?)> objects, object obj, RpgObject? parentObj)
+        {
+            if (obj is RpgObject rpgObj)
+            {
+                if (objects.Any(x => x.Item1.Id == rpgObj.Id))
+                    return;
+
+                objects.Add((rpgObj, parentObj));
+
+                var stateObjects = CreateStateObjects(rpgObj);
+                foreach (var stateObject in stateObjects)
+                    objects.Add((stateObject, rpgObj));
+
+                var actionObjects = CreateActionObjects(rpgObj);
+                foreach (var actionObject in actionObjects)
+                    objects.Add((actionObject, rpgObj));
+            }
+
+            var propertyInfos = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            foreach (var propertyInfo in propertyInfos)
+            {
+                var items = GetPropertyObjects(obj, propertyInfo, out var isEnumerable);
+                foreach (var item in items.Where(x => IsTraversibleType(x.GetType())))
+                {
+                    TraverseObjects(objects, item, obj as RpgObject);
+                }
+            }
+        }
+
+        private bool IsTraversibleType(Type type)
+        {
+            if (!type.IsClass)
+                return false;
+
+            if (string.IsNullOrEmpty(type.Namespace))
+                return false;
+
+            if (type.Namespace.StartsWith("System.") && !type.IsAssignableTo(typeof(IEnumerable)))
+                return false;
+
+            if (_nonTraversibleTypes.Any(x => type.IsAssignableTo(x)))
+                return false;
+
+            return true;
+        }
+
+        private IEnumerable<object> GetPropertyObjects(object context, PropertyInfo propertyInfo, out bool isEnumerable)
+        {
+            isEnumerable = false;
+
+            if (propertyInfo.GetMethod?.Name == "get_Item")
+                return Enumerable.Empty<object>();
+
+            var obj = propertyInfo.GetValue(context, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, null, null);
+
+            if (obj == null)
+                return Enumerable.Empty<object>();
+
+            var items = GetPropObjects(obj!, out isEnumerable);
+            return items;
+        }
+
+        private List<object> GetPropObjects(object? obj, out bool isEnumerable)
+        {
+            isEnumerable = false;
+
+            var res = new List<object>();
+            var items = new List<object?>();
+            if (obj is IDictionary)
+            {
+                items = (obj as IDictionary)!.Values.Cast<object?>().ToList();
+                isEnumerable = true;
+            }
+            else if (obj is IEnumerable)
+            {
+                items = (obj as IEnumerable)!.Cast<object?>().ToList();
+                isEnumerable = true;
+            }
+            else if (obj != null)
+                res.Add(obj);
+
+            foreach (var item in items.Where(x => x != null))
+                res.AddRange(GetPropObjects(item, out var _));
+
+            return res;
+        }
+
+        private RpgObjectData? CreateObjectData(RpgObject obj, RpgLifecycleObject? parentObj)
+        {
+            var metaObject = _rpgSystem.GetMetaObject(obj.Archetype);
+            if (metaObject == null)
+                return null;
+
+            var propData = metaObject.Properties
+                .Where(x => x.PropertyType != RpgPropertyType.Text)
+                .Select(x => CreatePropertyData(obj.Id, x))
+                .Where(x => x != null)
+                .Cast<IRpgPropertyData>()
+                .ToArray();
+
+            var objectData = new RpgObjectData(obj.Id, parentObj?.Id, propData);
+            return objectData;
+        }
+
+        private IRpgPropertyData? CreatePropertyData(string objId, MetaProperty metaProperty)
+        {
+            IRpgPropertyData? propertyData = metaProperty.PropertyType switch
+            {
+                RpgPropertyType.Int => new RpgPropertyDataModdable(objId, metaProperty),
+                RpgPropertyType.Dice => new RpgPropertyDataModdable(objId, metaProperty),
+                RpgPropertyType.Child => new RpgPropertyDataObject(objId, metaProperty),
+                RpgPropertyType.Children => new RpgPropertyDataObject(objId, metaProperty),
+                _ => null
+            };
+
+            return propertyData;
+        }
+
+        private RpgState[] CreateStateObjects(RpgObject owner)
+        {
+            var types = RpgTypeUtilities.ForTypes<RpgState>()
+                .Where(x => IsOwnerStateType(owner, x));
+
+            var states = new List<RpgState>();
+            foreach (var type in types)
+            {
+                var state = (RpgState)Activator.CreateInstance(type, [owner])!;
+                states.Add(state);
+            }
+
+            return states.ToArray();
+        }
+
+        private bool IsOwnerStateType(RpgObject obj, Type? stateType)
+        {
+            while (stateType != null)
+            {
+                if (stateType.IsGenericType)
+                {
+                    var genericTypes = stateType.GetGenericArguments();
+                    if (genericTypes.Length == 1 && obj.GetType().IsAssignableTo(genericTypes[0]))
+                        return true;
+                }
+
+                stateType = stateType.BaseType;
+            }
+
+            return false;
+        }
+
+        private RpgAction[] CreateActionObjects(RpgObject obj)
+        {
+            var actions = new List<RpgAction>();
+
+            var types = RpgTypeUtilities.ForSubTypes(typeof(RpgAction))
+                .Where(x => IsOwnerActionType(obj, x));
+
+            foreach (var type in types)
+            {
+                var action = (RpgAction)Activator.CreateInstance(type, [obj])!;
+                if (obj.IsA(action.OwnerArchetype!))
+                    actions.Add(action);
+            }
+
+            return actions.ToArray();
+        }
+
+        private bool IsOwnerActionType(RpgObject entity, Type? actionType)
+        {
+            while (actionType != null)
+            {
+                if (actionType.IsGenericType)
+                {
+                    var genericTypes = actionType.GetGenericArguments();
+                    if (genericTypes.Length == 1 && entity.GetType().IsAssignableTo(genericTypes[0]))
+                        return true;
+                }
+
+                actionType = actionType.BaseType;
+            }
+
+            return false;
+        }
+
+        #endregion Create Object Data
     }
 }

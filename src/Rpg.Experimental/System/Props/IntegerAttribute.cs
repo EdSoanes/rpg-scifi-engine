@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Rpg.Experimental.Meta.Props
+﻿namespace Rpg.Experimental.System.Props
 {
     public class IntegerAttribute : RpgPropertyAttribute
     {
@@ -15,7 +9,9 @@ namespace Rpg.Experimental.Meta.Props
         public IntegerAttribute()
             : base()
         {
+            PropertyType = RpgPropertyType.Int;
             Editor = EditorType.Int32;
+            IsNullable = false;
         }
     }
 }

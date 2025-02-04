@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Rpg.Experimental.Meta
+namespace Rpg.Experimental.System
 {
     public class MetaObject
     {
