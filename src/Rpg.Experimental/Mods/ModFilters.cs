@@ -35,8 +35,11 @@ namespace Rpg.Experimental.Mods
         //    return Active(mods);
         //}
 
-        public static IEnumerable<Mod> Active(IEnumerable<Mod> mods)
+        public static IEnumerable<Mod> Active(IEnumerable<Mod>? mods)
         {
+            if (mods == null)
+                return Enumerable.Empty<Mod>();
+
             if (mods.Any(IsOverride))
                 return mods
                     .Where(x => IsOverride(x) || IsThreshold(x) || !IsBase(x))

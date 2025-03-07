@@ -2,6 +2,8 @@
 {
     public class ChildrenAttribute : RpgPropertyAttribute
     {
+        public int MaxItems { get; set; } = int.MaxValue;
+
         public ChildrenAttribute()
             : base()
         {

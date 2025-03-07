@@ -1,10 +1,13 @@
 ﻿using Newtonsoft.Json;
+using Rpg.Experimental.System;
 using Rpg.Experimental.Time;
 
 namespace Rpg.Experimental.Graph
 {
     public class RpgObjectData : ILifecycle
     {
+        private MetaObject? _metaObject;
+
         public string? ParentId { get; set; }
         public string ObjectId { get; set; }
 
@@ -41,11 +44,17 @@ namespace Rpg.Experimental.Graph
 
         public void OnCreating(RpgGraph graph, RpgObject? obj)
         {
+            _metaObject = graph.GetMetaObject(obj?.Archetype);
+
             foreach (var prop in Props)
                 prop.OnCreating(graph, obj);
         }
 
-        public void OnRestoring(RpgGraph graph) { }
+        public void OnRestoring(RpgGraph graph) 
+        {
+            var obj = graph.GetObject(ObjectId);
+            _metaObject = graph.GetMetaObject(obj?.Archetype);
+        }
 
         public void OnTimeEvent(RpgGraph graph)
         {

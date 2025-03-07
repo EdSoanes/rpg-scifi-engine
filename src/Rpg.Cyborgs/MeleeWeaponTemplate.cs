@@ -1,4 +1,4 @@
-﻿using Rpg.ModObjects.Values;
+﻿using Rpg.Experimental;
 
 namespace Rpg.Cyborgs
 {

@@ -1,11 +1,11 @@
-﻿using Rpg.ModObjects;
-using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Mods.Mods;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using Rpg.Experimental;
+using Rpg.Experimental.Graph;
+using Rpg.Experimental.Mods;
 
 namespace Rpg.Cyborgs
 {
-    public class Armour : RpgEntity
+    public class Armour : RpgObject
     {
         [JsonProperty]
         public int ArmourRating { get; protected set; }
@@ -16,9 +16,11 @@ namespace Rpg.Cyborgs
         [JsonProperty]
         public int DefenceModifier { get; protected set; }
 
-        public override void OnTimeBegins()
+        public override void OnCreating(RpgGraph graph, RpgObject? owner)
         {
-            this.AddMod(new Base(), x => x.CurrentArmourRating, x => x.ArmourRating);
+            base.OnCreating(graph, owner);
+            graph
+                .Add(new Base(), this, x => x.CurrentArmourRating, x => x.ArmourRating);
         }
     }
 }

@@ -77,7 +77,7 @@ namespace Rpg.Experimental
             var synced = false;
             if (OwnerId != null && SyncToOwner)
             {
-                var from = graph.GetLifespan(OwnerId);
+                var from = graph.GetLifecycleObject(OwnerId);
                 graph.OnSyncProperties(OwnerId);
                 if (from != null && (from.Expired == Expired || Expired == null))
                 {
@@ -119,6 +119,12 @@ namespace Rpg.Experimental
                 return true;
 
             return false;
+        }
+
+        public void SetLifespan(TimePoint start, TimePoint end)
+        {
+            Start = start; 
+            End = end;
         }
 
         public virtual void Expire(TimePoint expiryTime)

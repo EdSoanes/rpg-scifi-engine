@@ -109,6 +109,14 @@ namespace Rpg.Experimental.Reflection.Args
 
                         arg.SetValue(val);
                     }
+                    else if (arg.Name == ActionReservedArgs.CharacterSheet)
+                    {
+                        arg.SetValue(graph as RpgCharacterSheet);
+                    }
+                    else if (arg.Name == ActionReservedArgs.Graph)
+                    {
+                        arg.SetValue(graph);
+                    }
                     else
                     {
                         var val = graph.GetPropertyData(obj.Id, arg.Name)?.GetValue<object?>(graph);

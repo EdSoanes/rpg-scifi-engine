@@ -16,5 +16,9 @@ namespace Rpg.Experimental.Mods
             SetTarget(target);
             SetSource(dice);
         }
+
+        public Initial(RpgObject obj, string prop, Dice dice)
+            : this(new RpgPropertyRef(obj.Id, prop), dice)
+        { }
     }
 }

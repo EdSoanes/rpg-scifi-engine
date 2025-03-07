@@ -52,6 +52,9 @@ namespace Rpg.Experimental
             Args = RpgArg.CreateArgs(graph, CanPerformMethod, CostMethod, PerformMethod, OutcomeMethod);
         }
 
+        public virtual void OnCreatingActivityAction(RpgGraph graph, RpgActivityAction activityAction)
+        { }
+
         public override void OnTimeEvent(RpgGraph graph)
         {
             base.OnTimeEvent(graph);

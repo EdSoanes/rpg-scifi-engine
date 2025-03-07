@@ -51,21 +51,23 @@ namespace Rpg.Experimental
     public class ActionReservedArgs
     {
         public const string Owner = "owner";
-        public const string Initiator = "initiator";
+        public const string Actor = "actor";
         public const string Action = "action";
         public const string Activity = "activity";
         public const string ActivityAction = "activityAction";
         public const string Context = "context";
+        public const string CharacterSheet = "characterSheet";
         public const string Graph = "graph";
 
         public Type Type(string argName)
             => argName switch
             {
                 Owner => typeof(RpgObject),
-                Initiator => typeof(RpgObject),
+                Actor => typeof(RpgObject),
                 Action => typeof(RpgAction),
-                //Activity => typeof(RpgActivity),
-                //ActivityAction => typeof(RpgActivityAction),
+                Activity => typeof(RpgActivity),
+                ActivityAction => typeof(RpgActivityAction),
+                CharacterSheet => typeof(RpgCharacterSheet),
                 Graph => typeof(RpgGraph),
                 _ => typeof(Dice)
             };

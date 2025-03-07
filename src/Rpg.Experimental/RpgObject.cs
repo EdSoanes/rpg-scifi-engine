@@ -49,6 +49,9 @@ namespace Rpg.Experimental
         public bool IsA(string type)
             => Archetypes.Contains(type);
 
+        public Mod CreateStateActivation(string stateName, int startsIn, int duration, bool applied)
+            => CreateStateMod(stateName).Lifespan(startsIn, duration, applied);
+
         public Mod CreateStateActivation(string stateName, int duration, bool applied)
             => CreateStateMod(stateName).Lifespan(0, duration, applied);
 
@@ -75,7 +78,7 @@ namespace Rpg.Experimental
             RpgObject? obj = prop switch
             {
                 ActionReservedArgs.Owner => graph.GetObject(OwnerId),
-                ActionReservedArgs.Initiator => graph.Actor,
+                ActionReservedArgs.Actor => (graph as RpgCharacterSheet)?.Actor,
                 ActionReservedArgs.Context => graph.Context,
                 _ => null
             };

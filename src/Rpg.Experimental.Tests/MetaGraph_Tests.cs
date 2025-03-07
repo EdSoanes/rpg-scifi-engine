@@ -1,4 +1,3 @@
-using Rpg.Experimental.Graph;
 using Rpg.Experimental.Reflection;
 using Rpg.Experimental.System;
 using Rpg.Experimental.Tests.Models;
@@ -27,10 +26,10 @@ namespace Rpg.Experimental.Tests
             var obj = new TestObject();
             obj.Child = new TestObject();
 
-            var graph = new RpgGraph(obj);
-            graph.Time.Refresh();
+            var characterSheet = new RpgCharacterSheet(obj);
+            characterSheet.Time.Refresh();
 
-            var properties = graph.GetProperties(obj.Id);
+            var properties = characterSheet.GetProperties(obj.Id);
             Assert.That(properties.Any(), Is.True);
         }
     }

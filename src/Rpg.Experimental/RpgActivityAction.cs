@@ -17,7 +17,6 @@ namespace Rpg.Experimental
         [JsonProperty] public RpgActionMethod CostMethod { get; private set; } = new RpgActionMethod();
         [JsonProperty] public RpgActionMethod PerformMethod { get; private set; } = new RpgActionMethod();
         [JsonProperty] public RpgActionMethod OutcomeMethod { get; private set; } = new RpgActionMethod();
-        [JsonProperty] public RpgArg[] Args { get; private set; } = [];
 
         [JsonProperty] public List<string> RecommendedActions { get; private set; } = new();
 
@@ -42,9 +41,10 @@ namespace Rpg.Experimental
 
         public bool Cost(RpgGraph graph, params (string, object?)[] args)
         {
-            RpgArg.SetValues(graph, CostMethod.Args, args);
-            RpgArg.SetValues(graph, PerformMethod.Args, args);
-            RpgArg.SetValues(graph, OutcomeMethod.Args, args);
+            graph.SyncVirtualPropertyValues(this, args);
+            RpgArg.SetValues(graph, CostMethod.Args, this);
+            RpgArg.SetValues(graph, PerformMethod.Args, this);
+            RpgArg.SetValues(graph, OutcomeMethod.Args, this);
 
             if (!CostMethod.Args.IsComplete())
                 return false;
@@ -60,8 +60,9 @@ namespace Rpg.Experimental
 
         public bool Perform(RpgGraph graph, params (string, object?)[] args)
         {
-            RpgArg.SetValues(graph, PerformMethod.Args, args);
-            RpgArg.SetValues(graph, OutcomeMethod.Args, args);
+            graph.SyncVirtualPropertyValues(this, args);
+            RpgArg.SetValues(graph, PerformMethod.Args, this);
+            RpgArg.SetValues(graph, OutcomeMethod.Args, this);
 
             if (!PerformMethod.Args.IsComplete())
                 return false;
@@ -74,7 +75,8 @@ namespace Rpg.Experimental
 
         public bool Outcome(RpgGraph graph, params (string, object?)[] args)
         {
-            RpgArg.SetValues(graph, OutcomeMethod.Args, args);
+            graph.SyncVirtualPropertyValues(this, args);
+            RpgArg.SetValues(graph, OutcomeMethod.Args, this);
 
             if (!OutcomeMethod.Args.IsComplete())
                 return false;
@@ -105,11 +107,11 @@ namespace Rpg.Experimental
         {
             base.OnCreating(graph, obj);
 
-            CostMethod.OnCreating(graph, _action, _action?.CostMethod);
-            PerformMethod.OnCreating(graph, _action, _action?.PerformMethod);
-            OutcomeMethod.OnCreating(graph, _action, _action?.OutcomeMethod);
+            graph.CreateVirtualProperties(this, CostMethod.Args);
+            graph.CreateVirtualProperties(this, PerformMethod.Args);
+            graph.CreateVirtualProperties(this, OutcomeMethod.Args);
+            _action!.OnCreatingActivityAction(graph, this);
 
-            Args = RpgArg.CreateArgs(graph, Args, CostMethod.Args, PerformMethod.Args, OutcomeMethod.Args);
             RestoreOutcome(graph);
         }
 
@@ -120,11 +122,6 @@ namespace Rpg.Experimental
             _action = graph.GetObject(ActionId) as RpgAction;
             _activity = graph.GetObject(OwnerId) as RpgActivity;
 
-            CostMethod.OnRestoring(graph, _action, _action?.CostMethod);
-            PerformMethod.OnRestoring(graph, _action, _action?.PerformMethod);
-            OutcomeMethod.OnRestoring(graph, _action, _action?.OutcomeMethod);
-
-            Args = RpgArg.CreateArgs(graph, Args, CostMethod.Args, PerformMethod.Args, OutcomeMethod.Args);
             RestoreOutcome(graph);
         }
 
@@ -135,8 +132,6 @@ namespace Rpg.Experimental
             RpgArg.SetValues(graph, CostMethod.Args, this);
             RpgArg.SetValues(graph, PerformMethod.Args, this);
             RpgArg.SetValues(graph, OutcomeMethod.Args, this);
-
-            Args = RpgArg.CreateArgs(graph, Args, CostMethod.Args, PerformMethod.Args, OutcomeMethod.Args);
         }
 
         public override RpgObject? ResolvePropertyNameToObject(RpgGraph graph, string prop)
@@ -145,7 +140,7 @@ namespace Rpg.Experimental
             {
                 ActionReservedArgs.Context => graph.Context,
                 ActionReservedArgs.Owner => graph.GetObject(ActionOwnerId),
-                ActionReservedArgs.Initiator => graph.Actor,
+                ActionReservedArgs.Actor => (graph as RpgCharacterSheet)?.Actor,
                 ActionReservedArgs.Action => graph.GetObject(ActionId),
                 ActionReservedArgs.Activity => graph.GetObject(OwnerId),
                 ActionReservedArgs.ActivityAction => this,

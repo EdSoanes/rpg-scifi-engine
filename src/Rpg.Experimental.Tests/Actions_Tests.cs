@@ -17,9 +17,9 @@ namespace Rpg.Experimental.Tests
         public void Assert_Initial_Values()
         {
             var obj = new TestObject();
-            var graph = new RpgGraph(obj);
+            var characterSheet = new RpgCharacterSheet(obj);
 
-            var actions = graph.GetObjectActions(obj.Id);
+            var actions = characterSheet.GetObjectActions(obj.Id);
             Assert.That(actions.Count(), Is.EqualTo(1));
 
             var testAction = actions.Single();
@@ -37,8 +37,8 @@ namespace Rpg.Experimental.Tests
         public void TestAction_CanPerform_False()
         {
             var obj = new TestObject();
-            var graph = new RpgGraph(obj);
-            var testAction = graph.GetObjectAction(obj.Id, nameof(TestAction));
+            var characterSheet = new RpgCharacterSheet(obj);
+            var testAction = characterSheet.GetObjectAction(obj.Id, nameof(TestAction));
 
             Assert.That(obj.Strength, Is.EqualTo(10));
             Assert.That(testAction, Is.Not.Null);
@@ -50,11 +50,11 @@ namespace Rpg.Experimental.Tests
         public void TestAction_CanPerform_True()
         {
             var obj = new TestObject();
-            var graph = new RpgGraph(obj);
-            var testAction = graph.GetObjectAction(obj.Id, nameof(TestAction));
+            var characterSheet = new RpgCharacterSheet(obj);
+            var testAction = characterSheet.GetObjectAction(obj.Id, nameof(TestAction));
 
-            graph.Add(obj, x => x.Strength, 1);
-            graph.Time.Refresh();
+            characterSheet.Add(obj, x => x.Strength, 1);
+            characterSheet.Time.Refresh();
 
             Assert.That(obj.Strength, Is.EqualTo(11));
             Assert.That(testAction, Is.Not.Null);
@@ -66,8 +66,8 @@ namespace Rpg.Experimental.Tests
         public void TestAction_CreateActivity_EnsureValues()
         {
             var obj = new TestObject();
-            var graph = new RpgGraph(obj);
-            var activity = graph.CreateActivity(obj.Id, obj.Id, nameof(TestAction));
+            var characterSheet = new RpgCharacterSheet(obj);
+            var activity = characterSheet.CreateActivity(obj.Id, obj.Id, nameof(TestAction));
 
             Assert.That(activity, Is.Not.Null);
             Assert.That(activity.ActivityActions.Count, Is.EqualTo(1));
@@ -77,28 +77,28 @@ namespace Rpg.Experimental.Tests
         public void TestAction_CreateActivity_Perform()
         {
             var obj = new TestObject();
-            var graph = new RpgGraph(obj);
-            var activity = graph.CreateActivity(obj.Id, obj.Id, nameof(TestAction));
+            var characterSheet = new RpgCharacterSheet(obj);
+            var activity = characterSheet.CreateActivity(obj.Id, obj.Id, nameof(TestAction));
             var activityAction = activity.ActivityActions.First() as RpgActivityAction;
 
             Assert.That(activityAction, Is.Not.Null);
 
             Assert.That(activityAction.CostMethod.Args.IsComplete(), Is.True);
-            Assert.That(activityAction.CostMethod.Execute(graph), Is.True);
+            Assert.That(activityAction.CostMethod.Execute(characterSheet), Is.True);
 
-            RpgArg.SetValue(graph, activityAction.PerformMethod.Args, "value", 1);
+            RpgArg.SetValue(characterSheet, activityAction.PerformMethod.Args, "value", 1);
             Assert.That(activityAction.PerformMethod.Args.IsComplete(), Is.True);
-            Assert.That(activityAction.PerformMethod.Execute(graph), Is.True);
+            Assert.That(activityAction.PerformMethod.Execute(characterSheet), Is.True);
 
-            RpgArg.SetValue(graph, activityAction.OutcomeMethod.Args, "value", 1);
+            RpgArg.SetValue(characterSheet, activityAction.OutcomeMethod.Args, "value", 1);
             Assert.That(activityAction.OutcomeMethod.Args.IsComplete(), Is.True);
-            Assert.That(activityAction.OutcomeMethod.Execute(graph), Is.True);
+            Assert.That(activityAction.OutcomeMethod.Execute(characterSheet), Is.True);
 
             Assert.That(activityAction.AllStepsComplete, Is.True);
             Assert.That(activityAction.IsComplete, Is.False);
             
             activityAction.Complete();
-            graph.Time.Refresh();
+            characterSheet.Time.Refresh();
 
             Assert.That(activityAction.IsComplete, Is.True);
             Assert.That(activityAction.Result.IsApplied, Is.True);
@@ -109,8 +109,8 @@ namespace Rpg.Experimental.Tests
         public void TestAction_CreateActivity_Perform_AssertActivityArgs()
         {
             var obj = new TestObject();
-            var graph = new RpgGraph(obj);
-            var activity = graph.CreateActivity(obj.Id, obj.Id, nameof(TestAction));
+            var characterSheet = new RpgCharacterSheet(obj);
+            var activity = characterSheet.CreateActivity(obj.Id, obj.Id, nameof(TestAction));
             var activityAction = activity.ActivityActions.First() as RpgActivityAction;
 
             Assert.That(activity, Is.Not.Null);
@@ -121,13 +121,13 @@ namespace Rpg.Experimental.Tests
             Assert.That(activityAction.Args.Find("value")?.Value, Is.Null);
             Assert.That(activity.Args.Find("value")?.Value, Is.Null);
 
-            Assert.That(activityAction.Cost(graph), Is.True);
+            Assert.That(activityAction.Cost(characterSheet), Is.True);
 
-            Assert.That(activityAction.Perform(graph, ("value", 1)), Is.True);
+            Assert.That(activityAction.Perform(characterSheet, ("value", 1)), Is.True);
             Assert.That(activityAction.Args.Find("value")?.Value, Is.EqualTo(1));
             Assert.That(activity.Args.Find("value")?.Value, Is.EqualTo(1));
 
-            Assert.That(activityAction.Outcome(graph, ("value", 2)), Is.True);
+            Assert.That(activityAction.Outcome(characterSheet, ("value", 2)), Is.True);
             Assert.That(activityAction.Args.Find("value")?.Value, Is.EqualTo(2));
             Assert.That(activity.Args.Find("value")?.Value, Is.EqualTo(2));
         }

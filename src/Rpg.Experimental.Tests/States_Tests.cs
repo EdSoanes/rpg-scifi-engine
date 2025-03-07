@@ -18,18 +18,18 @@ namespace Rpg.Experimental.Tests
         {
             var obj = new TestObject();
 
-            var graph = new RpgGraph(obj);
-            var objData = graph.GetObjectData(obj.Id);
+            var characterSheet = new RpgCharacterSheet(obj);
+            var objData = characterSheet.GetObjectData(obj.Id);
 
-            var testState = graph.GetObjectState(obj.Id, nameof(TestState));
+            var testState = characterSheet.GetObjectState(obj.Id, nameof(TestState));
             Assert.That(testState, Is.Not.Null);
             Assert.That(testState.Expiry, Is.EqualTo(LifecycleExpiry.Suspended));
 
             Assert.That(obj.Intelligence, Is.EqualTo(3));
             Assert.That(obj.Initiative, Is.Null);
 
-            graph.Add(obj, x => x.Intelligence, 1);
-            graph.Time.Refresh();
+            characterSheet.Add(obj, x => x.Intelligence, 1);
+            characterSheet.Time.Refresh();
 
             Assert.That(testState.Expiry, Is.EqualTo(LifecycleExpiry.Active));
             Assert.That(obj.Intelligence, Is.EqualTo(4));
@@ -41,10 +41,10 @@ namespace Rpg.Experimental.Tests
         {
             var obj = new TestObject();
 
-            var graph = new RpgGraph(obj);
-            var objData = graph.GetObjectData(obj.Id);
+            var characterSheet = new RpgCharacterSheet(obj);
+            var objData = characterSheet.GetObjectData(obj.Id);
 
-            var testState = graph.GetObjectState(obj.Id, nameof(TestState));
+            var testState = characterSheet.GetObjectState(obj.Id, nameof(TestState));
             Assert.That(testState, Is.Not.Null);
             Assert.That(testState.Expiry, Is.EqualTo(LifecycleExpiry.Suspended));
 
@@ -52,14 +52,14 @@ namespace Rpg.Experimental.Tests
             Assert.That(obj.Initiative, Is.Null);
 
             testState.UserEnabled();
-            graph.Time.Refresh();
+            characterSheet.Time.Refresh();
 
             Assert.That(testState.Expiry, Is.EqualTo(LifecycleExpiry.Active));
             Assert.That(obj.Intelligence, Is.EqualTo(3));
             Assert.That(obj.Initiative, Is.EqualTo(new Dice(1)));
 
             testState.UserEnabledReset();
-            graph.Time.Refresh();
+            characterSheet.Time.Refresh();
 
             Assert.That(testState.Expiry, Is.EqualTo(LifecycleExpiry.Suspended));
             Assert.That(obj.Intelligence, Is.EqualTo(3));
@@ -71,26 +71,26 @@ namespace Rpg.Experimental.Tests
         {
             var obj = new TestObject();
 
-            var graph = new RpgGraph(obj);
-            var objData = graph.GetObjectData(obj.Id);
+            var characterSheet = new RpgCharacterSheet(obj);
+            var objData = characterSheet.GetObjectData(obj.Id);
 
-            var testState = graph.GetObjectState(obj.Id, nameof(TestState));
+            var testState = characterSheet.GetObjectState(obj.Id, nameof(TestState));
             Assert.That(testState, Is.Not.Null);
             Assert.That(testState.Expiry, Is.EqualTo(LifecycleExpiry.Suspended));
 
-            graph.Time.BeginEncounter();
+            characterSheet.Time.BeginEncounter();
 
             Assert.That(obj.Intelligence, Is.EqualTo(3));
             Assert.That(obj.Initiative, Is.Null);
 
-            var activationId = graph.ActivateState(obj.Id, nameof(TestState), 1);
-            graph.Time.Refresh();
+            var activationId = characterSheet.ActivateState(obj.Id, nameof(TestState), 1);
+            characterSheet.Time.Refresh();
 
             Assert.That(testState.Expiry, Is.EqualTo(LifecycleExpiry.Active));
             Assert.That(obj.Intelligence, Is.EqualTo(3));
             Assert.That(obj.Initiative, Is.EqualTo(new Dice(1)));
 
-            graph.Time.ToTurn(2);
+            characterSheet.Time.ToTurn(2);
 
             Assert.That(testState.Expiry, Is.EqualTo(LifecycleExpiry.Suspended));
             Assert.That(obj.Intelligence, Is.EqualTo(3));

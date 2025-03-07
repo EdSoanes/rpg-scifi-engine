@@ -71,7 +71,20 @@ namespace Rpg.Experimental.Graph
             return default;
         }
 
-        public void Expire(TimePoint expiryTime) { }
+        public void Expire(TimePoint expiryTime) 
+        { }
+
+        public void ResetToInitial(TimePoint expiryTime)
+        {
+            foreach (var mod in Mods.Where(x => !(x is Initial)))
+                mod.Expire(expiryTime);
+        }
+
+        public void ResetToBase(TimePoint expiryTime)
+        {
+            foreach (var mod in Mods.Where(x => !(x is Initial) && !(x is Base)))
+                mod.Expire(expiryTime);
+        }
 
         public void Expire(RpgGraph graph)
             => Expire(graph, graph.Time.Now);
@@ -121,17 +134,22 @@ namespace Rpg.Experimental.Graph
             var obj = graph.GetObject(ObjectId);
             if (obj == null) return;
 
-            var mod = new Base(new RpgPropertyRef(ObjectId, Prop));
             var propRef = ResolvePropertyNameToPropRef(graph, obj);
             if (propRef != null)
-                mod.SetSource(propRef);
-            else if (value is int val)
-                mod.SetSource(val);
-            else if (value is Dice dice)
-                mod.SetSource(dice);
-
-            if (mod.Source != null)
+            {
+                var mod = new Base(new RpgPropertyRef(obj.Id, Prop), propRef);
                 Mods.Add(mod);
+            }
+            else if (value is int val)
+            {
+                var mod = new Initial(new RpgPropertyRef(ObjectId, Prop), val);
+                Mods.Add(mod);
+            }
+            else if (value is Dice dice)
+            {
+                var mod = new Initial(new RpgPropertyRef(ObjectId, Prop), dice);
+                Mods.Add(mod);
+            }
         }
 
         public void OnTimeEvent(RpgGraph graph)

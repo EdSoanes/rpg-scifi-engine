@@ -10,23 +10,18 @@ using System.Reflection;
 
 namespace Rpg.Experimental.Graph
 {
-    public class RpgGraph
+    public abstract class RpgGraph
     {
         private RpgSystem _rpgSystem;
 
         [JsonProperty] public RpgObject Context { get; private set; }
-        [JsonProperty] public RpgObject Actor { get; private set; }
-        [JsonProperty] public Dictionary<string, RpgObjectData> ObjectData { get; private set; } = new();
-        [JsonProperty] public Dictionary<string, RpgLifecycleObject> Objects { get; private set; } = new();
+        [JsonProperty] internal Dictionary<string, RpgObjectData> ObjectData { get; private set; } = new();
+        [JsonProperty] internal Dictionary<string, RpgLifecycleObject> Objects { get; private set; } = new();
         [JsonProperty] public Temporal Time { get; private set; } = new();
-        [JsonProperty] public RpgGraphChangeTracker ChangeTracker { get; private set; } = new();
-        public RpgPropertyRefFactory PropertyRefs { get; private set; }
+        [JsonProperty] internal RpgGraphChangeTracker ChangeTracker { get; private set; } = new();
+        internal RpgPropertyRefFactory PropertyRefs { get; private set; }
 
-        public RpgGraph(RpgObject context, RpgSystem? metaGraph = null)
-            : this(context, context, metaGraph)
-        { }
-
-        public RpgGraph(RpgObject context, RpgObject actor, RpgSystem? rpgSystem = null)
+        public RpgGraph(RpgObject context, RpgSystem? rpgSystem = null)
         {
             CreateNonTraversibleTypes();
 
@@ -34,7 +29,6 @@ namespace Rpg.Experimental.Graph
 
             PropertyRefs = new RpgPropertyRefFactory(this);
             Context = context;
-            Actor = actor;
             Objects.Clear();
             ObjectData.Clear();
             Time.OnTemporalEvent += OnTemporalEvent;
@@ -51,7 +45,6 @@ namespace Rpg.Experimental.Graph
 
             PropertyRefs = new RpgPropertyRefFactory(this);
             Context = (RpgObject)graphState.Objects.First(x => x.Id == graphState.ContextId);
-            Actor = (RpgObject)graphState.Objects.First(x => x.Id == graphState.InitiatorId);
 
             Objects.Clear();
             foreach (var obj in graphState.Objects)
@@ -64,26 +57,15 @@ namespace Rpg.Experimental.Graph
             Time = graphState.Time;
             Time.OnTemporalEvent += OnTemporalEvent;
 
-            Add(Context);
-            Time.BeginTime();
+            ChangeTracker.AllPropsUpdated(this);
+            Time.Refresh();
         }
 
         public RpgSystem GetSystem()
             => _rpgSystem;
 
-        public RpgGraphState GetGraphState()
-        {
-            var graphState = new RpgGraphState
-            {
-                Objects = Objects.Values.ToList(),
-                ObjectData = ObjectData.Values.ToList(),
-                ContextId = Context.Id,
-                InitiatorId = Actor.Id,
-                Time = Time
-            };
-
-            return graphState;
-        }
+        public RpgPropertyRef[] GetChangedProperties()
+            => ChangeTracker.UpdatedProps.ToArray();
 
         public void AddTo(string parentId, string parentProp, string childId, TimePoint start, TimePoint end)
         {
@@ -130,6 +112,15 @@ namespace Rpg.Experimental.Graph
             where TEntity : RpgObject
                 => Add(new Standard(), entity, targetExpr, sourceExpr, valueCalc);
 
+        public RpgGraph Add<TEntity>(Mod mod, TEntity entity, string targetProp, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
+            where TEntity : RpgObject
+        {
+            mod
+                .SetTarget(entity, targetProp)
+                .SetSource(dice, valueCalc);
+            return Add(mod);
+        }
+
         public RpgGraph Add<TEntity, TTargetValue>(Mod mod, TEntity entity, Expression<Func<TEntity, TTargetValue>> targetExpr, Dice dice, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
             where TEntity : RpgObject
         {
@@ -145,6 +136,17 @@ namespace Rpg.Experimental.Graph
             mod
                 .SetTarget(entity, targetExpr)
                 .SetSource(entity, sourceExpr, valueCalc);
+
+            return Add(mod);
+        }
+
+        public RpgGraph Add<TTarget, TSource, TSourceValue>(Mod mod, TTarget target, string targetProp, TSource source, Expression<Func<TSource, TSourceValue>> sourceExpr, Expression<Func<Func<Dice, Dice>>>? valueCalc = null)
+            where TTarget : RpgObject
+            where TSource : RpgObject
+        {
+            mod
+                .SetTarget(target, targetProp)
+                .SetSource(source, sourceExpr, valueCalc);
 
             return Add(mod);
         }
@@ -210,7 +212,7 @@ namespace Rpg.Experimental.Graph
             {
                 propData = propType switch
                 {
-                    nameof(Int32) => new RpgPropertyDataModdable(objectId, prop, RpgPropertyType.Int, isNullable, true),
+                    nameof(Int32) => new RpgPropertyDataModdable(objectId, prop, RpgPropertyType.Dice, isNullable, true),
                     nameof(Dice) => new RpgPropertyDataModdable(objectId, prop, RpgPropertyType.Dice, isNullable, true),
                     _ => RpgTypeUtilities.IsOftype<RpgObject>(propType)
                         ? new RpgPropertyDataObject(objectId, prop, RpgPropertyType.Child, true)
@@ -227,8 +229,63 @@ namespace Rpg.Experimental.Graph
             return propData;
         }
 
-        public IRpgPropertyData? CreateVirtualProperty(string objectId, RpgArg arg)
-            => CreateVirtualProperty(objectId, arg.Name, arg.Type, arg.IsNullable, arg.Value);
+        public RpgGraph CreateVirtualProperty(RpgObject obj, string prop)
+        {
+            CreateVirtualProperty(obj.Id, prop, nameof(Dice), false, null);
+            return this;
+        }
+
+        public RpgGraph CreateVirtualProperty(RpgObject obj, string prop, Dice initialValue)
+        {
+            CreateVirtualProperty(obj.Id, prop, nameof(Dice), false, new Dice(initialValue));
+            return this;
+        }
+
+        public RpgGraph CreateVirtualProperty(string objectId, RpgArg arg)
+        {
+            CreateVirtualProperty(objectId, arg.Name, arg.Type, arg.IsNullable, arg.Value);
+            return this;
+        }
+
+        public RpgGraph CreateVirtualProperties(RpgObject obj, RpgArg[] args)
+        {
+            foreach (var arg in args.Where(x => x.Type == nameof(Int32) || x.Type == nameof(Dice)))
+                CreateVirtualProperty(obj.Id, arg);
+
+            return this;
+        }
+
+        public RpgGraph SyncVirtualPropertyValues(RpgObject obj, (string, object?)[] fromArgs)
+        {
+            //Any virtual properties should have their mods expired and the new values added as mods
+            foreach (var propData in GetPropertyData<RpgPropertyDataModdable>(obj.Id))
+            {
+                if (fromArgs.Any(x => x.Item1 == propData.Prop))
+                {
+                    var arg = fromArgs.First(x => x.Item1 == propData.Prop);
+                    propData.ResetToBase(Time.Now);
+                    SetVirtualPropertyValue(obj, arg.Item1, arg.Item2);
+                }
+            }
+
+            return this;
+        }
+
+        public RpgGraph Reset(RpgObject obj, string arg)
+        {
+            var propertyData = GetPropertyData<RpgPropertyDataModdable>(obj.Id, arg);
+            propertyData?.ResetToBase(Time.Now);
+            return this;
+        }
+
+        public RpgGraph ResetVirtualProperties(RpgObject obj)
+        {
+            foreach (var propData in GetPropertyData<RpgPropertyDataModdable>(obj.Id))
+                propData.ResetToBase(Time.Now);
+
+            return this;
+
+        }
 
         public void Expire(string objectId, TimePoint expiryTime)
         {
@@ -278,6 +335,9 @@ namespace Rpg.Experimental.Graph
 
             return metaProperty;
         }
+
+        internal MetaObject? GetMetaObject(string? archetype)
+            => _rpgSystem.GetMetaObject(archetype);
 
         private void OnTemporalEvent(object? sender, TemporalEventArgs e)
         {
@@ -341,13 +401,19 @@ namespace Rpg.Experimental.Graph
                 ChangeTracker.SyncProperties(this, objectId);
         }
 
-        public RpgLifecycleObject? GetLifespan(string? objectId)
+        public RpgLifecycleObject? GetLifecycleObject(string? objectId)
             => objectId != null && Objects.ContainsKey(objectId)
                 ? Objects[objectId]
                 : null;
 
+        public int GetObjectCount()
+            => Objects.Count;
+
+        public bool ObjectExists(string? id)
+            => id != null && Objects.ContainsKey(id);
+
         public RpgObject? GetObject(string? objectId)
-            => GetLifespan(objectId) as RpgObject;
+            => GetLifecycleObject(objectId) as RpgObject;
 
         public T[] GetOwnerObjects<T>(string? objectId)
             where T : RpgLifecycleObject
@@ -434,6 +500,12 @@ namespace Rpg.Experimental.Graph
             return res.ToArray();
         }
 
+        public int GetObjectDataCount()
+            => ObjectData.Count;
+
+        public bool ObjectDataExists(string? id)
+            => id != null && ObjectData.ContainsKey(id);
+
         public RpgObjectData? GetObjectData(string? objectId)
             => objectId != null && ObjectData.ContainsKey(objectId)
                 ? ObjectData[objectId]
@@ -447,6 +519,10 @@ namespace Rpg.Experimental.Graph
             where T : class, IRpgPropertyData
             => GetObjectData(objectId)
                 ?.Props.FirstOrDefault(x => x.Prop == prop) as T;
+
+        public T[] GetPropertyData<T>(string? objectId)
+            where T : class, IRpgPropertyData
+                => GetObjectData(objectId)?.Props.Where(x => x is T).Cast<T>().ToArray() ?? [];
 
         public void SetPropertyValue<T>(RpgObject? obj, string path, T? value)
         {
@@ -498,6 +574,8 @@ namespace Rpg.Experimental.Graph
             var activity = CreateActivity(activityOwnerId);
 
             var activityAction = new RpgActivityAction(activity, action, activity.ActivityActions.Count() + 1);
+            action.OnCreatingActivityAction(this, activityAction);
+
             Add(activityAction);
             AddTo(activity.Id, nameof(RpgActivity.ActivityActions), activityAction.Id, activity.Start, activity.End);
 

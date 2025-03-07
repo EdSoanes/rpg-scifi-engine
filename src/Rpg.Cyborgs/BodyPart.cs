@@ -1,15 +1,14 @@
-﻿using Rpg.Cyborgs.Attributes;
-using Rpg.ModObjects;
-using Rpg.ModObjects.Time;
-using Newtonsoft.Json;
-using Rpg.ModObjects.Mods.Mods;
-using Rpg.ModObjects.Mods;
+﻿using Newtonsoft.Json;
+using Rpg.Experimental;
+using Rpg.Experimental.Graph;
+using Rpg.Experimental.Mods;
+using Rpg.Experimental.System.Props;
 
 namespace Rpg.Cyborgs
 {
-    public class BodyPart : RpgComponent
+    public class BodyPart : RpgObject
     {
-        [Injury]
+        [Select()]
         [JsonIgnore] public int InjurySeverity { get; protected set; }
         [JsonProperty] public Injury[] Injuries { get; protected set; } = Array.Empty<Injury>();
 
@@ -24,39 +23,33 @@ namespace Rpg.Cyborgs
             BodyPartType = bodyPartType;
         }
 
-        public override void OnRestoring(RpgGraph graph, RpgObject? entity = null)
+        public override void OnRestoring(RpgGraph graph)
         {
-            base.OnRestoring(graph, entity);
+            base.OnRestoring(graph);
             foreach (var injury in Injuries)
-                injury.OnRestoring(Graph, this);
+                injury.OnRestoring(graph);
         }
 
-        public override LifecycleExpiry OnUpdateLifecycle()
+        public override void OnTimeEvent(RpgGraph graph)
         {
-            var expiry = base.OnUpdateLifecycle();
-            Injuries = CalculateInjuries();
-
-            return expiry;
+            base.OnTimeEvent(graph);
+            Injuries = CalculateInjuries(graph);
         }
 
-        private Injury[] CalculateInjuries()
+        private Injury[] CalculateInjuries(RpgGraph graph)
         {
-            var injuryMods = ModFilters.Active(GetMods(nameof(InjurySeverity))).Where(x => x is Permanent);
+            var injuryMods = ModFilters.Active(graph.GetPropertyData<RpgPropertyDataModdable>(Id, nameof(InjurySeverity))?.Mods);
             var injuries = injuryMods.Select(x =>
             {
                 var injury = new Injury
                 {
                     Id = x.Id,
-                    Severity = x.Value()?.Roll() ?? 0,
+                    Severity = x.Source?.Value?.Roll() ?? 0,
                     BodyPartType = this.BodyPartType
                 };
 
-                injury.SetLifespan(x);
-                if (Graph != null)
-                {
-                    injury.OnCreating(Graph, this);
-                    injury.OnTimeBegins();
-                }
+                injury.SetLifespan(x.Start, x.End);
+                injury.OnCreating(graph, this);
 
                 return injury;
             })

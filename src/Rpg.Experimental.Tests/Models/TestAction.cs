@@ -20,15 +20,15 @@ namespace Rpg.Experimental.Tests.Models
             return true;
         }
 
-        public bool Perform(TestObject initiator, int value)
+        public bool Perform(TestObject actor, int value)
         {
 
             return true;
         }
 
-        public bool Outcome(RpgActivityAction activityAction, TestObject initiator, int value)
+        public bool Outcome(RpgActivityAction activityAction, TestObject actor, int value)
         {
-            activityAction.Result.Add(initiator.CreateStateActivation(nameof(TestState), 1, false).SetOwner(activityAction.Id, false));
+            activityAction.Result.Add(actor.CreateStateActivation(nameof(TestState), 1, false).SetOwner(activityAction.Id, false));
             return true;
         }
     }

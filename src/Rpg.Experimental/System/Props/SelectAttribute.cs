@@ -1,10 +1,10 @@
 ﻿namespace Rpg.Experimental.System.Props
 {
-    public abstract class MetaSelectAttribute : MinZeroAttribute
+    public class SelectAttribute : MinZeroAttribute
     {
         public string[] Values { get; protected set; } = Array.Empty<string>();
 
-        public MetaSelectAttribute(params string[] values)
+        public SelectAttribute(params string[] values)
             : base()
         {
             Values = values;

@@ -15,7 +15,7 @@ namespace Rpg.Experimental.System
         public MetaState[] States { get; internal set; } = [];
         public RpgPropertyAttribute[] PropertyAttributes { get; internal set; } = [];
 
-        public MetaObject? GetMetaObject(string archetype)
+        public MetaObject? GetMetaObject(string? archetype)
             => Objects.FirstOrDefault(x => x.Archetypes.Contains(archetype));
     }
 }

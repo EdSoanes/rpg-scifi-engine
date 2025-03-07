@@ -13,19 +13,38 @@ namespace Rpg.Experimental
 
         public RpgActivity(RpgObject owner, TimePoint start, TimePoint end)
             : base($"{owner.Id}_Activity", owner.Id, start, end)
+        { }
+
+        public RpgActivityAction CreateActivityAction(RpgGraph graph, RpgAction action)
         {
+            var activityAction = new RpgActivityAction(this, action, ActivityActions.Count() + 1);
+            action.OnCreatingActivityAction(graph, activityAction);
+
+            graph.Add(activityAction);
+            graph.AddTo(Id, nameof(ActivityActions), activityAction.Id, Start, End);
+
+            graph.OnTemporalEvent([activityAction, this]);
+            RpgArg.SetValues(graph, Args, activityAction);
+
+            graph.ChangeTracker.SyncProperties(graph, activityAction.Id);
+            graph.ChangeTracker.SyncProperties(graph, Id);
+
+            return activityAction;
         }
 
         public override void OnTimeEvent(RpgGraph graph)
         {
             base.OnTimeEvent(graph);
-            Args = RpgArg.CreateArgs(graph, Args, [.. ActivityActions.Cast<RpgActivityAction>().Select(x => x.Args)]);
+
+            foreach (var activityAction in ActivityActions)
+                RpgArg.SetValues(graph, Args, activityAction);
         }
 
         public override void OnSyncProperty(RpgGraph graph, string prop)
         {
             if (prop == nameof(ActivityActions))
-                Args = RpgArg.CreateArgs(graph, Args, [.. ActivityActions.Cast<RpgActivityAction>().Select(x => x.Args)]);
+                foreach (var activityAction in ActivityActions)
+                    RpgArg.SetValues(graph, Args, activityAction);
         }
     }
 }

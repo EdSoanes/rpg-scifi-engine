@@ -7,21 +7,21 @@ namespace Rpg.Experimental.Tests
 {
     public class Temporal_LifespanTests
     {
-        RpgGraph _graph;
+        RpgGraph _characterSheet;
 
         [SetUp]
         public void Setup()
         {
             RpgTypeUtilities.RegisterAssembly(this.GetType().Assembly);
-            _graph = new RpgGraph(new TestObject());
+            _characterSheet = new RpgCharacterSheet(new TestObject());
         }
 
         [Test]
         public void SpanOfTime_WaitingToTimePasses_EncounterBegins_Destroyed()
         {
             var span = new RpgLifecycleObject(TimePointType.Waiting, TimePointType.TimePasses);
-            _graph.Time.BeginEncounter();
-            span.OnTimeEvent(_graph);
+            _characterSheet.Time.BeginEncounter();
+            span.OnTimeEvent(_characterSheet);
 
             Assert.That(span.Expiry, Is.EqualTo(LifecycleExpiry.Destroyed));
         }
@@ -30,8 +30,8 @@ namespace Rpg.Experimental.Tests
         public void SpanOfTime_Encounter_TimePassing_Pending()
         {
             var span = new RpgLifecycleObject(TimePointType.EncounterBegins, TimePointType.EncounterEnds);
-            _graph.Time.Refresh();
-            span.OnTimeEvent(_graph);
+            _characterSheet.Time.Refresh();
+            span.OnTimeEvent(_characterSheet);
 
             Assert.That(span.Expiry, Is.EqualTo(LifecycleExpiry.Pending));
         }
@@ -39,8 +39,8 @@ namespace Rpg.Experimental.Tests
         public void SpanOfTime_Encounter_EncounterBegins_Active()
         {
             var span = new RpgLifecycleObject(TimePointType.EncounterBegins, TimePointType.EncounterEnds);
-            _graph.Time.BeginEncounter();
-            span.OnTimeEvent(_graph);
+            _characterSheet.Time.BeginEncounter();
+            span.OnTimeEvent(_characterSheet);
 
             Assert.That(span.Expiry, Is.EqualTo(LifecycleExpiry.Active));
         }
@@ -49,8 +49,8 @@ namespace Rpg.Experimental.Tests
         public void SpanOfTime_Encounter_Turn1_Active()
         {
             var span = new RpgLifecycleObject(TimePointType.EncounterBegins, TimePointType.EncounterEnds);
-            _graph.Time.BeginEncounter();
-            span.OnTimeEvent(_graph);
+            _characterSheet.Time.BeginEncounter();
+            span.OnTimeEvent(_characterSheet);
 
             Assert.That(span.Expiry, Is.EqualTo(LifecycleExpiry.Active));
         }
@@ -59,8 +59,8 @@ namespace Rpg.Experimental.Tests
         public void SpanOfTime_Encounter_EncounterEnds_Pending()
         {
             var span = new RpgLifecycleObject(TimePointType.EncounterBegins, TimePointType.EncounterEnds);
-            _graph.Time.EndEncounter();
-            span.OnTimeEvent(_graph);
+            _characterSheet.Time.EndEncounter();
+            span.OnTimeEvent(_characterSheet);
 
             Assert.That(span.Expiry, Is.EqualTo(LifecycleExpiry.Pending));
         }
@@ -70,8 +70,8 @@ namespace Rpg.Experimental.Tests
         public void SpanOfTime_TwoTurns_OnTurnThree_Expired()
         {
             var span = new RpgLifecycleObject(new TimePoint(TimePointType.Turn, 1), new TimePoint(TimePointType.Turn, 3));
-            _graph.Time.ToTurn(3);
-            span.OnTimeEvent(_graph);
+            _characterSheet.Time.ToTurn(3);
+            span.OnTimeEvent(_characterSheet);
 
             Assert.That(span.Expiry, Is.EqualTo(LifecycleExpiry.Expired));
         }

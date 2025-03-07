@@ -1,18 +1,14 @@
-﻿using Rpg.ModObjects;
-using Rpg.ModObjects.Meta.Props;
-using Rpg.ModObjects.Values;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using Rpg.Experimental;
 
 namespace Rpg.Cyborgs
 {
-    public class MeleeWeapon : RpgEntity
+    public class MeleeWeapon : RpgObject
     {
         [JsonProperty]
-        [Dice]
         public Dice Damage { get; protected set; }
 
         [JsonProperty]
-        [Integer]
         public int HitBonus { get; protected set; }
 
         [JsonConstructor] private MeleeWeapon() { }

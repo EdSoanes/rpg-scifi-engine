@@ -83,7 +83,7 @@ namespace Rpg.Experimental
             SyncActivations(graph);
         }
 
-        public void Add(Mod mod)
+        public RpgModSet Add(Mod mod)
         {
             if (!_newMods.Any(x => x.Id == mod.Id))
             {
@@ -91,6 +91,8 @@ namespace Rpg.Experimental
                     .SetApply(IsApplied)
                     .SetUserEnabled(IsUserEnabled));
             }
+
+            return this;
         }
 
         private void SyncMods(RpgGraph graph)

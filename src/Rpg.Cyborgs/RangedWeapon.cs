@@ -1,11 +1,10 @@
-﻿using Rpg.ModObjects;
-using Rpg.ModObjects.Meta.Props;
-using Rpg.ModObjects.Values;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using Rpg.Experimental;
+using Rpg.Experimental.System.Props;
 
 namespace Rpg.Cyborgs
 {
-    public class RangedWeapon : RpgEntity
+    public class RangedWeapon : RpgObject
     {
         [JsonProperty]
         [Dice]
