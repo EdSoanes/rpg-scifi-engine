@@ -24,6 +24,13 @@ namespace Rpg.Experimental.Reflection.Args
                 : parameterInfo.ParameterType.GetGenericArguments().First().Name;
         }
 
+        /// <summary>
+        /// Args that receive the graph itself. These are never stored as values (they are not serializable),
+        /// they are supplied when the method is executed.
+        /// </summary>
+        public static bool IsGraphArg(string argName)
+            => argName == ActionReservedArgs.Graph || argName == ActionReservedArgs.CharacterSheet;
+
         public abstract RpgArg Clone();
         public abstract void SetValue(object? value, RpgGraph? graph = null);
         public abstract void FillValue(object? value, RpgGraph? graph = null);
@@ -77,7 +84,11 @@ namespace Rpg.Experimental.Reflection.Args
             {
                 foreach (var arg in rpgArgs)
                 {
-                    if (arg is RpgObjectArg)
+                    if (IsGraphArg(arg.Name))
+                    {
+                        res.Add(arg.Name, graph);
+                    }
+                    else if (arg is RpgObjectArg)
                     {
                         var rpgObj = graph.GetObject(arg.Value?.ToString());
                         if (rpgObj != null)
@@ -109,13 +120,9 @@ namespace Rpg.Experimental.Reflection.Args
 
                         arg.SetValue(val);
                     }
-                    else if (arg.Name == ActionReservedArgs.CharacterSheet)
+                    else if (IsGraphArg(arg.Name))
                     {
-                        arg.SetValue(graph as RpgCharacterSheet);
-                    }
-                    else if (arg.Name == ActionReservedArgs.Graph)
-                    {
-                        arg.SetValue(graph);
+                        //Supplied by CreateDictionary() when the method is executed
                     }
                     else
                     {
@@ -175,6 +182,9 @@ namespace Rpg.Experimental.Reflection.Args
             
             foreach (var arg in rpgArgs.Where(x => group == null || x.Groups.Contains(group)))
             {
+                if (RpgArg.IsGraphArg(arg.Name))
+                    continue;
+
                 if (!arg.IsNullable && arg.Value == null)
                     return false;
             }

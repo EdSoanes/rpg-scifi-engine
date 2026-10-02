@@ -10,9 +10,19 @@ namespace Rpg.Experimental
     {
         private List<Mod> _newMods = new();
         private List<Mod> _existingMods = new();
+        private string[] _restoredModIds = [];
 
         [JsonProperty] public string? Name { get; set; }
         [JsonIgnore] public Mod[] Mods { get => _existingMods.Concat(_newMods).ToArray(); }
+
+        /// <summary>
+        /// Mods live in the graph's property data. The ids are persisted so the set can find its mods again on restore
+        /// </summary>
+        [JsonProperty] internal string[] ModIds
+        {
+            get => _existingMods.Any() ? _existingMods.Select(x => x.Id).ToArray() : _restoredModIds;
+            private set => _restoredModIds = value ?? [];
+        }
 
         [JsonConstructor] public RpgModSet() { }
 
@@ -73,7 +83,10 @@ namespace Rpg.Experimental
         public override void OnRestoring(RpgGraph graph)
         {
             base.OnRestoring(graph);
-            _existingMods = graph.GetOwnerMods(Id).ToList();
+            _existingMods = graph.GetMods(_restoredModIds)
+                .Concat(graph.GetOwnerMods(Id))
+                .DistinctBy(x => x.Id)
+                .ToList();
         }
 
         public override void OnTimeEvent(RpgGraph graph)

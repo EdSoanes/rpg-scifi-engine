@@ -42,7 +42,7 @@ namespace Rpg.Experimental.Mods
 
             if (mods.Any(IsOverride))
                 return mods
-                    .Where(x => IsOverride(x) || IsThreshold(x) || !IsBase(x))
+                    .Where(x => IsActive(x) && (IsOverride(x) || IsThreshold(x) || !IsBase(x)))
                     .ToArray();
 
             return FilterReplacements(mods

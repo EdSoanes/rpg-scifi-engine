@@ -29,6 +29,7 @@ namespace Rpg.Experimental.Tests.Models
         public bool Outcome(RpgActivityAction activityAction, TestObject actor, int value)
         {
             activityAction.Result.Add(actor.CreateStateActivation(nameof(TestState), 1, false).SetOwner(activityAction.Id, false));
+            activityAction.SetOutcomeAction(actor, nameof(TestAction), true);
             return true;
         }
     }

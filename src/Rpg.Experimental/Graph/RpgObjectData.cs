@@ -54,6 +54,9 @@ namespace Rpg.Experimental.Graph
         {
             var obj = graph.GetObject(ObjectId);
             _metaObject = graph.GetMetaObject(obj?.Archetype);
+
+            foreach (var prop in Props)
+                prop.OnRestoring(graph);
         }
 
         public void OnTimeEvent(RpgGraph graph)

@@ -4,6 +4,10 @@
     {
         public string[] Values { get; protected set; } = Array.Empty<string>();
 
+        public SelectAttribute()
+            : this(Array.Empty<string>())
+        { }
+
         public SelectAttribute(params string[] values)
             : base()
         {

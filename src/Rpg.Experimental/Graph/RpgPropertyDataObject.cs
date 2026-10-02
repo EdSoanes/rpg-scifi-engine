@@ -107,7 +107,8 @@ namespace Rpg.Experimental.Graph
         {
             _metaProperty = graph.GetMetaProperty(ObjectId, Prop);
 
-            if (obj == null) return;
+            //Virtual properties have no class property to take initial refs from. See OnCreatingVirtual()
+            if (obj == null || IsVirtual) return;
             if (PropType == RpgPropertyType.Child)
             {
                 var child = graph.GetPropertyValue<RpgObject>(obj, Prop);

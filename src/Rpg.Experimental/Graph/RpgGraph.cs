@@ -7,6 +7,7 @@ using Rpg.Experimental.Time;
 using System.Collections;
 using System.Linq.Expressions;
 using System.Reflection;
+using Temporal = Rpg.Experimental.Time.Temporal;
 
 namespace Rpg.Experimental.Graph
 {
@@ -57,7 +58,19 @@ namespace Rpg.Experimental.Graph
             Time = graphState.Time;
             Time.OnTemporalEvent += OnTemporalEvent;
 
+            foreach (var objData in ObjectData.Values)
+                objData.OnRestoring(this);
+
             ChangeTracker.AllPropsUpdated(this);
+
+            //Mod sets and states first, then objects, then activity actions (which need their actions and activities)
+            var restoreOrder = Objects.Values
+                .OrderBy(x => x is RpgActivityAction ? 2 : x is RpgObject ? 1 : 0)
+                .ToArray();
+
+            foreach (var obj in restoreOrder)
+                obj.OnRestoring(this);
+
             Time.Refresh();
         }
 
@@ -255,15 +268,18 @@ namespace Rpg.Experimental.Graph
             return this;
         }
 
-        public RpgGraph SyncVirtualPropertyValues(RpgObject obj, (string, object?)[] fromArgs)
+        public RpgGraph SyncVirtualPropertyValues(RpgObject obj, (string, object?)[]? fromArgs)
         {
+            if (fromArgs == null)
+                return this;
+
             //Any virtual properties should have their mods expired and the new values added as mods
-            foreach (var propData in GetPropertyData<RpgPropertyDataModdable>(obj.Id))
+            foreach (var propData in GetPropertyData<RpgPropertyDataModdable>(obj.Id).Where(x => x.IsVirtual))
             {
                 if (fromArgs.Any(x => x.Item1 == propData.Prop))
                 {
                     var arg = fromArgs.First(x => x.Item1 == propData.Prop);
-                    propData.ResetToBase(Time.Now);
+                    propData.ResetToBase(this);
                     SetVirtualPropertyValue(obj, arg.Item1, arg.Item2);
                 }
             }
@@ -271,17 +287,59 @@ namespace Rpg.Experimental.Graph
             return this;
         }
 
+        /// <summary>
+        /// Set values on virtual properties that do not have a value yet. Existing values are left alone.
+        /// </summary>
+        public RpgGraph FillVirtualPropertyValues(RpgObject obj, (string, object?)[]? fromArgs)
+        {
+            if (fromArgs == null)
+                return this;
+
+            foreach (var propData in GetPropertyData<RpgPropertyDataModdable>(obj.Id).Where(x => x.IsVirtual))
+            {
+                if (fromArgs.Any(x => x.Item1 == propData.Prop) && propData.GetValue<Dice?>(this) == null)
+                {
+                    var arg = fromArgs.First(x => x.Item1 == propData.Prop);
+                    SetVirtualPropertyValue(obj, arg.Item1, arg.Item2);
+                }
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Set an explicit value on a virtual property. The value is added as an Override so it replaces any
+        /// Initial/Base value (e.g. an unrolled dice expression) whilst still allowing Standard mods to stack on top.
+        /// </summary>
+        public RpgGraph SetVirtualPropertyValue(RpgObject obj, string prop, object? value)
+        {
+            if (value == null)
+                return this;
+
+            Dice dice;
+            if (value is Dice d)
+                dice = d;
+            else if (value is int i)
+                dice = new Dice(i);
+            else if (!Dice.TryParse(value, out dice))
+                throw new ArgumentException($"Value '{value}' for {obj.Id}.{prop} is not an integer or dice expression");
+
+            return Add(new Override()
+                .SetTarget(obj.Id, prop)
+                .SetSource(dice));
+        }
+
         public RpgGraph Reset(RpgObject obj, string arg)
         {
             var propertyData = GetPropertyData<RpgPropertyDataModdable>(obj.Id, arg);
-            propertyData?.ResetToBase(Time.Now);
+            propertyData?.ResetToBase(this);
             return this;
         }
 
         public RpgGraph ResetVirtualProperties(RpgObject obj)
         {
-            foreach (var propData in GetPropertyData<RpgPropertyDataModdable>(obj.Id))
-                propData.ResetToBase(Time.Now);
+            foreach (var propData in GetPropertyData<RpgPropertyDataModdable>(obj.Id).Where(x => x.IsVirtual))
+                propData.ResetToBase(this);
 
             return this;
 
@@ -397,7 +455,7 @@ namespace Rpg.Experimental.Graph
         public void OnSyncProperties(string objectId)
         {
             var objData = GetObjectData(objectId);
-            if (objData != null && ChangeTracker.UnsyncedProperties(objectId))
+            if (objData != null && ChangeTracker.UnsyncedProperties(this, objectId))
                 ChangeTracker.SyncProperties(this, objectId);
         }
 
@@ -495,7 +553,22 @@ namespace Rpg.Experimental.Graph
             foreach (var objData in ObjectData.Values)
                 foreach (var propData in objData.Props)
                     if (propData is RpgPropertyDataModdable modPropData)
-                        modPropData.Mods.Where(x => x.OwnerId == id);
+                        res.AddRange(modPropData.Mods.Where(x => x.OwnerId == id));
+
+            return res.ToArray();
+        }
+
+        public Mod[] GetMods(IEnumerable<string> modIds)
+        {
+            var ids = modIds.ToHashSet();
+            if (ids.Count == 0)
+                return [];
+
+            var res = new List<Mod>();
+            foreach (var objData in ObjectData.Values)
+                foreach (var propData in objData.Props)
+                    if (propData is RpgPropertyDataModdable modPropData)
+                        res.AddRange(modPropData.Mods.Where(x => ids.Contains(x.Id)));
 
             return res.ToArray();
         }
@@ -572,19 +645,16 @@ namespace Rpg.Experimental.Graph
                 throw new ArgumentException($"Could not find action {actionOwnerId} {actionName}");
 
             var activity = CreateActivity(activityOwnerId);
-
-            var activityAction = new RpgActivityAction(activity, action, activity.ActivityActions.Count() + 1);
-            action.OnCreatingActivityAction(this, activityAction);
-
-            Add(activityAction);
-            AddTo(activity.Id, nameof(RpgActivity.ActivityActions), activityAction.Id, activity.Start, activity.End);
-
-            OnTemporalEvent([activityAction, activity]);
-            ChangeTracker.SyncProperties(this, activityAction.Id);
-            ChangeTracker.SyncProperties(this, activity.Id);
+            activity.CreateActivityAction(this, action);
 
             return activity;
         }
+
+        /// <summary>
+        /// Continue the owner's current activity with an action nominated by the outcome of a previous action
+        /// </summary>
+        public RpgActivity CreateActivity(string activityOwnerId, RpgActionRef actionRef)
+            => CreateActivity(activityOwnerId, actionRef.ActionOwnerId, actionRef.ActionName);
 
         private RpgActivity CreateActivity(string activityOwnerId)
         {

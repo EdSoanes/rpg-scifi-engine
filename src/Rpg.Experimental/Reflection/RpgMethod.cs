@@ -59,10 +59,16 @@ namespace Rpg.Experimental.Reflection
                     var parm = parameters[i];
                     var val = args[parm.Name!];
 
-                    if (parm.ParameterType == typeof(Dice) && val is int num)
-                        updatedArgs.Add(new Dice(num));
-                    else if (parm.ParameterType == typeof(int) && val is Dice dice)
+                    //Arg values that have been through json lose their exact type (e.g. int becomes long)
+                    var parmType = Nullable.GetUnderlyingType(parm.ParameterType) ?? parm.ParameterType;
+                    if (val == null || parmType.IsInstanceOfType(val))
+                        updatedArgs.Add(val);
+                    else if (parmType == typeof(Dice) && Dice.TryParse(val, out var parsed))
+                        updatedArgs.Add(parsed);
+                    else if (parmType == typeof(int) && val is Dice dice)
                         updatedArgs.Add(dice.Roll());
+                    else if (parmType == typeof(int) && val is IConvertible)
+                        updatedArgs.Add(Convert.ToInt32(val));
                     else
                         updatedArgs.Add(val);
                 }

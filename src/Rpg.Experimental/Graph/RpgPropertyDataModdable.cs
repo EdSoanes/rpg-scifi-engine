@@ -62,7 +62,10 @@ namespace Rpg.Experimental.Graph
             if (typeof(T) == typeof(int?))
                 return (T?)(object?)dice?.Roll();
 
-            if (typeof(T) == typeof(Dice) || typeof(T) == typeof(Dice?))
+            if (typeof(T) == typeof(Dice))
+                return (T)(object)(dice ?? Dice.Zero);
+
+            if (typeof(T) == typeof(Dice?))
                 return (T?)(object?)dice;
 
             if (typeof(T) == typeof(object))
@@ -80,10 +83,19 @@ namespace Rpg.Experimental.Graph
                 mod.Expire(expiryTime);
         }
 
-        public void ResetToBase(TimePoint expiryTime)
+        public void ResetToBase(RpgGraph graph)
         {
-            foreach (var mod in Mods.Where(x => !(x is Initial) && !(x is Base)))
-                mod.Expire(expiryTime);
+            var toExpire = Mods
+                .Where(x => !(x is Initial) && !(x is Base) && !ModFilters.IsExpired(x))
+                .ToArray();
+
+            //Expire through the graph so each mod's Expiry is recalculated immediately and the value is correct
+            //without having to wait for the next time event
+            foreach (var mod in toExpire)
+                mod.Expire(graph, graph.Time.Now);
+
+            if (toExpire.Any())
+                graph.ChangeTracker.PropUpdated(ObjectId, Prop);
         }
 
         public void Expire(RpgGraph graph)
@@ -107,6 +119,10 @@ namespace Rpg.Experimental.Graph
         public void OnCreating(RpgGraph graph, RpgObject? obj)
         {
             _metaProperty = graph.GetMetaProperty(ObjectId, Prop);
+
+            //Virtual properties have no class property to take an initial value from. See OnCreatingVirtual()
+            if (IsVirtual)
+                return;
 
             Dice? dice = PropType switch
             {

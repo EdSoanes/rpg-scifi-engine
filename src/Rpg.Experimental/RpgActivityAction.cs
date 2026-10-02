@@ -18,7 +18,10 @@ namespace Rpg.Experimental
         [JsonProperty] public RpgActionMethod PerformMethod { get; private set; } = new RpgActionMethod();
         [JsonProperty] public RpgActionMethod OutcomeMethod { get; private set; } = new RpgActionMethod();
 
-        [JsonProperty] public List<string> RecommendedActions { get; private set; } = new();
+        /// <summary>
+        /// Actions nominated by the Outcome step to follow this one in the activity
+        /// </summary>
+        [JsonProperty] public List<RpgActionRef> OutcomeActions { get; private set; } = new();
 
         [JsonProperty] public bool IsComplete { get; private set; }
 
@@ -41,10 +44,7 @@ namespace Rpg.Experimental
 
         public bool Cost(RpgGraph graph, params (string, object?)[] args)
         {
-            graph.SyncVirtualPropertyValues(this, args);
-            RpgArg.SetValues(graph, CostMethod.Args, this);
-            RpgArg.SetValues(graph, PerformMethod.Args, this);
-            RpgArg.SetValues(graph, OutcomeMethod.Args, this);
+            SetArgValues(graph, args, CostMethod, PerformMethod, OutcomeMethod);
 
             if (!CostMethod.Args.IsComplete())
                 return false;
@@ -60,9 +60,7 @@ namespace Rpg.Experimental
 
         public bool Perform(RpgGraph graph, params (string, object?)[] args)
         {
-            graph.SyncVirtualPropertyValues(this, args);
-            RpgArg.SetValues(graph, PerformMethod.Args, this);
-            RpgArg.SetValues(graph, OutcomeMethod.Args, this);
+            SetArgValues(graph, args, PerformMethod, OutcomeMethod);
 
             if (!PerformMethod.Args.IsComplete())
                 return false;
@@ -75,8 +73,7 @@ namespace Rpg.Experimental
 
         public bool Outcome(RpgGraph graph, params (string, object?)[] args)
         {
-            graph.SyncVirtualPropertyValues(this, args);
-            RpgArg.SetValues(graph, OutcomeMethod.Args, this);
+            SetArgValues(graph, args, OutcomeMethod);
 
             if (!OutcomeMethod.Args.IsComplete())
                 return false;
@@ -90,6 +87,8 @@ namespace Rpg.Experimental
         public void Reset(string methodName)
         {
             OutcomeMethod.Reset(this);
+            OutcomeActions.Clear();
+
             if (methodName == ActionMethodNames.Perform)
                 PerformMethod.Reset(this);
 
@@ -103,14 +102,35 @@ namespace Rpg.Experimental
         public RpgAction? GetAction()
             => _action;
 
+        /// <summary>
+        /// Called from an action's Outcome method to nominate an action that should follow this one.
+        /// The nominated actions are returned by Complete() and can be started with RpgGraph.CreateActivity().
+        /// </summary>
+        public RpgActivityAction SetOutcomeAction(RpgObject actionOwner, string actionName, bool optional)
+        {
+            OutcomeActions = OutcomeActions
+                .Where(x => x.ActionOwnerId != actionOwner.Id || x.ActionName != actionName)
+                .ToList();
+
+            OutcomeActions.Add(new RpgActionRef(actionOwner.Id, actionName, optional));
+
+            return this;
+        }
+
         public override void OnCreating(RpgGraph graph, RpgObject? obj)
         {
             base.OnCreating(graph, obj);
 
+            CostMethod.OnCreating(graph, _action, _action?.CostMethod);
+            PerformMethod.OnCreating(graph, _action, _action?.PerformMethod);
+            OutcomeMethod.OnCreating(graph, _action, _action?.OutcomeMethod);
+
+            //Int and Dice args become virtual properties of this activity action so that their values are
+            //built from mods like any other property
             graph.CreateVirtualProperties(this, CostMethod.Args);
             graph.CreateVirtualProperties(this, PerformMethod.Args);
             graph.CreateVirtualProperties(this, OutcomeMethod.Args);
-            _action!.OnCreatingActivityAction(graph, this);
+            _action?.OnCreatingActivityAction(graph, this);
 
             RestoreOutcome(graph);
         }
@@ -121,6 +141,10 @@ namespace Rpg.Experimental
 
             _action = graph.GetObject(ActionId) as RpgAction;
             _activity = graph.GetObject(OwnerId) as RpgActivity;
+
+            CostMethod.OnRestoring(graph, _action, _action?.CostMethod);
+            PerformMethod.OnRestoring(graph, _action, _action?.PerformMethod);
+            OutcomeMethod.OnRestoring(graph, _action, _action?.OutcomeMethod);
 
             RestoreOutcome(graph);
         }
@@ -168,20 +192,25 @@ namespace Rpg.Experimental
             }
         }
 
-        public void Complete()
+        /// <summary>
+        /// Apply the results of the action. Returns the actions nominated by the outcome to follow this one.
+        /// </summary>
+        public RpgActionRef[] Complete()
         {
             if (AllStepsComplete)
             {
                 Result.Apply();
                 IsComplete = true;
+
+                return OutcomeActions.ToArray();
             }
+
+            return [];
         }
 
-        public void AutoComplete(RpgGraph graph, params (string, object?)[]? args)
+        public RpgActionRef[] AutoComplete(RpgGraph graph, params (string, object?)[]? args)
         {
-            RpgArg.SetValue(graph, CostMethod.Args, args);
-            RpgArg.SetValue(graph, PerformMethod.Args, args);
-            RpgArg.SetValue(graph, OutcomeMethod.Args, args);
+            SetArgValues(graph, args, CostMethod, PerformMethod, OutcomeMethod);
 
             if (CanAutoComplete)
             {
@@ -195,7 +224,7 @@ namespace Rpg.Experimental
                     graph.Time.Refresh();
             }
 
-            Complete();
+            return Complete();
         }
 
         public void Reset()
@@ -204,8 +233,31 @@ namespace Rpg.Experimental
             PerformMethod.Reset(this);
             OutcomeMethod.Reset(this);
 
-            RecommendedActions.Clear();
+            OutcomeActions.Clear();
             IsComplete = false;
+        }
+
+        /// <summary>
+        /// Int and Dice arg values are stored as mods on this activity action's virtual properties. Any other
+        /// supplied values (e.g. objects) are set directly on the method args. The method args are then refreshed
+        /// from the virtual properties and reserved names (owner, actor, etc).
+        /// </summary>
+        private void SetArgValues(RpgGraph graph, (string, object?)[]? args, params RpgActionMethod[] methods)
+        {
+            if (args != null && args.Length > 0)
+            {
+                graph.SyncVirtualPropertyValues(this, args);
+
+                var directArgs = args
+                    .Where(x => graph.GetPropertyData<RpgPropertyDataModdable>(Id, x.Item1) == null)
+                    .ToArray();
+
+                foreach (var method in methods)
+                    RpgArg.SetValues(graph, method.Args, directArgs);
+            }
+
+            foreach (var method in methods)
+                RpgArg.SetValues(graph, method.Args, this);
         }
     }
 }
