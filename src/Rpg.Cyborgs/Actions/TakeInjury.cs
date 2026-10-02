@@ -29,7 +29,7 @@ namespace Rpg.Cyborgs.Actions
                 .Reset(activityAction, "injuryLocationRoll");
 
             if (lifeInjury > 0)
-                graph.Add(new Standard(), activityAction, "injuryRoll", -lifeInjury);
+                graph.Add(new Standard().SetName("Life points lost"), activityAction, "injuryRoll", -lifeInjury);
 
             return true;
         }

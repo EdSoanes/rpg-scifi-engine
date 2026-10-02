@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Rpg.Experimental.Description;
 using Rpg.Experimental.Mods;
 using Rpg.Experimental.Reflection;
 using Rpg.Experimental.Reflection.Args;
@@ -338,6 +339,15 @@ namespace Rpg.Experimental.Graph
             if (targetRef != null)
             {
                 mod.SetTarget(targetRef);
+
+                //A source given as a path through child objects is resolved to the object that has the property
+                if (mod.Source?.PropRef != null && mod.Source.PropRef.Path.Contains('.'))
+                {
+                    var sourceRef = PropertyRefs.Create(mod.Source.PropRef.ObjectId, mod.Source.PropRef.Path);
+                    if (sourceRef != null)
+                        mod.Source.PropRef = sourceRef;
+                }
+
                 var propData = GetObjectData(targetRef.ObjectId)?.GetPropData<RpgPropertyDataModdable>(targetRef.Path);
                 if (propData != null && !propData.Mods.Any(x => x.Id == mod.Id))
                 {
@@ -983,6 +993,105 @@ namespace Rpg.Experimental.Graph
 
             return activity;
         }
+
+        #region Changes made by hand
+
+        /// <summary>
+        /// Set a property to a value by hand, overruling what the rules say it is. The change is marked as
+        /// made by hand so it can be shown and listed as such.
+        /// </summary>
+        public Mod OverrideByHand(RpgObject obj, string prop, Dice value)
+            => AddByHand(new Override(), obj, prop, value);
+
+        public Mod OverrideByHand<TEntity, TValue>(TEntity obj, Expression<Func<TEntity, TValue>> propExpr, Dice value)
+            where TEntity : RpgObject
+                => OverrideByHand(obj, RpgMemberUtilities.ExpressionToPath(propExpr), value);
+
+        /// <summary>
+        /// Add to (or take from) a property by hand, on top of what the rules say it is
+        /// </summary>
+        public Mod AdjustByHand(RpgObject obj, string prop, Dice value)
+            => AddByHand(new Standard(), obj, prop, value);
+
+        public Mod AdjustByHand<TEntity, TValue>(TEntity obj, Expression<Func<TEntity, TValue>> propExpr, Dice value)
+            where TEntity : RpgObject
+                => AdjustByHand(obj, RpgMemberUtilities.ExpressionToPath(propExpr), value);
+
+        private Mod AddByHand(Mod mod, RpgObject obj, string prop, Dice value)
+        {
+            mod
+                .Manual()
+                .SetTarget(obj, prop)
+                .SetSource(value);
+
+            Add(mod);
+            Time.Refresh();
+
+            return mod;
+        }
+
+        /// <summary>
+        /// Every change made by hand that is still in the graph
+        /// </summary>
+        public Mod[] GetManualChanges()
+            => GetAllLifecycles()
+                .Select(x => x.Item1)
+                .OfType<Mod>()
+                .Where(x => x.IsManual)
+                .ToArray();
+
+        /// <summary>
+        /// Undo a change made by hand
+        /// </summary>
+        public void RemoveManualChange(Mod mod)
+        {
+            if (!mod.IsManual)
+                return;
+
+            Remove(mod);
+            Time.Refresh();
+        }
+
+        #endregion Changes made by hand
+
+        #region Describe
+
+        /// <summary>
+        /// Why a property has the value it has: the tree of mods behind it, down to the original sources.
+        /// Describing only reads. Nothing is changed and nothing is rolled.
+        /// </summary>
+        public RpgPropertyDescription? Describe(RpgObject obj, string path, int depth = int.MaxValue)
+            => RpgDescriber.DescribeProperty(this, obj, path, depth);
+
+        public RpgPropertyDescription? Describe<TEntity, TValue>(TEntity obj, Expression<Func<TEntity, TValue>> propExpr, int depth = int.MaxValue)
+            where TEntity : RpgObject
+                => RpgDescriber.DescribeProperty(this, obj, RpgMemberUtilities.ExpressionToPath(propExpr), depth);
+
+        /// <summary>
+        /// An action in progress or completed: its inputs, rolls, costs and effects
+        /// </summary>
+        public RpgActionDescription DescribeAction(RpgActivityAction activityAction, int depth = int.MaxValue)
+            => RpgDescriber.DescribeAction(this, activityAction, depth);
+
+        /// <summary>
+        /// What a mod set changes. Nothing is applied to find out.
+        /// </summary>
+        public RpgModSetDescription DescribeModSet(RpgModSet modSet)
+            => RpgDescriber.DescribeModSet(this, modSet);
+
+        /// <summary>
+        /// What a state changes, and why it is on or off
+        /// </summary>
+        public RpgModSetDescription? DescribeState(RpgObject obj, string stateName)
+            => RpgDescriber.DescribeState(this, obj, stateName);
+
+        /// <summary>
+        /// A summary of an object: its properties and the states that are on
+        /// </summary>
+        public RpgObjectDescription DescribeObject(RpgObject obj)
+            => RpgDescriber.DescribeObject(this, obj);
+
+        #endregion Describe
 
         #region Dice
 

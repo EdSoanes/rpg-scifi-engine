@@ -47,7 +47,7 @@ namespace Rpg.Cyborgs.Actions
 
             graph
                 .Reset(activityAction, "diceRoll")
-                .Add(new Standard(), activityAction, "diceRoll", bonus);
+                .Add(new Standard().SetName("Ability and focus"), activityAction, "diceRoll", bonus);
 
             return true;
         }
@@ -67,7 +67,7 @@ namespace Rpg.Cyborgs.Actions
                     reduction = 1;
 
                 if (diceRoll >= parryTarget)
-                    graph.Add(new Standard(), activityAction, "damage", -reduction);
+                    graph.Add(new Standard().SetName("Parried"), activityAction, "damage", -reduction);
             }
             activityAction
                 .SetOutcomeAction(owner, nameof(ArmourCheck), false)

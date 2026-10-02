@@ -41,6 +41,13 @@ namespace Rpg.Experimental
         /// </summary>
         [JsonProperty] public List<Mod> SkippedCosts { get; private set; } = new();
 
+        /// <summary>
+        /// Effects that were dropped when the action was completed because they last a number of turns, are
+        /// too minor to start counting turns for, and turns were not being tracked. They are kept so they
+        /// can be shown.
+        /// </summary>
+        [JsonProperty] public List<Mod> DroppedEffects { get; private set; } = new();
+
         [JsonProperty] public bool IsComplete { get; private set; }
 
         public bool CanAutoComplete { get => _action != null && !IsComplete && AllStepArgsComplete; }
@@ -134,6 +141,7 @@ namespace Rpg.Experimental
                 SkippedCosts.Clear();
             }
 
+            DroppedEffects.Clear();
             graph.Time.Refresh();
         }
 
@@ -321,10 +329,17 @@ namespace Rpg.Experimental
                 return [];
 
             var wasTurnTracking = graph.Time.IsTurnTracking;
+            var minorEffects = Result.Mods
+                .Where(x => x.IsTurnBased && !x.StartsTurnTracking)
+                .ToArray();
 
             Result.Apply();
             IsComplete = true;
             graph.Time.Refresh();
+
+            //Still no turn tracking, so the minor effects were dropped rather than left to run
+            if (!graph.Time.IsTurnTracking)
+                DroppedEffects.AddRange(minorEffects.Where(x => !DroppedEffects.Any(d => d.Id == x.Id)));
 
             if (!graph.Time.IsTurnTracking)
             {
@@ -400,6 +415,7 @@ namespace Rpg.Experimental
             CostSet.Unapply();
 
             SkippedCosts.Clear();
+            DroppedEffects.Clear();
             OutcomeActions.Clear();
             IsComplete = false;
 

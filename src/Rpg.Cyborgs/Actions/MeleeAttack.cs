@@ -48,8 +48,8 @@ namespace Rpg.Cyborgs.Actions
 
             characterSheet
                 .Reset(activityAction, "diceRoll")
-                .Add(new Standard(), activityAction, "diceRoll", diceRoll)
-                .Add(new Standard(), activityAction, "diceRoll", owner, x => x.HitBonus);
+                .Add(new Standard().SetName("Ability and focus"), activityAction, "diceRoll", diceRoll)
+                .Add(new Standard().SetName("Weapon hit bonus"), activityAction, "diceRoll", owner, x => x.HitBonus);
 
             characterSheet
                 .Reset(activityAction, "targetDefence")
@@ -62,7 +62,7 @@ namespace Rpg.Cyborgs.Actions
         {
             graph
                 .Reset(activityAction, "damage")
-                .Add(new Standard(), activityAction, "damage", owner, x => x.Damage);
+                .Add(new Standard().SetName("Weapon damage"), activityAction, "damage", owner, x => x.Damage);
 
             activityAction.Result
                 .Add(actor.CreateStateActivation(nameof(MeleeAttacking), 1, false));

@@ -1,4 +1,5 @@
-﻿using Rpg.Experimental.Graph;
+﻿using Rpg.Experimental.Description;
+using Rpg.Experimental.Graph;
 using Rpg.Experimental.Mods;
 using Rpg.Experimental.System.Props;
 
@@ -24,6 +25,7 @@ namespace Rpg.Experimental.Tests.Models
         public TestObject(string name)
             : base(name) { }
 
+        [Describe("Half of the score above ten, rounded down")]
         public Dice CalculateBonus(Dice score) 
             => (int)Math.Floor((double)(score.Number - 10) / 2);
 

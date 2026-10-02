@@ -59,6 +59,11 @@ namespace Rpg.Cyborgs.Actions
 
                 if (success1 && success2)
                 {
+                    //The damage is worked out as steps so that it can be explained afterwards
+                    graph
+                        .Add(new Standard().SetName("Damage before armour"), activityAction, "damage", damage)
+                        .Add(new Standard().SetName("Stopped by armour"), activityAction, "damage", -damage);
+
                     //Armour damage is permanent, it must outlive the activity
                     activityAction.Result
                         .Add(new Combine()
@@ -72,7 +77,8 @@ namespace Rpg.Cyborgs.Actions
                 {
                     var damageReduction = Convert.ToInt32(Math.Ceiling((double)damage / 2));
                     graph
-                        .Add(new Standard(), activityAction, "damage", damage - damageReduction);
+                        .Add(new Standard().SetName("Damage before armour"), activityAction, "damage", damage)
+                        .Add(new Standard().SetName("Halved by armour"), activityAction, "damage", -damageReduction);
 
                     activityAction.Result
                         .Add(new Combine()
@@ -84,7 +90,7 @@ namespace Rpg.Cyborgs.Actions
             }
 
             graph
-                .Add(new Standard(), activityAction, "damage", damage);
+                .Add(new Standard().SetName("Damage before armour"), activityAction, "damage", damage);
 
             return true;
         }

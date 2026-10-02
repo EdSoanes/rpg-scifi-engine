@@ -304,7 +304,9 @@ updated when a gap is closed or a new one is found.
 - Works: going back to the start of a turn undoes everything since, including changes made by hand.
 - Nothing stops a value being changed for a step that has already run, and nothing reconciles it either.
   A cost paid with one value stays paid when the value changes.
-- Manual changes carry no record of being manual, so they cannot be listed or undone as a group.
+- Works: a value can be overridden or adjusted by hand. Such a change is marked as made by hand, can be
+  listed, and can be undone one at a time. They cannot yet be undone as a group.
+- Switching a state or mod set on or off by hand is recorded on the state or set, not in that list.
 - Transferring an item to a property that does not exist fails. That is a refusal.
 
 ### 2. Constraints known but not enforced
@@ -343,15 +345,31 @@ See [DICE_PLAN.md](DICE_PLAN.md) for the design and what was built.
 
 ### 4. Transparency
 
-- Works: every value is the sum of its mods, each mod knows its source property, and base values are tracked.
-- Describe has not been ported to the new engine. There is no way to ask for the derivation tree.
-- Mods have no meaningful names or origins. Most are anonymous.
-- A value calculation function on a mod is opaque. It can be named but not explained.
-- Rules code often computes a number and stores the result as a constant, which discards the derivation.
-  Reduced damage after an armour check is an example.
-- Mods whose source is a nested path do not resolve.
-- Works: a cost skipped outside turn tracking is kept on the action. Nothing records the reason, and no
-  other kind of skipped rule is recorded.
+See [DESCRIBE_PLAN.md](DESCRIBE_PLAN.md) for the design and what was built.
+
+- Works: any value can be described as the tree of mods behind it, down to the starting values. Describing
+  only reads: it changes nothing and rolls nothing.
+- Works: each mod says where it came from: a starting value, another stat, a state, a mod set, the cost
+  or effect of an action, an input of an action, or a change made by hand.
+- Works: a mod that does not count is still shown, with the reason, such as expired, not started, switched
+  off, or set aside by an override.
+- Works: a calculation shows what went in, what came out, and a description written by the rules author.
+- Works: a stored roll shows the dice, the bonus and who rolled. A pending roll shows as pending.
+- Works: an action in progress or completed describes its inputs, rolls, costs and effects.
+- Works: a state says why it is on or off, and a state or mod set says what it changes without being
+  applied.
+- Works: a skipped cost and a dropped minor effect are kept on the action with the reason.
+- Works: a mod whose source is a path through a child object resolves.
+- Rules code that works out a number and stores it still loses the derivation. The remedy is to name the
+  mod. Cyborgs names the ones that matter, such as damage halved by armour. Unnamed ones show only as set
+  by the rules or set during an action.
+- A lasting change loses its origin once turn tracking is not running, because such changes are merged
+  into one total. Inside turn tracking the origin is kept.
+- An input carried over from an earlier action in the same activity does not say which action it came
+  from.
+- Outside turn tracking, expired mods are destroyed, so there is no history to show.
+- Whether an action can be performed is still a bare yes or no. The reason belongs with feature 2.
+- The words are plain English built by the engine. There is no translation.
 
 ### 5. Fuzzy time
 

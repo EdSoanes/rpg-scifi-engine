@@ -5,6 +5,24 @@ namespace Rpg.Experimental.Mods
 {
     public class ModCalculator
     {
+        /// <summary>
+        /// The value a mod takes from its source, before any calculation function is applied to it
+        /// </summary>
+        public static Dice? SourceValue(RpgGraph graph, Mod mod)
+        {
+            var dice = ValueToDice(mod.Source?.Value);
+            if (dice == null && mod.Source?.PropRef?.Path != null)
+            {
+                var sourceData = graph.GetPropertyData(mod.Source.PropRef.ObjectId, mod.Source.PropRef.Path);
+                if (sourceData is RpgPropertyDataModdable moddable && moddable.IsRollPending(graph))
+                    return null;
+
+                dice = ValueToDice(sourceData?.GetValue<object?>(graph));
+            }
+
+            return dice;
+        }
+
         public static Dice? Value(RpgGraph graph, Mod mod)
         {
             if (graph == null)

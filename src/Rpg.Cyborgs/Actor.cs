@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Experimental;
+using Rpg.Experimental.Description;
 using Rpg.Experimental.Graph;
 using Rpg.Experimental.Mods;
 using Rpg.Experimental.System.Props;
@@ -163,6 +164,7 @@ namespace Rpg.Cyborgs
                 .Add(new Base(), this, x => x.MeleeAttack, x => x.Strength);
         }
 
+        [Describe("Twice health")]
         public Dice CalculateStamina(Dice health)
             => health * 2;
     }

@@ -22,6 +22,11 @@ namespace Rpg.Experimental.Mods
         /// </summary>
         [JsonProperty] public bool StartsTurnTracking { get; private set; } = true;
 
+        /// <summary>
+        /// The mod was added by hand, not by the rules. See RpgGraph.OverrideByHand() and AdjustByHand().
+        /// </summary>
+        [JsonProperty] public bool IsManual { get; private set; }
+
         [JsonConstructor] protected Mod() 
             : base()
         { }
@@ -99,6 +104,15 @@ namespace Rpg.Experimental.Mods
         public Mod NoTurnTracking()
         {
             StartsTurnTracking = false;
+            return this;
+        }
+
+        /// <summary>
+        /// Mark the mod as a change made by hand
+        /// </summary>
+        public Mod Manual()
+        {
+            IsManual = true;
             return this;
         }
 

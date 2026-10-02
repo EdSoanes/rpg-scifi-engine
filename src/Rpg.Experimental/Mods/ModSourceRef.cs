@@ -12,6 +12,10 @@ namespace Rpg.Experimental.Mods
 {
     public sealed class ModSource
     {
+        /// <summary>
+        /// The property the mod takes its value from. A path through child objects (e.g. "Head.Health") is
+        /// resolved to the object that has the property when the mod is added to a graph.
+        /// </summary>
         public RpgPropertyRef? PropRef { get; set; }
         public Dice? Value { get; set; }
         public RpgMethod<RpgObject, Dice>? Calc { get; set; }
