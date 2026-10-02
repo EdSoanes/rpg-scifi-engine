@@ -45,6 +45,14 @@ namespace Rpg.Experimental.Graph
             _rpgSystem = rpgSystem;
 
             PropertyRefs = new RpgPropertyRefFactory(this);
+            RestoreState(graphState);
+        }
+
+        /// <summary>
+        /// Replace everything in the graph with a saved state
+        /// </summary>
+        protected void RestoreState(RpgGraphState graphState)
+        {
             Context = (RpgObject)graphState.Objects.First(x => x.Id == graphState.ContextId);
 
             Objects.Clear();
@@ -55,8 +63,12 @@ namespace Rpg.Experimental.Graph
             foreach (var objData in graphState.ObjectData)
                 ObjectData.Add(objData.ObjectId, objData);
 
+            Time.OnTemporalEvent -= OnTemporalEvent;
             Time = graphState.Time;
             Time.OnTemporalEvent += OnTemporalEvent;
+
+            ChangeTracker = new RpgGraphChangeTracker();
+            _turnTrackingRequested = false;
 
             foreach (var objData in ObjectData.Values)
                 objData.OnRestoring(this);
@@ -79,6 +91,216 @@ namespace Rpg.Experimental.Graph
 
         public RpgPropertyRef[] GetChangedProperties()
             => ChangeTracker.UpdatedProps.ToArray();
+
+        #region Time
+
+        /// <summary>
+        /// Start counting turns at the given turn number. Does nothing if turns are already being counted.
+        /// </summary>
+        public void BeginTurnTracking(int turn = 1)
+            => Time.BeginTurnTracking(turn);
+
+        public void NextTurn()
+            => Time.NextTurn();
+
+        /// <summary>
+        /// Move to a turn. Time passes: moving forward several turns passes through each turn in order.
+        /// </summary>
+        public void AdvanceToTurn(int turn)
+            => Time.ToTurn(turn);
+
+        /// <summary>
+        /// Stop counting turns. Anything that still had turns left to run is dropped. States that need turn
+        /// tracking stay on. Lasting changes carry on.
+        /// </summary>
+        public void EndTurnTracking()
+        {
+            if (Time.IsTurnTracking)
+                Time.EndEncounter();
+        }
+
+        /// <summary>
+        /// A time event, either the built in "TimePasses" or one defined by the game system (e.g. "Sunrise").
+        /// Any event can be triggered at any time, including during turn tracking, which it does not end.
+        /// </summary>
+        public void TriggerTimeEvent(string eventName)
+            => Time.RaiseEvent(eventName);
+
+        /// <summary>
+        /// Change the number of the current turn. No time passes: everything measured in turns shifts by
+        /// the same amount. Use this to agree a turn number with other character sheets.
+        /// </summary>
+        public virtual void RenumberTurn(int turn)
+        {
+            if (!Time.IsTurnTracking)
+                return;
+
+            var offset = turn - Time.Turn;
+            if (offset == 0)
+                return;
+
+            foreach (var lifecycle in GetAllLifecycles())
+                lifecycle.Item1.ShiftTurns(offset);
+
+            Time.RenumberTurn(turn);
+            Time.Refresh();
+        }
+
+        /// <summary>
+        /// What currently needs turns to be counted
+        /// </summary>
+        public RpgTurnTrackingReport GetTurnTrackingReport()
+            => new RpgTurnTrackingReport
+            {
+                IsTurnTracking = Time.IsTurnTracking,
+                Turn = Time.Turn,
+                Effects = GetAppliedTurnBasedMods()
+                    .Where(x => x.StartsTurnTracking)
+                    .ToArray(),
+                States = Objects.Values
+                    .OfType<RpgState>()
+                    .Where(x => x.IsOn && x.NeedsTurnTracking)
+                    .ToArray()
+            };
+
+        internal void RequestTurnTracking()
+            => _turnTrackingRequested = true;
+
+        /// <summary>
+        /// Called when the state at the start of the current turn has changed in a way that should be kept
+        /// if the turn is gone back to
+        /// </summary>
+        internal virtual void OnTurnStateChanged() { }
+
+        protected virtual void OnAfterTemporalEvent(TemporalEventArgs e) { }
+
+        private Mod[] GetAppliedTurnBasedMods()
+            => GetAllLifecycles()
+                .Select(x => x.Item1)
+                .OfType<Mod>()
+                .Where(x => x.IsTurnBased
+                    && x.IsApplied
+                    && x.IsUserEnabled != false
+                    && x.Expired == null
+                    && (x.Expiry == LifecycleExpiry.Active || x.Expiry == LifecycleExpiry.Pending))
+                .ToArray();
+
+        /// <summary>
+        /// Every object, mod set, state, mod and child reference in the graph. Mods and child references
+        /// come with the property they belong to.
+        /// </summary>
+        private List<(RpgLifecycleObject, RpgPropertyRef?)> GetAllLifecycles()
+        {
+            var res = new List<(RpgLifecycleObject, RpgPropertyRef?)>();
+
+            foreach (var obj in Objects.Values)
+                res.Add((obj, null));
+
+            foreach (var objData in ObjectData.Values)
+                foreach (var propData in objData.Props)
+                {
+                    var propRef = new RpgPropertyRef(propData.ObjectId, propData.Prop);
+                    if (propData is RpgPropertyDataModdable moddable)
+                        res.AddRange(moddable.Mods.Select(x => ((RpgLifecycleObject)x, (RpgPropertyRef?)propRef)));
+                    else if (propData is RpgPropertyDataObject objectProp)
+                        res.AddRange(objectProp.Refs.Select(x => ((RpgLifecycleObject)x, (RpgPropertyRef?)propRef)));
+                }
+
+            return res;
+        }
+
+        /// <summary>
+        /// A time event has happened. Lifespans waiting for the event start, and lifespans lasting until the
+        /// event end. During turn tracking this includes everything lasting "until time passes", because a
+        /// time event does not end turn tracking.
+        /// </summary>
+        private void OnNamedTimeEvent(string eventName)
+        {
+            var now = Time.Now;
+            var isTurnTracking = Time.IsTurnTracking;
+
+            foreach (var (lifecycle, propRef) in GetAllLifecycles())
+            {
+                var changed = false;
+
+                if (lifecycle.Start.IsEvent(eventName))
+                {
+                    lifecycle.StartAt(now);
+                    changed = true;
+                }
+                else if (lifecycle.Expired == null && lifecycle.Start.Type != TimePointType.Event)
+                {
+                    //Something still waiting for its own start event is not ended by an earlier event
+                    var endsNow = lifecycle.End.IsEvent(eventName)
+                        || (isTurnTracking && lifecycle.End.Type == TimePointType.TimePasses);
+
+                    if (endsNow)
+                    {
+                        lifecycle.Expire(now);
+                        changed = true;
+                    }
+                }
+
+                if (changed && propRef != null)
+                    ChangeTracker.PropsUpdated(propRef);
+            }
+        }
+
+        /// <summary>
+        /// Turn tracking is ending. Anything that still has turns left to run is dropped. Anything that
+        /// began during turn tracking and lasts until a time event carries on.
+        /// </summary>
+        private void OnTurnTrackingEnding()
+        {
+            var now = Time.Now;
+
+            foreach (var (lifecycle, propRef) in GetAllLifecycles())
+            {
+                var changed = false;
+
+                if (lifecycle.End.Type == TimePointType.Turn)
+                {
+                    if (lifecycle.Expired == null)
+                    {
+                        lifecycle.Expire(now);
+                        changed = true;
+                    }
+                }
+                else if (lifecycle.Start.Type == TimePointType.Turn && lifecycle.End.Type == TimePointType.Event)
+                {
+                    lifecycle.StartAt(TimePointType.TimeBegins);
+                    changed = true;
+                }
+
+                if (changed && propRef != null)
+                    ChangeTracker.PropsUpdated(propRef);
+            }
+        }
+
+        /// <summary>
+        /// Outside turn tracking nothing measured in turns can run. An applied effect that lasts a number of
+        /// turns starts turn tracking, as does a state that needs turns counted switching on. Effects marked
+        /// as too trivial for that are dropped.
+        /// </summary>
+        private void ResolveTurnBasedOutsideTurnTracking()
+        {
+            var turnBasedMods = GetAppliedTurnBasedMods();
+
+            if (_turnTrackingRequested || turnBasedMods.Any(x => x.StartsTurnTracking))
+            {
+                _turnTrackingRequested = false;
+                Time.BeginTurnTracking();
+                return;
+            }
+
+            foreach (var mod in turnBasedMods)
+            {
+                mod.Expire(this, Time.Now);
+                ChangeTracker.PropsUpdated(mod.Target);
+            }
+        }
+
+        #endregion Time
 
         public void AddTo(string parentId, string parentProp, string childId, TimePoint start, TimePoint end)
         {
@@ -407,7 +629,39 @@ namespace Rpg.Experimental.Graph
         internal MetaObject? GetMetaObject(string? archetype)
             => _rpgSystem.GetMetaObject(archetype);
 
+        private int _temporalEventDepth;
+        private bool _turnTrackingRequested;
+
         private void OnTemporalEvent(object? sender, TemporalEventArgs e)
+        {
+            _temporalEventDepth++;
+            try
+            {
+                if (e.Event != null)
+                    OnNamedTimeEvent(e.Event);
+
+                if (e.Time.Type == TimePointType.EncounterEnds)
+                    OnTurnTrackingEnding();
+
+                ProcessTemporalEvent();
+            }
+            finally
+            {
+                _temporalEventDepth--;
+            }
+
+            if (_temporalEventDepth == 0)
+            {
+                if (Time.IsTurnTracking)
+                    _turnTrackingRequested = false;
+                else if (Time.Now.Type == TimePointType.Waiting)
+                    ResolveTurnBasedOutsideTurnTracking();
+
+                OnAfterTemporalEvent(e);
+            }
+        }
+
+        private void ProcessTemporalEvent()
         {
             var modSets = Objects.Values.Where(x => x is RpgModSet && !(x is RpgState));
             OnTemporalEvent(modSets);
@@ -567,6 +821,17 @@ namespace Rpg.Experimental.Graph
                         res.AddRange(modPropData.Mods.Where(x => x.OwnerId == id));
 
             return res.ToArray();
+        }
+
+        /// <summary>
+        /// Take a mod out of the graph altogether
+        /// </summary>
+        public void Remove(Mod mod)
+        {
+            foreach (var objData in ObjectData.Values)
+                foreach (var propData in objData.Props.OfType<RpgPropertyDataModdable>())
+                    if (propData.Mods.RemoveAll(x => x.Id == mod.Id) > 0)
+                        ChangeTracker.PropUpdated(propData.ObjectId, propData.Prop);
         }
 
         public Mod[] GetMods(IEnumerable<string> modIds)

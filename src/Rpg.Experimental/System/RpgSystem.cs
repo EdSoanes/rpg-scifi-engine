@@ -9,6 +9,7 @@ namespace Rpg.Experimental.System
         public string Name { get; internal set; }
         public string Version { get; internal set; }
         public string Description { get; internal set; }
+        public string[] TimeEvents { get; internal set; } = [];
 
         public MetaObject[] Objects { get; internal set; } = [];
         public MetaAction[] Actions { get; internal set; } = [];

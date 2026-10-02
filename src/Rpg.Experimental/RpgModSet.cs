@@ -157,6 +157,38 @@ namespace Rpg.Experimental
         }
 
         /// <summary>
+        /// The set lasts until the named time event next happens, e.g. "Sunrise"
+        /// </summary>
+        public RpgModSet Until(string eventName)
+        {
+            End = TimePoint.AtEvent(eventName);
+            return this;
+        }
+
+        /// <summary>
+        /// Take a mod out of the set and out of the graph
+        /// </summary>
+        public void Remove(RpgGraph graph, Mod mod)
+        {
+            _newMods.RemoveAll(x => x.Id == mod.Id);
+            _existingMods.RemoveAll(x => x.Id == mod.Id);
+            graph.Remove(mod);
+        }
+
+        /// <summary>
+        /// Take every mod out of the set and out of the graph
+        /// </summary>
+        public void Clear(RpgGraph graph)
+        {
+            foreach (var mod in _existingMods)
+                graph.Remove(mod);
+
+            _existingMods.Clear();
+            _newMods.Clear();
+            _restoredModIds = [];
+        }
+
+        /// <summary>
         /// A mod with the default lifespan lives and dies with the set. A mod that was given its own lifespan
         /// (e.g. Temporal) keeps it and is only applied/unapplied by the set.
         /// </summary>

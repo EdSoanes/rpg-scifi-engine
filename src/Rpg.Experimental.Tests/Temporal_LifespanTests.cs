@@ -17,13 +17,19 @@ namespace Rpg.Experimental.Tests
         }
 
         [Test]
-        public void SpanOfTime_WaitingToTimePasses_EncounterBegins_Destroyed()
+        public void SpanOfTime_WaitingToTimePasses_EncounterBegins_StaysActive()
         {
+            //Something that lasts until time passes carries on through turn tracking
             var span = new RpgLifecycleObject(TimePointType.Waiting, TimePointType.TimePasses);
             _characterSheet.Time.BeginEncounter();
             span.OnTimeEvent(_characterSheet);
 
-            Assert.That(span.Expiry, Is.EqualTo(LifecycleExpiry.Destroyed));
+            Assert.That(span.Expiry, Is.EqualTo(LifecycleExpiry.Active));
+
+            _characterSheet.Time.EndEncounter();
+            span.OnTimeEvent(_characterSheet);
+
+            Assert.That(span.Expiry, Is.EqualTo(LifecycleExpiry.Active));
         }
 
         [Test]

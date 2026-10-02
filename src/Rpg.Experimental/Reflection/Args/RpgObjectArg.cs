@@ -43,7 +43,9 @@ namespace Rpg.Experimental.Reflection.Args
                     ? graph.GetObject(id)?.Id
                     : id;
             }
-            throw new ArgumentException($"value not of type {Type}");
+            //An object of the wrong type cannot be passed to the method. The arg is left without a value
+            //rather than refusing with an error.
+            return null;
         }
     }
 }

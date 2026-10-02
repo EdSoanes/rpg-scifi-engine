@@ -105,6 +105,33 @@ namespace Rpg.Experimental
             return synced;
         }
 
+        /// <summary>
+        /// True if the lifespan is measured in turns, so turns need to be tracked for it to run its course
+        /// </summary>
+        [JsonIgnore] public bool IsTurnBased { get => End.Type == TimePointType.Turn; }
+
+        internal void StartAt(TimePoint start)
+            => Start = start;
+
+        /// <summary>
+        /// The turns have been renumbered. No time has passed.
+        /// </summary>
+        internal void ShiftTurns(int offset)
+        {
+            //Relative lifespans have not been given actual turn numbers yet
+            if (IsLifespanRelative)
+                return;
+
+            if (Start.Type == TimePointType.Turn)
+                Start = new TimePoint(TimePointType.Turn, Start.Count + offset);
+
+            if (End.Type == TimePointType.Turn)
+                End = new TimePoint(TimePointType.Turn, End.Count + offset);
+
+            if (Expired != null && Expired.Value.Type == TimePointType.Turn)
+                Expired = new TimePoint(TimePointType.Turn, Expired.Value.Count + offset);
+        }
+
         public virtual void Apply()
             => IsApplied = true;
 
@@ -216,10 +243,9 @@ namespace Rpg.Experimental
 
             var expiry = LifecycleExpiry.Expired;
 
-            if (start == TimePointType.Waiting && end == TimePointType.TimePasses && graph.Time.Now != TimePointType.Waiting)
-                expiry = LifecycleExpiry.Destroyed;
-
-            else if (graph.Time.Now.Type == TimePointType.TimePasses && end.Type == TimePointType.TimePasses && graph.Time.Now.Count >= end.Count)
+            //Something that lasts "until time passes" carries on through turn tracking. It ends on a time
+            //event, see RpgGraph.OnNamedTimeEvent()
+            if (graph.Time.Now.Type == TimePointType.TimePasses && end.Type == TimePointType.TimePasses && graph.Time.Now.Count >= end.Count)
                 expiry = LifecycleExpiry.Expired;
 
             else if (graph.Time.Now.Type == TimePointType.Waiting && end.Type == TimePointType.Waiting && graph.Time.Now.Count >= end.Count)

@@ -21,7 +21,7 @@ namespace Rpg.Cyborgs.Skills.Combat
 
         public bool Cost(RpgActivityAction activityAction, Actor owner)
         {
-            activityAction.Result
+            activityAction.CostSet
                 .Add(new Temporal(1), owner, x => x.CurrentActionPoints, -1);
 
             return true;

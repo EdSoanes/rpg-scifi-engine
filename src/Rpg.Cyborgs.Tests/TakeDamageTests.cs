@@ -60,7 +60,7 @@ namespace Rpg.Cyborgs.Tests
             //Nothing happens until the action is completed
             Assert.That(_pc.CurrentStaminaPoints, Is.EqualTo(14));
 
-            var nextActions = takeDamage.Complete();
+            var nextActions = takeDamage.Complete(_characterSheet);
             _characterSheet.Time.Refresh();
 
             Assert.That(takeDamage.IsComplete, Is.True);
@@ -89,7 +89,7 @@ namespace Rpg.Cyborgs.Tests
 
             var first = _characterSheet.CreateActivity(_pc.Id, _pc.Id, nameof(TakeDamage)).CurrentActivityAction!;
             Assert.That(first.Outcome(_characterSheet, ("damage", 3)), Is.True);
-            first.Complete();
+            first.Complete(_characterSheet);
             _characterSheet.Time.Refresh();
 
             Assert.That(_pc.CurrentStaminaPoints, Is.EqualTo(11));
@@ -99,7 +99,7 @@ namespace Rpg.Cyborgs.Tests
             var second = _characterSheet.CreateActivity(_pc.Id, _pc.Id, nameof(TakeDamage)).CurrentActivityAction!;
             Assert.That(second.Id, Is.Not.EqualTo(first.Id));
             Assert.That(second.Outcome(_characterSheet, ("damage", 4)), Is.True);
-            second.Complete();
+            second.Complete(_characterSheet);
             _characterSheet.Time.Refresh();
 
             Assert.That(_pc.CurrentStaminaPoints, Is.EqualTo(7));
@@ -125,7 +125,7 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(_characterSheet.GetPropertyValue<Dice>(takeDamage.Id, "staminaInjury").ToString(), Is.EqualTo("14"));
             Assert.That(_characterSheet.GetPropertyValue<Dice>(takeDamage.Id, "lifeInjury").ToString(), Is.EqualTo("1"));
 
-            var nextActions = takeDamage.Complete();
+            var nextActions = takeDamage.Complete(_characterSheet);
             _characterSheet.Time.Refresh();
 
             Assert.That(nextActions.Length, Is.EqualTo(1));
@@ -162,7 +162,7 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(takeInjury.AllStepsComplete, Is.True);
             Assert.That(_pc.LeftArm.InjurySeverity, Is.EqualTo(0));
 
-            takeInjury.Complete();
+            takeInjury.Complete(_characterSheet);
             _characterSheet.Time.Refresh();
 
             Assert.That(_pc.LeftArm.InjurySeverity, Is.EqualTo((int)InjurySeverityEnum.Severed));
@@ -208,7 +208,7 @@ namespace Rpg.Cyborgs.Tests
             //A successful parry reduces damage by at least 1
             Assert.That(_characterSheet.GetPropertyValue<Dice>(parry.Id, "damage").Roll(), Is.EqualTo(9));
 
-            var nextActions = parry.Complete();
+            var nextActions = parry.Complete(_characterSheet);
             _characterSheet.Time.Refresh();
 
             Assert.That(nextActions.Length, Is.EqualTo(2));
@@ -225,7 +225,7 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(_characterSheet.GetPropertyValue<Dice>(takeDamage.Id, "damage").Roll(), Is.EqualTo(9));
             Assert.That(takeDamage.Outcome(_characterSheet), Is.True);
 
-            takeDamage.Complete();
+            takeDamage.Complete(_characterSheet);
             _characterSheet.Time.Refresh();
 
             Assert.That(_pc.CurrentStaminaPoints, Is.EqualTo(5));
@@ -259,7 +259,7 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(parry.Perform(_characterSheet, ("parryTarget", 8)), Is.True);
             Assert.That(parry.Outcome(_characterSheet, ("diceRoll", 9)), Is.True);
 
-            var parryNextActions = parry.Complete();
+            var parryNextActions = parry.Complete(_characterSheet);
             _characterSheet.Time.Refresh();
 
             _characterSheet.CreateActivity(_pc.Id, parryNextActions.First(x => x.ActionName == nameof(ArmourCheck)));
@@ -277,7 +277,7 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(armourCheck.Outcome(_characterSheet, ("diceRoll1", 5), ("diceRoll2", 2)), Is.True);
             Assert.That(_characterSheet.GetPropertyValue<Dice>(armourCheck.Id, "damage").Roll(), Is.EqualTo(4));
 
-            armourCheck.Complete();
+            armourCheck.Complete(_characterSheet);
             _characterSheet.Time.Refresh();
 
             Assert.That(_vest.CurrentArmourRating, Is.EqualTo(2));
@@ -289,7 +289,7 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(_characterSheet.GetPropertyValue<Dice>(takeDamage.Id, "damage").Roll(), Is.EqualTo(4));
             Assert.That(takeDamage.Outcome(_characterSheet), Is.True);
 
-            takeDamage.Complete();
+            takeDamage.Complete(_characterSheet);
             _characterSheet.Time.Refresh();
 
             Assert.That(_pc.CurrentStaminaPoints, Is.EqualTo(10));

@@ -59,7 +59,7 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(_characterSheet.GetPropertyValue<Dice>(attack.Id, "diceRoll").ToString(), Is.EqualTo("2d6"));
 
             Assert.That(attack.Cost(_characterSheet, ("actionPoints", 1), ("focusPoints", 0)), Is.True);
-            Assert.That(attack.Result.Mods.Count(), Is.EqualTo(1));
+            Assert.That(attack.CostSet.Mods.Count(), Is.EqualTo(1));
 
             //Costs are not paid until the action is completed
             Assert.That(_pc.CurrentActionPoints, Is.EqualTo(1));
@@ -72,7 +72,7 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(_characterSheet.GetPropertyValue<Dice>(attack.Id, "diceRoll").ToString(), Is.EqualTo("14"));
             Assert.That(_characterSheet.GetPropertyValue<Dice>(attack.Id, "damage").ToString(), Is.EqualTo("1d6"));
 
-            attack.Complete();
+            attack.Complete(_characterSheet);
             _characterSheet.Time.Refresh();
 
             Assert.That(attack.IsComplete, Is.True);

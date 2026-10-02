@@ -11,5 +11,7 @@
         public string Version { get => "0.1"; }
 
         public string Description { get => "Test system for unit testing"; }
+
+        public string[] TimeEvents { get => ["Sunrise", "Sunset"]; }
     }
 }

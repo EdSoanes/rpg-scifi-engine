@@ -16,6 +16,12 @@ namespace Rpg.Experimental
         [JsonProperty] public bool IsPlayerVisible { get; protected set; } = true;
         [JsonProperty] public string Classification { get; protected set; } = "State";
 
+        /// <summary>
+        /// True if turns need to be counted while the state is on (e.g. bleeding). Turn tracking starts
+        /// when the state switches on. Ending turn tracking does not switch the state off.
+        /// </summary>
+        [JsonProperty] public bool NeedsTurnTracking { get; protected set; }
+
         [JsonProperty] public bool IsOn { get; private set; }
 
         [JsonConstructor] protected RpgState() { }
@@ -47,8 +53,13 @@ namespace Rpg.Experimental
 
         private void SyncOwnerActiveStates(RpgGraph graph)
         {
+            var wasOn = IsOn;
+
             IsOn = Expiry == LifecycleExpiry.Active;
             graph.GetObject(OwnerId)?.SetStateOn(Name ?? GetType().Name, IsOn);
+
+            if (!wasOn && IsOn && NeedsTurnTracking)
+                graph.RequestTurnTracking();
         }
     }
 

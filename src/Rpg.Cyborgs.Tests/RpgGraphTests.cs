@@ -101,7 +101,7 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(Current().Outcome(sheet, ("damage", 15)), Is.True);
 
             sheet = TestSystem.RoundTrip(sheet);
-            var nextActions = Current().Complete();
+            var nextActions = Current().Complete(sheet);
             sheet.Time.Refresh();
 
             Assert.That(nextActions.Length, Is.EqualTo(1));
@@ -119,7 +119,7 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(Current().Outcome(sheet, ("injuryRoll", 3), ("injuryLocationRoll", 3), ("locationType", 0)), Is.True);
 
             sheet = TestSystem.RoundTrip(sheet);
-            Current().Complete();
+            Current().Complete(sheet);
             sheet.Time.Refresh();
 
             sheet = TestSystem.RoundTrip(sheet);

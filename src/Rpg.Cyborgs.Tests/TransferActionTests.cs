@@ -54,7 +54,7 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(transfer.Outcome(_characterSheet), Is.False);
             Assert.That(transfer.Outcome(_characterSheet, ("to", _room), ("toProp", nameof(Room.Contents))), Is.True);
 
-            transfer.Complete();
+            transfer.Complete(_characterSheet);
             _characterSheet.Time.Refresh();
 
             Assert.That(transfer.IsComplete, Is.True);
@@ -94,7 +94,7 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(transfer.Perform(_characterSheet), Is.True);
             Assert.That(transfer.Outcome(_characterSheet, ("to", _room), ("toProp", nameof(Room.Contents))), Is.True);
 
-            transfer.Complete();
+            transfer.Complete(_characterSheet);
             _characterSheet.Time.Refresh();
 
             Assert.That(_pc.CurrentActionPoints, Is.EqualTo(0));

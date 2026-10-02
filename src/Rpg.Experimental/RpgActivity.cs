@@ -68,6 +68,11 @@ namespace Rpg.Experimental
 
         public override void OnTimeEvent(RpgGraph graph)
         {
+            //An activity begun outside turn tracking lasts until time passes. If turn tracking then starts
+            //(e.g. because of the activity's own outcome) it becomes the activity of that turn.
+            if (graph.Time.Now.Type == TimePointType.Turn && End.Type == TimePointType.TimePasses && Expired == null)
+                End = new TimePoint(TimePointType.Turn, graph.Time.Turn + 1);
+
             base.OnTimeEvent(graph);
             SetArgValues(graph);
         }

@@ -30,7 +30,8 @@ namespace Rpg.Experimental.System
                 Identifier = system.Identifier,
                 Name = system.Name,
                 Version = system.Version,
-                Description = system.Description
+                Description = system.Description,
+                TimeEvents = system.TimeEvents
             };
 
             var systemAssemblies = DiscoverSystemAssemblies(system)

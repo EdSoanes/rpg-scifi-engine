@@ -46,17 +46,19 @@ namespace Rpg.Experimental.Tests
         }
 
         [Test]
-        public void Mod_RelativeLifespan_AddedBeforeEncounter_StartsOnFirstTurn()
+        public void Mod_RelativeLifespan_AddedOutsideTurnTracking_StartsTurnTracking()
         {
             var obj = new TestObject();
             var characterSheet = new RpgCharacterSheet(obj);
 
+            Assert.That(characterSheet.Time.IsTurnTracking, Is.False);
+
             characterSheet.Add(new Temporal(1, 1), obj, x => x.Strength, 2);
             characterSheet.Time.Refresh();
 
-            Assert.That(obj.Strength, Is.EqualTo(10));
-
-            characterSheet.Time.BeginEncounter();
+            //The mod starts next turn, so the clock starts now
+            Assert.That(characterSheet.Time.IsTurnTracking, Is.True);
+            Assert.That(characterSheet.Time.Turn, Is.EqualTo(1));
             Assert.That(obj.Strength, Is.EqualTo(10));
 
             characterSheet.Time.ToTurn(2);

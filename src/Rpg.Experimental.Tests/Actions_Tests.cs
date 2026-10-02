@@ -97,7 +97,7 @@ namespace Rpg.Experimental.Tests
             Assert.That(activityAction.AllStepsComplete, Is.True);
             Assert.That(activityAction.IsComplete, Is.False);
             
-            activityAction.Complete();
+            activityAction.Complete(characterSheet);
             characterSheet.Time.Refresh();
 
             Assert.That(activityAction.IsComplete, Is.True);
@@ -151,7 +151,7 @@ namespace Rpg.Experimental.Tests
             Assert.That(activityAction.Outcome(characterSheet), Is.True);
             Assert.That(activityAction.AllStepsComplete, Is.True);
 
-            var outcomeActions = activityAction.Complete();
+            var outcomeActions = activityAction.Complete(characterSheet);
             characterSheet.Time.Refresh();
 
             Assert.That(activityAction.IsComplete, Is.True);
@@ -174,7 +174,7 @@ namespace Rpg.Experimental.Tests
             Assert.That(first.Perform(characterSheet, ("value", 3)), Is.True);
             Assert.That(first.Outcome(characterSheet), Is.True);
 
-            var outcomeActions = first.Complete();
+            var outcomeActions = first.Complete(characterSheet);
             characterSheet.Time.Refresh();
 
             Assert.That(outcomeActions.Length, Is.EqualTo(1));
@@ -213,12 +213,12 @@ namespace Rpg.Experimental.Tests
             Assert.That(activityAction.Outcome(characterSheet), Is.True);
             Assert.That(activityAction.OutcomeActions.Count, Is.EqualTo(1));
 
-            activityAction.Reset(ActionMethodNames.Outcome);
+            activityAction.Reset(characterSheet, ActionMethodNames.Outcome);
 
             Assert.That(activityAction.OutcomeMethod.IsDone, Is.False);
             Assert.That(activityAction.PerformMethod.IsDone, Is.True);
             Assert.That(activityAction.OutcomeActions.Count, Is.EqualTo(0));
-            Assert.That(activityAction.Complete().Length, Is.EqualTo(0));
+            Assert.That(activityAction.Complete(characterSheet).Length, Is.EqualTo(0));
             Assert.That(activityAction.IsComplete, Is.False);
         }
     }

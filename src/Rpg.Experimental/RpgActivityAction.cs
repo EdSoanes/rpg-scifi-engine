@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Experimental.Graph;
+using Rpg.Experimental.Mods;
 using Rpg.Experimental.Reflection.Args;
 
 namespace Rpg.Experimental
@@ -9,7 +10,17 @@ namespace Rpg.Experimental
         private RpgAction? _action;
         private RpgActivity? _activity;
 
+        /// <summary>
+        /// The costs of performing the action. Filled by the action's Cost step and applied when the action
+        /// is completed. Costs measured in turns are skipped if turns are not being tracked.
+        /// </summary>
+        [JsonIgnore] public RpgModSet CostSet { get; private set; }
+
+        /// <summary>
+        /// The effects of the action. Filled by the action's Outcome step and applied when the action is completed.
+        /// </summary>
         [JsonIgnore] public RpgModSet Result { get; private set; }
+
         [JsonProperty] public string ActionId { get; private set; }
         [JsonProperty] public string ActionOwnerId { get; private set; }
         [JsonProperty] public int ActivityActionNo { get; private set; }
@@ -22,6 +33,13 @@ namespace Rpg.Experimental
         /// Actions nominated by the Outcome step to follow this one in the activity
         /// </summary>
         [JsonProperty] public List<RpgActionRef> OutcomeActions { get; private set; } = new();
+
+        /// <summary>
+        /// Costs that were not charged when the action was completed because they are measured in turns and
+        /// turns were not being tracked. They are kept so they can be shown, and applied by hand with
+        /// ApplySkippedCosts().
+        /// </summary>
+        [JsonProperty] public List<Mod> SkippedCosts { get; private set; } = new();
 
         [JsonProperty] public bool IsComplete { get; private set; }
 
@@ -91,10 +109,15 @@ namespace Rpg.Experimental
             return res;
         }
 
-        public void Reset(string methodName)
+        /// <summary>
+        /// Make a step (and the steps after it) ready to be done again. Anything the steps added to the
+        /// cost and result sets is removed.
+        /// </summary>
+        public void Reset(RpgGraph graph, string methodName)
         {
             OutcomeMethod.Reset(this);
             OutcomeActions.Clear();
+            Result.Clear(graph);
 
             if (methodName == ActionMethodNames.Perform)
                 PerformMethod.Reset(this);
@@ -103,7 +126,12 @@ namespace Rpg.Experimental
             {
                 CostMethod.Reset(this);
                 PerformMethod.Reset(this);
+
+                CostSet.Clear(graph);
+                SkippedCosts.Clear();
             }
+
+            graph.Time.Refresh();
         }
 
         public RpgAction? GetAction()
@@ -139,7 +167,7 @@ namespace Rpg.Experimental
             graph.CreateVirtualProperties(this, OutcomeMethod.Args);
             _action?.OnCreatingActivityAction(graph, this);
 
-            RestoreOutcome(graph);
+            RestoreModSets(graph);
         }
 
         public override void OnRestoring(RpgGraph graph)
@@ -153,7 +181,7 @@ namespace Rpg.Experimental
             PerformMethod.OnRestoring(graph, _action, _action?.PerformMethod);
             OutcomeMethod.OnRestoring(graph, _action, _action?.OutcomeMethod);
 
-            RestoreOutcome(graph);
+            RestoreModSets(graph);
         }
 
         public override void OnTimeEvent(RpgGraph graph)
@@ -181,38 +209,81 @@ namespace Rpg.Experimental
             return obj;
         }
 
-        private void RestoreOutcome(RpgGraph graph)
+        private void RestoreModSets(RpgGraph graph)
         {
-            if (Result == null)
+            CostSet ??= RestoreModSet(graph, ActionMethodNames.Cost);
+            Result ??= RestoreModSet(graph, ActionMethodNames.Outcome);
+        }
+
+        private RpgModSet RestoreModSet(RpgGraph graph, string name)
+        {
+            var modSet = graph.GetOwnerModSets(Id)?.FirstOrDefault(x => x.Name == name);
+            if (modSet == null)
             {
-                var resultSet = graph.GetOwnerModSets(Id)?.FirstOrDefault(x => x.Name == ActionMethodNames.Outcome);
-                if (resultSet == null)
-                {
-                    resultSet = new RpgModSet(ActionMethodNames.Outcome, Id, false)
-                        .Lifespan(Start, End);
+                modSet = new RpgModSet(name, Id, false)
+                    .Lifespan(Start, End);
 
-                    resultSet.Unapply();
-                    graph.Add(resultSet);
-                }
-
-                Result = resultSet;
+                modSet.Unapply();
+                graph.Add(modSet);
             }
+
+            return modSet;
         }
 
         /// <summary>
-        /// Apply the results of the action. Returns the actions nominated by the outcome to follow this one.
+        /// Apply the results and the costs of the action. Returns the actions nominated by the outcome to
+        /// follow this one.
+        ///
+        /// The results are applied first. A result that lasts a number of turns starts turn tracking if it
+        /// is not already on. A cost measured in turns is then skipped only if turns are still not being
+        /// tracked.
         /// </summary>
-        public RpgActionRef[] Complete()
+        public RpgActionRef[] Complete(RpgGraph graph)
         {
-            if (AllStepsComplete)
-            {
-                Result.Apply();
-                IsComplete = true;
-
+            if (IsComplete)
                 return OutcomeActions.ToArray();
+
+            if (!AllStepsComplete)
+                return [];
+
+            var wasTurnTracking = graph.Time.IsTurnTracking;
+
+            Result.Apply();
+            IsComplete = true;
+            graph.Time.Refresh();
+
+            if (!graph.Time.IsTurnTracking)
+            {
+                foreach (var cost in CostSet.Mods.Where(x => x.IsTurnBased).ToArray())
+                {
+                    CostSet.Remove(graph, cost);
+                    SkippedCosts.Add(cost);
+                }
             }
 
-            return [];
+            CostSet.Apply();
+            graph.Time.Refresh();
+
+            //The action started turn tracking, so the start of the first turn includes the whole action
+            if (!wasTurnTracking && graph.Time.IsTurnTracking)
+                graph.OnTurnStateChanged();
+
+            return OutcomeActions.ToArray();
+        }
+
+        /// <summary>
+        /// Charge the costs that were skipped when the action was completed
+        /// </summary>
+        public void ApplySkippedCosts(RpgGraph graph)
+        {
+            if (!SkippedCosts.Any())
+                return;
+
+            foreach (var cost in SkippedCosts)
+                CostSet.Add(cost);
+
+            SkippedCosts.Clear();
+            graph.Time.Refresh();
         }
 
         public RpgActionRef[] AutoComplete(RpgGraph graph, params (string, object?)[]? args)
@@ -231,17 +302,29 @@ namespace Rpg.Experimental
                     graph.Time.Refresh();
             }
 
-            return Complete();
+            return Complete(graph);
         }
 
-        public void Reset()
+        /// <summary>
+        /// Undo the whole action: every step can be done again and nothing it added remains
+        /// </summary>
+        public void Reset(RpgGraph graph)
         {
             CostMethod.Reset(this);
             PerformMethod.Reset(this);
             OutcomeMethod.Reset(this);
 
+            Result.Clear(graph);
+            Result.Unapply();
+
+            CostSet.Clear(graph);
+            CostSet.Unapply();
+
+            SkippedCosts.Clear();
             OutcomeActions.Clear();
             IsComplete = false;
+
+            graph.Time.Refresh();
         }
 
         /// <summary>

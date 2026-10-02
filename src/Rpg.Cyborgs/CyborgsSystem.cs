@@ -13,5 +13,7 @@ namespace Rpg.Cyborgs
         public string Version { get => "0.1"; }
 
         public string Description { get => "Cyborgs & Sidearms tabletop rpg system"; }
+
+        public string[] TimeEvents { get => ["Sunrise", "Sunset"]; }
     }
 }

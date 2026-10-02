@@ -20,7 +20,7 @@ namespace Rpg.Cyborgs.Skills.Movement
 
         public bool Cost(RpgActivityAction activityAction, Actor owner)
         {
-            activityAction.Result
+            activityAction.CostSet
                 .Add(new Temporal(1), owner, x => x.CurrentActionPoints, -1);
 
             return true;
@@ -29,7 +29,7 @@ namespace Rpg.Cyborgs.Skills.Movement
         public bool Outcome(RpgActivityAction activityAction, Actor owner)
         {
             activityAction.Result
-                .Add(owner.CreateStateActivation(nameof(Moving), 1, false));
+                .Add(owner.CreateStateActivation(nameof(Moving), 1, false).NoTurnTracking());
 
             return true;
         }

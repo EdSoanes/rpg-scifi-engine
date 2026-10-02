@@ -30,7 +30,13 @@ namespace Rpg.Experimental
         Turn,
         EncounterEnds,
         TimePasses,
-        TimeEnds
+        TimeEnds,
+
+        /// <summary>
+        /// A named time event (see TimePoint.Event). Not a position in time: as a start it means "not until
+        /// the event happens", as an end it means "until the event happens".
+        /// </summary>
+        Event
     }
 
     public enum StateInstanceType

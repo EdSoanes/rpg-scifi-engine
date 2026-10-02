@@ -30,11 +30,11 @@ namespace Rpg.Cyborgs.Actions
         public bool Cost(RpgCharacterSheet characterSheet, RpgActivityAction activityAction, Actor actor, int actionPoints, int focusPoints)
         {
             if (actionPoints > 0) 
-                activityAction.Result
+                activityAction.CostSet
                     .Add(new Temporal(1), actor, x => x.CurrentActionPoints, -actionPoints);
 
             if (focusPoints > 0)
-                activityAction.Result
+                activityAction.CostSet
                     .Add(new Temporal(1), actor, x => x.CurrentFocusPoints, -focusPoints);
 
             return true;

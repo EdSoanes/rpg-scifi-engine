@@ -196,7 +196,7 @@ namespace Rpg.Experimental.Tests
             var testState3 = characterSheet3.GetObjectState(obj.Id, nameof(TestState))!;
             Assert.That(testState3.Expiry, Is.EqualTo(LifecycleExpiry.Suspended));
 
-            var outcomeActions = activityAction3.Complete();
+            var outcomeActions = activityAction3.Complete(characterSheet3);
             characterSheet3.Time.Refresh();
 
             Assert.That(outcomeActions.Length, Is.EqualTo(1));

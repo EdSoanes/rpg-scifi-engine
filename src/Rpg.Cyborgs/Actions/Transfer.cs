@@ -21,7 +21,7 @@ namespace Rpg.Cyborgs.Actions
 
         public bool Cost(RpgActivityAction activityAction, Actor actor)
         {
-            activityAction.Result
+            activityAction.CostSet
                 .Add(new Temporal(1), actor, x => x.CurrentActionPoints, -1);
 
             return true;

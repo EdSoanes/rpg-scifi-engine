@@ -16,6 +16,12 @@ namespace Rpg.Experimental.Mods
         [JsonProperty] public RpgPropertyRef? Target { get; private set; }
         [JsonProperty] public ModSource? Source { get; private set; }
 
+        /// <summary>
+        /// A mod that lasts a number of turns starts turn tracking when it is applied outside of it. Set this
+        /// to false for trivial effects that are not worth counting turns for. They are dropped instead.
+        /// </summary>
+        [JsonProperty] public bool StartsTurnTracking { get; private set; } = true;
+
         [JsonConstructor] protected Mod() 
             : base()
         { }
@@ -73,6 +79,26 @@ namespace Rpg.Experimental.Mods
             End = end;
             IsApplied = isApplied;
 
+            return this;
+        }
+
+        /// <summary>
+        /// The mod lasts until the named time event next happens, e.g. "Sunrise"
+        /// </summary>
+        public Mod Until(string eventName)
+        {
+            End = TimePoint.AtEvent(eventName);
+            IsLifespanRelative = Start.Type == TimePointType.Turn && IsLifespanRelative;
+
+            return this;
+        }
+
+        /// <summary>
+        /// This mod is too trivial to start turn tracking for. See StartsTurnTracking.
+        /// </summary>
+        public Mod NoTurnTracking()
+        {
+            StartsTurnTracking = false;
             return this;
         }
 
