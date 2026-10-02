@@ -1,9 +1,9 @@
-﻿using Rpg.ModObjects.States;
+﻿using Rpg.Experimental;
 using Newtonsoft.Json;
 
 namespace Rpg.Cyborgs.States
 {
-    public class Parrying : State<Actor>
+    public class Parrying : RpgState<Actor>
     {
         [JsonConstructor] private Parrying() { IsPlayerVisible = false; }
 

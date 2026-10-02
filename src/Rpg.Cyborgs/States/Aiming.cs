@@ -1,9 +1,9 @@
-﻿using Rpg.ModObjects.States;
+﻿using Rpg.Experimental;
 using Newtonsoft.Json;
 
 namespace Rpg.Cyborgs.States
 {
-    public class Aiming : State<Actor>
+    public class Aiming : RpgState<Actor>
     {
         [JsonConstructor] private Aiming() { IsPlayerVisible = false; }
 

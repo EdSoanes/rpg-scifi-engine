@@ -59,8 +59,11 @@ namespace Rpg.Cyborgs.Actions
 
                 if (success1 && success2)
                 {
+                    //Armour damage is permanent, it must outlive the activity
                     activityAction.Result
-                        .Add(new Standard(), armour, x => x.CurrentArmourRating, -2);
+                        .Add(new Combine()
+                            .SetTarget(armour, x => x.CurrentArmourRating)
+                            .SetSource(-2));
 
                     return true;
                 }
@@ -72,7 +75,9 @@ namespace Rpg.Cyborgs.Actions
                         .Add(new Standard(), activityAction, "damage", damage - damageReduction);
 
                     activityAction.Result
-                        .Add(new Standard(), armour, x => x.CurrentArmourRating, -1);
+                        .Add(new Combine()
+                            .SetTarget(armour, x => x.CurrentArmourRating)
+                            .SetSource(-1));
 
                     return true;
                 }

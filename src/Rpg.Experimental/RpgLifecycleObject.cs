@@ -19,6 +19,12 @@ namespace Rpg.Experimental
         private bool Started { get => Start.IsStarted() && End.IsStarted(); }
         [JsonProperty] public TimePoint Start { get; protected set; }
         [JsonProperty] public TimePoint End { get; protected set; }
+
+        /// <summary>
+        /// True when Start and End are turn counts relative to the turn the lifespan begins in (e.g. starts in
+        /// 1 turn, lasts 2 turns) and have not been converted to actual turns yet
+        /// </summary>
+        [JsonProperty] public bool IsLifespanRelative { get; protected set; }
         [JsonProperty] public TimePoint? Expired { get; private set; }
         [JsonProperty] public LifecycleExpiry Expiry { get; private set; } = LifecycleExpiry.Unset;
         [JsonProperty] public bool IsApplied { get; protected set; } = true;
@@ -69,8 +75,12 @@ namespace Rpg.Experimental
                 Expiry = LifecycleExpiry.Active;
         }
 
-        public static bool operator ==(RpgLifecycleObject? d1, RpgLifecycleObject? d2) => d1?.Start == d2?.Start && d1?.End == d2?.End && d1?.Started == d2?.Started;
-        public static bool operator !=(RpgLifecycleObject? d1, RpgLifecycleObject? d2) => d1?.Start != d2?.Start || d1?.End != d2?.End || d1?.Started != d2?.Started;
+        /// <summary>
+        /// True if the other object has the same lifespan. Lifecycle objects are otherwise compared by
+        /// reference, so two different objects are never equal just because they share a lifespan.
+        /// </summary>
+        public bool HasSameLifespan(RpgLifecycleObject? other)
+            => other != null && other.Start == Start && other.End == End && other.Started == Started;
 
         protected bool SyncLifespanFromOwner(RpgGraph graph)
         {
@@ -157,7 +167,21 @@ namespace Rpg.Experimental
         {
             if (!SyncLifespanFromOwner(graph))
             {
-                if (!Started)
+                if (IsLifespanRelative)
+                {
+                    //Relative lifespans are anchored to the first turn they are evaluated in
+                    if (graph.Time.Now.Type == TimePointType.Turn)
+                    {
+                        if (Start.Type == TimePointType.Turn)
+                            Start = new TimePoint(Start.Type, Start.Count + graph.Time.Now.Count);
+
+                        if (End.Type == TimePointType.Turn)
+                            End = new TimePoint(End.Type, End.Count + graph.Time.Now.Count);
+
+                        IsLifespanRelative = false;
+                    }
+                }
+                else if (!Started)
                 {
                     if (Start.Type == TimePointType.Turn)
                         Start = new TimePoint(Start.Type, Start.Count + graph.Time.Now.Count);
@@ -236,22 +260,6 @@ namespace Rpg.Experimental
                 expiry += $"{expiry} from {OwnerId}";
 
             return $"{Start}=>{Expired ?? End} ({expiry})";
-        }
-
-        public override bool Equals(object? obj)
-        {
-            if (obj == null)
-                return false;
-
-            if (obj is RpgLifecycleObject lifespan)
-                return lifespan.Start == Start && lifespan.End == End && lifespan.Started == Started;
-
-            return false;
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
         }
     }
 }

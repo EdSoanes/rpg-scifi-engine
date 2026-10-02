@@ -1,33 +1,38 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects;
-using Rpg.ModObjects.Activities;
-using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Mods.Mods;
+using Rpg.Experimental;
+using Rpg.Experimental.Graph;
+using Rpg.Experimental.Mods;
 
 namespace Rpg.Cyborgs.Actions
 {
-    public class Transfer : ActionTemplate<RpgEntity>
+    /// <summary>
+    /// Move an item to a child property of another object, e.g. from an actor's hands to a room's contents
+    /// </summary>
+    public class Transfer : RpgAction<Item>
     {
         [JsonConstructor] protected Transfer()
             : base() { }
 
-        public Transfer(RpgEntity owner)
+        public Transfer(Item owner)
             : base(owner) { }
 
-        public bool CanPerform(RpgEntity owner, Actor initiator, RpgContainer from)
-            => initiator.CurrentActionPoints > 0 && from.Contains(owner);
+        public bool CanPerform(Item owner, Actor actor)
+            => actor.CurrentActionPoints > 0;
 
-        public bool Cost(ModObjects.Activities.Action action, Actor initiator)
+        public bool Cost(RpgActivityAction activityAction, Actor actor)
         {
-            action.CostModSet.Add(new Turn(), initiator, x => x.CurrentActionPoints, -1);
+            activityAction.Result
+                .Add(new Temporal(1), actor, x => x.CurrentActionPoints, -1);
+
             return true;
         }
 
-        public bool Outcome(RpgEntity owner, RpgContainer from, RpgContainer to)
+        public bool Outcome(RpgGraph graph, Item owner, RpgObject to, string toProp)
         {
-            from.Remove(owner);
-            to.Add(owner);
+            if (graph.GetPropertyData<RpgPropertyDataObject>(to.Id, toProp) == null)
+                return false;
 
+            graph.Move(to.Id, toProp, owner.Id);
             return true;
         }
     }

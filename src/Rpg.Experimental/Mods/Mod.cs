@@ -51,6 +51,7 @@ namespace Rpg.Experimental.Mods
         {
             Start = new TimePoint(TimePointType.Turn, 0);
             End = new TimePoint(TimePointType.Turn, duration);
+            IsLifespanRelative = true;
             IsApplied = isApplied;
 
             return this;
@@ -60,6 +61,7 @@ namespace Rpg.Experimental.Mods
         {
             Start = new TimePoint(TimePointType.Turn, startsIn);
             End = new TimePoint(TimePointType.Turn, startsIn + duration);
+            IsLifespanRelative = true;
             IsApplied = isApplied;
 
             return this;

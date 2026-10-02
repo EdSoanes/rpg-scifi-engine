@@ -4,7 +4,7 @@ using Rpg.Experimental.System.Props;
 
 namespace Rpg.Cyborgs
 {
-    public class RangedWeapon : RpgObject
+    public class RangedWeapon : Item
     {
         [JsonProperty]
         [Dice]

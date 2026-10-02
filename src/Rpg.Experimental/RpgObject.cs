@@ -12,6 +12,11 @@ namespace Rpg.Experimental
         [JsonProperty] public string[] Archetypes { get; private set; }
         [JsonProperty] public string Name { get; protected set; }
 
+        /// <summary>
+        /// Names of this object's states that are currently on. Maintained by the states themselves.
+        /// </summary>
+        [JsonProperty] public List<string> ActiveStates { get; private set; } = new();
+
         public RpgObject()
             : base()
         {
@@ -48,6 +53,17 @@ namespace Rpg.Experimental
 
         public bool IsA(string type)
             => Archetypes.Contains(type);
+
+        public bool IsStateOn(string stateName)
+            => ActiveStates.Contains(stateName);
+
+        internal void SetStateOn(string stateName, bool isOn)
+        {
+            if (isOn && !ActiveStates.Contains(stateName))
+                ActiveStates.Add(stateName);
+            else if (!isOn)
+                ActiveStates.Remove(stateName);
+        }
 
         public Mod CreateStateActivation(string stateName, int startsIn, int duration, bool applied)
             => CreateStateMod(stateName).Lifespan(startsIn, duration, applied);

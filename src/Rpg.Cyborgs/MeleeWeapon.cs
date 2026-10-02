@@ -3,7 +3,7 @@ using Rpg.Experimental;
 
 namespace Rpg.Cyborgs
 {
-    public class MeleeWeapon : RpgObject
+    public class MeleeWeapon : Item
     {
         [JsonProperty]
         public Dice Damage { get; protected set; }

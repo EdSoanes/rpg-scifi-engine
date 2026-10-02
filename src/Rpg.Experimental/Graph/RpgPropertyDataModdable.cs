@@ -105,7 +105,13 @@ namespace Rpg.Experimental.Graph
 
         public void ExpireRefsTo(RpgGraph graph, TimePoint expiryTime, string objectId)
         {
-            var toExpire = Mods.Where(x => x.Source?.PropRef?.ObjectId == objectId && x.Expiry == LifecycleExpiry.Active);
+            //An object's own props keep the mods that are derived from its other props
+            if (ObjectId == objectId)
+                return;
+
+            var toExpire = Mods
+                .Where(x => x.Source?.PropRef?.ObjectId == objectId && x.Expiry == LifecycleExpiry.Active)
+                .ToArray();
             foreach (var mod in toExpire)
             {
                 mod.Expire(graph, expiryTime);

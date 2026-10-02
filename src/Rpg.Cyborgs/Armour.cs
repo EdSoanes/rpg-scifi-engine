@@ -5,7 +5,7 @@ using Rpg.Experimental.Mods;
 
 namespace Rpg.Cyborgs
 {
-    public class Armour : RpgObject
+    public class Armour : Item
     {
         [JsonProperty]
         public int ArmourRating { get; protected set; }
@@ -15,6 +15,15 @@ namespace Rpg.Cyborgs
 
         [JsonProperty]
         public int DefenceModifier { get; protected set; }
+
+        [JsonConstructor] private Armour() { }
+
+        public Armour(ArmourTemplate template)
+            : base(template.Name)
+        {
+            ArmourRating = template.ArmourRating;
+            DefenceModifier = template.DefenceModifier;
+        }
 
         public override void OnCreating(RpgGraph graph, RpgObject? owner)
         {

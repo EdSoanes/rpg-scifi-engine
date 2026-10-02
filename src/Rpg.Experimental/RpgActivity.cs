@@ -39,13 +39,19 @@ namespace Rpg.Experimental
             graph.Add(activityAction);
             graph.AddTo(Id, nameof(ActivityActions), activityAction.Id, Start, End);
 
-            //Values established by earlier actions in the activity (e.g. damage) flow down to the new action
-            var carriedValues = Args
-                .Where(x => x.Value != null && (x is IntegerArg || x is DiceArg))
-                .Select(x => (x.Name, x.Value))
-                .ToArray();
+            //Values established by earlier actions in the activity (e.g. damage) flow down to the new action.
+            //Where several earlier actions have a value for the same name the latest action wins.
+            var carriedValues = new Dictionary<string, object?>();
+            var earlierActions = ActivityActions
+                .OfType<RpgActivityAction>()
+                .Where(x => x.Id != activityAction.Id)
+                .OrderBy(x => x.ActivityActionNo);
 
-            graph.FillVirtualPropertyValues(activityAction, carriedValues);
+            foreach (var earlierAction in earlierActions)
+                foreach (var value in graph.GetVirtualPropertyValues(earlierAction))
+                    carriedValues[value.Item1] = value.Item2;
+
+            graph.FillVirtualPropertyValues(activityAction, carriedValues.Select(x => (x.Key, x.Value)).ToArray());
 
             Args = RpgArg.CreateArgs(graph, Args,
                 activityAction.CostMethod.Args,

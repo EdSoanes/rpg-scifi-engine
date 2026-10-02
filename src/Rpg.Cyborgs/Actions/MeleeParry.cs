@@ -43,7 +43,7 @@ namespace Rpg.Cyborgs.Actions
             var focusPoints = graph.GetPropertyValue<Dice>(activityAction.Id, "focusPoints").Roll();
             var bonus = abilityScore != null
                 ? abilityScore.Value * (focusPoints + 1)
-                : owner.Strength.Value * (focusPoints + 1);
+                : owner.Strength * (focusPoints + 1);
 
             graph
                 .Reset(activityAction, "diceRoll")
@@ -52,21 +52,21 @@ namespace Rpg.Cyborgs.Actions
             return true;
         }
 
-        public bool Outcome(RpgGraph graph, RpgActivityAction activityAction, Actor owner, int diceRoll, int target, int damage)
+        public bool Outcome(RpgGraph graph, RpgActivityAction activityAction, Actor owner, int diceRoll, int parryTarget, int damage)
         {
             activityAction.Result
                 .Add(owner.CreateStateActivation(nameof(Parrying), 1, 1, false));
 
-            if (diceRoll >= target)
+            if (diceRoll >= parryTarget)
             {
-                var reduction = owner.Strength.Value > 0
-                    ? owner.Strength.Value
+                var reduction = owner.Strength > 0
+                    ? owner.Strength
                     : 0;
 
                 if (reduction <= 0)
                     reduction = 1;
 
-                if (diceRoll >= target)
+                if (diceRoll >= parryTarget)
                     graph.Add(new Standard(), activityAction, "damage", -reduction);
             }
             activityAction

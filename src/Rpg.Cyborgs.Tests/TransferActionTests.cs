@@ -1,16 +1,13 @@
 ﻿using Rpg.Cyborgs.Actions;
 using Rpg.Cyborgs.Tests.Models;
-using Rpg.ModObjects;
-using Rpg.ModObjects.Activities;
-using Rpg.ModObjects.Reflection;
-using Rpg.ModObjects.Time;
-using Rpg.ModObjects.Reflection.Args;
+using Rpg.Experimental;
+using Rpg.Experimental.Reflection.Args;
 
 namespace Rpg.Cyborgs.Tests
 {
     public class TransferActionTests
     {
-        private RpgGraph _graph;
+        private RpgCharacterSheet _characterSheet;
         private PlayerCharacter _pc;
         private MeleeWeapon _sword;
         private Room _room;
@@ -18,8 +15,6 @@ namespace Rpg.Cyborgs.Tests
         [SetUp]
         public void Setup()
         {
-            RpgTypeScan.RegisterAssembly(typeof(CyborgsSystem).Assembly);
-
             _sword = new MeleeWeapon(WeaponFactory.SwordTemplate);
             _pc = new PlayerCharacter(ActorFactory.BennyTemplate);
             _pc.Hands.Add(_sword);
@@ -27,14 +22,18 @@ namespace Rpg.Cyborgs.Tests
             _room = new Room();
             _room.Contents.Add(_pc);
 
-            _graph = new RpgGraph(_room, _pc);
+            _characterSheet = new RpgCharacterSheet(_room, _pc, TestSystem.Build());
         }
 
         [Test]
         public void Benny_Transfers_Sword_EnsureInitialValues()
         {
-            var activity = _pc.InitiateAction(_sword, nameof(Transfer));
-            var action = activity.CurrentAction();
+            var transfer = _characterSheet.GetObjectAction(_sword.Id, nameof(Transfer));
+            Assert.That(transfer, Is.Not.Null);
+            Assert.That(transfer.IsPerformable, Is.True);
+
+            var activity = _characterSheet.CreateActivity(_pc.Id, _sword.Id, nameof(Transfer));
+            var action = activity.CurrentActivityAction;
 
             Assert.That(action, Is.Not.Null);
             Assert.That(_pc.Hands.Contains(_sword), Is.True);
@@ -43,126 +42,116 @@ namespace Rpg.Cyborgs.Tests
         }
 
         [Test]
-        public void Benny_Drops_Sword_OutsideTurn()
+        public void Benny_Drops_Sword()
         {
-            var activity = _pc.InitiateAction(_sword, nameof(Transfer));
-            var action = activity.CurrentAction()!;
+            var activity = _characterSheet.CreateActivity(_pc.Id, _sword.Id, nameof(Transfer));
+            var transfer = activity.CurrentActivityAction!;
 
-            var costResult = activity.Cost(activity.CostArgs());
-            Assert.That(costResult, Is.True);
+            Assert.That(transfer.Cost(_characterSheet), Is.True);
+            Assert.That(transfer.Perform(_characterSheet), Is.True);
 
-            var performArgs = activity.PerformArgs();
-            Assert.That(performArgs.IsComplete(), Is.True);
+            Assert.That(transfer.OutcomeMethod.Args.IsComplete(), Is.False);
+            Assert.That(transfer.Outcome(_characterSheet), Is.False);
+            Assert.That(transfer.Outcome(_characterSheet, ("to", _room), ("toProp", nameof(Room.Contents))), Is.True);
 
-            var performResult = activity.Perform(performArgs);
-            Assert.That(performResult, Is.True);
+            transfer.Complete();
+            _characterSheet.Time.Refresh();
 
-            var outcomeArgs = activity.OutcomeArgs();
-            outcomeArgs.Set("from", _pc.Hands);
-            outcomeArgs.Set("to", _graph.GetContext<Room>()?.Contents);
-
-            var outcomeResult = activity.Outcome(outcomeArgs);
-            Assert.That(outcomeResult, Is.True);
-
-            Assert.That(action.Status, Is.EqualTo(ActionStatus.CanComplete));
-            activity.Complete();
-
+            Assert.That(transfer.IsComplete, Is.True);
             Assert.That(_pc.Hands.Contains(_sword), Is.False);
             Assert.That(_room.Contents.Contains(_sword), Is.True);
-            Assert.That(_pc.CurrentActionPoints, Is.EqualTo(1));
+            Assert.That(_room.Contents.Contains(_pc), Is.True);
         }
 
         [Test]
-        public void Benny_Drops_Sword_OnTurn2()
+        public void Benny_Drops_Sword_InvalidTarget_Fails()
         {
-            Assert.That(_pc.CurrentActionPoints, Is.EqualTo(1));
+            var activity = _characterSheet.CreateActivity(_pc.Id, _sword.Id, nameof(Transfer));
+            var transfer = activity.CurrentActivityAction!;
 
-            _graph.Time.Transition(2);
+            Assert.That(transfer.Cost(_characterSheet), Is.True);
+            Assert.That(transfer.Outcome(_characterSheet, ("to", _room), ("toProp", "NotAProp")), Is.False);
 
-            var activity = _pc.InitiateAction(_sword, nameof(Transfer));
-            var action = activity.CurrentAction()!;
-
-            Assert.That(activity.CanAutoComplete, Is.False);
-
-            activity.Cost(activity.CostArgs());
-
-            var performArgs = activity.PerformArgs();
-            Assert.That(performArgs.IsComplete(), Is.True);
-            activity.Perform(performArgs);
-
-            var outcomeArgs = activity.OutcomeArgs();
-            Assert.That(outcomeArgs.IsComplete(), Is.False);
-            outcomeArgs.Set("from", _pc.Hands);
-            outcomeArgs.Set("to", _graph.GetContext<Room>()?.Contents);
-            activity.Outcome(outcomeArgs);
-            activity.Complete();
-
-            Assert.That(_pc.CurrentActionPoints, Is.EqualTo(0));
-            Assert.That(_pc.Hands.Contains(_sword), Is.False);
-            Assert.That(_room.Contents.Contains(_sword), Is.True);
-        }
-
-        [Test]
-        public void Benny_Drops_Sword_OnTurn2_RevertToTurn1()
-        {
-            Assert.That(_pc.CurrentActionPoints, Is.EqualTo(1));
-
-            _graph.Time.Transition(2);
-
-            var activity = _pc.InitiateAction(_sword, nameof(Transfer));
-            var action = activity.CurrentAction()!;
-
-            activity.Cost(activity.CostArgs());
-            activity.Perform(activity.PerformArgs());
-
-            var outcomeArgs = activity.OutcomeArgs();
-            outcomeArgs.Set("from", _pc.Hands);
-            outcomeArgs.Set("to", _graph.GetContext<Room>()?.Contents);
-            activity.Outcome(outcomeArgs);
-            activity.Complete();
-
-            Assert.That(_pc.CurrentActionPoints, Is.EqualTo(0));
-
-            _graph.Time.Transition(1);
+            _characterSheet.Time.Refresh();
 
             Assert.That(_pc.Hands.Contains(_sword), Is.True);
             Assert.That(_room.Contents.Contains(_sword), Is.False);
-            Assert.That(_pc.CurrentActionPoints, Is.EqualTo(1));
         }
 
         [Test]
-        public void Benny_Tries_Two_Transfers_One_Turn()
+        public void Benny_Drops_Sword_OnTurn2_CostsAnAction()
         {
             Assert.That(_pc.CurrentActionPoints, Is.EqualTo(1));
 
-            _graph.Time.Transition(PointInTimeType.EncounterBegins);
+            _characterSheet.Time.ToTurn(2);
 
-            var dropActivity = _pc.InitiateAction(_sword, nameof(Transfer));
-            var dropAction = dropActivity.CurrentAction()!;
+            var activity = _characterSheet.CreateActivity(_pc.Id, _sword.Id, nameof(Transfer));
+            var transfer = activity.CurrentActivityAction!;
 
-            dropActivity.AutoComplete(
-                ("from", _pc.Hands),
-                ("to", _graph.GetContext<Room>()?.Contents)
-            );
+            Assert.That(transfer.CanAutoComplete, Is.False);
+
+            Assert.That(transfer.Cost(_characterSheet), Is.True);
+            Assert.That(transfer.Perform(_characterSheet), Is.True);
+            Assert.That(transfer.Outcome(_characterSheet, ("to", _room), ("toProp", nameof(Room.Contents))), Is.True);
+
+            transfer.Complete();
+            _characterSheet.Time.Refresh();
 
             Assert.That(_pc.CurrentActionPoints, Is.EqualTo(0));
-            Assert.That(_pc.CanInitiateAction(_sword, nameof(Transfer)), Is.False);
+            Assert.That(_pc.Hands.Contains(_sword), Is.False);
+            Assert.That(_room.Contents.Contains(_sword), Is.True);
 
-            //var pickupActivity = _pc.InitiateAction(_sword, nameof(Transfer));
-            //var pickupAction = pickupActivity.CurrentAction()!;
+            //No action points left so nothing else can be transferred this turn
+            var transferAction = _characterSheet.GetObjectAction(_sword.Id, nameof(Transfer))!;
+            Assert.That(transferAction.IsPerformable, Is.False);
 
-            //var canPerformPickupArgs = pickupActivity.CanPerformArgs();
-            //canPerformPickupArgs.Set("to", _pc.Hands.Contents);
-            //var canPickup = pickupActivity.CanPerform(canPerformPickupArgs);
+            _characterSheet.Time.ToTurn(3);
 
-            //Assert.That(canPickup, Is.False);
+            Assert.That(_pc.CurrentActionPoints, Is.EqualTo(1));
+            Assert.That(transferAction.IsPerformable, Is.True);
+            Assert.That(_pc.Hands.Contains(_sword), Is.False);
+            Assert.That(_room.Contents.Contains(_sword), Is.True);
+        }
 
-            //pickupActivity.Cost(dropActivity.CostArgs());
-            //pickupActivity.Perform(dropActivity.PerformArgs());
-            //var pickupOutcomeArgs = pickupActivity.OutcomeArgs();
-            //pickupOutcomeArgs.Set("from", (_graph.Context as Room).Contents);
-            //pickupActivity.Outcome(outcomeArgs);
+        [Test]
+        public void Benny_Drops_Sword_AutoComplete()
+        {
+            _characterSheet.Time.BeginEncounter();
 
+            var activity = _characterSheet.CreateActivity(_pc.Id, _sword.Id, nameof(Transfer));
+            var transfer = activity.CurrentActivityAction!;
+
+            transfer.AutoComplete(_characterSheet, ("to", _room), ("toProp", nameof(Room.Contents)));
+            _characterSheet.Time.Refresh();
+
+            Assert.That(transfer.IsComplete, Is.True);
+            Assert.That(_pc.CurrentActionPoints, Is.EqualTo(0));
+            Assert.That(_pc.Hands.Contains(_sword), Is.False);
+            Assert.That(_room.Contents.Contains(_sword), Is.True);
+        }
+
+        [Test]
+        public void Benny_Drops_Sword_Then_PicksItUp()
+        {
+            _characterSheet.Time.BeginEncounter();
+
+            var drop = _characterSheet.CreateActivity(_pc.Id, _sword.Id, nameof(Transfer)).CurrentActivityAction!;
+            drop.AutoComplete(_characterSheet, ("to", _room), ("toProp", nameof(Room.Contents)));
+            _characterSheet.Time.Refresh();
+
+            Assert.That(_room.Contents.Contains(_sword), Is.True);
+
+            _characterSheet.Time.ToTurn(2);
+
+            var pickUp = _characterSheet.CreateActivity(_pc.Id, _sword.Id, nameof(Transfer)).CurrentActivityAction!;
+            Assert.That(pickUp.Id, Is.Not.EqualTo(drop.Id));
+
+            pickUp.AutoComplete(_characterSheet, ("to", _pc), ("toProp", nameof(Actor.Hands)));
+            _characterSheet.Time.Refresh();
+
+            Assert.That(pickUp.IsComplete, Is.True);
+            Assert.That(_pc.Hands.Contains(_sword), Is.True);
+            Assert.That(_room.Contents.Contains(_sword), Is.False);
         }
     }
 }

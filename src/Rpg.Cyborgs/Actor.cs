@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Rpg.Cyborgs.Components;
 using Rpg.Experimental;
 using Rpg.Experimental.Graph;
 using Rpg.Experimental.Mods;
@@ -10,22 +9,28 @@ namespace Rpg.Cyborgs
     public abstract class Actor : RpgObject
     {
         [JsonProperty]
-        public PropValue Strength { get; protected set; } = new PropValue(nameof(Strength));
+        [Integer(Group = "Stats")]
+        public int Strength { get; protected set; }
 
         [JsonProperty]
-        public PropValue Agility { get; protected set; } = new PropValue(nameof(Agility));
+        [Integer(Group = "Stats")]
+        public int Agility { get; protected set; }
 
         [JsonProperty]
-        public PropValue Health { get; protected set; } = new PropValue(nameof(Health));
+        [Integer(Group = "Stats")]
+        public int Health { get; protected set; }
 
         [JsonProperty]
-        public PropValue Brains { get; protected set; } = new PropValue(nameof(Brains));
+        [Integer(Group = "Stats")]
+        public int Brains { get; protected set; }
 
         [JsonProperty]
-        public PropValue Insight { get; protected set; } = new PropValue(nameof(Insight));
+        [Integer(Group = "Stats")]
+        public int Insight { get; protected set; }
 
         [JsonProperty]
-        public PropValue Charisma { get; protected set; } = new PropValue(nameof(Charisma));
+        [Integer(Group = "Stats")]
+        public int Charisma { get; protected set; }
 
         [JsonProperty]
         [Integer(Min = 1)]
@@ -88,28 +93,36 @@ namespace Rpg.Cyborgs
 
 
         [JsonProperty]
-        public PropValue Reactions { get; protected set; } = new PropValue(nameof(Reactions), 7);
+        [Integer(Group = "Combat")]
+        public int Reactions { get; protected set; } = 7;
 
         [JsonProperty]
-        public PropValue Defence { get; protected set; } = new PropValue(nameof(Defence), 7);
+        [Integer(Group = "Combat")]
+        public int Defence { get; protected set; } = 7;
 
         [JsonProperty]
-        public PropValue ArmourRating { get; protected set; } = new PropValue(nameof(ArmourRating), 6);
+        [Integer(Group = "Combat")]
+        public int ArmourRating { get; protected set; } = 6;
 
         [JsonProperty]
-        public PropValue UnarmedDamageBonus { get; protected set; } = new PropValue(nameof(UnarmedDamageBonus));
+        [Integer(Group = "Combat")]
+        public int UnarmedDamageBonus { get; protected set; }
 
         [JsonProperty]
-        public PropValue ParryDamageReduction { get; protected set; } = new PropValue(nameof(ParryDamageReduction));
+        [Integer(Group = "Combat")]
+        public int ParryDamageReduction { get; protected set; }
 
         [JsonProperty]
-        public PropValue RangedAttack { get; protected set; } = new PropValue(nameof(RangedAttack));
+        [Integer(Group = "Combat")]
+        public int RangedAttack { get; protected set; }
 
         [JsonProperty]
-        public PropValue RangedAimBonus { get; protected set; } = new PropValue(nameof(RangedAimBonus));
+        [Integer(Group = "Combat")]
+        public int RangedAimBonus { get; protected set; }
 
         [JsonProperty]
-        public PropValue MeleeAttack { get; protected set; } = new PropValue(nameof(MeleeAttack));
+        [Integer(Group = "Combat")]
+        public int MeleeAttack { get; protected set; }
 
 
         [JsonProperty]
@@ -131,23 +144,23 @@ namespace Rpg.Cyborgs
         {
             base.OnCreating(graph, owner);
             graph
-                .Add(new Base(), this, x => x.StaminaPoints, x => x.Health.Value, () => CalculateStamina)
+                .Add(new Base(), this, x => x.StaminaPoints, x => x.Health, () => CalculateStamina)
                 .Add(new Base(), this, x => x.CurrentStaminaPoints, x => x.StaminaPoints)
-                .Add(new Base(), this, x => x.LifePoints, x => x.Strength.Value)
+                .Add(new Base(), this, x => x.LifePoints, x => x.Strength)
                 .Add(new Base(), this, x => x.CurrentLifePoints, x => x.LifePoints)
-                .Add(new Base(), this, x => x.FocusPoints, x => x.Agility.Value)
-                .Add(new Base(), this, x => x.FocusPoints, x => x.Brains.Value)
-                .Add(new Base(), this, x => x.FocusPoints, x => x.Insight.Value)
+                .Add(new Base(), this, x => x.FocusPoints, x => x.Agility)
+                .Add(new Base(), this, x => x.FocusPoints, x => x.Brains)
+                .Add(new Base(), this, x => x.FocusPoints, x => x.Insight)
                 .Add(new Base(), this, x => x.CurrentFocusPoints, x => x.FocusPoints)
-                .Add(new Base(), this, x => x.LuckPoints, x => x.Charisma.Value)
+                .Add(new Base(), this, x => x.LuckPoints, x => x.Charisma)
                 .Add(new Base(), this, x => x.CurrentLuckPoints, x => x.LuckPoints)
                 .Add(new Base(), this, x => x.CurrentActionPoints, x => x.ActionPoints)
-                .Add(new Base(), this, x => x.Defence.Value, x => x.Agility.Value)
-                .Add(new Base(), this, x => x.Reactions.Value, x => x.Agility.Value)
-                .Add(new Base(), this, x => x.Reactions.Value, x => x.Insight.Value)
-                .Add(new Base(), this, x => x.ParryDamageReduction.Value, x => x.Strength.Value)
-                .Add(new Base(), this, x => x.RangedAttack.Value, x => x.Agility.Value)
-                .Add(new Base(), this, x => x.MeleeAttack.Value, x => x.Strength.Value);
+                .Add(new Base(), this, x => x.Defence, x => x.Agility)
+                .Add(new Base(), this, x => x.Reactions, x => x.Agility)
+                .Add(new Base(), this, x => x.Reactions, x => x.Insight)
+                .Add(new Base(), this, x => x.ParryDamageReduction, x => x.Strength)
+                .Add(new Base(), this, x => x.RangedAttack, x => x.Agility)
+                .Add(new Base(), this, x => x.MeleeAttack, x => x.Strength);
         }
 
         public Dice CalculateStamina(Dice health)

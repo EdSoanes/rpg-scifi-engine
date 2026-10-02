@@ -65,6 +65,10 @@ namespace Rpg.Experimental
             if (!PerformMethod.Args.IsComplete())
                 return false;
 
+            //Already performed, or the action has no Perform step
+            if (PerformMethod.IsDone)
+                return true;
+
             var res = PerformMethod.Execute(graph);
             graph.Time.Refresh();
 
@@ -77,6 +81,9 @@ namespace Rpg.Experimental
 
             if (!OutcomeMethod.Args.IsComplete())
                 return false;
+
+            if (OutcomeMethod.IsDone)
+                return true;
 
             var res = OutcomeMethod.Execute(graph);
             graph.Time.Refresh();

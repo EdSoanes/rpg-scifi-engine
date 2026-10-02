@@ -12,18 +12,24 @@ namespace Rpg.Experimental
             : base(context, metaGraph)
         {
             Actor = context;
+            Time.Refresh();
         }
 
         public RpgCharacterSheet(RpgObject context, RpgObject actor, RpgSystem? rpgSystem = null)
             : base(context, rpgSystem)
         {
             Actor = actor;
+
+            //The graph was built before the actor was known. Refresh so anything that depends on the actor
+            //(e.g. whether actions can be performed) is evaluated
+            Time.Refresh();
         }
 
         public RpgCharacterSheet(RpgCharacterSheetState characterSheetState, RpgSystem rpgSystem) 
             : base(characterSheetState, rpgSystem)
         {
             Actor = (RpgObject)characterSheetState.Objects.First(x => x.Id == characterSheetState.ActorId);
+            Time.Refresh();
         }
 
         public RpgCharacterSheetState GetState()

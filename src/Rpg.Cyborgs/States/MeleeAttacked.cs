@@ -1,9 +1,9 @@
-﻿using Rpg.ModObjects.States;
+﻿using Rpg.Experimental;
 using Newtonsoft.Json;
 
 namespace Rpg.Cyborgs.States
 {
-    public class MeleeAttacked : State<Actor>
+    public class MeleeAttacked : RpgState<Actor>
     {
         [JsonConstructor] private MeleeAttacked() { IsPlayerVisible = false; }
 

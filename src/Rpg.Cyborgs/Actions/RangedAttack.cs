@@ -1,13 +1,12 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Cyborgs.States;
-using Rpg.ModObjects.Activities;
-using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Mods.Mods;
-using Rpg.ModObjects.Time;
+using Rpg.Experimental;
+using Rpg.Experimental.Graph;
+using Rpg.Experimental.Mods;
 
 namespace Rpg.Cyborgs.Actions
 {
-    public class RangedAttack : ActionTemplate<RangedWeapon>
+    public class RangedAttack : RpgAction<RangedWeapon>
     {
         [JsonConstructor] protected RangedAttack()
             : base() { }
@@ -15,41 +14,55 @@ namespace Rpg.Cyborgs.Actions
         public RangedAttack(RangedWeapon owner)
             : base(owner) { }
 
-        public bool CanPerform(RangedWeapon owner, Actor initiator)
-            => initiator.Hands.Contains(owner) && initiator.CurrentActionPoints > 0;
-
-        public bool Cost(ModObjects.Activities.Action action, Actor initiator, int focusPoints)
+        public override void OnCreatingActivityAction(RpgGraph graph, RpgActivityAction activityAction)
         {
-            action.CostModSet.Add(new Turn(), initiator, x => x.CurrentActionPoints, -1);
+            base.OnCreatingActivityAction(graph, activityAction);
+            graph
+                .CreateVirtualProperty(activityAction, "damage")
+                .Add(new Initial(activityAction, "diceRoll", "2d6"));
+        }
+
+        public bool CanPerform(RangedWeapon owner, Actor actor)
+            => actor.Hands.Contains(owner) && actor.CurrentActionPoints > 0;
+
+        public bool Cost(RpgActivityAction activityAction, Actor actor, int focusPoints)
+        {
+            activityAction.Result
+                .Add(new Temporal(1), actor, x => x.CurrentActionPoints, -1);
+
             if (focusPoints > 0)
-                action.CostModSet
-                    .Add(new Turn(), initiator, x => x.CurrentFocusPoints, -focusPoints);
+                activityAction.Result
+                    .Add(new Temporal(1), actor, x => x.CurrentFocusPoints, -focusPoints);
 
             return true;
         }
 
-        public bool Perform(ModObjects.Activities.Action action, RangedWeapon owner, Actor initiator, int targetDefence, int? abilityScore)
+        public bool Perform(RpgGraph graph, RpgActivityAction activityAction, RangedWeapon owner, Actor actor, int targetDefence, int focusPoints, int? abilityScore)
         {
-            var focusPoints = action.Value("focusPoints")?.Roll();
-
-            var val = abilityScore != null
+            var bonus = abilityScore != null
                 ? abilityScore.Value * (focusPoints + 1)
-                : initiator.RangedAttack.Value * (focusPoints + 1);
+                : actor.RangedAttack * (focusPoints + 1);
 
-            action
-                .SetProp("diceRoll", "2d6")
-                .SetProp("diceRoll", owner, x => x.HitBonus)
-                .SetProp("diceRoll", val)
-                .SetProp("targetDefence", targetDefence);
+            graph
+                .Reset(activityAction, "diceRoll")
+                .Add(new Standard(), activityAction, "diceRoll", bonus)
+                .Add(new Standard(), activityAction, "diceRoll", owner, x => x.HitBonus);
+
+            graph
+                .Reset(activityAction, "targetDefence")
+                .Add(new Standard(), activityAction, "targetDefence", targetDefence);
 
             return true;
         }
 
-        public bool Outcome(ModObjects.Activities.Action action, RangedWeapon owner, Actor initiator, int diceRoll, int targetDefence)
+        public bool Outcome(RpgGraph graph, RpgActivityAction activityAction, RangedWeapon owner, Actor actor, int diceRoll, int targetDefence)
         {
-            action
-                .SetProp("damage", owner, x => x.Damage)
-                .SetOutcomeState(initiator, nameof(RangedAttacking), new Lifespan(0, 1));
+            graph
+                .Reset(activityAction, "damage")
+                .Add(new Standard(), activityAction, "damage", owner, x => x.Damage);
+
+            activityAction.Result
+                .Add(actor.CreateStateActivation(nameof(RangedAttacking), 1, false));
 
             return true;
         }

@@ -1,9 +1,9 @@
-﻿using Rpg.ModObjects.States;
+﻿using Rpg.Experimental;
 using Newtonsoft.Json;
 
 namespace Rpg.Cyborgs.States
 {
-    public class Exhausted : State<Actor>
+    public class Exhausted : RpgState<Actor>
     {
         [JsonConstructor] private Exhausted() { }
 

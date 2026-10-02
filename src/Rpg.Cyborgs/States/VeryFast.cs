@@ -1,25 +1,19 @@
-﻿using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Mods.Mods;
-using Rpg.ModObjects.Mods.ModSets;
-using Rpg.ModObjects.States;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using Rpg.Experimental;
 
 namespace Rpg.Cyborgs.States
 {
-    public class VeryFast : State<Actor>
+    public class VeryFast : RpgState<Actor>
     {
         [JsonConstructor] private VeryFast() { }
 
         public VeryFast(Actor owner)
-            : base(owner) { }
+            : base(owner)
+        {
+            this.Add(owner, x => x.ActionPoints, 1);
+        }
 
         protected override bool IsOnWhen(Actor owner)
-            => owner.Reactions.Value > 10;
-
-        protected override void OnFillStateSet(StateModSet modSet, Actor owner)
-        {
-            base.OnFillStateSet(modSet, owner);
-            modSet.Add(new Permanent(modSet.Id), owner, x => x.ActionPoints, 1);
-        }
+            => owner.Reactions > 10;
     }
 }

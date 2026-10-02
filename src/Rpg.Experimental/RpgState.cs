@@ -9,8 +9,14 @@ namespace Rpg.Experimental
         internal static string StatePropName(string stateName)
             => $"State/{stateName}";
 
+        internal static bool IsStateProp(string prop)
+            => prop.StartsWith("State/");
+
         [JsonProperty] public string? OwnerArchetype { get; protected set; }
         [JsonProperty] public bool IsPlayerVisible { get; protected set; } = true;
+        [JsonProperty] public string Classification { get; protected set; } = "State";
+
+        [JsonProperty] public bool IsOn { get; private set; }
 
         [JsonConstructor] protected RpgState() { }
 
@@ -19,6 +25,30 @@ namespace Rpg.Experimental
         {
             Name = GetType().Name;
             OwnerArchetype = ownerArchetype;
+        }
+
+        public override void OnCreating(RpgGraph graph, RpgObject? obj)
+        {
+            base.OnCreating(graph, obj);
+            SyncOwnerActiveStates(graph);
+        }
+
+        public override void OnRestoring(RpgGraph graph)
+        {
+            base.OnRestoring(graph);
+            SyncOwnerActiveStates(graph);
+        }
+
+        public override void OnTimeEvent(RpgGraph graph)
+        {
+            base.OnTimeEvent(graph);
+            SyncOwnerActiveStates(graph);
+        }
+
+        private void SyncOwnerActiveStates(RpgGraph graph)
+        {
+            IsOn = Expiry == LifecycleExpiry.Active;
+            graph.GetObject(OwnerId)?.SetStateOn(Name ?? GetType().Name, IsOn);
         }
     }
 

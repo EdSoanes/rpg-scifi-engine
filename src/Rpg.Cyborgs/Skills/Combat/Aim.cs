@@ -1,9 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Rpg.Cyborgs.States;
-using Rpg.ModObjects;
-using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Mods.Mods;
-using Rpg.ModObjects.Time;
+using Rpg.Experimental;
+using Rpg.Experimental.Mods;
 
 namespace Rpg.Cyborgs.Skills.Combat
 {
@@ -12,30 +10,28 @@ namespace Rpg.Cyborgs.Skills.Combat
         [JsonConstructor] protected Aim() { }
 
         public Aim(Actor owner)
-            : base(owner) 
+            : base(owner)
         {
             IsIntrinsic = true;
+            InitialRating = 1;
         }
 
-        public override void OnCreating(RpgGraph graph, RpgEntity owner)
-        {
-            base.OnCreating(graph, owner);
-            owner.AddMods(new Initial(owner.Id, RatingProp, 1));
-        }
+        public bool CanPerform(Actor owner)
+            => !owner.IsStateOn(nameof(Aiming)) || owner.RangedAimBonus < 6;
 
-        public bool OnCanAct(Actor owner)
-            => !owner.IsStateOn(nameof(Aiming)) || owner.RangedAimBonus.Value < 6;
-
-        public bool Cost(ModObjects.Activities.Action action, Actor initiator)
+        public bool Cost(RpgActivityAction activityAction, Actor owner)
         {
-            action.CostModSet.Add(initiator, x => x.CurrentActionPoints, -1);
+            activityAction.Result
+                .Add(new Temporal(1), owner, x => x.CurrentActionPoints, -1);
+
             return true;
         }
 
-        public bool Outcome(ModObjects.Activities.Action action, Actor owner)
+        public bool Outcome(RpgActivityAction activityAction, Actor owner)
         {
-            action.OutcomeModSet.Add(new Turn(), owner, x => x.RangedAimBonus, 2);
-            action.SetOutcomeState(owner, nameof(Aiming), new Lifespan(0, 1));
+            activityAction.Result
+                .Add(new Temporal(1), owner, x => x.RangedAimBonus, 2)
+                .Add(owner.CreateStateActivation(nameof(Aiming), 1, false));
 
             return true;
         }

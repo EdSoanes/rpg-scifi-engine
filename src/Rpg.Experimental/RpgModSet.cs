@@ -40,6 +40,7 @@ namespace Rpg.Experimental
         {
             Start = new TimePoint(TimePointType.Turn, 0);
             End = new TimePoint(TimePointType.Turn, duration);
+            IsLifespanRelative = true;
 
             return this;
         }
@@ -48,6 +49,7 @@ namespace Rpg.Experimental
         {
             Start = new TimePoint(TimePointType.Turn, startsIn);
             End = new TimePoint(TimePointType.Turn, startsIn + duration);
+            IsLifespanRelative = true;
 
             return this;
         }
@@ -154,6 +156,13 @@ namespace Rpg.Experimental
             }
         }
 
+        /// <summary>
+        /// A mod with the default lifespan lives and dies with the set. A mod that was given its own lifespan
+        /// (e.g. Temporal) keeps it and is only applied/unapplied by the set.
+        /// </summary>
+        private static bool SyncsToSet(Mod mod)
+            => mod.Start == TimePointType.TimeBegins && mod.End == TimePointType.TimeEnds;
+
         public void Reset()
         {
             foreach (var mod in Mods)
@@ -178,7 +187,7 @@ namespace Rpg.Experimental
             mod
                 .SetTarget(target, targetProp)
                 .SetSource(dice, valueCalc)
-                .SetOwner(Id, true);
+                .SetOwner(Id, SyncsToSet(mod));
 
             Add(mod);
             return this;
@@ -215,7 +224,7 @@ namespace Rpg.Experimental
             mod
                 .SetTarget(target, targetExpr)
                 .SetSource(source, sourceExpr, valueFunc)
-                .SetOwner(Id, true);
+                .SetOwner(Id, SyncsToSet(mod));
 
             Add(mod);
             return this;
@@ -238,7 +247,7 @@ namespace Rpg.Experimental
             mod
                 .SetTarget(target, targetProp)
                 .SetSource(target, sourceExpr, valueFunc)
-                .SetOwner(Id, true);
+                .SetOwner(Id, SyncsToSet(mod));
 
             Add(mod);
             return this;
@@ -263,7 +272,7 @@ namespace Rpg.Experimental
             mod
                 .SetTarget(target, targetProp)
                 .SetSource(source, sourceExpr, valueFunc)
-                .SetOwner(Id, true);
+                .SetOwner(Id, SyncsToSet(mod));
 
             Add(mod);
             return this;
@@ -275,7 +284,7 @@ namespace Rpg.Experimental
             mod
                 .SetTarget(target, targetExpr)
                 .SetSource(dice, valueFunc)
-                .SetOwner(Id, true);
+                .SetOwner(Id, SyncsToSet(mod));
 
             Add(mod);
             return this;

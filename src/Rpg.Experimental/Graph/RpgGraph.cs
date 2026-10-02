@@ -308,6 +308,16 @@ namespace Rpg.Experimental.Graph
         }
 
         /// <summary>
+        /// The virtual properties of an object that currently have a value (state activation properties excluded)
+        /// </summary>
+        public (string, object?)[] GetVirtualPropertyValues(RpgObject obj)
+            => GetPropertyData<RpgPropertyDataModdable>(obj.Id)
+                .Where(x => x.IsVirtual && !RpgState.IsStateProp(x.Prop))
+                .Select(x => (x.Prop, (object?)x.GetValue<Dice?>(this)))
+                .Where(x => x.Item2 != null)
+                .ToArray();
+
+        /// <summary>
         /// Set an explicit value on a virtual property. The value is added as an Override so it replaces any
         /// Initial/Base value (e.g. an unrolled dice expression) whilst still allowing Standard mods to stack on top.
         /// </summary>
@@ -415,11 +425,12 @@ namespace Rpg.Experimental.Graph
             var actions = Objects.Values.Where(x => x is RpgAction);
             OnTemporalEvent(actions);
 
-            var activityActions = Objects.Values.Where(x => x is RpgActivityAction);
-            OnTemporalEvent(activityActions);
-
+            //Activities before their actions. The actions take their lifespan from the activity
             var activities = Objects.Values.Where(x => x is RpgActivity);
             OnTemporalEvent(activities);
+
+            var activityActions = Objects.Values.Where(x => x is RpgActivityAction);
+            OnTemporalEvent(activityActions);
 
             ChangeTracker.SyncProperties(this);
 

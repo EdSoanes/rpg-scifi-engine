@@ -1,15 +1,14 @@
-﻿using Rpg.ModObjects;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using Rpg.Experimental;
 
 namespace Rpg.Cyborgs.Tests.Models
 {
-    public class Room : RpgEntity
+    public class Room : RpgObject
     {
-        [JsonProperty] public RpgContainer Contents { get; set; }
+        [JsonProperty] public List<RpgObject> Contents { get; protected set; } = new();
 
         public Room()
-        {
-            Contents = new RpgContainer(nameof(Room));
-        }
+            : base(nameof(Room))
+        { }
     }
 }

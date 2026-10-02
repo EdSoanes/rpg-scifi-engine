@@ -17,9 +17,26 @@ namespace Rpg.Experimental.System
         }
 
         public static RpgSystem Build(IRpgSystem system)
+            => Build(system, []);
+
+        /// <summary>
+        /// Build a system whose objects, actions and states are spread over more assemblies than the one
+        /// the system itself is defined in
+        /// </summary>
+        public static RpgSystem Build(IRpgSystem system, params Assembly[] additionalAssemblies)
         {
-            var metaGraph = new RpgSystem();
-            var systemAssemblies = DiscoverSystemAssemblies(system);
+            var metaGraph = new RpgSystem
+            {
+                Identifier = system.Identifier,
+                Name = system.Name,
+                Version = system.Version,
+                Description = system.Description
+            };
+
+            var systemAssemblies = DiscoverSystemAssemblies(system)
+                .Concat(additionalAssemblies)
+                .Distinct()
+                .ToArray();
             var objectTypes = RpgTypeUtilities.ForTypes<RpgObject>(systemAssemblies);
 
             metaGraph.Namespaces = Namespaces(objectTypes);

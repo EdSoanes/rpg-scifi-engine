@@ -20,11 +20,12 @@ namespace Rpg.Cyborgs.Actions
         {
             base.OnCreatingActivityAction(graph, activityAction);
             graph
+                .CreateVirtualProperty(activityAction, "damage")
                 .Add(new Initial(activityAction, "diceRoll", "2d6"));
         }
 
-        public bool CanPerform(MeleeWeapon owner, Actor initiator)
-            => initiator.Hands.Contains(owner) && initiator.CurrentActionPoints > 0;
+        public bool CanPerform(MeleeWeapon owner, Actor actor)
+            => actor.Hands.Contains(owner) && actor.CurrentActionPoints > 0;
 
         public bool Cost(RpgCharacterSheet characterSheet, RpgActivityAction activityAction, Actor actor, int actionPoints, int focusPoints)
         {
@@ -43,7 +44,7 @@ namespace Rpg.Cyborgs.Actions
         {
             var diceRoll = abilityScore != null
                 ? abilityScore.Value * (focusPoints + 1)
-                : actor.RangedAttack.Value * (focusPoints + 1);
+                : actor.RangedAttack * (focusPoints + 1);
 
             characterSheet
                 .Reset(activityAction, "diceRoll")

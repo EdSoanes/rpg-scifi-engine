@@ -1,12 +1,12 @@
 ﻿using Newtonsoft.Json;
-using Rpg.ModObjects.Activities;
-using Rpg.ModObjects.Mods;
-using Rpg.ModObjects.Mods.Mods;
-using Rpg.ModObjects.Reflection.Attributes;
+using Rpg.Experimental;
+using Rpg.Experimental.Graph;
+using Rpg.Experimental.Mods;
+using Rpg.Experimental.Reflection.Attributes;
 
 namespace Rpg.Cyborgs.Actions
 {
-    public class TakeInjury : ActionTemplate<Actor>
+    public class TakeInjury : RpgAction<Actor>
     {
         [JsonConstructor] protected TakeInjury()
             : base() { }
@@ -14,26 +14,37 @@ namespace Rpg.Cyborgs.Actions
         public TakeInjury(Actor owner)
             : base(owner) { }
 
-        public bool Perform(ModObjects.Activities.Action action, Actor owner, int lifeInjury)
+        public override void OnCreatingActivityAction(RpgGraph graph, RpgActivityAction activityAction)
         {
+            base.OnCreatingActivityAction(graph, activityAction);
+            graph
+                .Add(new Initial(activityAction, "injuryRoll", "2d6"))
+                .Add(new Initial(activityAction, "injuryLocationRoll", "1d6"));
+        }
+
+        public bool Perform(RpgGraph graph, RpgActivityAction activityAction, Actor owner, int lifeInjury)
+        {
+            graph
+                .Reset(activityAction, "injuryRoll")
+                .Reset(activityAction, "injuryLocationRoll");
+
             if (lifeInjury > 0)
-            {
-                action
-                    .SetProp("injuryRoll", "2d6")
-                    .SetProp("injuryRoll", -lifeInjury)
-                    .SetProp("injuryLocationRoll", "1d6");
-            }
+                graph.Add(new Standard(), activityAction, "injuryRoll", -lifeInjury);
 
             return true;
         }
 
         [ArgSelect(Arg = "locationType", Enum = typeof(InjuryLocationType))]
-        public bool Outcome(ModObjects.Activities.Action action, Actor owner, int injuryRoll, int injuryLocationRoll, int locationType)
+        public bool Outcome(RpgActivityAction activityAction, Actor owner, int injuryRoll, int injuryLocationRoll, int locationType)
         {
             var injurySeverity = GetInjurySeverity(injuryRoll);
             var bodyPart = GetLocation(owner, injuryLocationRoll, locationType);
 
-            action.OutcomeModSet.Add(new Permanent(), bodyPart, x => x.InjurySeverity, injurySeverity);
+            //Injuries are permanent, they must outlive the activity
+            activityAction.Result
+                .Add(new Standard()
+                    .SetTarget(bodyPart, x => x.InjurySeverity)
+                    .SetSource(injurySeverity));
 
             return true;
         }

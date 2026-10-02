@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Rpg.Cyborgs.Components;
 
 namespace Rpg.Cyborgs
 {
@@ -10,12 +9,12 @@ namespace Rpg.Cyborgs
         public PlayerCharacter(PlayerCharacterTemplate template)
             : base(template.Name)
         {
-            Strength = new PropValue(template.Strength);
-            Agility = new PropValue(template.Agility);
-            Health = new PropValue(template.Health);
-            Brains = new PropValue(template.Brains);
-            Insight = new PropValue(template.Insight);
-            Charisma = new PropValue(template.Charisma);
+            Strength = template.Strength;
+            Agility = template.Agility;
+            Health = template.Health;
+            Brains = template.Brains;
+            Insight = template.Insight;
+            Charisma = template.Charisma;
         }
     }
 }

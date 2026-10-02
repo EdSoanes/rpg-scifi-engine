@@ -1,15 +1,12 @@
-﻿using Rpg.ModObjects.Meta;
-using Rpg.ModObjects.Meta.Props;
+﻿using Rpg.Experimental.System.Props;
 
 namespace Rpg.Cyborgs.Attributes
 {
-    public class InjuryAttribute : MetaSelectAttribute
+    public class InjuryAttribute : SelectAttribute
     {
         public InjuryAttribute()
             : base("None", "Flesh Wound", "Unusable", "Busted", "Mangled", "Severed/Eviscerated", "Obliterated")
         {
-            Editor = EditorType.Select;
-            DataTypeName = "Injury";
         }
     }
 }

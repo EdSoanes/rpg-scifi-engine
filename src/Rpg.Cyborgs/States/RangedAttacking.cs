@@ -1,9 +1,9 @@
-﻿using Rpg.ModObjects.States;
+﻿using Rpg.Experimental;
 using Newtonsoft.Json;
 
 namespace Rpg.Cyborgs.States
 {
-    public class RangedAttacking : State<Actor>
+    public class RangedAttacking : RpgState<Actor>
     {
         [JsonConstructor] private RangedAttacking() { IsPlayerVisible = false; }
 
