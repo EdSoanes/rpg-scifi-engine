@@ -16,8 +16,11 @@ namespace Rpg.Experimental.Json
                     ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
                     TypeNameHandling = TypeNameHandling.Auto,
                     NullValueHandling = NullValueHandling.Include,
-                    Formatting = Formatting.Indented,
-                    ContractResolver = new RpgGraphStateContractResolver(false)
+
+                    //Saved sheets are for the engine to read, not people: no indentation, and nothing that a
+                    //restore would get right without being told
+                    Formatting = Formatting.None,
+                    ContractResolver = new RpgGraphStateContractResolver(false, true)
                 };
 
                 _graphStateOptions.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
@@ -53,22 +56,12 @@ namespace Rpg.Experimental.Json
                 => JsonConvert.DeserializeObject<T>(json, GraphStateOptions())!;
 
         /// <summary>
-        /// A graph state as compact, compressed text
+        /// A graph state as compressed text. Saved sheets are very repetitive, so this is many times
+        /// smaller than SerializeGraphState().
         /// </summary>
         public static string SerializeSnapshot(object obj)
         {
-            var options = GraphStateOptions();
-            var compact = new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = options.ReferenceLoopHandling,
-                TypeNameHandling = options.TypeNameHandling,
-                NullValueHandling = options.NullValueHandling,
-                Formatting = Formatting.None,
-                ContractResolver = options.ContractResolver,
-                Converters = options.Converters
-            };
-
-            var json = JsonConvert.SerializeObject(obj, compact);
+            var json = SerializeGraphState(obj);
             var bytes = global::System.Text.Encoding.UTF8.GetBytes(json);
 
             using var output = new MemoryStream();
@@ -78,9 +71,15 @@ namespace Rpg.Experimental.Json
             return Convert.ToBase64String(output.ToArray());
         }
 
+        /// <summary>
+        /// Restore a graph state from compressed text. Text that is not compressed is accepted too.
+        /// </summary>
         public static T DeserializeSnapshot<T>(string snapshot)
             where T : class
         {
+            if (snapshot.TrimStart().StartsWith('{'))
+                return DeserializeGraphState<T>(snapshot);
+
             using var input = new MemoryStream(Convert.FromBase64String(snapshot));
             using var gzip = new global::System.IO.Compression.GZipStream(input, global::System.IO.Compression.CompressionMode.Decompress);
             using var reader = new StreamReader(gzip, global::System.Text.Encoding.UTF8);

@@ -1,0 +1,64 @@
+@page "/"
+@inject IJSRuntime JS
+
+<PageTitle>Engine browser spike</PageTitle>
+
+<h1>Engine browser spike</h1>
+
+<p>
+    The rules engine and the Cyborgs system running in this browser, with no server.
+</p>
+
+@if (_runner == null)
+{
+    <p id="status">Running...</p>
+}
+else
+{
+    <p id="status" class="@(_runner.AllOk ? "ok" : "failed")">
+        @(_runner.AllOk ? "ALL STEPS PASSED" : "SOME STEPS FAILED")
+    </p>
+
+    <table>
+        <thead>
+            <tr><th>Step</th><th>Result</th><th>Time (ms)</th><th>Detail</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var step in _runner.Steps)
+            {
+                <tr class="@(step.Ok ? "ok" : "failed")">
+                    <td>@step.Name</td>
+                    <td>@(step.Ok ? "ok" : "FAILED")</td>
+                    <td class="num">@step.Ms.ToString("0.0")</td>
+                    <td>@step.Detail</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <p id="timings">
+        Page start to engine finished: <span id="startup">@_startupMs.ToString("0")</span> ms.
+        Engine steps in total: <span id="total">@_runner.Steps.Sum(x => x.Ms).ToString("0")</span> ms.
+    </p>
+}
+
+@code {
+    private SpikeRunner? _runner;
+    private double _startupMs;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        //Let the "Running..." text paint before the engine blocks the thread
+        await Task.Delay(1);
+
+        var runner = new SpikeRunner();
+        runner.Run();
+
+        _startupMs = await JS.InvokeAsync<double>("spikeElapsed");
+        _runner = runner;
+        StateHasChanged();
+    }
+}

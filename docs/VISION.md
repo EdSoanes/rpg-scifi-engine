@@ -274,9 +274,9 @@ modifications about 750 bytes, and a whole character about 7 KB.
 
 Decisions not yet made. Do not assume an answer.
 
-- **Where the engine runs.** The engine is C#. Running it on the device most likely means compiling it to
-  run in the browser. Its reliance on reflection and assembly scanning needs proving there. Rewriting it in
-  another language is the fallback.
+- **Where the engine runs.** Answered in part. A spike showed the C# engine and Cyborgs run in a browser
+  unchanged, with no server. See [BROWSER_SPIKE.md](BROWSER_SPIKE.md). A rewrite is not needed. Still open:
+  how it performs on a real phone, and whether to compile it ahead of time.
 - **Rules and content versions.** How a saved character survives a rules change, and how a table makes
   sure everyone has the same version.
 
@@ -407,7 +407,16 @@ See [TIME_PLAN.md](TIME_PLAN.md) for the design and what was built.
 - Works: a whole sheet can be saved to text and restored, and remains fully functional.
 - The engine runs on the server. The old engine's character sheet calls it for every operation. The
   equivalent for the new engine has not been built, so it can be designed for the device from the start.
-- Whether the engine runs in a browser is unproven. It relies on reflection and on scanning assemblies.
+- Works: the engine runs in a browser with no server. See [BROWSER_SPIKE.md](BROWSER_SPIKE.md). It is
+  about seven times slower than on the desktop. It has not been tried on a phone.
+- Each turn costs more than the last while turns are tracked, because everything expired is kept. A long
+  fight slows down.
+- Works: a saved sheet is compressed, and leaves out indentation and anything a restore already knows.
+  One new character saves as about 8 KB, down from about 300 KB. The turn history is capped, at five
+  turns by default.
+- A saved sheet still grows during a long fight, to about 210 KB after 50 turns, because the sheet itself
+  grows. Every action and every untouched state is still saved in full, which will matter with a hundred
+  items.
 - The save format records .NET type names, so a rules change may stop an old save loading.
 - A single item cannot be exported or imported. Moving an item only works within one graph.
 - A graph has a separate context object and actor. Tests use a room as the context. Under this feature the

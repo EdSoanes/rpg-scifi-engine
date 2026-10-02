@@ -8,7 +8,10 @@ namespace Rpg.Experimental
 {
     public class RpgCharacterSheet : RpgGraph
     {
+        public const int DefaultMaxTurnHistory = 5;
+
         private bool _restoringSnapshot;
+        private int _maxTurnHistory = DefaultMaxTurnHistory;
 
         [JsonProperty] public RpgObject Actor { get; private set; }
 
@@ -17,6 +20,22 @@ namespace Rpg.Experimental
         /// This is what makes it possible to go back to an earlier turn.
         /// </summary>
         [JsonProperty] internal Dictionary<int, RpgTurnSnapshot> TurnSnapshots { get; private set; } = new();
+
+        /// <summary>
+        /// How many turns can be gone back to, counting the current one. Each turn kept is a whole copy of
+        /// the sheet, so this bounds how large a saved sheet gets in a long fight. Older turns are dropped
+        /// as new ones start. Zero keeps no history. It is a setting of the sheet: it is saved with it and
+        /// going back a turn does not change it.
+        /// </summary>
+        [JsonProperty] public int MaxTurnHistory
+        {
+            get => _maxTurnHistory;
+            set
+            {
+                _maxTurnHistory = Math.Max(0, value);
+                TrimTurnHistory();
+            }
+        }
 
         public RpgCharacterSheet(RpgObject context, RpgSystem? metaGraph = null)
             : base(context, metaGraph)
@@ -40,8 +59,21 @@ namespace Rpg.Experimental
         {
             Actor = (RpgObject)characterSheetState.Objects.First(x => x.Id == characterSheetState.ActorId);
             TurnSnapshots = characterSheetState.TurnSnapshots ?? new();
+            MaxTurnHistory = characterSheetState.MaxTurnHistory;
             Time.Refresh();
         }
+
+        /// <summary>
+        /// The whole sheet as compressed text, for storing on a device or handing to another one
+        /// </summary>
+        public string Save()
+            => RpgJson.SerializeSnapshot(GetState());
+
+        /// <summary>
+        /// Restore a sheet from the text given by Save()
+        /// </summary>
+        public static RpgCharacterSheet Load(string saved, RpgSystem rpgSystem)
+            => new RpgCharacterSheet(RpgJson.DeserializeSnapshot<RpgCharacterSheetState>(saved), rpgSystem);
 
         public RpgCharacterSheetState GetState()
             => GetState(true);
@@ -56,6 +88,7 @@ namespace Rpg.Experimental
                 ActorId = Actor.Id,
                 Time = Time,
                 RollMode = RollMode,
+                MaxTurnHistory = MaxTurnHistory,
                 TurnSnapshots = includeTurnSnapshots ? TurnSnapshots : new()
             };
 
@@ -164,10 +197,27 @@ namespace Rpg.Experimental
 
         private void TakeTurnSnapshot()
         {
+            if (MaxTurnHistory <= 0)
+                return;
+
             TurnSnapshots[Time.Turn] = new RpgTurnSnapshot
             {
                 Data = RpgJson.SerializeSnapshot(GetState(false))
             };
+
+            TrimTurnHistory();
+        }
+
+        /// <summary>
+        /// Drop the oldest turns beyond the number that are kept
+        /// </summary>
+        private void TrimTurnHistory()
+        {
+            if (TurnSnapshots == null)
+                return;
+
+            foreach (var turn in TurnSnapshots.Keys.OrderDescending().Skip(MaxTurnHistory).ToArray())
+                TurnSnapshots.Remove(turn);
         }
     }
 }

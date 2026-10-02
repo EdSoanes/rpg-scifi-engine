@@ -6,5 +6,6 @@ namespace Rpg.Experimental
     {
         public string ActorId { get; init; }
         public Dictionary<int, RpgTurnSnapshot> TurnSnapshots { get; set; } = new();
+        public int MaxTurnHistory { get; set; } = RpgCharacterSheet.DefaultMaxTurnHistory;
     }
 }

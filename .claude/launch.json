@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "browser-spike-dev",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "src/Rpg.BrowserSpike", "--no-launch-profile", "--urls", "http://localhost:5019"],
+      "port": 5019
+    },
+    {
+      "name": "browser-spike-published",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["src/Rpg.BrowserSpike/serve.js", "5020"],
+      "port": 5020
+    }
+  ]
+}
