@@ -1,51 +1,90 @@
-﻿using Rpg.ModObjects;
-using Rpg.ModObjects.Meta;
+using Rpg.Cms.Extensions;
+using Rpg.Experimental;
+using Rpg.Experimental.System;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Services;
 
 namespace Rpg.Cms.Services.Converter
 {
+    /// <summary>
+    /// Turns authored content into a game system object: the content's values fill the object's template,
+    /// and the content picked into its child properties (e.g. the items in a character's hands) is turned
+    /// into objects too.
+    /// </summary>
     public class ContentConverter
     {
-        private readonly IEnumerable<IPropConverter> _propConverters;
+        /// <summary>Content can pick content that picks it back. This is where following that stops.</summary>
+        private const int MaxDepth = 8;
+
         private readonly IContentTypeService _contentTypeService;
 
-        private List<RpgEntity> Entities = new();
+        public ContentConverter(IContentTypeService contentTypeService)
+            => _contentTypeService = contentTypeService;
 
-        public void AddEntity(RpgEntity entity)
-        {
-            if (!Entities.Any(x => x.Id == entity.Id))
-                Entities.Add(entity);
-        }
+        public RpgObject? Convert(RpgSystem system, IPublishedContent source)
+            => Convert(system, source, 0);
 
-        public ContentConverter(IContentTypeService contentTypeService, IEnumerable<IPropConverter> propConverters)
+        private RpgObject? Convert(RpgSystem system, IPublishedContent source, int depth)
         {
-            _contentTypeService = contentTypeService;
-            _propConverters = propConverters;
-        }
-
-        public RpgEntity? Convert(IMetaSystem system, Type? type, IPublishedContent source)
-        {
-            if (type == null)
+            var archetype = system.GetArchetype(source.ContentType.Alias);
+            if (depth > MaxDepth || !RpgObjectFactory.CanCreate(system, archetype))
                 return null;
 
-            var obj = (Activator.CreateInstance(type, true) as RpgEntity)!;
-            obj.SetProperty("Name", source.Name);
-            obj.SetProperty("Archetype", type.Name);
+            var propNames = PropNamesByAlias(source);
 
-            var contentType = _contentTypeService.Get(source.ContentType.Key)!;
-            foreach (var propType in contentType.PropertyTypes)
+            var values = new Dictionary<string, object?>();
+            var children = new List<(string, IPublishedContent)>();
+
+            foreach (var property in source.Properties)
             {
-                var prop = source.GetProperty(propType.Alias)!;
-                var fullPropName = propType.Description!;
-                var propConverter = _propConverters.FirstOrDefault(x => x.CanConvert(prop));
-                if (propConverter != null)
-                    propConverter.Convert(system, this, obj, prop, fullPropName);
+                if (!propNames.TryGetValue(property.Alias, out var propName))
+                    continue;
+
+                var value = property.GetValue();
+                switch (value)
+                {
+                    case IPublishedContent picked:
+                        children.Add((propName, picked));
+                        break;
+
+                    case IEnumerable<IPublishedContent> pickedItems:
+                        children.AddRange(pickedItems.Select(x => (propName, x)));
+                        break;
+
+                    default:
+                        values[propName] = value;
+                        break;
+                }
             }
 
-            AddEntity(obj);
+            values[nameof(RpgObject.Name)] = source.Name;
+
+            var obj = RpgObjectFactory.Create(system, archetype, values);
+
+            foreach (var (propName, picked) in children)
+            {
+                var child = Convert(system, picked, depth + 1);
+                if (child != null)
+                    RpgObjectFactory.AddChild(obj, propName, child);
+            }
 
             return obj;
+        }
+
+        /// <summary>
+        /// The description of a property type holds the name of the property on the game system object
+        /// (see DocTypeModelFactory). The alias is only a safe form of it.
+        /// </summary>
+        private Dictionary<string, string> PropNamesByAlias(IPublishedContent source)
+        {
+            var res = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            var contentType = _contentTypeService.Get(source.ContentType.Key);
+            if (contentType != null)
+                foreach (var propType in contentType.PropertyTypes)
+                    res[propType.Alias] = !string.IsNullOrEmpty(propType.Description) ? propType.Description : propType.Alias;
+
+            return res;
         }
     }
 }

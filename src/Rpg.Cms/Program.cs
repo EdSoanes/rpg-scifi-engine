@@ -5,23 +5,29 @@ using Rpg.Cms.Services.Converter;
 using Rpg.Cms.Services.Factories;
 using Rpg.Cms.Services.Synchronizers;
 using Rpg.Cyborgs;
-using Rpg.ModObjects.Reflection;
-using Rpg.ModObjects.Server;
-
+using Rpg.Experimental.Server;
+using Umbraco.Cms.Core.Notifications;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+//The game systems this site knows about. Their meta data is built once, here.
+var systems = new RpgSystems();
+systems.Register(new CyborgsSystem());
 
 builder.CreateUmbracoBuilder()
     .AddBackOffice()
     .AddWebsite()
     .AddDeliveryApi()
     .AddComposers()
+    .AddRpgOpenApi()
+    .AddNotificationAsyncHandler<UmbracoApplicationStartedNotification, RpgSyncOnStartup>()
     .Build();
 
 builder.Services
-    .ConfigureOptions<RpgSwaggerGenOptions>();
-
-builder.Services
+    .AddSingleton(systems)
+    .AddScoped<IContentFactory, ContentFactory>()
+    .AddScoped<RpgSessionlessServer>()
+    .AddTransient<RpgSyncService>()
     .AddTransient<ISyncTypesService, SyncTypesService>()
     .AddTransient<ISyncContentService, SyncContentService>()
     .AddTransient<SyncSessionFactory>()
@@ -31,20 +37,12 @@ builder.Services
     .AddTransient<IDataTypeFolderSynchronizer, DataTypeFolderSynchronizer>()
     .AddTransient<DocTypeModelFactory>()
     .AddTransient<DataTypeModelFactory>()
-    .AddTransient<ContentConverter>()
-    .AddRpgServer(options => options.ContentFactoryType = typeof(ContentFactory));
-
-foreach (var propConverterType in RpgTypeScan.ForTypes<IPropConverter>())
-{
-    builder.Services.AddSingleton(typeof(IPropConverter), propConverterType);
-}
+    .AddTransient<ContentConverter>();
 
 WebApplication app = builder
     .Build();
 
 await app.BootUmbracoAsync();
-
-RpgTypeScan.RegisterAssembly(typeof(CyborgsSystem).Assembly);
 
 app.UseUmbraco()
     .WithMiddleware(u =>
@@ -56,7 +54,6 @@ app.UseUmbraco()
     {
         u.UseBackOfficeEndpoints();
         u.UseWebsiteEndpoints();
-        
     });
 
 await app.RunAsync();

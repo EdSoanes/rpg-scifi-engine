@@ -1,13 +1,10 @@
-﻿using Umbraco.Cms.Core.Models;
-using Umbraco.Cms.Core.Models.ContentTypeEditing;
-using Umbraco.Cms.Core.Models.Entities;
+using Umbraco.Cms.Core.Models;
 
 namespace Rpg.Cms.Services
 {
     public interface ISyncTypesService
     {
-        IEnumerable<IContentType> DocumentTypes();
-        Task<IEnumerable<ContentTypeCreateModel>> DocumentTypeUpdatesAsync(Guid userKey);
+        IEnumerable<IContentType> DocumentTypes(SyncSession session);
         Task Sync(SyncSession session);
     }
 }

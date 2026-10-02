@@ -63,18 +63,62 @@ namespace Rpg.Experimental.System
 
         public static MetaObject CreateObject(Type type, MetaAction[] actions, MetaState[] states)
         {
+            var props = CreateProperties(type);
+
             var obj = new MetaObject
             {
                 Archetype = type.Name,
-                Archetypes = RpgTypeUtilities.GetArchetypes(type)
+                Archetypes = RpgTypeUtilities.GetArchetypes(type),
+                QualifiedTypeName = type.AssemblyQualifiedName,
+                Template = CreateTemplate(type, props)
             };
 
-            var props = CreateProperties(type);
             obj.Properties.AddRange(props);
             obj.AllowedActions.AddRange(actions.Where(x => obj.Archetypes.Contains(x.OwnerArchetype)));
             obj.AllowedStates.AddRange(states.Where(x => obj.Archetypes.Contains(x.Archetype)));
 
             return obj;
+        }
+
+        /// <summary>
+        /// The values to author to create an object of the type. See MetaTemplate.
+        /// </summary>
+        private static MetaTemplate? CreateTemplate(Type type, List<MetaProperty> objectProps)
+        {
+            if (type.IsAbstract)
+                return null;
+
+            var templateType = RpgObjectFactory.TemplateTypeOf(type);
+            if (templateType == null)
+                return null;
+
+            var template = new MetaTemplate
+            {
+                TypeName = templateType.Name,
+                QualifiedTypeName = templateType.AssemblyQualifiedName!
+            };
+
+            var propStack = new Stack<string>();
+            foreach (var propInfo in RpgObjectFactory.TemplateProperties(templateType))
+            {
+                //The object's own property says how the value is presented (display name, tab, group, limits)
+                var metaProp = objectProps.FirstOrDefault(x => x.Prop == propInfo.Name && !x.Path.Any())?.Clone()
+                    ?? CreateProperty(propStack, propInfo);
+
+                if (metaProp == null && (Nullable.GetUnderlyingType(propInfo.PropertyType) ?? propInfo.PropertyType) == typeof(bool))
+                    metaProp = new MetaProperty
+                    {
+                        Prop = propInfo.Name,
+                        PropertyType = RpgPropertyType.Int,
+                        Editor = EditorType.Boolean,
+                        DisplayName = propInfo.Name
+                    };
+
+                if (metaProp != null)
+                    template.Properties.Add(metaProp);
+            }
+
+            return template;
         }
 
         private static string[] Namespaces(IEnumerable<Type> objectTypes)

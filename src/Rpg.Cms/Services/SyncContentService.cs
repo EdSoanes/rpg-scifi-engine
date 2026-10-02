@@ -31,7 +31,7 @@ namespace Rpg.Cms.Services
             var stateLibrary = await EnsureContentAsync(session, "State Library", session.StateLibraryDocType!.Key, systemRoot, sysChildren);
 
             var actionSiblings = _contentService.GetPagedChildren(actionLibrary.Id, 0, 10000, out _);
-            foreach (var action in session.System.ActionTemplates)
+            foreach (var action in session.System.Actions)
             {
                 var name = $"{action.OwnerArchetype}.{action.Name}";
                 await EnsureContentAsync(session, name, session.ActionDocType!.Key, actionLibrary, actionSiblings);
@@ -52,9 +52,9 @@ namespace Rpg.Cms.Services
             {
                 var props = new Dictionary<string, object>
                 {
-                    { "Identifier", session.System.Identifier },
-                    { "Version", session.System.Version },
-                    { "Description", session.System.Description }
+                    { "identifier", session.System.Identifier },
+                    { "version", session.System.Version },
+                    { "description", session.System.Description }
                 };
 
                 systemRoot = await CreateContentAsync(session, session.System.Identifier, session.SystemDocType!.Key, Constants.System.RootKey, props);
@@ -81,19 +81,10 @@ namespace Rpg.Cms.Services
             var model = new ContentCreateModel
             {
                 ContentTypeKey = docTypeKey,
-                InvariantName = name,
-                ParentKey = parentKey
+                ParentKey = parentKey,
+                Variants = [new VariantModel { Name = name }],
+                Properties = ToPropertyValues(props)
             };
-
-            if (props != null)
-            {
-                var invariantProperties = new List<PropertyValueModel>();
-
-                foreach (var prop in props)
-                    invariantProperties.Add(new PropertyValueModel { Alias = prop.Key, Value = prop.Value });
-
-                model.InvariantProperties = invariantProperties;
-            }
 
             var attempt = await _contentEditingService.CreateAsync(model, session.UserKey);
             if (!attempt.Success)
@@ -107,18 +98,9 @@ namespace Rpg.Cms.Services
         {
             var model = new ContentUpdateModel
             {
-                InvariantName = name,
+                Variants = [new VariantModel { Name = name }],
+                Properties = ToPropertyValues(props)
             };
-
-            if (props != null)
-            {
-                var invariantProperties = new List<PropertyValueModel>();
-
-                foreach (var prop in props)
-                    invariantProperties.Add(new PropertyValueModel { Alias = prop.Key, Value = prop.Value });
-
-                model.InvariantProperties = invariantProperties;
-            }
 
             var attempt = await _contentEditingService.UpdateAsync(contentKey, model, session.UserKey);
             if (!attempt.Success)
@@ -130,20 +112,24 @@ namespace Rpg.Cms.Services
 
         private async Task<IContent> PublishAsync(SyncSession session, Guid contentKey, string name)
         {
-            var schedule = new ContentScheduleCollection();
-            schedule.Add(new ContentSchedule("*", DateTime.UtcNow, ContentScheduleAction.Release));
-
-            var publishModel = new CultureAndScheduleModel
+            //The content is invariant, so it is published for "every culture" straight away
+            var cultures = new List<CulturePublishScheduleModel>
             {
-                CulturesToPublishImmediately = new HashSet<string> { "*" },
-                Schedules = schedule
+                new CulturePublishScheduleModel { Culture = Constants.System.InvariantCulture }
             };
 
-            var attempt = await _contentPublishingService.PublishAsync(contentKey, publishModel, session.UserKey);
+            var attempt = await _contentPublishingService.PublishAsync(contentKey, cultures, session.UserKey);
             if (!attempt.Success)
                 throw new InvalidOperationException($"Failed to publish {name} {attempt.Status}", attempt.Exception);
 
-            return attempt.Result.Content!;
+            return _contentService.GetById(contentKey)
+                ?? throw new InvalidOperationException($"Published {name} but could not read it back");
         }
+
+        private static List<PropertyValueModel> ToPropertyValues(Dictionary<string, object>? props)
+            => props?
+                .Select(x => new PropertyValueModel { Alias = x.Key, Value = x.Value })
+                .ToList()
+                ?? new List<PropertyValueModel>();
     }
 }

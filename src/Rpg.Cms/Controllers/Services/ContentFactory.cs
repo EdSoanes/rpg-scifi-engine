@@ -1,38 +1,38 @@
-﻿using Rpg.Cms.Extensions;
+using Rpg.Cms.Extensions;
 using Rpg.Cms.Services.Converter;
-using Rpg.ModObjects;
-using Rpg.ModObjects.Meta;
-using Rpg.ModObjects.Server;
-using Rpg.ModObjects.Server.Services;
-using System.Net;
+using Rpg.Experimental;
+using Rpg.Experimental.Server;
+using Rpg.Experimental.System;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Web.Common;
 
 namespace Rpg.Cms.Controllers.Services
 {
+    /// <summary>
+    /// The content library of a game system: the characters and items authored under the system's
+    /// "Entity Library" node
+    /// </summary>
     public class ContentFactory : IContentFactory
     {
+        private readonly RpgSystems _systems;
         private readonly ContentConverter _contentConverter;
         private readonly UmbracoHelper _umbracoHelper;
 
-        public ContentFactory(ContentConverter contentConverter, UmbracoHelper umbracoHelper)
+        public ContentFactory(RpgSystems systems, ContentConverter contentConverter, UmbracoHelper umbracoHelper)
         {
+            _systems = systems;
             _contentConverter = contentConverter;
             _umbracoHelper = umbracoHelper;
         }
 
         public RpgContent[] ListEntities(string systemIdentifier)
         {
-            var system = MetaSystems.Get(systemIdentifier);
-            if (system == null)
-                throw new HttpRequestException($"System {system} not found", null, HttpStatusCode.BadRequest);
-
+            var system = _systems.Get(systemIdentifier);
             var entityLibrary = GetEntityLibrary(system);
-            var entities = entityLibrary
-                .Descendants()
-                .Where(x => x.ContentType.Alias != entityLibrary.ContentType.Alias);
 
-            var res = entities
+            return entityLibrary
+                .Descendants()
+                .Where(x => x.ContentType.Alias != entityLibrary.ContentType.Alias)
                 .Select(x => new RpgContent
                 {
                     Key = x.Key,
@@ -41,42 +41,38 @@ namespace Rpg.Cms.Controllers.Services
                     Archetype = system.GetArchetype(x.ContentType.Alias),
                 })
                 .ToArray();
-
-            return res;
         }
 
-        public RpgEntity CreateEntity(string systemIdentifier, string archetype, string contentId)
+        public RpgObject CreateEntity(string systemIdentifier, string archetype, string contentId)
         {
-            var system = MetaSystems.Get(systemIdentifier);
-            if (system == null)
-                throw new HttpRequestException($"System {system} not found", null, HttpStatusCode.BadRequest);
+            var system = _systems.Get(systemIdentifier);
+
+            if (!RpgObjectFactory.CanCreate(system, archetype))
+                throw new RpgServerException($"{archetype} cannot be created from content in system {systemIdentifier}");
 
             var entityLibrary = GetEntityLibrary(system);
-
-            var type = system.GetMetaObjectType(archetype);
-            if (type == null)
-                throw new HttpRequestException($"No .net type found for archetype {archetype} in system {systemIdentifier}", null, HttpStatusCode.BadRequest);
-
             var alias = system.GetDocumentTypeAlias(archetype);
-            var content = GetEntity(entityLibrary, alias, contentId);
-            if (content == null)
-                throw new HttpRequestException($"Could not find entity {contentId} ({archetype}) for system {systemIdentifier}", null, HttpStatusCode.BadRequest);
 
-            var entity = _contentConverter.Convert(system, type, content)!;
-            return entity;
+            var content = GetEntity(entityLibrary, alias, contentId);
+            if (content == null || content.ContentType.Alias != alias)
+                throw new RpgServerException($"Could not find {archetype} {contentId} in system {systemIdentifier}");
+
+            return _contentConverter.Convert(system, content)
+                ?? throw new RpgServerException($"Could not create {archetype} from content {contentId}");
         }
 
-        private IPublishedContent GetEntityLibrary(IMetaSystem system)
+        private IPublishedContent GetEntityLibrary(RpgSystem system)
         {
+            var systemAlias = system.GetDocumentTypeAlias(system.Identifier);
             var entityLibraryAlias = system.GetDocumentTypeAlias("Entity Library");
 
             var systemRoot = _umbracoHelper
                 .ContentAtRoot()
-                .FirstOrDefault(x => x.ContentType.Alias == system.Identifier);
+                .FirstOrDefault(x => x.ContentType.Alias == systemAlias);
 
             var entityLibrary = systemRoot?.FirstChild(content => content.ContentType.Alias == entityLibraryAlias);
             if (entityLibrary == null)
-                throw new HttpRequestException($"Could not find entity library for system {system.Identifier}", null, HttpStatusCode.BadRequest);
+                throw new RpgServerException($"Could not find the entity library for system {system.Identifier}. Has the system been synchronised?");
 
             return entityLibrary;
         }
@@ -86,11 +82,10 @@ namespace Rpg.Cms.Controllers.Services
             if (Guid.TryParse(identifier, out var key))
                 return _umbracoHelper.Content(key);
 
-            var entity = entityLibrary
+            //Not a key: take it as a name
+            return entityLibrary
                 .Descendants()
-                .FirstOrDefault(x => x.ContentType.Alias == alias);
-
-            return entity;
+                .FirstOrDefault(x => x.ContentType.Alias == alias && string.Equals(x.Name, identifier, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

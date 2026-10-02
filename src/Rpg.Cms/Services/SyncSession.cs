@@ -1,13 +1,16 @@
-﻿using Rpg.ModObjects.Meta;
-using System.Security.Cryptography.Xml;
+using Rpg.Experimental.System;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.Entities;
 
 namespace Rpg.Cms.Services
 {
+    /// <summary>
+    /// What is known about a game system and its document types and data types while they are being
+    /// brought into line with the game system's meta data
+    /// </summary>
     public class SyncSession
     {
-        public IMetaSystem System { get; set; }
+        public RpgSystem System { get; set; }
         public Guid UserKey { get; set; }
 
         public IUmbracoEntity? RootDataTypeFolder { get; set; }
@@ -16,15 +19,10 @@ namespace Rpg.Cms.Services
         public IUmbracoEntity? EntityDocTypeFolder { get; set; }
         public IUmbracoEntity? ComponentDocTypeFolder { get; set; }
 
-
         public IContentType? SystemDocType { get; set; }
         public IContentType? StateLibraryDocType { get; set; }
         public IContentType? ActionLibraryDocType { get; set; }
         public IContentType? EntityLibraryDocType { get; set; }
-
-        public IContentType? ObjectDocType { get; set; }
-        public IContentType? EntityDocType { get; set; }
-        public IContentType? ComponentDocType { get; set; }
 
         public IContentType? StateDocType { get; set; }
         public IContentType? ActionArgDocType { get; set; }
@@ -34,16 +32,15 @@ namespace Rpg.Cms.Services
         public List<IUmbracoEntity> DocTypeFolders { get; set; } = new List<IUmbracoEntity>();
         public List<IDataType> DataTypes { get; set; } = new List<IDataType>();
 
-
-        public SyncSession(Guid userKey, IMetaSystem system)
+        public SyncSession(Guid userKey, RpgSystem system)
         {
             System = system;
             UserKey = userKey;
         }
 
-        public IDataType? GetDataTypeByName(string dataTypeAlias, bool faultOnNotFound = true)
+        public IDataType? GetDataTypeByName(string dataTypeName, bool faultOnNotFound = true)
         {
-            var name = GetDataTypeName(dataTypeAlias);
+            var name = GetDataTypeName(dataTypeName);
             var res = DataTypes.FirstOrDefault(x => x.Name == name);
             if (res == null && faultOnNotFound)
                 throw new InvalidOperationException($"Missing data type {name}");
@@ -57,21 +54,11 @@ namespace Rpg.Cms.Services
             if (res == null && faultOnNotFound)
                 throw new InvalidOperationException($"Missing doc type with alias {alias}");
 
-
             return res;
         }
 
         public string GetDataTypeName(string dataTypeName)
             => !dataTypeName.StartsWith(System.Identifier) ? $"{System.Identifier} {dataTypeName}" : dataTypeName;
-
-        public string GetDocTypeName(MetaObj metaObject)
-            => GetDocTypeName(metaObject.Archetype);
-
-        public string GetDocTypeName(string archetype)
-            => $"{System.Identifier} {archetype}";
-
-        public string GetPropTypeAlias(MetaProp prop)
-            => $"{System.Identifier}_{prop.Prop}";
 
         public string GetPropTypeTabName(string? tab)
             => string.IsNullOrEmpty(tab)
@@ -82,20 +69,5 @@ namespace Rpg.Cms.Services
             => string.IsNullOrEmpty(group)
                 ? System.Name
                 : group;
-    }
-
-
-
-
-    public class DocTypeAliasTemplate
-    {
-        public Guid Key { get; set; }
-        public string Alias { get; set; }
-
-        public DocTypeAliasTemplate(Guid key, string alias)
-        {
-            Key = key;
-            Alias = alias;
-        }
     }
 }

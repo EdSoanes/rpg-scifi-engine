@@ -6,6 +6,15 @@ namespace Rpg.Experimental.System
     {
         [JsonProperty] public string Archetype { get; init; }
         [JsonProperty] public string[] Archetypes {  get; init; }
+
+        /// <summary>The .net type of the object</summary>
+        [JsonProperty] public string? QualifiedTypeName { get; init; }
+
+        /// <summary>
+        /// The values to author to create an object of this type. Null if the type cannot be created from
+        /// authored values.
+        /// </summary>
+        [JsonProperty] public MetaTemplate? Template { get; init; }
         [JsonProperty] public string? Icon { get; private set; }
         [JsonProperty] public List<MetaProperty> Properties { get; set; } = new List<MetaProperty>();
 

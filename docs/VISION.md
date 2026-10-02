@@ -288,7 +288,8 @@ Decisions not yet made. Do not assume an answer.
 | `Rpg.Cyborgs` | One game system built on the engine. A testbed: a very simple but realistic example that proves the engine works. It is not meant to be a complete or realistic game. |
 | `Rpg.Cms` | An Umbraco server that reads a system's meta data, creates the matching content types, and lets an editor author items, characters and so on. Under feature 7 it is used before a session, not during one. |
 | `apps/rpg-cyborgs` | The digital character sheet the players use. |
-| `Rpg.ModObjects` | The previous engine, being replaced by `Rpg.Experimental`. |
+| `Rpg.Experimental.Server` | The operations a character sheet app performs on a sheet, with no web dependency. The CMS exposes it over HTTP today. It is the start of the library that runs on the device. |
+| `Rpg.ModObjects` | The previous engine. Nothing uses it any more. |
 | GM app | Not started. |
 
 ## Where the current code falls short
@@ -405,8 +406,13 @@ See [TIME_PLAN.md](TIME_PLAN.md) for the design and what was built.
 ### 7. No server needed during play
 
 - Works: a whole sheet can be saved to text and restored, and remains fully functional.
-- The engine runs on the server. The old engine's character sheet calls it for every operation. The
-  equivalent for the new engine has not been built, so it can be designed for the device from the start.
+- Works: the operations a character sheet app performs are a library with no web dependency. It keeps
+  nothing between calls: the sheet travels with each request. See [CMS_PORT.md](CMS_PORT.md).
+- That library is only reached over HTTP today, through the CMS. It has not been built for the browser or
+  called from the character sheet app.
+- The character sheet app was written for the old engine's api and does not work with the new one.
+- Works: the engine creates an object from authored values given by name. This is what the CMS uses, and
+  what importing an item from another sheet will need. Exporting and importing an item is not built.
 - Works: the engine runs in a browser with no server. See [BROWSER_SPIKE.md](BROWSER_SPIKE.md). It is
   about seven times slower than on the desktop. It has not been tried on a phone.
 - Each turn costs more than the last while turns are tracked, because everything expired is kept. A long

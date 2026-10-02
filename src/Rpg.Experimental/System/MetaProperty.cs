@@ -25,6 +25,7 @@
                 Tab = this.Tab,
                 Group = this.Group,
                 DisplayName = this.DisplayName,
+                IsNullable = this.IsNullable,
             };
 
             foreach (var key in Attributes.Keys)

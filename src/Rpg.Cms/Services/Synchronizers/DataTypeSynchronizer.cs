@@ -36,7 +36,7 @@ namespace Rpg.Cms.Services.Synchronizers
             types = await _dataTypeService.GetByEditorAliasAsync(Constants.PropertyEditors.Aliases.TextBox);
             res.AddRange(types);
 
-            types = await _dataTypeService.GetByEditorAliasAsync(Constants.PropertyEditors.Aliases.RichText);
+            types = await _dataTypeService.GetByEditorAliasAsync(Constants.PropertyEditors.Aliases.TextArea);
             res.AddRange(types);
 
             types = await _dataTypeService.GetByEditorAliasAsync(Constants.PropertyEditors.Aliases.Boolean);
@@ -76,9 +76,9 @@ namespace Rpg.Cms.Services.Synchronizers
             return res;
         }
 
-        public async Task<List<IDataType>> ContainerPickerSync(SyncSession session)
+        public async Task<List<IDataType>> ChildrenPickerSync(SyncSession session)
         {
-            var model = _dataTypeModelFactory.CreateContainerModel(session, session.RootDataTypeFolder!);
+            var model = _dataTypeModelFactory.CreateChildrenModel(session, session.RootDataTypeFolder!);
             var existing = session.DataTypes.FirstOrDefault(x => x.Name == model.Name);
             var dataType = await CreateOrReplaceAsync(session, model, existing);
 

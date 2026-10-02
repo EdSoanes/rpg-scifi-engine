@@ -779,6 +779,15 @@ namespace Rpg.Experimental.Graph
         public RpgObject? GetObject(string? objectId)
             => GetLifecycleObject(objectId) as RpgObject;
 
+        /// <summary>
+        /// Everything of a type in the graph, e.g. every activity action
+        /// </summary>
+        public T[] GetObjects<T>()
+            where T : RpgLifecycleObject
+                => Objects.Values
+                    .OfType<T>()
+                    .ToArray();
+
         public T[] GetOwnerObjects<T>(string? objectId)
             where T : RpgLifecycleObject
                 => Objects.Values

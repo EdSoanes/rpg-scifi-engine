@@ -1,5 +1,4 @@
 ﻿using Rpg.Cms.Extensions;
-using Rpg.ModObjects.Meta;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.ContentTypeEditing;
 
@@ -7,7 +6,7 @@ namespace Rpg.Cms.Services.Factories
 {
     public class DocTypeModelFactory
     {
-        public ContentTypeCreateModel CreateModel(SyncSession session, MetaObj metaObject, string icon = "icon-checkbox-dotted")
+        public ContentTypeCreateModel CreateModel(SyncSession session, DocTypeTemplate metaObject, string icon = "icon-checkbox-dotted")
         {
             var createDocType = new ContentTypeCreateModel
             {
@@ -19,7 +18,7 @@ namespace Rpg.Cms.Services.Factories
             return SetModel(session, createDocType, metaObject, icon, null);
         }
 
-        public ContentTypeUpdateModel UpdateModel(SyncSession session, MetaObj metaObject, IContentType docType, string icon = "icon-checkbox-dotted")
+        public ContentTypeUpdateModel UpdateModel(SyncSession session, DocTypeTemplate metaObject, IContentType docType, string icon = "icon-checkbox-dotted")
         {
             var updateDocType = new ContentTypeUpdateModel
             {
@@ -32,10 +31,10 @@ namespace Rpg.Cms.Services.Factories
             return updateDocType;
         }
 
-        private T SetModel<T>(SyncSession session, T docTypeModel, MetaObj metaObject, string icon, IContentType? docType)
+        private T SetModel<T>(SyncSession session, T docTypeModel, DocTypeTemplate metaObject, string icon, IContentType? docType)
             where T : ContentTypeModelBase
         {
-            var containers = CreateContainers(session, metaObject);
+            var containers = CreateContainers(session, metaObject, docType);
             var properties = CreateProperties(session, metaObject.Props, containers, docType);
 
             docTypeModel.Icon = metaObject.Icon ?? icon;
@@ -44,11 +43,11 @@ namespace Rpg.Cms.Services.Factories
             docTypeModel.AllowedAsRoot = metaObject.AllowedAsRoot;
             docTypeModel.IsElement = metaObject.IsElement;
 
-            if (metaObject.AllowedChildArchetypes.Any())
+            if (metaObject.AllowedChildAliases.Any())
             {
                 var allowedTypes = new List<ContentTypeSort>();
                 int i = 0;
-                foreach (var archetype in metaObject.AllowedChildArchetypes)
+                foreach (var archetype in metaObject.AllowedChildAliases)
                 {
                     var childDocType = session.GetDocType(archetype, faultOnNotFound: false);
                     if (childDocType != null)
@@ -80,7 +79,7 @@ namespace Rpg.Cms.Services.Factories
             return group;
         }
 
-        private List<ContentTypePropertyContainerModel> CreateContainers(SyncSession session, MetaObj metaObj, IContentType? docType = null)
+        private List<ContentTypePropertyContainerModel> CreateContainers(SyncSession session, DocTypeTemplate metaObj, IContentType? docType = null)
         {
             var containers = new List<ContentTypePropertyContainerModel>();
             foreach (var tab in metaObj.Props.Select(x => x.Tab ?? string.Empty).Distinct())
@@ -122,19 +121,20 @@ namespace Rpg.Cms.Services.Factories
             return containers;
         }
 
-        public ContentTypePropertyTypeModel[] CreateProperties(SyncSession session, IEnumerable<MetaProp> metaProps, IEnumerable<ContentTypePropertyContainerModel> containers, IContentType? docType = null)
+        public ContentTypePropertyTypeModel[] CreateProperties(SyncSession session, IEnumerable<DocTypeProp> metaProps, IEnumerable<ContentTypePropertyContainerModel> containers, IContentType? docType = null)
         {
             var res = new List<ContentTypePropertyTypeModel>();
             var sortOrder = 0;
-            foreach (var metaProp in metaProps.Where(x => !x.Ignore))
+            foreach (var metaProp in metaProps)
             {
-                var propType = docType?.PropertyTypes.FirstOrDefault(x => x.Name == metaProp.Prop);
-                var dataType = session.GetDataTypeByName(metaProp.DataTypeName, faultOnNotFound: false);
+                //The description of a property type holds the name of the property on the game system object
+                var propType = docType?.PropertyTypes.FirstOrDefault(x => x.Description == metaProp.Prop || x.Alias == metaProp.Alias);
+                var dataType = session.GetDataTypeByName(metaProp.DataTypeName);
                 var propModel = new ContentTypePropertyTypeModel
                 {
                     Key = propType?.Key ?? Guid.NewGuid(),
-                    Alias = metaProp.FullProp,
-                    Description = metaProp.FullProp,
+                    Alias = metaProp.Alias,
+                    Description = metaProp.Prop,
                     Name = metaProp.DisplayName,
                     DataTypeKey = dataType!.Key,
                     SortOrder = sortOrder++
@@ -152,7 +152,7 @@ namespace Rpg.Cms.Services.Factories
             return res.ToArray();
         }
 
-        private ContentTypePropertyContainerModel GetPropertyContainerModel(SyncSession session, IEnumerable<ContentTypePropertyContainerModel> containers, MetaProp? metaProp)
+        private ContentTypePropertyContainerModel GetPropertyContainerModel(SyncSession session, IEnumerable<ContentTypePropertyContainerModel> containers, DocTypeProp metaProp)
         {
             var tabName = session.GetPropTypeTabName(metaProp.Tab);
             var groupName = session.GetPropTypeGroupName(metaProp.Group);

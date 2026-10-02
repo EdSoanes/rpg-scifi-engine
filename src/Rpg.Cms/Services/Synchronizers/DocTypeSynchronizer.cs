@@ -1,7 +1,5 @@
 ﻿using Rpg.Cms.Extensions;
 using Rpg.Cms.Services.Factories;
-using Rpg.ModObjects.Meta;
-using System.Security.Cryptography.Xml;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.ContentTypeEditing;
 using Umbraco.Cms.Core.Models.Entities;
@@ -33,7 +31,7 @@ namespace Rpg.Cms.Services.Synchronizers
                 .ToList();
         }
 
-        public async Task<IContentType?> Sync(SyncSession session, MetaObj metaObject, IUmbracoEntity parentFolder)
+        public async Task<IContentType?> Sync(SyncSession session, DocTypeTemplate metaObject, IUmbracoEntity parentFolder)
         {
             var docType = session.GetDocType(session.System.GetDocumentTypeAlias(metaObject.Archetype), faultOnNotFound: false);
             if (docType != null)
