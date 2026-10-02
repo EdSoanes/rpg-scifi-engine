@@ -16,6 +16,11 @@ namespace Rpg.Experimental.Tests.Models
         public int Bonus { get; protected set; }
 
         /// <summary>
+        /// Set above zero before the creature is added to a sheet and it asks for a 1d4 roll every turn
+        /// </summary>
+        public int RollEachTurn { get; set; }
+
+        /// <summary>
         /// The time events this creature has reacted to, in order
         /// </summary>
         public string EventsSeen { get; protected set; } = string.Empty;
@@ -31,6 +36,67 @@ namespace Rpg.Experimental.Tests.Models
 
             if (graph.Time.CurrentEvent != null)
                 EventsSeen += $"{graph.Time.CurrentEvent};";
+
+            if (RollEachTurn > 0 && graph.Time.Now.Type == Rpg.Experimental.TimePointType.Turn)
+                graph.RequestRoll(this, $"bleed/{graph.Time.Turn}", "1d4");
+        }
+    }
+
+    /// <summary>
+    /// An action with a roll: 2d6 plus an aim bonus against a target number. On a hit the total of the
+    /// roll is added to the creature's Bonus for good, so a test can see what the roll came to.
+    /// </summary>
+    public class TestSwing : RpgAction<TestCreature>
+    {
+        [JsonConstructor] protected TestSwing()
+            : base() { }
+
+        public TestSwing(TestCreature owner)
+            : base(owner) { }
+
+        public override void OnCreatingActivityAction(RpgGraph graph, RpgActivityAction activityAction)
+        {
+            base.OnCreatingActivityAction(graph, activityAction);
+            graph.Add(new Initial(activityAction, "hitRoll", "2d6"));
+        }
+
+        public bool Perform(RpgGraph graph, RpgActivityAction activityAction, int aim)
+        {
+            graph.Reset(activityAction, "hitRoll");
+            if (aim != 0)
+                graph.Add(new Standard(), activityAction, "hitRoll", aim);
+
+            return true;
+        }
+
+        public bool Outcome(RpgActivityAction activityAction, TestCreature owner, int hitRoll, int target)
+        {
+            if (hitRoll >= target)
+                activityAction.Result
+                    .Add(new Combine()
+                        .SetTarget(owner, x => x.Bonus)
+                        .SetSource(hitRoll));
+
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// A dice roller that returns the numbers it is given, in order, and counts how often it is asked
+    /// </summary>
+    public class TestDiceRoller : IRpgDiceRoller
+    {
+        private readonly Queue<int> _results;
+
+        public int Rolled { get; private set; }
+
+        public TestDiceRoller(params int[] results)
+            => _results = new Queue<int>(results);
+
+        public int Roll(int sides)
+        {
+            Rolled++;
+            return _results.Count > 0 ? _results.Dequeue() : 1;
         }
     }
 

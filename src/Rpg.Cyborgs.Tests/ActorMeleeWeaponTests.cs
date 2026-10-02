@@ -68,8 +68,9 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(_characterSheet.GetPropertyValue<Dice>(attack.Id, "diceRoll").ToString(), Is.EqualTo("2d6 + 1"));
             Assert.That(_characterSheet.GetPropertyValue<Dice>(attack.Id, "targetDefence").ToString(), Is.EqualTo("12"));
 
+            //The number supplied is the result of the dice. The bonus is added to it.
             Assert.That(attack.Outcome(_characterSheet, ("diceRoll", 14)), Is.True);
-            Assert.That(_characterSheet.GetPropertyValue<Dice>(attack.Id, "diceRoll").ToString(), Is.EqualTo("14"));
+            Assert.That(_characterSheet.GetPropertyValue<Dice>(attack.Id, "diceRoll").ToString(), Is.EqualTo("15"));
             Assert.That(_characterSheet.GetPropertyValue<Dice>(attack.Id, "damage").ToString(), Is.EqualTo("1d6"));
 
             attack.Complete(_characterSheet);

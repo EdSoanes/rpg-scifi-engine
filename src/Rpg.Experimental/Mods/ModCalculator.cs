@@ -13,7 +13,14 @@ namespace Rpg.Experimental.Mods
             var dice = ValueToDice(mod.Source?.Value);
             if (dice == null && mod.Source?.PropRef?.Path != null)
             {
-                var obj = graph.GetPropertyData(mod.Source.PropRef.ObjectId, mod.Source.PropRef.Path)?.GetValue<object?>(graph);
+                var sourceData = graph.GetPropertyData(mod.Source.PropRef.ObjectId, mod.Source.PropRef.Path);
+
+                //A source that is wanted as a number but still has unrolled dice has no value yet. Whatever
+                //is derived from it waits for the roll.
+                if (sourceData is RpgPropertyDataModdable moddable && moddable.IsRollPending(graph))
+                    return null;
+
+                var obj = sourceData?.GetValue<object?>(graph);
                 dice = ValueToDice(obj);
             }
 

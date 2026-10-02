@@ -6,7 +6,7 @@ namespace Rpg.Experimental
     {
         int Multiplier { get; set; }
 
-        int Roll();
+        int[] Roll(IRpgDiceRoller roller);
         double Avg();
         int Min();
         int Max();
@@ -26,7 +26,7 @@ namespace Rpg.Experimental
         }
 
         public double Avg() => Number * Multiplier;
-        public int Roll() => Number * Multiplier;
+        public int[] Roll(IRpgDiceRoller roller) => [];
         public int Min() => Number * Multiplier;
         public int Max() => Number * Multiplier;
 
@@ -52,8 +52,6 @@ namespace Rpg.Experimental
     internal class DiceNode : IDiceNode
     {
         private static readonly Regex Token = new Regex("^([0-9]*)d([0-9]+|%)$");
-
-        private static readonly Random _roller = new Random();
 
         public int Multiplier { get; set; }
         public int NoOfDice { get; private set; }
@@ -81,13 +79,13 @@ namespace Rpg.Experimental
 
         public double Avg() => Multiplier * NoOfDice * ((DiceType + 1.0) / 2.0);
 
-        public int Roll()
+        public int[] Roll(IRpgDiceRoller roller)
         {
-            int total = 0;
+            var dice = new int[NoOfDice];
             for (int i = 0; i < NoOfDice; ++i)
-                total += _roller.Next(1, DiceType + 1);
+                dice[i] = Multiplier * roller.Roll(DiceType);
 
-            return Multiplier * total;
+            return dice;
         }
 
         public int Min() => Multiplier >= 0 ? NoOfDice : Multiplier * NoOfDice * DiceType;

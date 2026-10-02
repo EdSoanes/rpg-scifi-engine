@@ -8,5 +8,6 @@ namespace Rpg.Experimental.Graph
         public List<RpgObjectData> ObjectData { get; set; } = new();
         public string ContextId { get; set; }
         public Temporal Time { get; set; }
+        public RpgRollMode RollMode { get; set; }
     }
 }

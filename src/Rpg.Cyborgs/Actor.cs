@@ -164,6 +164,6 @@ namespace Rpg.Cyborgs
         }
 
         public Dice CalculateStamina(Dice health)
-            => health.Roll() * 2;
+            => health * 2;
     }
 }

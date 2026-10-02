@@ -45,7 +45,7 @@ namespace Rpg.Cyborgs
                 var injury = new Injury
                 {
                     Id = x.Id,
-                    Severity = x.Source?.Value?.Roll() ?? 0,
+                    Severity = x.Source?.Value?.Number ?? 0,
                     BodyPartType = this.BodyPartType
                 };
 

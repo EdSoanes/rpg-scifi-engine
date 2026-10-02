@@ -33,7 +33,10 @@ namespace Rpg.Experimental.Reflection.Args
         {
             if (value == null) return null;
             if (int.TryParse(value?.ToString(), out int i)) return i;
-            if (Dice.TryParse(value?.ToString(), out var dice)) return dice.Roll();
+
+            //Reading a value never rolls. An expression that still has dice in it leaves the arg without a
+            //value until the roll is settled.
+            if (Dice.TryParse(value?.ToString(), out var dice)) return dice.IsConstant ? dice.Number : null;
             throw new ArgumentException($"value {value} invalid");
         }
     }

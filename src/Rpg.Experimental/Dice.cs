@@ -44,8 +44,81 @@ namespace Rpg.Experimental
         public static bool operator ==(Dice d1, Dice d2) => d1.ToString() == d2.ToString();
         public static bool operator !=(Dice d1, Dice d2) => d1.ToString() != d2.ToString();
 
-        public bool IsConstant { get => _nodes?.All(x => x.Min() == x.Max()) ?? true; }
-        public int Roll() => _nodes?.Sum(x => x.Roll()) ?? 0;
+        /// <summary>
+        /// True if there are no dice in the expression, so it is just a number
+        /// </summary>
+        public bool IsConstant { get => _nodes?.All(x => x is NumberNode) ?? true; }
+
+        /// <summary>
+        /// The fixed part of the expression: 3 for 2d6 + 3
+        /// </summary>
+        [JsonIgnore] public int Bonus { get => _nodes?.Where(x => x is NumberNode).Sum(x => x.Min()) ?? 0; }
+
+        /// <summary>
+        /// The dice of the expression without the fixed part: 2d6 for 2d6 + 3
+        /// </summary>
+        [JsonIgnore] public Dice DicePart
+        {
+            get
+            {
+                var dice = new Dice();
+                dice._nodes = _nodes?.Where(x => x is DiceNode).ToList() ?? new List<IDiceNode>();
+                dice._expr = dice.ToString();
+                return dice;
+            }
+        }
+
+        /// <summary>
+        /// The number the expression stands for. Reading a value never rolls, so this is an error if
+        /// there are still dice in the expression.
+        /// </summary>
+        [JsonIgnore] public int Number
+        {
+            get
+            {
+                if (!IsConstant)
+                    throw new RpgUnrolledDiceException($"'{ToString()}' has dice that have not been rolled");
+
+                return Bonus;
+            }
+        }
+
+        public bool TryGetNumber(out int number)
+        {
+            number = IsConstant ? Bonus : 0;
+            return IsConstant;
+        }
+
+        /// <summary>
+        /// Roll each die of the expression. Dice that are subtracted are returned as negative numbers.
+        /// </summary>
+        internal int[] RollDice(IRpgDiceRoller roller)
+            => _nodes?.SelectMany(x => x.Roll(roller)).ToArray() ?? [];
+
+        public static Dice operator *(Dice dice, int multiplier)
+        {
+            if (multiplier == 0 || dice._nodes == null || !dice._nodes.Any())
+                return Zero;
+
+            var abs = Math.Abs(multiplier);
+            var sb = new StringBuilder();
+            foreach (var node in dice._nodes)
+            {
+                var negative = (node.Multiplier < 0) != (multiplier < 0);
+                sb.Append(negative ? "-" : "+");
+
+                if (node is DiceNode diceNode)
+                    sb.Append($"{diceNode.NoOfDice * abs}d{diceNode.DiceType}");
+                else if (node is NumberNode numberNode)
+                    sb.Append(numberNode.Number * abs);
+            }
+
+            return new Dice(sb.ToString());
+        }
+
+        public static Dice operator *(int multiplier, Dice dice)
+            => dice * multiplier;
+
         public double Avg() => _nodes?.Sum(x => x.Avg()) ?? 0;
         public int Min() => _nodes?.Sum(x => x.Min()) ?? 0;
         public int Max() => _nodes?.Sum(x => x.Max()) ?? 0;
@@ -84,7 +157,7 @@ namespace Rpg.Experimental
         public static Dice Sum(IEnumerable<Dice> dice)
         {
             var res = new Dice();
-            foreach (var d in dice.Where(x => !x.IsConstant || x.Roll() != 0))
+            foreach (var d in dice.Where(x => !x.IsConstant || x.Bonus != 0))
                 res += d;
 
             return res;
@@ -106,7 +179,10 @@ namespace Rpg.Experimental
             if (_nodes == null || !_nodes.Any())
                 return "0";
 
-            var nodes = _nodes.Where(x => !(x is NumberNode) || x.Roll() != 0);
+            var nodes = _nodes.Where(x => !(x is NumberNode) || x.Min() != 0).ToList();
+            if (!nodes.Any())
+                return "0";
+
             var sb = new StringBuilder(nodes.First().ToString());
             foreach (var node in nodes.Skip(1))
             {

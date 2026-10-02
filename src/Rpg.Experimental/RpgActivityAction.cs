@@ -63,6 +63,7 @@ namespace Rpg.Experimental
         public bool Cost(RpgGraph graph, params (string, object?)[] args)
         {
             SetArgValues(graph, args, CostMethod, PerformMethod, OutcomeMethod);
+            RollForStep(graph, CostMethod, ActionMethodNames.Cost);
 
             if (!CostMethod.Args.IsComplete())
                 return false;
@@ -79,6 +80,7 @@ namespace Rpg.Experimental
         public bool Perform(RpgGraph graph, params (string, object?)[] args)
         {
             SetArgValues(graph, args, PerformMethod, OutcomeMethod);
+            RollForStep(graph, PerformMethod, ActionMethodNames.Perform);
 
             if (!PerformMethod.Args.IsComplete())
                 return false;
@@ -96,6 +98,7 @@ namespace Rpg.Experimental
         public bool Outcome(RpgGraph graph, params (string, object?)[] args)
         {
             SetArgValues(graph, args, OutcomeMethod);
+            RollForStep(graph, OutcomeMethod, ActionMethodNames.Outcome);
 
             if (!OutcomeMethod.Args.IsComplete())
                 return false;
@@ -136,6 +139,77 @@ namespace Rpg.Experimental
 
         public RpgAction? GetAction()
             => _action;
+
+        /// <summary>
+        /// The rolls the action still needs before its steps can run. A step with a pending roll does not
+        /// run: settle the roll with RpgGraph.Roll() or RpgGraph.SetRoll(), or supply the result of the
+        /// dice with the step.
+        /// </summary>
+        public RpgPendingRoll[] GetPendingRolls(RpgGraph graph, string? step = null)
+            => graph.GetPendingRolls(Id)
+                .Where(x => step == null || x.Steps.Contains(step))
+                .ToArray();
+
+        /// <summary>
+        /// The app rolls what the action (or one of its steps) still needs
+        /// </summary>
+        public RpgRoll[] RollPending(RpgGraph graph, string? step = null)
+        {
+            var rolls = GetPendingRolls(graph, step)
+                .Select(x => graph.GetPropertyData<RpgPropertyDataModdable>(Id, x.Prop)?.SetRoll(graph, RpgRollSource.App))
+                .Where(x => x != null)
+                .Cast<RpgRoll>()
+                .ToArray();
+
+            if (rolls.Any())
+                SetArgValues(graph, null, CostMethod, PerformMethod, OutcomeMethod);
+
+            return rolls;
+        }
+
+        /// <summary>
+        /// The steps still to be done that take the property as a whole number
+        /// </summary>
+        internal string[] StepsNeedingNumber(string prop)
+        {
+            var steps = new List<string>();
+            if (NeedsNumber(CostMethod, prop)) steps.Add(ActionMethodNames.Cost);
+            if (NeedsNumber(PerformMethod, prop)) steps.Add(ActionMethodNames.Perform);
+            if (NeedsNumber(OutcomeMethod, prop)) steps.Add(ActionMethodNames.Outcome);
+
+            return steps.ToArray();
+        }
+
+        private static bool NeedsNumber(RpgActionMethod method, string prop)
+            => !method.IsDone && method.Args.Any(x => x.Name == prop && x is IntegerArg);
+
+        /// <summary>
+        /// If the sheet is set to let the app roll, running a step rolls what the step still needs
+        /// </summary>
+        private void RollForStep(RpgGraph graph, RpgActionMethod method, string step, bool always = false)
+        {
+            if (method.IsDone || (!always && graph.RollMode != RpgRollMode.App))
+                return;
+
+            RollPending(graph, step);
+        }
+
+        /// <summary>
+        /// True if every step has what it needs apart from rolls that are still pending
+        /// </summary>
+        public bool CanAutoCompleteWithRolls(RpgGraph graph)
+        {
+            if (_action == null || IsComplete)
+                return false;
+
+            var pending = GetPendingRolls(graph).Select(x => x.Prop).ToArray();
+            foreach (var method in new[] { CostMethod, PerformMethod, OutcomeMethod })
+                foreach (var arg in method.Args)
+                    if (!RpgArg.IsGraphArg(arg.Name) && !arg.IsNullable && arg.Value == null && !pending.Contains(arg.Name))
+                        return false;
+
+            return true;
+        }
 
         /// <summary>
         /// Called from an action's Outcome method to nominate an action that should follow this one.
@@ -290,14 +364,19 @@ namespace Rpg.Experimental
         {
             SetArgValues(graph, args, CostMethod, PerformMethod, OutcomeMethod);
 
-            if (CanAutoComplete)
+            //Auto completing lets the app roll whatever is still pending. Each step's rolls are made just
+            //before the step, and stay on the action so they can be seen afterwards.
+            if (CanAutoCompleteWithRolls(graph))
             {
+                RollForStep(graph, CostMethod, ActionMethodNames.Cost, true);
                 if (CostMethod.Execute(graph))
                     graph.Time.Refresh();
 
+                RollForStep(graph, PerformMethod, ActionMethodNames.Perform, true);
                 if (PerformMethod.Execute(graph))
                     graph.Time.Refresh();
 
+                RollForStep(graph, OutcomeMethod, ActionMethodNames.Outcome, true);
                 if (OutcomeMethod.Execute(graph))
                     graph.Time.Refresh();
             }
@@ -323,6 +402,9 @@ namespace Rpg.Experimental
             SkippedCosts.Clear();
             OutcomeActions.Clear();
             IsComplete = false;
+
+            foreach (var propData in graph.GetPropertyData<RpgPropertyDataModdable>(Id))
+                propData.ClearRoll(graph);
 
             graph.Time.Refresh();
         }

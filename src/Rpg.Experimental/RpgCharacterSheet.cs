@@ -55,6 +55,7 @@ namespace Rpg.Experimental
                 ContextId = Context.Id,
                 ActorId = Actor.Id,
                 Time = Time,
+                RollMode = RollMode,
                 TurnSnapshots = includeTurnSnapshots ? TurnSnapshots : new()
             };
 
@@ -85,6 +86,9 @@ namespace Rpg.Experimental
             try
             {
                 var state = RpgJson.DeserializeSnapshot<RpgCharacterSheetState>(snapshot.Data);
+
+                //Who rolls is a setting of the sheet. It is not part of what happened in a turn.
+                state.RollMode = RollMode;
 
                 RestoreState(state);
                 Actor = (RpgObject)state.Objects.First(x => x.Id == state.ActorId);

@@ -16,6 +16,17 @@ namespace Rpg.Experimental.Graph
         [JsonProperty] public bool IsVirtual { get; private set; }
         [JsonProperty] public List<Mod> Mods { get; private set; } = new();
 
+        /// <summary>
+        /// The property is wanted as a number (a whole number property, a whole number input of an action
+        /// step, or a roll requested by rules code). If its value has dice in it, a roll is needed.
+        /// </summary>
+        [JsonProperty] public bool NeedsNumber { get; internal set; }
+
+        /// <summary>
+        /// The stored result of rolling the dice in the property's value
+        /// </summary>
+        [JsonProperty] public RpgRoll? Roll { get; private set; }
+
         [JsonConstructor] private RpgPropertyDataModdable() { }
 
         public RpgPropertyDataModdable(string objectId, MetaProperty metaProperty)
@@ -24,6 +35,7 @@ namespace Rpg.Experimental.Graph
             Prop = metaProperty.Prop;
             PropType = metaProperty.PropertyType;
             IsNullable = metaProperty.IsNullable;
+            NeedsNumber = PropType == RpgPropertyType.Int;
         }
 
         public RpgPropertyDataModdable(string objectId, string prop, RpgPropertyType propType, bool isNullable, bool isVirtual)
@@ -33,6 +45,7 @@ namespace Rpg.Experimental.Graph
             PropType = propType;
             IsNullable = isNullable;
             IsVirtual = isVirtual;
+            NeedsNumber = PropType == RpgPropertyType.Int;
         }
 
         public RpgProperty GetProperty(RpgGraph graph)
@@ -46,21 +59,99 @@ namespace Rpg.Experimental.Graph
 
             rpgProperty.ObjectId = ObjectId;
             rpgProperty.IsNullable = IsNullable;
-            rpgProperty.Value = graph.GetPropertyValue<Dice>(ObjectId, Prop);
+            rpgProperty.Value = GetValue<Dice>(graph);
+            rpgProperty.Expression = GetExpression(graph);
+            rpgProperty.Roll = Roll;
+            rpgProperty.IsRollPending = IsRollPending(graph);
             rpgProperty.BaseValue = ModCalculator.BaseValue(graph, Mods) ?? Dice.Zero;
             rpgProperty.OriginalBaseValue = ModCalculator.OriginalBaseValue(graph, Mods) ?? Dice.Zero;
 
             return rpgProperty;
         }
 
+        /// <summary>
+        /// What the mods of the property add up to. A stored roll does not affect it.
+        /// </summary>
+        public Dice? GetExpression(RpgGraph graph)
+            => ModCalculator.Value(graph, Mods);
+
+        /// <summary>
+        /// True if the property is wanted as a number, its value has dice in it and no stored roll applies
+        /// </summary>
+        public bool IsRollPending(RpgGraph graph)
+        {
+            if (!NeedsNumber)
+                return false;
+
+            var expression = GetExpression(graph);
+            return expression != null
+                && !expression.Value.IsConstant
+                && !(Roll?.AppliesTo(expression) ?? false);
+        }
+
+        /// <summary>
+        /// The expression with its dice replaced by the stored roll, if there is one for those dice
+        /// </summary>
+        private Dice? Resolve(Dice? expression)
+            => Roll != null && Roll.AppliesTo(expression)
+                ? new Dice(Roll.Result + expression!.Value.Bonus)
+                : expression;
+
+        /// <summary>
+        /// Store the result of rolling the dice of the property's value. Returns null if the value has no
+        /// dice in it.
+        /// </summary>
+        internal RpgRoll? SetRoll(RpgGraph graph, RpgRollSource suppliedBy, int? result = null)
+        {
+            var expression = GetExpression(graph);
+            if (expression == null || expression.Value.IsConstant)
+                return null;
+
+            var dicePart = expression.Value.DicePart;
+            int[]? dice = null;
+            if (result == null)
+            {
+                dice = dicePart.RollDice(graph.DiceRoller);
+                result = dice.Sum();
+            }
+
+            Roll = new RpgRoll(dicePart, result.Value, dice, suppliedBy);
+            graph.ChangeTracker.PropUpdated(ObjectId, Prop);
+
+            return Roll;
+        }
+
+        internal bool ClearRoll(RpgGraph graph)
+        {
+            if (Roll == null)
+                return false;
+
+            Roll = null;
+            graph.ChangeTracker.PropUpdated(ObjectId, Prop);
+
+            return true;
+        }
+
+        /// <summary>
+        /// The value of the property. Reading it never rolls dice: a number is only available if the value
+        /// has no dice in it or a roll has been stored for them.
+        /// </summary>
         public T? GetValue<T>(RpgGraph graph)
         {
-            var dice = ModCalculator.Value(graph, Mods);
+            var dice = Resolve(GetExpression(graph));
             if (typeof(T) == typeof(int))
-                return (T)(object)(dice?.Roll() ?? 0);
-            
+            {
+                if (dice != null && !dice.Value.IsConstant)
+                    throw new RpgUnrolledDiceException($"{ObjectId}.{Prop} is '{dice}'. Its dice have not been rolled");
+
+                return (T)(object)(dice?.Number ?? 0);
+            }
+
+            //No number yet
             if (typeof(T) == typeof(int?))
-                return (T?)(object?)dice?.Roll();
+                return dice != null && dice.Value.IsConstant
+                    ? (T?)(object?)dice.Value.Number
+                    : default;
 
             if (typeof(T) == typeof(Dice))
                 return (T)(object)(dice ?? Dice.Zero);
@@ -183,7 +274,7 @@ namespace Rpg.Experimental.Graph
                 mod.OnTimeEvent(graph);
                 updated |= oldExpiry != mod.Expiry;
             }
-            
+
             if (!graph.Time.Now.IsEncounterTime)
             {
                 CombineMods(graph);
@@ -209,6 +300,10 @@ namespace Rpg.Experimental.Graph
 
             if (PropType == RpgPropertyType.Int)
             {
+                //A value with unrolled dice has no number yet. The property keeps what it had until the roll is settled.
+                if (IsRollPending(graph))
+                    return;
+
                 var newVal = GetValue<int?>(graph);
                 var oldVal = graph.GetPropertyValue<int?>(obj, Prop);
                 if (newVal != oldVal)

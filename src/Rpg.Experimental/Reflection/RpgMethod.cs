@@ -66,7 +66,7 @@ namespace Rpg.Experimental.Reflection
                     else if (parmType == typeof(Dice) && Dice.TryParse(val, out var parsed))
                         updatedArgs.Add(parsed);
                     else if (parmType == typeof(int) && val is Dice dice)
-                        updatedArgs.Add(dice.Roll());
+                        updatedArgs.Add(dice.Number);
                     else if (parmType == typeof(int) && val is IConvertible)
                         updatedArgs.Add(Convert.ToInt32(val));
                     else

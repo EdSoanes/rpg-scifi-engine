@@ -22,6 +22,16 @@ namespace Rpg.Experimental.Graph
         [JsonProperty] internal RpgGraphChangeTracker ChangeTracker { get; private set; } = new();
         internal RpgPropertyRefFactory PropertyRefs { get; private set; }
 
+        /// <summary>
+        /// Rolls the dice when the app is asked to. It can be replaced, e.g. to fix the results in a test.
+        /// </summary>
+        [JsonIgnore] public IRpgDiceRoller DiceRoller { get; set; } = new RpgRandomDiceRoller();
+
+        /// <summary>
+        /// Who rolls when a step of an action needs a roll and nobody has said
+        /// </summary>
+        [JsonProperty] public RpgRollMode RollMode { get; set; } = RpgRollMode.Ask;
+
         public RpgGraph(RpgObject context, RpgSystem? rpgSystem = null)
         {
             CreateNonTraversibleTypes();
@@ -69,6 +79,7 @@ namespace Rpg.Experimental.Graph
 
             ChangeTracker = new RpgGraphChangeTracker();
             _turnTrackingRequested = false;
+            RollMode = graphState.RollMode;
 
             foreach (var objData in ObjectData.Values)
                 objData.OnRestoring(this);
@@ -485,7 +496,17 @@ namespace Rpg.Experimental.Graph
         public RpgGraph CreateVirtualProperties(RpgObject obj, RpgArg[] args)
         {
             foreach (var arg in args.Where(x => x.Type == nameof(Int32) || x.Type == nameof(Dice)))
+            {
                 CreateVirtualProperty(obj.Id, arg);
+
+                //A whole number input needs its dice rolled before it has a value
+                if (arg.Type == nameof(Int32))
+                {
+                    var propData = GetPropertyData<RpgPropertyDataModdable>(obj.Id, arg.Name);
+                    if (propData != null)
+                        propData.NeedsNumber = true;
+                }
+            }
 
             return this;
         }
@@ -495,12 +516,22 @@ namespace Rpg.Experimental.Graph
             if (fromArgs == null)
                 return this;
 
-            //Any virtual properties should have their mods expired and the new values added as mods
             foreach (var propData in GetPropertyData<RpgPropertyDataModdable>(obj.Id).Where(x => x.IsVirtual))
             {
                 if (fromArgs.Any(x => x.Item1 == propData.Prop))
                 {
                     var arg = fromArgs.First(x => x.Item1 == propData.Prop);
+
+                    //A number supplied for a value that has dice in it is the result of rolling those dice.
+                    //It is stored as the roll and the bonuses stay as they are.
+                    var expression = propData.GetExpression(this);
+                    if (expression != null && !expression.Value.IsConstant && TryGetSuppliedNumber(arg.Item2, out var result))
+                    {
+                        propData.SetRoll(this, RpgRollSource.Player, result);
+                        continue;
+                    }
+
+                    //Otherwise the mods are expired and the new value is added as a mod
                     propData.ResetToBase(this);
                     SetVirtualPropertyValue(obj, arg.Item1, arg.Item2);
                 }
@@ -952,6 +983,175 @@ namespace Rpg.Experimental.Graph
 
             return activity;
         }
+
+        #region Dice
+
+        private static bool TryGetSuppliedNumber(object? value, out int number)
+        {
+            number = 0;
+            if (value == null || value is Dice)
+                return false;
+
+            return int.TryParse(value.ToString(), out number);
+        }
+
+        /// <summary>
+        /// The stored roll of a property, if it has one
+        /// </summary>
+        public RpgRoll? GetRoll(string objectId, string prop)
+            => GetPropertyData<RpgPropertyDataModdable>(objectId, prop)?.Roll;
+
+        /// <summary>
+        /// The app rolls the dice in a property's value and the result is stored. It replaces any earlier
+        /// roll. Returns null if the value has no dice in it.
+        /// </summary>
+        public RpgRoll? Roll(string objectId, string prop)
+        {
+            var roll = GetPropertyData<RpgPropertyDataModdable>(objectId, prop)?.SetRoll(this, RpgRollSource.App);
+            if (roll != null)
+                Time.Refresh();
+
+            return roll;
+        }
+
+        public RpgRoll? Roll(RpgObject obj, string prop)
+            => Roll(obj.Id, prop);
+
+        /// <summary>
+        /// Store the result of dice the player rolled for a property's value. The result is the total of
+        /// the dice, without bonuses. It replaces any earlier roll. A result that is not possible on those
+        /// dice is accepted and flagged. Returns null if the value has no dice in it.
+        /// </summary>
+        public RpgRoll? SetRoll(string objectId, string prop, int result)
+        {
+            var roll = GetPropertyData<RpgPropertyDataModdable>(objectId, prop)?.SetRoll(this, RpgRollSource.Player, result);
+            if (roll != null)
+                Time.Refresh();
+
+            return roll;
+        }
+
+        public RpgRoll? SetRoll(RpgObject obj, string prop, int result)
+            => SetRoll(obj.Id, prop, result);
+
+        /// <summary>
+        /// Remove the stored roll of a property, so its dice are unrolled again
+        /// </summary>
+        public bool ClearRoll(string objectId, string prop)
+        {
+            var cleared = GetPropertyData<RpgPropertyDataModdable>(objectId, prop)?.ClearRoll(this) ?? false;
+            if (cleared)
+                Time.Refresh();
+
+            return cleared;
+        }
+
+        public bool ClearRoll(RpgObject obj, string prop)
+            => ClearRoll(obj.Id, prop);
+
+        /// <summary>
+        /// Every roll that is needed and has not been settled
+        /// </summary>
+        public RpgPendingRoll[] GetPendingRolls()
+            => ObjectData.Keys
+                .SelectMany(GetPendingRolls)
+                .ToArray();
+
+        /// <summary>
+        /// The rolls an object needs that have not been settled
+        /// </summary>
+        public RpgPendingRoll[] GetPendingRolls(string objectId)
+        {
+            var obj = GetObject(objectId);
+            if (obj == null || obj.Expiry != LifecycleExpiry.Active)
+                return [];
+
+            var activityAction = obj as RpgActivityAction;
+            if (activityAction != null && activityAction.IsComplete)
+                return [];
+
+            var res = new List<RpgPendingRoll>();
+            foreach (var propData in GetPropertyData<RpgPropertyDataModdable>(objectId).Where(x => x.IsRollPending(this)))
+            {
+                string[] steps = [];
+                if (activityAction != null)
+                {
+                    //Only the steps still to be done need the roll
+                    steps = activityAction.StepsNeedingNumber(propData.Prop);
+                    if (steps.Length == 0)
+                        continue;
+                }
+
+                var expression = propData.GetExpression(this)!.Value;
+                res.Add(new RpgPendingRoll
+                {
+                    ObjectId = objectId,
+                    Prop = propData.Prop,
+                    Expression = expression,
+                    DicePart = expression.DicePart,
+                    ActionName = activityAction?.GetAction()?.Name,
+                    Steps = steps,
+                    OutOfDateRoll = propData.Roll
+                });
+            }
+
+            return res.ToArray();
+        }
+
+        /// <summary>
+        /// The app rolls every pending roll
+        /// </summary>
+        public RpgRoll[] RollPending()
+        {
+            var rolls = GetPendingRolls()
+                .Select(x => GetPropertyData<RpgPropertyDataModdable>(x.ObjectId, x.Prop)?.SetRoll(this, RpgRollSource.App))
+                .Where(x => x != null)
+                .Cast<RpgRoll>()
+                .ToArray();
+
+            if (rolls.Any())
+                Time.Refresh();
+
+            return rolls;
+        }
+
+        /// <summary>
+        /// Rules code asks for dice to be rolled, e.g. in reaction to a turn or a time event. Nothing is
+        /// rolled: the roll becomes pending until the app or the player settles it. The result is then the
+        /// value of the property. Requesting the same dice again for the same property changes nothing, so
+        /// rules code can ask every time it is called. Requesting different dice replaces the roll.
+        /// </summary>
+        public RpgGraph RequestRoll(RpgObject obj, string prop, Dice dice)
+        {
+            var propData = GetPropertyData<RpgPropertyDataModdable>(obj.Id, prop);
+            if (propData == null)
+            {
+                CreateVirtualProperty(obj.Id, prop, nameof(Dice), false, dice);
+                propData = GetPropertyData<RpgPropertyDataModdable>(obj.Id, prop);
+            }
+            else if (propData.NeedsNumber && propData.GetExpression(this) == dice)
+            {
+                return this;
+            }
+            else
+            {
+                propData.ResetToBase(this);
+                propData.ClearRoll(this);
+                Add(new Override()
+                    .SetTarget(obj.Id, prop)
+                    .SetSource(dice));
+            }
+
+            if (propData != null)
+            {
+                propData.NeedsNumber = true;
+                ChangeTracker.PropUpdated(obj.Id, prop);
+            }
+
+            return this;
+        }
+
+        #endregion Dice
 
         #region Create Object Data
 

@@ -154,7 +154,7 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(_characterSheet.GetPropertyValue<Dice>(takeInjury.Id, "injuryLocationRoll").ToString(), Is.EqualTo("1d6"));
 
             var injuryOutcome = takeInjury.Outcome(_characterSheet,
-                ("injuryRoll", 3),
+                ("injuryRoll", 4),
                 ("injuryLocationRoll", 3), //Left arm
                 ("locationType", 0)); //Random location
 
@@ -206,7 +206,7 @@ namespace Rpg.Cyborgs.Tests
             Assert.That(parry.Outcome(_characterSheet, ("diceRoll", 9)), Is.True);
 
             //A successful parry reduces damage by at least 1
-            Assert.That(_characterSheet.GetPropertyValue<Dice>(parry.Id, "damage").Roll(), Is.EqualTo(9));
+            Assert.That(_characterSheet.GetPropertyValue<Dice>(parry.Id, "damage").Number, Is.EqualTo(9));
 
             var nextActions = parry.Complete(_characterSheet);
             _characterSheet.Time.Refresh();
@@ -222,7 +222,7 @@ namespace Rpg.Cyborgs.Tests
             var takeDamage = activity.CurrentActivityAction!;
 
             Assert.That(takeDamage.GetAction()?.Name, Is.EqualTo(nameof(TakeDamage)));
-            Assert.That(_characterSheet.GetPropertyValue<Dice>(takeDamage.Id, "damage").Roll(), Is.EqualTo(9));
+            Assert.That(_characterSheet.GetPropertyValue<Dice>(takeDamage.Id, "damage").Number, Is.EqualTo(9));
             Assert.That(takeDamage.Outcome(_characterSheet), Is.True);
 
             takeDamage.Complete(_characterSheet);
@@ -266,16 +266,16 @@ namespace Rpg.Cyborgs.Tests
             var armourCheck = activity.CurrentActivityAction!;
 
             Assert.That(armourCheck.GetAction()?.Name, Is.EqualTo(nameof(ArmourCheck)));
-            Assert.That(_characterSheet.GetPropertyValue<Dice>(armourCheck.Id, "damage").Roll(), Is.EqualTo(9));
+            Assert.That(_characterSheet.GetPropertyValue<Dice>(armourCheck.Id, "damage").Number, Is.EqualTo(9));
 
             Assert.That(armourCheck.Cost(_characterSheet), Is.True);
             Assert.That(armourCheck.Perform(_characterSheet, ("luckPoints", 0)), Is.True);
-            Assert.That(_characterSheet.GetPropertyValue<Dice>(armourCheck.Id, "armourRating").Roll(), Is.EqualTo(3));
+            Assert.That(_characterSheet.GetPropertyValue<Dice>(armourCheck.Id, "armourRating").Number, Is.EqualTo(3));
             Assert.That(_characterSheet.GetPropertyValue<Dice>(armourCheck.Id, "diceRoll1").ToString(), Is.EqualTo("1d6"));
 
             //One success halves the damage (rounded in the defender's favour) and damages the armour
             Assert.That(armourCheck.Outcome(_characterSheet, ("diceRoll1", 5), ("diceRoll2", 2)), Is.True);
-            Assert.That(_characterSheet.GetPropertyValue<Dice>(armourCheck.Id, "damage").Roll(), Is.EqualTo(4));
+            Assert.That(_characterSheet.GetPropertyValue<Dice>(armourCheck.Id, "damage").Number, Is.EqualTo(4));
 
             armourCheck.Complete(_characterSheet);
             _characterSheet.Time.Refresh();
@@ -286,7 +286,7 @@ namespace Rpg.Cyborgs.Tests
             var takeDamage = activity.CurrentActivityAction!;
 
             Assert.That(activity.ActivityActions.Count, Is.EqualTo(3));
-            Assert.That(_characterSheet.GetPropertyValue<Dice>(takeDamage.Id, "damage").Roll(), Is.EqualTo(4));
+            Assert.That(_characterSheet.GetPropertyValue<Dice>(takeDamage.Id, "damage").Number, Is.EqualTo(4));
             Assert.That(takeDamage.Outcome(_characterSheet), Is.True);
 
             takeDamage.Complete(_characterSheet);

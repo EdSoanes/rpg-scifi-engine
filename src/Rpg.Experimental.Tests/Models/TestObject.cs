@@ -25,7 +25,7 @@ namespace Rpg.Experimental.Tests.Models
             : base(name) { }
 
         public Dice CalculateBonus(Dice score) 
-            => (int)Math.Floor((double)(score.Roll() - 10) / 2);
+            => (int)Math.Floor((double)(score.Number - 10) / 2);
 
         public override void OnCreating(RpgGraph graph, RpgObject? obj)
         {

@@ -2,14 +2,14 @@
 
 The plan for bringing the core engine's dice handling in line with feature 3 of [VISION.md](VISION.md).
 
-Status: plan only. Nothing here is built yet.
+Status: built and tested. See "What was built" at the end.
 
 ## The rule being implemented
 
 Reading a value never rolls. A roll that is needed becomes a pending roll on the sheet. The player settles
 it with real dice or lets the app roll. The result is stored once and stays until it is redone or replaced.
 
-## Where the engine is today
+## Where the engine was before this plan
 
 - A property value is a dice expression built by adding up its mods. `2d6` from one mod and `1` from another
   give `2d6 + 1`.
@@ -26,9 +26,9 @@ it with real dice or lets the app roll. The result is stored once and stays unti
   skill rating, an injury's severity, and the stamina calculation.
 - The random number generator is a private static. Tests cannot control it.
 
-## Assumptions
+## Confirmed decisions
 
-These are my choices where the vision leaves room. Each one is easy to change before the build starts.
+These were assumptions in the first draft of the plan. They are now confirmed and the engine follows them.
 
 ### A. What makes a roll "needed"
 
@@ -148,18 +148,16 @@ No extra work is needed for going back a turn.
 
 ## Phases
 
-| Phase | What | Depends on |
+| Phase | What | Status |
 |---|---|---|
-| 1 | The dice type: constants, dice part, bonus part, multiplication, replaceable roller | |
-| 2 | Stored rolls on properties, the three readings, save, restore and rewind | 1 |
-| 3 | Sheet operations: pending rolls, roll, set roll, clear roll | 2 |
-| 4 | Actions: whole-number inputs wait for a roll, per-step pending rolls, supplied number is the dice result, the sheet's default, auto complete | 3 |
-| 5 | Remove every silent roll from the engine and make an unrolled read an error | 4 |
-| 6 | Requesting a roll from rules code, for time-caused rolls | 3 |
-| 7 | Cyborgs: remove rolling from rules code, update tests, add roll tests | 5 |
-| 8 | Update the vision document's gap list | 7 |
-
-Each phase ends with both test suites passing.
+| 1 | The dice type: constants, dice part, bonus part, multiplication, replaceable roller | Done |
+| 2 | Stored rolls on properties, the three readings, save, restore and rewind | Done |
+| 3 | Sheet operations: pending rolls, roll, set roll, clear roll | Done |
+| 4 | Actions: whole-number inputs wait for a roll, per-step pending rolls, supplied number is the dice result, the sheet's default, auto complete | Done |
+| 5 | Remove every silent roll from the engine and make an unrolled read an error | Done |
+| 6 | Requesting a roll from rules code, for time-caused rolls | Done |
+| 7 | Cyborgs: remove rolling from rules code, update tests, add roll tests | Done |
+| 8 | Update the vision document's gap list | Done |
 
 ### Tests to add
 
@@ -176,11 +174,58 @@ Each phase ends with both test suites passing.
 - Reading an unrolled value as a number raises the error.
 - Cyborgs: an attack, a parry and an armour check with real and app dice.
 
-## What changes for existing code
+## What was built
 
-- Tests that call `Roll()` to read a number switch to reading the number.
-- Tests that supply a roll and assert the total change by the size of the bonus. See assumption B.
-- Cyborgs rules code that calls `Roll()` reads a number or uses dice arithmetic instead.
+### Differences from the plan
+
+- **A whole-number property given dice waits for its roll.** The plan only covered step inputs and
+  requested rolls. A stat such as strength can be overridden with `3d6`, because the sheet never refuses.
+  The stat then keeps its old number, shows up as a pending roll, and takes the new number once the roll is
+  settled. Anything derived from it waits too.
+- **A nullable whole-number read returns nothing for unrolled dice.** Only a plain whole-number read
+  raises the error. The engine itself needs a way to ask "is there a number yet" without failing.
+- **Requesting the same roll twice changes nothing.** Rules code is called on every refresh, so it must be
+  able to ask again without undoing a settled roll. Requesting different dice replaces the roll.
+- **Auto complete checks its inputs first.** It runs only if every input is filled in or is a pending
+  roll. Otherwise nothing runs and nothing is rolled, as before.
+- **Under "the app rolls", a roll the player already supplied is kept.** Only what is still pending is
+  rolled.
+
+### Engine API
+
+- On a dice expression: whether it is a constant, its number, its dice part, its bonus, and multiplication
+  by a whole number. The public roll method is gone.
+- On the sheet: the dice roller, who rolls by default, pending rolls, roll, set roll, clear roll, get
+  roll, roll everything pending, and request a roll.
+- On an activity action: its pending rolls, roll what is pending, and whether it can auto complete given
+  that pending rolls will be rolled.
+- On a property: its expression, its stored roll, and whether a roll is pending.
+
+### Changes to existing code
+
+- Tests that called `Roll()` to read a number now read the number.
+- Three Cyborgs tests supplied a roll and asserted the total. Their numbers changed by the size of the
+  bonus. See decision B.
+- Cyborgs rules code no longer rolls. The parry's focus points, a skill rating and an injury's severity
+  read a number. The stamina calculation multiplies the expression.
+
+### Tests
+
+- `Dice_Tests` covers the dice type.
+- `Roll_Tests` covers reading without rolling, stored rolls, save and restore, going back a turn,
+  whole-number properties given dice, actions, who rolls, and rolls caused by time.
+- `DiceRollTests` in the Cyborgs tests covers an attack, a parry, an armour check and taking damage with
+  real dice and app dice.
+
+### Known limits
+
+- Resetting a whole action clears its rolls, but a bonus that rules code added directly to an input
+  stays. This is existing behaviour of reset, not new.
+- The existing "can auto complete" flag on an action still means every input is filled in. With a roll
+  pending it is false, although auto complete will run. The new check takes rolls into account.
+- A calculation function that reads a number from an expression with dice raises the error. That is a
+  mistake by the rules author. A whole-number source with a pending roll never reaches the function.
+- A roll requested by rules code stays on the object after it is settled.
 
 ## Out of scope
 

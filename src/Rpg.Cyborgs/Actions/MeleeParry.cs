@@ -40,7 +40,7 @@ namespace Rpg.Cyborgs.Actions
 
         public bool Perform(RpgGraph graph, RpgActivityAction activityAction, Actor owner, int parryTarget, int? abilityScore)
         {
-            var focusPoints = graph.GetPropertyValue<Dice>(activityAction.Id, "focusPoints").Roll();
+            var focusPoints = graph.GetPropertyValue<Dice>(activityAction.Id, "focusPoints").Number;
             var bonus = abilityScore != null
                 ? abilityScore.Value * (focusPoints + 1)
                 : owner.Strength * (focusPoints + 1);

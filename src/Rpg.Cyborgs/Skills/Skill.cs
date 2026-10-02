@@ -25,7 +25,7 @@ namespace Rpg.Cyborgs.Skills
         }
 
         public int Rating(RpgGraph graph)
-            => graph.GetPropertyValue<Dice>(OwnerId!, RatingProp).Roll();
+            => graph.GetPropertyValue<Dice>(OwnerId!, RatingProp).Number;
 
         public override void OnCreating(RpgGraph graph, RpgObject? owner)
         {

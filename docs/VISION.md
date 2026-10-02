@@ -319,20 +319,27 @@ updated when a gap is closed or a new one is found.
 
 ### 3. Real dice or app dice
 
-See [DICE_PLAN.md](DICE_PLAN.md) for the plan to close these gaps. It is not built yet.
+See [DICE_PLAN.md](DICE_PLAN.md) for the design and what was built.
 
-- Works: a roll is held as a dice expression, and a supplied result replaces it.
-- An unsupplied roll is rolled silently whenever its value is read as a number, and re-rolled on every
-  refresh, which includes every turn tick. This breaks the rule that reading a value never rolls.
-- There is no pending roll, no explicit roll operation, and no distinction between "not rolled yet" and
-  "rolled".
-- An app roll is not stored, so it cannot be shown, kept or replaced.
-- A supplied result replaces the whole expression. The dice are not stored separately from the bonuses,
-  and nothing records who supplied it.
-- Rules code rolls dice itself in places. In Cyborgs: the focus points spent on a parry, a skill rating,
-  and the severity of an injury. Converting a dice input of a step to a whole number also rolls.
-- There is no per-sheet default for who rolls. Auto completing an action rolls silently.
-- A dice expression is only ever a sum. Individual dice cannot be entered.
+- Works: reading a value never rolls. Nothing in the engine or in Cyborgs rolls on its own, and a turn
+  tick does not change a roll.
+- Works: a roll that is needed is pending. The sheet lists pending rolls, with the action and step that
+  need them. A step with a pending roll does not run.
+- Works: the app rolls on request, or the player supplies the result. Either way the result is stored
+  once, with who supplied it, and can be redone, replaced or cleared.
+- Works: the dice are stored separately from the bonuses. A bonus that changes later moves the total and
+  keeps the dice. Changed dice make the roll pending again.
+- Works: each sheet has a default for who rolls. Auto completing an action lets the app roll, and the
+  rolls can be seen afterwards.
+- Works: stored and pending rolls are saved with the sheet and restored when going back a turn.
+- Works: rules code can request a roll in reaction to a turn or a time event, and time is not held up.
+  Nothing happens yet when such a roll is settled. That belongs with effects that recur each turn.
+- A dice expression is only ever a sum. Individual dice cannot be entered, and rules that need each die
+  cannot be written.
+- Redoing a roll after a step has used it does not redo the step. This is the same gap as under
+  flexibility.
+- A pending roll names its action and step but gives no reason in words.
+- A roll requested by rules code stays on the object after it is settled. Nothing tidies it away.
 
 ### 4. Transparency
 

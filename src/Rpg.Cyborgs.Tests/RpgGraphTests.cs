@@ -116,7 +116,7 @@ namespace Rpg.Cyborgs.Tests
 
             sheet = TestSystem.RoundTrip(sheet);
             Assert.That(sheet.GetPropertyValue<Dice>(Current().Id, "injuryRoll").ToString(), Is.EqualTo("2d6 - 1"));
-            Assert.That(Current().Outcome(sheet, ("injuryRoll", 3), ("injuryLocationRoll", 3), ("locationType", 0)), Is.True);
+            Assert.That(Current().Outcome(sheet, ("injuryRoll", 4), ("injuryLocationRoll", 3), ("locationType", 0)), Is.True);
 
             sheet = TestSystem.RoundTrip(sheet);
             Current().Complete(sheet);
