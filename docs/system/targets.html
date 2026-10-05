@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Targets · System</title>
+<meta name="description" content="How information about opponents, tasks and the scene reaches a sheet with no connection between devices: what is spoken, what is shown as a card, and the target panel that receives it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="_style.css">
+</head>
+<body>
+<div class="wrap">
+<nav class="docnav"><a href="index.html">Index</a><a href="rolls.html">Rolls</a><a href="pace.html">Pace</a><a href="tempo.html">Tempo</a><a href="cooperation.html">Cooperation</a><a href="gear.html">Gear</a><a href="scenes.html">Scenes</a><a href="engine.html">Engine</a><a href="sheet.html">Sheet</a><a href="targets.html" aria-current="page">Targets</a><a href="character.html">Character</a><a href="signature.html">Signature</a><a href="items.html">Items</a></nav>
+<header class="hdr">
+  <div class="no">System 09 · Core mechanics</div>
+  <h1>Targets</h1>
+  <p class="scope">How information about opponents, tasks and the scene reaches a sheet with no connection between devices: what is spoken, what is shown as a card, and the target panel that receives it.</p>
+</header>
+<main>
+
+<section>
+<h2>Who knows what</h2>
+<div class="rule"><b>Three kinds of information, three owners</b>
+<p>The <strong>actor's own numbers</strong> are on the actor's sheet. The <strong>circumstances</strong> are facts about the fiction that everyone at the table can see. Only the <strong>other side's capability</strong> lives on another sheet, and it is small.</p></div>
+<div class="plate"><div class="cap">An attack, split by owner</div><div class="scroll"><table>
+<thead><tr><th style="width:170px">Kind</th><th>Examples</th><th style="width:220px">Reaches the sheet by</th></tr></thead>
+<tbody>
+<tr><td><strong>Actor's own</strong></td><td>Skill, weapon, smartlink, specialisation, wounds, pace, pips</td><td>Already there.</td></tr>
+<tr><td><strong>Circumstances</strong></td><td>Range, target moving, cover, light, target size</td><td>The GM describes the scene in words. The player taps chips.</td></tr>
+<tr><td><strong>Other side's capability</strong></td><td>Defence, armour or soak, sometimes size</td><td>The GM says two or three numbers. The player types them.</td></tr>
+</tbody></table></div></div>
+<div class="why"><b>Why the single target number works</b>
+<p>Conventional systems boil an attack down to one number, and it feels like a simplification. It is not. The part of the problem the other side owns really is two or three numbers; everything else was always the attacker's to know. The engine can keep every contributing factor and still only ask the table for those few values.</p></div>
+</section>
+
+<section>
+<h2>The standard sentence</h2>
+<div class="rule"><b>Numbers first, then adjectives</b>
+<p>"<strong>Defence fourteen, armour three.</strong> Running, half behind the car, it's dark." The GM learns one shape of sentence. The target panel has its slots in the same order, so the player's fingers follow the GM's voice.</p></div>
+<ul>
+<li>The numbers are the other side's capability. They are always said as plain whole numbers and typed as they are heard.</li>
+<li>The adjectives are circumstances. They are never said as numbers. The player chooses the chip that matches the word.</li>
+<li>A GM can stop after the numbers. Every chip has a default (still, no cover, clear light, normal size) and the range band is set by the weapon.</li>
+<li>The reverse direction has a sentence too. A reaction: "<strong>Seventeen.</strong>" An outcome: "<strong>Hit, strong. Nine ballistic, torso.</strong>" Four tokens, four slots on the defender's sheet.</li>
+</ul>
+<div class="why"><b>Why not say the difficulty</b>
+<p>A GM who says "fourteen" after adding modifiers in their head has done arithmetic the sheet exists to do, and hidden the derivation. A GM who says "defence fourteen" and describes the scene has done neither. The derived difficulty on the player's sheet then shows "14, +2 running, +2 partial cover, +4 dark", which is what transparency means here.</p></div>
+</section>
+
+<section>
+<h2>The target panel</h2>
+<figure>
+<svg viewBox="0 0 640 250" role="img" aria-label="A target panel. Top row: a name field and three numeric slots for defence, armour and size. Second row: chip groups for range, movement, cover and light, one chip selected in each. Below: the derived difficulty shown as the base number plus named modifiers, and the odds word for the selected action.">
+  <rect x="10" y="8" width="620" height="234" rx="3" class="w-zone"/>
+  <text x="24" y="30" class="b">TARGET · GUARD AT THE GATE</text><text x="616" y="30" text-anchor="end" class="sm">KEPT UNTIL TIME PASSES · CLEAR</text>
+  <line x1="24" y1="38" x2="616" y2="38" class="s-thin"/>
+  <!-- numbers -->
+  <text x="24" y="58" class="sm">DEFENCE</text><rect x="24" y="64" width="60" height="26" rx="2" class="w-zone-a"/><text x="54" y="82" text-anchor="middle" class="acc b">14</text>
+  <text x="104" y="58" class="sm">ARMOUR</text><rect x="104" y="64" width="60" height="26" rx="2" class="w-zone-a"/><text x="134" y="82" text-anchor="middle" class="acc b">3</text>
+  <text x="184" y="58" class="sm">SIZE</text><rect x="184" y="64" width="150" height="26" rx="2" class="w-block"/><text x="200" y="82" class="sm">SMALL</text><text x="246" y="82" class="b">NORMAL</text><text x="300" y="82" class="sm">LARGE</text>
+  <text x="360" y="58" class="sm">SAID BY THE GM · TYPED</text>
+  <text x="360" y="82" class="sm">OR SCANNED FROM A TARGET CARD</text>
+  <!-- chips -->
+  <text x="24" y="114" class="sm">RANGE · RIFLE</text>
+  <rect x="24" y="120" width="200" height="24" rx="2" class="w-block"/>
+  <text x="36" y="136" class="sm">SHORT</text><text x="82" y="136" class="sm">MEDIUM</text><rect x="132" y="123" width="40" height="18" rx="2" class="w-zone-a"/><text x="152" y="136" text-anchor="middle" class="acc b">LONG</text><text x="180" y="136" class="sm">EXTREME</text>
+  <text x="230" y="114" class="sm">MOVEMENT</text>
+  <rect x="230" y="120" width="130" height="24" rx="2" class="w-block"/>
+  <text x="240" y="136" class="sm">STILL</text><rect x="274" y="123" width="46" height="18" rx="2" class="w-zone-a"/><text x="297" y="136" text-anchor="middle" class="acc b">MOVING</text><text x="328" y="136" class="sm">FAST</text>
+  <text x="376" y="114" class="sm">COVER</text>
+  <rect x="376" y="120" width="120" height="24" rx="2" class="w-block"/>
+  <text x="386" y="136" class="sm">NONE</text><rect x="416" y="123" width="46" height="18" rx="2" class="w-zone-a"/><text x="439" y="136" text-anchor="middle" class="acc b">PARTIAL</text><text x="468" y="136" class="sm">HEAVY</text>
+  <text x="512" y="114" class="sm">LIGHT</text>
+  <rect x="512" y="120" width="104" height="24" rx="2" class="w-block"/>
+  <text x="520" y="136" class="sm">CLEAR</text><rect x="548" y="123" width="34" height="18" rx="2" class="w-zone-a"/><text x="565" y="136" text-anchor="middle" class="acc b">POOR</text><text x="588" y="136" class="sm">DARK</text>
+  <text x="24" y="160" class="sm">DESCRIBED BY THE GM · TAPPED BY THE PLAYER · DEFAULTS ARE THE LEFTMOST</text>
+  <line x1="24" y1="170" x2="616" y2="170" class="s-thin"/>
+  <!-- derived -->
+  <text x="24" y="190" class="sm">DIFFICULTY FOR · SHOOT · RIFLE</text>
+  <text x="24" y="212" class="b">22</text>
+  <text x="48" y="212" class="sm">= 14 defence · +4 long · +2 moving · +2 partial cover · +2 poor light · <tspan class="acc">−2 thermographic eyes</tspan></text>
+  <text x="24" y="232" class="sm">NORMAL · <tspan class="warn">LONG SHOT</tspan> · CAREFUL · <tspan class="warn">LONG SHOT</tspan> · METHODICAL NOT OFFERED</text>
+</svg>
+<figcaption>Target panel · the shape of the sentence, then what it adds up to</figcaption>
+</figure>
+<ul>
+<li>The panel sits on the work surface above the action list whenever an action has a target. Choosing an action that targets someone opens it if it is empty.</li>
+<li>A target is kept until time passes, so a six-turn fight against one guard is typed once. Several targets can be kept and switched between by name.</li>
+<li>The derived difficulty is shown with its parts, in the GM's words, not as a bare number. Gear that cancels a circumstance shows as a negative part in the gear's name.</li>
+<li>The odds words for each pace update as chips change. A player can see what moving to short range or waiting for the light would do before doing it.</li>
+<li>Everything on the panel can be overridden by hand, as any value can. A GM who says "just make it 16" is typed as an override on the difficulty, and shows as one.</li>
+</ul>
+</section>
+
+<section>
+<h2>The chips</h2>
+<p>First values, to be tested. Each chip is a named mod on the difficulty with the chip's word as its origin.</p>
+<div class="plate"><div class="cap">Circumstance chips · difficulty change</div><div class="scroll"><table>
+<thead><tr><th style="width:120px">Chip</th><th>Options</th><th style="width:300px">Notes</th></tr></thead>
+<tbody>
+<tr><td><strong>Range</strong></td><td>Short 0 · Medium +2 · Long +4 · Extreme +6</td><td>The weapon defines what each band means in metres, and which bands it has at all. A pistol has no Extreme. Melee has only Short.</td></tr>
+<tr><td><strong>Movement</strong></td><td>Still 0 · Moving +2 · Fast +4</td><td>Fast is a vehicle, a sprinter, a flier. Still includes an unaware target.</td></tr>
+<tr><td><strong>Cover</strong></td><td>None 0 · Partial +2 · Heavy +4</td><td>Heavy cover also protects: a hit may strike the cover instead. That is a damage rule, not a difficulty one.</td></tr>
+<tr><td><strong>Light</strong></td><td>Clear 0 · Poor +2 · Dark +4</td><td>Low-light and thermographic gear cancel one or both steps. The gear says which.</td></tr>
+<tr><td><strong>Size</strong></td><td>Small +2 · Normal 0 · Large −2</td><td>Part of the target's own capability, so it is on the numbers row and can come from a card.</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>Every chip set has the default on the left. A GM who says nothing gets Short or the weapon's natural band, Still, None, Clear, Normal.</li>
+<li>Chips are per action type. A social action has its own set (hostile, crowd, rushed), a matrix action its own (alert level, noise). Each is a small list of words the GM would say anyway.</li>
+<li>No chip asks for a number. If a circumstance needs a number it is not a chip; it is a typed slot on the numbers row.</li>
+</ul>
+<div class="why"><b>Why steps of two</b>
+<p>On 2d10 a +2 is worth a little under 20% in the middle of the curve. One chip changes an odds word; two chips change the decision. Finer steps would be more realistic and invisible to the player. Range gets a longer ladder because weapons differ most there.</p></div>
+<div class="why"><b>Why the sheet does not know where anyone is</b>
+<p>There is no map and the vision does not want one. Distance is a band the GM calls or the table agrees. The weapon turns the band into a number and can say what the band means in metres for a GM who wants to be exact.</p></div>
+</section>
+
+<section>
+<h2>Spoken or shown</h2>
+<div class="rule"><b>Up to four tokens are spoken. Anything richer is shown.</b>
+<p>Voice is the channel for the common case. A card (a QR code on one screen, scanned by another) is for the rare rich case. Every card is a snapshot, scanned once; nothing is a live link.</p></div>
+<div class="plate"><div class="cap">What crosses the table</div><div class="scroll"><table>
+<thead><tr><th style="width:200px">Exchange</th><th style="width:90px">Channel</th><th>Carries</th><th style="width:200px">Receiving slot</th></tr></thead>
+<tbody>
+<tr><td>Opponent's numbers</td><td>Spoken</td><td>Defence, armour, size</td><td>Target panel numbers row</td></tr>
+<tr><td>Circumstances</td><td>Spoken as words</td><td>Range, movement, cover, light</td><td>Target panel chips</td></tr>
+<tr><td>Reaction total</td><td>Spoken</td><td>One number</td><td>Attacker's difficulty</td></tr>
+<tr><td>Attack outcome</td><td>Spoken</td><td>Hit or miss and band, damage, type, location</td><td>Defender's incoming-hit slots</td></tr>
+<tr><td>Extended task, improvised</td><td>Spoken</td><td>Difficulty word, work total, tolerance, interval</td><td>Task start panel</td></tr>
+<tr><td><strong>Item</strong></td><td>Card</td><td>The whole item with its modifications</td><td>Inventory</td></tr>
+<tr><td><strong>Target card</strong></td><td>Card</td><td>Name, defence, armour, size, visible gear. Only what could be perceived</td><td>Target panel, kept for the scene</td></tr>
+<tr><td><strong>Task card</strong></td><td>Card</td><td>Difficulty, work total, tolerance, interval, consequence, divisible or not</td><td>Task start panel</td></tr>
+<tr><td><strong>Scene card</strong></td><td>Card</td><td>Light, weather, named targets with their cards</td><td>Chip defaults and the target list</td></tr>
+<tr><td><strong>Whole character</strong></td><td>File</td><td>Everything</td><td>A new device</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>A GM who has prepared a scene shows one scene card at its start. Everyone's chips begin in the same state and the targets are named. A GM who has not prepared one says the sentence.</li>
+<li>A target card is shown once per opponent per scene, usually for a recurring or important one. For a mook, the sentence is faster than the camera.</li>
+<li>Cards are also pasteable text, for tables that play over video. The content is the same.</li>
+<li>Both sheets need the same version of the rules for a card to be read. A card from a different version is reported, not refused; the numbers still land.</li>
+</ul>
+<div class="why"><b>Why not scan everything</b>
+<p>If every attack needed a scan, play would run at the speed of camera focus, and a failed scan would stall the table. The common case is designed to stay under the spoken threshold. Cards are for the things a voice cannot carry.</p></div>
+<div class="why"><b>Why cards carry only the obvious</b>
+<p>A GM saying "defence fourteen" is already doing fog of war. A target card that carried the opponent's full sheet would undo that, and a formal public and hidden split on every stat would cost more than it gives. The card holds what the character could see. An assess action can earn a fuller one.</p></div>
+</section>
+
+<section>
+<h2>Tasks and the scene</h2>
+<ul>
+<li>An extended task is started from a <strong>task start panel</strong> with the same shape as the target panel: numbers row (difficulty word, work total, tolerance), then chips (interval, divisible, pace), then the derived expectation in words ("about 16 hours · safe").</li>
+<li>A static task that is not extended needs only the difficulty word. The GM says "hard"; the player picks it.</li>
+<li>Scene conditions (light, weather) set the chip defaults for every target in the scene. Changing a scene condition changes every target's derived difficulty, with the origin showing why.</li>
+<li>Clearing: "time passes" clears targets and scene conditions, because the story has moved on. A GM can clear by hand earlier.</li>
+</ul>
+</section>
+
+<section>
+<h2>What the sheet must hold</h2>
+<ul>
+<li>A <strong>target</strong>: a name, the typed numbers, the chosen chips, kept until time passes. Several at once.</li>
+<li>A <strong>scene</strong>: the chip defaults, kept until time passes.</li>
+<li>A <strong>task start</strong>: the typed task values, until the task begins.</li>
+<li>None of these are the character or their gear. They are the character's notes about the world, written in numbers.</li>
+</ul>
+<div class="open"><b>Open: where notes about the world live</b>
+<p>The vision says a sheet models the character and their gear and nothing else. A target is neither, but it has to be on the player's device, because there is no other device to be on. The least disruptive reading is that a sheet also holds the character's current <em>perception</em> of the scene: a few small objects with lifespans that end when time passes. The engine already has objects with lifespans; what it does not have is a place for ones that are not owned by the character. This needs a decision before the target panel is built.</p></div>
+<div class="open"><b>Open: the chip numbers</b>
+<p>Steps of two are a starting point chosen for the odds words, not from play. The first fights will move them.</p></div>
+</section>
+</main>
+<footer><span>System 09 — Targets</span><span>docs/system · one concern per document</span></footer>
+</div>
+</body>
+</html>

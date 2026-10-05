@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Engine · System</title>
+<meta name="description" content="How each rule maps onto the engine, what belongs in the game system, and the few things the engine does not do yet.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="_style.css">
+</head>
+<body>
+<div class="wrap">
+<nav class="docnav"><a href="index.html">Index</a><a href="rolls.html">Rolls</a><a href="pace.html">Pace</a><a href="tempo.html">Tempo</a><a href="cooperation.html">Cooperation</a><a href="gear.html">Gear</a><a href="scenes.html">Scenes</a><a href="engine.html" aria-current="page">Engine</a><a href="sheet.html">Sheet</a><a href="targets.html">Targets</a><a href="character.html">Character</a><a href="signature.html">Signature</a><a href="items.html">Items</a></nav>
+<header class="hdr">
+  <div class="no">System 07 · Core mechanics</div>
+  <h1>Engine</h1>
+  <p class="scope">How each rule maps onto the engine, what belongs in the game system, and the few things the engine does not do yet.</p>
+</header>
+<main>
+
+<section>
+<h2>The line between engine and system</h2>
+<div class="rule"><b>Nothing here goes in the engine</b>
+<p>Tempo, Focus, pace, margin and difficulty are game concepts. They are built in the game system assembly from the engine's properties, mods, states, actions and time. The engine gains only what any system could use.</p></div>
+<ul>
+<li>The engine already provides: additive dice expressions with lowest, highest and average; pending and stored rolls; one-turn costs that return next turn; effects with lifespans; named time events the system declares; rules code that can request a roll on a time event; actions with cost and outcome steps; override mods; describe.</li>
+<li>Every rule in these documents was checked against that list before it was written. The gaps are in the last section.</li>
+</ul>
+</section>
+
+<section>
+<h2>Mapping</h2>
+<div class="plate"><div class="cap">Rule → engine construct</div><div class="scroll"><table>
+<thead><tr><th style="width:190px">Rule</th><th>Built as</th></tr></thead>
+<tbody>
+<tr><td><strong>Rating</strong></td><td>A whole-number property on the character per skill. Gear, specialisation and circumstance bonuses are mods on it, each with its origin, so describe shows where the number came from.</td></tr>
+<tr><td><strong>Task roll</strong></td><td>An action whose roll step declares a whole-number input. The input's property holds the dice expression plus the rating; it is pending until rolled. The supplied number is the dice result, bonuses are added by the engine.</td></tr>
+<tr><td><strong>Pace</strong></td><td>A choice made when the action starts. It applies an override mod to the dice part of the roll property (<em class="t">1d20</em>, <em class="t">2d10</em>, <em class="t">1d10 + 5</em> or <em class="t">11</em>) and a multiplier to the cost step. Methodical leaves a constant, so no pending roll appears.</td></tr>
+<tr><td><strong>Certainty</strong></td><td>Compare the roll property's lowest and highest against the difficulty before the roll step. Certain and impossible are reported by the action, never enforced. The step still runs if told to.</td></tr>
+<tr><td><strong>Difficulty</strong></td><td>A whole-number input of the action. Static: typed or chosen by word. From an opponent: 11 + rating, a calculated property on the opponent's sheet, read aloud or handed over.</td></tr>
+<tr><td><strong>Margin and effect</strong></td><td>The outcome step reads the roll total and the difficulty, derives the band, and applies effect mods named for the band. Damage, heal and progress are mods with origins.</td></tr>
+<tr><td><strong>Tempo and Focus</strong></td><td>Two whole-number properties. Each action cost is a one-turn negative mod in the cost step, so the pool returns next turn, exactly as Cyborgs focus does today. Outside turn tracking the engine skips the cost and records it as skipped.</td></tr>
+<tr><td><strong>Refund on margin</strong></td><td>A one-turn positive mod on the pool in the outcome step, named "time saved".</td></tr>
+<tr><td><strong>Reactions</strong></td><td>An action on the defender's sheet with a one-turn cost and its own roll. Its total is handed to the attacker, who types it as the difficulty. No connection between sheets is needed.</td></tr>
+<tr><td><strong>Multi-turn action</strong></td><td>An activity whose cost step is paid across turns: a running total of committed points on the action, and the roll step only becomes available when the total meets the cost. Reset of the step follows the engine's reset rules.</td></tr>
+<tr><td><strong>Extended task</strong></td><td>A state on the character holding work total, progress and tolerance. On each interval event, or each turn tick in turn tracking, it requests a roll. Settling the roll applies progress. The state switches off when progress meets the total.</td></tr>
+<tr><td><strong>Interval events</strong></td><td>Declared time events of the system: <em class="t">hour</em>, <em class="t">day</em>. The GM triggers them. Every sheet receives them, so every extended task on every sheet queues its roll.</td></tr>
+<tr><td><strong>Overdrive</strong></td><td>The pool goes negative; the engine never refuses. A state "fatigued" switches on when the pool is below zero at end of turn and applies the next turn's penalty.</td></tr>
+<tr><td><strong>Restricted points</strong></td><td>A mod on the pool carrying a condition naming the action kind it pays for. The cost step spends conditional mods first.</td></tr>
+<tr><td><strong>Help</strong></td><td>On the helper's sheet: an action with a cost and no roll. On the lead's sheet: a state "assisted" switched on by hand or by handover, which shifts the pace override one step. The qualification check is advisory.</td></tr>
+<tr><td><strong>Gear gate</strong></td><td>A prerequisite reported by the action. The difficulty input gains a mod when the gate is not met. Nothing is blocked.</td></tr>
+<tr><td><strong>Gear effect</strong></td><td>Properties on the item, read by the outcome step through the character's equipped slots.</td></tr>
+<tr><td><strong>Gear bonus cap</strong></td><td>A calculation on the rating that sums gear-origin mods and clamps at +2, with a description so describe shows the clamp.</td></tr>
+<tr><td><strong>Odds in words</strong></td><td>The sheet app asks the engine for the chance that the roll property meets the difficulty at each pace, and turns the number into a word.</td></tr>
+<tr><td><strong>Flat dice</strong></td><td>An ordinary roll input with a <em class="t">1d10</em> or <em class="t">1d100</em> expression and no margin step.</td></tr>
+</tbody></table></div></div>
+</section>
+
+<section>
+<h2>What the engine does not do yet</h2>
+<p>Each of these is small, genre-free, and would be a plan document of its own under the repository's working rules.</p>
+<div class="plate"><div class="cap">Gaps</div><div class="scroll"><table>
+<thead><tr><th style="width:230px">Needed for</th><th>Gap</th><th style="width:180px">Size</th></tr></thead>
+<tbody>
+<tr><td>Odds in words, certainty display</td><td>A dice expression gives lowest, highest and average but not its distribution. Add "chance of at least N" to the dice type. Pure arithmetic over the parsed nodes.</td><td>Small. Engine.</td></tr>
+<tr><td>Extended tasks</td><td>Rules code can request a roll on a time event, but nothing happens when that roll is settled. This is the "effects that recur each turn" feature already listed as planned. Extended tasks are its first customer.</td><td>Medium. Engine. Already planned.</td></tr>
+<tr><td>Restricted points</td><td>A mod has no condition. Either a conditional mod in the engine, or the system models each restricted pool as its own property and the cost step reads several. The second needs no engine change and is the first thing to try.</td><td>Small or none.</td></tr>
+<tr><td>Pace as a choice</td><td>Action inputs are whole numbers, dice or objects. A choice from a fixed list is modelled as a whole number with a described meaning, or as one action per pace. The first is uglier for the sheet; the second quadruples the action count. An enumerated input would be cleaner.</td><td>Small. Engine, optional.</td></tr>
+<tr><td>Multi-turn payment</td><td>An action pays its cost in one step. Paying across turns needs a running total that survives turn ticks and a step that waits on it. Can be built in the system with a property on the action; cleaner with engine support.</td><td>Medium. System first.</td></tr>
+<tr><td>Help, reactions</td><td>Nothing. The result passes between sheets verbally or by handover, which is the vision's rule. Handover of an item is not built yet; a single number is typed.</td><td>None.</td></tr>
+<tr><td>Certainty and gates</td><td>Reported constraints need a reason in words. Today performability is a bare yes or no. This is the vision's open gap under "constraints known but not enforced", and these rules are a reason to close it.</td><td>Medium. Engine. Already a listed gap.</td></tr>
+<tr><td>Signature, items</td><td>A mod needs a channel tag so five per-channel sums can be calculated and described, and so an item's parts can be told apart from a state's. A tag on a mod is small and genre-free; the channel names stay in the system.</td><td>Small. Engine.</td></tr>
+<tr><td>Target panel</td><td>A sheet models the character and their gear. A target, a scene and a task start are the character's notes about the world: small objects with lifespans ending when time passes, not owned by the character. The engine has lifespans but no place for such objects on a sheet. Needs a decision, then a small engine change or a convention in the system.</td><td>Small. Decision first.</td></tr>
+</tbody></table></div></div>
+<div class="why"><b>Why so little is needed</b>
+<p>The rules were chosen to fit what the engine already does: sums of dice, one stored total, costs that return next turn, events the GM triggers. A system that counted successes, exploded dice or synchronised sheets would need a different engine. This one needs a probability function and the recurring-effects feature that was coming anyway.</p></div>
+</section>
+
+<section>
+<h2>Order of work</h2>
+<ol>
+<li>The dice type gains "chance of at least N". Tests in the engine tests.</li>
+<li>The system assembly: skills as properties, the two pools, the task action with pace and margin, static defence, a reaction. Cyborgs stays as it is; this is a new system.</li>
+<li>A worked attack, a reaction and an aimed shot across two turns, as tests. The sniper scene is the test case.</li>
+<li>Recurring effects in the engine, then extended tasks in the system. The device and the archive are the test cases.</li>
+<li>Help, gates, gear effects and the bonus cap.</li>
+<li>Only then the skill list, the gear catalogue and the careers.</li>
+</ol>
+<div class="open"><b>Open: the system's assembly name</b>
+<p>The system has no name. Its assembly needs one before step 2. A placeholder that is obviously a placeholder is better than a name chosen in a hurry.</p></div>
+</section>
+</main>
+<footer><span>System 07 — Engine</span><span>docs/system · one concern per document</span></footer>
+</div>
+</body>
+</html>

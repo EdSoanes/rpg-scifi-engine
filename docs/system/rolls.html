@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rolls · System</title>
+<meta name="description" content="The core roll, the certainty rule, the difficulty ladder, margin bands, odds in words, and where flat dice still belong.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="_style.css">
+</head>
+<body>
+<div class="wrap">
+<nav class="docnav"><a href="index.html">Index</a><a href="rolls.html" aria-current="page">Rolls</a><a href="pace.html">Pace</a><a href="tempo.html">Tempo</a><a href="cooperation.html">Cooperation</a><a href="gear.html">Gear</a><a href="scenes.html">Scenes</a><a href="engine.html">Engine</a><a href="sheet.html">Sheet</a><a href="targets.html">Targets</a><a href="character.html">Character</a><a href="signature.html">Signature</a><a href="items.html">Items</a></nav>
+<header class="hdr">
+  <div class="no">System 01 · Core mechanics</div>
+  <h1>Rolls</h1>
+  <p class="scope">The core roll, the certainty rule, the difficulty ladder, margin bands, odds in words, and where flat dice still belong.</p>
+</header>
+<main>
+
+<section>
+<h2>The core roll</h2>
+<div class="rule"><b>Task roll</b>
+<p><strong>2d10 + rating</strong> against a <strong>difficulty</strong>. Equal or higher succeeds. The difference is the <strong>margin</strong>.</p></div>
+<ul>
+<li><strong>Rating</strong> is the character's skill rating plus any bonuses from gear, state or circumstance. It is one number the sheet derives; the player never adds it up.</li>
+<li><strong>Difficulty</strong> is a number set by the task, or derived from an opponent.</li>
+<li>Every roll is a sum. There is no counting of successes, no exploding dice and no reading of individual dice. The player who rolls real dice types one total.</li>
+<li>The dice part of a roll is always one of four expressions, chosen by pace. 2d10 is the default.</li>
+</ul>
+<figure>
+<svg viewBox="0 0 640 170" role="img" aria-label="Bar chart of 2d10 totals from 2 to 20. Probability rises from 1% at 2 to 10% at 11 and falls back to 1% at 20.">
+  <g class="s-bar">
+    <rect x="40"  y="138" width="22" height="10"/><rect x="70"  y="128" width="22" height="20"/>
+    <rect x="100" y="118" width="22" height="30"/><rect x="130" y="108" width="22" height="40"/>
+    <rect x="160" y="98"  width="22" height="50"/><rect x="190" y="88"  width="22" height="60"/>
+    <rect x="220" y="78"  width="22" height="70"/><rect x="250" y="68"  width="22" height="80"/>
+    <rect x="280" y="58"  width="22" height="90"/><rect x="310" y="48"  width="22" height="100"/>
+    <rect x="340" y="58"  width="22" height="90"/><rect x="370" y="68"  width="22" height="80"/>
+    <rect x="400" y="78"  width="22" height="70"/><rect x="430" y="88"  width="22" height="60"/>
+    <rect x="460" y="98"  width="22" height="50"/><rect x="490" y="108" width="22" height="40"/>
+    <rect x="520" y="118" width="22" height="30"/><rect x="550" y="128" width="22" height="20"/>
+    <rect x="580" y="138" width="22" height="10"/>
+  </g>
+  <line x1="36" y1="148" x2="606" y2="148" class="s-thin"/>
+  <text x="51" y="162" text-anchor="middle">2</text><text x="141" y="162" text-anchor="middle">5</text>
+  <text x="231" y="162" text-anchor="middle">8</text><text x="321" y="162" text-anchor="middle">11</text>
+  <text x="411" y="162" text-anchor="middle">14</text><text x="501" y="162" text-anchor="middle">17</text>
+  <text x="591" y="162" text-anchor="middle">20</text>
+  <text class="sm" x="321" y="38" text-anchor="middle">10%</text>
+  <text class="sm" x="51" y="132" text-anchor="middle">1%</text>
+  <text class="sm" x="40" y="18">HALF OF ALL ROLLS LAND ON 9–13. A +1 IS WORTH 8–10% IN THE MIDDLE, 1–2% AT THE EDGES.</text>
+</svg>
+<figcaption>2d10 — the default dice part</figcaption>
+</figure>
+<div class="why"><b>Why 2d10</b>
+<p>Flat dice (d20, d100) give a 1 the same chance as a 10. Two dice give a bell, which makes competence visible: a rating gap of 3 is a real difference in the middle and barely matters at the edges. 2d6 has the same shape but only eleven outcomes, too few for a gear-heavy game where several small bonuses need room to stack. 3d6 is tighter still. 2d10 has nineteen outcomes, two dice to add, and one total to type.</p>
+<p>The engine stores a roll as one total and does not expose individual dice. Anything that needs each die, such as doubles or exploding dice, is off the table by design. Margin does their job.</p></div>
+</section>
+
+<section>
+<h2>The certainty rule</h2>
+<div class="rule"><b>No roll in the certain band</b>
+<p>If the <strong>lowest</strong> possible total meets the difficulty, the task succeeds with no roll. If the <strong>highest</strong> possible total misses it, the task fails with no roll. Dice are only rolled in the band between.</p></div>
+<ul>
+<li>The lowest and highest totals come from the dice expression in play: 2d10 gives 2 and 20, so a character whose rating is at least the difficulty minus 2 never rolls.</li>
+<li>Slower paces have a higher floor. A task that is a roll at Normal pace can be certain at Careful or Methodical pace. This is how a skilled climber climbs most walls without fear.</li>
+<li>There is no separate category of "reliable skill". Any skill is reliable for any task that sits below the character's floor, and a gamble for any task above it.</li>
+<li>Combat stays uncertain because the difficulty moves: an opponent's defence is derived from their rating, so a skilled attacker meets a difficulty that rises with the quality of the target.</li>
+<li>The sheet never refuses. "Impossible" is reported, not enforced. A player can still press the button and the sheet records a failure, or the GM overrides the difficulty.</li>
+</ul>
+<div class="why"><b>Why certainty is a rule and not a GM call</b>
+<p>Systems that ask for a roll on every task make experts fail at routine work far too often, which is why they end up with "don't roll for trivial things" as table advice. Putting the rule in the engine means the sheet applies it consistently, shows the player the task is certain, and keeps the dice for moments where they mean something.</p></div>
+</section>
+
+<section>
+<h2>Ratings and difficulties</h2>
+<div class="plate"><div class="cap">Rating scale</div><div class="scroll"><table>
+<thead><tr><th style="width:80px" class="n">Rating</th><th style="width:160px">Means</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td class="n">0</td><td>Untrained</td><td>Can attempt most things. Cannot attempt tasks the skill marks as trained-only.</td></tr>
+<tr><td class="n">1–2</td><td>Novice</td><td>Has done it. Routine tasks are a roll.</td></tr>
+<tr><td class="n">3–4</td><td>Professional</td><td>Does this for a living. Routine tasks are certain given time.</td></tr>
+<tr><td class="n">5–6</td><td>Veteran</td><td>Hard tasks are certain given time.</td></tr>
+<tr><td class="n">7–8</td><td>Expert</td><td>The best in the city. Routine tasks are certain at a glance.</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>Rating 8 is the ceiling for a human skill. Bonuses from gear and circumstance sit on top and are not capped.</li>
+<li>Steps above 4 cost progressively more to buy. The certainty rule makes high ratings powerful, so they are rare.</li>
+</ul>
+
+<div class="plate"><div class="cap">Difficulty ladder · chance of success at Normal pace (2d10)</div><div class="scroll"><table>
+<thead><tr><th style="width:80px" class="n">Difficulty</th><th style="width:140px">Means</th><th class="n">Novice (1)</th><th class="n">Professional (4)</th><th class="n">Expert (8)</th></tr></thead>
+<tbody>
+<tr><td class="n">8</td><td>Easy</td><td class="n">85%</td><td class="n">97%</td><td class="n dim">certain</td></tr>
+<tr><td class="n">11</td><td>Routine</td><td class="n">64%</td><td class="n">85%</td><td class="n">99%</td></tr>
+<tr><td class="n">14</td><td>Hard</td><td class="n">36%</td><td class="n">64%</td><td class="n">90%</td></tr>
+<tr><td class="n">17</td><td>Very hard</td><td class="n">15%</td><td class="n">36%</td><td class="n">72%</td></tr>
+<tr><td class="n">20</td><td>Extreme</td><td class="n">3%</td><td class="n">15%</td><td class="n">45%</td></tr>
+<tr><td class="n">23</td><td>Heroic</td><td class="n dim">impossible</td><td class="n">3%</td><td class="n">21%</td></tr>
+<tr><td class="n">26</td><td>Legendary</td><td class="n dim">impossible</td><td class="n dim">impossible</td><td class="n">6%</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>Difficulties are set in steps of 3. Intermediate values are allowed when a bonus or penalty has a reason.</li>
+<li>A difficulty derived from an opponent is <strong>11 + their relevant rating</strong>: the average of 2d10 plus what they bring. An untrained target is Routine; a veteran is Very hard.</li>
+<li>Written tasks name their difficulty by word. The sheet turns the word into the number.</li>
+</ul>
+<div class="why"><b>Why 11 + rating for a passive opponent</b>
+<p>Rolling for both sides doubles the dice at the table and doubles the pending rolls on the sheets. Using the opponent's average lets one roll settle an exchange, and makes an opposed task read exactly like any other difficulty. An opponent who chooses to react actively rolls, and pays for the privilege.</p></div>
+</section>
+
+<section>
+<h2>Margin</h2>
+<div class="plate"><div class="cap">Margin bands</div><div class="scroll"><table>
+<thead><tr><th style="width:170px">Result</th><th style="width:130px">Margin</th><th>Effect</th></tr></thead>
+<tbody>
+<tr><td><strong>Bad failure</strong></td><td class="k">−5 or worse</td><td>Fails, and the task's stated consequence happens. Time is spent.</td></tr>
+<tr><td><strong>Failure</strong></td><td class="k">−4 to −1</td><td>Fails. Time is spent. May try again only at a slower pace.</td></tr>
+<tr><td><strong>Success</strong></td><td class="k">0 to +4</td><td>Succeeds in the committed time.</td></tr>
+<tr><td><strong>Strong success</strong></td><td class="k">+5 to +9</td><td>Succeeds in half the time. Effect improved one step.</td></tr>
+<tr><td><strong>Exceptional</strong></td><td class="k">+10 or more</td><td>Succeeds in a quarter of the time. Effect improved two steps, or the task's stated bonus.</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>Every task defines what "effect improved one step" means for it. Damage up a step for a shot. A cleaner hack that leaves less trace. An extra fact from an interview. A better price from a fixer.</li>
+<li>Every task that can go badly names its bad failure. A task that cannot go badly has none, and a bad failure is just a failure.</li>
+<li>Margin is computed by the sheet and shown by name, not number.</li>
+</ul>
+<div class="why"><b>Why bands of five</b>
+<p>On 2d10 a +5 margin over a 50% task happens about one time in five, and a +10 margin about one in a hundred. Five is wide enough that a strong success feels earned, and narrow enough that a professional sees one in most sessions.</p></div>
+</section>
+
+<section>
+<h2>Odds in words</h2>
+<p>The sheet shows the chance of a task before the player commits, as a word. The player never sees the curve.</p>
+<div class="plate"><div class="cap">What the sheet says</div><div class="scroll"><table>
+<thead><tr><th style="width:140px">Word</th><th style="width:120px" class="n">Chance</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><strong>Certain</strong></td><td class="n">100%</td><td>No roll. The lowest total succeeds.</td></tr>
+<tr><td><strong>Likely</strong></td><td class="n">75–99%</td><td></td></tr>
+<tr><td><strong>Fair</strong></td><td class="n">50–74%</td><td></td></tr>
+<tr><td><strong>Risky</strong></td><td class="n">25–49%</td><td></td></tr>
+<tr><td><strong>Long shot</strong></td><td class="n">1–24%</td><td></td></tr>
+<tr><td><strong>Impossible</strong></td><td class="n">0%</td><td>No roll. The highest total fails. Still allowed.</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>Where a task has a bad failure, the sheet also says whether one is possible at this pace: <em class="t">Fair · can go badly</em> against <em class="t">Fair · safe</em>.</li>
+<li>Showing odds needs the full distribution of the dice expression, not just its lowest, highest and average. The engine gets a small addition for this.</li>
+</ul>
+</section>
+
+<section>
+<h2>Where flat dice still belong</h2>
+<ul>
+<li>Anything binary where no one's skill is involved: weapon jams against a reliability rating, gear malfunction, whether a stray round finds a bystander.</li>
+<li>Lookup tables: hit location, random encounter, what the fixer happens to have in stock.</li>
+<li>These use <strong>1d10</strong> or <strong>1d100</strong> against a stated number. They are never a task roll and never have a margin.</li>
+</ul>
+<div class="why"><b>Why flat is right here</b>
+<p>A bell curve says "competence matters". For a jam or a table, nothing matters but luck, and a flat die says so honestly.</p></div>
+</section>
+</main>
+<footer><span>System 01 — Rolls</span><span>docs/system · one concern per document</span></footer>
+</div>
+</body>
+</html>

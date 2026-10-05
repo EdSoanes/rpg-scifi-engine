@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scenes · System</title>
+<meta name="description" content="Worked examples with real numbers: a sniper, a bomb, an archive, a matrix run. Checks that the rules produce the moments.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="_style.css">
+</head>
+<body>
+<div class="wrap">
+<nav class="docnav"><a href="index.html">Index</a><a href="rolls.html">Rolls</a><a href="pace.html">Pace</a><a href="tempo.html">Tempo</a><a href="cooperation.html">Cooperation</a><a href="gear.html">Gear</a><a href="scenes.html" aria-current="page">Scenes</a><a href="engine.html">Engine</a><a href="sheet.html">Sheet</a><a href="targets.html">Targets</a><a href="character.html">Character</a><a href="signature.html">Signature</a><a href="items.html">Items</a></nav>
+<header class="hdr">
+  <div class="no">System 06 · Core mechanics</div>
+  <h1>Scenes</h1>
+  <p class="scope">Worked examples with real numbers: a sniper, a bomb, an archive, a matrix run. Checks that the rules produce the moments.</p>
+</header>
+<main>
+
+<section>
+<h2>How to read these</h2>
+<ul>
+<li>Each scene states the character, the task and the numbers, then shows what the sheet would offer the player.</li>
+<li>Single-roll chances are exact, from the distribution of the expression. Multi-roll outcomes (the bomb, the archive) are from simulation, two hundred thousand runs each, rounded.</li>
+<li>The purpose is to check that the rules produce the intended moment: a real choice, with the trade-off visible. Where they do not, the rules change, not the scene.</li>
+</ul>
+</section>
+
+<section>
+<h2>The sniper <span class="chip body">Tempo</span></h2>
+<ul>
+<li><strong>Character:</strong> rifles 6, smartlink +1, so rating 7. Wired: Tempo 6.</li>
+<li><strong>Target:</strong> a guard with defence 3, moving. Difficulty 11 + 3 = <strong>14</strong>. Need 7.</li>
+<li><strong>Bad failure:</strong> the shot hits something it should not, or the muzzle flash gives the position away.</li>
+<li>Methodical is not offered: the target can react.</li>
+</ul>
+<div class="plate"><div class="cap">What the sheet offers</div><div class="scroll"><table>
+<thead><tr><th style="width:110px">Pace</th><th class="n">Tempo</th><th class="n">Hit</th><th class="n">Strong</th><th class="n">Exceptional</th><th class="n">Can go badly</th><th>Sheet says</th></tr></thead>
+<tbody>
+<tr><td>Rushed</td><td class="n">1</td><td class="n">70%</td><td class="n">45%</td><td class="n">20%</td><td class="n">10%</td><td>Fair · can go badly</td></tr>
+<tr><td>Normal</td><td class="n">2</td><td class="n">85%</td><td class="n">45%</td><td class="n">10%</td><td class="n">1%</td><td>Likely · can go badly</td></tr>
+<tr><td>Careful</td><td class="n">4</td><td class="n">90%</td><td class="n">40%</td><td class="n">0%</td><td class="n">0%</td><td>Likely · safe</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>Six Tempo buys three Normal shots, or a Careful shot and a Normal one, or two Normal shots with two dodges in hand.</li>
+<li>Rushed has the best chance of an exceptional hit. That is the flat die doing its job: the snap shot is the one that produces the miracle, and the disaster.</li>
+<li>A spotter with rifles 4 or better is qualified. With one, each Normal-cost shot rolls as Careful: three 90% shots a turn with no bad failure possible. The spotter spends 2 Focus a turn to do it, and does nothing else.</li>
+</ul>
+<div class="why"><b>What this checks</b>
+<p>Aiming has a cost in shots, not a bonus. Rushing is a real option, not a trap. The wired character's advantage is in volume and in having a reaction left, not in a better roll. The spotter changes the fight by giving up their own turn.</p></div>
+</section>
+
+<section>
+<h2>The device <span class="chip mind">Focus</span></h2>
+<ul>
+<li><strong>Character:</strong> demolitions 6. Focus 4.</li>
+<li><strong>Task:</strong> disarm a device. Difficulty <strong>16</strong>, need 10. Extended, indivisible. Work total 5. Tolerance 1: the second bad failure detonates it. Base cost 2 Focus per roll.</li>
+<li><strong>Clock:</strong> six turns until it goes off anyway.</li>
+<li>The rest of the team is holding a corridor. One of them has demolitions 4 and is qualified to help.</li>
+</ul>
+<div class="plate"><div class="cap">What the sheet offers · six turns</div><div class="scroll"><table>
+<thead><tr><th style="width:230px">Approach</th><th class="n">Focus per roll</th><th class="n">Rolls per turn</th><th class="n">Disarmed in time</th><th class="n">Detonates</th><th class="n">Typical turns</th></tr></thead>
+<tbody>
+<tr><td>Normal, alone</td><td class="n">2</td><td class="n">2</td><td class="n">84%</td><td class="n">15%</td><td class="n">3</td></tr>
+<tr><td>Careful, alone</td><td class="n">4</td><td class="n">1</td><td class="n">41%</td><td class="n">0%</td><td class="n">5</td></tr>
+<tr><td>Careful by a helper's attention</td><td class="n">2</td><td class="n">2</td><td class="n">97%</td><td class="n">0%</td><td class="n">4</td></tr>
+<tr><td>Methodical</td><td class="n">10</td><td class="n">0.4</td><td class="n dim">0%</td><td class="n">0%</td><td class="n">13</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>Alone, the choice is fast and 15% fatal, or safe and more likely than not to run out of time. Neither is good. That is the scene.</li>
+<li>The helper resolves it, and the price is one less gun on the corridor. The team argues about that, not about the dice.</li>
+<li>Methodical is certain and useless under a six-turn clock. It is the right answer when the device is not ticking.</li>
+<li>With demolitions 5 instead of 6 the need becomes 11, and Careful no longer takes the bad failure off the table (a total of 11 against 16 is a bad failure). The sheet would say "Fair · can go badly" for every pace. That character should not be the one at the device.</li>
+</ul>
+<div class="why"><b>What this checks</b>
+<p>Time and safety trade against each other through pace alone. Cooperation is the lever that moves the trade-off, and it costs the team a body. A rating step changes the character of the scene rather than a percentage. Tolerance is what stops an extended task compounding a small risk into a certainty.</p></div>
+</section>
+
+<section>
+<h2>The archive <span class="chip mind">Focus</span></h2>
+<ul>
+<li><strong>Character:</strong> research 4. Outside turn tracking; Focus does not apply.</li>
+<li><strong>Task:</strong> find who really owns a shell company. Difficulty <strong>14</strong>, need 10. Extended, divisible, interval one hour. Work total 6. Tolerance unlimited: a bad failure is a false lead and costs an hour and a point of progress.</li>
+<li>A second character with research 3 is qualified to help.</li>
+</ul>
+<div class="plate"><div class="cap">What the sheet offers</div><div class="scroll"><table>
+<thead><tr><th style="width:230px">Approach</th><th class="n">Hours per roll</th><th class="n">Typical hours</th><th class="n">Nine times in ten, by</th><th>Sheet says</th></tr></thead>
+<tbody>
+<tr><td>Normal, alone</td><td class="n">1</td><td class="n">7</td><td class="n">12</td><td>About 7 hours · can go badly</td></tr>
+<tr><td>Careful, alone</td><td class="n">2</td><td class="n">16</td><td class="n">24</td><td>About 16 hours · safe</td></tr>
+<tr><td>Methodical, alone</td><td class="n">5</td><td class="n">30</td><td class="n">30</td><td>30 hours · certain</td></tr>
+<tr><td>Normal, two researchers</td><td class="n">1</td><td class="n">4</td><td class="n">6</td><td>About 4 hours · can go badly</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>Methodical is a promise: thirty hours and the answer is there, because 11 + 4 meets 14. If the difficulty were 16 the sheet would say "impossible" for Methodical, and the only way through would be to gamble on Normal or Careful rolls. A rating 4 researcher cannot grind out what a rating 6 researcher knows to look for.</li>
+<li>"Can go badly" here is a false lead, not a disaster. The sheet uses the task's own word for it.</li>
+<li>The GM ticks the hours. Each tick queues one progress roll per worker. The players settle them with real dice or the app, as usual.</li>
+</ul>
+<div class="why"><b>What this checks</b>
+<p>Non-combat work has the same shape as combat: a pace choice with time against risk, a margin that matters, cooperation that costs the helper their afternoon. Research that is beyond the researcher stays beyond them however long they spend; time buys reliability, not insight.</p></div>
+</section>
+
+<section>
+<h2>The matrix <span class="chip mind">Focus</span> <span class="chip body">Tempo</span></h2>
+<ul>
+<li><strong>Decker:</strong> hacking 6, deck rating 5. Focus 6 from the deck, Tempo 2.</li>
+<li><strong>Samurai:</strong> hacking 2, borrowing a commlink. Focus 2, Tempo 6.</li>
+<li><strong>Node:</strong> rating 5. The deck meets the gate; the commlink is rating 2 and the node is three steps harder for it. Active defence, so difficulty 11 + 5 = <strong>16</strong> for the decker, <strong>19</strong> for the samurai (one step per rating short, then capped at Heroic). Methodical not offered.</li>
+<li><strong>Bad failure:</strong> the trace advances.</li>
+</ul>
+<div class="plate"><div class="cap">One turn in the node</div><div class="scroll"><table>
+<thead><tr><th style="width:150px">Character</th><th style="width:230px">Turn</th><th class="n">Per action</th><th class="n">Trace per action</th><th>Also has</th></tr></thead>
+<tbody>
+<tr><td>Decker</td><td>Three Normal matrix actions</td><td class="n">64%</td><td class="n">10%</td><td>Nothing in hand</td></tr>
+<tr><td>Decker</td><td>One Careful, one Normal</td><td class="n">60% safe · 64%</td><td class="n">0% · 10%</td><td>Nothing in hand</td></tr>
+<tr><td>Decker</td><td>Two Normal</td><td class="n">64%</td><td class="n">10%</td><td>2 Focus for a perception check, 2 Tempo for one dodge</td></tr>
+<tr><td>Samurai</td><td>One Normal matrix action</td><td class="n">10%</td><td class="n">64%</td><td>6 Tempo: three attacks, or shots and dodges</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>A guard rounds the corner and shoots at the decker: rifles 3 against the decker's static defence of 11 + 2 = 13. The guard hits 64% of the time. If the decker spends their 2 Tempo on a dodge, they roll 2d10 + 2 + 2 against the guard's 2d10 + 3 and the guard's chance falls to 47%. The decker then has nothing left for the node this turn.</li>
+<li>The same guard shooting at the samurai (defence 5, static 16) hits 36%, and the samurai can dodge every shot and still attack twice.</li>
+</ul>
+<div class="why"><b>What this checks</b>
+<p>Two pools make two different characters fast in two different rooms, with the same rules. Gear gates: the deck is what makes the node attackable at the written difficulty. The decker's weakness is not a penalty; it is a small Tempo pool and the choice of spending it on a dodge or a hack.</p></div>
+</section>
+
+<section>
+<h2>What the scenes did not check</h2>
+<ul>
+<li>Damage, armour and injury. Not part of the core mechanics; they consume margin and effect values, which is all the core needs to provide.</li>
+<li>Movement and range. Tempo costs for movement are open.</li>
+<li>Long campaigns: whether four progression currencies keep pace with each other over twenty sessions. Only play will tell.</li>
+</ul>
+</section>
+</main>
+<footer><span>System 06 — Scenes</span><span>docs/system · one concern per document</span></footer>
+</div>
+</body>
+</html>

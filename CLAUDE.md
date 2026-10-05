@@ -14,6 +14,33 @@ so the players and the GM do not need to understand them.
   - `docs/DESCRIBE_PLAN.md`: describing values, actions, states and mod sets.
   - `docs/BROWSER_SPIKE.md`: the engine running in a browser, with sizes and timings.
   - `docs/CMS_PORT.md`: the CMS on Umbraco 18 and the new engine, and the command layer.
+- `docs/system/` is the design of the cyberpunk game system being built on the engine. Thirteen linked HTML
+  documents and a shared `_style.css`; start at `index.html`. Read the relevant document before writing
+  any rules code for that system. The engine documents above still govern the engine.
+
+## The game system documents
+
+`docs/system/` holds design intent, not implementation plans. One concern per document: `index`, `rolls`,
+`pace`, `tempo`, `cooperation`, `gear`, `scenes`, `engine`, `sheet`, `targets`, `character`, `signature`, `items`. The `engine` document is the only one that
+talks about code: it maps each rule to an engine construct and lists what the engine does not do yet.
+
+House rules for that folder:
+
+- Every document in a folder that has a `_style.css` is styled HTML, formatted to that sheet. Link the
+  folder's `_style.css`, reuse its classes (`docnav`, `.hdr`, `.plate`, `.rule`, `.why`, `.open`, `.chip`,
+  `.cards`) rather than inventing new ones, and add a new page to every document's `docnav` strip and to
+  the folder's `index.html`. Folders with no `_style.css` stay markdown.
+- Decisions are bullets and tables. Prose only where a rule needs a sentence.
+- Rationale goes in a `.why` note beside the decision it explains, never inline. Undecided things go in an
+  `.open` note. Do not assume an answer to an open note.
+- No cross-referencing between documents. The nav strip handles navigation. If two documents keep pointing
+  at each other, move the content.
+- Every probability in those documents is computed from the full distribution of the expression, not
+  estimated. If a rule's numbers change, recompute the tables, including the simulated scenes.
+- The system has no name. `System` in those documents is a placeholder. Do not promote it to a name.
+- Nothing in `docs/system/` goes into the engine. Game concepts belong in the game system assembly. The
+  `engine` document lists the genre-free additions the engine needs; each gets its own plan document in
+  `docs` before it is built.
 
 ## Project map
 

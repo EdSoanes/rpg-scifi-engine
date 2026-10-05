@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Character · System</title>
+<meta name="description" content="The six attributes, what they derive, and the skill groups they feed. Attributes never add to a roll.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="_style.css">
+</head>
+<body>
+<div class="wrap">
+<nav class="docnav"><a href="index.html">Index</a><a href="rolls.html">Rolls</a><a href="pace.html">Pace</a><a href="tempo.html">Tempo</a><a href="cooperation.html">Cooperation</a><a href="gear.html">Gear</a><a href="scenes.html">Scenes</a><a href="engine.html">Engine</a><a href="sheet.html">Sheet</a><a href="targets.html">Targets</a><a href="character.html" aria-current="page">Character</a><a href="signature.html">Signature</a><a href="items.html">Items</a></nav>
+<header class="hdr">
+  <div class="no">System 10 · Core mechanics</div>
+  <h1>Character</h1>
+  <p class="scope">The six attributes, what they derive, and the skill groups they feed. Attributes never add to a roll.</p>
+</header>
+<main>
+
+<section>
+<h2>The principle</h2>
+<div class="rule"><b>Attributes never add to a task roll</b>
+<p>The roll is <strong>2d10 + skill rating</strong>, and nothing else. Attributes set the derived scores, give an untrained floor to the skills in their group, and make those skills cheaper to raise. A strong character hits harder, carries more and lasts longer. They do not hit more often.</p></div>
+<figure>
+<svg viewBox="0 0 640 170" role="img" aria-label="Three boxes on the left: attribute, skill, gear. Arrows show attribute feeding derived scores and the untrained floor; skill feeding the roll; gear feeding gates and effect, with a thin arrow for the capped roll bonus. The roll box on the right reads 2d10 plus rating against difficulty.">
+  <g class="s-box">
+    <rect x="20" y="20" width="110" height="34" rx="2"/><rect x="20" y="68" width="110" height="34" rx="2"/><rect x="20" y="116" width="110" height="34" rx="2"/>
+    <rect x="250" y="20" width="150" height="34" rx="2"/><rect x="250" y="116" width="150" height="34" rx="2"/>
+  </g>
+  <g class="s-box-a"><rect x="250" y="68" width="150" height="34" rx="2"/><rect x="470" y="68" width="150" height="34" rx="2"/></g>
+  <text x="75" y="41" text-anchor="middle">ATTRIBUTE</text><text x="75" y="89" text-anchor="middle">SKILL</text><text x="75" y="137" text-anchor="middle">GEAR</text>
+  <text x="325" y="37" text-anchor="middle">DERIVED SCORES</text><text x="325" y="49" text-anchor="middle" class="sm">POOLS · DEFENCES · HEALTH</text>
+  <text x="325" y="89" text-anchor="middle" class="acc">RATING</text>
+  <text x="325" y="133" text-anchor="middle">GATE · EFFECT</text><text x="325" y="145" text-anchor="middle" class="sm">CAN I · HOW MUCH</text>
+  <text x="545" y="85" text-anchor="middle" class="acc">2d10 + RATING</text><text x="545" y="97" text-anchor="middle" class="sm">AGAINST DIFFICULTY</text>
+  <g class="s-ln"><line x1="130" y1="37" x2="246" y2="37"/><line x1="130" y1="85" x2="246" y2="85"/><line x1="130" y1="133" x2="246" y2="133"/><line x1="400" y1="85" x2="466" y2="85"/></g>
+  <g class="s-arr"><path d="M241 33 L249 37 L241 41"/><path d="M241 81 L249 85 L241 89"/><path d="M241 129 L249 133 L241 137"/><path d="M461 81 L469 85 L461 89"/></g>
+  <path d="M130 45 L190 45 L190 78 L246 78" class="s-dash"/><text x="150" y="66" class="sm">UNTRAINED FLOOR</text>
+  <path d="M130 125 L190 125 L190 93 L246 93" class="s-dash"/><text x="150" y="112" class="sm">BONUS · MAX +2</text>
+  <text x="20" y="165" class="sm">ATTRIBUTES REACH THE ROLL ONLY THROUGH THE UNTRAINED FLOOR. GEAR REACHES IT ONLY THROUGH A SMALL CAPPED BONUS.</text>
+</svg>
+<figcaption>What feeds what</figcaption>
+</figure>
+<div class="why"><b>Why attributes stay off the dice</b>
+<p>The certainty rule and the 0 to 8 rating scale only work if the number on the roll is one number. Add an attribute to it and a Body 7 novice out-shoots a trained professional, the difficulty ladder drifts, and every table in these documents has to be recomputed with two inputs. Keeping attributes to derived scores gives a strong body its due in the places where strength shows: how hard the hit lands, how much is carried, how long the character stands.</p></div>
+</section>
+
+<section>
+<h2>The six attributes</h2>
+<div class="plate"><div class="cap">Attributes · same 0 to 8 scale as skills</div><div class="scroll"><table>
+<thead><tr><th style="width:120px">Attribute</th><th style="width:260px">What it is</th><th>Derives</th></tr></thead>
+<tbody>
+<tr><td><strong>Body</strong></td><td>Strength, toughness, constitution</td><td>Health, Soak, Carry</td></tr>
+<tr><td><strong>Reflexes</strong></td><td>Speed, coordination, reaction</td><td><strong>Tempo</strong> <span class="chip body">body</span>, Move, floor for Defence</td></tr>
+<tr><td><strong>Awareness</strong></td><td>Perception, intuition, reading a situation</td><td>Floor for Passive Notice</td></tr>
+<tr><td><strong>Intellect</strong></td><td>Reasoning, memory, technical aptitude</td><td>Knowledge breadth, matrix base</td></tr>
+<tr><td><strong>Will</strong></td><td>Resolve, concentration, nerve</td><td><strong>Focus</strong> <span class="chip mind">mind</span>, Composure track, Resist</td></tr>
+<tr><td><strong>Presence</strong></td><td>Charisma, bearing, social force</td><td>Floor for Social Defence, Contacts capacity</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>Human range 2 to 5. Average 3. Augmentation takes an attribute to 8.</li>
+<li>One scale on the sheet. An attribute of 4 and a skill of 4 mean the same thing: a professional's level.</li>
+<li>The two pools come from two different attributes, so the samurai and the decker do not compete for one stat. Both still get most of their pool from augmentation.</li>
+<li>Augmentation that raises an attribute raises everything derived from it. Wired reflexes that raise Reflexes raise Tempo, Move and the untrained Defence floor together. Gear that raises only Tempo is also possible and is the cheaper item.</li>
+</ul>
+<div class="why"><b>Why six and these six</b>
+<p>Fewer than six and the pools would share an attribute or a career would have no home. More and the differences stop meaning anything at the table. Awareness stands apart from Intellect because noticing and reasoning are different careers (the scout and the decker). Will stands apart from Presence because keeping your own nerve and moving someone else's are different careers (the rigger and the face).</p></div>
+</section>
+
+<section>
+<h2>Derived scores</h2>
+<p>All computed by the sheet. None are bought directly. Each is a calculated property with its derivation visible.</p>
+<div class="plate"><div class="cap">Derived scores</div><div class="scroll"><table>
+<thead><tr><th style="width:150px">Score</th><th style="width:260px">From</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td><strong>Tempo</strong> <span class="chip body">body</span></td><td>Reflexes 1–2 → 2, 3–5 → 3, 6+ → 4; plus augmentation and gear</td><td>The human range of 2 to 4 already decided. Training can add 1, once.</td></tr>
+<tr><td><strong>Focus</strong> <span class="chip mind">mind</span></td><td>Will, same mapping; plus augmentation and gear</td><td>Decks and co-processors are the main source above 4.</td></tr>
+<tr><td><strong>Defence</strong></td><td>11 + Evasion skill; untrained floor from Reflexes</td><td>The number the GM speaks for an opponent. A reaction replaces it with a roll.</td></tr>
+<tr><td><strong>Social Defence</strong></td><td>11 + Composure skill; floor from Presence</td><td>Spoken the same way. What a persuader rolls against.</td></tr>
+<tr><td><strong>Passive Notice</strong></td><td>11 + Notice skill; floor from Awareness</td><td>What a sneaking opponent rolls against.</td></tr>
+<tr><td><strong>Soak</strong></td><td>Body-derived, plus armour</td><td>Reduces damage. Never affects whether a hit lands.</td></tr>
+<tr><td><strong>Health</strong></td><td>Body-derived track</td><td>Injury rules are a later document.</td></tr>
+<tr><td><strong>Composure</strong></td><td>Will-derived track</td><td>Stress, fear, social damage. The mind's health.</td></tr>
+<tr><td><strong>Move</strong></td><td>Reflexes-derived metres per Tempo pip</td><td>Settles the open Tempo cost of movement: one pip, Move metres.</td></tr>
+<tr><td><strong>Carry</strong></td><td>Body-derived</td><td>Gear-heavy game. Encumbrance matters and is reported, never enforced.</td></tr>
+<tr><td><strong>Concealment</strong></td><td>Per channel: 11 + Stealth − Signature on that channel</td><td>Spoken like Defence. What a searcher rolls Notice against.</td></tr>
+<tr><td><strong>Senses</strong></td><td>Optical and Acoustic from the body; Thermal, EM and Data from gear</td><td>A channel the character can detect on, with a gear bonus.</td></tr>
+</tbody></table></div></div>
+<div class="why"><b>Why the pools map in bands and not one to one</b>
+<p>A pool of 5 from an unaugmented Reflexes 5 would make chrome optional for the fast character, and the gear page wants pools to come from augmentation. Banding keeps the human range at 2 to 4 and leaves the climb to 8 for the catalogue.</p></div>
+</section>
+
+<section>
+<h2>Skill groups</h2>
+<p>A first pass. About twenty skills, each in one attribute's group. Final list, names and specialisations are a later document.</p>
+<div class="plate"><div class="cap">Groups</div><div class="scroll"><table>
+<thead><tr><th style="width:110px">Group</th><th>Skills</th><th style="width:220px">Careers at home here</th></tr></thead>
+<tbody>
+<tr><td><strong>Body</strong></td><td>Athletics, Melee, Brawl, Heavy Weapons, Endurance</td><td>Street samurai, enforcer</td></tr>
+<tr><td><strong>Reflexes</strong></td><td>Firearms, Evasion, Stealth, Drive, Pilot</td><td>Samurai, infiltrator, wheelman</td></tr>
+<tr><td><strong>Awareness</strong></td><td>Notice, Investigate, Streetwise, Survival, Tactics</td><td>Investigator, scout, fixer</td></tr>
+<tr><td><strong>Intellect</strong></td><td>Hacking, Electronics, Medicine, Demolitions, Knowledge (by field)</td><td>Decker, medic, tech</td></tr>
+<tr><td><strong>Will</strong></td><td>Composure, Rigging, Resist</td><td>Rigger, anyone under pressure</td></tr>
+<tr><td><strong>Presence</strong></td><td>Persuade, Deceive, Intimidate, Network, Command</td><td>Face, fixer, team lead</td></tr>
+</tbody></table></div></div>
+<h3>What the group does</h3>
+<ul>
+<li><strong>Untrained floor.</strong> A skill at rating 0 is used at <strong>attribute − 3</strong>, minimum 0. Reflexes 5 shoots untrained at 2: has done it, no more. The floor can never exceed 5, and a trained rating always replaces it.</li>
+<li><strong>Raise cost.</strong> Raising a skill costs less when its group's attribute is higher. A character grows into their body without being locked out of anything.</li>
+<li><strong>Gates stay with the skill.</strong> A trained-only task needs the skill, not the attribute. Intellect 7 does not let you attempt surgery.</li>
+</ul>
+<div class="why"><b>Why Rigging is under Will</b>
+<p>Jacked-in control of drones and vehicles is sustained attention under pressure, not reasoning and not reflex. Putting it under Will gives the rigger a reason to want Focus and a group that is not the decker's. The rigger who also drives by hand has Drive under Reflexes for that.</p></div>
+<div class="why"><b>Why Composure does two jobs</b>
+<p>Composure is the Will group's core skill and the skill behind Social Defence. Keeping your nerve is one thing whether the pressure is a gun or a negotiation, and one skill for it means the face and the samurai are both buying the same thing when they decide not to be rattled.</p></div>
+</section>
+
+<section>
+<h2>Left out on purpose</h2>
+<ul>
+<li><strong>No luck or edge pool.</strong> Pace and overdrive already give the player a risk dial. A third one would be spent on the same decisions.</li>
+<li><strong>No Reaction or Initiative attribute.</strong> Turn order follows pace. Nothing needs a stat.</li>
+<li><strong>No Humanity or Essence.</strong> What augmentation costs beyond money is a setting decision. The rules work with or without one.</li>
+<li><strong>No attribute rolls.</strong> A task that seems to need one (lift the gate, hold your breath) is an Athletics or Endurance task against a difficulty, with Body setting the effect.</li>
+</ul>
+<div class="open"><b>Open: track sizes and the Move figure</b>
+<p>How many boxes Health and Composure have per point of Body and Will, and how many metres a Tempo pip buys, are not set. They belong with the injury rules and the first fights.</p></div>
+<div class="open"><b>Open: the skill list</b>
+<p>Twenty skills is a first pass to show the groups work. Names, splits (is Firearms one skill or three?) and specialisations are decided with the gear catalogue, since the two have to agree.</p></div>
+</section>
+</main>
+<footer><span>System 10 — Character</span><span>docs/system · one concern per document</span></footer>
+</div>
+</body>
+</html>

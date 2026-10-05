@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signature · System</title>
+<meta name="description" content="Everything emits on five channels. Stealth and detection, in the open and in the matrix, are one mechanic: signature moves the difficulty.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="_style.css">
+</head>
+<body>
+<div class="wrap">
+<nav class="docnav"><a href="index.html">Index</a><a href="rolls.html">Rolls</a><a href="pace.html">Pace</a><a href="tempo.html">Tempo</a><a href="cooperation.html">Cooperation</a><a href="gear.html">Gear</a><a href="scenes.html">Scenes</a><a href="engine.html">Engine</a><a href="sheet.html">Sheet</a><a href="targets.html">Targets</a><a href="character.html">Character</a><a href="signature.html" aria-current="page">Signature</a><a href="items.html">Items</a></nav>
+<header class="hdr">
+  <div class="no">System 11 · Core mechanics</div>
+  <h1>Signature</h1>
+  <p class="scope">Everything emits on five channels. Stealth and detection, in the open and in the matrix, are one mechanic: signature moves the difficulty.</p>
+</header>
+<main>
+
+<section>
+<h2>The principle</h2>
+<div class="rule"><b>Everything emits. Nothing is hidden, only quiet.</b>
+<p>Every character, drone, vehicle and item has a <strong>Signature</strong> on each of five channels, 0 to 8. Detection is an ordinary task roll. Signature on the channel used moves the difficulty in the detector's favour, point for point. There is no stealth score and no detection score; there is a sum of what you are emitting and a roll against it.</p></div>
+<ul>
+<li>Signature is a derived score: a baseline from the body, permanent additions from gear, and temporary additions from states and actions. Every part has an origin, so describe shows why you are loud.</li>
+<li>An observer needs a <strong>Sense</strong> on a channel to detect on it. Eyes and ears are given. Thermal, EM and Data senses come from gear.</li>
+<li>Reducing signature is gear's effect job. Providing a sense is gear's gate job. Chrome adds signature. The gear catalogue for stealth falls out of the three jobs already written.</li>
+</ul>
+<div class="why"><b>Why signature and not a stealth stat</b>
+<p>A single stealth number hides every decision inside it. Five channels make the decisions visible: turn the commlink off, wear the shielding jacket, send the unaugmented face past the scanner, don't fire the rifle. The heavily augmented character is quiet-footed and loud on a scanner, which is a real trade-off and a cleaner cyberpunk statement than a humanity score. It is also one mechanic for a warehouse and a matrix node, where most systems bolt on a second ruleset.</p></div>
+</section>
+
+<section>
+<h2>The five channels</h2>
+<div class="plate"><div class="cap">Channels · first values</div><div class="scroll"><table>
+<thead><tr><th style="width:100px">Channel</th><th style="width:150px">What it is</th><th class="n" style="width:90px">Human baseline</th><th>Raised by</th><th>Lowered by</th><th style="width:160px">Sensed with</th></tr></thead>
+<tbody>
+<tr><td><strong>Optical</strong></td><td>Being seen</td><td class="n">3</td><td>Light, open ground, size, bright gear, muzzle flash</td><td>Dark, cover, camouflage, small size, holding still</td><td>Eyes · cameras · low-light and zoom optics</td></tr>
+<tr><td><strong>Acoustic</strong></td><td>Being heard</td><td class="n">2</td><td>Running, gunfire, vehicles, degraded servos, talking</td><td>Careful movement, suppressors, soft ground, noise around you</td><td>Ears · microphones</td></tr>
+<tr><td><strong>Thermal</strong></td><td>Heat</td><td class="n">3</td><td>Exertion, a hot barrel, engines, active cooling</td><td>Thermal dampening, cold surroundings, a dead body</td><td>Thermographic eyes · thermal cameras · drone pods</td></tr>
+<tr><td><strong>EM</strong></td><td>Radio and electronics</td><td class="n">0</td><td>Commlink, every implant, a deck, a smartlink, powered gear, vehicles</td><td>Shielding, powering down, a Faraday bag</td><td>EM scanner · security systems · a deck</td></tr>
+<tr><td><strong>Data</strong></td><td>Presence in the matrix</td><td class="n">0</td><td>Being online, running programs, matrix actions, especially Rushed ones</td><td>Stealth programs, a quiet deck, logging off</td><td>A deck · ICE · a node's rating</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>Baselines are for an unaugmented human in street clothes, awake, standing. A sleeping or still character has Acoustic 0. A corpse has Thermal 0 within the hour.</li>
+<li>Vehicles and drones have their own baselines, usually high on Thermal, Acoustic and EM and 0 on Data unless networked.</li>
+<li>Items have signature too, so a dropped commlink is a thing a scanner finds. An item's signature counts for its carrier.</li>
+</ul>
+<div class="why"><b>Why Data and not radiation</b>
+<p>The five channels come from a video-game model where radiation mattered. Here it does not, and the matrix does. Giving the matrix a channel means a decker sneaking through a node and a samurai sneaking through a warehouse run the same rule, with ICE in the role of the guard.</p></div>
+</section>
+
+<section>
+<h2>Signature is a sum</h2>
+<figure>
+<svg viewBox="0 0 640 230" role="img" aria-label="Five horizontal tracks from 0 to 8, one per channel, for a wired street samurai. Each shows segments: baseline, gear, and a temporary action, with a dampening gear segment pulling back. Optical 3. Acoustic 2 plus 4 from a gunshot, minus 2 from a suppressor. Thermal 3 plus 2 from the hot barrel. EM 0 plus 5 from chrome minus 2 from a shielding jacket. Data 0. Markers show which channels the guard can sense.">
+  <text x="10" y="18" class="sm b">WIRED STREET SAMURAI · THIS TURN</text><text x="630" y="18" text-anchor="end" class="sm">GUARD SENSES · EYES · EARS · EM SCANNER</text>
+  <g class="s-thin">
+    <line x1="110" y1="30" x2="110" y2="210"/><line x1="430" y1="30" x2="430" y2="210"/>
+  </g>
+  <text x="110" y="222" text-anchor="middle" class="sm">0</text><text x="430" y="222" text-anchor="middle" class="sm">8</text><text x="270" y="222" text-anchor="middle" class="sm">4</text>
+  <!-- Optical: 3 -->
+  <text x="10" y="50" class="b">OPTICAL</text>
+  <rect x="110" y="38" width="120" height="16" class="w-block"/><text x="170" y="50" text-anchor="middle" class="sm">BODY 3</text>
+  <text x="470" y="50" class="sm">3 · SENSED</text>
+  <!-- Acoustic: 2 +4 -2 = 4 -->
+  <text x="10" y="86" class="b">ACOUSTIC</text>
+  <rect x="110" y="74" width="80" height="16" class="w-block"/><text x="150" y="86" text-anchor="middle" class="sm">BODY 2</text>
+  <rect x="190" y="74" width="160" height="16" class="w-block-body"/><text x="270" y="86" text-anchor="middle" class="sm">GUNSHOT +4 · 1 TURN</text>
+  <rect x="270" y="74" width="80" height="16" class="w-takeback"/><text x="360" y="86" class="sm acc">SUPPRESSOR −2</text>
+  <text x="470" y="86" class="sm">4 · SENSED</text>
+  <!-- Thermal: 3 +2 = 5 -->
+  <text x="10" y="122" class="b">THERMAL</text>
+  <rect x="110" y="110" width="120" height="16" class="w-block"/><text x="170" y="122" text-anchor="middle" class="sm">BODY 3</text>
+  <rect x="230" y="110" width="80" height="16" class="w-block-body"/><text x="270" y="122" text-anchor="middle" class="sm">BARREL +2</text>
+  <text x="470" y="122" class="sm dim">5 · NO SENSE</text>
+  <!-- EM: 0 +5 -2 = 3 -->
+  <text x="10" y="158" class="b">EM</text>
+  <rect x="110" y="146" width="200" height="16" class="w-block-mind"/><text x="210" y="158" text-anchor="middle" class="sm">CHROME +5</text>
+  <rect x="230" y="146" width="80" height="16" class="w-takeback"/><text x="320" y="158" class="sm acc">SHIELDING JACKET −2</text>
+  <text x="470" y="158" class="sm">3 · SENSED</text>
+  <!-- Data: 0 -->
+  <text x="10" y="194" class="b">DATA</text>
+  <text x="116" y="194" class="sm">0 · OFFLINE</text>
+  <text x="470" y="194" class="sm dim">0 · NO SENSE</text>
+</svg>
+<figcaption>Signature as a sum · the struck-through segments are what dampening gear takes back</figcaption>
+</figure>
+<div class="plate"><div class="cap">What adds and subtracts · first values</div><div class="scroll"><table>
+<thead><tr><th style="width:190px">Source</th><th style="width:230px">Change</th><th>Lasts</th></tr></thead>
+<tbody>
+<tr><td>Unsuppressed gunshot</td><td>Acoustic +4 · Thermal +1 · Optical +1 (flash)</td><td>One turn</td></tr>
+<tr><td>Suppressor</td><td>Acoustic −2 on the weapon's shots</td><td>While fitted</td></tr>
+<tr><td>Sprinting, Rushed movement</td><td>Acoustic +2 · Thermal +1</td><td>While moving</td></tr>
+<tr><td>Careful movement</td><td>Acoustic −1</td><td>While moving</td></tr>
+<tr><td>Methodical movement</td><td>Acoustic −2 · Optical −1</td><td>While moving. Five times as long</td></tr>
+<tr><td>Holding still, no action</td><td>Acoustic 0 · Optical −1</td><td>The turn</td></tr>
+<tr><td>Implant, per grade</td><td>EM +1</td><td>Permanent</td></tr>
+<tr><td>Commlink on</td><td>EM +2</td><td>Until switched off</td></tr>
+<tr><td>Shielding jacket</td><td>EM −2</td><td>While worn</td></tr>
+<tr><td>Deck online</td><td>Data +2 · EM +1</td><td>While online</td></tr>
+<tr><td>Matrix action</td><td>Data +1, Rushed +2</td><td>One turn</td></tr>
+<tr><td>Stealth program running</td><td>Data −2</td><td>While running</td></tr>
+<tr><td>Degraded powered item</td><td>Thermal +1 · Acoustic +1</td><td>Until maintained</td></tr>
+<tr><td>Vehicle, engine running</td><td>Acoustic +4 · Thermal +4 · EM +2</td><td>While running</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>A signature never goes below 0 on a channel. Reducing below the body's baseline needs gear that says it can.</li>
+<li>Temporary additions are mods with lifespans. They show in the ledger's running lane: "GUNSHOT · ACOUSTIC +4 · ENDS NEXT TURN". The sheet is a heat meter per channel without inventing one.</li>
+<li>A degraded item adds signature. The worn servo whines. Maintenance is a stealth decision.</li>
+</ul>
+</section>
+
+<section>
+<h2>Senses</h2>
+<div class="plate"><div class="cap">Senses · what an observer has</div><div class="scroll"><table>
+<thead><tr><th style="width:190px">Observer</th><th>Channels</th><th style="width:230px">Notes</th></tr></thead>
+<tbody>
+<tr><td>Baseline human</td><td>Optical, Acoustic</td><td>Both sense bonus 0.</td></tr>
+<tr><td>Low-light or zoom eyes</td><td>Optical +1 or +2; low-light cancels the Dark chip</td><td>Gear bonus, capped at +2 with other gear.</td></tr>
+<tr><td>Thermographic eyes or camera</td><td>Thermal, +0 to +2</td><td>Gate: without it, Thermal cannot be detected at all.</td></tr>
+<tr><td>EM scanner, security system</td><td>EM, +0 to +2</td><td>A building's system is an observer with a Notice rating.</td></tr>
+<tr><td>Deck, ICE, node</td><td>Data, bonus from rating</td><td>ICE's Notice rating is the node rating.</td></tr>
+<tr><td>Drone sensor pod</td><td>As fitted; the rigger's Notice</td><td>The rigger's eyes, where the rigger is not.</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>A sense is a <strong>gate</strong>: no sense on a channel, no detection on it, whatever the signature. The certainty rule reports "cannot be detected on Thermal" when the observer has no Thermal sense.</li>
+<li>A sense's bonus is a gear bonus on the Notice roll and counts towards the +2 cap.</li>
+<li>The observer picks the channel. The sheet shows the target's worst channel among those the observer has, so "they've got thermal cameras" is all a player needs to hear.</li>
+</ul>
+</section>
+
+<section>
+<h2>Resolution</h2>
+<div class="rule"><b>Whoever acts rolls. Signature counts for the detector either way.</b>
+<p><strong>Searching:</strong> Notice against the target's <strong>Concealment</strong> on the channel: 11 + Stealth − Signature, plus range. <strong>Sneaking:</strong> Stealth against the observer's <strong>Passive Notice</strong> on their best channel: 11 + Notice + Signature, plus range.</p></div>
+<ul>
+<li>Concealment per channel is a derived score on the sneaking character's sheet, spoken like Defence: "Concealment 7 on EM, 10 on acoustic".</li>
+<li>Range uses the same chips as shooting: Short 0, Medium +2, Long +4, Extreme +6 against detection. A sensor defines its bands as a weapon does.</li>
+<li>Pace applies. A Careful search takes twice as long and cannot go badly. A Methodical sweep of a room is certain to find anything whose Concealment is 11 + Notice or less. A Rushed glance is a d20.</li>
+<li>The certainty rule applies and is the point. A sheet that says "you will be detected on EM" before anyone rolls is what turns a heist into planning.</li>
+</ul>
+<div class="plate"><div class="cap">Worked · the samurai from the figure, Stealth 2, walking past a security system (Notice 4, EM scanner +2)</div><div class="scroll"><table>
+<thead><tr><th style="width:110px">Channel</th><th class="n">Signature</th><th class="n">Concealment</th><th class="n">System's need</th><th>Sheet says</th></tr></thead>
+<tbody>
+<tr><td>Optical</td><td class="n">3</td><td class="n">10</td><td class="n">6</td><td>Cameras: Likely to be seen</td></tr>
+<tr><td>Acoustic</td><td class="n">2 (not firing)</td><td class="n">11</td><td class="n">7</td><td>Microphones: Likely</td></tr>
+<tr><td>Thermal</td><td class="n">3</td><td class="n dim">—</td><td class="n dim">—</td><td>No thermal sense: cannot be detected</td></tr>
+<tr><td>EM</td><td class="n">3 with jacket · 5 without</td><td class="n">10 · 8</td><td class="n">4 · 2</td><td>With jacket: Likely. Without: <strong>certain</strong></td></tr>
+<tr><td>Data</td><td class="n">0</td><td class="n dim">—</td><td class="n dim">—</td><td>Offline: cannot be detected</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>The samurai cannot walk past this system unseen. The plan is to cut the cameras (the decker), kill the lights (the Dark chip adds +4 to the cameras' difficulty unless they have low-light), or send the face, who has EM 0 and Stealth 4: Concealment 12 on Optical, still Likely for the cameras in good light but Risky with the lights out, and nothing at all on EM.</li>
+</ul>
+<div class="why"><b>Why signature subtracts from the number spoken</b>
+<p>Defence is 11 + rating, and signature could have been a chip on the observer's roll instead. Folding it into Concealment keeps one spoken number per channel and lets the certainty rule read it directly. The chips stay for what the observer can see about the situation, range above all.</p></div>
+</section>
+
+<section>
+<h2>What detection does</h2>
+<div class="plate"><div class="cap">Margin bands · Notice against Concealment</div><div class="scroll"><table>
+<thead><tr><th style="width:170px">Result</th><th>Observer learns</th><th style="width:230px">Consequence</th></tr></thead>
+<tbody>
+<tr><td><strong>Bad failure</strong></td><td>Nothing, and is sure there is nothing</td><td>Stops looking. Sneaker gets a free turn.</td></tr>
+<tr><td><strong>Failure</strong></td><td>Nothing</td><td>May search again at a slower pace.</td></tr>
+<tr><td><strong>Success</strong></td><td>Something is there, on that channel: a heat blob, a sound, an EM source</td><td>Target loses the Still benefit. Observer may act on it with a Rushed action.</td></tr>
+<tr><td><strong>Strong success</strong></td><td>Where and what</td><td>Target is a target: the panel fills. Alert.</td></tr>
+<tr><td><strong>Exceptional</strong></td><td>What it is doing</td><td>As strong, and the observer acts before the target this turn.</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>The sneaker's bands are the mirror: a bad failure on Stealth is the alarm; a failure is "the guard looks your way", the cue to hold still.</li>
+<li><strong>Holding still</strong> is a declared non-action. Acoustic drops to 0 and Optical by 1 for the turn. Temporary signature from earlier actions still runs its lifespan: the gunshot is heard whether or not you freeze afterwards.</li>
+<li><strong>Alert</strong> is a scene condition on the scene card. An alert observer searches at Careful pace for free, because it is all they are doing.</li>
+<li>Detection by a system is an extended task on the system's side where it matters: a trace, a camera sweep, a patrol. Each interval the system rolls; the sneaker's progress is staying under its Concealment.</li>
+</ul>
+</section>
+
+<section>
+<h2>The matrix is the same thing</h2>
+<ul>
+<li>A deck online has Data signature: baseline for the deck, plus programs running, plus actions this turn. Stealth programs subtract. Attack programs add when used.</li>
+<li>ICE and nodes have a Data sense with Notice equal to the node rating. They roll against the decker's Concealment on Data: 11 + Hacking − Data signature.</li>
+<li>A trace is an extended task the ICE runs against the decker. Its progress per interval comes from its Notice rolls; the decker's bad failures hand it progress for free.</li>
+<li>Data signature is why a Rushed hack is tempting and dangerous: +2 Data this turn, and the d20.</li>
+<li>Jacking in also raises EM by 1 in the room the decker is sitting in. The samurai guarding them is standing next to a beacon.</li>
+</ul>
+</section>
+
+<section>
+<h2>What it needs from the rest</h2>
+<ul>
+<li><strong>Character:</strong> Concealment per channel and Senses join the derived scores.</li>
+<li><strong>Items:</strong> every item carries its signature per channel and any sense it provides.</li>
+<li><strong>Targets:</strong> an observer's sentence gains a channel: "Guard, Notice 3, has thermal". The range chips are reused.</li>
+<li><strong>Engine:</strong> a mod carries a channel tag so the five sums can be calculated and described. No other change.</li>
+</ul>
+<div class="open"><b>Open: a sixth channel for being memorable</b>
+<p>How conspicuous a person is in a crowd (visible chrome, dress, bearing, a face on a watch list) behaves like signature against Streetwise and a guard's suspicion. It may be Optical with social chips, or its own channel, Profile. Decide with the social rules.</p></div>
+<div class="open"><b>Open: every number on this page</b>
+<p>Baselines, the add-and-subtract table and the sense bonuses are first values chosen so that the worked example produces the intended plan. The first infiltration will move them.</p></div>
+</section>
+</main>
+<footer><span>System 11 — Signature</span><span>docs/system · one concern per document</span></footer>
+</div>
+</body>
+</html>

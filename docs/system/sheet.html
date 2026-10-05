@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sheet · System</title>
+<meta name="description" content="How the character sheet, on a tablet or monitor, shows turns, pools, pace and cost so a player can grasp and manage them without knowing the rules. Concept, not prototype.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="_style.css">
+</head>
+<body>
+<div class="wrap">
+<nav class="docnav"><a href="index.html">Index</a><a href="rolls.html">Rolls</a><a href="pace.html">Pace</a><a href="tempo.html">Tempo</a><a href="cooperation.html">Cooperation</a><a href="gear.html">Gear</a><a href="scenes.html">Scenes</a><a href="engine.html">Engine</a><a href="sheet.html" aria-current="page">Sheet</a><a href="targets.html">Targets</a><a href="character.html">Character</a><a href="signature.html">Signature</a><a href="items.html">Items</a></nav>
+<header class="hdr">
+  <div class="no">System 08 · Core mechanics</div>
+  <h1>Sheet</h1>
+  <p class="scope">How the character sheet, on a tablet or monitor, shows turns, pools, pace and cost so a player can grasp and manage them without knowing the rules. Concept, not prototype.</p>
+</header>
+<main>
+
+<section>
+<h2>What this document is</h2>
+<ul>
+<li>A visual concept for the part of the character sheet that handles <strong>time in a fight</strong>: the turn, the two pools, the cost of an action, commitments across turns, going back.</li>
+<li>It identifies what the player must always see, what they must be able to do, and one way to lay it out. It is not a screen design and nothing here is pixel-accurate.</li>
+<li>Target: a <strong>tablet in landscape</strong>, or a monitor. Phones are not supported; the game has too much to show. Everything below assumes about 1000 points of width and enough height for the ledger and the work surface at once. The GM still calls turns out loud; the sheet never waits on another device.</li>
+<li>The rest of the sheet (skills, gear, injuries, the matrix view) is out of scope here. It hangs off the same spine.</li>
+</ul>
+<div class="rule"><b>Design test</b>
+<p>A new player should be able to answer four questions by looking, without reading: <strong>whose turn is it, what can I still do, what will this cost me, and how do I take that back.</strong></p></div>
+</section>
+
+<section>
+<h2>One metaphor: pips and a ledger</h2>
+<ul>
+<li><strong>Pips</strong> are the unit of everything in a turn. Tempo and Focus are rows of pips. An action's cost is a number of pips. Pace changes how many pips. Overdrive is pips you don't have. A multi-turn action is pips paid over several turns.</li>
+<li><strong>The ledger</strong> is the turn timeline: one column per turn, what was spent and done in each, what is still running. Past columns are the undo control. Future columns show what is already committed and what will expire.</li>
+<li>Nothing is shown as a probability number. Odds are words, costs are pips, time is turns or intervals.</li>
+<li>Body and mind have a colour each, used for pips, action blocks and chips. Nothing else in the sheet uses those two colours.</li>
+</ul>
+<div class="why"><b>Why pips and not numbers</b>
+<p>"You have 4 Tempo, this costs 2" is arithmetic. Four dots with two of them about to dim is a glance. Pips also make reservations visible: a pip ringed for a dodge is a decision the player can see they made. Physical tokens on a paper sheet do the same job, and players already know how to read them.</p></div>
+</section>
+
+<section>
+<h2>Layout</h2>
+<figure>
+<svg viewBox="0 0 640 440" role="img" aria-label="Tablet-shaped wireframe in landscape. A turn strip runs across the top. Under it a full-width ledger band shows eight turn columns with action blocks and running bars. Below, three regions: a left rail with the two pool pip rows and running effects, a centre work surface listing actions with one expanded to show its four pace rows, and a right detail panel describing the selected action with its roll, bonuses, odds and a pending roll.">
+  <rect x="20" y="12" width="600" height="416" rx="10" class="w-frame"/>
+  <!-- 1 turn strip -->
+  <rect x="32" y="24" width="576" height="26" rx="3" class="w-zone-a"/>
+  <text x="42" y="41">‹</text><text x="56" y="41" class="acc b">TURN 3 · YOUR TURN</text><text x="170" y="41">›</text>
+  <text x="440" y="41" class="sm">COUNTING TURNS · STOP</text><text x="568" y="41" class="acc b">1 ROLL</text>
+  <circle cx="36" cy="30" r="6" class="s-arr-a"/><text x="36" y="33" text-anchor="middle" style="fill:#fff;font-size:8px">1</text>
+  <!-- 2 ledger band -->
+  <rect x="32" y="56" width="576" height="112" rx="3" class="w-zone"/>
+  <circle cx="36" cy="62" r="6" class="s-arr-a"/><text x="36" y="65" text-anchor="middle" style="fill:#fff;font-size:8px">2</text>
+  <rect x="180" y="58" width="68" height="108" class="w-now"/>
+  <g class="sm"><text x="78" y="70" text-anchor="middle" class="sm">↶ 1</text><text x="146" y="70" text-anchor="middle" class="sm">↶ 2</text><text x="214" y="70" text-anchor="middle" class="acc b">3 · NOW</text><text x="282" y="70" text-anchor="middle" class="sm">4</text><text x="350" y="70" text-anchor="middle" class="sm">5</text><text x="418" y="70" text-anchor="middle" class="sm">6</text><text x="486" y="70" text-anchor="middle" class="sm">7</text><text x="554" y="70" text-anchor="middle" class="sm">8</text></g>
+  <g class="s-thin"><line x1="112" y1="74" x2="112" y2="164"/><line x1="248" y1="74" x2="248" y2="164"/><line x1="316" y1="74" x2="316" y2="164"/><line x1="384" y1="74" x2="384" y2="164"/><line x1="452" y1="74" x2="452" y2="164"/><line x1="520" y1="74" x2="520" y2="164"/></g>
+  <rect x="48" y="78" width="18" height="18" class="w-block-body"/><rect x="70" y="78" width="36" height="18" class="w-block-body"/>
+  <rect x="116" y="78" width="36" height="18" class="w-block-body"/><rect x="156" y="78" width="18" height="18" class="w-block-body"/>
+  <rect x="184" y="78" width="54" height="18" class="w-block-body"/><rect x="252" y="78" width="26" height="18" class="w-block-ghost"/>
+  <rect x="48" y="102" width="24" height="16" class="w-block-mind"/>
+  <rect x="48" y="126" width="190" height="9" class="w-block-body"/><rect x="184" y="139" width="94" height="9" class="w-block-body"/><rect x="116" y="152" width="470" height="9" class="w-block"/>
+  <text x="596" y="160" text-anchor="end" class="sm">→</text>
+  <!-- 3 left rail -->
+  <rect x="32" y="176" width="150" height="240" rx="3" class="w-zone"/>
+  <circle cx="36" cy="182" r="6" class="s-arr-a"/><text x="36" y="185" text-anchor="middle" style="fill:#fff;font-size:8px">3</text>
+  <text x="44" y="200" class="body">TEMPO</text>
+  <g><circle cx="52" cy="214" r="6" class="pip-spent"/><circle cx="70" cy="214" r="6" class="pip-spent"/><circle cx="88" cy="214" r="6" class="pip-spent"/><circle cx="106" cy="214" r="6" class="pip-body"/><circle cx="124" cy="214" r="6" class="pip-body"/><circle cx="142" cy="214" r="6" class="pip-res"/></g>
+  <text x="44" y="240" class="mind">FOCUS</text>
+  <g><circle cx="52" cy="254" r="6" class="pip-mind"/><circle cx="70" cy="254" r="6" class="pip-mind"/></g>
+  <line x1="44" y1="270" x2="170" y2="270" class="s-thin"/>
+  <text x="44" y="286" class="sm">RUNNING</text>
+  <rect x="44" y="294" width="126" height="14" class="w-block-body"/><text x="48" y="304" class="sm">STIM · ENDS NOW</text>
+  <rect x="44" y="312" width="126" height="14" class="w-block-body"/><text x="48" y="322" class="sm">AIM · UNTIL SHOT</text>
+  <rect x="44" y="330" width="126" height="14" class="w-block"/><text x="48" y="340" class="sm warn">BLEEDING</text>
+  <line x1="44" y1="356" x2="170" y2="356" class="s-thin"/>
+  <text x="44" y="372" class="sm">CONDITION</text><text x="44" y="386" class="sm">WOUNDED · −1 TEMPO</text>
+  <!-- 4 centre -->
+  <rect x="190" y="176" width="250" height="240" rx="3" class="w-zone"/>
+  <circle cx="194" cy="182" r="6" class="s-arr-a"/><text x="194" y="185" text-anchor="middle" style="fill:#fff;font-size:8px">4</text>
+  <text x="202" y="198" class="sm">ACTIONS</text>
+  <rect x="198" y="204" width="234" height="104" rx="2" class="w-now"/>
+  <text x="206" y="218" class="b">Shoot · rifle</text><circle cx="406" cy="215" r="4" class="pip-ghost"/><circle cx="418" cy="215" r="4" class="pip-ghost"/>
+  <g class="sm">
+    <text x="214" y="236" class="sm">Rushed</text><circle cx="284" cy="233" r="4" class="pip-ghost"/><text x="310" y="236" class="sm">Fair · can go badly</text>
+    <text x="214" y="252" class="b">Normal</text><circle cx="284" cy="249" r="4" class="pip-ghost"/><circle cx="296" cy="249" r="4" class="pip-ghost"/><text x="310" y="252" class="sm b">Likely · can go badly</text>
+    <text x="214" y="268" class="sm">Careful</text><circle cx="284" cy="265" r="4" class="pip-ghost"/><circle cx="296" cy="265" r="4" class="pip-ghost"/><circle cx="308" cy="265" r="4" class="pip-ghost"/><circle cx="320" cy="265" r="4" class="pip-ghost"/><text x="330" y="268" class="sm">Likely · safe</text>
+    <text x="214" y="284" class="sm">Methodical · not offered · target reacts</text>
+  </g>
+  <rect x="214" y="290" width="80" height="14" rx="2" class="w-zone-a"/><text x="254" y="300" text-anchor="middle" class="acc" style="font-size:8px">SHOOT · NORMAL</text>
+  <text x="206" y="328">Move</text><circle cx="418" cy="325" r="4" class="pip-body"/>
+  <text x="206" y="346">Reload</text><circle cx="418" cy="343" r="4" class="pip-body"/>
+  <text x="206" y="364">Dodge · reaction</text><circle cx="418" cy="361" r="4" class="pip-body"/>
+  <text x="206" y="382">Assess</text><circle cx="418" cy="379" r="4" class="pip-mind"/>
+  <text x="206" y="400">Jack in</text><circle cx="406" cy="397" r="4" class="pip-mind"/><circle cx="418" cy="397" r="4" class="pip-mind"/>
+  <!-- 5 right detail -->
+  <rect x="448" y="176" width="160" height="240" rx="3" class="w-zone"/>
+  <circle cx="452" cy="182" r="6" class="s-arr-a"/><text x="452" y="185" text-anchor="middle" style="fill:#fff;font-size:8px">5</text>
+  <text x="460" y="198" class="sm">DETAIL</text>
+  <text x="460" y="216" class="b">Shoot · Normal</text>
+  <text x="460" y="232" class="sm">2d10 + 7 against 14</text>
+  <text x="460" y="246" class="sm">Rifles 6 · smartlink +1</text>
+  <text x="460" y="260" class="sm">Guard · defence 3 · moving</text>
+  <text x="460" y="276" class="sm">Likely · can go badly</text>
+  <text x="460" y="290" class="sm">Costs 2 Tempo · now</text>
+  <line x1="460" y1="300" x2="596" y2="300" class="s-thin"/>
+  <text x="460" y="316" class="sm">PENDING ROLL</text>
+  <text x="460" y="332" class="sm">Shoot · 2d10</text>
+  <rect x="460" y="340" width="60" height="16" rx="2" class="w-zone-a"/><text x="490" y="351" text-anchor="middle" class="acc" style="font-size:8px">ROLL</text>
+  <rect x="526" y="340" width="70" height="16" rx="2" class="w-zone"/><text x="561" y="351" text-anchor="middle" class="sm" style="font-size:8px">TYPE DICE</text>
+  <line x1="460" y1="366" x2="596" y2="366" class="s-thin"/>
+  <text x="460" y="382" class="sm">WHY · tap any value</text>
+  <text x="460" y="396" class="sm">for its derivation</text>
+</svg>
+<figcaption>Layout · tablet landscape, five regions, all visible at once</figcaption>
+</figure>
+<div class="plate"><div class="cap">The five regions</div><div class="scroll"><table>
+<thead><tr><th style="width:40px" class="n">No.</th><th style="width:150px">Region</th><th>Holds</th><th style="width:230px">Why it is where it is</th></tr></thead>
+<tbody>
+<tr><td class="n">1</td><td><strong>Turn strip</strong></td><td>Turn number, whose turn, step back and forward, start and stop counting turns, the count of pending rolls.</td><td>Full width, always visible. Time is the frame everything else sits in.</td></tr>
+<tr><td class="n">2</td><td><strong>Ledger band</strong></td><td>The turn timeline: eight or more columns, three lanes. Past columns are the rewind control.</td><td>Permanent, not a drawer. The extra width is spent on seeing more turns, so a whole fight fits.</td></tr>
+<tr><td class="n">3</td><td><strong>Left rail</strong></td><td>The two pool rows, running effects as a list, conditions that change the pools.</td><td>Next to the ledger's lanes so pips and blocks read against each other.</td></tr>
+<tr><td class="n">4</td><td><strong>Work surface</strong></td><td>The action list. The selected action expands in place to show its four pace rows with pips, odds, safety and timing. No modal.</td><td>Centre, widest. This is where the player decides.</td></tr>
+<tr><td class="n">5</td><td><strong>Detail panel</strong></td><td>Whatever is selected, described: the dice, the bonuses by origin, the opponent, the cost, the pending roll with roll and type buttons. Confirmations for going back appear here too.</td><td>Always present. On a phone this had to hide behind taps; here transparency is simply on screen.</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>Selecting anything, in any region, puts it in the detail panel: an action, a pace row, a block in the ledger, a pip, a running bar. The panel never needs to be opened.</li>
+<li>The ledger shows as many turns as fit, with the current column kept in view. On a monitor that is a whole fight; on a tablet, eight to ten turns, scrolling horizontally for more.</li>
+<li>The regions do not move or resize during play. A player learns where things are once.</li>
+<li>The rest of the character (skills, gear, injuries, the matrix view) is reached by tabs on the work surface. The turn strip, the ledger and the left rail stay in place whichever tab is open, so a player browsing their gear still sees the turn.</li>
+</ul>
+<div class="why"><b>Why not a phone</b>
+<p>The four things a player must see at once (whose turn, what is left, what this costs, how to take it back) need the ledger and the work surface on screen together, and the detail panel is what makes the transparency feature usable rather than theoretical. On a phone every one of those became a drawer or a modal. A tablet shows them all and still has room for the rest of the character.</p></div>
+</section>
+
+<section>
+<h2>Pools as pips</h2>
+<figure>
+<svg viewBox="0 0 640 150" role="img" aria-label="A row of Tempo pips in six states, with a legend: spent, available, reserved for a reaction, restricted to one action kind, overdrive beyond the pool, and ghosted to preview a cost.">
+  <text x="20" y="44" class="body b">TEMPO</text>
+  <circle cx="110" cy="40" r="9" class="pip-spent"/><circle cx="138" cy="40" r="9" class="pip-spent"/>
+  <circle cx="166" cy="40" r="9" class="pip-body"/><circle cx="194" cy="40" r="9" class="pip-body"/>
+  <circle cx="222" cy="40" r="9" class="pip-res"/>
+  <circle cx="258" cy="40" r="9" class="pip-body"/><text x="258" y="60" text-anchor="middle" class="sm body">SHOOT</text>
+  <line x1="282" y1="28" x2="282" y2="52" class="s-dash"/>
+  <circle cx="306" cy="40" r="9" class="pip-over"/><circle cx="334" cy="40" r="9" class="pip-over"/>
+  <text x="372" y="44" class="sm">6 TEMPO · 3 LEFT · 1 KEPT · 1 FOR SHOOTING ONLY</text>
+  <!-- legend -->
+  <circle cx="30" cy="92" r="7" class="pip-spent"/><text x="44" y="95.5" class="sm">Spent this turn</text>
+  <circle cx="170" cy="92" r="7" class="pip-body"/><text x="184" y="95.5" class="sm">Available</text>
+  <circle cx="290" cy="92" r="7" class="pip-res"/><text x="304" y="95.5" class="sm">Kept for a reaction</text>
+  <circle cx="450" cy="92" r="7" class="pip-body"/><text x="450" y="112" text-anchor="middle" class="sm body">SHOOT</text><text x="464" y="95.5" class="sm">Restricted · labelled</text>
+  <circle cx="30" cy="128" r="7" class="pip-over"/><text x="44" y="131.5" class="sm">Overdrive · beyond the pool, costs fatigue</text>
+  <circle cx="290" cy="128" r="7" class="pip-ghost"/><text x="304" y="131.5" class="sm">Ghost · what the action being considered will take</text>
+</svg>
+<figcaption>Pip states · the same marks everywhere pips appear</figcaption>
+</figure>
+<div class="plate"><div class="cap">Pip states</div><div class="scroll"><table>
+<thead><tr><th style="width:170px">State</th><th>Shown as</th><th style="width:260px">Player can</th></tr></thead>
+<tbody>
+<tr><td><strong>Available</strong></td><td>Filled, pool colour.</td><td>Spend it.</td></tr>
+<tr><td><strong>Spent</strong></td><td>Dim, stays in place until the turn ends. The pool never shrinks; it dims left to right.</td><td>Tap it to see which action took it. Undo that action from there.</td></tr>
+<tr><td><strong>Kept</strong></td><td>Ring, no fill. The pip is set aside for a reaction. Tapping an available pip keeps it; tapping again releases it.</td><td>Keep, release. The pace picker will not ghost a kept pip unless the player overrides.</td></tr>
+<tr><td><strong>Restricted</strong></td><td>Filled, with the action kind in small text under it. Sits at the right end of the row so it is spent first by eligible actions and ignored by others.</td><td>Nothing. It spends itself.</td></tr>
+<tr><td><strong>Overdrive</strong></td><td>Dashed warning ring, beyond a divider. Appears only while an action that needs more than the pool is being considered or has been taken.</td><td>Take the action anyway. The sheet shows the fatigue it will cost next turn.</td></tr>
+<tr><td><strong>Ghost</strong></td><td>Dashed outline in the pool colour, drawn over available pips while the pace picker is open.</td><td>See the cost before committing. Changing pace moves the ghosts.</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>A refund from a strong success lights a pip back up, with a short label. The ledger records it as "time saved".</li>
+<li>A bonus pool from a stim or an implant extends the row with pips of the same colour and a label under them, for as long as the effect lasts.</li>
+<li>A pip changed by hand (the GM gives one back) is marked with a small dot, as every hand change on the sheet is.</li>
+</ul>
+<div class="why"><b>Why spent pips stay visible</b>
+<p>If the row shrank, the player would lose the sense of how big their turn was and where it went. A dimmed pip is a receipt. It also gives undo a target: tap the pip, see the action, take it back.</p></div>
+</section>
+
+<section>
+<h2>The pace picker</h2>
+<figure>
+<svg viewBox="0 0 640 236" role="img" aria-label="A card for the action Shoot at a guard. Four rows, one per pace, each showing pips that will be spent, the odds as a word, whether it can go badly, and when it resolves. Normal is selected. Methodical is greyed out with the reason that the target can react.">
+  <rect x="10" y="8" width="620" height="220" rx="3" class="w-zone"/>
+  <text x="24" y="30" class="b">SHOOT · RIFLE · GUARD</text><text x="616" y="30" text-anchor="end" class="sm">DIFFICULTY · HARD</text>
+  <line x1="24" y1="38" x2="616" y2="38" class="s-thin"/>
+  <text x="24" y="54" class="sm">PACE</text><text x="150" y="54" class="sm">COST · TEMPO</text><text x="330" y="54" class="sm">ODDS</text><text x="420" y="54" class="sm">SAFETY</text><text x="520" y="54" class="sm">RESOLVES</text>
+  <!-- Rushed -->
+  <text x="24" y="80">Rushed</text>
+  <circle cx="158" cy="76" r="7" class="pip-ghost"/><circle cx="180" cy="76" r="7" class="pip-body"/><circle cx="202" cy="76" r="7" class="pip-body"/><circle cx="224" cy="76" r="7" class="pip-res"/>
+  <text x="330" y="80">Fair</text><text x="420" y="80" class="warn">Can go badly</text><text x="520" y="80">Now</text>
+  <!-- Normal selected -->
+  <rect x="16" y="92" width="608" height="30" rx="2" class="w-now"/>
+  <text x="24" y="112" class="b">Normal</text>
+  <circle cx="158" cy="108" r="7" class="pip-ghost"/><circle cx="180" cy="108" r="7" class="pip-ghost"/><circle cx="202" cy="108" r="7" class="pip-body"/><circle cx="224" cy="108" r="7" class="pip-res"/>
+  <text x="330" y="112" class="b">Likely</text><text x="420" y="112" class="warn">Can go badly</text><text x="520" y="112">Now</text>
+  <!-- Careful -->
+  <text x="24" y="144">Careful</text>
+  <circle cx="158" cy="140" r="7" class="pip-ghost"/><circle cx="180" cy="140" r="7" class="pip-ghost"/><circle cx="202" cy="140" r="7" class="pip-ghost"/><circle cx="224" cy="140" r="7" class="pip-res"/>
+  <line x1="240" y1="130" x2="240" y2="150" class="s-dash"/><circle cx="256" cy="140" r="7" class="pip-ghost"/><text x="270" y="144" class="sm">NEXT TURN</text>
+  <text x="330" y="144">Likely</text><text x="420" y="144" class="acc">Safe</text><text x="520" y="144">Next turn</text>
+  <!-- Methodical greyed -->
+  <text x="24" y="176" class="sm">Methodical</text>
+  <text x="150" y="176" class="sm">Not offered · the target can react</text>
+  <line x1="24" y1="190" x2="616" y2="190" class="s-thin"/>
+  <text x="24" y="212" class="sm">KEPT PIP IS NOT USED. TAP IT TO RELEASE.</text>
+  <rect x="520" y="198" width="96" height="22" rx="2" class="w-zone-a"/><text x="568" y="213" text-anchor="middle" class="acc b">SHOOT · NORMAL</text>
+</svg>
+<figcaption>Pace picker · cost, odds and safety side by side, before anything is spent</figcaption>
+</figure>
+<ul>
+<li>One row per pace. Every row shows the same four things: which pips go, the odds as a word, whether a bad failure is possible, and when the action resolves.</li>
+<li>The pips in the cost column are the player's actual remaining pips, with the ones this pace would take drawn as ghosts. Kept pips are shown ringed and not ghosted. The same ghosts appear on the pool row behind the card.</li>
+<li>A pace that needs more pips than the pool has shows the extra beyond a divider labelled with when they are paid: "next turn" for a multi-turn action, or dashed warning rings for overdrive if the player chooses that instead.</li>
+<li>A pace that is not offered stays in the list, greyed, with its reason in words. The player can still tap it; the sheet asks once and then does it. Nothing is refused.</li>
+<li>Certain and impossible paces say so in place of an odds word and show no roll.</li>
+<li>The pace rows expand in place under the action on the work surface; the figure above shows them laid out as a card for legibility. Confirming is one tap on the selected row's button. The ghosts become spent pips in the left rail, a block appears in the current column of the ledger, and the detail panel shows the pending roll.</li>
+</ul>
+<div class="why"><b>Why the four columns and nothing else</b>
+<p>Cost, chance, safety and time are the whole decision. The dice expression, the rating breakdown and the opponent's numbers are shown too, but in the detail panel beside the rows, not inside them. The rows stay comparable at a glance; the derivation is there for whoever looks right.</p></div>
+</section>
+
+<section>
+<h2>The turn timeline</h2>
+<figure>
+<svg viewBox="0 0 640 310" role="img" aria-label="Five turn columns, turn 3 highlighted as now. A Tempo lane shows action blocks in each turn, including an aimed shot paid three pips in turn 3 with one more pip and the shot itself in turn 4. A Focus lane shows an assess action in turn 1. An effects lane shows a stim lasting turns 1 to 3, an aim bonus spanning turns 3 and 4, and bleeding from turn 2 onward until treated.">
+  <!-- columns -->
+  <rect x="280" y="30" width="100" height="246" class="w-now"/>
+  <text x="120" y="22" text-anchor="middle" class="sm">↶ TURN 1</text><text x="225" y="22" text-anchor="middle" class="sm">↶ TURN 2</text>
+  <text x="330" y="22" text-anchor="middle" class="acc b">TURN 3 · NOW</text><text x="435" y="22" text-anchor="middle" class="sm">TURN 4</text><text x="540" y="22" text-anchor="middle" class="sm">TURN 5</text>
+  <g class="s-thin"><line x1="175" y1="30" x2="175" y2="276"/><line x1="385" y1="30" x2="385" y2="276"/><line x1="490" y1="30" x2="490" y2="276"/><line x1="70" y1="30" x2="70" y2="276"/></g>
+  <!-- lanes -->
+  <text x="10" y="70" class="body b">TEMPO</text>
+  <rect x="74" y="42" width="34" height="40" rx="2" class="w-block-body"/><text x="91" y="66" text-anchor="middle" class="sm">MOVE</text>
+  <rect x="112" y="42" width="58" height="40" rx="2" class="w-block-body"/><text x="141" y="59" text-anchor="middle" class="sm">SHOOT</text><text x="141" y="72" text-anchor="middle" class="sm">STRONG HIT</text>
+  <rect x="179" y="42" width="58" height="40" rx="2" class="w-block-body"/><text x="208" y="59" text-anchor="middle" class="sm">SHOOT</text><text x="208" y="72" text-anchor="middle" class="sm">MISS</text>
+  <rect x="241" y="42" width="34" height="40" rx="2" class="w-block-body"/><text x="258" y="59" text-anchor="middle" class="sm">DODGE</text><text x="258" y="72" text-anchor="middle" class="sm">R</text>
+  <rect x="284" y="42" width="92" height="40" rx="2" class="w-block-body"/><text x="330" y="59" text-anchor="middle" class="sm">AIM AND SHOOT</text><text x="330" y="72" text-anchor="middle" class="sm">3 OF 4 PIPS PAID</text>
+  <rect x="389" y="42" width="72" height="40" rx="2" class="w-block-ghost"/><text x="425" y="59" text-anchor="middle" class="sm">+1 PIP</text><text x="425" y="72" text-anchor="middle" class="sm">FIRES · ROLL</text>
+  <path d="M376 62 L388 62" class="s-ln"/>
+  <!-- pips per turn under tempo lane -->
+  <g><circle cx="92" cy="96" r="4" class="pip-spent"/><circle cx="104" cy="96" r="4" class="pip-spent"/><circle cx="116" cy="96" r="4" class="pip-spent"/><circle cx="128" cy="96" r="4" class="pip-body"/><circle cx="140" cy="96" r="4" class="pip-body"/><circle cx="152" cy="96" r="4" class="pip-body"/></g>
+  <g><circle cx="197" cy="96" r="4" class="pip-spent"/><circle cx="209" cy="96" r="4" class="pip-spent"/><circle cx="221" cy="96" r="4" class="pip-spent"/><circle cx="233" cy="96" r="4" class="pip-body"/><circle cx="245" cy="96" r="4" class="pip-body"/><circle cx="257" cy="96" r="4" class="pip-body"/></g>
+  <g><circle cx="302" cy="96" r="4" class="pip-spent"/><circle cx="314" cy="96" r="4" class="pip-spent"/><circle cx="326" cy="96" r="4" class="pip-spent"/><circle cx="338" cy="96" r="4" class="pip-body"/><circle cx="350" cy="96" r="4" class="pip-body"/><circle cx="362" cy="96" r="4" class="pip-res"/></g>
+  <g><circle cx="407" cy="96" r="4" class="pip-ghost"/><circle cx="419" cy="96" r="4" class="pip-body"/><circle cx="431" cy="96" r="4" class="pip-body"/><circle cx="443" cy="96" r="4" class="pip-body"/><circle cx="455" cy="96" r="4" class="pip-body"/><circle cx="467" cy="96" r="4" class="pip-body"/></g>
+  <text x="10" y="138" class="mind b">FOCUS</text>
+  <rect x="74" y="112" width="40" height="36" rx="2" class="w-block-mind"/><text x="94" y="134" text-anchor="middle" class="sm">ASSESS</text>
+  <!-- effects -->
+  <text x="10" y="186" class="sm b">RUNNING</text>
+  <rect x="74" y="170" width="302" height="18" rx="2" class="w-block-body"/><text x="80" y="182.5" class="sm">STIM · +1 TEMPO · ENDS THIS TURN</text>
+  <rect x="284" y="196" width="166" height="18" rx="2" class="w-block-body"/><text x="290" y="208.5" class="sm">AIM · UNTIL THE SHOT</text>
+  <rect x="179" y="222" width="400" height="18" rx="2" class="w-block"/><text x="185" y="234.5" class="sm warn">BLEEDING · UNTIL TREATED · NEEDS TURNS COUNTED</text>
+  <path d="M579 231 L600 231" class="s-ln"/><path d="M594 226 L603 231 L594 236" class="s-arr"/>
+  <!-- footer -->
+  <text x="74" y="266" class="sm">↶ TAP TO GO BACK TO THIS TURN</text>
+  <text x="330" y="266" text-anchor="middle" class="sm acc">FILLS AS YOU ACT</text>
+  <text x="393" y="266" class="sm">COMMITTED · EXPIRING</text>
+  <line x1="10" y1="290" x2="630" y2="290" class="s-thin"/>
+  <text x="10" y="304" class="sm">BLOCK WIDTH IS PIPS SPENT. R MARKS A REACTION TAKEN OUT OF TURN. A GHOST BLOCK IS A FUTURE PAYMENT.</text>
+</svg>
+<figcaption>Turn timeline · one column per turn, one lane per pool, one for what is running</figcaption>
+</figure>
+<div class="plate"><div class="cap">What each part shows</div><div class="scroll"><table>
+<thead><tr><th style="width:170px">Part</th><th>Shows</th><th style="width:230px">Tap</th></tr></thead>
+<tbody>
+<tr><td><strong>Column</strong></td><td>One turn. Past columns plain, the current one highlighted, future ones empty except for commitments and expiries.</td><td>Past header: go back to the start of that turn. Future header: nothing (time only moves forward by the GM's call).</td></tr>
+<tr><td><strong>Action block</strong></td><td>An action taken, in its pool's lane. Width is the pips it cost. Label is the action and its result in a word. A reaction is marked R.</td><td>Describe the action: pace, roll, bonuses, effects. Undo it, if nothing later depends on it. Redo its roll.</td></tr>
+<tr><td><strong>Ghost block</strong></td><td>A payment or resolution that is committed to a future turn by a multi-turn action.</td><td>Describe. Abandon the action, keeping or losing what was paid as the task says.</td></tr>
+<tr><td><strong>Pip row</strong></td><td>Under each column, that turn's pool as it stood: how many spent, kept, overdriven.</td><td>Nothing. It is a receipt.</td></tr>
+<tr><td><strong>Running bar</strong></td><td>An effect or state with a lifespan: where it began, where it ends, or an arrow if it ends on an event. Bars that need turns counted are marked, because they are why turn tracking is on.</td><td>Describe. Switch off by hand. Both are marked as hand changes.</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>The ledger is always open. The current column stays in view; older columns scroll off to the left and can be scrolled back to.</li>
+<li>Advancing a turn adds a column and refills the pools. The previous column stops being editable except through rewind.</li>
+<li>The GM's "advance to turn N" and "renumber" are reached from the turn strip, not the ledger. Renumbering shifts every column label and nothing else.</li>
+<li>Selecting a block or a bar describes it in the detail panel, where its undo, redo-roll and switch-off controls live.</li>
+</ul>
+<div class="why"><b>Why the timeline is also the undo</b>
+<p>The engine goes back to the start of a turn, never to a point inside one. A column is exactly that unit. Making the columns the control means a player who wants to take back a turn looks at the thing that shows the turn, not for a menu. It also makes the consequence visible: everything to the right of the column they tap will go.</p></div>
+</section>
+
+<section>
+<h2>Going back</h2>
+<figure>
+<svg viewBox="0 0 640 210" role="img" aria-label="The timeline with turn 2 selected. Turns 3 to 5 are drawn ghosted. A confirmation card lists what will be undone: two actions in turn 2, the aimed shot in turn 3, two rolls, and notes that bleeding stays on. Buttons: Go back, Cancel.">
+  <rect x="10" y="30" width="60" height="150" class="w-block"/><text x="40" y="22" text-anchor="middle" class="sm">TURN 1</text>
+  <rect x="76" y="30" width="60" height="150" class="w-now"/><text x="106" y="22" text-anchor="middle" class="acc b">↶ TURN 2</text>
+  <rect x="142" y="30" width="60" height="150" class="w-ghost"/><text x="172" y="22" text-anchor="middle" class="sm">TURN 3</text>
+  <rect x="208" y="30" width="60" height="150" class="w-ghost"/><text x="238" y="22" text-anchor="middle" class="sm">TURN 4</text>
+  <rect x="274" y="30" width="40" height="150" class="w-ghost"/><text x="294" y="22" text-anchor="middle" class="sm">5</text>
+  <rect x="14" y="40" width="20" height="18" class="w-block-body"/><rect x="38" y="40" width="28" height="18" class="w-block-body"/>
+  <rect x="80" y="40" width="28" height="18" class="w-block-body"/><rect x="112" y="40" width="20" height="18" class="w-block-body"/>
+  <rect x="146" y="40" width="52" height="18" class="w-block-ghost"/><rect x="212" y="40" width="30" height="18" class="w-block-ghost"/>
+  <rect x="14" y="120" width="184" height="12" class="w-block-body"/>
+  <rect x="80" y="140" width="234" height="12" class="w-block"/>
+  <text x="14" y="200" class="sm">EVERYTHING RIGHT OF THE TAPPED COLUMN IS GHOSTED WHILE THE QUESTION IS OPEN</text>
+  <!-- card -->
+  <rect x="340" y="30" width="290" height="150" rx="3" class="w-zone"/>
+  <text x="354" y="52" class="b">GO BACK TO THE START OF TURN 2?</text>
+  <text x="354" y="74" class="sm">UNDOES · Shoot, Dodge (turn 2) · Aim and shoot (3)</text>
+  <text x="354" y="88" class="sm">FORGETS · 2 rolls · 1 change made by hand</text>
+  <text x="354" y="102" class="sm">TURNS 3 TO 5 ARE DISCARDED. REPLAY THEM.</text>
+  <text x="354" y="122" class="sm">KEEPS · Bleeding (on because of the injury)</text>
+  <rect x="354" y="140" width="110" height="24" rx="2" class="w-zone-a"/><text x="409" y="156" text-anchor="middle" class="acc b">GO BACK</text>
+  <rect x="474" y="140" width="80" height="24" rx="2" class="w-zone"/><text x="514" y="156" text-anchor="middle" class="sm">CANCEL</text>
+</svg>
+<figcaption>Going back · tap a past turn, see what goes, confirm in the detail panel</figcaption>
+</figure>
+<ul>
+<li>Tapping a past column ghosts everything to its right and asks one question in the detail panel. It lists what will be undone in the player's words: actions, rolls, hand changes. It also lists what stays, so a player is not surprised that bleeding is still on.</li>
+<li>Going back to the current turn is the same gesture on the current column: "undo this turn so far".</li>
+<li>After going back, the column becomes the current one, pools refill to what they were at its start, and the player replays. The discarded columns are gone; the engine keeps no branch.</li>
+<li>A single action can be undone without going back, from its block, when nothing after it depends on it. The sheet says when it does not qualify and offers the rewind instead.</li>
+<li>Pending rolls that belonged to discarded turns disappear with them. The badge updates.</li>
+</ul>
+<div class="why"><b>Why ask at all when the engine never refuses</b>
+<p>Going back is not refused; it is irreversible, and that is the one case where a question earns its tap. Everything else on the sheet acts at once and can be taken back.</p></div>
+</section>
+
+<section>
+<h2>Reacting out of turn</h2>
+<figure>
+<svg viewBox="0 0 640 150" role="img" aria-label="A card titled Guard fires at you, with two options: take it, costing nothing, with the attacker's chance shown as Fair; and dodge, costing one pip, lowering the chance to Risky. The pool row shows two pips left with one ghosted.">
+  <rect x="10" y="8" width="620" height="134" rx="3" class="w-zone"/>
+  <text x="24" y="30" class="b">GUARD FIRES AT YOU</text><text x="616" y="30" text-anchor="end" class="sm">THEIR ROLL IS THEIRS · YOU CHOOSE</text>
+  <line x1="24" y1="38" x2="616" y2="38" class="s-thin"/>
+  <text x="24" y="62">Take it</text><text x="200" y="62" class="sm">NO PIPS</text><text x="330" y="62">They hit you: <tspan class="warn">Fair</tspan></text>
+  <rect x="16" y="76" width="608" height="30" rx="2" class="w-now"/>
+  <text x="24" y="96" class="b">Dodge</text>
+  <circle cx="206" cy="92" r="7" class="pip-ghost"/><circle cx="228" cy="92" r="7" class="pip-body"/>
+  <text x="330" y="96">They hit you: <tspan class="acc">Risky</tspan></text><text x="520" y="96" class="sm">ROLL · TELL THEM YOUR TOTAL</text>
+  <text x="24" y="130" class="sm">A KEPT PIP IS WHAT MAKES THIS POSSIBLE. WITH NONE LEFT, THE SHEET OFFERS OVERDRIVE.</text>
+</svg>
+<figcaption>Reaction prompt · opened by the player on the work surface when someone acts on them</figcaption>
+</figure>
+<ul>
+<li>The player opens this themselves when the GM says they are attacked. There is no network; nothing arrives on the sheet.</li>
+<li>Options are the reactions the character has, each with its pips ghosted and the attacker's odds as a word, against the static value and against a reaction. The attacker's rating is typed or taken from the last time it was typed.</li>
+<li>Choosing a reaction spends the pips, places an R block in the current column, and queues a roll. The total is read aloud; the attacker types it as their difficulty.</li>
+<li>With no pips left, the dodge row shows overdrive rings and the fatigue it costs. It is still offered.</li>
+</ul>
+</section>
+
+<section>
+<h2>Outside turn tracking</h2>
+<figure>
+<svg viewBox="0 0 640 190" role="img" aria-label="An interval strip of hours, hours 1 to 5 done, hour 6 current. Below it an extended task, Decrypt the drive, with a progress bar four of six filled, one tolerance pip, and the per-hour results. The pools are shown greyed with a note that they are not used outside turn tracking.">
+  <text x="10" y="22" class="sm b">INTERVAL · HOUR</text><text x="630" y="22" text-anchor="end" class="sm">GM CALLS EACH HOUR</text>
+  <g>
+    <rect x="130" y="30" width="56" height="26" class="w-block"/><text x="158" y="47" text-anchor="middle" class="sm">1</text>
+    <rect x="190" y="30" width="56" height="26" class="w-block"/><text x="218" y="47" text-anchor="middle" class="sm">2</text>
+    <rect x="250" y="30" width="56" height="26" class="w-block"/><text x="278" y="47" text-anchor="middle" class="sm">3</text>
+    <rect x="310" y="30" width="56" height="26" class="w-block"/><text x="338" y="47" text-anchor="middle" class="sm">4</text>
+    <rect x="370" y="30" width="56" height="26" class="w-block"/><text x="398" y="47" text-anchor="middle" class="sm">5</text>
+    <rect x="430" y="30" width="56" height="26" class="w-now"/><text x="458" y="47" text-anchor="middle" class="acc b">6 · NOW</text>
+    <rect x="490" y="30" width="56" height="26" class="w-ghost"/><rect x="550" y="30" width="56" height="26" class="w-ghost"/>
+  </g>
+  <text x="10" y="86" class="mind b">DECRYPT THE DRIVE</text><text x="10" y="100" class="sm">CAREFUL · ABOUT 16 HOURS · SAFE</text>
+  <!-- per-hour results -->
+  <text x="158" y="78" text-anchor="middle" class="sm">+1</text><text x="218" y="78" text-anchor="middle" class="sm">—</text><text x="278" y="78" text-anchor="middle" class="sm">+2</text><text x="338" y="78" text-anchor="middle" class="sm">—</text><text x="398" y="78" text-anchor="middle" class="sm">+1</text><text x="458" y="78" text-anchor="middle" class="acc">ROLL</text>
+  <!-- progress -->
+  <text x="130" y="100" class="sm">PROGRESS</text>
+  <g><rect x="190" y="90" width="30" height="12" class="w-block-mind"/><rect x="224" y="90" width="30" height="12" class="w-block-mind"/><rect x="258" y="90" width="30" height="12" class="w-block-mind"/><rect x="292" y="90" width="30" height="12" class="w-block-mind"/><rect x="326" y="90" width="30" height="12" class="w-block-ghost"/><rect x="360" y="90" width="30" height="12" class="w-block-ghost"/></g>
+  <text x="400" y="100" class="sm">4 OF 6</text>
+  <text x="460" y="100" class="sm">TOLERANCE</text><circle cx="530" cy="96" r="6" class="pip-tol"/><text x="542" y="100" class="sm">1 SLIP LEFT</text>
+  <!-- interruption -->
+  <text x="130" y="124" class="sm">CAREFUL COVERS TWO HOURS PER ROLL · THE ROLL FOR HOURS 5–6 IS PENDING · INTERRUPTING KEEPS PROGRESS</text>
+  <line x1="10" y1="140" x2="630" y2="140" class="s-thin"/>
+  <text x="10" y="160" class="sm">TEMPO</text><g><circle cx="60" cy="156" r="5" class="pip-spent"/><circle cx="74" cy="156" r="5" class="pip-spent"/><circle cx="88" cy="156" r="5" class="pip-spent"/></g>
+  <text x="120" y="160" class="sm">FOCUS</text><g><circle cx="170" cy="156" r="5" class="pip-spent"/><circle cx="184" cy="156" r="5" class="pip-spent"/><circle cx="198" cy="156" r="5" class="pip-spent"/></g>
+  <text x="230" y="160" class="sm">NOT USED OUTSIDE TURN TRACKING · "START COUNTING TURNS" IS ON THE TURN STRIP</text>
+  <text x="10" y="182" class="sm">WHEN TURN TRACKING STARTS, THE STRIP SWITCHES TO TURNS AND THE TASK MOVES TO THE RUNNING LANE WITH ITS PROGRESS KEPT.</text>
+</svg>
+<figcaption>Outside turn tracking · the same strip counts intervals, extended tasks replace action blocks</figcaption>
+</figure>
+<ul>
+<li>The turn strip reads "Not counting turns" with the last time event named: "Not counting turns · 6 hours since you started". Its button starts turn tracking at turn one.</li>
+<li>The pools dim entirely. They are still shown so the player knows where they will be.</li>
+<li>The timeline strip counts intervals instead of turns. Each extended task is a row: progress, tolerance, the per-interval results, and the pending roll for the current interval. The pace was chosen when the task began and can be changed between rolls.</li>
+<li>Going back is manual here, as the vision says: the player changes progress by hand, and the change is marked.</li>
+<li>Something that starts turn tracking mid-task (a guard arrives) switches the strip to turns. The task keeps its progress and continues per turn in the running lane.</li>
+</ul>
+</section>
+
+<section>
+<h2>Functions the player needs</h2>
+<div class="plate"><div class="cap">Player</div><div class="scroll"><table>
+<thead><tr><th style="width:230px">Function</th><th>Where</th><th style="width:230px">Engine operation</th></tr></thead>
+<tbody>
+<tr><td>See whose turn and which turn</td><td>Turn strip</td><td>Time report</td></tr>
+<tr><td>See what is left to spend</td><td>Pool rows</td><td>Property value with mods</td></tr>
+<tr><td>Keep a pip for a reaction</td><td>Tap a pip</td><td>Sheet-side flag; advisory in the pace picker</td></tr>
+<tr><td>Choose an action and see its cost by pace</td><td>Work surface: action expands in place</td><td>Action performability, dice lowest/highest/chance, cost set preview</td></tr>
+<tr><td>Commit an action</td><td>Pace row button</td><td>Start activity, run cost step; roll pending</td></tr>
+<tr><td>Roll, or type the dice</td><td>Detail panel</td><td>Roll / set roll on the property</td></tr>
+<tr><td>Redo a roll</td><td>The block</td><td>Clear roll, roll again; reset the step that used it</td></tr>
+<tr><td>Pay into a multi-turn action</td><td>Automatic each turn; ghost block shows it</td><td>Cost step across turns (system-built)</td></tr>
+<tr><td>Abandon a multi-turn action</td><td>Ghost block</td><td>Reset or abandon the activity</td></tr>
+<tr><td>Overdrive</td><td>Pace row, when short</td><td>Cost applies; pool goes negative; state switches on</td></tr>
+<tr><td>React to an attack</td><td>Reaction prompt</td><td>Reaction action with cost and roll</td></tr>
+<tr><td>Undo one action</td><td>The block</td><td>Undo completed action</td></tr>
+<tr><td>Go back to a turn</td><td>Past column header</td><td>Rewind to turn</td></tr>
+<tr><td>End my turn</td><td>Turn strip ›</td><td>Next turn</td></tr>
+<tr><td>Switch a running effect off, or change a value by hand</td><td>Running bar; any value</td><td>Manual state change; override mod. Marked as by hand</td></tr>
+<tr><td>Apply a cost the engine skipped</td><td>Block, when flagged</td><td>Apply skipped costs</td></tr>
+</tbody></table></div></div>
+<div class="plate"><div class="cap">Called by the GM, done on each sheet</div><div class="scroll"><table>
+<thead><tr><th style="width:230px">Function</th><th>Where</th><th style="width:230px">Engine operation</th></tr></thead>
+<tbody>
+<tr><td>Start counting turns</td><td>Turn strip</td><td>Begin turn tracking</td></tr>
+<tr><td>Catch up to turn N</td><td>Turn strip, long press</td><td>Advance to turn</td></tr>
+<tr><td>Agree a turn number</td><td>Turn strip, long press</td><td>Renumber</td></tr>
+<tr><td>Stop counting turns</td><td>Turn strip</td><td>End turn tracking; the report of what drops is shown first</td></tr>
+<tr><td>An hour passes, a day passes, sunrise</td><td>Turn strip, outside tracking</td><td>Trigger time event</td></tr>
+<tr><td>Let the app roll everything</td><td>Turn strip roll count, long press; sheet setting</td><td>Roll all pending; default roller</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>Nothing in either table needs a connection to another sheet. Numbers that cross the table (a reaction total, an attacker's rating) are spoken and typed.</li>
+<li>Everything a player does is one or two taps away, and nothing is behind a modal. Nothing lives only in a menu.</li>
+</ul>
+</section>
+
+<section>
+<h2>Teaching the player</h2>
+<ul>
+<li>The sheet explains in words, in the detail panel, for whatever is selected. Nothing is explained unprompted. Full describe (the tree of modifications) is one tap from the panel.</li>
+<li>The first fight shows three hints, once each: "these are your pips for this turn", "tap a past turn to take it back", "a ringed pip is kept for a dodge".</li>
+<li>No rule names in the interface. Not "Tempo pool", not "margin", not "turn tracking". Pips, turns, "take it back", "counting turns".</li>
+</ul>
+<div class="open"><b>Open: what the GM app shows</b>
+<p>Many sheets, advanced together, each with a timeline. Whether the GM sees one combined ledger or a stack of sheets is not decided and is not needed for the player sheet.</p></div>
+<div class="open"><b>Open: the words for the pools</b>
+<p>The rules call them Tempo and Focus. The sheet may only ever say "pips" in two colours and never name them. Decide with the first playable sheet.</p></div>
+</section>
+</main>
+<footer><span>System 08 — Sheet</span><span>docs/system · one concern per document</span></footer>
+</div>
+</body>
+</html>

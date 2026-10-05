@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tempo · System</title>
+<meta name="description" content="Tempo and Focus: the two per-turn pools. Action costs, reactions, turn order, multi-turn actions, overdrive, restricted points.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="_style.css">
+</head>
+<body>
+<div class="wrap">
+<nav class="docnav"><a href="index.html">Index</a><a href="rolls.html">Rolls</a><a href="pace.html">Pace</a><a href="tempo.html" aria-current="page">Tempo</a><a href="cooperation.html">Cooperation</a><a href="gear.html">Gear</a><a href="scenes.html">Scenes</a><a href="engine.html">Engine</a><a href="sheet.html">Sheet</a><a href="targets.html">Targets</a><a href="character.html">Character</a><a href="signature.html">Signature</a><a href="items.html">Items</a></nav>
+<header class="hdr">
+  <div class="no">System 03 · Core mechanics</div>
+  <h1>Tempo</h1>
+  <p class="scope">Tempo and Focus: the two per-turn pools. Action costs, reactions, turn order, multi-turn actions, overdrive, restricted points.</p>
+</header>
+<main>
+
+<section>
+<h2>Two pools</h2>
+<div class="rule"><b>A pool is time within a turn</b>
+<p>Each character has <strong>Tempo</strong> <span class="chip body">body</span> and <strong>Focus</strong> <span class="chip mind">mind</span>. Each is a number of points per turn. Every action in turn tracking costs points from one of them. More points, more done per turn.</p></div>
+<div class="plate"><div class="cap">The pools</div><div class="scroll"><table>
+<thead><tr><th style="width:110px">Pool</th><th style="width:230px">Pays for</th><th>Raised by</th></tr></thead>
+<tbody>
+<tr><td><strong>Tempo</strong> <span class="chip body">body</span></td><td>Moving, shooting, melee, dodging, parrying, climbing, driving by hand, anything the body does</td><td>Wired reflexes, boosted synapses, combat drugs, adrenal boosters. Rarely, training.</td></tr>
+<tr><td><strong>Focus</strong> <span class="chip mind">mind</span></td><td>Matrix actions, perception, social manoeuvres, technical work, drone and vehicle control by link, medicine, anything the mind does</td><td>Cyberdecks, attention co-processors, cognitive drugs, social and sensory implants. Rarely, training.</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>A baseline human has <strong>3</strong> of each. The human range is 2 to 4. Augmentation takes either pool to 8.</li>
+<li>Both pools refresh to full at the start of the character's turn. Unspent points are lost.</li>
+<li>Every action declares which pool it draws from. A few draw from both, such as fighting while jacked in.</li>
+<li>Outside turn tracking the pools do nothing. Time there is measured in intervals, and the engine skips turn-based costs.</li>
+</ul>
+<div class="why"><b>Why two pools</b>
+<p>With one pool the samurai's reflex wiring would be the universal upgrade and every career would buy it. Two pools give each career a scene where they are the fast one: the samurai in a firefight, the decker in the matrix, the face across a negotiating table. The cost is one more number on the sheet and a one-word declaration on each action.</p></div>
+<div class="why"><b>Why "Tempo" and not "effort" or "action points"</b>
+<p>Effort reads as exertion and invites a fatigue rule it does not need. Action points are a count of actions; this is a measure of time, which pace multiplies. Tempo and Focus say what they are: how fast the body moves, how much attention the mind can hold.</p></div>
+</section>
+
+<section>
+<h2>Action costs</h2>
+<ul>
+<li>An action has a <strong>base cost</strong> in points. Most task actions cost <strong>2</strong>. Small actions cost 1. Heavy ones cost 3.</li>
+<li>Pace multiplies the base cost: Rushed × ½, Normal × 1, Careful × 2, Methodical × 5. A Normal attack costs 2; the same attack Careful costs 4; Rushed costs 1.</li>
+<li>A character may take as many actions in a turn as they can pay for. There is no limit on the number of actions, only on points.</li>
+<li>A character may pay for one action from a pool and another from the other pool in the same turn. Shooting and hacking in one turn is allowed and costs both.</li>
+</ul>
+<div class="plate"><div class="cap">Example costs · base, at Normal pace</div><div class="scroll"><table>
+<thead><tr><th style="width:230px">Action</th><th style="width:90px">Pool</th><th class="n" style="width:70px">Base</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>Attack, ranged or melee</td><td><span class="chip body">Tempo</span></td><td class="n">2</td><td>Careful is the aimed shot.</td></tr>
+<tr><td>Dodge, parry</td><td><span class="chip body">Tempo</span></td><td class="n">1</td><td>Reaction. Always Normal pace.</td></tr>
+<tr><td>Move a short distance</td><td><span class="chip body">Tempo</span></td><td class="n">1</td><td>Distance set by movement rating.</td></tr>
+<tr><td>Reload, draw, ready</td><td><span class="chip body">Tempo</span></td><td class="n">1</td><td>No roll. Gear can reduce to 0.</td></tr>
+<tr><td>Matrix action</td><td><span class="chip mind">Focus</span></td><td class="n">2</td><td>Careful is the clean hack.</td></tr>
+<tr><td>Perceive, assess</td><td><span class="chip mind">Focus</span></td><td class="n">1</td><td></td></tr>
+<tr><td>Command a drone</td><td><span class="chip mind">Focus</span></td><td class="n">1</td><td>Per drone, per order.</td></tr>
+<tr><td>Talk someone down</td><td><span class="chip mind">Focus</span></td><td class="n">2</td><td>Methodical not allowed: the other side reacts.</td></tr>
+<tr><td>First aid under fire</td><td><span class="chip mind">Focus</span></td><td class="n">3</td><td>Heavy. Rushed not allowed.</td></tr>
+</tbody></table></div></div>
+<div class="open"><b>Open: non-roll costs</b>
+<p>The table is illustrative. Movement distance per point, reload costs by weapon class and the cost of standing up are not settled. They will be set with the skill and gear lists.</p></div>
+</section>
+
+<section>
+<h2>Reactions</h2>
+<ul>
+<li>A dodge or parry is an action taken out of turn. It draws from the same pool, which does not refresh until the character's own turn.</li>
+<li>A character who spends everything on their turn cannot react. Keeping points back is the defensive stance, and the sheet shows what is left.</li>
+<li>A reaction rolls <strong>2d10 + rating + the reaction's bonus</strong>, and the attacker's difficulty becomes that total. It is the only time a defender rolls; otherwise an attacker rolls against the defender's static value of 11 + rating. A dodge gives +2; a parry gives the weapon's parry value.</li>
+<li>A reaction is always Normal pace. It cannot be rushed or made careful.</li>
+<li>A character with no points left is attacked against their static value. They are not helpless, they are just not reacting.</li>
+</ul>
+<div class="why"><b>Why reactions cost from the same pool</b>
+<p>It makes attack and defence one trade-off instead of two separate allowances, and it gives the wired character their signature move: shoot twice and still have a dodge in hand.</p></div>
+</section>
+
+<section>
+<h2>Turn order</h2>
+<div class="rule"><b>Faster pace resolves first</b>
+<p>Within a turn, declared actions resolve in pace order: <strong>Rushed, then Normal, then Careful, then Methodical</strong>. Ties within a pace go to the higher pool. The GM decides anything left.</p></div>
+<ul>
+<li>There is no initiative roll and no initiative score. The GM calls who declares, in whatever order suits the scene. Declarations resolve by pace.</li>
+<li>A Rushed action is how a character interrupts. A guard who snaps a shot fires before the samurai's Careful one lands, and a hit can spoil the aim.</li>
+<li>A multi-turn action resolves on the turn its cost is met, at its own pace's place in that turn's order.</li>
+<li>Reactions sit outside the order. They happen when the attack they answer lands, whatever the order was.</li>
+<li>Nothing about order crosses between sheets. A sheet records what its character declared and when it resolved; the table says the words.</li>
+</ul>
+<div class="why"><b>Why pace and not a roll</b>
+<p>Pace already is time. A Rushed action takes half as long as a Normal one; it would be strange if it did not also finish first. Using it for order gives Rushed a second honest reason to exist, makes aiming feel like aiming because the world moves while you hold your breath, and needs no roll, no stat and no number compared across sheets. A one-off initiative roll per fight, or strict order by Tempo, both work and both cost more for less. Try pace order first.</p></div>
+</section>
+
+<section>
+<h2>Multi-turn actions</h2>
+<ul>
+<li>An action that costs more than the character has left is paid across turns. Points are committed each turn until the cost is met; the action resolves on the turn it is paid off.</li>
+<li>A Careful attack costing 4 by a character with 3 Tempo is paid 3 this turn and 1 next, and fires next turn. That is aiming across a turn.</li>
+<li>An extended task in turn tracking works the same way: its work total is a point cost, each turn's payment is one roll's worth of progress.</li>
+<li>Committed points are kept if the action is interrupted, unless the task says the work is lost. Taking damage is the usual interruption; the task says whether it survives one.</li>
+<li>A character paying into a multi-turn action may still react if they keep points back for it. Doing so slows the action.</li>
+</ul>
+</section>
+
+<section>
+<h2>Overdrive</h2>
+<ul>
+<li>A character may spend points they do not have. Each point beyond the pool is <strong>overdrive</strong>.</li>
+<li>Overdrive is paid for afterwards: a stress or fatigue cost, a drug's crash, a system's heat. The source of the extra points says which.</li>
+<li>Without a source, overdrive costs fatigue. Fatigue reduces the pool next turn by the points overdrawn.</li>
+<li>Combat drugs and stimulants are the gear that grants overdrive cheaply, for a few turns, and charges for it later.</li>
+</ul>
+<div class="why"><b>Why allow it at all</b>
+<p>"I have nothing left and I have to dodge this" is one of the best moments a turn economy produces. Overdrive makes it a choice with a price instead of a refusal, which is also what the engine's rules require.</p></div>
+</section>
+
+<section>
+<h2>Restricted points</h2>
+<ul>
+<li>Some gear grants points usable only for one kind of action. A smartgun link gives 1 Tempo for shooting. Pursuit legs give 1 Tempo for movement. A deck's co-processor gives 2 Focus for matrix actions.</li>
+<li>Restricted points are spent first when an eligible action is paid for.</li>
+<li>They show on the sheet as part of the pool with a label, not as a separate number.</li>
+</ul>
+<div class="why"><b>Why restrict rather than add</b>
+<p>If every piece of gear added to the pool, a character would become fast at everything by buying anything. Restricted points let equipment shape what kind of fast a character is, and keep the general pool scarce.</p></div>
+<div class="open"><b>Open: is this worth it</b>
+<p>Restricted points add a condition to a mod and a rule for spending order. If play shows they rarely matter, they fold into flat pool bonuses and this section goes.</p></div>
+</section>
+
+<section>
+<h2>Worked budget</h2>
+<div class="plate"><div class="cap">What a turn can hold</div><div class="scroll"><table>
+<thead><tr><th style="width:230px">Character</th><th class="n">Tempo</th><th class="n">Focus</th><th>A typical turn</th></tr></thead>
+<tbody>
+<tr><td>Baseline human</td><td class="n">3</td><td class="n">3</td><td>One Normal attack, one dodge in hand. Or one Rushed attack and a move and a dodge.</td></tr>
+<tr><td>Street samurai, wired</td><td class="n">6</td><td class="n">2</td><td>Three Normal attacks. Or one Careful shot and a Normal one. Or two attacks and two parries.</td></tr>
+<tr><td>Decker, jacked in</td><td class="n">2</td><td class="n">6</td><td>Three Normal matrix actions. One dodge if something physical happens.</td></tr>
+<tr><td>Face, implanted</td><td class="n">3</td><td class="n">5</td><td>A Careful read of the room and a Rushed lie. Still a dodge.</td></tr>
+<tr><td>Rigger, in the chair</td><td class="n">2</td><td class="n">6</td><td>Six drone orders, or three and a Careful drone attack.</td></tr>
+</tbody></table></div></div>
+</section>
+</main>
+<footer><span>System 03 — Tempo</span><span>docs/system · one concern per document</span></footer>
+</div>
+</body>
+</html>

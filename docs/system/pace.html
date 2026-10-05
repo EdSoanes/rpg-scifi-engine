@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pace · System</title>
+<meta name="description" content="Time as the dial. The four paces, margin setting the time taken, extended tasks on the interval clock, and what failure costs.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="_style.css">
+</head>
+<body>
+<div class="wrap">
+<nav class="docnav"><a href="index.html">Index</a><a href="rolls.html">Rolls</a><a href="pace.html" aria-current="page">Pace</a><a href="tempo.html">Tempo</a><a href="cooperation.html">Cooperation</a><a href="gear.html">Gear</a><a href="scenes.html">Scenes</a><a href="engine.html">Engine</a><a href="sheet.html">Sheet</a><a href="targets.html">Targets</a><a href="character.html">Character</a><a href="signature.html">Signature</a><a href="items.html">Items</a></nav>
+<header class="hdr">
+  <div class="no">System 02 · Core mechanics</div>
+  <h1>Pace</h1>
+  <p class="scope">Time as the dial. The four paces, margin setting the time taken, extended tasks on the interval clock, and what failure costs.</p>
+</header>
+<main>
+
+<section>
+<h2>The four paces</h2>
+<div class="rule"><b>Time buys reliability, never brilliance</b>
+<p>Every task is attempted at a <strong>pace</strong>. The pace sets how long the task takes and which dice are rolled. All four dice expressions have the same middle. Slower paces narrow the range; the slowest has no range at all.</p></div>
+<div class="plate"><div class="cap">Pace ladder</div><div class="scroll"><table>
+<thead><tr><th style="width:120px">Pace</th><th style="width:110px">Dice</th><th class="n">Lowest</th><th class="n">Highest</th><th class="n">Average</th><th class="n">Time</th><th>Feel</th></tr></thead>
+<tbody>
+<tr><td><strong>Rushed</strong></td><td class="k">1d20</td><td class="n">1</td><td class="n">20</td><td class="n">10.5</td><td class="n">× ½</td><td>Flat and swingy. A snap shot, a grab, a guess.</td></tr>
+<tr><td><strong>Normal</strong></td><td class="k">2d10</td><td class="n">2</td><td class="n">20</td><td class="n">11</td><td class="n">× 1</td><td>The default. The bell.</td></tr>
+<tr><td><strong>Careful</strong></td><td class="k">1d10 + 5</td><td class="n">6</td><td class="n">15</td><td class="n">10.5</td><td class="n">× 2</td><td>No disasters, no miracles. Aiming, double-checking.</td></tr>
+<tr><td><strong>Methodical</strong></td><td class="k">11</td><td class="n">11</td><td class="n">11</td><td class="n">11</td><td class="n">× 5</td><td>No roll. The result a competent person reliably gets.</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>Time is the task's <strong>base time</strong> multiplied by the pace. Base time is in Tempo or Focus points inside turn tracking and in intervals outside it.</li>
+<li>The certainty rule uses the pace's lowest and highest totals. A Careful task is certain when rating + 6 meets the difficulty; a Methodical one when rating + 11 does.</li>
+<li><strong>Methodical is only available against a static difficulty.</strong> An opponent who can react, a target that is moving, a system that is actively defending: Careful is the slowest pace allowed.</li>
+<li>Rushed is not available for tasks the skill marks as needing care. Nobody rushes brain surgery; they do it at Normal pace and accept the risk.</li>
+<li>A task may fix its pace. A reaction such as a parry is always Normal. A background check run overnight is always Methodical.</li>
+</ul>
+<div class="plate"><div class="cap">Chance of success by pace · need is difficulty minus rating</div><div class="scroll"><table>
+<thead><tr><th class="n">Need</th><th class="n">Rushed</th><th class="n">Normal</th><th class="n">Careful</th><th class="n">Methodical</th></tr></thead>
+<tbody>
+<tr><td class="n">4</td><td class="n">85%</td><td class="n">97%</td><td class="n dim">certain</td><td class="n dim">certain</td></tr>
+<tr><td class="n">7</td><td class="n">70%</td><td class="n">85%</td><td class="n">90%</td><td class="n dim">certain</td></tr>
+<tr><td class="n">10</td><td class="n">55%</td><td class="n">64%</td><td class="n">60%</td><td class="n dim">certain</td></tr>
+<tr><td class="n">11</td><td class="n">50%</td><td class="n">55%</td><td class="n">50%</td><td class="n dim">certain</td></tr>
+<tr><td class="n">13</td><td class="n">40%</td><td class="n">36%</td><td class="n">30%</td><td class="n dim">impossible</td></tr>
+<tr><td class="n">16</td><td class="n">25%</td><td class="n">15%</td><td class="n dim">impossible</td><td class="n dim">impossible</td></tr>
+<tr><td class="n">19</td><td class="n">10%</td><td class="n">3%</td><td class="n dim">impossible</td><td class="n dim">impossible</td></tr>
+</tbody></table></div></div>
+<div class="why"><b>Why the paces cross over</b>
+<p>Below a need of 11 the slower paces win: they cut off the low rolls. Above it the faster paces win: they are the only way to reach the high rolls. So a desperate character facing a task beyond them is right to rush, and a competent one facing a task within reach is right to take their time. The table teaches that without anyone reading it; the sheet just shows the odds for each pace side by side.</p></div>
+<div class="why"><b>Why aiming is not a bonus</b>
+<p>Most systems give +2 for aiming. Here aiming is the Careful pace: it removes the miss by a mile and the fluke headshot alike. The same choice, the same dice and the same word apply to the surgeon and the safecracker, so there is one rule to implement and one for the sheet to explain.</p></div>
+</section>
+
+<section>
+<h2>Margin sets the time actually taken</h2>
+<p>Pace is the time committed before rolling. Margin says what it cost.</p>
+<div class="plate"><div class="cap">Time by result</div><div class="scroll"><table>
+<thead><tr><th style="width:170px">Result</th><th style="width:200px">Time spent</th><th>In turn tracking</th></tr></thead>
+<tbody>
+<tr><td><strong>Bad failure</strong></td><td>All of it, and the consequence</td><td>Points spent. Consequence applies at once.</td></tr>
+<tr><td><strong>Failure</strong></td><td>All of it</td><td>Points spent.</td></tr>
+<tr><td><strong>Success</strong></td><td>All of it</td><td>Points spent.</td></tr>
+<tr><td><strong>Strong success</strong></td><td>Half</td><td>Half the points refunded, rounded down.</td></tr>
+<tr><td><strong>Exceptional</strong></td><td>A quarter</td><td>Three quarters refunded, rounded down.</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>Outside turn tracking "half" means the GM says the task took half as long. The sheet shows the committed and actual time; the GM moves the clock.</li>
+<li>A refund in turn tracking is a one-turn bonus to the pool, so it can be spent on something else this turn.</li>
+</ul>
+<div class="why"><b>Why time is the universal effect</b>
+<p>In a heist, finishing early is as decisive as hitting hard. The decker who opens the door in one turn instead of three has changed the fight. Making time the thing every margin produces gives every career a shared language for "rolling well", on top of whatever the task itself improves.</p></div>
+</section>
+
+<section>
+<h2>Failure costs time</h2>
+<div class="rule"><b>No free retries</b>
+<p>A failed task spends its time. The same character may try again only at a <strong>slower pace</strong> than the one that failed. A task failed at Methodical pace is beyond this character.</p></div>
+<ul>
+<li>This replaces "you may not retry" rules. Retrying is allowed; it just costs more time each attempt, and the clock is usually what the scene is about.</li>
+<li>A different character may attempt the task at any pace.</li>
+<li>A change in circumstances, new gear, a helper or a lower difficulty resets the ladder.</li>
+</ul>
+</section>
+
+<section>
+<h2>Extended tasks</h2>
+<p>A task long enough that the world moves while it is done: decrypting a drive over days, hacking a node while the guards close in, defusing a device under fire.</p>
+<ul>
+<li>An extended task has a <strong>work total</strong> and a <strong>progress</strong> value. It completes when progress meets the total.</li>
+<li>It is worked in <strong>intervals</strong>. Inside turn tracking the interval is the turn. Outside it the interval is a named time event the GM triggers: <em class="t">hour</em> or <em class="t">day</em>, as the task says.</li>
+<li>Each interval the worker makes one task roll at their chosen pace. The margin gives progress.</li>
+<li>Pace multiplies the interval: a Careful roll covers two intervals, a Methodical roll covers five. A Methodical worker rolls nothing and adds progress on a fixed schedule, if their rating is enough.</li>
+<li>The task can be interrupted at any point. Progress is kept unless the task says it is lost.</li>
+<li><strong>Rushed is not available for extended tasks.</strong> The interval is already the smallest unit of time. Normal is the fastest pace.</li>
+<li>An extended task has a <strong>tolerance</strong>: how many bad failures it absorbs before its consequence happens. A device might tolerate one slip; a search of an archive tolerates any number, because a false lead only costs time.</li>
+</ul>
+<div class="plate"><div class="cap">Progress per roll</div><div class="scroll"><table>
+<thead><tr><th style="width:170px">Result</th><th class="n" style="width:110px">Progress</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td><strong>Bad failure</strong></td><td class="n">−1</td><td>And one point of tolerance. When tolerance is gone, the consequence happens. Progress cannot go below zero.</td></tr>
+<tr><td><strong>Failure</strong></td><td class="n">0</td><td>Interval spent.</td></tr>
+<tr><td><strong>Success</strong></td><td class="n">+1</td><td></td></tr>
+<tr><td><strong>Strong success</strong></td><td class="n">+2</td><td></td></tr>
+<tr><td><strong>Exceptional</strong></td><td class="n">+3</td><td></td></tr>
+</tbody></table></div></div>
+<ul>
+<li>A task's work total is set so that a professional at Normal pace expects to finish in the number of intervals the fiction wants. Expected progress per Normal roll for a professional on a Hard task is about 0.8; on a Routine task about 1.4.</li>
+<li>The sheet shows expected intervals to finish at each pace, from the distribution. For a work total of 6 on a Hard task, a professional sees "about 7 hours, could go badly" against "about 16 hours, safe" against "30 hours, certain".</li>
+</ul>
+<div class="why"><b>Why intervals are GM-ticked events and not a clock</b>
+<p>The engine's time outside turn tracking moves through events the GM triggers. Measured durations are out of its scope, and the fiction is fuzzy there anyway. Letting the GM say "an hour passes" and having the sheet queue one progress roll per worker matches how a table already runs downtime, and it keeps the sheet free-standing.</p></div>
+</section>
+
+<section>
+<h2>Who rolls, and when</h2>
+<ul>
+<li>A pace is chosen before the roll and cannot be changed after.</li>
+<li>Pending rolls appear on the sheet as usual. A Methodical task never produces one.</li>
+<li>A GM running many opponents sets their sheets to let the app roll. Nothing here changes that.</li>
+</ul>
+<div class="open"><b>Open: the size of an interval</b>
+<p>Hour and day are assumed. Whether a "minute" interval is needed for scenes between a fight and downtime, such as a tense search of a room, is not decided. If it is, it is one more named event and nothing else changes.</p></div>
+</section>
+</main>
+<footer><span>System 02 — Pace</span><span>docs/system · one concern per document</span></footer>
+</div>
+</body>
+</html>
