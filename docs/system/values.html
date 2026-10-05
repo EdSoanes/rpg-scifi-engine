@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Values · System</title>
+<meta name="description" content="Every number on the sheet explains itself and can be changed where it stands. Marks, three depths of explanation, four ways to change a value, rolls and judgements in progress, and the list of changes made by hand.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="_style.css">
+</head>
+<body>
+<div class="wrap">
+<nav class="docnav"><a href="index.html">Index</a><a href="rolls.html">Rolls</a><a href="pace.html">Pace</a><a href="tempo.html">Tempo</a><a href="cooperation.html">Cooperation</a><a href="gear.html">Gear</a><a href="scenes.html">Scenes</a><a href="engine.html">Engine</a><a href="sheet.html">Sheet</a><a href="targets.html">Targets</a><a href="character.html">Character</a><a href="signature.html">Signature</a><a href="items.html">Items</a><a href="damage.html">Damage</a><a href="values.html" aria-current="page">Values</a></nav>
+<header class="hdr">
+  <div class="no">System 14 · Core mechanics</div>
+  <h1>Values</h1>
+  <p class="scope">Every number on the sheet explains itself and can be changed where it stands. The marks, three depths of explanation, four ways to change a value, rolls and judgements in progress, and the list of what was changed by hand. Concept, not prototype.</p>
+</header>
+<main>
+
+<section>
+<h2>The principle</h2>
+<div class="rule"><b>Tap a number to see why. Change it from there.</b>
+<p>Every number, dice expression, word and pip on the sheet is one kind of thing: a value. Tapping any value explains it in the detail panel. Every way of changing it lives in that explanation. There is no edit mode, no settings screen and no second place to look.</p></div>
+<ul>
+<li>The sheet behaves like pencil on paper. The GM can change any number, cancel any bonus, add one nobody wrote down, or simply call a result. The sheet records it and does not argue.</li>
+<li>A change by hand is a full citizen. Everything that depends on it updates, it is marked where it shows, it says who made it and why, and it can be taken back.</li>
+<li>The rules' own number never disappears. A value set by hand shows what the rules would have said beside it.</li>
+<li>Most players never look past the number. The working is there, one tap at a time, for whoever wants it.</li>
+</ul>
+<div class="why"><b>Why one component for every value</b>
+<p>If a rating, a difficulty, a dice expression and a duration each had their own editor, a player would need to learn four places and a GM would need to know which one applies before they could say "just make it sixteen". One component, one tap, one panel means the answer to "how do I change this?" is always the same: tap it.</p></div>
+</section>
+
+<section>
+<h2>Marks</h2>
+<div class="rule"><b>Five marks say how a value got there, at a glance</b>
+<p>A value with no mark is exactly what the rules say. Anything else carries one small mark. The marks are the same everywhere: on a stat, a pip, a chip, a term in a roll, a bar in the ledger.</p></div>
+<figure>
+<svg viewBox="0 0 640 132" role="img" aria-label="Six value chips side by side. A plain 14. A 16 with a small dot, changed by hand. A 15 with an up caret, raised for now. A 12 with a down caret, lowered for now. A dashed box holding 2d10 plus 6, waiting for dice. A 9 underlined with a warning mark, outside a limit.">
+  <!-- plain -->
+  <rect x="12" y="14" width="88" height="44" rx="3" class="w-zone"/>
+  <text x="56" y="43" text-anchor="middle" style="font-size:20px">14</text>
+  <text x="56" y="80" text-anchor="middle" class="b">Plain</text>
+  <text x="56" y="94" text-anchor="middle" class="sm">as the rules</text>
+  <text x="56" y="106" text-anchor="middle" class="sm">say</text>
+  <!-- hand -->
+  <rect x="118" y="14" width="88" height="44" rx="3" class="w-zone"/>
+  <text x="162" y="43" text-anchor="middle" style="font-size:20px">16</text>
+  <circle cx="194" cy="24" r="4" class="s-arr-a"/>
+  <text x="162" y="80" text-anchor="middle" class="b">Dot</text>
+  <text x="162" y="94" text-anchor="middle" class="sm">changed by</text>
+  <text x="162" y="106" text-anchor="middle" class="sm">hand</text>
+  <!-- raised -->
+  <rect x="224" y="14" width="88" height="44" rx="3" class="w-zone"/>
+  <text x="264" y="43" text-anchor="middle" style="font-size:20px">15</text>
+  <path d="M290 40 l6 -9 l6 9 z" class="s-arr"/>
+  <text x="268" y="80" text-anchor="middle" class="b">Up caret</text>
+  <text x="268" y="94" text-anchor="middle" class="sm">raised for now</text>
+  <text x="268" y="106" text-anchor="middle" class="sm">by a state or gear</text>
+  <!-- lowered -->
+  <rect x="330" y="14" width="88" height="44" rx="3" class="w-zone"/>
+  <text x="370" y="43" text-anchor="middle" style="font-size:20px">12</text>
+  <path d="M396 31 l6 9 l6 -9 z" class="s-arr"/>
+  <text x="374" y="80" text-anchor="middle" class="b">Down caret</text>
+  <text x="374" y="94" text-anchor="middle" class="sm">lowered for now</text>
+  <text x="374" y="106" text-anchor="middle" class="sm">wound, stun, cost</text>
+  <!-- pending -->
+  <rect x="436" y="14" width="88" height="44" rx="3" class="w-ghost"/>
+  <text x="480" y="41" text-anchor="middle" style="font-size:14px">2d10+6</text>
+  <text x="480" y="80" text-anchor="middle" class="b">Dashed</text>
+  <text x="480" y="94" text-anchor="middle" class="sm">waiting for</text>
+  <text x="480" y="106" text-anchor="middle" class="sm">dice</text>
+  <!-- warn -->
+  <rect x="542" y="14" width="88" height="44" rx="3" class="w-zone"/>
+  <text x="580" y="43" text-anchor="middle" style="font-size:20px">9</text>
+  <line x1="566" y1="49" x2="594" y2="49" style="stroke:var(--warn);stroke-width:2"/>
+  <text x="608" y="36" class="warn b" style="font-size:14px">!</text>
+  <text x="586" y="80" text-anchor="middle" class="b">Underline</text>
+  <text x="586" y="94" text-anchor="middle" class="sm">outside a limit,</text>
+  <text x="586" y="106" text-anchor="middle" class="sm">allowed anyway</text>
+</svg>
+<figcaption>Marks · the same five wherever a value appears</figcaption>
+</figure>
+<div class="plate"><div class="cap">The marks</div><div class="scroll"><table>
+<thead><tr><th style="width:120px">Mark</th><th style="width:210px">Means</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td><strong>Dot</strong></td><td>Changed by hand somewhere in its working.</td><td>Wins over every other mark, because it is the one a table argues about. A value derived from a hand-changed value carries the dot too, so a hand change is never hidden one level down.</td></tr>
+<tr><td><strong>Up caret</strong></td><td>Above its lasting value for now.</td><td>A stim, a bonus for this roll, a state. Goes when the effect ends.</td></tr>
+<tr><td><strong>Down caret</strong></td><td>Below its lasting value for now.</td><td>A wound, a stun, a degraded item, pips spent.</td></tr>
+<tr><td><strong>Dashed</strong></td><td>Contains dice nobody has rolled yet.</td><td>Shown as the expression. Reading it never rolls.</td></tr>
+<tr><td><strong>Underline</strong></td><td>Outside a limit the rules know about.</td><td>A rating of 9, a fifth program on a four-slot deck, a gate not met. Reported, never refused.</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>A value can carry the dot and one other mark. Two carets cannot both apply; the net direction shows.</li>
+<li>The marks use no pool colour. The dot is the accent colour; the underline is the warning colour; carets and dashes are ink.</li>
+</ul>
+<div class="why"><b>Why so few marks</b>
+<p>A sheet full of coloured badges stops being read. Five marks answer the three questions a player has about a number they did not expect: did someone change it, is it temporary, and is it finished. Everything else is in the explanation.</p></div>
+</section>
+
+<section>
+<h2>Three depths</h2>
+<div class="plate"><div class="cap">How far a player looks</div><div class="scroll"><table>
+<thead><tr><th style="width:120px">Depth</th><th style="width:150px">Reached by</th><th style="width:250px">Shows</th><th>Who it is for</th></tr></thead>
+<tbody>
+<tr><td><strong>Glance</strong></td><td>Looking at the sheet</td><td>The value and its mark.</td><td>Everyone, all the time.</td></tr>
+<tr><td><strong>Explanation</strong></td><td>One tap on the value</td><td>The value in a sentence, a bar of what adds up to it, one row per contribution, and the controls to change it. In the detail panel.</td><td>The player who wants to know why, and anyone changing it.</td></tr>
+<tr><td><strong>Working</strong></td><td>"Show the working" in the explanation</td><td>The full tree, opened a level at a time, including what does not count and why.</td><td>The GM settling an argument. The rules author checking content.</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>The explanation always fits the detail panel without scrolling for a typical value: up to six contributions. More collapse into "and 3 more", one tap to open.</li>
+<li>The working opens one level per tap. It is never shown all at once.</li>
+<li>Selecting another value replaces the panel's content. The panel keeps a short back trail, so following a contribution to its own source and back is two taps.</li>
+</ul>
+<div class="why"><b>Why the sentence comes before the numbers</b>
+<p>"Eleven: your Firearms, your pistol training, your gear, the stim, and two the GM gave you for the position" answers the question most players actually ask. The bar shows proportion at a glance. Only someone who wants the arithmetic needs the rows, and only someone checking the rules needs the tree.</p></div>
+</section>
+
+<section>
+<h2>The explanation</h2>
+<figure>
+<svg viewBox="0 0 640 380" role="img" aria-label="The detail panel explaining the rating for a pistol shot. The value 11 with a hand-change dot, and the note that the rules say 9. A sentence. A segmented bar: Firearms 4, Pistols 2, Smartlink 1, Match barrel 1, Stim 1, and a hatched segment of 2 from the GM. Six rows list each contribution with its origin and a control: a switch for gear and states, a cross for the hand change. A struck-through row shows a laser sight that does not count because gear bonuses stop at plus 2. Buttons at the bottom: Set, Add, Back to rules, Show the working.">
+  <defs><pattern id="vh2" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" class="s-ln"/></pattern></defs>
+  <rect x="10" y="8" width="620" height="364" rx="3" class="w-zone"/>
+  <text x="24" y="30" class="b">RATING · SHOOT · HEAVY PISTOL</text><text x="616" y="30" text-anchor="end" class="sm">ADDED TO 2D10 WHEN YOU SHOOT</text>
+  <line x1="24" y1="38" x2="616" y2="38" class="s-thin"/>
+  <text x="24" y="76" style="font-size:30px">11</text><circle cx="64" cy="54" r="4" class="s-arr-a"/>
+  <text x="80" y="62" class="sm">RULES SAY 9</text><text x="80" y="76" class="sm acc">+2 BY HAND · GM · THIS ROLL</text>
+  <text x="250" y="62">Your Firearms, your pistol training, your</text>
+  <text x="250" y="76">gear and the stim, plus two from the GM.</text>
+  <!-- bar: 25px per point -->
+  <rect x="24" y="92" width="100" height="22" class="s-bar-2"/><text x="74" y="107" text-anchor="middle" class="b">4</text>
+  <rect x="125" y="92" width="49" height="22" class="s-bar"/><text x="149" y="107" text-anchor="middle" class="b">+2</text>
+  <rect x="175" y="92" width="24" height="22" class="s-bar"/><text x="187" y="107" text-anchor="middle" class="b">1</text>
+  <rect x="200" y="92" width="24" height="22" class="s-bar"/><text x="212" y="107" text-anchor="middle" class="b">1</text>
+  <rect x="225" y="92" width="24" height="22" class="s-bar"/><text x="237" y="107" text-anchor="middle" class="b">1</text>
+  <rect x="250" y="92" width="49" height="22" class="s-ln" style="fill:url(#vh2)"/>
+  <rect x="300" y="92" width="24" height="22" class="w-ghost"/>
+  <text x="24" y="128" class="sm">SKILL</text><text x="125" y="128" class="sm">TRAINING</text><text x="175" y="128" class="sm">GEAR</text><text x="250" y="128" class="sm">HAND</text><text x="300" y="128" class="sm">SET ASIDE</text>
+  <line x1="24" y1="140" x2="616" y2="140" class="s-thin"/>
+  <!-- rows -->
+  <text x="24" y="160" class="b">Firearms</text><text x="200" y="160" text-anchor="end">4</text><text x="220" y="160" class="sm">YOUR SKILL</text>
+  <text x="24" y="184" class="b">Pistols</text><text x="200" y="184" text-anchor="end">+2</text><text x="220" y="184" class="sm">SPECIALISATION</text>
+  <text x="24" y="208" class="b">Smartlink</text><text x="200" y="208" text-anchor="end">+1</text><text x="220" y="208" class="sm">GEAR · SMARTLINK OPTIC, VIA CYBER-EYES</text>
+  <rect x="566" y="198" width="30" height="14" rx="7" class="w-zone-a"/><circle cx="588" cy="205" r="5" class="s-arr-a"/>
+  <text x="24" y="232" class="b">Match barrel</text><text x="200" y="232" text-anchor="end">+1</text><text x="220" y="232" class="sm">GEAR · BARREL SLOT</text>
+  <rect x="566" y="222" width="30" height="14" rx="7" class="w-zone-a"/><circle cx="588" cy="229" r="5" class="s-arr-a"/>
+  <text x="24" y="256" class="b">Stim</text><text x="200" y="256" text-anchor="end">+1</text><text x="220" y="256" class="sm">STATE · ENDS TURN 5</text>
+  <rect x="566" y="246" width="30" height="14" rx="7" class="w-zone-a"/><circle cx="588" cy="253" r="5" class="s-arr-a"/>
+  <text x="24" y="280" class="b">Good position</text><circle cx="112" cy="276" r="3" class="s-arr-a"/><text x="200" y="280" text-anchor="end">+2</text><text x="220" y="280" class="sm">BY HAND · GM · THIS ROLL</text>
+  <text x="590" y="281" text-anchor="middle" class="b">✕</text>
+  <text x="24" y="304" class="sm">Laser sight</text><text x="200" y="304" text-anchor="end" class="sm">+1</text><text x="220" y="304" class="sm">DOES NOT COUNT · GEAR BONUSES STOP AT +2</text>
+  <line x1="24" y1="301" x2="210" y2="301" class="s-thin"/>
+  <line x1="24" y1="318" x2="616" y2="318" class="s-thin"/>
+  <!-- buttons -->
+  <rect x="24" y="330" width="70" height="26" rx="2" class="w-zone-a"/><text x="59" y="347" text-anchor="middle" class="acc b">SET</text>
+  <rect x="102" y="330" width="70" height="26" rx="2" class="w-zone-a"/><text x="137" y="347" text-anchor="middle" class="acc b">ADD</text>
+  <rect x="180" y="330" width="120" height="26" rx="2" class="w-zone"/><text x="240" y="347" text-anchor="middle" class="b">BACK TO RULES</text>
+  <text x="616" y="347" text-anchor="end" class="b">SHOW THE WORKING ›</text>
+</svg>
+<figcaption>The explanation · one tap on any value, in the detail panel</figcaption>
+</figure>
+<ul>
+<li><strong>Header:</strong> what the value is, and in a few words what it is for. "Added to 2d10 when you shoot." No rule names.</li>
+<li><strong>Value:</strong> large, with its mark. If set or adjusted by hand, the rules' value sits beside it: "rules say 9".</li>
+<li><strong>Sentence:</strong> the contributions in words, biggest first, hand changes last and named as such.</li>
+<li><strong>Bar:</strong> one segment per contribution, width by size. Lasting parts are grey, temporary parts are accent, hand changes are hatched. Penalties hang below the line. Something set aside shows as a dashed outline where it would have been.</li>
+<li><strong>Rows:</strong> one per contribution: name, amount, origin in words, how long it lasts, and one control.
+<ul>
+<li>A switch on anything that can be set aside: gear, a state, an effect. Switching it off is a hand change.</li>
+<li>A cross on a hand change, to take it back.</li>
+<li>Nothing on what the character is: a skill or an attribute. Those change with Set or Add.</li>
+<li>Tapping a row's name opens that contribution's own explanation, with a back trail.</li>
+</ul></li>
+<li><strong>What does not count</strong> is listed, struck through, with the reason in words. A player can see the laser sight is wasted.</li>
+<li><strong>Buttons:</strong> Set, Add, Back to rules (only when something was changed by hand), Show the working.</li>
+</ul>
+</section>
+
+<section>
+<h2>Changing a value</h2>
+<div class="rule"><b>Four verbs, and they mean the same thing everywhere</b>
+<p>Set it to a number. Add to it. Set a contribution aside. Put it back to what the rules say. Every change by hand is one of these four.</p></div>
+<div class="plate"><div class="cap">The four verbs</div><div class="scroll"><table>
+<thead><tr><th style="width:130px">Verb</th><th style="width:220px">The GM says</th><th style="width:200px">What happens</th><th>Engine</th></tr></thead>
+<tbody>
+<tr><td><strong>Set</strong></td><td>"Your Health is 12." "Just make it sixteen."</td><td>The value becomes that number. The rules' value stays visible beside it. Contributions still show, marked as set aside by the change.</td><td>Override by hand</td></tr>
+<tr><td><strong>Add</strong></td><td>"Plus two for the smoke." "Take one off for the noise."</td><td>A new named contribution, hatched, with how long it lasts.</td><td>Adjust by hand, with a name and a lifespan</td></tr>
+<tr><td><strong>Set aside</strong></td><td>"The stim doesn't help here." "Forget the cover."</td><td>One contribution stops counting, struck through, with "by hand" as the reason. Asks once: here only, or the source everywhere.</td><td>Switch the state or item off by hand; a single mod needs a switch of its own</td></tr>
+<tr><td><strong>Back to rules</strong></td><td>"Scrap that."</td><td>Every hand change on this value goes. One at a time is the cross on its row.</td><td>Undo the changes made by hand on the value</td></tr>
+</tbody></table></div></div>
+<figure>
+<svg viewBox="0 0 640 300" role="img" aria-label="The change pad in the detail panel. A toggle between Set to and Add, with Add selected. A large plus 2 between minus and plus buttons, and a small keypad. On the right, chips for why: GM call selected, House rule, Me, Type a reason. Chips for how long: This roll selected, This turn, Until time passes, Until removed. A line showing the result: rating 9 to 11, odds Fair to Likely. An apply button reading Add plus 2, GM call, this roll.">
+  <rect x="10" y="8" width="620" height="284" rx="3" class="w-zone"/>
+  <text x="24" y="30" class="b">CHANGE · RATING · SHOOT · HEAVY PISTOL</text><text x="616" y="30" text-anchor="end" class="sm">NOW 9</text>
+  <line x1="24" y1="38" x2="616" y2="38" class="s-thin"/>
+  <!-- toggle -->
+  <rect x="24" y="50" width="90" height="24" rx="2" class="w-zone"/><text x="69" y="66" text-anchor="middle">SET TO</text>
+  <rect x="114" y="50" width="90" height="24" rx="2" class="w-now"/><text x="159" y="66" text-anchor="middle" class="acc b">ADD</text>
+  <!-- stepper -->
+  <rect x="24" y="88" width="44" height="44" rx="3" class="w-zone"/><text x="46" y="117" text-anchor="middle" style="font-size:22px">−</text>
+  <text x="114" y="122" text-anchor="middle" style="font-size:32px">+2</text>
+  <rect x="160" y="88" width="44" height="44" rx="3" class="w-zone"/><text x="182" y="117" text-anchor="middle" style="font-size:22px">+</text>
+  <!-- keypad -->
+  <g>
+    <rect x="24" y="146" width="56" height="24" rx="2" class="w-zone"/><text x="52" y="162" text-anchor="middle">1</text>
+    <rect x="86" y="146" width="56" height="24" rx="2" class="w-zone"/><text x="114" y="162" text-anchor="middle">2</text>
+    <rect x="148" y="146" width="56" height="24" rx="2" class="w-zone"/><text x="176" y="162" text-anchor="middle">3</text>
+    <rect x="24" y="174" width="56" height="24" rx="2" class="w-zone"/><text x="52" y="190" text-anchor="middle">4</text>
+    <rect x="86" y="174" width="56" height="24" rx="2" class="w-zone"/><text x="114" y="190" text-anchor="middle">5</text>
+    <rect x="148" y="174" width="56" height="24" rx="2" class="w-zone"/><text x="176" y="190" text-anchor="middle">6</text>
+    <rect x="24" y="202" width="56" height="24" rx="2" class="w-zone"/><text x="52" y="218" text-anchor="middle">7</text>
+    <rect x="86" y="202" width="56" height="24" rx="2" class="w-zone"/><text x="114" y="218" text-anchor="middle">8</text>
+    <rect x="148" y="202" width="56" height="24" rx="2" class="w-zone"/><text x="176" y="218" text-anchor="middle">9</text>
+    <rect x="24" y="230" width="56" height="24" rx="2" class="w-zone"/><text x="52" y="246" text-anchor="middle">±</text>
+    <rect x="86" y="230" width="56" height="24" rx="2" class="w-zone"/><text x="114" y="246" text-anchor="middle">0</text>
+    <rect x="148" y="230" width="56" height="24" rx="2" class="w-zone"/><text x="176" y="246" text-anchor="middle">⌫</text>
+  </g>
+  <line x1="226" y1="50" x2="226" y2="254" class="s-thin"/>
+  <!-- why -->
+  <text x="244" y="62" class="sm">WHY</text>
+  <rect x="244" y="70" width="74" height="22" rx="11" class="w-now"/><text x="281" y="85" text-anchor="middle" class="acc b">GM call</text>
+  <rect x="324" y="70" width="84" height="22" rx="11" class="w-zone"/><text x="366" y="85" text-anchor="middle">House rule</text>
+  <rect x="414" y="70" width="44" height="22" rx="11" class="w-zone"/><text x="436" y="85" text-anchor="middle">Me</text>
+  <rect x="464" y="70" width="110" height="22" rx="11" class="w-ghost"/><text x="519" y="85" text-anchor="middle" class="sm">Type a reason…</text>
+  <text x="244" y="108" class="sm">NAME</text><text x="290" y="108">Good position</text><line x1="290" y1="112" x2="460" y2="112" class="s-thin"/>
+  <!-- how long -->
+  <text x="244" y="134" class="sm">HOW LONG</text>
+  <rect x="244" y="142" width="74" height="22" rx="11" class="w-now"/><text x="281" y="157" text-anchor="middle" class="acc b">This roll</text>
+  <rect x="324" y="142" width="74" height="22" rx="11" class="w-zone"/><text x="361" y="157" text-anchor="middle">This turn</text>
+  <rect x="404" y="142" width="116" height="22" rx="11" class="w-zone"/><text x="462" y="157" text-anchor="middle">Until time passes</text>
+  <rect x="526" y="142" width="90" height="22" rx="11" class="w-zone"/><text x="571" y="157" text-anchor="middle">Until removed</text>
+  <!-- result -->
+  <text x="244" y="188" class="sm">RESULT</text>
+  <text x="244" y="206">Rating 9 → 11</text><text x="370" y="206">Odds Fair → Likely</text>
+  <text x="244" y="222" class="sm">THE GM'S +2 SHOWS HATCHED IN THE BAR AND AS A DOT ON THE ACTION</text>
+  <!-- apply -->
+  <line x1="24" y1="264" x2="616" y2="264" class="s-thin"/>
+  <text x="24" y="282" class="b">CANCEL</text>
+  <rect x="404" y="268" width="212" height="20" rx="2" class="w-zone-a"/><text x="510" y="282" text-anchor="middle" class="acc b">ADD +2 · GM CALL · THIS ROLL</text>
+</svg>
+<figcaption>The change pad · Set or Add, why, how long, and the result before applying</figcaption>
+</figure>
+<ul>
+<li>The pad opens in the detail panel in place of the explanation. Nothing else on the sheet is covered; the turn, the pips and the ledger stay live.</li>
+<li><strong>Set to</strong> starts at the current value. <strong>Add</strong> starts at 0. The stepper is for the common case of one or two; the keypad is for "make it 22".</li>
+<li><strong>Why</strong> defaults to <em class="t">GM call</em>, because that is most of them. The reason becomes the change's name everywhere it shows.</li>
+<li><strong>How long</strong> defaults to the shortest sensible lifespan: this roll for a value in an action, until removed for a value of the character. The words are the sheet's usual durations.</li>
+<li><strong>Result</strong> shows the value before and after, and the odds word for any action it changes. After applying, the sheet briefly outlines every other value that moved, and the panel lists them: "Also changed: Defence floor, odds on 3 actions".</li>
+<li>Applying is immediate and undoable. There is no "are you sure".</li>
+<li>Expert shortcut: a long press on any value opens the pad directly, skipping the explanation.</li>
+</ul>
+<div class="why"><b>Why the reason and the duration are asked every time</b>
+<p>A hand change without a reason is the "number with no explanation" the transparency rule calls a defect, just made by a person. Two default chips cost no taps when accepted, and they are what makes the list of changes readable three sessions later. The duration matters because a GM's "+2 for the smoke" should not still be there next week.</p></div>
+</section>
+
+<section>
+<h2>Rolls and judgements in progress</h2>
+<div class="rule"><b>Every term of a roll is a value. So is the result.</b>
+<p>A roll in progress is laid out as its terms: the dice, the rating, the difficulty. Each is a value with its marks and its explanation. The result and the band it lands in are values too, and the GM can call them.</p></div>
+<figure>
+<svg viewBox="0 0 640 262" role="img" aria-label="A roll in progress for a pistol shot at a guard. Three term chips: 2d10, dashed, waiting; rating 11 with a hand-change dot; difficulty 15 from the target panel. Below, the dice entry: Roll for me, or type the dice, showing 11 typed. The total 22 against 15, margin plus 7, and a band chip reading Strong with a Call it control offering Miss, Hit, Strong, Exceptional, Fumble. A row of GM controls: Skip the roll, Change the dice, Redo the roll.">
+  <rect x="10" y="8" width="620" height="246" rx="3" class="w-zone"/>
+  <text x="24" y="30" class="b">SHOOT · HEAVY PISTOL · GUARD</text><text x="616" y="30" text-anchor="end" class="sm">NORMAL PACE · 2 PIPS</text>
+  <line x1="24" y1="38" x2="616" y2="38" class="s-thin"/>
+  <!-- terms -->
+  <rect x="24" y="50" width="100" height="40" rx="3" class="w-ghost"/><text x="74" y="76" text-anchor="middle" style="font-size:18px">2d10</text>
+  <text x="140" y="76" style="font-size:18px">+</text>
+  <rect x="160" y="50" width="100" height="40" rx="3" class="w-zone"/><text x="210" y="76" text-anchor="middle" style="font-size:18px">11</text><circle cx="250" cy="58" r="4" class="s-arr-a"/>
+  <text x="280" y="76" style="font-size:14px">against</text>
+  <rect x="350" y="50" width="100" height="40" rx="3" class="w-zone"/><text x="400" y="76" text-anchor="middle" style="font-size:18px">15</text>
+  <text x="74" y="104" text-anchor="middle" class="sm">DICE · BY PACE</text>
+  <text x="210" y="104" text-anchor="middle" class="sm">RATING · +2 BY HAND</text>
+  <text x="400" y="104" text-anchor="middle" class="sm">DIFFICULTY · TARGET PANEL</text>
+  <line x1="24" y1="116" x2="616" y2="116" class="s-thin"/>
+  <!-- dice entry -->
+  <text x="24" y="138" class="sm">THE DICE</text>
+  <rect x="24" y="146" width="110" height="24" rx="2" class="w-zone-a"/><text x="79" y="162" text-anchor="middle" class="acc b">ROLL FOR ME</text>
+  <rect x="142" y="146" width="90" height="24" rx="2" class="w-now"/><text x="187" y="162" text-anchor="middle" class="b">TYPED · 11</text>
+  <!-- result -->
+  <text x="270" y="138" class="sm">RESULT</text>
+  <text x="270" y="164" style="font-size:16px">22 against 15 · +7</text>
+  <rect x="452" y="146" width="80" height="24" rx="2" class="w-now"/><text x="492" y="162" text-anchor="middle" class="acc b">STRONG</text>
+  <text x="540" y="162" class="b">CALL IT ▾</text>
+  <rect x="452" y="174" width="164" height="22" rx="2" class="w-ghost"/>
+  <text x="458" y="189" class="sm">FUMBLE · MISS · HIT · STRONG · EXCEPT.</text>
+  <line x1="24" y1="208" x2="616" y2="208" class="s-thin"/>
+  <!-- GM row -->
+  <text x="24" y="232" class="b">SKIP THE ROLL · CALL IT</text>
+  <text x="220" y="232" class="b">CHANGE THE DICE</text>
+  <text x="360" y="232" class="b">REDO THE ROLL</text>
+  <text x="616" y="232" text-anchor="end" class="sm">EACH IS A CHANGE BY HAND</text>
+</svg>
+<figcaption>A roll in progress · every term, the dice and the outcome can be changed</figcaption>
+</figure>
+<div class="plate"><div class="cap">What can be done to a roll</div><div class="scroll"><table>
+<thead><tr><th style="width:170px">Control</th><th style="width:250px">The GM says</th><th>What happens</th></tr></thead>
+<tbody>
+<tr><td><strong>A term</strong></td><td>"Difficulty's eighteen, it's darker than you think."</td><td>Tap the term: its explanation, with Set and Add. Same pad as any value.</td></tr>
+<tr><td><strong>Change the dice</strong></td><td>"Roll a d20 for this one."</td><td>The dice term set by hand. The pace's dice stay shown beside it. Any whole-sum expression is accepted.</td></tr>
+<tr><td><strong>Type the dice</strong></td><td>"I rolled eleven."</td><td>The dice result, not the total. Bonuses are added by the sheet.</td></tr>
+<tr><td><strong>Redo the roll</strong></td><td>"Roll that again."</td><td>Clears the dice and asks again. The old result is kept in the working, struck through.</td></tr>
+<tr><td><strong>Call it</strong></td><td>"Call that a strong hit."</td><td>The band set by hand. Everything the band drives follows: damage step, location choice, time saved.</td></tr>
+<tr><td><strong>Skip the roll</strong></td><td>"You just do it."</td><td>No dice. The GM picks the band. The same as the certainty rule, by fiat, and marked as such.</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>Changes to a roll last for that roll unless the pad says otherwise. They do not leak into the next shot.</li>
+<li>A change after the result has been used, such as calling a hit after damage was applied, offers to redo the steps that used it. It never redoes them silently.</li>
+<li>Incoming numbers work the same way. The four slots of an incoming hit, a reaction total typed from across the table and the target panel's numbers are all values with the same pad.</li>
+</ul>
+<div class="why"><b>Why "call it" is a first-class control</b>
+<p>At a paper table the GM's most common ruling is not a number, it is a verdict: "that works", "near miss", "you nail it". Making the band itself changeable lets the sheet follow the GM's word without anyone reverse-engineering a modifier to land on it.</p></div>
+</section>
+
+<section>
+<h2>The working</h2>
+<figure>
+<svg viewBox="0 0 640 236" role="img" aria-label="The full working for the rating, as an indented tree. The total 11. Firearms 4 opened to show its starting value 4. Pistols plus 2. A gear line showing three gear bonuses totalling 3, capped at 2, opened to show smartlink, match barrel and a struck-through laser sight. Stim plus 1 from the Stimmed state, turns 3 to 5. Good position plus 2 by hand, GM call, this roll. A struck-through old roll of 6, redone.">
+  <rect x="10" y="8" width="620" height="220" rx="3" class="w-zone"/>
+  <text x="24" y="30" class="b">THE WORKING · RATING · SHOOT · HEAVY PISTOL</text><text x="616" y="30" text-anchor="end" class="sm">‹ BACK</text>
+  <line x1="24" y1="38" x2="616" y2="38" class="s-thin"/>
+  <text x="24" y="58" class="b">11</text><text x="60" y="58">Rating for this shot</text>
+  <text x="40" y="78">▾ 4</text><text x="90" y="78">Firearms · your skill</text>
+  <text x="64" y="94" class="sm">4   STARTING VALUE · BOUGHT AT CREATION</text>
+  <text x="40" y="114">▸ +2</text><text x="90" y="114">Pistols · specialisation</text>
+  <text x="40" y="134">▾ +2</text><text x="90" y="134">Gear · three bonuses, +3, stop at +2</text>
+  <text x="64" y="150" class="sm">+1  SMARTLINK OPTIC · NEEDS LINK · LINK FROM CYBER-EYES</text>
+  <text x="64" y="164" class="sm">+1  MATCH BARREL · BARREL SLOT</text>
+  <text x="64" y="178" class="sm">+1  LASER SIGHT · DOES NOT COUNT · OVER THE CAP</text><line x1="64" y1="175" x2="300" y2="175" class="s-thin"/>
+  <text x="40" y="198">▸ +1</text><text x="90" y="198">Stim · state Stimmed · turn 3 to turn 5</text>
+  <text x="40" y="218">▸ +2</text><text x="90" y="218">Good position · by hand · GM call · this roll</text><circle cx="378" cy="214" r="3" class="s-arr-a"/>
+</svg>
+<figcaption>The working · the full tree, opened one level per tap</figcaption>
+</figure>
+<ul>
+<li>Each line is a contribution: its amount, its name, and its origin in words: your skill, an item and its slot, a state with its turns, an action and its step, a change by hand with its reason.</li>
+<li>A calculation shows what went in, what came out and the rules author's one-line description of it: "three bonuses, +3, stop at +2".</li>
+<li>Things that do not count stay in the tree, struck through, with the reason: expired, not started, switched off, set aside by hand, over a cap, replaced.</li>
+<li>Inside turn tracking, effects that have ended are still shown with the turn they ended. Outside it they are gone, and the working says "history is not kept outside counted turns".</li>
+<li>Every line can be tapped to open its own explanation, with the same controls. The working is a way to find a value, not a separate editor.</li>
+</ul>
+</section>
+
+<section>
+<h2>Seeing what was changed</h2>
+<figure>
+<svg viewBox="0 0 640 214" role="img" aria-label="The turn strip with a hand-change badge reading 3, next to the pending roll badge. Below, the detail panel lists the three changes made by hand: turn 3, rating for the pistol shot, plus 2, GM call, this roll; turn 3, Bleeding switched off, GM call; before counting turns, Health set to 14 with the rules saying 16, house rule. Each row has Undo. A Show on sheet switch is on.">
+  <rect x="10" y="8" width="620" height="30" rx="3" class="w-frame"/>
+  <text x="24" y="27" class="b">‹ TURN 3 · YOUR TURN ›</text>
+  <rect x="470" y="14" width="66" height="18" rx="9" class="w-zone"/><text x="503" y="27" text-anchor="middle" class="sm">1 ROLL</text>
+  <rect x="544" y="14" width="76" height="18" rx="9" class="w-zone-a"/><circle cx="558" cy="23" r="4" class="s-arr-a"/><text x="590" y="27" text-anchor="middle" class="acc b">3 BY HAND</text>
+  <path d="M582 40 l0 10" class="s-ln"/>
+  <rect x="10" y="52" width="620" height="154" rx="3" class="w-zone"/>
+  <text x="24" y="72" class="b">CHANGED BY HAND · 3</text>
+  <text x="520" y="72" text-anchor="end" class="sm">SHOW ON SHEET</text><rect x="530" y="62" width="30" height="14" rx="7" class="w-zone-a"/><circle cx="552" cy="69" r="5" class="s-arr-a"/>
+  <line x1="24" y1="80" x2="616" y2="80" class="s-thin"/>
+  <text x="24" y="100" class="sm">TURN 3</text><text x="100" y="100">Rating · shoot · heavy pistol</text><text x="330" y="100">+2 · GM call · this roll</text><text x="616" y="100" text-anchor="end" class="b">UNDO</text>
+  <text x="24" y="124" class="sm">TURN 3</text><text x="100" y="124">Bleeding</text><text x="330" y="124">switched off · GM call</text><text x="616" y="124" text-anchor="end" class="b">UNDO</text>
+  <text x="24" y="148" class="sm">BEFORE TURNS</text><text x="100" y="148">Health</text><text x="330" y="148">set to 14 · rules 16 · house rule</text><text x="616" y="148" text-anchor="end" class="b">UNDO</text>
+  <line x1="24" y1="160" x2="616" y2="160" class="s-thin"/>
+  <text x="24" y="178" class="sm">GOING BACK A TURN FORGETS THE CHANGES MADE AFTER IT.</text>
+  <text x="24" y="194" class="sm">TAP A ROW TO JUMP TO THE VALUE.</text>
+  <text x="616" y="186" text-anchor="end" class="b">UNDO ALL ›</text>
+</svg>
+<figcaption>Changes by hand · a badge on the turn strip, a list in the detail panel</figcaption>
+</figure>
+<ul>
+<li><strong>Badge:</strong> the turn strip shows a count of changes by hand, next to the pending rolls count. Tapping it lists them in the detail panel, newest first, with when, what, how much, why, and Undo.</li>
+<li><strong>The list includes everything done by hand:</strong> values set or adjusted, contributions set aside, states switched on or off, results called, rolls skipped, durations changed.</li>
+<li><strong>Show on sheet:</strong> a lens. While on, every value with a hand change is outlined and everything else is dimmed. For the GM asking "what have you changed?"</li>
+<li><strong>Ledger:</strong> a change made during turn tracking shows as a dot on its turn's column, so the timeline shows when the table stepped outside the rules.</li>
+<li><strong>Going back:</strong> going back to a turn forgets the changes made after it, and the confirmation lists them, as it already lists actions and rolls.</li>
+<li>Changes that last (a house rule on Health) are kept with the sheet and survive saving and handover. A handed-over item carries its hand changes and their reasons.</li>
+</ul>
+</section>
+
+<section>
+<h2>What can be changed</h2>
+<div class="plate"><div class="cap">Every kind of value · the same tap, the same verbs</div><div class="scroll"><table>
+<thead><tr><th style="width:170px">Value</th><th style="width:220px">Example</th><th style="width:150px">Verbs</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>Attribute, skill rating</td><td>Body 3, Firearms 4</td><td>Set, Add</td><td>Set by hand outside play is how a GM adjusts a character after the fact.</td></tr>
+<tr><td>Derived score</td><td>Defence, Health, Soak, Concealment on EM</td><td>Set, Add, Set aside, Back</td><td>Set aside works on its contributions, not on the score.</td></tr>
+<tr><td>Pool and pips</td><td>Tempo 6, a pip back</td><td>Set, Add</td><td>A pip given back by hand carries the dot in the pool row.</td></tr>
+<tr><td>Cost of an action</td><td>Shoot costs 2</td><td>Set, Add</td><td>For this action or for good.</td></tr>
+<tr><td>Dice term</td><td>2d10, 1d10 + 5</td><td>Set, Back</td><td>Any whole-sum expression. The pace's dice stay visible.</td></tr>
+<tr><td>Dice result</td><td>Rolled 11</td><td>Type, Redo, Clear</td><td>The result of the dice, never the total.</td></tr>
+<tr><td>Difficulty, target numbers</td><td>Defence 14, a chip</td><td>Set, Add, Set aside</td><td>A chip is a contribution and can be set aside.</td></tr>
+<tr><td>Outcome</td><td>Strong hit</td><td>Call it, Skip the roll</td><td>Drives everything the band drives.</td></tr>
+<tr><td>Incoming hit</td><td>Ten ballistic, left leg</td><td>Set each slot</td><td>Damage, type, location, stun, band.</td></tr>
+<tr><td>Effect or state</td><td>Stim, Bleeding, Wounded</td><td>Switch on or off, change how long</td><td>Duration changes use the same duration words.</td></tr>
+<tr><td>Extended task</td><td>Progress 3 of 6, tolerance 1</td><td>Set, Add</td><td>How outside-turns time is rolled back by hand.</td></tr>
+<tr><td>Item value</td><td>Damage 8, Armour 4, charges</td><td>Set, Add, Set aside</td><td>A component can be set aside without removing it.</td></tr>
+</tbody></table></div></div>
+</section>
+
+<section>
+<h2>Limits and warnings</h2>
+<ul>
+<li>A value outside a limit the rules know about carries the underline. Its explanation says which limit and why, in words: "Rating 9 · the human ceiling is 8 · allowed".</li>
+<li>The pad never refuses a number. It shows the limit beside the result line and applies anyway.</li>
+<li>A value set by hand stays set until it is taken back, even when its contributions change underneath it. The rules' value keeps moving beside it, so the table can see the two drift apart.</li>
+<li>The only question the sheet asks is when a change cannot be cleanly taken back, such as calling a result after its damage was applied. The question names what else will change.</li>
+</ul>
+</section>
+
+<section>
+<h2>The GM at the table</h2>
+<div class="plate"><div class="cap">Common rulings, as taps</div><div class="scroll"><table>
+<thead><tr><th style="width:230px">The GM says</th><th style="width:260px">The player does</th><th class="n">Taps</th></tr></thead>
+<tbody>
+<tr><td>"Plus two for that."</td><td>Long press the rating · + · + · Apply</td><td class="n">4</td></tr>
+<tr><td>"Make it eighteen."</td><td>Tap the difficulty · Set · 1 · 8 · Apply</td><td class="n">5</td></tr>
+<tr><td>"The cover doesn't count."</td><td>Tap the difficulty · switch off the cover row</td><td class="n">2</td></tr>
+<tr><td>"You just do it."</td><td>Skip the roll · pick the band</td><td class="n">2</td></tr>
+<tr><td>"Call it a strong hit."</td><td>Call it · Strong</td><td class="n">2</td></tr>
+<tr><td>"Forget the bleeding."</td><td>Tap Bleeding in the running lane · switch off</td><td class="n">2</td></tr>
+<tr><td>"That stim lasts one more turn."</td><td>Tap the bar · how long · +1 turn</td><td class="n">3</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>The GM can say it and the player taps, or the GM can take the tablet. Nothing tells them apart except the reason chip.</li>
+<li>No ruling needs a menu. Every one starts by tapping the thing the GM is talking about.</li>
+</ul>
+</section>
+
+<section>
+<h2>What it needs from the rest</h2>
+<ul>
+<li>Engine, exists: describe a value, an action, a state and an object; override and adjust by hand with the mark; list hand changes; undo one; switch states and sets by hand; a name on a mod; lifespans on mods.</li>
+<li>Engine, small: switch a single mod off by hand, so one contribution can be set aside without switching off its source.</li>
+<li>Engine, small: change a mod's lifespan by hand, for "one more turn".</li>
+<li>Engine, small: put state switches made by hand in the same list as value changes. Already a listed gap.</li>
+<li>Engine, small: undo the hand changes on one value, or all of them, as a group. Already a listed gap.</li>
+<li>Engine, medium: when a value used by a finished step changes, report which steps used it, so the sheet can offer to redo them. Already a listed gap.</li>
+<li>System: the band of an action's outcome is a value the outcome step reads, so it can be called by hand.</li>
+<li>Sheet: the explanation, the pad, the marks, the lens and the badge. None of it needs another device.</li>
+</ul>
+</section>
+
+<section>
+<h2>Still open</h2>
+<div class="open"><b>Open: house rules that apply to everyone</b>
+<p>A hand change belongs to one value on one sheet. A table that decides "Health is 12 + 2 × Body here" is changing a rule, not a value, for every character. Whether that is a sheet setting, a content edit, or simply a hand change on each sheet is not decided.</p></div>
+<div class="open"><b>Open: changes without the GM</b>
+<p>The sheet cannot tell a GM's change from a player's, and the vision says it never refuses. Whether a table can choose a softer guard, such as a hand change made with "Me" as the reason showing in a different weight, is not decided.</p></div>
+<div class="open"><b>Open: words in the working</b>
+<p>The working uses plain words built by the engine. Whether it should ever show the engine's own kinds (base, override, temporary) for a rules author, behind a setting, is not decided.</p></div>
+</section>
+</main>
+<footer><span>System 14 — Values</span><span>docs/system · one concern per document</span></footer>
+</div>
+</body>
+</html>

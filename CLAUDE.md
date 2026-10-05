@@ -14,14 +14,14 @@ so the players and the GM do not need to understand them.
   - `docs/DESCRIBE_PLAN.md`: describing values, actions, states and mod sets.
   - `docs/BROWSER_SPIKE.md`: the engine running in a browser, with sizes and timings.
   - `docs/CMS_PORT.md`: the CMS on Umbraco 18 and the new engine, and the command layer.
-- `docs/system/` is the design of the cyberpunk game system being built on the engine. Thirteen linked HTML
+- `docs/system/` is the design of the cyberpunk game system being built on the engine. Fifteen linked HTML
   documents and a shared `_style.css`; start at `index.html`. Read the relevant document before writing
   any rules code for that system. The engine documents above still govern the engine.
 
 ## The game system documents
 
 `docs/system/` holds design intent, not implementation plans. One concern per document: `index`, `rolls`,
-`pace`, `tempo`, `cooperation`, `gear`, `scenes`, `engine`, `sheet`, `targets`, `character`, `signature`, `items`. The `engine` document is the only one that
+`pace`, `tempo`, `cooperation`, `gear`, `scenes`, `engine`, `sheet`, `targets`, `character`, `signature`, `items`, `damage`, `values`. The `engine` document is the only one that
 talks about code: it maps each rule to an engine construct and lists what the engine does not do yet.
 
 House rules for that folder:

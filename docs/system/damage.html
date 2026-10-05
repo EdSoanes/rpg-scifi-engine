@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Damage · System</title>
+<meta name="description" content="Damage as a fixed number moved by margin, hit location chosen by margin, armour by location and damage type, Health and wounds, stun, critical hits and fumbles.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="_style.css">
+</head>
+<body>
+<div class="wrap">
+<nav class="docnav"><a href="index.html">Index</a><a href="rolls.html">Rolls</a><a href="pace.html">Pace</a><a href="tempo.html">Tempo</a><a href="cooperation.html">Cooperation</a><a href="gear.html">Gear</a><a href="scenes.html">Scenes</a><a href="engine.html">Engine</a><a href="sheet.html">Sheet</a><a href="targets.html">Targets</a><a href="character.html">Character</a><a href="signature.html">Signature</a><a href="items.html">Items</a><a href="damage.html" aria-current="page">Damage</a><a href="values.html">Values</a></nav>
+<header class="hdr">
+  <div class="no">System 13 · Core mechanics</div>
+  <h1>Damage</h1>
+  <p class="scope">What a hit does. Fixed damage moved by margin, hit location chosen by margin, armour by location and damage type, Health and wounds, stun on Tempo, critical hits and fumbles.</p>
+</header>
+<main>
+
+<section>
+<h2>The principle</h2>
+<div class="rule"><b>One roll settles the hit. Margin decides where and how bad.</b>
+<p>There is no damage roll and no location roll. The attack's margin band sets the damage step, who chooses where the hit lands, and whether it is a critical. Health is the fuse that says when a character goes down. Wounds are what the hit did to them, and they last.</p></div>
+<ul>
+<li>The lethality target is gritty: two or three solid hits put an unarmoured person down. Armour matters a great deal, and so does what it does not cover.</li>
+<li>Wounds cost pips, pace and capability. They never add a penalty to the dice.</li>
+<li>The defender's sheet applies everything that reduces a hit: Soak, armour, cover. The attacker only says what arrived.</li>
+</ul>
+<div class="why"><b>Why no damage roll</b>
+<p>The attack roll already has a wide spread of outcomes, and its margin already moves the effect. A second roll would double the pending rolls per hit and blur the thing a player should feel, which is that a better shot hurts more. A fixed number also lets the sheet preview the result before anyone commits: "a strong hit puts him down".</p></div>
+</section>
+
+<section>
+<h2>Damage</h2>
+<div class="rule"><b>Damage is a rung on a ladder</b>
+<p>A weapon's damage is a number on the damage ladder. A strong hit moves it up one rung, an exceptional hit two. Anything that changes an effect "one step" moves one rung.</p></div>
+<div class="plate"><div class="cap">The damage ladder</div><div class="scroll"><table>
+<thead><tr><th>Rung</th><th class="n">1</th><th class="n">2</th><th class="n">3</th><th class="n">4</th><th class="n">5</th><th class="n">6</th><th class="n">8</th><th class="n">10</th><th class="n">12</th><th class="n">15</th><th class="n">18</th><th class="n">22</th><th class="n">26</th><th class="n">30</th></tr></thead>
+<tbody><tr><td>Feels like</td><td colspan="4" class="dim">Fists, shock, a graze</td><td colspan="3" class="dim">Pistols, blades</td><td colspan="3" class="dim">Rifles, heavy blades</td><td colspan="4" class="dim">Snipers, explosives, vehicle weapons</td></tr></tbody>
+</table></div></div>
+<ul>
+<li>The ladder is tight at the bottom and wide at the top. A step matters at every size of weapon.</li>
+<li>A Degraded weapon is one rung down. A strength servo or a hot load is one rung up. Margin, condition and components all move the same ladder.</li>
+<li>Melee and thrown weapons add steps from Body: Body 1–2 adds nothing, 3–5 adds one step, 6 or more adds two.</li>
+<li>Every hit has a damage type. The type decides how armour works against it and what a critical does.</li>
+</ul>
+<div class="plate"><div class="cap">Weapons · first values</div><div class="scroll"><table>
+<thead><tr><th style="width:190px">Weapon</th><th class="n" style="width:80px">Damage</th><th style="width:110px">Type</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>Unarmed</td><td class="n">2</td><td>Blunt</td><td>Plus Body steps. A Body 3 punch is 3. Stun 1, jolt.</td></tr>
+<tr><td>Knife</td><td class="n">4</td><td>Blade</td><td>Plus Body steps.</td></tr>
+<tr><td>Club, baton</td><td class="n">4</td><td>Blunt</td><td>Plus Body steps.</td></tr>
+<tr><td>Sword, katana</td><td class="n">6</td><td>Blade</td><td>Plus Body steps. A Body 3 cut is 8.</td></tr>
+<tr><td>Taser</td><td class="n">1</td><td>Shock</td><td>Short range. Stun 4 for 3 turns.</td></tr>
+<tr><td>Light pistol</td><td class="n">6</td><td>Ballistic</td><td></td></tr>
+<tr><td>Heavy pistol</td><td class="n">8</td><td>Ballistic</td><td></td></tr>
+<tr><td>Shotgun</td><td class="n">12</td><td>Ballistic</td><td>Short range. One rung down per band beyond.</td></tr>
+<tr><td>Assault rifle</td><td class="n">10</td><td>Ballistic</td><td>Armour-piercing rounds make it Piercing.</td></tr>
+<tr><td>Laser rifle</td><td class="n">10</td><td>Energy</td><td>No muzzle flash. Thermal +2 on firing.</td></tr>
+<tr><td>Flamer</td><td class="n">8</td><td>Fire</td><td>Short range.</td></tr>
+<tr><td>Sniper rifle</td><td class="n">15</td><td>Ballistic</td><td></td></tr>
+<tr><td>Grenade</td><td class="n">15</td><td>Blast</td><td>Everyone in the area is a separate attack from the same roll.</td></tr>
+</tbody></table></div></div>
+<div class="why"><b>Why a ladder and not a dice expression</b>
+<p>"One step" has to mean the same thing for a margin, a degraded part and a modification, or the mirrors break. Rungs make a step one word. They also keep the numbers small enough to say out loud. From 4 upwards each rung is roughly a fifth to a third bigger than the last, so one step is worth about the same at every size of weapon.</p></div>
+</section>
+
+<section>
+<h2>Hit location</h2>
+<div class="rule"><b>The band says who chooses</b>
+<p>A plain hit lands where the defender lets it. A good hit lands where the attacker wants it. Only an exceptional hit reaches the head.</p></div>
+<div class="plate"><div class="cap">Location by margin band</div><div class="scroll"><table>
+<thead><tr><th style="width:150px">Band</th><th style="width:250px">Who picks the location</th><th style="width:110px">Damage</th><th>Also</th></tr></thead>
+<tbody>
+<tr><td><strong>Success</strong> 0 to +4</td><td>The <strong>defender</strong>: torso, an arm or a leg</td><td>Weapon's rung</td><td>Heavy cover takes it first.</td></tr>
+<tr><td><strong>Strong</strong> +5 to +9</td><td>The <strong>attacker</strong>: torso, an arm or a leg</td><td>One rung up</td><td>Found the gap. Cover does not help.</td></tr>
+<tr><td><strong>Exceptional</strong> +10 or more</td><td>The <strong>attacker</strong>: any location, including the head</td><td>Two rungs up</td><td>A <strong>critical</strong>.</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>Six locations: head, torso, left arm, right arm, left leg, right leg. They are spoken as words.</li>
+<li><strong>Head:</strong> damage one rung up. A head hit is never a plain hit; it is the attacker's choice.</li>
+<li><strong>Limbs:</strong> Health lost from one hit to an arm or a leg is capped at the wound threshold. The rest of the damage still counts towards the wound.</li>
+<li><strong>Called shot:</strong> declared before the roll. Each step of difficulty (+3) moves the choice of location up one band. A called head shot is +6. Damage and the critical still come from the real margin.</li>
+<li><strong>Heavy cover:</strong> a hit in the success band strikes the cover first. The cover's own armour comes off the damage before the defender's Soak and armour. A car door is 4, brick 10, an engine block 12. A strong or exceptional hit went round it.</li>
+<li>The defender's sheet shows what each location would do before they pick: "torso · 2 · arm · 2 · leg · 6".</li>
+</ul>
+<div class="why"><b>Why the defender picks on a plain hit</b>
+<p>A narrow hit is a defender who nearly got out of the way and twisted so the round took the arm. Letting them choose puts that moment in their hands, uses armour coverage as a real decision, and needs no table. The attacker earns the choice with margin. A random location table would make the expert sniper and the panicked guard equally likely to hit a head. With margin, the head belongs to the shooter who earned it, or who paid for it with a called shot.</p></div>
+<div class="why"><b>Why cap limb damage</b>
+<p>A shot to the leg should cripple, not kill. The cap means limb hits make wounds without draining Health as fast as torso hits, so "shoot him in the leg" is a real tactical choice and not a worse way of killing someone.</p></div>
+</section>
+
+<section>
+<h2>Soak and armour</h2>
+<ul>
+<li><strong>Damage taken</strong> = damage − Soak − armour at that location (after the damage type), never below 0.</li>
+<li><strong>Soak</strong> comes from Body and applies everywhere: Body 1–2 is 1, 3–5 is 2, 6 or more is 3. Implants can add Soak to a location.</li>
+<li><strong>Armour</strong> is one number per item, with the locations it covers and a kind: soft, hard or insulated. Worn pieces do not stack on the same location; the best one counts.</li>
+<li>Armour wears. A hit that gets through armour ticks its wear, as for any item.</li>
+</ul>
+<div class="plate"><div class="cap">How much armour counts · by damage type and armour kind</div><div class="scroll"><table>
+<thead><tr><th style="width:120px">Damage type</th><th style="width:90px">Soft</th><th style="width:90px">Hard</th><th style="width:90px">Insulated</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td>Ballistic</td><td>Full</td><td>Full</td><td>Full</td><td>Bullets</td></tr>
+<tr><td>Piercing</td><td>Half</td><td>Half</td><td>Half</td><td>Armour-piercing rounds, flechettes, mono-edges</td></tr>
+<tr><td>Blade</td><td>Half</td><td>Full</td><td>Half</td><td>Knives, swords, cyber-claws</td></tr>
+<tr><td>Blunt</td><td>Full</td><td>Full</td><td>Full</td><td>Fists, batons, falls</td></tr>
+<tr><td>Energy</td><td>Half</td><td>Full</td><td>Half</td><td>Lasers</td></tr>
+<tr><td>Fire</td><td>None</td><td>Half</td><td>Full</td><td>Flamers, burning fuel</td></tr>
+<tr><td>Shock</td><td>None</td><td>None</td><td>Full</td><td>Tasers, live cables</td></tr>
+<tr><td>Blast</td><td>Full</td><td>Full</td><td>Full</td><td>Grenades, charges. The torso armour counts, whatever the location.</td></tr>
+</tbody></table></div></div>
+<div class="plate"><div class="cap">Armour · first values</div><div class="scroll"><table>
+<thead><tr><th style="width:190px">Armour</th><th class="n" style="width:80px">Armour</th><th style="width:90px">Kind</th><th>Covers</th></tr></thead>
+<tbody>
+<tr><td>Armoured clothing</td><td class="n">2</td><td>Soft</td><td>Torso, arms, legs. Concealable.</td></tr>
+<tr><td>Armoured jacket</td><td class="n">4</td><td>Soft</td><td>Torso, arms</td></tr>
+<tr><td>Ballistic vest, plates</td><td class="n">6</td><td>Hard</td><td>Torso. Bulky.</td></tr>
+<tr><td>Helmet</td><td class="n">4</td><td>Hard</td><td>Head. Optical +1 and visible.</td></tr>
+<tr><td>Riot armour</td><td class="n">6</td><td>Hard</td><td>Everything. Bulky, loud: Acoustic +1.</td></tr>
+<tr><td>Fire suit</td><td class="n">4</td><td>Insulated</td><td>Everything</td></tr>
+</tbody></table></div></div>
+<div class="why"><b>Why one armour number and a kind</b>
+<p>A full resistance profile on every piece is eight numbers no one reads. Three kinds of armour against eight damage types gives the real cyberpunk trade-offs: the jacket that stops bullets and not knives, the plate that stops knives, the AP round that halves everything. The type also travels as one spoken word.</p></div>
+</section>
+
+<section>
+<h2>Health and wounds</h2>
+<div class="rule"><b>Every hit takes Health. A big hit also leaves a wound.</b>
+<p>Health is how much punishment a character absorbs before going down. A wound is a named injury at a location with an effect that lasts until it is treated.</p></div>
+<ul>
+<li><strong>Health</strong> = 10 + 2 × Body. Body 3 is 16; Body 5 is 20.</li>
+<li><strong>Wound threshold</strong> = Body + 4. Body 3 is 7.</li>
+<li>Damage taken from one hit of at least the threshold is a <strong>Serious</strong> wound at that location. At least twice the threshold is <strong>Critical</strong>.</li>
+<li>A critical hit raises the severity one tier: no wound becomes Serious, Serious becomes Critical.</li>
+<li>A second Serious wound at the same location makes it Critical.</li>
+</ul>
+<div class="plate"><div class="cap">Wounds by location</div><div class="scroll"><table>
+<thead><tr><th style="width:90px">Location</th><th style="width:300px">Serious</th><th>Critical</th></tr></thead>
+<tbody>
+<tr><td><strong>Head</strong></td><td><strong>Dazed.</strong> Focus −1 until treated.</td><td><strong>Out cold.</strong> Down, whatever Health is left. Dying.</td></tr>
+<tr><td><strong>Torso</strong></td><td><strong>Winded.</strong> Tempo −1 until treated.</td><td><strong>Gut shot.</strong> Down. Dying.</td></tr>
+<tr><td><strong>Arm</strong></td><td><strong>Impaired.</strong> Actions using that arm cost +1 pip. Two-handed actions included.</td><td><strong>Disabled.</strong> Drops what it holds. Unusable until treated. Bleeding.</td></tr>
+<tr><td><strong>Leg</strong></td><td><strong>Hobbled.</strong> Move halved. No Rushed movement.</td><td><strong>Down.</strong> Cannot stand; crawls one pip per metre. Bleeding.</td></tr>
+<tr><td><strong>Cyberlimb</strong></td><td>The limb is <strong>Degraded</strong>. No Health lost.</td><td>The limb is <strong>Failed</strong>. No Health lost. Repair, not medicine.</td></tr>
+</tbody></table></div></div>
+<ul>
+<li><strong>Bleeding</strong> is a state: −1 Health at the start of each of the character's turns until first aid stops it. It leaves a trail that Investigate can follow.</li>
+<li>Each untreated Serious or Critical wound adds Acoustic +1 to signature, up to +2. Pain is loud.</li>
+<li>Wound effects stack. Two Winded wounds on different hits cannot happen at one location, but an arm and a torso wound both count.</li>
+<li>The sheet shows wounds as conditions in the ledger with their cost: <em class="t">WOUNDED · −1 TEMPO</em>.</li>
+</ul>
+<div class="why"><b>Why wounds cost pips and not dice</b>
+<p>A −2 on every roll makes wounded characters fail more, which makes fights spiral and puts experts below the certainty line for reasons nobody can see. Losing a pip makes a wounded character slower, which the turn strip shows at a glance, and keeps the dice honest. "He is hit, he is slower" is also what the fiction says.</p></div>
+<div class="why"><b>Why a Health pool as well as wounds</b>
+<p>Wounds alone make light hits meaningless and every hit a table lookup. Health lets the stream of grazes add up to "down" without inventing a wound for each, and keeps the wound list short enough to matter.</p></div>
+</section>
+
+<section>
+<h2>Down, dying, dead</h2>
+<ul>
+<li><strong>Down</strong> at Health 0 or below. A down character can talk, crawl and take Rushed actions costing 1 pip. Nothing else.</li>
+<li><strong>Dying</strong> when down with a Critical wound or with Health below 0. A dying character is Bleeding.</li>
+<li><strong>Dead</strong> when Health reaches minus the wound threshold. Body 3 dies at −7.</li>
+<li>First aid that succeeds makes a dying character <strong>stable</strong>: still down, no longer bleeding.</li>
+<li>Outside turn tracking, a dying character not stabilised by the next interval is dead.</li>
+</ul>
+<div class="why"><b>Why the threshold is also the death line</b>
+<p>It gives a down character a clock measured in turns that the whole table can see: a Body 3 character at 0 has seven turns of bleeding. That is long enough for the medic to reach them and short enough to make it the scene.</p></div>
+</section>
+
+<section>
+<h2>Stun</h2>
+<div class="rule"><b>A stun takes pips, for a time</b>
+<p>A stun is a number of pips and a duration. The pips are missing from the pool each time it refreshes, for as long as the duration lasts. Health is not touched. A stunned character is not hurt; they are slow.</p></div>
+<ul>
+<li>A weapon or effect states its <strong>Stun</strong> in pips and its <strong>duration</strong>. Many weapons do damage and stun; some only stun.</li>
+<li>Stun takes <strong>Tempo</strong>. A stun that hits the mind, such as a flashbang's disorientation or feedback through a datajack, takes Focus instead and says so. The rules are the same.</li>
+<li>Margin moves stun as it moves damage: a strong hit adds 1 pip, an exceptional hit adds 2 pips and makes the duration one step longer.</li>
+<li>Soak never reduces stun. Armour stops it only where it stops the type outright: insulated armour stops shock, a sealed suit or filter stops gas. A dart has to break the skin: armour of 2 or more at the location stops it.</li>
+<li>Stuns add up. Each is its own entry in the ledger's running lane with its own end: <em class="t">TASER · −4 TEMPO · 2 TURNS LEFT</em>.</li>
+<li><strong>Knocked out:</strong> when stunned pips reach the character's full pool, they are down until the longest stun ends. Down from stun is never dying.</li>
+<li>A new stun interrupts a multi-turn action, as damage does.</li>
+</ul>
+<div class="plate"><div class="cap">Duration</div><div class="scroll"><table>
+<thead><tr><th style="width:110px">Duration</th><th style="width:200px">Lasts</th><th>Examples</th></tr></thead>
+<tbody>
+<tr><td><strong>Jolt</strong></td><td>The next turn only</td><td>A heavy punch, a baton, the shove of a blast</td></tr>
+<tr><td><strong>Turns</strong> <em class="t">n</em></td><td>n turns, counting down at the start of each</td><td>Taser 3, stun baton 2, gel round 2, flashbang 2</td></tr>
+<tr><td><strong>Minutes</strong></td><td>Until time passes, or the next interval</td><td>Tranquilliser, nerve gas</td></tr>
+<tr><td><strong>Hours</strong></td><td>Until the next hour interval</td><td>Knock-out drugs, a heavy neural shock</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>One step longer is one row down. An exceptional jolt lasts 2 turns.</li>
+<li>Outside turn tracking pips do nothing. A Minutes or Hours stun shows as the condition <em class="t">STUNNED</em> with its end, and a knocked-out character stays out until it ends. Jolt and Turns stuns end when turn tracking ends.</li>
+<li><strong>Shake it off:</strong> an action. Resist, costing 1 Focus: the mind fighting the body. Hard against a Turns stun, Very hard against Minutes, Extreme against Hours. A success ends the stun at the start of the next turn; a strong success ends it now and the pips return this turn. A jolt cannot be shaken off. It cannot go badly.</li>
+</ul>
+<div class="plate"><div class="cap">Stun weapons · first values</div><div class="scroll"><table>
+<thead><tr><th style="width:170px">Weapon</th><th style="width:150px">Damage</th><th class="n" style="width:70px">Stun</th><th style="width:100px">Duration</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>Unarmed</td><td>2 blunt + Body steps</td><td class="n">1</td><td>Jolt</td><td>Body 6 or more: Stun 2.</td></tr>
+<tr><td>Club, baton</td><td>4 blunt + Body steps</td><td class="n">1</td><td>Jolt</td><td></td></tr>
+<tr><td>Stun baton</td><td>2 shock</td><td class="n">3</td><td>Turns 2</td><td>Needs power.</td></tr>
+<tr><td>Taser</td><td>1 shock</td><td class="n">4</td><td>Turns 3</td><td>Short range. One shot, then reload.</td></tr>
+<tr><td>Gel rounds</td><td>Weapon's, two rungs down, blunt</td><td class="n">2</td><td>Turns 2</td><td>Ammunition for any pistol or shotgun.</td></tr>
+<tr><td>Flashbang</td><td>None</td><td class="n">3 Focus</td><td>Turns 2</td><td>Area. No Optical or Acoustic sense for the duration unless gear compensates.</td></tr>
+<tr><td>Tranquilliser dart</td><td>1 piercing</td><td class="n">3</td><td>Minutes</td><td>Armour 2 or more at the location stops it.</td></tr>
+<tr><td>Nerve gas</td><td>None</td><td class="n">4</td><td>Minutes</td><td>Area, while the cloud lasts. Filters stop it.</td></tr>
+</tbody></table></div></div>
+<div class="plate"><div class="cap">Chance a single attack knocks the target out · exact · shooter rating 4 at Normal pace against Defence 13</div><div class="scroll"><table>
+<thead><tr><th style="width:120px">Stun</th><th class="n">Pool 2</th><th class="n">Pool 3</th><th class="n">Pool 4</th><th class="n">Pool 6</th></tr></thead>
+<tbody>
+<tr><td>1 · punch</td><td class="n">28%</td><td class="n">3%</td><td class="n">0%</td><td class="n">0%</td></tr>
+<tr><td>2 · gel round</td><td class="n">72%</td><td class="n">28%</td><td class="n">3%</td><td class="n">0%</td></tr>
+<tr><td>3 · stun baton</td><td class="n">72%</td><td class="n">72%</td><td class="n">28%</td><td class="n">0%</td></tr>
+<tr><td>4 · taser</td><td class="n">72%</td><td class="n">72%</td><td class="n">72%</td><td class="n">3%</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>72% is every hit. A taser drops a baseline human whenever it lands. A wired samurai with Tempo 6 keeps 2 pips and fights on, unless the hit is exceptional.</li>
+<li>A punch almost never drops anyone on its own. It costs them a pip next turn, which is often the dodge they would have kept.</li>
+</ul>
+<div class="why"><b>Why stun takes pips</b>
+<p>Tempo is time within a turn. A stunned character loses time, not accuracy, which matches how wounds work and keeps the dice honest. The sheet already shows missing pips, so a stun needs no new display, only an origin and an end.</p></div>
+<div class="why"><b>Why a bigger pool resists stun</b>
+<p>The same taser that drops a guard only slows the chromed samurai. That is the genre, and it gives security a reason to carry lethal weapons for the heavily augmented. The Shock critical burns implants, which is the answer to chrome.</p></div>
+</section>
+
+<section>
+<h2>Critical hits</h2>
+<div class="rule"><b>A critical is an exceptional margin. Nothing else.</b>
+<p>No natural rolls and no confirm rolls. An exceptional hit gets two rungs of damage, any location, one tier of severity, and the effect of its damage type.</p></div>
+<div class="plate"><div class="cap">Critical effect · by damage type</div><div class="scroll"><table>
+<thead><tr><th style="width:120px">Type</th><th style="width:170px">Effect</th><th>What happens</th></tr></thead>
+<tbody>
+<tr><td>Ballistic</td><td><strong>Bleeding</strong></td><td>As the state. Even if no wound.</td></tr>
+<tr><td>Piercing</td><td><strong>Through armour</strong></td><td>Armour at that location does not count for this hit.</td></tr>
+<tr><td>Blade</td><td><strong>Opened up</strong></td><td>Bleeding at 2 Health per turn.</td></tr>
+<tr><td>Blunt</td><td><strong>Rung</strong></td><td>Stun 2, jolt, on top of any stun the weapon has.</td></tr>
+<tr><td>Energy</td><td><strong>Burned through</strong></td><td>Armour or an implant at that location becomes Degraded.</td></tr>
+<tr><td>Fire</td><td><strong>Alight</strong></td><td>Takes the hit again next turn, one rung down, until put out. Putting it out costs 1 Tempo, the character's or an ally's.</td></tr>
+<tr><td>Shock</td><td><strong>Overload</strong></td><td>Powered implants at that location become Degraded.</td></tr>
+<tr><td>Blast</td><td><strong>Thrown</strong></td><td>Knocked down. Stun 2, jolt. Deafened: no Acoustic sense for the scene.</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>A melee critical may take <strong>Disarm</strong> or <strong>Knock down</strong> instead of its type's effect. The attacker chooses.</li>
+<li>A critical to a cyberlimb takes the limb's condition two steps instead.</li>
+</ul>
+</section>
+
+<section>
+<h2>Fumbles</h2>
+<div class="rule"><b>A fumble is an attack's bad failure. The other side picks what goes wrong.</b>
+<p>A margin of −5 or worse. The attacker's sheet shows the weapon's complications; the opponent chooses one. When a player fumbles, the GM picks. When an opponent fumbles against a player, the player picks.</p></div>
+<div class="plate"><div class="cap">Complications · by weapon class</div><div class="scroll"><table>
+<thead><tr><th style="width:120px">Class</th><th style="width:140px">Complication</th><th>What happens</th></tr></thead>
+<tbody>
+<tr><td rowspan="3">Firearm</td><td><strong>Jam</strong></td><td>No more shots until cleared: 2 Tempo, no roll. The weapon ticks wear.</td></tr>
+<tr><td><strong>Stray</strong></td><td>The round goes somewhere else. Anyone in the line of fire is hit at the weapon's rung on a flat d10 of 1–3.</td></tr>
+<tr><td><strong>Exposed</strong></td><td>Optical +4 for a turn. Everyone who could see the flash knows where the shooter is.</td></tr>
+<tr><td rowspan="3">Melee, unarmed</td><td><strong>Overextended</strong></td><td>Defence is 11 until the character's next turn, whatever their Evasion.</td></tr>
+<tr><td><strong>Disarmed</strong></td><td>The weapon lands at short range.</td></tr>
+<tr><td><strong>Off balance</strong></td><td>Tempo −1 next turn.</td></tr>
+<tr><td rowspan="2">Thrown</td><td><strong>Scatter</strong></td><td>Lands one range band short, where the opponent says.</td></tr>
+<tr><td><strong>Dud</strong></td><td>Lands, does nothing yet. Live at the end of the next turn.</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>A reaction can cause a fumble. A parry or dodge that leaves the attack at −5 or worse is how a riposte happens: the defender picks Overextended or Disarmed.</li>
+<li>A task that cannot go badly cannot fumble. The certainty rule and Careful pace both take fumbles off the table, and the sheet says so.</li>
+</ul>
+<div class="why"><b>Why the opponent picks</b>
+<p>It mirrors the defender picking location on a plain hit: when the margin is near the line, the other side gets the choice. It removes the fumble table roll, and it gives the player on the receiving end of a bad attack something to do.</p></div>
+<div class="plate"><div class="cap">Chance of a fumble, a critical and who picks location · exact, from the distribution</div><div class="scroll"><table>
+<thead><tr><th style="width:80px" class="n">Need</th><th style="width:100px">Pace</th><th class="n">Fumble</th><th class="n">Miss</th><th class="n">Defender picks</th><th class="n">Attacker picks</th><th class="n">Critical</th></tr></thead>
+<tbody>
+<tr><td class="n">7</td><td>Rushed</td><td class="n">10%</td><td class="n">20%</td><td class="n">25%</td><td class="n">25%</td><td class="n">20%</td></tr>
+<tr><td class="n"></td><td>Normal</td><td class="n">1%</td><td class="n">14%</td><td class="n">40%</td><td class="n">35%</td><td class="n">10%</td></tr>
+<tr><td class="n"></td><td>Careful</td><td class="n">0%</td><td class="n">10%</td><td class="n">50%</td><td class="n">40%</td><td class="n">0%</td></tr>
+<tr><td class="n">9</td><td>Rushed</td><td class="n">20%</td><td class="n">20%</td><td class="n">25%</td><td class="n">25%</td><td class="n">10%</td></tr>
+<tr><td class="n"></td><td>Normal</td><td class="n">6%</td><td class="n">22%</td><td class="n">44%</td><td class="n">25%</td><td class="n">3%</td></tr>
+<tr><td class="n"></td><td>Careful</td><td class="n">0%</td><td class="n">30%</td><td class="n">50%</td><td class="n">20%</td><td class="n">0%</td></tr>
+<tr><td class="n">11</td><td>Rushed</td><td class="n">30%</td><td class="n">20%</td><td class="n">25%</td><td class="n">25%</td><td class="n">0%</td></tr>
+<tr><td class="n"></td><td>Normal</td><td class="n">15%</td><td class="n">30%</td><td class="n">40%</td><td class="n">15%</td><td class="n">0%</td></tr>
+<tr><td class="n"></td><td>Careful</td><td class="n">10%</td><td class="n">40%</td><td class="n">50%</td><td class="n">0%</td><td class="n">0%</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>Need is difficulty minus rating. A professional (4) shooting an average target (Defence 13) needs 9.</li>
+<li>Criticals live at Rushed pace and against outclassed targets. Careful pace never crits unless the need is 5 or less, and only fumbles when the need is 11 or more. The paces already say this; damage just gives it consequences.</li>
+</ul>
+</section>
+
+<section>
+<h2>The exchange, spoken</h2>
+<ul>
+<li>The attacker says the band, the damage, the type and the location: <em class="t">"Hit, strong. Ten ballistic, left leg."</em> Four slots on the defender's incoming-hit panel.</li>
+<li>On a success band the location is <em class="t">"your pick"</em>. The defender's sheet shows the outcome for each location and the player taps one.</li>
+<li>A critical is said as the band: <em class="t">"Critical. Twelve ballistic, head."</em> The defender's sheet applies the type's effect.</li>
+<li>A stun is a second short phrase: <em class="t">"Hit. One shock, torso. Stun four, three turns."</em> The duration is spoken because the defender's sheet cannot know the weapon.</li>
+<li>A fumble is said as <em class="t">"Fumble"</em>, and the attacker reads out the choices.</li>
+<li>The defender's sheet holds Soak, armour coverage, cover and wounds, so it does all the reducing. The armour the GM spoke for the target panel is for the attacker's preview only.</li>
+</ul>
+<div class="why"><b>Why the defender's sheet does the arithmetic</b>
+<p>Only the defender's sheet knows which locations its armour covers, what kind it is and what is already wounded. Saying raw damage keeps the spoken sentence at four tokens and puts every reduction where describe can explain it.</p></div>
+</section>
+
+<section>
+<h2>Recovery</h2>
+<div class="plate"><div class="cap">Treatment · first values</div><div class="scroll"><table>
+<thead><tr><th style="width:150px">Treatment</th><th style="width:230px">Task</th><th>Result</th></tr></thead>
+<tbody>
+<tr><td><strong>First aid</strong></td><td>Medicine, Routine. Focus 3. Gate: medkit. Rushed not allowed.</td><td>Stops bleeding. Stabilises the dying. Restores the medkit's heal value in Health, once per character per scene. Strong: heal one step up.</td></tr>
+<tr><td><strong>Treat a Serious wound</strong></td><td>Medicine, Hard. Extended, interval day, work total 3. Indivisible.</td><td>The wound is gone.</td></tr>
+<tr><td><strong>Treat a Critical wound</strong></td><td>Medicine, Very hard. Extended, interval day, work total 6, tolerance 1. Gate: clinic.</td><td>Becomes a Serious wound. Running out of tolerance makes the wound permanent until replaced with chrome.</td></tr>
+<tr><td><strong>Rest</strong></td><td>No roll</td><td>Health returns by Body each day.</td></tr>
+<tr><td><strong>Untreated Serious</strong></td><td>Endurance, Hard. Extended, interval day, work total 6. The character's own rolls.</td><td>Heals by itself, slowly. A bad failure costs a point of progress.</td></tr>
+</tbody></table></div></div>
+<div class="why"><b>Why recovery is extended tasks</b>
+<p>The medic's job is a career, not a heal spell. Treatment takes days, gets safer with time, and is the scene where the medic is the one everyone waits for. A Critical wound left to a street doc is a real risk, and the chrome replacement is the genre's answer to it.</p></div>
+</section>
+
+<section>
+<h2>How hard it hits</h2>
+<div class="plate"><div class="cap">A heavy pistol (8, ballistic) hits a guard · Body 3, Health 16, Soak 2, threshold 7, armoured jacket 4 on torso and arms</div><div class="scroll"><table>
+<thead><tr><th style="width:120px">Band</th><th style="width:110px">Who picks</th><th>Options</th><th style="width:220px">Likely pick</th></tr></thead>
+<tbody>
+<tr><td>Success</td><td>Guard</td><td>Torso 2 · arm 2 · leg 6</td><td>Torso: 2 Health, no wound</td></tr>
+<tr><td>Strong</td><td>Shooter</td><td>Torso 4 · arm 4 · leg 8, capped at 7</td><td>Leg: 7 Health, Hobbled</td></tr>
+<tr><td>Exceptional</td><td>Shooter</td><td>Head 13 · leg 10, capped at 7</td><td>Head: 13 Health, Out cold. Dying.</td></tr>
+</tbody></table></div></div>
+<div class="plate"><div class="cap">Attacks and hits to put an average target down · simulated, 200 000 runs each · shooter rating 4 at Normal pace against Defence 13</div><div class="scroll"><table>
+<thead><tr><th style="width:200px">Weapon</th><th class="n">No armour</th><th class="n">Armoured jacket</th><th class="n">Jacket, plates, helmet</th></tr></thead>
+<tbody>
+<tr><td>Light pistol (6)</td><td class="n">4.9 attacks · 3.5 hits</td><td class="n">9.6 · 6.9</td><td class="n">10.7 · 7.7</td></tr>
+<tr><td>Heavy pistol (8)</td><td class="n">3.8 · 2.8</td><td class="n">6.1 · 4.4</td><td class="n">9.6 · 6.9</td></tr>
+<tr><td>Assault rifle (10)</td><td class="n">3.2 · 2.3</td><td class="n">4.8 · 3.5</td><td class="n">6.1 · 4.4</td></tr>
+<tr><td>Assault rifle, AP (10 piercing)</td><td class="n">3.2 · 2.3</td><td class="n">3.8 · 2.8</td><td class="n">4.3 · 3.1</td></tr>
+<tr><td>Katana, Body 3 (8 blade)</td><td class="n">3.8 · 2.8</td><td class="n">4.9 · 3.5</td><td class="n">9.6 · 6.9</td></tr>
+</tbody></table></div></div>
+<ul>
+<li>The defender picks the location that loses the least Health on a plain hit. The attacker picks the location that does the most on a strong or exceptional hit. A Critical torso or head wound counts as down.</li>
+<li>Unarmoured, a heavy pistol takes about three hits. A jacket nearly halves a pistol's damage, and the shooter starts aiming for the legs. AP rounds make armour almost irrelevant, which is why they are a gate item.</li>
+<li>The katana goes through soft armour and stops at plates. The knife-and-jacket trade-off works.</li>
+</ul>
+</section>
+
+<section>
+<h2>What it needs from the rest</h2>
+<ul>
+<li>Character: Health, wound threshold and Soak as derived scores, with their derivation shown.</li>
+<li>Items: weapons carry a rung and a damage type. Armour carries a value, a kind and the locations it covers.</li>
+<li>Sheet: an incoming-hit panel with four slots (band, damage, type, location), a per-location preview on a plain hit, and wounds as conditions in the ledger.</li>
+<li>Engine: a mod carries a location tag, so armour and Soak can be summed per location. This is the same small tag the signature channels need. Bleeding and Alight are recurring effects, the feature already planned. A stun is a negative mod on a pool with a lifespan of one turn, several turns or until time passes, all of which the engine has. Wounds are states with an origin. The location and type slots are enumerated inputs.</li>
+</ul>
+</section>
+
+<section>
+<h2>Still open</h2>
+<div class="open"><b>Open: autofire and area</b>
+<p>Whether a burst is one rung up for more ammunition, extra attacks from one roll, or a spray rule against several targets. Grenades assume one roll against every target in the area. Not decided.</p></div>
+<div class="open"><b>Open: vehicles and drones</b>
+<p>Whether vehicles take hits by location (engine, wheels, crew), or by Health plus condition like an item. Decide with the vehicle rules.</p></div>
+<div class="open"><b>Open: the numbers</b>
+<p>The ladder, the weapon rungs, Health of 10 + 2 × Body and a threshold of Body + 4 were chosen to meet the gritty target in the simulation above, not from play. The first fights will move them, and every table here is recomputed when they do.</p></div>
+</section>
+</main>
+<footer><span>System 13 — Damage</span><span>docs/system · one concern per document</span></footer>
+</div>
+</body>
+</html>

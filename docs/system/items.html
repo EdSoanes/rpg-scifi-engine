@@ -12,7 +12,7 @@
 </head>
 <body>
 <div class="wrap">
-<nav class="docnav"><a href="index.html">Index</a><a href="rolls.html">Rolls</a><a href="pace.html">Pace</a><a href="tempo.html">Tempo</a><a href="cooperation.html">Cooperation</a><a href="gear.html">Gear</a><a href="scenes.html">Scenes</a><a href="engine.html">Engine</a><a href="sheet.html">Sheet</a><a href="targets.html">Targets</a><a href="character.html">Character</a><a href="signature.html">Signature</a><a href="items.html" aria-current="page">Items</a></nav>
+<nav class="docnav"><a href="index.html">Index</a><a href="rolls.html">Rolls</a><a href="pace.html">Pace</a><a href="tempo.html">Tempo</a><a href="cooperation.html">Cooperation</a><a href="gear.html">Gear</a><a href="scenes.html">Scenes</a><a href="engine.html">Engine</a><a href="sheet.html">Sheet</a><a href="targets.html">Targets</a><a href="character.html">Character</a><a href="signature.html">Signature</a><a href="items.html" aria-current="page">Items</a><a href="damage.html">Damage</a><a href="values.html">Values</a></nav>
 <header class="hdr">
   <div class="no">System 12 · Core mechanics</div>
   <h1>Items</h1>
@@ -61,7 +61,7 @@
 <div class="why"><b>Why one schema</b>
 <p>A separate model for weapons, armour, decks and implants means four authoring forms, four sheet layouts and four places to fix the same bug. One schema means a new kind of gear is a template, not a feature. It is also what makes transparency free: every mod has the component and item as its origin, so the sheet already explains "+1 to hit, smartlink, needs link, provided by cyber-eyes" without anyone writing that sentence.</p></div>
 <div class="why"><b>Where this came from</b>
-<p>The shape is adapted from a video-game technology model with the physics removed. That model resolves watts, heat and pressure every tick; a table does not. What survives is the hierarchy, the idea that a component plugs into what the item provides without knowing about other components, the condition ladder with wear and damage as separate channels, and the principle that nothing fails invisibly. What went is efficiency, buses as quantities, materials, pressure windows and resistance tables. Every value here is a whole number, a dice expression or a word, because those are what a sheet shows and a player types.</p></div>
+<p>The shape is adapted from a video-game technology model with the physics removed. That model resolves watts, heat and pressure every tick; a table does not. What survives is the hierarchy, the idea that a component plugs into what the item provides without knowing about other components, the condition ladder with wear and damage as separate channels, and the principle that nothing fails invisibly. What went is efficiency, buses as quantities, materials, pressure windows and per-piece resistance tables; armour keeps only a kind. Every value here is a whole number, a dice expression or a word, because those are what a sheet shows and a player types.</p></div>
 </section>
 
 <section>
@@ -70,7 +70,7 @@
 <thead><tr><th style="width:150px">Field</th><th>Holds</th><th style="width:230px">Examples</th></tr></thead>
 <tbody>
 <tr><td><strong>Kind</strong></td><td>Which template it came from. Decides the sheet tab it appears on and its default slots.</td><td>Ranged weapon, melee weapon, armour, deck, implant, tool, consumable, vehicle, drone</td></tr>
-<tr><td><strong>Effect values</strong></td><td>The quantities the item sets. Whole numbers or dice. The gear job "how much".</td><td>Damage 2d6+2 · Soak 3 · Rating 5 · Heal 4 · Range bands 10/30/100/300 m</td></tr>
+<tr><td><strong>Effect values</strong></td><td>The quantities the item sets. Whole numbers or dice. The gear job "how much".</td><td>Damage 8 ballistic · Armour 4 soft, torso and arms · Stun 4 for 3 turns · Rating 5 · Heal 4 · Range bands 10/30/100/300 m</td></tr>
 <tr><td><strong>Satisfies</strong></td><td>Gate tags the item meets. The gear job "can I".</td><td><em class="t">medkit</em> · <em class="t">climbing-kit</em> · <em class="t">deck ≥ 4</em> · <em class="t">lockpicks</em></td></tr>
 <tr><td><strong>Actions</strong></td><td>Actions the carrier gains while the item is carried, worn or wielded.</td><td>Shoot · Reload · Stabilise · Jack in · Deploy</td></tr>
 <tr><td><strong>Tags</strong></td><td>Words the chips and scenes read.</td><td><em class="t">loud</em> · <em class="t">bulky</em> · <em class="t">illegal</em> · <em class="t">concealable</em> · <em class="t">two-handed</em></td></tr>
@@ -155,7 +155,7 @@
 <thead><tr><th style="width:130px">Stage</th><th>Effect</th><th style="width:230px">Signature</th></tr></thead>
 <tbody>
 <tr><td><strong>Nominal</strong></td><td>As written.</td><td>As written.</td></tr>
-<tr><td><strong>Degraded</strong></td><td>Effect values one step down. Malfunction on a flat d10 of 1 per use.</td><td>Powered: Thermal +1, Acoustic +1.</td></tr>
+<tr><td><strong>Degraded</strong></td><td>Effect values one step down: damage one rung down the damage ladder. Malfunction on a flat d10 of 1 per use.</td><td>Powered: Thermal +1, Acoustic +1.</td></tr>
 <tr><td><strong>Failed</strong></td><td>Mods and actions do not count. Shown as set aside.</td><td>Powered: EM +1 (fault beacon).</td></tr>
 <tr><td><strong>Destroyed</strong></td><td>Gone. Components may survive to be salvaged.</td><td>None.</td></tr>
 </tbody></table></div></div>
@@ -175,7 +175,7 @@
 <div class="plate"><div class="cap">Heavy pistol</div><div class="scroll"><table>
 <thead><tr><th style="width:150px">Level</th><th style="width:170px">Name</th><th>Does</th></tr></thead>
 <tbody>
-<tr><td>Item</td><td>Heavy pistol</td><td>Damage 2d6+2 · bands 10/30/60 m · Shoot (2 Tempo) · Reload (1) · tags <em class="t">concealable</em> <em class="t">loud</em> · Acoustic +4, Optical +1 on firing</td></tr>
+<tr><td>Item</td><td>Heavy pistol</td><td>Damage 8 ballistic · bands 10/30/60 m · Shoot (2 Tempo) · Reload (1) · tags <em class="t">concealable</em> <em class="t">loud</em> · Acoustic +4, Optical +1 on firing</td></tr>
 <tr><td>Slot · optic · offers link</td><td>Smartlink optic</td><td>Needs <em class="t">link</em>. Passive. +1 to hit (gear bonus). EM +1. Without a link implant: inert.</td></tr>
 <tr><td>Slot · barrel</td><td>Suppressor</td><td>Passive. Acoustic −2 on firing. Removes <em class="t">concealable</em>.</td></tr>
 <tr><td>Slot · magazine · required</td><td>Extended magazine 10mm</td><td>Offers <em class="t">ammo:10mm</em>. 15 charges. Shoot costs 1 charge. Tag <em class="t">bulky</em>.</td></tr>
@@ -215,12 +215,8 @@
 <li>Charges as a whole-number property spent in the cost step. Exists.</li>
 <li>Signature parts as channel-tagged mods. The same small addition the signature rules need.</li>
 </ul>
-<div class="open"><b>Open: what Degraded does to dice</b>
-<p>"One step down" on a damage expression needs a rule: 2d6+2 to 2d6, or to 1d6+2? It should be the same step the margin bands use when they improve an effect, so the two are mirrors. Decide with the damage rules.</p></div>
 <div class="open"><b>Open: vehicles and drones</b>
 <p>The schema fits them, with crew stations as slots and the rigger's link as a feed. Whether a vehicle needs hit locations (the dropped "part" level) is not decided and is not needed for personal gear.</p></div>
-<div class="open"><b>Open: resistances</b>
-<p>The source model has a resistance profile per damage type on every piece. It is a damage-model concern and waits for the injury rules rather than being designed into items now.</p></div>
 </section>
 </main>
 <footer><span>System 12 — Items</span><span>docs/system · one concern per document</span></footer>
